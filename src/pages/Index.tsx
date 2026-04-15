@@ -25,18 +25,18 @@ const Index = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-32 pb-20">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(217_91%_60%/0.08),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(82_93%_66%/0.06),transparent_60%)]" />
         <div className="container relative mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
               Copilote de croissance streamer
             </span>
             <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight text-foreground sm:text-5xl lg:text-6xl">
-              Comprends enfin pourquoi ta chaîne{" "}
-              <span className="gradient-primary-text">ne décolle pas</span>
+              Analyse ta chaîne Twitch et découvre{" "}
+              <span className="gradient-primary-text">quoi améliorer pour progresser</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-              Obtiens ton StreamScore, identifie des concurrents pertinents et reçois un plan d'action clair — en moins de 60 secondes.
+              Obtiens ton StreamScore, repère les concurrents les plus pertinents et reçois un plan d'action clair pour faire grandir ta chaîne.
             </p>
           </motion.div>
 
