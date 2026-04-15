@@ -29,14 +29,14 @@ const Index = () => {
         <div className="container relative mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
-              Streamer Growth Copilot
+              Copilote de croissance streamer
             </span>
             <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight text-foreground sm:text-5xl lg:text-6xl">
-              Know exactly why your channel{" "}
-              <span className="gradient-primary-text">isn't growing</span>
+              Comprends enfin pourquoi ta chaîne{" "}
+              <span className="gradient-primary-text">ne décolle pas</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-              Get your StreamScore, find relevant competitors, and receive a clear weekly action plan — in under 60 seconds.
+              Obtiens ton StreamScore, identifie des concurrents pertinents et reçois un plan d'action clair — en moins de 60 secondes.
             </p>
           </motion.div>
 
@@ -52,7 +52,7 @@ const Index = () => {
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Twitch username or channel URL"
+                  placeholder="Nom d'utilisateur ou URL Twitch"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
@@ -63,7 +63,7 @@ const Index = () => {
                 onClick={handleAnalyze}
                 className="flex shrink-0 items-center gap-2 rounded-lg gradient-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
               >
-                Analyze
+                Analyser
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -71,7 +71,7 @@ const Index = () => {
               onClick={() => navigate("/connect-twitch")}
               className="mt-3 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
-              Or connect Twitch for deeper analysis →
+              Ou connecte Twitch pour une analyse plus poussée →
             </button>
           </motion.div>
         </div>
@@ -81,25 +81,25 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <SectionHeader
-            label="What you get"
-            title="Clarity in 3 steps"
-            description="No guesswork. StreamPulse gives you structured, actionable insights about your Twitch channel."
+            label="Ce que tu obtiens"
+            title="De la clarté en 3 étapes"
+            description="Fini les devinettes. StreamPulse te donne des insights structurés et actionnables sur ta chaîne Twitch."
           />
           <div className="grid gap-6 sm:grid-cols-3">
             <ValueCard
               icon={BarChart3}
               title="StreamScore"
-              description="A single number that captures your channel health — stream quality, consistency, engagement, and growth velocity."
+              description="Un score unique qui reflète la santé de ta chaîne — qualité de stream, régularité, engagement et dynamique de croissance."
             />
             <ValueCard
               icon={Users}
-              title="Relevant Competitors"
-              description="Find streamers at your level who are growing faster. Learn what they do differently so you can close the gap."
+              title="Concurrents pertinents"
+              description="Trouve des streamers de ton niveau qui progressent plus vite. Comprends ce qu'ils font différemment pour combler l'écart."
             />
             <ValueCard
               icon={CalendarCheck}
-              title="Weekly Action Plan"
-              description="Three clear actions per week, prioritized by impact. No vague advice — concrete steps you can act on today."
+              title="Plan d'action hebdomadaire"
+              description="Trois actions claires par semaine, classées par impact. Pas de conseils vagues — des étapes concrètes applicables dès aujourd'hui."
             />
           </div>
         </div>
@@ -109,9 +109,9 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <SectionHeader
-            label="Preview"
-            title="See what you'll get"
-            description="Here's a glimpse of the analysis StreamPulse builds for your channel."
+            label="Aperçu"
+            title="Un avant-goût de ton analyse"
+            description="Voici ce que StreamPulse génère pour ta chaîne."
           />
           <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
             <ScoreCard score={62} />
@@ -120,12 +120,12 @@ const Index = () => {
               <CompetitorCard name="nightowl_ttv" followers="1.8K" similarity={74} />
             </div>
             <div className="rounded-xl border border-border bg-card p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Affiliate Progress</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Progression affiliation</p>
               <div className="mt-4 space-y-3">
                 {[
-                  { label: "Avg Viewers", value: "2.8 / 3", pct: 93 },
-                  { label: "Stream Days", value: "6 / 7", pct: 86 },
-                  { label: "Unique Chatters", value: "42 / 50", pct: 84 },
+                  { label: "Viewers moyens", value: "2.8 / 3", pct: 93 },
+                  { label: "Jours de stream", value: "6 / 7", pct: 86 },
+                  { label: "Chatteurs uniques", value: "42 / 50", pct: 84 },
                 ].map((item) => (
                   <div key={item.label}>
                     <div className="flex justify-between text-xs text-muted-foreground">
@@ -150,25 +150,25 @@ const Index = () => {
       <section className="border-t border-border py-20">
         <div className="container mx-auto px-4">
           <SectionHeader
-            label="Trust & Privacy"
-            title="Your channel stays yours"
-            description="StreamPulse never touches your stream. We only read public data to help you grow."
+            label="Confiance & vie privée"
+            title="Ta chaîne reste la tienne"
+            description="StreamPulse ne touche jamais à ton stream. On analyse uniquement les données publiques pour t'aider à progresser."
           />
           <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3">
             <TrustCard
               icon={EyeOff}
-              title="No posting"
-              description="We never post, chat, or interact on your behalf."
+              title="Aucune publication"
+              description="On ne poste, ne chat et n'interagit jamais en ton nom."
             />
             <TrustCard
               icon={Settings}
-              title="No changes"
-              description="We never modify your channel settings or stream config."
+              title="Aucune modification"
+              description="On ne modifie jamais les paramètres de ta chaîne ou de ton stream."
             />
             <TrustCard
               icon={ShieldCheck}
-              title="Read-only analysis"
-              description="We only read publicly available data to build your insights."
+              title="Analyse en lecture seule"
+              description="On utilise uniquement les données publiques pour construire tes insights."
             />
           </div>
         </div>
@@ -177,7 +177,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="container mx-auto px-4 text-center text-xs text-muted-foreground">
-          © 2026 StreamPulse. Built for streamers who want to grow.
+          © 2026 StreamPulse. Conçu pour les streamers qui veulent progresser.
         </div>
       </footer>
     </div>

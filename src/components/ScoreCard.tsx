@@ -37,7 +37,7 @@ const ScoreCard = ({ score = 62, label = "StreamScore", locked }: ScoreCardProps
         </div>
       </div>
       <p className="mt-3 text-sm font-semibold text-foreground">{label}</p>
-      <p className="text-xs text-muted-foreground">out of 100</p>
+      <p className="text-xs text-muted-foreground">sur 100</p>
     </div>
   );
 };

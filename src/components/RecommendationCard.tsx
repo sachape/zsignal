@@ -15,7 +15,7 @@ const RecommendationCard = ({ icon: Icon, title, description, locked }: Recommen
       </div>
       <h4 className="text-sm font-semibold text-foreground">{title}</h4>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-        {locked ? "Connect Twitch to unlock this recommendation" : description}
+        {locked ? "Connecte Twitch pour débloquer cette recommandation" : description}
       </p>
     </div>
   );

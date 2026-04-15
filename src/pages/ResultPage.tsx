@@ -11,7 +11,7 @@ import SectionHeader from "@/components/SectionHeader";
 
 const ResultPage = () => {
   const [searchParams] = useSearchParams();
-  const channel = searchParams.get("channel") || "your_channel";
+  const channel = searchParams.get("channel") || "ta_chaîne";
 
   return (
     <AppShell>
@@ -27,7 +27,7 @@ const ResultPage = () => {
           </div>
           <div>
             <h1 className="text-lg font-bold text-foreground">{channel}</h1>
-            <p className="text-sm text-muted-foreground">Variety · ~45 avg viewers · Affiliate</p>
+            <p className="text-sm text-muted-foreground">Variété · ~45 viewers moyens · Affilié</p>
           </div>
         </motion.div>
 
@@ -36,17 +36,17 @@ const ResultPage = () => {
           <ScoreCard score={62} />
           <div className="flex flex-col gap-3 sm:col-span-3">
             <div className="grid gap-3 sm:grid-cols-3">
-              <StatBlock label="Avg Viewers" value="45" subtext="last 30 days" />
-              <StatBlock label="Consistency" value="71%" subtext="4/7 days" />
-              <StatBlock label="Engagement" value="6.2%" subtext="chat rate" accent />
+              <StatBlock label="Viewers moyens" value="45" subtext="30 derniers jours" />
+              <StatBlock label="Régularité" value="71%" subtext="4/7 jours" />
+              <StatBlock label="Engagement" value="6.2%" subtext="taux de chat" accent />
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
               <div className="flex items-center gap-2">
                 <TrendingDown className="h-4 w-4 text-warning" />
-                <p className="text-sm font-semibold text-foreground">Key Weakness: Stream Consistency</p>
+                <p className="text-sm font-semibold text-foreground">Point faible clé : Régularité de stream</p>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                You streamed 4 out of 7 days last week. Irregular schedules reduce discoverability by up to 35%.
+                Tu as streamé 4 jours sur 7 la semaine dernière. Un planning irrégulier réduit ta visibilité jusqu'à 35%.
               </p>
             </div>
           </div>
@@ -54,24 +54,24 @@ const ResultPage = () => {
 
         {/* Competitor Teaser */}
         <div className="mb-10">
-          <SectionHeader title="Top Competitor Match" align="left" />
+          <SectionHeader title="Meilleur concurrent similaire" align="left" />
           <CompetitorCard name="streamzilla_fr" followers="2.4K" similarity={87} />
           <div className="relative mt-3">
             <CompetitorCard name="" followers="" similarity={0} locked />
-            <LockedOverlay message="Connect Twitch to see more competitors" cta="Unlock Competitors" />
+            <LockedOverlay message="Connecte Twitch pour voir plus de concurrents" cta="Débloquer" />
           </div>
         </div>
 
         {/* Affiliate Progress */}
         <div className="relative mb-10 rounded-xl border border-border bg-card p-6">
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Affiliate Progress
+            Progression vers l'affiliation
           </h3>
           <div className="space-y-3">
             {[
-              { label: "Avg Viewers", value: "2.8 / 3", pct: 93 },
-              { label: "Stream Days", value: "6 / 7", pct: 86 },
-              { label: "Unique Chatters", value: "42 / 50", pct: 84 },
+              { label: "Viewers moyens", value: "2.8 / 3", pct: 93 },
+              { label: "Jours de stream", value: "6 / 7", pct: 86 },
+              { label: "Chatteurs uniques", value: "42 / 50", pct: 84 },
             ].map((item) => (
               <div key={item.label}>
                 <div className="flex justify-between text-xs text-muted-foreground">
@@ -91,23 +91,23 @@ const ResultPage = () => {
 
         {/* Recommendations */}
         <div className="mb-10">
-          <SectionHeader title="Recommended Actions" align="left" />
+          <SectionHeader title="Actions recommandées" align="left" />
           <div className="grid gap-4 sm:grid-cols-3">
             <RecommendationCard
               icon={Clock}
-              title="Fix your schedule"
-              description="Stream at least 5 days this week, ideally at the same time. Consistency is the #1 growth lever."
+              title="Stabilise ton planning"
+              description="Streame au moins 5 jours cette semaine, idéalement aux mêmes horaires. La régularité est le levier de croissance n°1."
             />
             <RecommendationCard
               icon={Target}
-              title="Optimize your title format"
-              description="Use keyword-rich titles with brackets. Example: [FR] Ranked Climb → Diamond"
+              title="Optimise tes titres"
+              description="Utilise des titres avec mots-clés et crochets. Ex : [FR] Ranked Climb → Diamant"
               locked
             />
             <RecommendationCard
               icon={Lightbulb}
-              title="Raid a similar streamer"
-              description="After each stream, raid one of your top competitor matches to build network effects."
+              title="Raid un streamer similaire"
+              description="Après chaque stream, raid l'un de tes meilleurs matchs pour créer un effet réseau."
               locked
             />
           </div>
@@ -121,15 +121,15 @@ const ResultPage = () => {
           className="rounded-xl border border-primary/20 bg-primary/5 p-8 text-center"
         >
           <Lock className="mx-auto mb-3 h-6 w-6 text-primary" />
-          <h3 className="text-xl font-bold text-foreground">Want the full picture?</h3>
+          <h3 className="text-xl font-bold text-foreground">Tu veux l'analyse complète ?</h3>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Connect your Twitch account to unlock all competitors, personalized recommendations, and weekly progress tracking.
+            Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire de ta progression.
           </p>
           <a
             href="/connect-twitch"
             className="mt-5 inline-flex items-center gap-2 rounded-lg gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Connect Twitch
+            Connecter Twitch
           </a>
         </motion.div>
       </div>

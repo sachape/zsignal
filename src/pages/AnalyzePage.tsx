@@ -6,11 +6,11 @@ import AppShell from "@/components/AppShell";
 import AnalysisStep from "@/components/AnalysisStep";
 
 const steps = [
-  "Finding your channel",
-  "Reading recent streams",
-  "Detecting patterns",
-  "Finding comparable streamers",
-  "Calculating StreamScore",
+  "Recherche de ta chaîne",
+  "Lecture des derniers streams",
+  "Détection des tendances",
+  "Identification de streamers comparables",
+  "Calcul de ton StreamScore",
 ];
 
 const AnalyzePage = () => {
@@ -58,16 +58,16 @@ const AnalyzePage = () => {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
               <AlertCircle className="h-6 w-6 text-destructive" />
             </div>
-            <h2 className="text-lg font-bold text-foreground">Channel not found</h2>
+            <h2 className="text-lg font-bold text-foreground">Chaîne introuvable</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              We couldn't find that channel. Check the username and try again.
+              Impossible de trouver cette chaîne. Vérifie le nom d'utilisateur et réessaie.
             </p>
             <button
               onClick={() => navigate("/")}
               className="mt-6 inline-flex items-center gap-2 rounded-lg gradient-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
               <RefreshCw className="h-4 w-4" />
-              Try again
+              Réessayer
             </button>
           </motion.div>
         </div>
@@ -84,8 +84,8 @@ const AnalyzePage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8 text-center"
           >
-            <h1 className="text-xl font-bold text-foreground">Analyzing {channel}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">This takes about 30 seconds</p>
+            <h1 className="text-xl font-bold text-foreground">Analyse de {channel}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Ça prend environ 30 secondes</p>
           </motion.div>
 
           <div className="space-y-3">
@@ -94,7 +94,6 @@ const AnalyzePage = () => {
             ))}
           </div>
 
-          {/* Progress bar */}
           <div className="mt-8 h-1 rounded-full bg-muted">
             <motion.div
               className="h-full rounded-full gradient-primary"

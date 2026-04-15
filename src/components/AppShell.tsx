@@ -2,10 +2,10 @@ import { Link, useLocation } from "react-router-dom";
 import { Zap, BarChart3, Search, Link2 } from "lucide-react";
 
 const navItems = [
-  { path: "/", label: "Home", icon: Search },
-  { path: "/analyze", label: "Analyze", icon: BarChart3 },
-  { path: "/result", label: "Results", icon: BarChart3 },
-  { path: "/connect-twitch", label: "Connect", icon: Link2 },
+  { path: "/", label: "Accueil", icon: Search },
+  { path: "/analyze", label: "Analyse", icon: BarChart3 },
+  { path: "/result", label: "Résultats", icon: BarChart3 },
+  { path: "/connect-twitch", label: "Connexion", icon: Link2 },
 ];
 
 const AppShell = ({ children }: { children: React.ReactNode }) => {
