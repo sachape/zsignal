@@ -14,6 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
+      analysis_jobs: {
+        Row: {
+          channel_name: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_name: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_name?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      analysis_reports: {
+        Row: {
+          analysis_job_id: string
+          channel_summary: string | null
+          created_at: string
+          id: string
+          report_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          analysis_job_id: string
+          channel_summary?: string | null
+          created_at?: string
+          id?: string
+          report_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          analysis_job_id?: string
+          channel_summary?: string | null
+          created_at?: string
+          id?: string
+          report_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_reports_analysis_job_id_fkey"
+            columns: ["analysis_job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_facts: {
+        Row: {
+          analysis_job_id: string
+          confidence: number | null
+          created_at: string
+          fact_key: string
+          fact_value: string | null
+          id: string
+        }
+        Insert: {
+          analysis_job_id: string
+          confidence?: number | null
+          created_at?: string
+          fact_key: string
+          fact_value?: string | null
+          id?: string
+        }
+        Update: {
+          analysis_job_id?: string
+          confidence?: number | null
+          created_at?: string
+          fact_key?: string
+          fact_value?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_facts_analysis_job_id_fkey"
+            columns: ["analysis_job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_matches: {
+        Row: {
+          analysis_job_id: string
+          avg_viewers: number | null
+          competitor_login: string
+          created_at: string
+          display_name: string | null
+          follower_count: number | null
+          id: string
+          similarity_score: number | null
+        }
+        Insert: {
+          analysis_job_id: string
+          avg_viewers?: number | null
+          competitor_login: string
+          created_at?: string
+          display_name?: string | null
+          follower_count?: number | null
+          id?: string
+          similarity_score?: number | null
+        }
+        Update: {
+          analysis_job_id?: string
+          avg_viewers?: number | null
+          competitor_login?: string
+          created_at?: string
+          display_name?: string | null
+          follower_count?: number | null
+          id?: string
+          similarity_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_matches_analysis_job_id_fkey"
+            columns: ["analysis_job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connected_accounts: {
         Row: {
           access_token_encrypted: string | null
@@ -82,6 +226,224 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      recommendations: {
+        Row: {
+          analysis_job_id: string
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_locked: boolean | null
+          priority: number | null
+          title: string
+        }
+        Insert: {
+          analysis_job_id: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_locked?: boolean | null
+          priority?: number | null
+          title: string
+        }
+        Update: {
+          analysis_job_id?: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_locked?: boolean | null
+          priority?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_analysis_job_id_fkey"
+            columns: ["analysis_job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stream_scores: {
+        Row: {
+          affiliate_progress: number | null
+          analysis_job_id: string
+          community: number | null
+          content_quality: number | null
+          created_at: string
+          discoverability: number | null
+          engagement: number | null
+          growth: number | null
+          id: string
+          monetization_readiness: number | null
+          overall_score: number | null
+          regularity: number | null
+        }
+        Insert: {
+          affiliate_progress?: number | null
+          analysis_job_id: string
+          community?: number | null
+          content_quality?: number | null
+          created_at?: string
+          discoverability?: number | null
+          engagement?: number | null
+          growth?: number | null
+          id?: string
+          monetization_readiness?: number | null
+          overall_score?: number | null
+          regularity?: number | null
+        }
+        Update: {
+          affiliate_progress?: number | null
+          analysis_job_id?: string
+          community?: number | null
+          content_quality?: number | null
+          created_at?: string
+          discoverability?: number | null
+          engagement?: number | null
+          growth?: number | null
+          id?: string
+          monetization_readiness?: number | null
+          overall_score?: number | null
+          regularity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stream_scores_analysis_job_id_fkey"
+            columns: ["analysis_job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      twitch_clips: {
+        Row: {
+          analysis_job_id: string
+          created_at: string
+          creator_name: string | null
+          id: string
+          title: string | null
+          twitch_clip_id: string | null
+          view_count: number | null
+        }
+        Insert: {
+          analysis_job_id: string
+          created_at?: string
+          creator_name?: string | null
+          id?: string
+          title?: string | null
+          twitch_clip_id?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          analysis_job_id?: string
+          created_at?: string
+          creator_name?: string | null
+          id?: string
+          title?: string | null
+          twitch_clip_id?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "twitch_clips_analysis_job_id_fkey"
+            columns: ["analysis_job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      twitch_profiles: {
+        Row: {
+          broadcaster_type: string | null
+          created_at: string
+          description: string | null
+          display_name: string | null
+          fetched_at: string | null
+          follower_count: number | null
+          id: string
+          login: string | null
+          profile_image_url: string | null
+          twitch_user_id: string | null
+          updated_at: string
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          broadcaster_type?: string | null
+          created_at?: string
+          description?: string | null
+          display_name?: string | null
+          fetched_at?: string | null
+          follower_count?: number | null
+          id?: string
+          login?: string | null
+          profile_image_url?: string | null
+          twitch_user_id?: string | null
+          updated_at?: string
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          broadcaster_type?: string | null
+          created_at?: string
+          description?: string | null
+          display_name?: string | null
+          fetched_at?: string | null
+          follower_count?: number | null
+          id?: string
+          login?: string | null
+          profile_image_url?: string | null
+          twitch_user_id?: string | null
+          updated_at?: string
+          user_id?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      twitch_videos: {
+        Row: {
+          analysis_job_id: string
+          created_at: string
+          duration: string | null
+          id: string
+          title: string | null
+          twitch_video_id: string | null
+          view_count: number | null
+        }
+        Insert: {
+          analysis_job_id: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          title?: string | null
+          twitch_video_id?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          analysis_job_id?: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          title?: string | null
+          twitch_video_id?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "twitch_videos_analysis_job_id_fkey"
+            columns: ["analysis_job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
