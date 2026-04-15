@@ -1,6 +1,7 @@
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { User, TrendingDown, Clock, Target, Lightbulb, Lock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import AppShell from "@/components/AppShell";
 import ScoreCard from "@/components/ScoreCard";
 import CompetitorCard from "@/components/CompetitorCard";
@@ -12,6 +13,8 @@ import SectionHeader from "@/components/SectionHeader";
 const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const channel = searchParams.get("channel") || "ta_chaîne";
+  const { user } = useAuth();
+  const ctaLink = user ? "/connect-twitch" : "/auth?redirect=/connect-twitch";
 
   return (
     <AppShell>
@@ -126,10 +129,10 @@ const ResultPage = () => {
             Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire de ta progression.
           </p>
           <a
-            href="/connect-twitch"
+            href={ctaLink}
             className="mt-5 inline-flex items-center gap-2 rounded-lg gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Connecter Twitch
+            {user ? "Connecter Twitch" : "Créer un compte gratuit"}
           </a>
         </motion.div>
       </div>

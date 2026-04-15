@@ -69,7 +69,7 @@ const Index = () => {
               </button>
             </div>
             <button
-              onClick={() => navigate("/connect-twitch")}
+              onClick={() => navigate("/auth?redirect=/connect-twitch")}
               className="mt-3 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
               Ou connecte Twitch pour une analyse plus poussée →
