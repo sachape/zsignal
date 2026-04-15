@@ -1,11 +1,22 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShieldCheck, EyeOff, Settings, BarChart3, Users, CalendarCheck, Zap } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import TrustCard from "@/components/TrustCard";
 import SectionHeader from "@/components/SectionHeader";
 import ValueCard from "@/components/ValueCard";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ConnectTwitchPage = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth?redirect=/connect-twitch");
+    }
+  }, [user, loading, navigate]);
   return (
     <AppShell>
       <div className="container mx-auto max-w-3xl px-4 py-16">

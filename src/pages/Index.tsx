@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, ArrowRight, BarChart3, Users, CalendarCheck, ShieldCheck, EyeOff, Settings } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import LandingNav from "@/components/LandingNav";
 import SectionHeader from "@/components/SectionHeader";
 import ValueCard from "@/components/ValueCard";
@@ -68,7 +69,7 @@ const Index = () => {
               </button>
             </div>
             <button
-              onClick={() => navigate("/connect-twitch")}
+              onClick={() => navigate("/auth?redirect=/connect-twitch")}
               className="mt-3 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
               Ou connecte Twitch pour une analyse plus poussée →
