@@ -9,12 +9,24 @@ import RecommendationCard from "@/components/RecommendationCard";
 import LockedOverlay from "@/components/LockedOverlay";
 import StatBlock from "@/components/StatBlock";
 import SectionHeader from "@/components/SectionHeader";
+import { mockAnalysisReport } from "@/data/mockAnalysis";
+
+const iconMap: Record<string, typeof Clock> = {
+  regularity: Clock,
+  discoverability: Target,
+  community: Lightbulb,
+};
 
 const ResultPage = () => {
   const [searchParams] = useSearchParams();
-  const channel = searchParams.get("channel") || "ta_chaîne";
+  const channel = searchParams.get("channel") || mockAnalysisReport.channel_summary.channel_name;
   const { user } = useAuth();
   const ctaLink = user ? "/connect-twitch" : "/auth?redirect=/connect-twitch";
+
+  const report = mockAnalysisReport;
+  const summary = report.channel_summary;
+  const score = report.score;
+  const ap = report.affiliate_progress;
 
   return (
     <AppShell>
@@ -30,27 +42,27 @@ const ResultPage = () => {
           </div>
           <div>
             <h1 className="text-lg font-bold text-foreground">{channel}</h1>
-            <p className="text-sm text-muted-foreground">Variété · ~45 viewers moyens · Affilié</p>
+            <p className="text-sm text-muted-foreground">
+              {summary.category} · ~{summary.avg_viewers} viewers moyens · {summary.broadcaster_type === "affiliate" ? "Affilié" : summary.broadcaster_type}
+            </p>
           </div>
         </motion.div>
 
         {/* Score + Stats */}
         <div className="mb-10 grid gap-6 sm:grid-cols-4">
-          <ScoreCard score={62} />
+          <ScoreCard score={score.overall_score} />
           <div className="flex flex-col gap-3 sm:col-span-3">
             <div className="grid gap-3 sm:grid-cols-3">
-              <StatBlock label="Viewers moyens" value="45" subtext="30 derniers jours" />
-              <StatBlock label="Régularité" value="71%" subtext="4/7 jours" />
-              <StatBlock label="Engagement" value="6.2%" subtext="taux de chat" accent />
+              <StatBlock label="Viewers moyens" value={String(summary.avg_viewers)} subtext="30 derniers jours" />
+              <StatBlock label="Régularité" value={`${score.regularity}%`} subtext={`${ap.stream_days.current}/${ap.stream_days.target} jours`} />
+              <StatBlock label="Engagement" value={`${(score.engagement / 10).toFixed(1)}%`} subtext="taux de chat" accent />
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
               <div className="flex items-center gap-2">
                 <TrendingDown className="h-4 w-4 text-warning" />
-                <p className="text-sm font-semibold text-foreground">Point faible clé : Régularité de stream</p>
+                <p className="text-sm font-semibold text-foreground">Point faible clé : {report.weak_point.label}</p>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Tu as streamé 4 jours sur 7 la semaine dernière. Un planning irrégulier réduit ta visibilité jusqu'à 35%.
-              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{report.weak_point.description}</p>
             </div>
           </div>
         </div>
@@ -58,7 +70,13 @@ const ResultPage = () => {
         {/* Competitor Teaser */}
         <div className="mb-10">
           <SectionHeader title="Meilleur concurrent similaire" align="left" />
-          <CompetitorCard name="streamzilla_fr" followers="2.4K" similarity={87} />
+          {report.competitors[0] && (
+            <CompetitorCard
+              name={report.competitors[0].competitor_login}
+              followers={`${(report.competitors[0].follower_count / 1000).toFixed(1)}K`}
+              similarity={report.competitors[0].similarity_score}
+            />
+          )}
           <div className="relative mt-3">
             <CompetitorCard name="" followers="" similarity={0} locked />
             <LockedOverlay message="Connecte Twitch pour voir plus de concurrents" cta="Débloquer" />
@@ -72,9 +90,9 @@ const ResultPage = () => {
           </h3>
           <div className="space-y-3">
             {[
-              { label: "Viewers moyens", value: "2.8 / 3", pct: 93 },
-              { label: "Jours de stream", value: "6 / 7", pct: 86 },
-              { label: "Chatteurs uniques", value: "42 / 50", pct: 84 },
+              { label: "Viewers moyens", value: `${ap.avg_viewers.current} / ${ap.avg_viewers.target}`, pct: Math.round((ap.avg_viewers.current / ap.avg_viewers.target) * 100) },
+              { label: "Jours de stream", value: `${ap.stream_days.current} / ${ap.stream_days.target}`, pct: Math.round((ap.stream_days.current / ap.stream_days.target) * 100) },
+              { label: "Chatteurs uniques", value: `${ap.unique_chatters.current} / ${ap.unique_chatters.target}`, pct: Math.round((ap.unique_chatters.current / ap.unique_chatters.target) * 100) },
             ].map((item) => (
               <div key={item.label}>
                 <div className="flex justify-between text-xs text-muted-foreground">
@@ -82,10 +100,7 @@ const ResultPage = () => {
                   <span className="text-foreground">{item.value}</span>
                 </div>
                 <div className="mt-1 h-1.5 rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full gradient-primary"
-                    style={{ width: `${item.pct}%` }}
-                  />
+                  <div className="h-full rounded-full gradient-primary" style={{ width: `${item.pct}%` }} />
                 </div>
               </div>
             ))}
@@ -96,23 +111,15 @@ const ResultPage = () => {
         <div className="mb-10">
           <SectionHeader title="Actions recommandées" align="left" />
           <div className="grid gap-4 sm:grid-cols-3">
-            <RecommendationCard
-              icon={Clock}
-              title="Stabilise ton planning"
-              description="Streame au moins 5 jours cette semaine, idéalement aux mêmes horaires. La régularité est le levier de croissance n°1."
-            />
-            <RecommendationCard
-              icon={Target}
-              title="Optimise tes titres"
-              description="Utilise des titres avec mots-clés et crochets. Ex : [FR] Ranked Climb → Diamant"
-              locked
-            />
-            <RecommendationCard
-              icon={Lightbulb}
-              title="Raid un streamer similaire"
-              description="Après chaque stream, raid l'un de tes meilleurs matchs pour créer un effet réseau."
-              locked
-            />
+            {report.recommendations.map((rec) => (
+              <RecommendationCard
+                key={rec.id}
+                icon={iconMap[rec.category] || Clock}
+                title={rec.title}
+                description={rec.description}
+                locked={rec.is_locked}
+              />
+            ))}
           </div>
         </div>
 

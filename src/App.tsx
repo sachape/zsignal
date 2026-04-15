@@ -8,6 +8,7 @@ import Index from "./pages/Index.tsx";
 import AnalyzePage from "./pages/AnalyzePage.tsx";
 import ResultPage from "./pages/ResultPage.tsx";
 import ConnectTwitchPage from "./pages/ConnectTwitchPage.tsx";
+import TwitchCallbackPage from "./pages/TwitchCallbackPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/analyze" element={<AnalyzePage />} />
             <Route path="/result" element={<ResultPage />} />
             <Route path="/connect-twitch" element={<ConnectTwitchPage />} />
+            <Route path="/twitch/callback" element={<TwitchCallbackPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
