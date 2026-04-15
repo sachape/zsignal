@@ -15,10 +15,10 @@ const CompetitorCard = ({ name, followers, similarity, locked }: CompetitorCardP
       </div>
       <div className="flex-1">
         <p className="text-sm font-semibold text-foreground">{locked ? "••••••••" : name}</p>
-        <p className="text-xs text-muted-foreground">{locked ? "•••" : followers} followers</p>
+        <p className="text-xs text-muted-foreground">{locked ? "•••" : followers} abonnés</p>
       </div>
       <div className="rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
-        {locked ? "?" : `${similarity}%`} match
+        {locked ? "?" : `${similarity}%`} similaire
       </div>
     </div>
   );

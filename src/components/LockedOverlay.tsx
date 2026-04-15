@@ -8,8 +8,8 @@ interface LockedOverlayProps {
 }
 
 const LockedOverlay = ({
-  message = "Connect Twitch to unlock",
-  cta = "Unlock",
+  message = "Connecte Twitch pour débloquer",
+  cta = "Débloquer",
   to = "/connect-twitch",
 }: LockedOverlayProps) => {
   return (

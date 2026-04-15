@@ -16,13 +16,13 @@ const LandingNav = () => {
             to="/connect-twitch"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            Connect Twitch
+            Connecter Twitch
           </Link>
           <Link
             to="/connect-twitch"
             className="rounded-lg gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Get Started
+            Commencer
           </Link>
         </div>
       </div>
