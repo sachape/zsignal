@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      connected_accounts: {
+        Row: {
+          access_token_encrypted: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          platform: string
+          platform_display_name: string | null
+          platform_login: string | null
+          platform_user_id: string | null
+          refresh_token_encrypted: string | null
+          scope: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          platform?: string
+          platform_display_name?: string | null
+          platform_login?: string | null
+          platform_user_id?: string | null
+          refresh_token_encrypted?: string | null
+          scope?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          platform?: string
+          platform_display_name?: string | null
+          platform_login?: string | null
+          platform_user_id?: string | null
+          refresh_token_encrypted?: string | null
+          scope?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
