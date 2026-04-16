@@ -1,20 +1,112 @@
-import type { StreamScore } from "@/types/analysis";
-import type { ChannelFact } from "./factsEngine";
+import type { StreamScore, ChannelFact, ScoreBreakdownItem } from "@/types/analysis";
 
-/**
- * Compute StreamScore from extracted channel facts.
- * TODO: implement scoring algorithm.
- */
-export async function computeStreamScore(_facts: ChannelFact[]): Promise<StreamScore> {
+function getFact(facts: ChannelFact[], key: string): number {
+  const f = facts.find((f) => f.key === key);
+  return typeof f?.value === "number" ? f.value : 0;
+}
+
+function clamp(v: number, min = 0, max = 100): number {
+  return Math.max(min, Math.min(max, Math.round(v)));
+}
+
+export function computeStreamScore(facts: ChannelFact[]): StreamScore {
+  const streams30d = getFact(facts, "streams_30d");
+  const streams7d = getFact(facts, "streams_7d");
+  const consistency = getFact(facts, "posting_consistency_score");
+  const avgDuration = getFact(facts, "avg_duration_minutes");
+  const clips30d = getFact(facts, "clips_30d");
+  const catSwitchRate = getFact(facts, "category_switch_rate");
+  const avgViewers = getFact(facts, "avg_viewers");
+  const followers = getFact(facts, "follower_count");
+  const totalHours = getFact(facts, "total_hours_30d");
+  const uniqueDays = getFact(facts, "unique_stream_days_30d");
+
+  // --- Regularity (25%) ---
+  // Target: 12+ streams/30d, 3+/7d, high consistency
+  const freqScore = clamp((streams30d / 12) * 70 + (streams7d / 3) * 30);
+  const regularity = clamp(freqScore * 0.5 + consistency * 0.5);
+  const regularity_reasons: string[] = [];
+  const regularity_levers: string[] = [];
+  if (streams30d < 8) { regularity_reasons.push(`Seulement ${streams30d} streams en 30 jours`); regularity_levers.push("Vise au moins 3 streams par semaine"); }
+  if (consistency < 50) { regularity_reasons.push("Planning irrégulier"); regularity_levers.push("Fixe des jours et horaires récurrents"); }
+
+  // --- Structure (20%) ---
+  // Target: 2h+ avg duration, consistent durations
+  const durationScore = clamp((avgDuration / 150) * 100);
+  const hoursScore = clamp((totalHours / 20) * 100);
+  const structure = clamp(durationScore * 0.6 + hoursScore * 0.4);
+  const structure_reasons: string[] = [];
+  const structure_levers: string[] = [];
+  if (avgDuration < 120) { structure_reasons.push(`Durée moyenne de ${avgDuration} min — court pour construire une audience`); structure_levers.push("Allonge tes sessions à 2h minimum"); }
+
+  // --- Content (20%) ---
+  // Clips = sign of engaging content
+  const clipScore = clamp((clips30d / 5) * 70 + Math.min(clips30d, 3) * 10);
+  const viewScore = clamp((avgViewers / 10) * 100);
+  const content = clamp(clipScore * 0.5 + viewScore * 0.5);
+  const content_reasons: string[] = [];
+  const content_levers: string[] = [];
+  if (clips30d < 3) { content_reasons.push(`Seulement ${clips30d} clip(s) en 30 jours`); content_levers.push("Crée ou encourage la création d'au moins 1 clip par stream"); }
+
+  // --- Positioning (15%) ---
+  // Low category switch rate = clear identity
+  const posStability = clamp(100 - catSwitchRate);
+  const positioning = posStability;
+  const positioning_reasons: string[] = [];
+  const positioning_levers: string[] = [];
+  if (catSwitchRate > 50) { positioning_reasons.push("Tu changes de catégorie trop souvent"); positioning_levers.push("Stabilise ta catégorie principale pendant 2-3 semaines"); }
+
+  // --- Momentum (10%) ---
+  // Recent activity trend
+  const recentBoost = streams7d >= 3 ? 100 : streams7d >= 2 ? 70 : streams7d >= 1 ? 40 : 0;
+  const momentum = clamp(recentBoost);
+  const momentum_reasons: string[] = [];
+  const momentum_levers: string[] = [];
+  if (streams7d < 2) { momentum_reasons.push("Faible activité cette semaine"); momentum_levers.push("Reprends le rythme dès maintenant"); }
+
+  // --- Monetization (10%) ---
+  const followerProg = clamp((followers / 50) * 50);
+  const viewerProg = clamp((avgViewers / 3) * 50);
+  const monetization = clamp(followerProg + viewerProg);
+  const monetization_reasons: string[] = [];
+  const monetization_levers: string[] = [];
+  if (followers < 50) { monetization_reasons.push(`${followers}/50 followers pour l'affiliation`); monetization_levers.push("Partage ton lien de chaîne sur les réseaux sociaux"); }
+
+  // --- Weighted overall ---
+  const overall = clamp(
+    regularity * 0.25 +
+    structure * 0.20 +
+    content * 0.20 +
+    positioning * 0.15 +
+    momentum * 0.10 +
+    monetization * 0.10
+  );
+
+  // Confidence: based on data volume
+  const confidence = clamp(Math.min(streams30d / 8, 1) * 60 + Math.min(clips30d / 3, 1) * 40);
+
+  // Freshness: how recent is the last stream
+  const freshness = clamp(streams7d >= 3 ? 100 : streams7d >= 1 ? 60 : 20);
+
+  const breakdown: ScoreBreakdownItem[] = [
+    { dimension: "Régularité", score: regularity, weight: 0.25, reasons: regularity_reasons, levers: regularity_levers },
+    { dimension: "Structure", score: structure, weight: 0.20, reasons: structure_reasons, levers: structure_levers },
+    { dimension: "Contenu", score: content, weight: 0.20, reasons: content_reasons, levers: content_levers },
+    { dimension: "Positionnement", score: positioning, weight: 0.15, reasons: positioning_reasons, levers: positioning_levers },
+    { dimension: "Momentum", score: momentum, weight: 0.10, reasons: momentum_reasons, levers: momentum_levers },
+    { dimension: "Monétisation", score: monetization, weight: 0.10, reasons: monetization_reasons, levers: monetization_levers },
+  ];
+
   return {
-    overall_score: 0,
-    regularity: 0,
-    engagement: 0,
-    growth: 0,
-    discoverability: 0,
-    content_quality: 0,
-    community: 0,
-    monetization_readiness: 0,
-    affiliate_progress: 0,
+    overall,
+    regularity,
+    structure,
+    content,
+    positioning,
+    momentum,
+    monetization,
+    confidence,
+    freshness,
+    breakdown,
   };
 }
