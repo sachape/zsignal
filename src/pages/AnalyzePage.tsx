@@ -4,14 +4,13 @@ import { motion } from "framer-motion";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import AnalysisStep from "@/components/AnalysisStep";
-import type { JobStatus } from "@/types/analysis";
 
 const steps = [
-  "Recherche de ta chaîne",
-  "Lecture des derniers streams",
-  "Détection des tendances",
-  "Identification de streamers comparables",
-  "Calcul de ton StreamScore",
+  "Chargement des données",
+  "Extraction des faits",
+  "Calcul du StreamScore",
+  "Recherche de concurrents",
+  "Génération des recommandations",
 ];
 
 const AnalyzePage = () => {
@@ -20,7 +19,6 @@ const AnalyzePage = () => {
   const channel = searchParams.get("channel") || "";
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState(false);
-  const [_jobStatus] = useState<JobStatus>("queued");
 
   useEffect(() => {
     if (!channel) {
@@ -28,8 +26,6 @@ const AnalyzePage = () => {
       return;
     }
 
-    // TODO: When backend is live, create a real analysis_job via supabase.functions.invoke("twitch-analyze")
-    // and poll job status. For now, simulate step progression.
     const interval = setInterval(() => {
       setCurrentStep((prev) => {
         if (prev >= steps.length - 1) {
