@@ -23,19 +23,65 @@ export interface TwitchProfile {
   view_count: number;
   follower_count: number;
   broadcaster_type: string;
+  created_at_twitch: string;
   fetched_at: string;
 }
 
+export interface TwitchVideo {
+  id: string;
+  twitch_video_id: string;
+  title: string;
+  view_count: number;
+  duration: string; // e.g. "3h21m"
+  created_at: string;
+  stream_id: string;
+  language: string;
+  type: string; // "archive" | "highlight" | "upload"
+}
+
+export interface TwitchClip {
+  id: string;
+  twitch_clip_id: string;
+  title: string;
+  view_count: number;
+  creator_name: string;
+  created_at: string;
+  duration: number; // seconds
+  game_id: string;
+}
+
+export interface ChannelFact {
+  key: string;
+  value: number | string;
+  label: string;
+  confidence: number; // 0-1
+}
+
 export interface StreamScore {
-  overall_score: number;
+  overall: number;
   regularity: number;
-  engagement: number;
-  growth: number;
-  discoverability: number;
-  content_quality: number;
-  community: number;
-  monetization_readiness: number;
-  affiliate_progress: number;
+  structure: number;
+  content: number;
+  positioning: number;
+  momentum: number;
+  monetization: number;
+  confidence: number;
+  freshness: number;
+  breakdown: ScoreBreakdownItem[];
+}
+
+export interface ScoreBreakdownItem {
+  dimension: string;
+  score: number;
+  weight: number;
+  reasons: string[];
+  levers: string[];
+}
+
+export interface CompetitorGroup {
+  type: 'direct' | 'catch-up' | 'inspiration';
+  label: string;
+  matches: CompetitorMatch[];
 }
 
 export interface CompetitorMatch {
@@ -45,13 +91,18 @@ export interface CompetitorMatch {
   similarity_score: number;
   follower_count: number;
   avg_viewers: number;
+  group: 'direct' | 'catch-up' | 'inspiration';
+  match_reasons: string[];
+  strengths: string[]; // where competitor is better
 }
 
 export interface Recommendation {
   id: string;
   priority: number;
+  type: 'priority' | 'next-action' | 'short-term-goal';
   title: string;
-  description: string;
+  reason: string;
+  action: string;
   category: string;
   is_locked: boolean;
 }
@@ -63,23 +114,35 @@ export interface ChannelSummary {
   avg_viewers: number;
   broadcaster_type: string;
   follower_count: number;
+  description: string;
 }
 
 export interface AffiliateProgress {
   avg_viewers: { current: number; target: number };
   stream_days: { current: number; target: number };
   unique_chatters: { current: number; target: number };
+  stream_hours: { current: number; target: number };
+  followers: { current: number; target: number };
 }
 
 export interface AnalysisReport {
   job_id: string;
   channel_summary: ChannelSummary;
+  facts: ChannelFact[];
   score: StreamScore;
   affiliate_progress: AffiliateProgress;
-  competitors: CompetitorMatch[];
+  competitor_groups: CompetitorGroup[];
   recommendations: Recommendation[];
   weak_point: {
     label: string;
     description: string;
   };
+  next_best_action: Recommendation;
+}
+
+// Raw mock input shape
+export interface MockStreamerData {
+  profile: TwitchProfile;
+  videos: TwitchVideo[];
+  clips: TwitchClip[];
 }
