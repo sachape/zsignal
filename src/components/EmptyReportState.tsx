@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   title?: string;
@@ -16,23 +17,20 @@ const EmptyReportState = ({
   ctaHref = "/analyze",
 }: Props) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-border bg-card p-10 text-center"
-    >
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl gradient-primary">
-        <Sparkles className="h-6 w-6 text-primary-foreground" />
-      </div>
-      <h2 className="text-xl font-bold text-foreground">{title}</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{description}</p>
-      <Link
-        to={ctaHref}
-        className="mt-6 inline-flex items-center gap-2 rounded-lg gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-      >
-        {ctaLabel}
-      </Link>
-    </motion.div>
+    <Card>
+      <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
+        <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10">
+          <Sparkles className="h-5 w-5 text-primary" />
+        </div>
+        <div className="space-y-1.5">
+          <h2 className="text-base font-semibold text-foreground">{title}</h2>
+          <p className="mx-auto max-w-md text-sm text-muted-foreground">{description}</p>
+        </div>
+        <Button asChild className="mt-2">
+          <Link to={ctaHref}>{ctaLabel}</Link>
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 
