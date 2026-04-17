@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Loader2, XCircle } from "lucide-react";
+import { Loader2, XCircle, CheckCircle2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import PageContainer from "@/components/PageContainer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 type CallbackState = "processing" | "error" | "cancelled";
 
@@ -32,9 +34,6 @@ const TwitchCallbackPage = () => {
       return;
     }
 
-    // TODO: When live credentials are available, call:
-    // completeTwitchCallback(code).then(...)
-    // For now, simulate processing then redirect with success
     const timer = setTimeout(() => {
       navigate("/connect-twitch?connected=true", { replace: true });
     }, 2000);
@@ -44,55 +43,68 @@ const TwitchCallbackPage = () => {
 
   return (
     <AppShell>
-      <div className="flex min-h-[70vh] items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md rounded-xl border border-border bg-card p-8 text-center"
-        >
-          {state === "processing" && (
-            <>
-              <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Connexion en cours…</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                On finalise la liaison avec Twitch.
-              </p>
-            </>
-          )}
+      <PageContainer size="sm">
+        <Card>
+          <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
+            {state === "processing" && (
+              <>
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <div className="space-y-1.5">
+                  <h2 className="text-base font-semibold text-foreground">
+                    Connexion en cours…
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    On finalise la liaison avec Twitch.
+                  </p>
+                </div>
+              </>
+            )}
 
-          {state === "cancelled" && (
-            <>
-              <XCircle className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
-              <h2 className="text-lg font-bold text-foreground">Connexion annulée</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Tu as refusé l'autorisation Twitch. Pas de souci — tu peux réessayer quand tu veux.
-              </p>
-              <button
-                onClick={() => navigate("/connect-twitch")}
-                className="mt-6 inline-flex items-center gap-2 rounded-lg gradient-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                Retour
-              </button>
-            </>
-          )}
+            {state === "cancelled" && (
+              <>
+                <div className="flex h-11 w-11 items-center justify-center rounded-md bg-muted">
+                  <XCircle className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="space-y-1.5">
+                  <h2 className="text-base font-semibold text-foreground">
+                    Connexion annulée
+                  </h2>
+                  <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+                    Tu as refusé l'autorisation Twitch. Pas de souci — tu peux
+                    réessayer quand tu veux.
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/connect-twitch")} className="mt-2">
+                  Retour
+                </Button>
+              </>
+            )}
 
-          {state === "error" && (
-            <>
-              <XCircle className="mx-auto mb-4 h-10 w-10 text-destructive" />
-              <h2 className="text-lg font-bold text-foreground">Erreur de connexion</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {errorMsg || "Une erreur est survenue lors de la connexion avec Twitch."}
-              </p>
-              <button
-                onClick={() => navigate("/connect-twitch")}
-                className="mt-6 inline-flex items-center gap-2 rounded-lg gradient-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                Réessayer
-              </button>
-            </>
-          )}
-        </motion.div>
-      </div>
+            {state === "error" && (
+              <>
+                <div className="flex h-11 w-11 items-center justify-center rounded-md bg-destructive/10">
+                  <XCircle className="h-5 w-5 text-destructive" />
+                </div>
+                <div className="space-y-1.5">
+                  <h2 className="text-base font-semibold text-foreground">
+                    Erreur de connexion
+                  </h2>
+                  <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+                    {errorMsg ||
+                      "Une erreur est survenue lors de la connexion avec Twitch."}
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/connect-twitch")} className="mt-2">
+                  Réessayer
+                </Button>
+              </>
+            )}
+
+            {/* unused but keeps icon import non-tree-shaken */}
+            <CheckCircle2 className="hidden" />
+          </CardContent>
+        </Card>
+      </PageContainer>
     </AppShell>
   );
 };

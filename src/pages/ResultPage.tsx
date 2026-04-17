@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import {
   User,
   TrendingDown,
@@ -10,19 +9,23 @@ import {
   Lock,
   Zap,
   Trophy,
-  Users,
-  Loader2,
+  ArrowLeft,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppShell from "@/components/AppShell";
+import PageContainer from "@/components/PageContainer";
+import PageHeader from "@/components/PageHeader";
+import SectionHeader from "@/components/SectionHeader";
 import ScoreCard from "@/components/ScoreCard";
 import CompetitorCard from "@/components/CompetitorCard";
 import RecommendationCard from "@/components/RecommendationCard";
 import LockedOverlay from "@/components/LockedOverlay";
 import StatBlock from "@/components/StatBlock";
-import SectionHeader from "@/components/SectionHeader";
 import EmptyReportState from "@/components/EmptyReportState";
 import CompetitorFeedbackBar from "@/components/CompetitorFeedbackBar";
+import { LoadingState } from "@/components/StateView";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { assembleReport } from "@/services/reportAssembler";
 import { allMockStreamers, nexaGaming } from "@/data/mockStreamers";
 import {
@@ -66,14 +69,12 @@ const ResultPage = () => {
       setSaved(null);
       setReport(null);
 
-      // 1. Persisted report path by stable report_id
       if (reportId && user) {
         const r = await getReportById(reportId, user.id);
         if (cancelled) return;
         if (r) {
           setSaved(r);
           setReport(r.report);
-          setNotFound(false);
         } else {
           setNotFound(true);
         }
@@ -81,14 +82,12 @@ const ResultPage = () => {
         return;
       }
 
-      // 2. Backward compatibility for old jobId links
       if (legacyJobId && user) {
         const r = await getReportByJobId(legacyJobId, user.id);
         if (cancelled) return;
         if (r) {
           setSaved(r);
           setReport(r.report);
-          setNotFound(false);
           navigate(`/result?report_id=${r.id}`, { replace: true });
         } else {
           setNotFound(true);
@@ -97,14 +96,12 @@ const ResultPage = () => {
         return;
       }
 
-      // 3. Authenticated fallback: latest persisted report
       if (user) {
         const r = await getLatestReport(user.id);
         if (cancelled) return;
         if (r) {
           setSaved(r);
           setReport(r.report);
-          setNotFound(false);
           navigate(`/result?report_id=${r.id}`, { replace: true });
         } else {
           setNotFound(true);
@@ -113,18 +110,15 @@ const ResultPage = () => {
         return;
       }
 
-      // 4. Teaser path (landing flow): mock data by channel name
       if (channel) {
         const data: MockStreamerData =
           (allMockStreamers as Record<string, MockStreamerData>)[channel.toLowerCase()] ||
           nexaGaming;
         setReport(assembleReport(data, `teaser-${channel}`));
-        setNotFound(false);
         setLoading(false);
         return;
       }
 
-      // 5. No params, no data
       setNotFound(true);
       setLoading(false);
     })();
@@ -137,9 +131,7 @@ const ResultPage = () => {
   if (loading) {
     return (
       <AppShell>
-        <div className="flex min-h-[70vh] items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-        </div>
+        <LoadingState />
       </AppShell>
     );
   }
@@ -147,12 +139,12 @@ const ResultPage = () => {
   if (notFound || !report) {
     return (
       <AppShell>
-        <div className="container mx-auto max-w-3xl px-4 py-16">
+        <PageContainer size="sm">
           <EmptyReportState
             title="Aucun rapport trouvé"
             description="Le rapport demandé n'existe pas ou ne t'appartient pas. Lance une nouvelle analyse pour commencer."
           />
-        </div>
+        </PageContainer>
       </AppShell>
     );
   }
@@ -162,68 +154,88 @@ const ResultPage = () => {
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
-  const priorityRecs = report.recommendations.filter((r) => r.type === "priority").slice(0, 3);
+  const priorityRecs = report.recommendations
+    .filter((r) => r.type === "priority")
+    .slice(0, 3);
   const nextAction = report.next_best_action;
   const directCompetitors = report.competitor_groups.find((g) => g.type === "direct");
 
   return (
     <AppShell>
-      <div className="container mx-auto max-w-4xl px-4 py-10">
-        {/* Channel Identity */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-10 flex items-center gap-4 rounded-xl border border-border bg-card p-6"
-        >
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-            <User className="h-7 w-7 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-foreground">{summary.display_name}</h1>
-            <p className="text-sm text-muted-foreground">
-              {summary.category} · ~{summary.avg_viewers} viewers moyens · {summary.follower_count} followers
-              {summary.broadcaster_type === "affiliate" && " · Affilié"}
-            </p>
-          </div>
-        </motion.div>
+      <PageContainer>
+        {user && (
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
+          >
+            <Link to="/dashboard">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Tableau de bord
+            </Link>
+          </Button>
+        )}
 
-        {/* Score + Stats */}
-        <div className="mb-10 grid gap-6 sm:grid-cols-4">
+        <PageHeader
+          eyebrow="Rapport d'analyse"
+          title={summary.display_name}
+          description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${summary.follower_count} followers${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
+        />
+
+        <div className="mb-8 grid gap-4 sm:grid-cols-4">
           <ScoreCard score={score.overall} />
           <div className="flex flex-col gap-3 sm:col-span-3">
             <div className="grid gap-3 sm:grid-cols-3">
-              <StatBlock label="Viewers moyens" value={String(summary.avg_viewers)} subtext="30 derniers jours" />
-              <StatBlock label="Régularité" value={`${score.regularity}%`} subtext={`${ap.stream_days.current}/${ap.stream_days.target} jours`} />
-              <StatBlock label="Contenu" value={`${score.content}%`} subtext={`${report.facts.find(f => f.key === 'clips_30d')?.value ?? 0} clips`} accent />
+              <StatBlock
+                label="Viewers moyens"
+                value={String(summary.avg_viewers)}
+                subtext="30 derniers jours"
+              />
+              <StatBlock
+                label="Régularité"
+                value={`${score.regularity}%`}
+                subtext={`${ap.stream_days.current}/${ap.stream_days.target} jours`}
+              />
+              <StatBlock
+                label="Contenu"
+                value={`${score.content}%`}
+                subtext={`${report.facts.find((f) => f.key === "clips_30d")?.value ?? 0} clips`}
+                accent
+              />
             </div>
-            <div className="rounded-lg border border-border bg-card p-4">
-              <div className="flex items-center gap-2">
-                <TrendingDown className="h-4 w-4 text-warning" />
-                <p className="text-sm font-semibold text-foreground">Point faible clé : {report.weak_point.label}</p>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">{report.weak_point.description}</p>
-            </div>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <TrendingDown className="h-4 w-4 text-warning" />
+                  <p className="text-sm font-semibold text-foreground">
+                    Point faible clé : {report.weak_point.label}
+                  </p>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {report.weak_point.description}
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        {/* Next Best Action */}
         {nextAction && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-10 rounded-xl border border-accent/30 bg-accent/5 p-6"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <Zap className="h-5 w-5 text-accent" />
-              <h3 className="text-sm font-bold uppercase tracking-wider text-accent">Action suivante</h3>
-            </div>
-            <p className="text-sm font-semibold text-foreground">{nextAction.title}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{nextAction.reason}</p>
-          </motion.div>
+          <Card className="mb-8 border-accent/30 bg-accent/5">
+            <CardContent className="p-5">
+              <div className="mb-1.5 flex items-center gap-2">
+                <Zap className="h-4 w-4 text-accent" />
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+                  Action suivante
+                </h3>
+              </div>
+              <p className="text-sm font-semibold text-foreground">{nextAction.title}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{nextAction.reason}</p>
+            </CardContent>
+          </Card>
         )}
 
-        {/* Competitor Teaser */}
-        <div className="mb-10">
+        <section className="mb-8">
           <SectionHeader title="Concurrents similaires" align="left" />
           {directCompetitors?.matches[0] && (
             <div>
@@ -244,17 +256,21 @@ const ResultPage = () => {
           {!isPersisted && (
             <div className="relative mt-3">
               <CompetitorCard name="" followers="" similarity={0} locked />
-              <LockedOverlay message="Connecte Twitch pour voir plus de concurrents" cta="Débloquer" />
+              <LockedOverlay
+                message="Connecte Twitch pour voir plus de concurrents"
+                cta="Débloquer"
+              />
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Affiliate Progress */}
-        <div className="relative mb-10 rounded-xl border border-border bg-card p-6">
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Progression vers l'affiliation
-          </h3>
-          <div className="space-y-3">
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Progression vers l'affiliation
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
             {[
               { label: "Followers", value: `${ap.followers.current} / ${ap.followers.target}`, pct: Math.min(100, Math.round((ap.followers.current / ap.followers.target) * 100)) },
               { label: "Viewers moyens", value: `${ap.avg_viewers.current} / ${ap.avg_viewers.target}`, pct: Math.min(100, Math.round((ap.avg_viewers.current / ap.avg_viewers.target) * 100)) },
@@ -267,15 +283,17 @@ const ResultPage = () => {
                   <span className="text-foreground">{item.value}</span>
                 </div>
                 <div className="mt-1 h-1.5 rounded-full bg-muted">
-                  <div className="h-full rounded-full gradient-primary" style={{ width: `${item.pct}%` }} />
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${item.pct}%` }}
+                  />
                 </div>
               </div>
             ))}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* Recommendations */}
-        <div className="mb-10">
+        <section className="mb-8">
           <SectionHeader title="Actions recommandées" align="left" />
           <div className="grid gap-4 sm:grid-cols-3">
             {priorityRecs.map((rec, i) => (
@@ -289,32 +307,29 @@ const ResultPage = () => {
               />
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* CTA */}
         {!isPersisted && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="rounded-xl border border-primary/20 bg-primary/5 p-8 text-center"
-          >
-            <Lock className="mx-auto mb-3 h-6 w-6 text-primary" />
-            <h3 className="text-xl font-bold text-foreground">Tu veux l'analyse complète ?</h3>
-            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-              {user
-                ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
-                : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
-            </p>
-            <a
-              href={ctaLink}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              {user ? "Connecter Twitch" : "Créer un compte gratuit"}
-            </a>
-          </motion.div>
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+              <Lock className="h-5 w-5 text-primary" />
+              <h3 className="text-base font-semibold text-foreground">
+                Tu veux l'analyse complète ?
+              </h3>
+              <p className="mx-auto max-w-md text-sm text-muted-foreground">
+                {user
+                  ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
+                  : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
+              </p>
+              <Button asChild className="mt-2">
+                <Link to={ctaLink}>
+                  {user ? "Connecter Twitch" : "Créer un compte gratuit"}
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         )}
-      </div>
+      </PageContainer>
     </AppShell>
   );
 };
