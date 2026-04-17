@@ -28,18 +28,17 @@ const Index = () => {
       <LandingNav />
 
       {/* Hero */}
-      <section className="relative overflow-hidden pt-32 pb-20">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(82_93%_66%/0.06),transparent_60%)]" />
-        <div className="container relative mx-auto px-4 text-center">
+      <section className="relative overflow-hidden pt-28 pb-16">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.06),transparent_60%)]" />
+        <div className="container relative mx-auto max-w-6xl px-4 text-center md:px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <span className="mb-4 inline-flex items-center rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium uppercase tracking-wider text-primary">
               Copilote de croissance streamer
             </span>
-            <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight text-foreground sm:text-5xl lg:text-6xl">
-              Analyse ta chaîne Twitch et découvre{" "}
-              <span className="gradient-primary-text">quoi améliorer pour progresser</span>
+            <h1 className="mx-auto max-w-3xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+              Analyse ta chaîne Twitch et découvre quoi améliorer pour progresser
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
               Obtiens ton StreamScore, repère les concurrents les plus pertinents et reçois un plan d'action clair pour faire grandir ta chaîne.
             </p>
           </motion.div>
@@ -82,8 +81,8 @@ const Index = () => {
       </section>
 
       {/* Value Props */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
+      <section className="py-16">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
           <SectionHeader
             label="Ce que tu obtiens"
             title="De la clarté en 3 étapes"
@@ -110,8 +109,8 @@ const Index = () => {
       </section>
 
       {/* Demo Preview */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
+      <section className="py-16">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
           <SectionHeader
             label="Aperçu"
             title="Un avant-goût de ton analyse"
@@ -149,8 +148,8 @@ const Index = () => {
       </section>
 
       {/* Trust */}
-      <section className="border-t border-border py-20">
-        <div className="container mx-auto px-4">
+      <section className="border-t border-border py-16">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
           <SectionHeader
             label="Confiance & vie privée"
             title="Ta chaîne reste la tienne"

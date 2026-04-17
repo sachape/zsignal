@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { AlertCircle, RefreshCw, Check, Loader2 } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
+import AnalysisStep from "@/components/AnalysisStep";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { runAnalysis, type JobStage } from "@/services/analysisRunner";
-import { cn } from "@/lib/utils";
 
 const stageOrder: JobStage[] = [
   "loading_data",
@@ -143,52 +144,17 @@ const AnalyzePage = () => {
             </div>
 
             <ul className="space-y-2">
-              {stageOrder.map((s, i) => {
-                const status = getStatus(i);
-                return (
-                  <li
-                    key={s}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-sm",
-                      status === "active" && "border-primary/40 bg-primary/5",
-                      status === "done" && "text-muted-foreground",
-                    )}
-                  >
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
-                      {status === "done" && (
-                        <Check className="h-3.5 w-3.5 text-primary" />
-                      )}
-                      {status === "active" && (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                      )}
-                      {status === "pending" && (
-                        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
-                      )}
-                    </span>
-                    <span
-                      className={cn(
-                        status === "active"
-                          ? "font-medium text-foreground"
-                          : "text-foreground/80",
-                      )}
-                    >
-                      {stageLabels[s]}
-                    </span>
-                  </li>
-                );
-              })}
+              {stageOrder.map((s, i) => (
+                <li key={s}>
+                  <AnalysisStep label={stageLabels[s]} status={getStatus(i)} />
+                </li>
+              ))}
             </ul>
 
-            <div className="mt-6 h-1 overflow-hidden rounded-full bg-muted">
-              <motion.div
-                className="h-full rounded-full bg-primary"
-                initial={{ width: "0%" }}
-                animate={{
-                  width: `${((Math.max(0, currentIndex) + 1) / stageOrder.length) * 100}%`,
-                }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
+            <Progress
+              value={((Math.max(0, currentIndex) + 1) / stageOrder.length) * 100}
+              className="mt-6"
+            />
           </CardContent>
         </Card>
       </PageContainer>
