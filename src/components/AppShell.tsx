@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Zap, BarChart3, Search, Link2, LogOut, User, LayoutDashboard } from "lucide-react";
+import { Zap, Search, Link2, LogOut, User, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const AppShell = ({ children }: { children: React.ReactNode }) => {
@@ -15,12 +15,10 @@ const AppShell = ({ children }: { children: React.ReactNode }) => {
   const navItems = user
     ? [
         { path: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
-        { path: "/analyze", label: "Analyse", icon: BarChart3 },
         { path: "/connect-twitch", label: "Twitch", icon: Link2 },
       ]
     : [
         { path: "/", label: "Accueil", icon: Search },
-        { path: "/analyze", label: "Analyse", icon: BarChart3 },
       ];
 
   return (
