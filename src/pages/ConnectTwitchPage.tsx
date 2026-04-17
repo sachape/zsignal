@@ -190,10 +190,7 @@ const ConnectTwitchPage = () => {
                 Ça prend 10 secondes. Tu peux te déconnecter à tout moment.
               </p>
             </div>
-            <Button
-              onClick={() => initiateTwitchOAuth()}
-              className="mt-2 bg-[#9146FF] text-white hover:bg-[#9146FF]/90"
-            >
+            <Button onClick={() => initiateTwitchOAuth()} variant="twitch" className="mt-2">
               <svg
                 className="h-4 w-4"
                 viewBox="0 0 24 24"
