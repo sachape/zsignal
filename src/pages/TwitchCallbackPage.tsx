@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Loader2, XCircle, CheckCircle2 } from "lucide-react";
+import { Loader2, XCircle } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -100,8 +100,6 @@ const TwitchCallbackPage = () => {
               </>
             )}
 
-            {/* unused but keeps icon import non-tree-shaken */}
-            <CheckCircle2 className="hidden" />
           </CardContent>
         </Card>
       </PageContainer>
