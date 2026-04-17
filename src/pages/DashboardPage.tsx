@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Zap,
-  TrendingDown,
   Trophy,
   Lightbulb,
   Clock,
   Target,
-  Users,
   Link2,
   ArrowRight,
+  RefreshCw,
+  FileText,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -20,12 +22,10 @@ import RecommendationCard from "@/components/RecommendationCard";
 import StatBlock from "@/components/StatBlock";
 import EmptyReportState from "@/components/EmptyReportState";
 import ReportHistoryList from "@/components/ReportHistoryList";
-import CompetitorFeedbackBar from "@/components/CompetitorFeedbackBar";
 import { LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import {
@@ -50,6 +50,11 @@ const formatDate = (iso: string) =>
     month: "long",
     year: "numeric",
   });
+
+const daysSince = (iso: string) => {
+  const ms = Date.now() - new Date(iso).getTime();
+  return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
+};
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -110,7 +115,26 @@ const DashboardPage = () => {
   const priorityRecs = report.recommendations
     .filter((r) => r.type === "priority")
     .slice(0, 3);
-  const direct = report.competitor_groups.find((g) => g.type === "direct");
+
+  // Score delta vs previous report
+  const previous = history.find((r) => r.id !== latest.id);
+  const delta = previous ? score.overall - previous.report.score.overall : null;
+
+  // Freshness
+  const ageDays = daysSince(latest.created_at);
+  const isFresh = ageDays <= 7;
+
+  // Next milestone (the closest-to-target affiliate progress item)
+  const milestones = [
+    { label: "Followers", current: ap.followers.current, target: ap.followers.target },
+    { label: "Viewers moyens", current: ap.avg_viewers.current, target: ap.avg_viewers.target },
+    { label: "Jours de stream", current: ap.stream_days.current, target: ap.stream_days.target },
+    { label: "Heures de stream", current: ap.stream_hours.current, target: ap.stream_hours.target },
+  ];
+  const nextMilestone = milestones
+    .map((m) => ({ ...m, pct: Math.min(100, Math.round((m.current / m.target) * 100)) }))
+    .filter((m) => m.pct < 100)
+    .sort((a, b) => b.pct - a.pct)[0] ?? milestones.map((m) => ({ ...m, pct: 100 }))[0];
 
   return (
     <AppShell>
@@ -118,121 +142,152 @@ const DashboardPage = () => {
         <PageHeader
           eyebrow="Tableau de bord"
           title={summary.display_name}
-          description={`Dernière analyse : ${formatDate(latest.created_at)}`}
+          description="Ton aperçu rapide — consulte le rapport complet pour le détail."
           action={
-            <Button asChild>
-              <Link to="/analyze">
-                Relancer une analyse <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/result?report_id=${latest.id}`}>
+                  <FileText className="h-4 w-4" /> Rapport complet
+                </Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link to="/analyze">
+                  <RefreshCw className="h-4 w-4" /> Relancer
+                </Link>
+              </Button>
+            </div>
           }
         />
 
-        {!isConnected && (
-          <Card className="mb-6 border-primary/30 bg-primary/5">
-            <CardContent className="flex items-center justify-between gap-4 p-4">
-              <div className="flex items-center gap-3">
-                <Link2 className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    Connecte Twitch pour des analyses live
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Tes prochaines analyses utiliseront tes vraies données.
-                  </p>
-                </div>
+        {/* Status row: freshness + Twitch connection */}
+        <div className="mb-6 grid gap-3 sm:grid-cols-2">
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              {isFresh ? (
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+              ) : (
+                <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-foreground">
+                  {isFresh ? "Analyse à jour" : "Analyse à rafraîchir"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Dernière analyse : {formatDate(latest.created_at)}
+                  {ageDays > 0 && ` · il y a ${ageDays} j`}
+                </p>
               </div>
-              <Button asChild variant="outline" size="sm">
-                <Link to="/connect-twitch">Connecter</Link>
-              </Button>
             </CardContent>
           </Card>
-        )}
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-4">
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <Link2
+                className={`h-4 w-4 shrink-0 ${isConnected ? "text-success" : "text-warning"}`}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-foreground">
+                  {isConnected ? "Twitch connecté" : "Twitch non connecté"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {isConnected
+                    ? "Tes prochaines analyses utiliseront tes vraies données."
+                    : "Connecte Twitch pour des analyses personnalisées."}
+                </p>
+              </div>
+              {!isConnected && (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/connect-twitch">Connecter</Link>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Hero: score + delta + key stats */}
+        <div className="mb-6 grid gap-4 sm:grid-cols-4">
           <ScoreCard score={score.overall} />
           <div className="flex flex-col gap-3 sm:col-span-3">
             <div className="grid gap-3 sm:grid-cols-3">
+              <StatBlock
+                label="Évolution"
+                value={delta === null ? "—" : delta > 0 ? `+${delta}` : String(delta)}
+                subtext={
+                  delta === null
+                    ? "Première analyse"
+                    : delta > 0
+                      ? "depuis la dernière analyse"
+                      : delta < 0
+                        ? "depuis la dernière analyse"
+                        : "stable"
+                }
+                accent={delta !== null && delta > 0}
+              />
               <StatBlock
                 label="Viewers moyens"
                 value={String(summary.avg_viewers)}
                 subtext="30 derniers jours"
               />
               <StatBlock
-                label="Régularité"
-                value={`${score.regularity}%`}
-                subtext={`${ap.stream_days.current}/${ap.stream_days.target} jours`}
-              />
-              <StatBlock
-                label="Contenu"
-                value={`${score.content}%`}
-                subtext={`${report.facts.find((f) => f.key === "clips_30d")?.value ?? 0} clips`}
-                accent
+                label="Followers"
+                value={String(summary.follower_count)}
+                subtext={summary.broadcaster_type === "affiliate" ? "Affilié" : "Non affilié"}
               />
             </div>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-warning" />
+
+            {/* Today's priority — single most important next action */}
+            {report.next_best_action && (
+              <Card className="border-accent/30 bg-accent/5">
+                <CardContent className="p-4">
+                  <div className="mb-1 flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-accent" />
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
+                      À faire aujourd'hui
+                    </h3>
+                  </div>
                   <p className="text-sm font-semibold text-foreground">
-                    Point faible : {report.weak_point.label}
+                    {report.next_best_action.title}
                   </p>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {report.weak_point.description}
-                </p>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
 
-        {report.next_best_action && (
-          <Card className="mb-8 border-accent/30 bg-accent/5">
-            <CardContent className="p-5">
-              <div className="mb-1.5 flex items-center gap-2">
-                <Zap className="h-4 w-4 text-accent" />
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
-                  Action prioritaire
-                </h3>
-              </div>
-              <p className="text-sm font-semibold text-foreground">
-                {report.next_best_action.title}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {report.next_best_action.reason}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
+        {/* Next milestone (compact teaser, full breakdown lives on /result) */}
         <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Progression vers l'affiliation
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {[
-              { label: "Followers", current: ap.followers.current, target: ap.followers.target },
-              { label: "Viewers moyens", current: ap.avg_viewers.current, target: ap.avg_viewers.target },
-              { label: "Jours de stream", current: ap.stream_days.current, target: ap.stream_days.target },
-              { label: "Heures de stream", current: ap.stream_hours.current, target: ap.stream_hours.target },
-            ].map((item) => {
-              const pct = Math.min(100, Math.round((item.current / item.target) * 100));
-              return (
-                <ProgressRow
-                  key={item.label}
-                  label={item.label}
-                  value={`${item.current} / ${item.target}`}
-                  pct={pct}
-                />
-              );
-            })}
+          <CardContent className="p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">
+                  Prochain palier : {nextMilestone.label}
+                </h3>
+                <p className="text-xs text-muted-foreground">Progression vers l'affiliation</p>
+              </div>
+              <Button asChild variant="ghost" size="sm">
+                <Link to={`/result?report_id=${latest.id}`}>
+                  Détail <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            </div>
+            <ProgressRow
+              label={nextMilestone.label}
+              value={`${nextMilestone.current} / ${nextMilestone.target}`}
+              pct={nextMilestone.pct}
+            />
           </CardContent>
         </Card>
 
+        {/* Top 3 recos (teasers) */}
         <section className="mb-8">
-          <SectionHeader title="Top 3 recommandations" align="left" />
+          <div className="mb-3 flex items-center justify-between">
+            <SectionHeader title="À prioriser" align="left" />
+            <Button asChild variant="ghost" size="sm">
+              <Link to={`/result?report_id=${latest.id}`}>
+                Toutes les actions <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </div>
           <div className="grid gap-4 sm:grid-cols-3">
             {priorityRecs.map((rec) => (
               <RecommendationCard
@@ -246,41 +301,7 @@ const DashboardPage = () => {
           </div>
         </section>
 
-        {direct && direct.matches.length > 0 && (
-          <section className="mb-8">
-            <SectionHeader title="Concurrents directs" align="left" />
-            <div className="space-y-3">
-              {direct.matches.slice(0, 3).map((c) => (
-                <Card key={c.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-accent/10">
-                        <Users className="h-5 w-5 text-accent" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                          {c.display_name}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {(c.follower_count / 1000).toFixed(1)}K abonnés ·{" "}
-                          {c.match_reasons.join(" · ")}
-                        </p>
-                      </div>
-                      <Badge variant="accent" className="shrink-0">
-                        {c.similarity_score}% similaire
-                      </Badge>
-                    </div>
-                    <CompetitorFeedbackBar
-                      reportId={latest.id}
-                      competitorKey={c.competitor_login}
-                    />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-        )}
-
+        {/* Recent analyses */}
         <section>
           <SectionHeader title="Analyses récentes" align="left" />
           <ReportHistoryList reports={history} />
