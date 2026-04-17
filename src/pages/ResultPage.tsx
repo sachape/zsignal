@@ -203,7 +203,7 @@ const ResultPage = () => {
         )}
 
         <PageHeader
-          eyebrow="Rapport d'analyse"
+          eyebrow={isTeaser ? "Aperçu gratuit" : "Rapport d'analyse"}
           title={summary.display_name}
           description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${summary.follower_count} followers${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
         />
@@ -245,26 +245,28 @@ const ResultPage = () => {
           </div>
         </div>
 
-        {/* Detailed score breakdown — only on report */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Décomposition du StreamScore
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {[
-              { label: "Régularité", pct: score.regularity },
-              { label: "Contenu", pct: score.content },
-              { label: "Structure", pct: score.structure },
-              { label: "Positionnement", pct: score.positioning },
-              { label: "Momentum", pct: score.momentum },
-              { label: "Monétisation", pct: score.monetization },
-            ].map((s) => (
-              <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} />
-            ))}
-          </CardContent>
-        </Card>
+        {/* Detailed score breakdown — hidden in teaser to preserve curiosity */}
+        {!isTeaser && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Décomposition du StreamScore
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { label: "Régularité", pct: score.regularity },
+                { label: "Contenu", pct: score.content },
+                { label: "Structure", pct: score.structure },
+                { label: "Positionnement", pct: score.positioning },
+                { label: "Momentum", pct: score.momentum },
+                { label: "Monétisation", pct: score.monetization },
+              ].map((s) => (
+                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} />
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {nextAction && (
           <Card className="mb-8 border-accent/30 bg-accent/5">
@@ -284,7 +286,7 @@ const ResultPage = () => {
         <section className="mb-8">
           <SectionHeader title="Concurrents similaires" align="left" />
           <div className="space-y-3">
-            {directCompetitors?.matches.map((c) => (
+            {visibleCompetitors.map((c) => (
               <div key={c.id}>
                 <CompetitorCard
                   name={c.display_name}
@@ -305,7 +307,11 @@ const ResultPage = () => {
             <div className="relative mt-3">
               <CompetitorCard name="" followers="" similarity={0} locked />
               <LockedOverlay
-                message="Connecte Twitch pour voir plus de concurrents"
+                message={
+                  isTeaser
+                    ? "Crée un compte pour voir tous les concurrents pertinents"
+                    : "Connecte Twitch pour voir plus de concurrents"
+                }
                 cta="Débloquer"
               />
             </div>
@@ -351,12 +357,16 @@ const ResultPage = () => {
             <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
               <Lock className="h-5 w-5 text-primary" />
               <h3 className="text-base font-semibold text-foreground">
-                Tu veux l'analyse complète ?
+                {isTeaser
+                  ? "Débloque l'analyse complète de ta chaîne"
+                  : "Tu veux l'analyse complète ?"}
               </h3>
               <p className="mx-auto max-w-md text-sm text-muted-foreground">
                 {user
                   ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
-                  : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
+                  : isTeaser
+                    ? "Crée un compte gratuit pour sauvegarder ton analyse, voir tous les concurrents, le plan d'action complet et suivre ta progression vers l'affiliation."
+                    : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button asChild className="mt-2">
                 <Link to={ctaLink}>
