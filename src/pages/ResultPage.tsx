@@ -1,6 +1,18 @@
+import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { User, TrendingDown, Clock, Target, Lightbulb, Lock, Zap, Trophy, Users } from "lucide-react";
+import {
+  User,
+  TrendingDown,
+  Clock,
+  Target,
+  Lightbulb,
+  Lock,
+  Zap,
+  Trophy,
+  Users,
+  Loader2,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppShell from "@/components/AppShell";
 import ScoreCard from "@/components/ScoreCard";
@@ -9,10 +21,12 @@ import RecommendationCard from "@/components/RecommendationCard";
 import LockedOverlay from "@/components/LockedOverlay";
 import StatBlock from "@/components/StatBlock";
 import SectionHeader from "@/components/SectionHeader";
+import EmptyReportState from "@/components/EmptyReportState";
+import CompetitorFeedbackBar from "@/components/CompetitorFeedbackBar";
 import { assembleReport } from "@/services/reportAssembler";
-import { allMockStreamers } from "@/data/mockStreamers";
-import { nexaGaming } from "@/data/mockStreamers";
-import type { MockStreamerData } from "@/types/analysis";
+import { allMockStreamers, nexaGaming } from "@/data/mockStreamers";
+import { getReportByJobId, type SavedReport } from "@/services/reportRepository";
+import type { AnalysisReport, MockStreamerData } from "@/types/analysis";
 
 const categoryIcons: Record<string, typeof Clock> = {
   regularity: Clock,
@@ -27,15 +41,80 @@ const categoryIcons: Record<string, typeof Clock> = {
 const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const channel = searchParams.get("channel") || "nexagaming";
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const jobId = searchParams.get("jobId");
+  const channel = searchParams.get("channel");
+
+  const [saved, setSaved] = useState<SavedReport | null>(null);
+  const [report, setReport] = useState<AnalysisReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    if (authLoading) return;
+    let cancelled = false;
+
+    (async () => {
+      setLoading(true);
+      // 1. Persisted report path
+      if (jobId && user) {
+        const r = await getReportByJobId(jobId, user.id);
+        if (cancelled) return;
+        if (r) {
+          setSaved(r);
+          setReport(r.report);
+        } else {
+          setNotFound(true);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // 2. Teaser path (landing flow): mock data by channel name
+      if (channel) {
+        const data: MockStreamerData =
+          (allMockStreamers as Record<string, MockStreamerData>)[channel.toLowerCase()] ||
+          nexaGaming;
+        setReport(assembleReport(data, `teaser-${channel}`));
+        setLoading(false);
+        return;
+      }
+
+      // 3. No params, no data
+      setNotFound(true);
+      setLoading(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [jobId, channel, user, authLoading]);
+
+  if (loading) {
+    return (
+      <AppShell>
+        <div className="flex min-h-[70vh] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (notFound || !report) {
+    return (
+      <AppShell>
+        <div className="container mx-auto max-w-3xl px-4 py-16">
+          <EmptyReportState
+            title="Aucun rapport trouvé"
+            description="Le rapport demandé n'existe pas ou ne t'appartient pas. Lance une nouvelle analyse pour commencer."
+          />
+        </div>
+      </AppShell>
+    );
+  }
+
+  const isPersisted = !!saved;
   const ctaLink = user ? "/connect-twitch" : "/auth?redirect=/connect-twitch";
-
-  // Resolve mock data
-  const streamerData: MockStreamerData =
-    (allMockStreamers as Record<string, MockStreamerData>)[channel.toLowerCase()] || nexaGaming;
-  const report = assembleReport(streamerData, `job-${channel}`);
-
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
@@ -103,17 +182,27 @@ const ResultPage = () => {
         <div className="mb-10">
           <SectionHeader title="Concurrents similaires" align="left" />
           {directCompetitors?.matches[0] && (
-            <CompetitorCard
-              name={directCompetitors.matches[0].display_name}
-              followers={`${(directCompetitors.matches[0].follower_count / 1000).toFixed(1)}K`}
-              similarity={directCompetitors.matches[0].similarity_score}
-              reasons={directCompetitors.matches[0].match_reasons}
-            />
+            <div>
+              <CompetitorCard
+                name={directCompetitors.matches[0].display_name}
+                followers={`${(directCompetitors.matches[0].follower_count / 1000).toFixed(1)}K`}
+                similarity={directCompetitors.matches[0].similarity_score}
+                reasons={directCompetitors.matches[0].match_reasons}
+              />
+              {isPersisted && saved && (
+                <CompetitorFeedbackBar
+                  reportId={saved.id}
+                  competitorKey={directCompetitors.matches[0].competitor_login}
+                />
+              )}
+            </div>
           )}
-          <div className="relative mt-3">
-            <CompetitorCard name="" followers="" similarity={0} locked />
-            <LockedOverlay message="Connecte Twitch pour voir plus de concurrents" cta="Débloquer" />
-          </div>
+          {!isPersisted && (
+            <div className="relative mt-3">
+              <CompetitorCard name="" followers="" similarity={0} locked />
+              <LockedOverlay message="Connecte Twitch pour voir plus de concurrents" cta="Débloquer" />
+            </div>
+          )}
         </div>
 
         {/* Affiliate Progress */}
@@ -152,31 +241,35 @@ const ResultPage = () => {
                 title={rec.title}
                 reason={rec.reason}
                 action={rec.action}
-                locked={i >= 2}
+                locked={!isPersisted && i >= 2}
               />
             ))}
           </div>
         </div>
 
         {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="rounded-xl border border-primary/20 bg-primary/5 p-8 text-center"
-        >
-          <Lock className="mx-auto mb-3 h-6 w-6 text-primary" />
-          <h3 className="text-xl font-bold text-foreground">Tu veux l'analyse complète ?</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire de ta progression.
-          </p>
-          <a
-            href={ctaLink}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        {!isPersisted && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="rounded-xl border border-primary/20 bg-primary/5 p-8 text-center"
           >
-            {user ? "Connecter Twitch" : "Créer un compte gratuit"}
-          </a>
-        </motion.div>
+            <Lock className="mx-auto mb-3 h-6 w-6 text-primary" />
+            <h3 className="text-xl font-bold text-foreground">Tu veux l'analyse complète ?</h3>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              {user
+                ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
+                : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
+            </p>
+            <a
+              href={ctaLink}
+              className="mt-5 inline-flex items-center gap-2 rounded-lg gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              {user ? "Connecter Twitch" : "Créer un compte gratuit"}
+            </a>
+          </motion.div>
+        )}
       </div>
     </AppShell>
   );
