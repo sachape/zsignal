@@ -37,6 +37,28 @@ export async function getLatestReport(userId: string): Promise<SavedReport | nul
   };
 }
 
+export async function getReportById(
+  reportId: string,
+  userId: string
+): Promise<SavedReport | null> {
+  const { data, error } = await supabase
+    .from("analysis_reports")
+    .select("id, analysis_job_id, channel_summary, created_at, report_data")
+    .eq("id", reportId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  return {
+    id: data.id,
+    job_id: data.analysis_job_id,
+    channel_summary: data.channel_summary ?? "",
+    created_at: data.created_at,
+    report: data.report_data as unknown as AnalysisReport,
+  };
+}
+
 export async function getReportByJobId(
   jobId: string,
   userId: string

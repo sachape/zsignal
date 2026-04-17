@@ -25,7 +25,12 @@ import EmptyReportState from "@/components/EmptyReportState";
 import CompetitorFeedbackBar from "@/components/CompetitorFeedbackBar";
 import { assembleReport } from "@/services/reportAssembler";
 import { allMockStreamers, nexaGaming } from "@/data/mockStreamers";
-import { getReportByJobId, type SavedReport } from "@/services/reportRepository";
+import {
+  getLatestReport,
+  getReportById,
+  getReportByJobId,
+  type SavedReport,
+} from "@/services/reportRepository";
 import type { AnalysisReport, MockStreamerData } from "@/types/analysis";
 
 const categoryIcons: Record<string, typeof Clock> = {
@@ -42,7 +47,8 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const jobId = searchParams.get("jobId");
+  const reportId = searchParams.get("report_id");
+  const legacyJobId = searchParams.get("jobId");
   const channel = searchParams.get("channel");
 
   const [saved, setSaved] = useState<SavedReport | null>(null);
@@ -56,13 +62,18 @@ const ResultPage = () => {
 
     (async () => {
       setLoading(true);
-      // 1. Persisted report path
-      if (jobId && user) {
-        const r = await getReportByJobId(jobId, user.id);
+      setNotFound(false);
+      setSaved(null);
+      setReport(null);
+
+      // 1. Persisted report path by stable report_id
+      if (reportId && user) {
+        const r = await getReportById(reportId, user.id);
         if (cancelled) return;
         if (r) {
           setSaved(r);
           setReport(r.report);
+          setNotFound(false);
         } else {
           setNotFound(true);
         }
@@ -70,17 +81,50 @@ const ResultPage = () => {
         return;
       }
 
-      // 2. Teaser path (landing flow): mock data by channel name
+      // 2. Backward compatibility for old jobId links
+      if (legacyJobId && user) {
+        const r = await getReportByJobId(legacyJobId, user.id);
+        if (cancelled) return;
+        if (r) {
+          setSaved(r);
+          setReport(r.report);
+          setNotFound(false);
+          navigate(`/result?report_id=${r.id}`, { replace: true });
+        } else {
+          setNotFound(true);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // 3. Authenticated fallback: latest persisted report
+      if (user) {
+        const r = await getLatestReport(user.id);
+        if (cancelled) return;
+        if (r) {
+          setSaved(r);
+          setReport(r.report);
+          setNotFound(false);
+          navigate(`/result?report_id=${r.id}`, { replace: true });
+        } else {
+          setNotFound(true);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // 4. Teaser path (landing flow): mock data by channel name
       if (channel) {
         const data: MockStreamerData =
           (allMockStreamers as Record<string, MockStreamerData>)[channel.toLowerCase()] ||
           nexaGaming;
         setReport(assembleReport(data, `teaser-${channel}`));
+        setNotFound(false);
         setLoading(false);
         return;
       }
 
-      // 3. No params, no data
+      // 5. No params, no data
       setNotFound(true);
       setLoading(false);
     })();
@@ -88,7 +132,7 @@ const ResultPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [jobId, channel, user, authLoading]);
+  }, [reportId, legacyJobId, channel, user, authLoading, navigate]);
 
   if (loading) {
     return (
