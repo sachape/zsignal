@@ -167,7 +167,12 @@ const ResultPage = () => {
   }
 
   const isPersisted = !!saved;
-  const ctaLink = user ? "/connect-twitch" : "/auth?redirect=/connect-twitch";
+  const teaserCtaChannel = teaserChannel ?? channel ?? "";
+  const ctaLink = user
+    ? "/connect-twitch"
+    : `/auth?redirect=${encodeURIComponent(
+        `/dashboard${teaserCtaChannel ? `?channel=${encodeURIComponent(teaserCtaChannel)}` : ""}`,
+      )}`;
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
@@ -176,6 +181,9 @@ const ResultPage = () => {
     .slice(0, 3);
   const nextAction = report.next_best_action;
   const directCompetitors = report.competitor_groups.find((g) => g.type === "direct");
+  const visibleCompetitors = isTeaser
+    ? (directCompetitors?.matches ?? []).slice(0, 1)
+    : (directCompetitors?.matches ?? []);
 
   return (
     <AppShell>
