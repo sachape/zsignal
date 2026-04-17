@@ -19,7 +19,7 @@ const ReportHistoryList = ({ reports }: { reports: SavedReport[] }) => {
       {reports.map((r) => (
         <li key={r.id}>
           <Link
-            to={`/result?jobId=${r.job_id}`}
+            to={`/result?report_id=${r.id}`}
             className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-muted/40"
           >
             <div className="flex items-center gap-3">

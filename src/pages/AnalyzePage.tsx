@@ -65,12 +65,12 @@ const AnalyzePage = () => {
     startedRef.current = true;
     (async () => {
       try {
-        const { jobId } = await runAnalysis({
+        const { reportId } = await runAnalysis({
           channelName: channel,
           userId: user.id,
           onStage: (s) => setCurrentStage(s),
         });
-        setTimeout(() => navigate(`/result?jobId=${jobId}`), 600);
+        setTimeout(() => navigate(`/result?report_id=${reportId}`), 600);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Une erreur est survenue.");
       }
