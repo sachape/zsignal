@@ -220,20 +220,12 @@ const DashboardPage = () => {
             ].map((item) => {
               const pct = Math.min(100, Math.round((item.current / item.target) * 100));
               return (
-                <div key={item.label}>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{item.label}</span>
-                    <span className="text-foreground">
-                      {item.current} / {item.target}
-                    </span>
-                  </div>
-                  <div className="mt-1 h-1.5 rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
+                <ProgressRow
+                  key={item.label}
+                  label={item.label}
+                  value={`${item.current} / ${item.target}`}
+                  pct={pct}
+                />
               );
             })}
           </CardContent>
@@ -262,21 +254,21 @@ const DashboardPage = () => {
                 <Card key={c.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-accent/10">
                         <Users className="h-5 w-5 text-accent" />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-foreground">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-foreground">
                           {c.display_name}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="truncate text-xs text-muted-foreground">
                           {(c.follower_count / 1000).toFixed(1)}K abonnés ·{" "}
                           {c.match_reasons.join(" · ")}
                         </p>
                       </div>
-                      <div className="rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                      <Badge variant="accent" className="shrink-0">
                         {c.similarity_score}% similaire
-                      </div>
+                      </Badge>
                     </div>
                     <CompetitorFeedbackBar
                       reportId={latest.id}
