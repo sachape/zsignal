@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
 import {
   ShieldCheck,
   EyeOff,
@@ -10,13 +9,17 @@ import {
   CalendarCheck,
   Zap,
   CheckCircle2,
-  Loader2,
   LinkIcon,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import TrustCard from "@/components/TrustCard";
+import PageContainer from "@/components/PageContainer";
+import PageHeader from "@/components/PageHeader";
 import SectionHeader from "@/components/SectionHeader";
+import TrustCard from "@/components/TrustCard";
 import ValueCard from "@/components/ValueCard";
+import { LoadingState } from "@/components/StateView";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { initiateTwitchOAuth } from "@/services/twitchOAuth";
@@ -27,7 +30,8 @@ const ConnectTwitchPage = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isConnected, account, loading: connectionLoading } = useTwitchConnection();
+  const { isConnected, account, loading: connectionLoading } =
+    useTwitchConnection();
 
   const justConnected = searchParams.get("connected") === "true";
 
@@ -46,93 +50,90 @@ const ConnectTwitchPage = () => {
 
   const state = getState();
 
-  // Success state
-  if (state === "success") {
-    return (
-      <AppShell>
-        <div className="flex min-h-[70vh] items-center justify-center px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md rounded-xl border border-border bg-card p-8 text-center"
-          >
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
-              <CheckCircle2 className="h-7 w-7 text-success" />
-            </div>
-            <h2 className="text-xl font-bold text-foreground">Compte Twitch connecté</h2>
-            <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-              Ton compte est prêt. On peut maintenant analyser ta chaîne en profondeur.
-            </p>
-            <button
-              onClick={() => navigate("/analyze")}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Lancer mon analyse
-            </button>
-          </motion.div>
-        </div>
-      </AppShell>
-    );
-  }
-
-  // Already connected state
-  if (state === "already-connected") {
-    return (
-      <AppShell>
-        <div className="flex min-h-[70vh] items-center justify-center px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md rounded-xl border border-border bg-card p-8 text-center"
-          >
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-              <LinkIcon className="h-7 w-7 text-primary" />
-            </div>
-            <h2 className="text-xl font-bold text-foreground">Twitch déjà connecté</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Ton compte <span className="font-semibold text-foreground">{account?.platform_display_name || account?.platform_login || "Twitch"}</span> est connecté.
-            </p>
-            <button
-              onClick={() => navigate("/analyze")}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Lancer une analyse
-            </button>
-          </motion.div>
-        </div>
-      </AppShell>
-    );
-  }
-
-  // Loading state
   if (state === "loading") {
     return (
       <AppShell>
-        <div className="flex min-h-[70vh] items-center justify-center px-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <LoadingState />
       </AppShell>
     );
   }
 
-  // Default trust page
+  if (state === "success") {
+    return (
+      <AppShell>
+        <PageContainer size="sm">
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
+              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-success/10">
+                <CheckCircle2 className="h-5 w-5 text-success" />
+              </div>
+              <div className="space-y-1.5">
+                <h2 className="text-base font-semibold text-foreground">
+                  Compte Twitch connecté
+                </h2>
+                <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+                  Ton compte est prêt. On peut maintenant analyser ta chaîne en
+                  profondeur.
+                </p>
+              </div>
+              <Button onClick={() => navigate("/dashboard")} className="mt-2">
+                Aller au tableau de bord
+              </Button>
+            </CardContent>
+          </Card>
+        </PageContainer>
+      </AppShell>
+    );
+  }
+
+  if (state === "already-connected") {
+    return (
+      <AppShell>
+        <PageContainer size="sm">
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
+              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10">
+                <LinkIcon className="h-5 w-5 text-primary" />
+              </div>
+              <div className="space-y-1.5">
+                <h2 className="text-base font-semibold text-foreground">
+                  Twitch déjà connecté
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Compte :{" "}
+                  <span className="font-medium text-foreground">
+                    {account?.platform_display_name ||
+                      account?.platform_login ||
+                      "Twitch"}
+                  </span>
+                </p>
+              </div>
+              <Button onClick={() => navigate("/analyze")} className="mt-2">
+                Lancer une analyse
+              </Button>
+            </CardContent>
+          </Card>
+        </PageContainer>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
-      <div className="container mx-auto max-w-3xl px-4 py-16">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary">
-            <Zap className="h-7 w-7 text-primary-foreground" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-foreground">Connecter Twitch</h1>
-          <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
-            Débloque une analyse approfondie, des recommandations personnalisées et un suivi de progression hebdomadaire en connectant ton compte Twitch.
-          </p>
-        </motion.div>
+      <PageContainer>
+        <PageHeader
+          eyebrow="Configuration"
+          title="Connecter Twitch"
+          description="Débloque une analyse approfondie, des recommandations personnalisées et un suivi de progression hebdomadaire en connectant ton compte Twitch."
+        />
 
-        {/* What you unlock */}
-        <div className="mt-14">
-          <SectionHeader label="Ce que tu débloques" title="Va au-delà de l'analyse de surface" />
-          <div className="grid gap-5 sm:grid-cols-3">
+        <section className="mb-10">
+          <SectionHeader
+            label="Ce que tu débloques"
+            title="Va au-delà de l'analyse de surface"
+            align="left"
+          />
+          <div className="grid gap-4 sm:grid-cols-3">
             <ValueCard
               icon={BarChart3}
               title="StreamScore complet"
@@ -149,11 +150,14 @@ const ConnectTwitchPage = () => {
               description="Reçois chaque semaine un plan d'action personnalisé basé sur tes dernières données."
             />
           </div>
-        </div>
+        </section>
 
-        {/* Trust */}
-        <div className="mt-14">
-          <SectionHeader label="Vie privée" title="Ce qu'on fait — et ce qu'on ne fait pas" />
+        <section className="mb-10">
+          <SectionHeader
+            label="Vie privée"
+            title="Ce qu'on fait — et ce qu'on ne fait pas"
+            align="left"
+          />
           <div className="grid gap-4 sm:grid-cols-3">
             <TrustCard
               icon={EyeOff}
@@ -171,30 +175,37 @@ const ConnectTwitchPage = () => {
               description="On accède uniquement aux données publiques et à tes statistiques de stream. Rien d'autre."
             />
           </div>
-        </div>
+        </section>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-14 rounded-xl border border-border bg-card p-8 text-center"
-        >
-          <h3 className="text-xl font-bold text-foreground">Prêt à débloquer ta croissance ?</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Ça prend 10 secondes. Tu peux te déconnecter à tout moment.
-          </p>
-          <button
-            onClick={() => initiateTwitchOAuth()}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#9146FF] px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
-            </svg>
-            Se connecter avec Twitch
-          </button>
-        </motion.div>
-      </div>
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+            <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10">
+              <Zap className="h-5 w-5 text-primary" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-base font-semibold text-foreground">
+                Prêt à débloquer ta croissance ?
+              </h3>
+              <p className="mx-auto max-w-md text-sm text-muted-foreground">
+                Ça prend 10 secondes. Tu peux te déconnecter à tout moment.
+              </p>
+            </div>
+            <Button
+              onClick={() => initiateTwitchOAuth()}
+              className="mt-2 bg-[#9146FF] text-white hover:bg-[#9146FF]/90"
+            >
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
+              </svg>
+              Se connecter avec Twitch
+            </Button>
+          </CardContent>
+        </Card>
+      </PageContainer>
     </AppShell>
   );
 };

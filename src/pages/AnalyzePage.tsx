@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw, Check, Loader2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import AnalysisStep from "@/components/AnalysisStep";
+import PageContainer from "@/components/PageContainer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { runAnalysis, type JobStage } from "@/services/analysisRunner";
+import { cn } from "@/lib/utils";
 
 const stageOrder: JobStage[] = [
   "loading_data",
@@ -40,12 +43,10 @@ const AnalyzePage = () => {
   useEffect(() => {
     if (authLoading || startedRef.current) return;
 
-    // Unauth: keep teaser flow → redirect to /result with channel
     if (!user) {
       const t = setTimeout(() => {
         navigate(`/result?channel=${encodeURIComponent(channel)}`);
       }, 3500);
-      // Animate fake stages for visual continuity
       let i = 0;
       const iv = setInterval(() => {
         if (i >= stageOrder.length) {
@@ -61,7 +62,6 @@ const AnalyzePage = () => {
       };
     }
 
-    // Authenticated: real persisted run
     startedRef.current = true;
     (async () => {
       try {
@@ -89,67 +89,109 @@ const AnalyzePage = () => {
   if (error) {
     return (
       <AppShell>
-        <div className="flex min-h-[70vh] items-center justify-center px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md rounded-xl border border-destructive/30 bg-card p-8 text-center"
-          >
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-              <AlertCircle className="h-6 w-6 text-destructive" />
-            </div>
-            <h2 className="text-lg font-bold text-foreground">Analyse échouée</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{error}</p>
-            <button
-              onClick={() => {
-                startedRef.current = false;
-                setError(null);
-                setCurrentStage("pending");
-              }}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg gradient-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Réessayer
-            </button>
-          </motion.div>
-        </div>
+        <PageContainer size="sm">
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
+              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-destructive/10">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+              </div>
+              <div className="space-y-1.5">
+                <h2 className="text-base font-semibold text-foreground">
+                  Analyse échouée
+                </h2>
+                <p className="text-sm text-muted-foreground">{error}</p>
+              </div>
+              <div className="mt-2 flex gap-2">
+                <Button asChild variant="outline">
+                  <Link to={user ? "/dashboard" : "/"}>Retour</Link>
+                </Button>
+                <Button
+                  onClick={() => {
+                    startedRef.current = false;
+                    setError(null);
+                    setCurrentStage("pending");
+                  }}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Réessayer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </PageContainer>
       </AppShell>
     );
   }
 
   return (
     <AppShell>
-      <div className="flex min-h-[70vh] items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8 text-center"
-          >
-            <h1 className="text-xl font-bold text-foreground">Analyse de {channel}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {user ? "Pipeline en cours d'exécution" : "Aperçu rapide en cours…"}
-            </p>
-          </motion.div>
+      <PageContainer size="sm">
+        <Card>
+          <CardContent className="p-8">
+            <div className="mb-6 text-center">
+              <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Analyse en cours
+              </p>
+              <h1 className="text-xl font-semibold tracking-tight text-foreground">
+                {channel}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {user
+                  ? "Pipeline en cours d'exécution"
+                  : "Aperçu rapide en cours…"}
+              </p>
+            </div>
 
-          <div className="space-y-3">
-            {stageOrder.map((s, i) => (
-              <AnalysisStep key={s} label={stageLabels[s]} status={getStatus(i)} index={i} />
-            ))}
-          </div>
+            <ul className="space-y-2">
+              {stageOrder.map((s, i) => {
+                const status = getStatus(i);
+                return (
+                  <li
+                    key={s}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-sm",
+                      status === "active" && "border-primary/40 bg-primary/5",
+                      status === "done" && "text-muted-foreground",
+                    )}
+                  >
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
+                      {status === "done" && (
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      )}
+                      {status === "active" && (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                      )}
+                      {status === "pending" && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
+                      )}
+                    </span>
+                    <span
+                      className={cn(
+                        status === "active"
+                          ? "font-medium text-foreground"
+                          : "text-foreground/80",
+                      )}
+                    >
+                      {stageLabels[s]}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
 
-          <div className="mt-8 h-1 rounded-full bg-muted">
-            <motion.div
-              className="h-full rounded-full gradient-primary"
-              initial={{ width: "0%" }}
-              animate={{
-                width: `${((Math.max(0, currentIndex) + 1) / stageOrder.length) * 100}%`,
-              }}
-              transition={{ duration: 0.5 }}
-            />
-          </div>
-        </div>
-      </div>
+            <div className="mt-6 h-1 overflow-hidden rounded-full bg-muted">
+              <motion.div
+                className="h-full rounded-full bg-primary"
+                initial={{ width: "0%" }}
+                animate={{
+                  width: `${((Math.max(0, currentIndex) + 1) / stageOrder.length) * 100}%`,
+                }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </PageContainer>
     </AppShell>
   );
 };
