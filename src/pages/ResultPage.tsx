@@ -232,9 +232,10 @@ const ResultPage = () => {
             {[
               { label: "Régularité", pct: score.regularity },
               { label: "Contenu", pct: score.content },
-              { label: "Communauté", pct: score.community },
-              { label: "Monétisation", pct: score.monetization },
+              { label: "Structure", pct: score.structure },
+              { label: "Positionnement", pct: score.positioning },
               { label: "Momentum", pct: score.momentum },
+              { label: "Monétisation", pct: score.monetization },
             ].map((s) => (
               <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} />
             ))}
