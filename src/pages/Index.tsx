@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, ArrowRight, BarChart3, Users, CalendarCheck, ShieldCheck, EyeOff, Settings } from "lucide-react";
+import { Search, ArrowRight, BarChart3, Users, CalendarCheck, ShieldCheck, EyeOff, Settings, AlertCircle } from "lucide-react";
+import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 import LandingNav from "@/components/LandingNav";
 import SectionHeader from "@/components/SectionHeader";
 import ValueCard from "@/components/ValueCard";
@@ -15,12 +16,19 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const Index = () => {
   const [username, setUsername] = useState("");
+  const [inputError, setInputError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleAnalyze = () => {
-    if (username.trim()) {
-      navigate(`/analyze?channel=${encodeURIComponent(username.trim())}`);
+    const login = normalizeChannelInput(username);
+    if (!login) {
+      setInputError(
+        "Entre un nom d'utilisateur Twitch valide ou une URL twitch.tv/...",
+      );
+      return;
     }
+    setInputError(null);
+    navigate(`/analyze?channel=${encodeURIComponent(login)}&mode=teaser`);
   };
 
   return (
@@ -56,11 +64,15 @@ const Index = () => {
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="Nom d'utilisateur ou URL Twitch"
+                    placeholder="ex. nexagaming ou twitch.tv/nexagaming"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      if (inputError) setInputError(null);
+                    }}
                     onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
                     className="border-transparent bg-muted pl-9 focus-visible:ring-1"
+                    aria-invalid={!!inputError}
                   />
                 </div>
                 <Button onClick={handleAnalyze} className="shrink-0">
@@ -69,12 +81,21 @@ const Index = () => {
                 </Button>
               </CardContent>
             </Card>
+            {inputError && (
+              <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-destructive">
+                <AlertCircle className="h-3.5 w-3.5" />
+                <span>{inputError}</span>
+              </div>
+            )}
+            <p className="mt-3 text-xs text-muted-foreground">
+              Aperçu gratuit · pas de compte requis pour la première analyse
+            </p>
             <Button
               variant="link"
-              onClick={() => navigate("/auth?redirect=/connect-twitch")}
-              className="mt-2 text-muted-foreground hover:text-primary"
+              onClick={() => navigate("/auth?redirect=/dashboard")}
+              className="mt-1 text-muted-foreground hover:text-primary"
             >
-              Ou connecte Twitch pour une analyse plus poussée →
+              Déjà un compte ? Se connecter →
             </Button>
           </motion.div>
         </div>

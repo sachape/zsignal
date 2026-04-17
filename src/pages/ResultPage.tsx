@@ -27,15 +27,14 @@ import { LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { assembleReport } from "@/services/reportAssembler";
-import { allMockStreamers, nexaGaming } from "@/data/mockStreamers";
+import { teaserStore } from "@/services/teaserStore";
 import {
   getLatestReport,
   getReportById,
   getReportByJobId,
   type SavedReport,
 } from "@/services/reportRepository";
-import type { AnalysisReport, MockStreamerData } from "@/types/analysis";
+import type { AnalysisReport } from "@/types/analysis";
 
 const categoryIcons: Record<string, typeof Clock> = {
   regularity: Clock,
@@ -53,10 +52,13 @@ const ResultPage = () => {
   const { user, loading: authLoading } = useAuth();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
+  const teaserId = searchParams.get("teaser");
   const channel = searchParams.get("channel");
 
   const [saved, setSaved] = useState<SavedReport | null>(null);
   const [report, setReport] = useState<AnalysisReport | null>(null);
+  const [isTeaser, setIsTeaser] = useState(false);
+  const [teaserChannel, setTeaserChannel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -69,6 +71,23 @@ const ResultPage = () => {
       setNotFound(false);
       setSaved(null);
       setReport(null);
+      setIsTeaser(false);
+      setTeaserChannel(null);
+
+      // Teaser mode (anonymous, sessionStorage)
+      if (teaserId) {
+        const rec = teaserStore.get(teaserId);
+        if (cancelled) return;
+        if (rec) {
+          setReport(rec.report);
+          setIsTeaser(true);
+          setTeaserChannel(rec.channel);
+        } else {
+          setNotFound(true);
+        }
+        setLoading(false);
+        return;
+      }
 
       if (reportId && user) {
         const r = await getReportById(reportId, user.id);
@@ -111,12 +130,9 @@ const ResultPage = () => {
         return;
       }
 
+      // Anonymous user, no teaser id, fallback to channel param redirect to teaser flow
       if (channel) {
-        const data: MockStreamerData =
-          (allMockStreamers as Record<string, MockStreamerData>)[channel.toLowerCase()] ||
-          nexaGaming;
-        setReport(assembleReport(data, `teaser-${channel}`));
-        setLoading(false);
+        navigate(`/analyze?channel=${encodeURIComponent(channel)}&mode=teaser`, { replace: true });
         return;
       }
 
@@ -127,7 +143,7 @@ const ResultPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [reportId, legacyJobId, channel, user, authLoading, navigate]);
+  }, [reportId, legacyJobId, teaserId, channel, user, authLoading, navigate]);
 
   if (loading) {
     return (
@@ -151,7 +167,12 @@ const ResultPage = () => {
   }
 
   const isPersisted = !!saved;
-  const ctaLink = user ? "/connect-twitch" : "/auth?redirect=/connect-twitch";
+  const teaserCtaChannel = teaserChannel ?? channel ?? "";
+  const ctaLink = user
+    ? "/connect-twitch"
+    : `/auth?redirect=${encodeURIComponent(
+        `/dashboard${teaserCtaChannel ? `?channel=${encodeURIComponent(teaserCtaChannel)}` : ""}`,
+      )}`;
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
@@ -160,6 +181,9 @@ const ResultPage = () => {
     .slice(0, 3);
   const nextAction = report.next_best_action;
   const directCompetitors = report.competitor_groups.find((g) => g.type === "direct");
+  const visibleCompetitors = isTeaser
+    ? (directCompetitors?.matches ?? []).slice(0, 1)
+    : (directCompetitors?.matches ?? []);
 
   return (
     <AppShell>
@@ -179,7 +203,7 @@ const ResultPage = () => {
         )}
 
         <PageHeader
-          eyebrow="Rapport d'analyse"
+          eyebrow={isTeaser ? "Aperçu gratuit" : "Rapport d'analyse"}
           title={summary.display_name}
           description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${summary.follower_count} followers${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
         />
@@ -221,26 +245,28 @@ const ResultPage = () => {
           </div>
         </div>
 
-        {/* Detailed score breakdown — only on report */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Décomposition du StreamScore
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {[
-              { label: "Régularité", pct: score.regularity },
-              { label: "Contenu", pct: score.content },
-              { label: "Structure", pct: score.structure },
-              { label: "Positionnement", pct: score.positioning },
-              { label: "Momentum", pct: score.momentum },
-              { label: "Monétisation", pct: score.monetization },
-            ].map((s) => (
-              <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} />
-            ))}
-          </CardContent>
-        </Card>
+        {/* Detailed score breakdown — hidden in teaser to preserve curiosity */}
+        {!isTeaser && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Décomposition du StreamScore
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { label: "Régularité", pct: score.regularity },
+                { label: "Contenu", pct: score.content },
+                { label: "Structure", pct: score.structure },
+                { label: "Positionnement", pct: score.positioning },
+                { label: "Momentum", pct: score.momentum },
+                { label: "Monétisation", pct: score.monetization },
+              ].map((s) => (
+                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} />
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {nextAction && (
           <Card className="mb-8 border-accent/30 bg-accent/5">
@@ -260,7 +286,7 @@ const ResultPage = () => {
         <section className="mb-8">
           <SectionHeader title="Concurrents similaires" align="left" />
           <div className="space-y-3">
-            {directCompetitors?.matches.map((c) => (
+            {visibleCompetitors.map((c) => (
               <div key={c.id}>
                 <CompetitorCard
                   name={c.display_name}
@@ -281,7 +307,11 @@ const ResultPage = () => {
             <div className="relative mt-3">
               <CompetitorCard name="" followers="" similarity={0} locked />
               <LockedOverlay
-                message="Connecte Twitch pour voir plus de concurrents"
+                message={
+                  isTeaser
+                    ? "Crée un compte pour voir tous les concurrents pertinents"
+                    : "Connecte Twitch pour voir plus de concurrents"
+                }
                 cta="Débloquer"
               />
             </div>
@@ -327,12 +357,16 @@ const ResultPage = () => {
             <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
               <Lock className="h-5 w-5 text-primary" />
               <h3 className="text-base font-semibold text-foreground">
-                Tu veux l'analyse complète ?
+                {isTeaser
+                  ? "Débloque l'analyse complète de ta chaîne"
+                  : "Tu veux l'analyse complète ?"}
               </h3>
               <p className="mx-auto max-w-md text-sm text-muted-foreground">
                 {user
                   ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
-                  : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
+                  : isTeaser
+                    ? "Crée un compte gratuit pour sauvegarder ton analyse, voir tous les concurrents, le plan d'action complet et suivre ta progression vers l'affiliation."
+                    : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button asChild className="mt-2">
                 <Link to={ctaLink}>
