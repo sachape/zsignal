@@ -27,15 +27,14 @@ import { LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { assembleReport } from "@/services/reportAssembler";
-import { allMockStreamers, nexaGaming } from "@/data/mockStreamers";
+import { teaserStore } from "@/services/teaserStore";
 import {
   getLatestReport,
   getReportById,
   getReportByJobId,
   type SavedReport,
 } from "@/services/reportRepository";
-import type { AnalysisReport, MockStreamerData } from "@/types/analysis";
+import type { AnalysisReport } from "@/types/analysis";
 
 const categoryIcons: Record<string, typeof Clock> = {
   regularity: Clock,
@@ -53,10 +52,13 @@ const ResultPage = () => {
   const { user, loading: authLoading } = useAuth();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
+  const teaserId = searchParams.get("teaser");
   const channel = searchParams.get("channel");
 
   const [saved, setSaved] = useState<SavedReport | null>(null);
   const [report, setReport] = useState<AnalysisReport | null>(null);
+  const [isTeaser, setIsTeaser] = useState(false);
+  const [teaserChannel, setTeaserChannel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -69,6 +71,23 @@ const ResultPage = () => {
       setNotFound(false);
       setSaved(null);
       setReport(null);
+      setIsTeaser(false);
+      setTeaserChannel(null);
+
+      // Teaser mode (anonymous, sessionStorage)
+      if (teaserId) {
+        const rec = teaserStore.get(teaserId);
+        if (cancelled) return;
+        if (rec) {
+          setReport(rec.report);
+          setIsTeaser(true);
+          setTeaserChannel(rec.channel);
+        } else {
+          setNotFound(true);
+        }
+        setLoading(false);
+        return;
+      }
 
       if (reportId && user) {
         const r = await getReportById(reportId, user.id);
@@ -111,12 +130,9 @@ const ResultPage = () => {
         return;
       }
 
+      // Anonymous user, no teaser id, fallback to channel param redirect to teaser flow
       if (channel) {
-        const data: MockStreamerData =
-          (allMockStreamers as Record<string, MockStreamerData>)[channel.toLowerCase()] ||
-          nexaGaming;
-        setReport(assembleReport(data, `teaser-${channel}`));
-        setLoading(false);
+        navigate(`/analyze?channel=${encodeURIComponent(channel)}&mode=teaser`, { replace: true });
         return;
       }
 
@@ -127,7 +143,7 @@ const ResultPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [reportId, legacyJobId, channel, user, authLoading, navigate]);
+  }, [reportId, legacyJobId, teaserId, channel, user, authLoading, navigate]);
 
   if (loading) {
     return (
