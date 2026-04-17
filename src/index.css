@@ -34,9 +34,10 @@
     --primary: 82 93% 66%;
     --primary-foreground: 0 0% 7%;
 
-    /* Visual aliases shadcn uses — keep the brand cohesive */
-    --accent: 82 93% 66%;
-    --accent-foreground: 0 0% 7%;
+    /* Supporting accent — used for non-CTA visual differentiation
+       (competitor markers, "next action" callout). Never used for primary actions. */
+    --accent: 172 66% 50%;
+    --accent-foreground: 220 20% 6%;
     --ring: 82 93% 66%;
 
     /* ── Semantic states ─────────────────────────────────────────── */
