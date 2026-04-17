@@ -221,6 +221,27 @@ const ResultPage = () => {
           </div>
         </div>
 
+        {/* Detailed score breakdown — only on report */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Décomposition du StreamScore
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              { label: "Régularité", pct: score.regularity },
+              { label: "Contenu", pct: score.content },
+              { label: "Structure", pct: score.structure },
+              { label: "Positionnement", pct: score.positioning },
+              { label: "Momentum", pct: score.momentum },
+              { label: "Monétisation", pct: score.monetization },
+            ].map((s) => (
+              <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} />
+            ))}
+          </CardContent>
+        </Card>
+
         {nextAction && (
           <Card className="mb-8 border-accent/30 bg-accent/5">
             <CardContent className="p-5">
@@ -238,22 +259,24 @@ const ResultPage = () => {
 
         <section className="mb-8">
           <SectionHeader title="Concurrents similaires" align="left" />
-          {directCompetitors?.matches[0] && (
-            <div>
-              <CompetitorCard
-                name={directCompetitors.matches[0].display_name}
-                followers={`${(directCompetitors.matches[0].follower_count / 1000).toFixed(1)}K`}
-                similarity={directCompetitors.matches[0].similarity_score}
-                reasons={directCompetitors.matches[0].match_reasons}
-              />
-              {isPersisted && saved && (
-                <CompetitorFeedbackBar
-                  reportId={saved.id}
-                  competitorKey={directCompetitors.matches[0].competitor_login}
+          <div className="space-y-3">
+            {directCompetitors?.matches.map((c) => (
+              <div key={c.id}>
+                <CompetitorCard
+                  name={c.display_name}
+                  followers={`${(c.follower_count / 1000).toFixed(1)}K`}
+                  similarity={c.similarity_score}
+                  reasons={c.match_reasons}
                 />
-              )}
-            </div>
-          )}
+                {isPersisted && saved && (
+                  <CompetitorFeedbackBar
+                    reportId={saved.id}
+                    competitorKey={c.competitor_login}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
           {!isPersisted && (
             <div className="relative mt-3">
               <CompetitorCard name="" followers="" similarity={0} locked />
