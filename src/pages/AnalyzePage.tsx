@@ -86,12 +86,13 @@ const AnalyzePage = () => {
         channelInput: channel,
         onStage: (s) => setCurrentStage(s),
       });
-      if (!result.ok) {
-        if (result.reason === "not_found") setNotFound(true);
-        else setError(result.message ?? "Une erreur est survenue.");
-        return;
+      if (result.ok === true) {
+        setTimeout(() => navigate(`/result?teaser=${result.record.id}`), 500);
+      } else if (result.reason === "not_found") {
+        setNotFound(true);
+      } else {
+        setError(result.message ?? "Une erreur est survenue.");
       }
-      setTimeout(() => navigate(`/result?teaser=${result.record.id}`), 500);
     })();
   }, [authLoading, user, channel, mode, navigate]);
 
