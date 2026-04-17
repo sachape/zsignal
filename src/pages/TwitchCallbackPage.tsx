@@ -62,8 +62,8 @@ const TwitchCallbackPage = () => {
 
             {state === "cancelled" && (
               <>
-                <div className="flex h-11 w-11 items-center justify-center rounded-md bg-muted">
-                  <XCircle className="h-5 w-5 text-muted-foreground" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
+                  <XCircle className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="space-y-1.5">
                   <h2 className="text-base font-semibold text-foreground">
@@ -82,8 +82,8 @@ const TwitchCallbackPage = () => {
 
             {state === "error" && (
               <>
-                <div className="flex h-11 w-11 items-center justify-center rounded-md bg-destructive/10">
-                  <XCircle className="h-5 w-5 text-destructive" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-destructive/10">
+                  <XCircle className="h-4 w-4 text-destructive" />
                 </div>
                 <div className="space-y-1.5">
                   <h2 className="text-base font-semibold text-foreground">

@@ -57,8 +57,8 @@ const AuthPage = () => {
         <div className="w-full max-w-sm">
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
-              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10">
-                <Mail className="h-5 w-5 text-primary" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+                <Mail className="h-4 w-4 text-primary" />
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-base font-semibold text-foreground">

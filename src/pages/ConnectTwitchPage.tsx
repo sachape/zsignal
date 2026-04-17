@@ -64,8 +64,8 @@ const ConnectTwitchPage = () => {
         <PageContainer size="sm">
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
-              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-success/10">
-                <CheckCircle2 className="h-5 w-5 text-success" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-success/10">
+                <CheckCircle2 className="h-4 w-4 text-success" />
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-base font-semibold text-foreground">
@@ -92,8 +92,8 @@ const ConnectTwitchPage = () => {
         <PageContainer size="sm">
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
-              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10">
-                <LinkIcon className="h-5 w-5 text-primary" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+                <LinkIcon className="h-4 w-4 text-primary" />
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-base font-semibold text-foreground">
@@ -179,8 +179,8 @@ const ConnectTwitchPage = () => {
 
         <Card>
           <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-            <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10">
-              <Zap className="h-5 w-5 text-primary" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+              <Zap className="h-4 w-4 text-primary" />
             </div>
             <div className="space-y-1.5">
               <h3 className="text-base font-semibold text-foreground">
@@ -190,10 +190,7 @@ const ConnectTwitchPage = () => {
                 Ça prend 10 secondes. Tu peux te déconnecter à tout moment.
               </p>
             </div>
-            <Button
-              onClick={() => initiateTwitchOAuth()}
-              className="mt-2 bg-[#9146FF] text-white hover:bg-[#9146FF]/90"
-            >
+            <Button onClick={() => initiateTwitchOAuth()} variant="twitch" className="mt-2">
               <svg
                 className="h-4 w-4"
                 viewBox="0 0 24 24"

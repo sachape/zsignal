@@ -2,49 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/*
+  StreamPulse — Design System Tokens
+  Single source of truth. Components must consume these tokens; no hex literals in pages.
+*/
 
 @layer base {
   :root {
+    /* ── Surfaces ────────────────────────────────────────────────── */
     --background: 220 20% 6%;
     --foreground: 210 20% 92%;
 
     --card: 220 18% 9%;
     --card-foreground: 210 20% 92%;
 
-    --popover: 220 18% 9%;
+    --popover: 220 18% 11%;
     --popover-foreground: 210 20% 92%;
 
-    --primary: 82 93% 66%;
-    --primary-foreground: 0 0% 7%;
+    --muted: 220 14% 12%;
+    --muted-foreground: 215 12% 55%;
 
     --secondary: 220 16% 14%;
     --secondary-foreground: 210 20% 80%;
 
-    --muted: 220 14% 12%;
-    --muted-foreground: 215 12% 50%;
+    --border: 220 14% 16%;
+    --input: 220 14% 16%;
 
+    /* ── Brand: lime accent (single brand color) ─────────────────── */
+    --primary: 82 93% 66%;
+    --primary-foreground: 0 0% 7%;
+
+    /* Supporting accent — used for non-CTA visual differentiation
+       (competitor markers, "next action" callout). Never used for primary actions. */
     --accent: 172 66% 50%;
     --accent-foreground: 220 20% 6%;
+    --ring: 82 93% 66%;
+
+    /* ── Semantic states ─────────────────────────────────────────── */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 7%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 7%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 20% 98%;
 
-    --border: 220 14% 16%;
-    --input: 220 14% 16%;
-    --ring: 82 93% 66%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 7%;
 
+    /* ── Third-party brand colors (used only where required) ─────── */
+    --twitch: 264 100% 64%;
+    --twitch-foreground: 0 0% 100%;
+
+    /* ── Shape ───────────────────────────────────────────────────── */
     --radius: 0.625rem;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 220 20% 6%;
-
-    --success: 142 71% 45%;
-    --success-foreground: 220 20% 6%;
-
-    --glow-primary: 82 93% 66%;
-    --glow-accent: 82 93% 66%;
-
+    /* ── Sidebar (shadcn aliases — aligned to product surface) ───── */
     --sidebar-background: 220 18% 7%;
     --sidebar-foreground: 210 20% 80%;
     --sidebar-primary: 82 93% 66%;
@@ -62,42 +78,5 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-  }
-}
-
-@layer utilities {
-  .gradient-primary {
-    background: linear-gradient(135deg, hsl(82 93% 66%), hsl(82 80% 50%));
-  }
-  .gradient-primary-text {
-    background: linear-gradient(135deg, hsl(82 93% 66%), hsl(82 80% 50%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(82 93% 66% / 0.2), 0 0 60px hsl(82 93% 66% / 0.08);
-  }
-  .glow-accent {
-    box-shadow: 0 0 20px hsl(82 93% 66% / 0.15), 0 0 60px hsl(82 93% 66% / 0.06);
-  }
-  .glass {
-    background: hsl(220 18% 9% / 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid hsl(220 14% 16% / 0.8);
-  }
-  .shimmer {
-    background: linear-gradient(
-      90deg,
-      hsl(220 14% 12%) 0%,
-      hsl(220 14% 18%) 50%,
-      hsl(220 14% 12%) 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
-  }
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
   }
 }
