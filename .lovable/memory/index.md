@@ -1,11 +1,15 @@
+# Memory: index.md
+Updated: now
+
 # Project Memory
 
 ## Core
 StreamPulse - Twitch streamer growth copilot SaaS. Dark premium theme.
-Primary lime #B8FF57, accent teal. DM Sans + JetBrains Mono.
-Lovable Cloud backend. Auth enabled (email + Google).
-All copy in polished French. Target: small French-speaking Twitch streamers.
+Primary #3B82F6 (blue), accent #2DD4A8 (teal). Inter + JetBrains Mono.
+All copy in French. Target: small French-speaking Twitch streamers.
+Auth via Lovable Cloud. Twitch OAuth foundation built but not live (no creds yet).
+Persistence: analysis_jobs + analysis_reports (jsonb report_data). /dashboard is logged-in home.
 
 ## Memories
-- [Design system](mem://design/tokens) — Dark bg, lime accent, glass, glow, shimmer utilities
-- [App structure](mem://features/structure) — Landing (sticky nav), internal pages (AppShell), 6 routes
+- [Design system](mem://design/tokens) — Dark bg, blue-teal gradient, glass, glow, shimmer utilities
+- [App structure](mem://features/structure) — Routes, layouts, and reusable components

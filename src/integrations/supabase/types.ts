@@ -117,6 +117,41 @@ export type Database = {
           },
         ]
       }
+      competitor_feedback: {
+        Row: {
+          competitor_key: string
+          created_at: string
+          feedback_type: string
+          id: string
+          report_id: string
+          user_id: string
+        }
+        Insert: {
+          competitor_key: string
+          created_at?: string
+          feedback_type: string
+          id?: string
+          report_id: string
+          user_id: string
+        }
+        Update: {
+          competitor_key?: string
+          created_at?: string
+          feedback_type?: string
+          id?: string
+          report_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_feedback_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       competitor_matches: {
         Row: {
           analysis_job_id: string

@@ -1,13 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Zap, BarChart3, Search, Link2, LogOut, User } from "lucide-react";
+import { Zap, BarChart3, Search, Link2, LogOut, User, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
-const navItems = [
-  { path: "/", label: "Accueil", icon: Search },
-  { path: "/analyze", label: "Analyse", icon: BarChart3 },
-  { path: "/result", label: "Résultats", icon: BarChart3 },
-  { path: "/connect-twitch", label: "Connexion", icon: Link2 },
-];
 
 const AppShell = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -19,12 +12,23 @@ const AppShell = ({ children }: { children: React.ReactNode }) => {
     navigate("/");
   };
 
+  const navItems = user
+    ? [
+        { path: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+        { path: "/analyze", label: "Analyse", icon: BarChart3 },
+        { path: "/connect-twitch", label: "Twitch", icon: Link2 },
+      ]
+    : [
+        { path: "/", label: "Accueil", icon: Search },
+        { path: "/analyze", label: "Analyse", icon: BarChart3 },
+      ];
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur-md">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-md gradient-primary">
                 <Zap className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
@@ -55,7 +59,7 @@ const AppShell = ({ children }: { children: React.ReactNode }) => {
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
                   <User className="h-3.5 w-3.5" />
                   {user.email}
                 </span>
