@@ -30,15 +30,15 @@
     --border: 220 14% 16%;
     --input: 220 14% 16%;
 
-    /* ── Brand: lime accent (single brand color) ─────────────────── */
-    --primary: 82 93% 66%;
+    /* ── Brand: lime accent (#89FD3A) ────────────────────────────── */
+    --primary: 95 98% 61%;
     --primary-foreground: 0 0% 7%;
 
     /* Supporting accent — used for non-CTA visual differentiation
        (competitor markers, "next action" callout). Never used for primary actions. */
     --accent: 172 66% 50%;
     --accent-foreground: 220 20% 6%;
-    --ring: 82 93% 66%;
+    --ring: 95 98% 61%;
 
     /* ── Semantic states ─────────────────────────────────────────── */
     --success: 142 71% 45%;
@@ -63,12 +63,12 @@
     /* ── Sidebar (shadcn aliases — aligned to product surface) ───── */
     --sidebar-background: 220 18% 7%;
     --sidebar-foreground: 210 20% 80%;
-    --sidebar-primary: 82 93% 66%;
+    --sidebar-primary: 95 98% 61%;
     --sidebar-primary-foreground: 0 0% 7%;
     --sidebar-accent: 220 14% 12%;
     --sidebar-accent-foreground: 210 20% 92%;
     --sidebar-border: 220 14% 16%;
-    --sidebar-ring: 82 93% 66%;
+    --sidebar-ring: 95 98% 61%;
   }
 }
 
