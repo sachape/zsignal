@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, ArrowRight, BarChart3, Users, CalendarCheck, ShieldCheck, EyeOff, Settings } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import LandingNav from "@/components/LandingNav";
 import SectionHeader from "@/components/SectionHeader";
 import ValueCard from "@/components/ValueCard";
 import TrustCard from "@/components/TrustCard";
 import ScoreCard from "@/components/ScoreCard";
 import CompetitorCard from "@/components/CompetitorCard";
+import ProgressRow from "@/components/ProgressRow";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Index = () => {
   const [username, setUsername] = useState("");
