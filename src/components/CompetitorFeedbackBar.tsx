@@ -1,11 +1,20 @@
 import { useState } from "react";
-import { ThumbsUp, ThumbsDown, TrendingUp, Target, Star, EyeOff, Check } from "lucide-react";
+import {
+  ThumbsUp,
+  ThumbsDown,
+  TrendingUp,
+  Target,
+  Star,
+  EyeOff,
+  Check,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   saveFeedback,
   type FeedbackType,
 } from "@/services/competitorFeedbackRepository";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   reportId: string;
@@ -38,11 +47,18 @@ const CompetitorFeedbackBar = ({ reportId, competitorKey }: Props) => {
     });
     setSubmitting(false);
     if (error) {
-      toast({ title: "Erreur", description: "Impossible d'enregistrer ton retour.", variant: "destructive" });
+      toast({
+        title: "Erreur",
+        description: "Impossible d'enregistrer ton retour.",
+        variant: "destructive",
+      });
       return;
     }
     setSubmitted(type);
-    toast({ title: "Merci !", description: "Ton retour a bien été pris en compte." });
+    toast({
+      title: "Merci !",
+      description: "Ton retour a bien été pris en compte.",
+    });
   };
 
   if (submitted) {
@@ -58,16 +74,17 @@ const CompetitorFeedbackBar = ({ reportId, competitorKey }: Props) => {
   return (
     <div className="mt-3 flex flex-wrap gap-1.5">
       {options.map(({ type, label, Icon }) => (
-        <button
+        <Button
           key={type}
-          onClick={() => handle(type)}
+          variant="outline"
+          size="sm"
           disabled={submitting}
-          className="inline-flex items-center gap-1 rounded-md border border-border bg-background/50 px-2 py-1 text-[10px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-50"
-          title={label}
+          onClick={() => handle(type)}
+          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
         >
-          <Icon className="h-2.5 w-2.5" />
+          <Icon className="h-3 w-3" />
           {label}
-        </button>
+        </Button>
       ))}
     </div>
   );

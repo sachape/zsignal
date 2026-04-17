@@ -24,6 +24,7 @@ import StatBlock from "@/components/StatBlock";
 import EmptyReportState from "@/components/EmptyReportState";
 import CompetitorFeedbackBar from "@/components/CompetitorFeedbackBar";
 import { LoadingState } from "@/components/StateView";
+import ProgressRow from "@/components/ProgressRow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { assembleReport } from "@/services/reportAssembler";
@@ -277,18 +278,7 @@ const ResultPage = () => {
               { label: "Jours de stream", value: `${ap.stream_days.current} / ${ap.stream_days.target}`, pct: Math.min(100, Math.round((ap.stream_days.current / ap.stream_days.target) * 100)) },
               { label: "Heures de stream", value: `${ap.stream_hours.current} / ${ap.stream_hours.target}`, pct: Math.min(100, Math.round((ap.stream_hours.current / ap.stream_hours.target) * 100)) },
             ].map((item) => (
-              <div key={item.label}>
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{item.label}</span>
-                  <span className="text-foreground">{item.value}</span>
-                </div>
-                <div className="mt-1 h-1.5 rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width: `${item.pct}%` }}
-                  />
-                </div>
-              </div>
+              <ProgressRow key={item.label} label={item.label} value={item.value} pct={item.pct} />
             ))}
           </CardContent>
         </Card>

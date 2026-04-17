@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, ArrowRight, BarChart3, Users, CalendarCheck, ShieldCheck, EyeOff, Settings } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import LandingNav from "@/components/LandingNav";
 import SectionHeader from "@/components/SectionHeader";
 import ValueCard from "@/components/ValueCard";
 import TrustCard from "@/components/TrustCard";
 import ScoreCard from "@/components/ScoreCard";
 import CompetitorCard from "@/components/CompetitorCard";
+import ProgressRow from "@/components/ProgressRow";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Index = () => {
   const [username, setUsername] = useState("");
@@ -48,32 +51,32 @@ const Index = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mx-auto mt-10 max-w-lg"
           >
-            <div className="flex gap-2 rounded-xl border border-border bg-card p-2">
-              <div className="flex flex-1 items-center gap-2 rounded-lg bg-muted px-3">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Nom d'utilisateur ou URL Twitch"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
-                  className="w-full bg-transparent py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                />
-              </div>
-              <button
-                onClick={handleAnalyze}
-                className="flex shrink-0 items-center gap-2 rounded-lg gradient-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                Analyser
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-            <button
+            <Card>
+              <CardContent className="flex gap-2 p-2">
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Nom d'utilisateur ou URL Twitch"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
+                    className="border-transparent bg-muted pl-9 focus-visible:ring-1"
+                  />
+                </div>
+                <Button onClick={handleAnalyze} className="shrink-0">
+                  Analyser
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+            <Button
+              variant="link"
               onClick={() => navigate("/auth?redirect=/connect-twitch")}
-              className="mt-3 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              className="mt-2 text-muted-foreground hover:text-primary"
             >
               Ou connecte Twitch pour une analyse plus poussée →
-            </button>
+            </Button>
           </motion.div>
         </div>
       </section>
@@ -120,29 +123,27 @@ const Index = () => {
               <CompetitorCard name="streamzilla_fr" followers="2.4K" similarity={87} />
               <CompetitorCard name="nightowl_ttv" followers="1.8K" similarity={74} />
             </div>
-            <div className="rounded-xl border border-border bg-card p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Progression affiliation</p>
-              <div className="mt-4 space-y-3">
-                {[
-                  { label: "Viewers moyens", value: "2.8 / 3", pct: 93 },
-                  { label: "Jours de stream", value: "6 / 7", pct: 86 },
-                  { label: "Chatteurs uniques", value: "42 / 50", pct: 84 },
-                ].map((item) => (
-                  <div key={item.label}>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{item.label}</span>
-                      <span className="text-foreground">{item.value}</span>
-                    </div>
-                    <div className="mt-1 h-1.5 rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full gradient-primary transition-all duration-700"
-                        style={{ width: `${item.pct}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Card>
+              <CardContent className="p-6">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Progression affiliation
+                </p>
+                <div className="mt-4 space-y-3">
+                  {[
+                    { label: "Viewers moyens", value: "2.8 / 3", pct: 93 },
+                    { label: "Jours de stream", value: "6 / 7", pct: 86 },
+                    { label: "Chatteurs uniques", value: "42 / 50", pct: 84 },
+                  ].map((item) => (
+                    <ProgressRow
+                      key={item.label}
+                      label={item.label}
+                      value={item.value}
+                      pct={item.pct}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

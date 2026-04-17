@@ -1,5 +1,6 @@
 import { Lock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface LockedOverlayProps {
@@ -14,20 +15,16 @@ const LockedOverlay = ({
   to,
 }: LockedOverlayProps) => {
   const { user } = useAuth();
-
-  // If user is authenticated, link to connect-twitch; otherwise to auth
-  const destination = to || (user ? "/connect-twitch" : "/auth?redirect=/connect-twitch");
+  const destination =
+    to || (user ? "/connect-twitch" : "/auth?redirect=/connect-twitch");
 
   return (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-background/80 backdrop-blur-sm">
-      <Lock className="mb-2 h-5 w-5 text-muted-foreground" />
-      <p className="mb-3 text-sm font-medium text-muted-foreground">{message}</p>
-      <Link
-        to={destination}
-        className="rounded-lg gradient-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-      >
-        {cta}
-      </Link>
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-lg bg-background/80 backdrop-blur-sm">
+      <Lock className="h-4 w-4 text-muted-foreground" />
+      <p className="text-sm font-medium text-muted-foreground">{message}</p>
+      <Button asChild size="sm">
+        <Link to={destination}>{cta}</Link>
+      </Button>
     </div>
   );
 };
