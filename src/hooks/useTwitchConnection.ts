@@ -8,6 +8,8 @@ interface TwitchAccount {
   platform_display_name: string | null;
   platform_user_id: string | null;
   created_at: string;
+  /** Twitch profile image (joined from twitch_profiles when available). */
+  profile_image_url?: string | null;
 }
 
 export function useTwitchConnection() {
@@ -22,20 +24,33 @@ export function useTwitchConnection() {
       return;
     }
 
-    const fetch = async () => {
+    const fetchAccount = async () => {
       setLoading(true);
-      const { data } = await supabase
+      const { data: connected } = await supabase
         .from("connected_accounts")
         .select("id, platform_login, platform_display_name, platform_user_id, created_at")
         .eq("user_id", user.id)
         .eq("platform", "twitch")
         .maybeSingle();
 
-      setAccount(data);
+      if (!connected) {
+        setAccount(null);
+        setLoading(false);
+        return;
+      }
+
+      // Best-effort avatar lookup. Failure is non-fatal — fallback to initials.
+      const { data: profile } = await supabase
+        .from("twitch_profiles")
+        .select("profile_image_url")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      setAccount({ ...connected, profile_image_url: profile?.profile_image_url ?? null });
       setLoading(false);
     };
 
-    fetch();
+    fetchAccount();
   }, [user]);
 
   return {
