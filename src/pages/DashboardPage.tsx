@@ -119,13 +119,13 @@ const DashboardPage = () => {
                   Compte Twitch connecté
                 </h2>
                 <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                  Aucune analyse live disponible pour ce compte pour le moment.
-                  Lance ta première analyse pour découvrir ton StreamScore réel.
+                  Aucune analyse encore disponible pour ce compte. Lance la première
+                  synchronisation — les mises à jour suivantes seront automatiques.
                 </p>
               </div>
               <Button asChild className="mt-2">
                 <Link to="/analyze">
-                  <Zap className="h-4 w-4" /> Lancer ma première analyse live
+                  <Zap className="h-4 w-4" /> Démarrer la première synchronisation
                 </Link>
               </Button>
             </CardContent>
