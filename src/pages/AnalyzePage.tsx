@@ -77,6 +77,11 @@ const AnalyzePage = () => {
   const [currentStage, setCurrentStage] = useState<Stage>("pending");
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [lookupInfo, setLookupInfo] = useState<{
+    login: string;
+    source: string;
+    displayName: string;
+  } | null>(null);
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -112,10 +117,11 @@ const AnalyzePage = () => {
         return;
       }
 
-      // Public teaser analysis
+      // Public teaser analysis (real Twitch public lookup, no mock fallback)
       const result = await runTeaserAnalysis({
         channelInput: channel,
         onStage: (s) => setCurrentStage(s),
+        onLookupResolved: (info) => setLookupInfo(info),
       });
       if (result.ok === true) {
         setTimeout(() => navigate(`/result?teaser=${result.record.id}`), 500);
@@ -249,6 +255,23 @@ const AnalyzePage = () => {
                       : "url_channel_param"}
                 </div>
                 <div>resolved channel: {channel || "—"}</div>
+                {mode === "teaser" && (
+                  <>
+                    <div className="mt-1 border-t border-border/40 pt-1">
+                      twitch lookup source:{" "}
+                      {lookupInfo?.source ??
+                        (currentStage === "looking_up" ? "(en cours…)" : "—")}
+                    </div>
+                    <div>
+                      twitch lookup login: {lookupInfo?.login ?? "—"}
+                    </div>
+                    <div>
+                      twitch lookup display_name:{" "}
+                      {lookupInfo?.displayName ?? "—"}
+                    </div>
+                    <div>real twitch api: {lookupInfo ? "yes" : "—"}</div>
+                  </>
+                )}
               </div>
             )}
           </CardContent>
