@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { runAnalysis, type JobStage } from "@/services/analysisRunner";
 import { runTeaserAnalysis, type TeaserStage } from "@/services/teaserAnalysisRunner";
 
@@ -50,7 +51,15 @@ const AnalyzePage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const channel = searchParams.get("channel") || "";
+  const { account, loading: connectionLoading } = useTwitchConnection();
+
+  // For authenticated users with a connected Twitch account, the connected
+  // login is the canonical channel — we ignore stale ?channel= values that
+  // could point at an old demo channel.
+  const urlChannel = searchParams.get("channel") || "";
+  const connectedLogin = account?.platform_login ?? "";
+  const channel = user && connectedLogin ? connectedLogin : urlChannel;
+
   const mode = searchParams.get("mode") === "teaser" || !user ? "teaser" : "full";
   const [currentStage, setCurrentStage] = useState<Stage>("pending");
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +67,7 @@ const AnalyzePage = () => {
   const startedRef = useRef(false);
 
   useEffect(() => {
-    if (authLoading || startedRef.current) return;
+    if (authLoading || connectionLoading || startedRef.current) return;
     if (!channel) {
       setError("Aucune chaîne fournie. Retourne à l'accueil pour lancer une analyse.");
       return;
@@ -72,6 +81,9 @@ const AnalyzePage = () => {
           const { reportId } = await runAnalysis({
             channelName: channel,
             userId: user.id,
+            platform: account ? "twitch" : null,
+            platformUserId: account?.platform_user_id ?? null,
+            platformLogin: account?.platform_login ?? null,
             onStage: (s) => setCurrentStage(s),
           });
           setTimeout(() => navigate(`/result?report_id=${reportId}`), 500);
@@ -94,7 +106,7 @@ const AnalyzePage = () => {
         setError(result.message ?? "Une erreur est survenue.");
       }
     })();
-  }, [authLoading, user, channel, mode, navigate]);
+  }, [authLoading, connectionLoading, user, account, channel, mode, navigate]);
 
   const order: Stage[] = mode === "full" ? fullStageOrder : teaserStageOrder;
   const currentIndex = order.indexOf(currentStage);
