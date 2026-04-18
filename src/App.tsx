@@ -12,6 +12,11 @@ import ConnectTwitchPage from "./pages/ConnectTwitchPage.tsx";
 import TwitchCallbackPage from "./pages/TwitchCallbackPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
+import WeeklyPlanPage from "./pages/WeeklyPlanPage.tsx";
+import CompetitorsPage from "./pages/CompetitorsPage.tsx";
+import PlaybooksPage from "./pages/PlaybooksPage.tsx";
+import PlaybookDetailPage from "./pages/PlaybookDetailPage.tsx";
+import StreamerProfilePage from "./pages/StreamerProfilePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -38,6 +43,25 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/plan"
+              element={
+                <ProtectedRoute>
+                  <WeeklyPlanPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/competitors"
+              element={
+                <ProtectedRoute>
+                  <CompetitorsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/playbooks" element={<PlaybooksPage />} />
+            <Route path="/playbooks/:slug" element={<PlaybookDetailPage />} />
+            <Route path="/streamer/:login" element={<StreamerProfilePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
