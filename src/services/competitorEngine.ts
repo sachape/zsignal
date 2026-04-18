@@ -381,21 +381,41 @@ export function evaluatePairwiseFit(
   };
 }
 
-export function buildCompetitorGroups(
-  opts: BuildCompetitorGroupsOpts,
-): CompetitorGroup[] {
-  const { target, candidates, teaser } = opts;
+interface CompetitorPoolDebugItem {
+  login: string;
+  stage: 'excluded' | 'low-confidence';
+  reason: string;
+}
 
-  const scored = candidates
-    .filter((c) => c.login.toLowerCase() !== target.login.toLowerCase())
-    .map((c) => ({ cand: c, fit: computeFit(target, c) }))
-    .filter((x) => !x.fit.excluded);
+export interface CompetitorPoolDebug {
+  total_candidates: number;
+  direct_confirmed: number;
+  direct_potential: number;
+  catch_up: number;
+  inspiration: number;
+  filtered_out: CompetitorPoolDebugItem[];
+}
+
+function scoreCompetitorPool(opts: BuildCompetitorGroupsOpts): {
+  groups: CompetitorGroup[];
+  debug: CompetitorPoolDebug;
+} {
+  const { target, candidates, teaser } = opts;
+  const pool = candidates.filter(
+    (c) => c.login.toLowerCase() !== target.login.toLowerCase(),
+  );
+  const scored = pool.map((cand) => ({ cand, fit: computeFit(target, cand) }));
+  const excluded = scored.filter((x) => x.fit.excluded);
+  const nonExcluded = scored.filter((x) => !x.fit.excluded);
 
   // Confidence threshold: stricter in teaser mode, broader in connected mode
   // so credible profiles aren't discarded too early. Pairwise comparison on
   // the streamer profile page uses the same engine — keep this consistent.
   const minConfidence = teaser ? 55 : 35;
-  const usable = scored.filter((x) => x.fit.confidence_score >= minConfidence);
+  const lowConfidence = nonExcluded.filter(
+    (x) => x.fit.confidence_score < minConfidence,
+  );
+  const usable = nonExcluded.filter((x) => x.fit.confidence_score >= minConfidence);
 
   // Bucket. Medium-band candidates with a strong fit are promoted as "direct
   // potentiel" so the global page can surface profiles that pairwise
@@ -416,11 +436,15 @@ export function buildCompetitorGroups(
   }
 
   const sortFit = (arr: typeof usable) =>
-    arr.sort((a, b) =>
-      b.fit.fit_score - a.fit.fit_score ||
-      b.fit.confidence_score - a.fit.confidence_score,
+    arr.sort(
+      (a, b) =>
+        b.fit.fit_score - a.fit.fit_score ||
+        b.fit.confidence_score - a.fit.confidence_score,
     );
-  sortFit(direct); sortFit(directPotential); sortFit(catchUp); sortFit(inspiration);
+  sortFit(direct);
+  sortFit(directPotential);
+  sortFit(catchUp);
+  sortFit(inspiration);
 
   const directLimit = teaser ? 1 : 3;
   const directPotentialLimit = teaser ? 1 : 3;
@@ -454,13 +478,19 @@ export function buildCompetitorGroups(
   });
 
   const groups: CompetitorGroup[] = [];
-  const directConfirmed = direct.slice(0, directLimit).map((x) => toMatch(x, "direct"));
+  const directConfirmed = direct
+    .slice(0, directLimit)
+    .map((x) => toMatch(x, "direct"));
   const directPotentialPicks = directPotential
     .slice(0, directPotentialLimit)
     .map((x) => toMatch(x, "direct", true));
   const allDirect = [...directConfirmed, ...directPotentialPicks];
-  const catchUpPicks = catchUp.slice(0, catchUpLimit).map((x) => toMatch(x, "catch-up"));
-  const inspirationPicks = inspiration.slice(0, inspirationLimit).map((x) => toMatch(x, "inspiration"));
+  const catchUpPicks = catchUp
+    .slice(0, catchUpLimit)
+    .map((x) => toMatch(x, "catch-up"));
+  const inspirationPicks = inspiration
+    .slice(0, inspirationLimit)
+    .map((x) => toMatch(x, "inspiration"));
 
   if (allDirect.length) {
     groups.push({ type: "direct", label: "Concurrents directs", matches: allDirect });
@@ -471,8 +501,45 @@ export function buildCompetitorGroups(
   if (inspirationPicks.length) {
     groups.push({ type: "inspiration", label: "Inspirations", matches: inspirationPicks });
   }
-  return groups;
+
+  return {
+    groups,
+    debug: {
+      total_candidates: pool.length,
+      direct_confirmed: directConfirmed.length,
+      direct_potential: directPotentialPicks.length,
+      catch_up: catchUpPicks.length,
+      inspiration: inspirationPicks.length,
+      filtered_out: [
+        ...excluded.map((x) => ({
+          login: x.cand.login,
+          stage: 'excluded' as const,
+          reason: x.fit.reasons[0] ?? 'Exclu par le benchmark',
+        })),
+        ...lowConfidence.map((x) => ({
+          login: x.cand.login,
+          stage: 'low-confidence' as const,
+          reason:
+            x.fit.reasons[0] ??
+            `Confiance insuffisante (${x.fit.confidence_score}/${minConfidence})`,
+        })),
+      ],
+    },
+  };
 }
+
+export function buildCompetitorGroups(
+  opts: BuildCompetitorGroupsOpts,
+): CompetitorGroup[] {
+  return scoreCompetitorPool(opts).groups;
+}
+
+export function inspectCompetitorPool(
+  opts: BuildCompetitorGroupsOpts,
+): CompetitorPoolDebug {
+  return scoreCompetitorPool(opts).debug;
+}
+
 
 // ── Legacy wrapper used by the connected/full flow ─────────────────────────
 
