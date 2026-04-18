@@ -101,10 +101,7 @@ interface EdgeResponse {
   competitors?: EdgeCompetitor[];
 }
 
-function toAppVideos(
-  edgeVideos: EdgeVideo[],
-  fallbackGameId: string,
-): TwitchVideo[] {
+function toAppVideos(edgeVideos: EdgeVideo[]): TwitchVideo[] {
   return edgeVideos.map((v) => ({
     id: `pub-v-${v.id}`,
     twitch_video_id: v.id,
@@ -115,9 +112,6 @@ function toAppVideos(
     stream_id: v.stream_id ?? "",
     language: v.language ?? "",
     type: v.type ?? "archive",
-    // VODs don't expose game_id directly — backfilled from dominant clip
-    // category so the facts engine has a usable category signal.
-    ...({ game_id: fallbackGameId } as Record<string, never>),
   }));
 }
 
