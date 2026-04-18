@@ -168,45 +168,48 @@ function buildShellFromPublic(
 }
 
 /**
- * Build teaser competitor groups from real /search/channels results.
+ * Build teaser competitor groups using the v2 weighted competitor engine.
  *
- * In teaser mode we don't have follower / avg-viewer for those channels (the
- * public search endpoint doesn't return them), so we deliberately set
- * follower_count = 0 and avg_viewers = 0 — the UI must label these as
- * "données publiques limitées" rather than render the zeros as a trustworthy
- * number. We expose at most 2 candidates to keep the teaser intentionally light.
+ * The /search/channels endpoint doesn't return follower or avg viewers, so
+ * we use richer signals (language, broadcaster_type, recent live snapshot,
+ * description, view_count) and let the engine score on language, channel
+ * type, content format, relative size, activity and category. Teaser mode is
+ * intentionally conservative: 1 strong direct beats 3 weak neighbors.
  */
 function buildTeaserCompetitors(
+  ch: EdgeChannel,
   competitors: EdgeCompetitor[],
   dominantCategory: string | null,
+  recentTitles: string[],
 ): CompetitorGroup[] {
-  const picks = competitors.slice(0, 2);
-  if (picks.length === 0) return [];
+  if (!competitors.length) return [];
 
-  const matches: CompetitorMatch[] = picks.map((c) => ({
-    id: `pub-comp-${c.id}`,
-    competitor_login: c.login,
+  const target: TargetSignal = {
+    login: ch.login,
+    language: "fr",
+    dominant_category: dominantCategory,
+    recent_titles: recentTitles,
+    channel_type: "solo",
+    content_format: "unknown",
+    size_proxy: ch.view_count ?? 0,
+  };
+
+  const candidates: CandidateChannel[] = competitors.map((c) => ({
+    id: c.id,
+    login: c.login,
     display_name: c.display_name,
-    similarity_score: dominantCategory && c.game_name === dominantCategory ? 75 : 50,
-    follower_count: 0,
-    avg_viewers: c.is_live ? 0 : 0,
-    group: "direct",
-    match_reasons: [
-      c.game_name
-        ? `Catégorie publique: ${c.game_name}`
-        : "Chaîne publique pertinente",
-      c.is_live ? "Actuellement en live" : "Hors live",
-    ],
-    strengths: [],
+    broadcaster_type: c.broadcaster_type ?? "",
+    description: c.description ?? "",
+    is_live: c.is_live,
+    live_title: c.title,
+    live_viewer_count: c.live_viewer_count ?? null,
+    game_name: c.game_name,
+    language: c.language ?? null,
+    recent_titles: c.title ? [c.title] : [],
+    view_count: c.view_count ?? 0,
   }));
 
-  return [
-    {
-      type: "direct",
-      label: "Concurrents publics suggérés",
-      matches,
-    },
-  ];
+  return buildCompetitorGroups({ target, candidates, teaser: true });
 }
 
 /**
