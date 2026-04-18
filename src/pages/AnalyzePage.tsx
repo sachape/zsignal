@@ -85,6 +85,11 @@ const AnalyzePage = () => {
       setError("Aucune chaîne fournie. Retourne à l'accueil pour lancer une analyse.");
       return;
     }
+    // Public search must be isolated: clear stale teaser/pending channel
+    // state so the searched channel is the only active teaser target.
+    if (mode === "teaser") {
+      teaserStore.clearPendingChannel();
+    }
     startedRef.current = true;
 
     (async () => {
