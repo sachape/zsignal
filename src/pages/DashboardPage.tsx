@@ -119,13 +119,13 @@ const DashboardPage = () => {
                   Compte Twitch connecté
                 </h2>
                 <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                  Aucune analyse encore disponible pour ce compte. Lance la première
-                  synchronisation — les mises à jour suivantes seront automatiques.
+                  Aucune analyse encore disponible pour ce compte. Lance ta première
+                  analyse — les prochaines mises à jour seront automatisées.
                 </p>
               </div>
               <Button asChild className="mt-2">
                 <Link to="/analyze">
-                  <Zap className="h-4 w-4" /> Démarrer la première synchronisation
+                  <Zap className="h-4 w-4" /> Analyser mon compte
                 </Link>
               </Button>
             </CardContent>
@@ -266,9 +266,9 @@ const DashboardPage = () => {
           ]}
           description="Aperçu rapide — consulte le rapport complet pour le détail."
           action={
-            <Button asChild size="sm">
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <Link to={`/result?report_id=${currentReport.id}`}>
-                <FileText className="h-4 w-4" /> Rapport complet
+                <FileText className="h-3.5 w-3.5" /> Voir le rapport complet
               </Link>
             </Button>
           }

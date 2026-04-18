@@ -103,7 +103,7 @@ const SyncStatusCard = ({
           <p className="text-xs text-muted-foreground">
             {lastUpdatedLabel && <>Dernière mise à jour : {lastUpdatedLabel}</>}
             {lastUpdatedLabel && (nextSyncLabel || state === "synchronized") && " · "}
-            {state === "synchronized" && !nextSyncLabel && "Mise à jour automatique active"}
+            {state === "synchronized" && !nextSyncLabel && "Les prochaines mises à jour seront automatisées"}
             {nextSyncLabel && <>Prochaine synchronisation : {nextSyncLabel}</>}
           </p>
         </div>
