@@ -400,6 +400,7 @@ const ResultPage = () => {
 
         {isPersisted && saved && twitchAccount && (
           (saved.is_demo ||
+            payloadMetadataMismatch ||
             (saved.platform_user_id &&
               saved.platform_user_id !== twitchAccount.platform_user_id)) && (
             <Card className="mb-6 border-warning/30 bg-warning/5">
@@ -409,12 +410,16 @@ const ResultPage = () => {
                   <p className="text-sm font-semibold text-foreground">
                     {saved.is_demo
                       ? "Analyse de démonstration"
-                      : "Analyse d'un autre canal"}
+                      : payloadMetadataMismatch
+                        ? "Rapport incohérent"
+                        : "Analyse d'un autre canal"}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {saved.is_demo
                       ? `Ce rapport a été généré avec des données de démo (${summary.display_name}). Il ne reflète pas ton compte Twitch connecté @${twitchAccount.platform_login}.`
-                      : `Ce rapport concerne ${summary.display_name}, pas ton compte Twitch connecté @${twitchAccount.platform_login}.`}
+                      : payloadMetadataMismatch
+                        ? `Les métadonnées du rapport ciblent @${saved.platform_login}, mais le contenu affiché est encore ${summary.display_name}.`
+                        : `Ce rapport concerne ${summary.display_name}, pas ton compte Twitch connecté @${twitchAccount.platform_login}.`}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
