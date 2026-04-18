@@ -86,7 +86,7 @@ const AccountMenu = () => {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+              <ExternalLink />
               <span>Voir mon compte Twitch</span>
             </a>
           </DropdownMenuItem>
@@ -95,10 +95,11 @@ const AccountMenu = () => {
         <DropdownMenuSeparator className="my-1" />
 
         <DropdownMenuItem
+          variant="destructive"
           onClick={handleDisconnect}
-          className="gap-2.5 px-2.5 py-2 text-xs text-destructive focus:text-destructive"
+          className="gap-2.5 px-2.5 py-2 text-xs"
         >
-          <Unplug className="h-3.5 w-3.5 shrink-0" />
+          <Unplug />
           <span>Déconnecter Twitch</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
