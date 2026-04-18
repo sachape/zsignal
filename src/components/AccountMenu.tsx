@@ -61,43 +61,45 @@ const AccountMenu = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 gap-2 px-1.5 text-muted-foreground hover:text-foreground"
+          className="flex h-9 items-center gap-2.5 rounded-full border border-border/60 bg-card/40 pl-1 pr-2.5 text-muted-foreground hover:bg-card/70 hover:text-foreground"
         >
-          <Avatar className="h-6 w-6 rounded-full border border-border/60">
-            {avatarUrl && <AvatarImage src={avatarUrl} alt={login} />}
+          <Avatar className="h-7 w-7 rounded-full border border-border/60">
+            {avatarUrl && (
+              <AvatarImage src={avatarUrl} alt={login} className="object-cover" />
+            )}
             <AvatarFallback className="rounded-full bg-muted text-[10px] font-semibold text-foreground">
               {(login || "?").slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <span className="hidden text-xs font-medium text-foreground md:inline">
+          <span className="hidden text-xs font-medium leading-none text-foreground md:inline">
             {displayName}
           </span>
-          <ChevronDown className="h-3.5 w-3.5" />
+          <ChevronDown className="ml-0.5 h-3.5 w-3.5 shrink-0 opacity-70" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" sideOffset={8} className="w-60 p-1.5">
         {login && (
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="gap-2.5 px-2.5 py-2 text-xs">
             <a
               href={`https://www.twitch.tv/${login}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2"
+              className="flex items-center"
             >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Voir mon compte Twitch
+              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+              <span>Voir mon compte Twitch</span>
             </a>
           </DropdownMenuItem>
         )}
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="my-1" />
 
         <DropdownMenuItem
           onClick={handleDisconnect}
-          className="text-destructive focus:text-destructive"
+          className="gap-2.5 px-2.5 py-2 text-xs text-destructive focus:text-destructive"
         >
-          <Unplug className="h-3.5 w-3.5" />
-          Déconnecter Twitch
+          <Unplug className="h-3.5 w-3.5 shrink-0" />
+          <span>Déconnecter Twitch</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
