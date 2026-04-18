@@ -267,8 +267,10 @@ export const PublicChannelLookupService = {
         : null,
       dominantCategory: data.dominant_category ?? null,
       competitorGroups: buildTeaserCompetitors(
+        ch,
         data.competitors ?? [],
         data.dominant_category ?? null,
+        videos.slice(0, 10).map((v) => v.title),
       ),
       hasPublicActivity: videos.length > 0 || clips.length > 0,
     };
