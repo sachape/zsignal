@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Radio, Sparkles, Lightbulb, Target } from "lucide-react";
+import {
+  ArrowLeft,
+  Radio,
+  Sparkles,
+  Lightbulb,
+  Target,
+  Compass,
+  TrendingUp,
+  Copy,
+  Activity,
+  Film,
+  CalendarRange,
+} from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -9,21 +21,118 @@ import StatBlock from "@/components/StatBlock";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { runTeaserAnalysis } from "@/services/teaserAnalysisRunner";
+import {
+  getLatestReport,
+  getLatestReportForPlatformUser,
+  type SavedReport,
+} from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 
-type Relation = "direct" | "catch-up" | "inspiration" | "self" | "none";
+type Relation = "direct" | "catch-up" | "inspiration" | "self" | "none" | "unknown";
+
+interface RelationFraming {
+  label: string;
+  tone: "primary" | "accent" | "secondary" | "muted";
+  headline: string;
+  why: string;
+}
+
+function buildRelation(
+  target: AnalysisReport,
+  mine: AnalysisReport | null,
+  isSelf: boolean,
+): { relation: Relation; framing: RelationFraming } {
+  if (isSelf) {
+    return {
+      relation: "self",
+      framing: {
+        label: "C'est ta chaîne",
+        tone: "secondary",
+        headline: "Profil de ta propre chaîne",
+        why: "Tu regardes ton propre profil tel qu'il apparaît côté benchmark.",
+      },
+    };
+  }
+
+  if (!mine) {
+    return {
+      relation: "unknown",
+      framing: {
+        label: "Profil intéressant à observer",
+        tone: "muted",
+        headline: "Pourquoi ce profil est utile",
+        why: "Connecte ta chaîne pour situer ce streamer par rapport à toi (concurrent, à rattraper, ou inspiration).",
+      },
+    };
+  }
+
+  const mineCategory = mine.channel_summary.category?.toLowerCase() ?? "";
+  const targetCategory = target.channel_summary.category?.toLowerCase() ?? "";
+  const sameCategory = !!mineCategory && mineCategory === targetCategory;
+
+  const mineScore = mine.score.overall;
+  const targetScore = target.score.overall;
+  const delta = targetScore - mineScore;
+
+  if (sameCategory && Math.abs(delta) <= 8) {
+    return {
+      relation: "direct",
+      framing: {
+        label: "Concurrent direct",
+        tone: "primary",
+        headline: "Ce streamer joue dans ta cour",
+        why: "Même catégorie principale et niveau d'exécution proche du tien — un viewer pourrait hésiter entre vous deux.",
+      },
+    };
+  }
+
+  if (delta > 8 && delta <= 25) {
+    return {
+      relation: "catch-up",
+      framing: {
+        label: "À rattraper",
+        tone: "accent",
+        headline: "Profil à rattraper",
+        why: "Ce streamer a un cran d'exécution au-dessus du tien. C'est exactement le type de chaîne dont tu peux copier les mécaniques.",
+      },
+    };
+  }
+
+  if (delta > 25) {
+    return {
+      relation: "inspiration",
+      framing: {
+        label: "Inspiration",
+        tone: "secondary",
+        headline: "À regarder comme une inspiration",
+        why: "Très loin devant en exécution publique. À observer pour la mécanique, pas comme concurrent immédiat.",
+      },
+    };
+  }
+
+  return {
+    relation: "none",
+    framing: {
+      label: "Pas directement comparable",
+      tone: "muted",
+      headline: "Profil utile à observer",
+      why: "Pas de chevauchement direct évident, mais ce profil reste utile pour repérer une mécanique précise.",
+    },
+  };
+}
 
 const StreamerProfilePage = () => {
   const { login } = useParams<{ login: string }>();
   const { user } = useAuth();
   const { account } = useTwitchConnection();
   const [report, setReport] = useState<AnalysisReport | null>(null);
+  const [myReport, setMyReport] = useState<SavedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [relation, setRelation] = useState<Relation>("none");
 
   useEffect(() => {
     if (!login) return;
@@ -50,13 +159,21 @@ const StreamerProfilePage = () => {
   }, [login]);
 
   useEffect(() => {
-    if (!report || !login) return;
-    if (account?.platform_login?.toLowerCase() === login.toLowerCase()) {
-      setRelation("self");
+    if (!user) {
+      setMyReport(null);
       return;
     }
-    setRelation("none");
-  }, [report, login, account]);
+    let cancelled = false;
+    (async () => {
+      const r = account?.platform_user_id
+        ? await getLatestReportForPlatformUser(user.id, account.platform_user_id)
+        : await getLatestReport(user.id);
+      if (!cancelled) setMyReport(r);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, account?.platform_user_id]);
 
   if (loading) {
     return (
@@ -90,20 +207,58 @@ const StreamerProfilePage = () => {
 
   const summary = report.channel_summary;
   const score = report.score;
-  const weakest = score.breakdown.slice().sort((a, b) => a.score - b.score)[0];
-  const strongest = score.breakdown.slice().sort((a, b) => b.score - a.score)[0];
+  const sortedBreakdown = score.breakdown.slice().sort((a, b) => b.score - a.score);
+  const strongest = sortedBreakdown[0];
+  const secondStrongest = sortedBreakdown[1];
+  const weakest = sortedBreakdown[sortedBreakdown.length - 1];
+
+  const isSelf =
+    !!account?.platform_login &&
+    !!login &&
+    account.platform_login.toLowerCase() === login.toLowerCase();
+
+  const { framing } = buildRelation(report, myReport?.report ?? null, isSelf);
+
+  const factByKey = (k: string) => report.facts.find((f) => f.key === k);
+  const streams30d = Number(factByKey("streams_30d")?.value ?? 0);
+  const clips30d = Number(factByKey("clips_30d")?.value ?? 0);
+  const consistency = Number(factByKey("posting_consistency_score")?.value ?? 0);
+  const switchRate = Number(factByKey("category_switch_rate")?.value ?? 0);
+
+  // "What is worth copying" — pick from strongest dimension levers, fall back to second strongest
+  const copyableMechanics: string[] = [];
+  if (strongest?.levers?.length) copyableMechanics.push(...strongest.levers.slice(0, 2));
+  if (copyableMechanics.length < 2 && secondStrongest?.levers?.length) {
+    copyableMechanics.push(...secondStrongest.levers.slice(0, 2 - copyableMechanics.length));
+  }
+  if (copyableMechanics.length === 0 && strongest?.reasons?.length) {
+    copyableMechanics.push(`Reproduire ce qui fonctionne sur ${strongest.dimension.toLowerCase()}.`);
+  }
+
+  // Tone classes for the "why this matters" card
+  const toneStyles: Record<RelationFraming["tone"], string> = {
+    primary: "border-primary/30 bg-primary/5",
+    accent: "border-accent/30 bg-accent/5",
+    secondary: "border-secondary/40 bg-secondary/10",
+    muted: "border-border bg-muted/10",
+  };
 
   return (
     <AppShell>
       <PageContainer>
-        <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
+        >
           <Link to={user ? "/competitors" : "/"}>
             <ArrowLeft className="h-3.5 w-3.5" /> Retour
           </Link>
         </Button>
 
         <PageHeader
-          eyebrow="Profil streamer · données publiques"
+          eyebrow="Profil benchmark · données publiques"
           title={summary.display_name}
           avatarUrl={report.identity?.avatar_url ?? null}
           avatarLogin={report.identity?.platform_login ?? summary.channel_name}
@@ -113,67 +268,173 @@ const StreamerProfilePage = () => {
               : summary.broadcaster_type === "affiliate"
                 ? [{ label: "Affilié", variant: "secondary" as const }]
                 : []),
-            ...(summary.is_live ? [{ label: "Live", variant: "destructive" as const }] : []),
+            ...(summary.is_live
+              ? [{ label: "Live", variant: "destructive" as const }]
+              : [{ label: "Hors-ligne", variant: "outline" as const }]),
             ...(summary.category ? [{ label: summary.category, variant: "outline" as const }] : []),
-            ...(relation === "self" ? [{ label: "C'est toi", variant: "secondary" as const }] : []),
+            { label: framing.label, variant: "secondary" as const },
           ]}
-          description={
-            summary.is_live
-              ? `En live · ${summary.live_viewer_count ?? 0} viewers`
-              : "Profil public — analyse basée sur les données Twitch publiques."
-          }
+          description={`@${report.identity?.platform_login ?? summary.channel_name} · profil à inspecter pour comparer, apprendre et extraire des mécaniques utiles.`}
         />
 
-        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        {/* Why this profile matters */}
+        <Card className={`mb-6 ${toneStyles[framing.tone]}`}>
+          <CardContent className="p-5">
+            <div className="mb-2 flex items-center gap-2">
+              <Compass className="h-4 w-4 text-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">{framing.headline}</h3>
+              <Badge variant="outline" className="ml-auto text-[10px]">
+                {framing.label}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">{framing.why}</p>
+          </CardContent>
+        </Card>
+
+        {/* Key public benchmark signals */}
+        <div className="mb-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Signaux benchmark publics
+          </h2>
+        </div>
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ScoreCard score={score.overall} />
           <StatBlock
-            label="Vues moyennes par VOD"
-            value={String(summary.avg_viewers)}
-            subtext="30 derniers jours · pas du live"
+            label="Activité récente"
+            value={`${streams30d} streams`}
+            subtext="30 derniers jours"
           />
           <StatBlock
-            label="Type de chaîne"
-            value={summary.broadcaster_type || "Standard"}
-            subtext={summary.category || "Catégorie non identifiée"}
+            label="Clips publiés"
+            value={`${clips30d}`}
+            subtext={clips30d > 0 ? "Loop de discovery actif" : "Peu ou pas de clips récents"}
+          />
+          <StatBlock
+            label={summary.is_live ? "Live actuel" : "Audience VOD"}
+            value={
+              summary.is_live
+                ? `${summary.live_viewer_count ?? 0} viewers`
+                : String(summary.avg_viewers)
+            }
+            subtext={summary.is_live ? summary.live_title ?? "En direct" : "Vues moyennes par VOD"}
           />
         </div>
 
-        <div className="mb-6 grid gap-4 sm:grid-cols-2">
-          <Card>
+        {/* What they seem to do better */}
+        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+          <Card className="border-success/20 bg-success/5">
             <CardContent className="p-5">
               <div className="mb-2 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-success" />
-                <h3 className="text-sm font-semibold text-foreground">Ce qu'iel fait bien</h3>
+                <TrendingUp className="h-4 w-4 text-success" />
+                <h3 className="text-sm font-semibold text-foreground">
+                  Ce qu'iel fait mieux
+                </h3>
               </div>
-              <p className="text-sm text-foreground">{strongest?.dimension ?? "—"}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {strongest?.reasons[0] ?? "Pas assez de signaux publics."}
+              <p className="text-xs text-muted-foreground mb-3">
+                D'après les signaux publics, voici les forces les plus visibles de ce profil.
               </p>
+              <div className="space-y-3">
+                {[strongest, secondStrongest].filter(Boolean).map((dim) => (
+                  <div key={dim!.dimension} className="rounded-md border border-border/60 bg-background/40 p-3">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-sm font-medium text-foreground">
+                        {dim!.dimension}
+                      </span>
+                      <Badge variant="outline" className="text-[10px]">
+                        {dim!.score}/100
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {dim!.reasons[0] ?? "Signal public stable sur cette dimension."}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* What is worth copying */}
+          <Card className="border-primary/30 bg-primary/5">
             <CardContent className="p-5">
               <div className="mb-2 flex items-center gap-2">
-                <Target className="h-4 w-4 text-warning" />
-                <h3 className="text-sm font-semibold text-foreground">Point faible visible</h3>
+                <Copy className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">
+                  Ce qui vaut le coup d'être copié
+                </h3>
               </div>
-              <p className="text-sm text-foreground">{weakest?.dimension ?? "—"}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {weakest?.reasons[0] ?? "Pas assez de signaux publics."}
+              <p className="text-xs text-muted-foreground mb-3">
+                Mécaniques concrètes que tu peux tester sur ta propre chaîne cette semaine.
               </p>
+              <ul className="space-y-2">
+                {copyableMechanics.map((m, i) => (
+                  <li key={i} className="flex gap-2 text-sm text-foreground">
+                    <Lightbulb className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                    <span>{m}</span>
+                  </li>
+                ))}
+                {copyableMechanics.length === 0 && (
+                  <li className="text-sm text-muted-foreground">
+                    Pas assez de signaux publics pour extraire une mécanique précise.
+                  </li>
+                )}
+              </ul>
             </CardContent>
           </Card>
         </div>
 
-        {strongest?.levers && strongest.levers.length > 0 && (
-          <Card className="mb-6 border-primary/20 bg-primary/5">
-            <CardContent className="p-5">
-              <div className="mb-2 flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-primary" />
-                <h3 className="text-sm font-semibold text-foreground">Mécanique à copier</h3>
+        {/* Secondary signals row */}
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+          <Card>
+            <CardContent className="p-4">
+              <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <CalendarRange className="h-3.5 w-3.5" /> Régularité
               </div>
-              <p className="text-sm text-foreground">{strongest.levers[0]}</p>
+              <p className="text-sm font-medium text-foreground">
+                {consistency >= 70 ? "Cadence lisible" : consistency >= 40 ? "Cadence variable" : "Cadence irrégulière"}
+              </p>
+              <p className="text-xs text-muted-foreground">Score {consistency}/100</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <Activity className="h-3.5 w-3.5" /> Stabilité catégorie
+              </div>
+              <p className="text-sm font-medium text-foreground">
+                {switchRate <= 20 ? "Très stable" : switchRate <= 50 ? "Moyennement stable" : "Très variable"}
+              </p>
+              <p className="text-xs text-muted-foreground">{switchRate}% de changement</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <Film className="h-3.5 w-3.5" /> Loop discovery
+              </div>
+              <p className="text-sm font-medium text-foreground">
+                {clips30d >= 5 ? "Actif" : clips30d > 0 ? "Modéré" : "Faible ou absent"}
+              </p>
+              <p className="text-xs text-muted-foreground">{clips30d} clips sur 30j</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Visible weakness — kept compact, demoted */}
+        {weakest && (
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <div className="mb-1 flex items-center gap-2">
+                <Target className="h-3.5 w-3.5 text-warning" />
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Point faible visible
+                </h3>
+              </div>
+              <p className="text-sm text-foreground">
+                {weakest.dimension} —{" "}
+                <span className="text-muted-foreground">
+                  {weakest.reasons[0] ?? "Signal public faible sur cette dimension."}
+                </span>
+              </p>
             </CardContent>
           </Card>
         )}
@@ -183,11 +444,18 @@ const StreamerProfilePage = () => {
             <CardContent className="flex items-center gap-3 p-4">
               <Radio className="h-4 w-4 text-destructive" />
               <p className="text-sm text-foreground">
-                Actuellement en live · <span className="text-muted-foreground">{summary.live_title}</span>
+                Actuellement en live ·{" "}
+                <span className="text-muted-foreground">{summary.live_title}</span>
               </p>
             </CardContent>
           </Card>
         )}
+
+        {/* Page role footer */}
+        <p className="mt-6 text-xs text-muted-foreground">
+          <Sparkles className="inline h-3 w-3 mr-1" />
+          Ce profil est une fiche benchmark — pour inspecter, comparer, et extraire des mécaniques. Ce n'est ni un teaser public, ni ton diagnostic complet.
+        </p>
       </PageContainer>
     </AppShell>
   );
