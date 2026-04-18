@@ -2,6 +2,9 @@ import { useNavigate } from "react-router-dom";
 import {
   Zap,
   LayoutDashboard,
+  CalendarCheck,
+  Users,
+  BookOpen,
   FileText,
   Link2,
   LogOut,
@@ -23,10 +26,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 
-const navItems = [
+const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
-  { title: "Rapports", url: "/result", icon: FileText, end: false },
+  { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
+];
+
+const benchmarkItems = [
+  { title: "Concurrents", url: "/competitors", icon: Users, end: false },
+  { title: "Playbooks", url: "/playbooks", icon: BookOpen, end: false },
+];
+
+const settingsItems = [
+  { title: "Rapport complet", url: "/result", icon: FileText, end: false },
   { title: "Twitch", url: "/connect-twitch", icon: Link2, end: false },
 ];
 
@@ -40,6 +53,23 @@ const AppSidebar = () => {
     await signOut();
     navigate("/");
   };
+
+  const renderItems = (items: typeof cockpitItems) =>
+    items.map((item) => (
+      <SidebarMenuItem key={item.url}>
+        <SidebarMenuButton asChild tooltip={item.title}>
+          <NavLink
+            to={item.url}
+            end={item.end}
+            className="flex w-full items-center gap-2"
+            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+          >
+            <item.icon className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>{item.title}</span>}
+          </NavLink>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    ));
 
   return (
     <Sidebar collapsible="icon">
@@ -60,26 +90,26 @@ const AppSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent>
+        <SidebarStreamerSearch collapsed={collapsed} />
+
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Navigation</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel>Cockpit</SidebarGroupLabel>}
           <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink
-                      to={item.url}
-                      end={item.end}
-                      className="flex w-full items-center gap-2"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{renderItems(cockpitItems)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          {!collapsed && <SidebarGroupLabel>Benchmark</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <SidebarMenu>{renderItems(benchmarkItems)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          {!collapsed && <SidebarGroupLabel>Détail & connexion</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <SidebarMenu>{renderItems(settingsItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
