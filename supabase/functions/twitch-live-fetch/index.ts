@@ -451,11 +451,53 @@ Deno.serve(async (req) => {
           "Client-ID": clientId,
           Authorization: `Bearer ${appToken}`,
         };
-        const candidates = await fetchCompetitorCandidates(
-          dominantCategory,
-          broadcasterLogin,
-          appHeaders,
-        );
+
+        // Resolve game_id (live.game_id is most authoritative; otherwise via /games?name)
+        let gameId: string | null = live?.game_id ?? topGameId ?? null;
+        if (!gameId && dominantCategory) {
+          try {
+            const gRes = await fetch(
+              `https://api.twitch.tv/helix/games?name=${encodeURIComponent(dominantCategory)}`,
+              { headers: appHeaders },
+            );
+            if (gRes.ok) {
+              const gJson = await gRes.json();
+              gameId = gJson?.data?.[0]?.id ?? null;
+            }
+          } catch { /* ignore */ }
+        }
+
+        // Broaden the candidate pool: name-matched search + real category leaderboard.
+        const [searchCandidates, topLive] = await Promise.all([
+          fetchCompetitorCandidates(dominantCategory, broadcasterLogin, appHeaders),
+          gameId
+            ? fetchTopLiveInCategory(gameId, broadcasterLogin, appHeaders)
+            : Promise.resolve([] as HelixStream[]),
+        ]);
+
+        // Merge: dedup by id. Search candidates carry richer metadata first;
+        // top-live candidates back-fill broader discovery.
+        const merged = new Map<string, HelixSearchChannel>();
+        for (const c of searchCandidates) {
+          if (c.id) merged.set(c.id, c);
+        }
+        for (const s of topLive) {
+          if (!s.user_id || merged.has(s.user_id)) continue;
+          merged.set(s.user_id, {
+            id: s.user_id,
+            broadcaster_login: s.user_login ?? "",
+            display_name: s.user_name ?? s.user_login ?? "",
+            thumbnail_url: s.thumbnail_url,
+            is_live: true,
+            game_name: s.game_name,
+            game_id: s.game_id,
+            title: s.title,
+            started_at: s.started_at,
+            broadcaster_language: s.language,
+          });
+        }
+        const candidates = Array.from(merged.values()).slice(0, 40);
+
         const ids = candidates.map((c) => c.id).filter(Boolean);
         const [candUsers, candStreams] = await Promise.all([
           batchUsers(ids, appHeaders),
