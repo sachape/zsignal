@@ -4,6 +4,7 @@ import type {
   ChannelSummary,
   AffiliateProgress,
   ReportIdentity,
+  CompetitorGroup,
 } from "@/types/analysis";
 import { extractChannelFacts } from "./factsEngine";
 import { computeStreamScore } from "./streamScoreEngine";
@@ -19,10 +20,33 @@ export interface ReportIdentityOverrides {
   is_demo?: boolean;
 }
 
+/**
+ * Teaser-only overrides used when assembling a public-data report.
+ *
+ * - `is_partial`: marks the channel summary as a public teaser so the UI
+ *   displays "données publiques limitées" framing + the unlock CTA.
+ * - `live`: real Twitch live snapshot (Get Streams) for honest live KPI.
+ * - `competitor_groups`: real public competitors from /search/channels —
+ *   replaces the mock pool used in connected-account mode.
+ * - `dominant_category_override`: real game name resolved server-side.
+ */
+export interface TeaserOverrides {
+  is_partial?: boolean;
+  live?: {
+    title: string;
+    game_name: string | null;
+    viewer_count: number;
+    started_at: string;
+  } | null;
+  competitor_groups?: CompetitorGroup[];
+  dominant_category_override?: string | null;
+}
+
 export function assembleReport(
   data: MockStreamerData,
   jobId: string,
   identityOverrides?: ReportIdentityOverrides,
+  teaserOverrides?: TeaserOverrides,
 ): AnalysisReport {
   const { profile, videos, clips } = data;
 
@@ -39,7 +63,8 @@ export function assembleReport(
   const facts = extractChannelFacts(profile, videos, clips);
   const score = computeStreamScore(facts);
   const recommendations = generateRecommendations(score, facts);
-  const competitor_groups = findCompetitors(profile, facts);
+  const competitor_groups =
+    teaserOverrides?.competitor_groups ?? findCompetitors(profile, facts);
 
   const getFact = (key: string) => facts.find((f) => f.key === key);
   const dominantCat = String(getFact("dominant_category")?.value ?? "Variété");
