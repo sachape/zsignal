@@ -422,8 +422,30 @@ const ResultPage = () => {
         <PageHeader
           eyebrow={isTeaser ? "Aperçu gratuit" : "Rapport d'analyse"}
           title={summary.display_name}
-          description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${summary.follower_count} followers${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
+          description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${
+            summary.followers_available === false
+              ? "followers indisponibles"
+              : `${summary.follower_count} followers`
+          }${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
         />
+
+        {summary.followers_available === false && !saved?.is_demo && (
+          <Card className="mb-4 border-warning/30 bg-warning/5">
+            <CardContent className="flex flex-wrap items-center gap-3 p-3">
+              <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
+              <p className="min-w-0 flex-1 text-xs text-foreground">
+                {summary.followers_missing_scope
+                  ? "Permission Twitch manquante pour lire les followers. Reconnecte ton compte pour récupérer le vrai nombre."
+                  : "Le nombre de followers n'a pas pu être récupéré pour le moment. Relance une analyse pour réessayer."}
+              </p>
+              {summary.followers_missing_scope && (
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/connect-twitch">Reconnecter Twitch pour récupérer les followers</Link>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {isPersisted && saved && twitchAccount && (saved.is_demo || accountMismatch) && (
           <Card className="mb-6 border-warning/30 bg-warning/5">
@@ -572,8 +594,17 @@ const ResultPage = () => {
             {[
               {
                 label: "Followers",
-                value: `${ap.followers.current} / ${ap.followers.target}`,
-                pct: Math.min(100, Math.round((ap.followers.current / ap.followers.target) * 100)),
+                value:
+                  ap.followers.available === false
+                    ? `— / ${ap.followers.target}`
+                    : `${ap.followers.current ?? 0} / ${ap.followers.target}`,
+                pct:
+                  ap.followers.available === false
+                    ? 0
+                    : Math.min(
+                        100,
+                        Math.round(((ap.followers.current ?? 0) / ap.followers.target) * 100),
+                      ),
               },
               {
                 label: "Viewers moyens",
