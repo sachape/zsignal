@@ -12,6 +12,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { runAnalysis, type JobStage } from "@/services/analysisRunner";
 import { runTeaserAnalysis, type TeaserStage } from "@/services/teaserAnalysisRunner";
+import { normalizeChannelInput } from "@/services/channelInputNormalizer";
+import { teaserStore } from "@/services/teaserStore";
 
 type Stage = JobStage | TeaserStage;
 
