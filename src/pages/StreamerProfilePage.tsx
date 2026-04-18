@@ -14,6 +14,10 @@ import {
   CalendarRange,
   Scale,
   ArrowRight,
+  Bookmark,
+  BookmarkCheck,
+  Trophy,
+  Users,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -33,6 +37,12 @@ import {
   type SavedReport,
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
+import {
+  addToWatchlist,
+  isInWatchlist,
+  removeFromWatchlist,
+} from "@/services/benchmarkWatchlist";
+import { toast } from "@/hooks/use-toast";
 
 type Relation = "direct" | "catch-up" | "inspiration" | "self" | "none" | "unknown";
 
@@ -410,6 +420,18 @@ const StreamerProfilePage = () => {
   const [myReport, setMyReport] = useState<SavedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inWatchlist, setInWatchlist] = useState(false);
+
+  useEffect(() => {
+    if (!login) {
+      setInWatchlist(false);
+      return;
+    }
+    setInWatchlist(isInWatchlist(user?.id ?? null, login));
+    const sync = () => setInWatchlist(isInWatchlist(user?.id ?? null, login));
+    window.addEventListener("streampulse:watchlist-changed", sync);
+    return () => window.removeEventListener("streampulse:watchlist-changed", sync);
+  }, [user?.id, login]);
 
   useEffect(() => {
     if (!login) return;
@@ -554,7 +576,67 @@ const StreamerProfilePage = () => {
           description={`@${report.identity?.platform_login ?? summary.channel_name} · profil à inspecter pour comparer, apprendre et extraire des mécaniques utiles.`}
         />
 
-        {/* Why this profile matters */}
+        {/* Benchmark actions bar */}
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          {user && !isSelf && (
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() => {
+                const el = document.getElementById("comparison-vs-you");
+                el?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            >
+              <Scale className="h-3.5 w-3.5" /> Comparer à ma chaîne
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant={inWatchlist ? "secondary" : "outline"}
+            onClick={() => {
+              const loginKey = report.identity?.platform_login ?? summary.channel_name;
+              if (inWatchlist) {
+                removeFromWatchlist(user?.id ?? null, loginKey);
+                setInWatchlist(false);
+                toast({ title: "Retiré de la watchlist" });
+              } else {
+                addToWatchlist(user?.id ?? null, {
+                  login: loginKey,
+                  display_name: summary.display_name,
+                  category: summary.category ?? null,
+                });
+                setInWatchlist(true);
+                toast({ title: "Ajouté à la watchlist" });
+              }
+            }}
+          >
+            {inWatchlist ? (
+              <>
+                <BookmarkCheck className="h-3.5 w-3.5" /> Dans la watchlist
+              </>
+            ) : (
+              <>
+                <Bookmark className="h-3.5 w-3.5" /> Ajouter à ma watchlist
+              </>
+            )}
+          </Button>
+          {user && (
+            <Button asChild size="sm" variant="outline">
+              <Link to="/leaders">
+                <Trophy className="h-3.5 w-3.5" /> Voir dans Classements
+              </Link>
+            </Button>
+          )}
+          {user && (
+            <Button asChild size="sm" variant="ghost">
+              <Link to="/competitors">
+                <Users className="h-3.5 w-3.5" /> Concurrents
+              </Link>
+            </Button>
+          )}
+        </div>
+
+
         <Card className={`mb-6 ${toneStyles[framing.tone]}`}>
           <CardContent className="p-5">
             <div className="mb-2 flex items-center gap-2">
@@ -569,6 +651,7 @@ const StreamerProfilePage = () => {
         </Card>
 
         {/* Comparison vs you */}
+        <div id="comparison-vs-you">
         {(() => {
           if (isSelf) return null;
           if (!user) return null;
@@ -675,6 +758,7 @@ const StreamerProfilePage = () => {
             </Card>
           );
         })()}
+        </div>
 
         {/* Key public benchmark signals */}
         <div className="mb-3">
@@ -903,6 +987,75 @@ const StreamerProfilePage = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Why inspect this profile now — closing CTA */}
+        <Card className="mt-6 border-primary/20 bg-primary/5">
+          <CardContent className="p-5">
+            <div className="mb-2 flex items-center gap-2">
+              <Compass className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">
+                Pourquoi inspecter ce profil maintenant
+              </h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              {framing.tone === "primary"
+                ? "C'est un concurrent direct — chaque mécanique copiée peut basculer un viewer hésitant."
+                : framing.tone === "accent"
+                  ? "Profil à rattraper — un cran d'exécution à aller chercher avant d'optimiser ailleurs."
+                  : framing.tone === "secondary"
+                    ? "Inspirant : observe la mécanique, garde-le pour plus tard."
+                    : "Profil utile à observer pour repérer une mécanique précise."}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {user && !isSelf && (
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => {
+                    const el = document.getElementById("comparison-vs-you");
+                    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  <Scale className="h-3.5 w-3.5" /> Comparer maintenant
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant={inWatchlist ? "secondary" : "outline"}
+                onClick={() => {
+                  const loginKey = report.identity?.platform_login ?? summary.channel_name;
+                  if (inWatchlist) {
+                    removeFromWatchlist(user?.id ?? null, loginKey);
+                    setInWatchlist(false);
+                  } else {
+                    addToWatchlist(user?.id ?? null, {
+                      login: loginKey,
+                      display_name: summary.display_name,
+                      category: summary.category ?? null,
+                    });
+                    setInWatchlist(true);
+                    toast({ title: "Ajouté à la watchlist" });
+                  }
+                }}
+              >
+                {inWatchlist ? (
+                  <>
+                    <BookmarkCheck className="h-3.5 w-3.5" /> Gardé pour plus tard
+                  </>
+                ) : (
+                  <>
+                    <Bookmark className="h-3.5 w-3.5" /> Garder pour plus tard
+                  </>
+                )}
+              </Button>
+              <Button asChild size="sm" variant="ghost">
+                <Link to="/competitors">
+                  <Users className="h-3.5 w-3.5" /> Retour aux Concurrents
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Page role footer */}
         <p className="mt-6 text-xs text-muted-foreground">
