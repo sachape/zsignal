@@ -37,7 +37,7 @@ const StreamerProfilePage = () => {
       if (cancelled) return;
 
       if (!result.ok) {
-        setError(result.reason === "not_found" ? "not_found" : "failed");
+        setError(result.reason);
         setLoading(false);
         return;
       }
