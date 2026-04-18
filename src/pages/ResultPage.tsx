@@ -281,25 +281,26 @@ const ResultPage = () => {
             </Link>
           </Button>
           <PageHeader
-            eyebrow="Rapport live"
+            eyebrow="Diagnostic détaillé"
             title={displayName}
             avatarLogin={twitchAccount.platform_login}
-            description="Compte Twitch connecté"
+            description="Comprends ton StreamScore, tes blocages, et ce qu'il faut corriger."
           />
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
               <Sparkles className="h-5 w-5 text-primary" />
               <h3 className="text-base font-semibold text-foreground">
-                Aucune analyse live pour ce compte
+                Aucun diagnostic disponible pour le moment
               </h3>
               <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                Tu n'as pas encore lancé d'analyse live pour @{twitchAccount.platform_login}.
-                Lance ta première analyse pour découvrir ton StreamScore réel.
+                Connecte Twitch et lance la première analyse pour découvrir ton
+                StreamScore, le détail de tes blocages, et les actions
+                prioritaires.
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>
                   <Link to="/analyze">
-                    <Zap className="h-4 w-4" /> Lancer ma première analyse live
+                    <Zap className="h-4 w-4" /> Lancer ma première analyse
                   </Link>
                 </Button>
                 <Button asChild variant="outline">
@@ -318,9 +319,14 @@ const ResultPage = () => {
       <AppShell>
         <PageContainer size="sm">
           {renderDebugPanel()}
+          <PageHeader
+            eyebrow="Diagnostic détaillé"
+            title="Diagnostic détaillé"
+            description="Comprends ton StreamScore, tes blocages, et ce qu'il faut corriger."
+          />
           <EmptyReportState
-            title="Aucun rapport trouvé"
-            description="Le rapport demandé n'existe pas ou ne t'appartient pas. Lance une nouvelle analyse pour commencer."
+            title="Aucun diagnostic disponible pour le moment"
+            description="Connecte Twitch et lance la première analyse pour générer ton diagnostic."
           />
         </PageContainer>
       </AppShell>
@@ -423,7 +429,7 @@ const ResultPage = () => {
               ? summary.is_partial
                 ? "Aperçu public · données Twitch publiques"
                 : "Aperçu gratuit"
-              : "Rapport d'analyse"
+              : "Diagnostic détaillé"
           }
           title={summary.display_name}
           avatarUrl={report.identity?.avatar_url ?? null}
