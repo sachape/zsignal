@@ -433,7 +433,7 @@ const ResultPage = () => {
               ? `${summary.category} · données publiques uniquement${
                   summary.broadcaster_type === "affiliate" ? " · Affilié" : ""
                 }${summary.broadcaster_type === "partner" ? " · Partenaire" : ""}`
-              : `${summary.category} · ~${summary.avg_viewers} viewers moyens · ${
+              : `${summary.category} · ~${summary.avg_viewers} viewers moyens en live · ${
                   summary.followers_available === false
                     ? "followers indisponibles"
                     : `${summary.follower_count} followers`
