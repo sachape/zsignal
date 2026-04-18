@@ -140,6 +140,177 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
   return rows;
 }
 
+type MechanicUsefulness =
+  | "copy"
+  | "observe"
+  | "inspiring"
+  | "too-advanced"
+  | "progression";
+
+interface ObservedMechanic {
+  key: string;
+  label: string;
+  detail: string;
+  usefulness: MechanicUsefulness;
+  certainty: "strong" | "soft";
+}
+
+const usefulnessMeta: Record<MechanicUsefulness, { label: string; tone: string }> = {
+  copy: { label: "Utile à copier", tone: "border-primary/40 bg-primary/10 text-primary" },
+  observe: { label: "À observer", tone: "border-border bg-muted/30 text-muted-foreground" },
+  inspiring: {
+    label: "Inspirant mais pas directement comparable",
+    tone: "border-secondary/40 bg-secondary/20 text-foreground",
+  },
+  "too-advanced": {
+    label: "Trop avancé pour l'instant",
+    tone: "border-warning/40 bg-warning/10 text-warning",
+  },
+  progression: {
+    label: "Bon signal de progression",
+    tone: "border-success/30 bg-success/10 text-success",
+  },
+};
+
+function buildObservedMechanics(
+  target: AnalysisReport,
+  mine: AnalysisReport | null,
+): ObservedMechanic[] {
+  const out: ObservedMechanic[] = [];
+  const num = (k: string) => factNum(target, k);
+
+  const switchRate = num("category_switch_rate");
+  const consistency = num("posting_consistency_score");
+  const clips30 = num("clips_30d");
+  const streams30 = num("streams_30d");
+  const streams7 = num("streams_7d");
+  const avgDur = num("avg_duration_minutes");
+  const category = target.channel_summary.category;
+  const broadcasterType = target.channel_summary.broadcaster_type;
+  const targetScore = target.score.overall;
+  const mineScore = mine?.score.overall ?? 0;
+  const tooAdvanced = !!mine && targetScore - mineScore >= 30;
+
+  if (category && switchRate <= 25 && streams30 >= 4) {
+    out.push({
+      key: "category-stable",
+      label: "Catégorie principale stable",
+      detail: `Reste majoritairement sur ${category} (${switchRate}% de changement sur 30j).`,
+      usefulness: "copy",
+      certainty: "strong",
+    });
+  } else if (category && switchRate <= 45) {
+    out.push({
+      key: "category-soft",
+      label: "Tendance à garder une catégorie principale",
+      detail: `Semble revenir souvent sur ${category}, signal modéré (${switchRate}%).`,
+      usefulness: "observe",
+      certainty: "soft",
+    });
+  }
+
+  if (consistency >= 70 && streams7 >= 2) {
+    out.push({
+      key: "cadence-strong",
+      label: "Cadence lisible et tenue",
+      detail: `Streams concentrés sur des créneaux identifiables (régularité ${consistency}/100).`,
+      usefulness: tooAdvanced ? "inspiring" : "copy",
+      certainty: "strong",
+    });
+  } else if (consistency >= 45) {
+    out.push({
+      key: "cadence-soft",
+      label: "Rythme partiellement lisible",
+      detail: `Quelques créneaux récurrents, mais pas encore tenu de façon stable (${consistency}/100).`,
+      usefulness: "observe",
+      certainty: "soft",
+    });
+  }
+
+  if (clips30 >= 8) {
+    out.push({
+      key: "clips-active",
+      label: "Loop de clips actif",
+      detail: `${clips30} clips publiés sur 30j — la discovery est entretenue régulièrement.`,
+      usefulness: tooAdvanced ? "inspiring" : "copy",
+      certainty: "strong",
+    });
+  } else if (clips30 >= 3) {
+    out.push({
+      key: "clips-mod",
+      label: "Quelques clips publiés",
+      detail: `${clips30} clips récents — loop discovery présente mais pas encore systématique.`,
+      usefulness: "observe",
+      certainty: "soft",
+    });
+  }
+
+  if (avgDur >= 120 && streams30 >= 4) {
+    out.push({
+      key: "format-long",
+      label: "Format long récurrent",
+      detail: `Sessions de ~${Math.round(avgDur / 60)}h en moyenne, format reconnaissable.`,
+      usefulness: "observe",
+      certainty: "soft",
+    });
+  }
+
+  if (broadcasterType === "partner") {
+    out.push({
+      key: "partner",
+      label: "Profil Partenaire — setup public lisible",
+      detail: "Statut Partenaire confirmé sur Twitch, généralement signe d'un profil bien posé.",
+      usefulness: "inspiring",
+      certainty: "strong",
+    });
+  } else if (broadcasterType === "affiliate") {
+    out.push({
+      key: "affiliate",
+      label: "Profil Affilié actif",
+      detail: "Statut Affilié atteint — bon signal de progression de palier.",
+      usefulness: "progression",
+      certainty: "strong",
+    });
+  }
+
+  const structureDim =
+    target.score.breakdown.find((b) => /structure|contenu/i.test(b.dimension))?.score ?? 0;
+  if (structureDim >= 65) {
+    out.push({
+      key: "titles",
+      label: "Structure de titres répétée détectée",
+      detail: "Les titres récents semblent suivre un pattern reconnaissable.",
+      usefulness: "copy",
+      certainty: "soft",
+    });
+  }
+
+  const posDim =
+    target.score.breakdown.find((b) => /position|positionnement|positioning/i.test(b.dimension))?.score ?? 0;
+  if (posDim >= 70) {
+    out.push({
+      key: "positioning",
+      label: "Positionnement visiblement plus lisible",
+      detail: "Le profil donne rapidement à comprendre ce que fait la chaîne.",
+      usefulness: "copy",
+      certainty: "soft",
+    });
+  }
+
+  if (tooAdvanced && out.length > 0 && !out.some((o) => o.usefulness === "too-advanced")) {
+    out.push({
+      key: "scale-gap",
+      label: "Échelle d'exécution nettement supérieure",
+      detail: "Plusieurs mécaniques sont trop matures pour être copiées telles quelles aujourd'hui.",
+      usefulness: "too-advanced",
+      certainty: "strong",
+    });
+  }
+
+  return out;
+}
+
+
 interface RelationFraming {
   label: string;
   tone: "primary" | "accent" | "secondary" | "muted";
