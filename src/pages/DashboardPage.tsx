@@ -266,9 +266,9 @@ const DashboardPage = () => {
           ]}
           description="Aperçu rapide — consulte le rapport complet pour le détail."
           action={
-            <Button asChild size="sm">
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <Link to={`/result?report_id=${currentReport.id}`}>
-                <FileText className="h-4 w-4" /> Rapport complet
+                <FileText className="h-3.5 w-3.5" /> Voir le rapport complet
               </Link>
             </Button>
           }
