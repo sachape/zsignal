@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { assembleReport } from "./reportAssembler";
 import { resolveAnalysisDataset } from "./liveReportSource";
+import { fetchLiveTwitchProfile } from "./twitchLiveProfile";
 import type { AnalysisReport } from "@/types/analysis";
 
 export type JobStage =
