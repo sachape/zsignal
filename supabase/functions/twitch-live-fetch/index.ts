@@ -52,12 +52,15 @@ interface HelixClip {
 interface HelixStream {
   id: string;
   user_id: string;
+  user_login?: string;
+  user_name?: string;
   game_id: string;
   game_name: string;
   title: string;
   viewer_count: number;
   started_at: string;
   language: string;
+  thumbnail_url?: string;
 }
 interface HelixSearchChannel {
   id: string;
@@ -191,7 +194,7 @@ async function fetchCompetitorCandidates(
   if (!query) return [];
   try {
     const res = await fetch(
-      `https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&first=20&live_only=false`,
+      `https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&first=40&live_only=false`,
       { headers },
     );
     if (!res.ok) return [];
@@ -199,7 +202,36 @@ async function fetchCompetitorCandidates(
     const results = (j?.data ?? []) as HelixSearchChannel[];
     return results
       .filter((c) => c.broadcaster_login?.toLowerCase() !== excludeLogin)
-      .slice(0, 12);
+      .slice(0, 30);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Real category leaderboard via /streams?game_id — gives us the actual top
+ * live channels in the dominant category, ranked by viewer_count. This is a
+ * much broader discovery surface than name-matched /search/channels alone.
+ */
+async function fetchTopLiveInCategory(
+  gameId: string,
+  excludeLogin: string,
+  headers: Record<string, string>,
+  language?: string,
+): Promise<HelixStream[]> {
+  if (!gameId) return [];
+  try {
+    const langParam = language ? `&language=${encodeURIComponent(language)}` : "";
+    const res = await fetch(
+      `https://api.twitch.tv/helix/streams?game_id=${encodeURIComponent(gameId)}&first=50${langParam}`,
+      { headers },
+    );
+    if (!res.ok) return [];
+    const j = await res.json();
+    const streams = (j?.data ?? []) as HelixStream[];
+    return streams.filter(
+      (s) => (s.user_login ?? "").toLowerCase() !== excludeLogin,
+    );
   } catch {
     return [];
   }
