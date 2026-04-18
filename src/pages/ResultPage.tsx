@@ -523,9 +523,13 @@ const ResultPage = () => {
           <div className="flex flex-col gap-3 sm:col-span-3">
             <div className="grid gap-3 sm:grid-cols-3">
               <StatBlock
-                label="Viewers moyens"
+                label={summary.is_partial ? "Vues moyennes récentes" : "Viewers moyens"}
                 value={String(summary.avg_viewers)}
-                subtext="30 derniers jours"
+                subtext={
+                  summary.is_partial
+                    ? "Influencé par les rediffusions et événements récents"
+                    : "30 derniers jours"
+                }
               />
               <StatBlock
                 label="Régularité"
