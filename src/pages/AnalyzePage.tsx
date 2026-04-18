@@ -255,6 +255,23 @@ const AnalyzePage = () => {
                       : "url_channel_param"}
                 </div>
                 <div>resolved channel: {channel || "—"}</div>
+                {mode === "teaser" && (
+                  <>
+                    <div className="mt-1 border-t border-border/40 pt-1">
+                      twitch lookup source:{" "}
+                      {lookupInfo?.source ??
+                        (currentStage === "looking_up" ? "(en cours…)" : "—")}
+                    </div>
+                    <div>
+                      twitch lookup login: {lookupInfo?.login ?? "—"}
+                    </div>
+                    <div>
+                      twitch lookup display_name:{" "}
+                      {lookupInfo?.displayName ?? "—"}
+                    </div>
+                    <div>real twitch api: {lookupInfo ? "yes" : "—"}</div>
+                  </>
+                )}
               </div>
             )}
           </CardContent>
