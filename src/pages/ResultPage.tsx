@@ -286,7 +286,8 @@ const ResultPage = () => {
           <PageHeader
             eyebrow="Rapport live"
             title={displayName}
-            description={`@${twitchAccount.platform_login} · Compte Twitch connecté`}
+            avatarLogin={twitchAccount.platform_login}
+            description="Compte Twitch connecté"
           />
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
