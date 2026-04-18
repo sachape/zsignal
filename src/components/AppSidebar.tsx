@@ -114,12 +114,6 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Détail & connexion</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>{renderItems(settingsItems)}</SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
