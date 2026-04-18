@@ -16,6 +16,7 @@ interface Props {
 
 const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel }: Props) => {
   const isLive = (competitor.avg_viewers ?? 0) > 0;
+  const isPotential = competitor.is_potential === true && competitor.group === "direct";
   return (
     <Card className="h-full">
       <CardContent className="flex h-full flex-col gap-3 p-5">
@@ -31,10 +32,16 @@ const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel 
           </div>
           {groupLabel && (
             <Badge variant="outline" className="shrink-0 text-[10px]">
-              {groupLabel}
+              {isPotential ? "Direct potentiel" : groupLabel}
             </Badge>
           )}
         </div>
+
+        {isPotential && (
+          <div className="rounded-md border border-warning/30 bg-warning/5 px-2.5 py-1.5 text-[11px] text-warning">
+            Match direct à confirmer · signal correct mais incomplet
+          </div>
+        )}
 
         {isLive && (
           <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">

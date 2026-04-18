@@ -43,6 +43,7 @@ import {
   removeFromWatchlist,
 } from "@/services/benchmarkWatchlist";
 import { toast } from "@/hooks/use-toast";
+import { evaluatePairwiseFit, type CandidateChannel, type TargetSignal } from "@/services/competitorEngine";
 
 type Relation = "direct" | "catch-up" | "inspiration" | "self" | "none" | "unknown";
 
