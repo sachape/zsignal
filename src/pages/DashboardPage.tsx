@@ -317,21 +317,30 @@ const DashboardPage = () => {
           }
         />
 
-        {/* Top row: state strip — score / delta / sync */}
-        <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        {/* Top row: state strip — score / delta / sync.
+            In foundation mode we keep only score + sync to reduce noise. */}
+        <div
+          className={
+            foundationActive
+              ? "mb-6 grid gap-3 sm:grid-cols-2"
+              : "mb-6 grid gap-3 sm:grid-cols-3"
+          }
+        >
           <ScoreCard score={score.overall} />
-          <StatBlock
-            label="Évolution"
-            value={delta === null ? "—" : delta > 0 ? `+${delta}` : String(delta)}
-            subtext={
-              delta === null
-                ? "Première analyse"
-                : delta === 0
-                  ? "Stable depuis la dernière analyse"
-                  : "depuis la dernière analyse"
-            }
-            accent={delta !== null && delta > 0}
-          />
+          {!foundationActive && (
+            <StatBlock
+              label="Évolution"
+              value={delta === null ? "—" : delta > 0 ? `+${delta}` : String(delta)}
+              subtext={
+                delta === null
+                  ? "Première analyse"
+                  : delta === 0
+                    ? "Stable depuis la dernière analyse"
+                    : "depuis la dernière analyse"
+              }
+              accent={delta !== null && delta > 0}
+            />
+          )}
           <SyncStatusCard
             state={syncSnapshot?.state ?? ("synchronized" as SyncState)}
             lastUpdatedLabel={
