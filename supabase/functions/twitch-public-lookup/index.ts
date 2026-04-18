@@ -304,7 +304,12 @@ Deno.serve(async (req) => {
       return json({ error: "Twitch credentials not configured." }, 500);
     }
 
-    let body: { input?: string; mode?: "lookup" | "search"; limit?: number } = {};
+    let body: {
+      input?: string;
+      mode?: "lookup" | "search" | "category" | "category_search";
+      limit?: number;
+      language?: string;
+    } = {};
     try {
       body = await req.json();
     } catch {
@@ -319,7 +324,7 @@ Deno.serve(async (req) => {
       Authorization: `Bearer ${token}`,
     };
 
-    // Lightweight autocomplete: just /search/channels, no enrichment.
+    // Lightweight channel autocomplete (streamer name).
     if (mode === "search") {
       if (rawInput.length < 2) {
         return json({ success: true, mode: "search", suggestions: [] });
@@ -346,6 +351,112 @@ Deno.serve(async (req) => {
           game_name: c.game_name ?? null,
           language: c.broadcaster_language ?? null,
         })),
+      });
+    }
+
+    // Category autocomplete (real game/category entities, not streamer names).
+    if (mode === "category_search") {
+      if (rawInput.length < 2) {
+        return json({ success: true, mode: "category_search", categories: [] });
+      }
+      const limit = Math.min(Math.max(body.limit ?? 8, 1), 20);
+      const res = await fetch(
+        `https://api.twitch.tv/helix/search/categories?query=${encodeURIComponent(rawInput)}&first=${limit}`,
+        { headers: helixHeaders },
+      );
+      if (!res.ok) {
+        return json({ success: true, mode: "category_search", categories: [] });
+      }
+      const j = await res.json();
+      const results = (j?.data ?? []) as Array<{
+        id: string;
+        name: string;
+        box_art_url?: string;
+      }>;
+      return json({
+        success: true,
+        mode: "category_search",
+        categories: results.map((c) => ({
+          id: c.id,
+          name: c.name,
+          box_art_url: c.box_art_url ?? null,
+        })),
+      });
+    }
+
+    // Real category-based leaderboard:
+    //   1. Resolve category name → canonical game_id via /helix/games?name=
+    //   2. /helix/streams?game_id=...   (real live ranking, viewer_count desc)
+    //   3. Batch /helix/users for avatars + broadcaster_type
+    if (mode === "category") {
+      if (!rawInput) {
+        return json({ success: false, reason: "missing_category" });
+      }
+      const gameRes = await fetch(
+        `https://api.twitch.tv/helix/games?name=${encodeURIComponent(rawInput)}`,
+        { headers: helixHeaders },
+      );
+      if (!gameRes.ok) {
+        return json({ success: false, reason: "game_lookup_failed" });
+      }
+      const gameJson = await gameRes.json();
+      const game = gameJson?.data?.[0] as
+        | { id: string; name: string; box_art_url?: string }
+        | undefined;
+      if (!game) {
+        return json({
+          success: false,
+          reason: "category_not_found",
+          input: rawInput,
+        });
+      }
+
+      const limit = Math.min(Math.max(body.limit ?? 30, 5), 60);
+      const langParam =
+        body.language && body.language !== "all"
+          ? `&language=${encodeURIComponent(body.language)}`
+          : "";
+      const streamsRes = await fetch(
+        `https://api.twitch.tv/helix/streams?game_id=${encodeURIComponent(game.id)}&first=${limit}${langParam}`,
+        { headers: helixHeaders },
+      );
+      if (!streamsRes.ok) {
+        return json({ success: false, reason: "streams_fetch_failed" });
+      }
+      const streamsJson = await streamsRes.json();
+      const streams = (streamsJson?.data ?? []) as HelixStream[];
+
+      const userIds = streams.map((s) => s.user_id);
+      const users = await batchUsers(userIds, helixHeaders);
+
+      return json({
+        success: true,
+        mode: "category",
+        category: {
+          id: game.id,
+          name: game.name,
+          box_art_url: game.box_art_url ?? null,
+        },
+        channels: streams.map((s, idx) => {
+          const u = users.get(s.user_id);
+          return {
+            rank: idx + 1,
+            id: s.user_id,
+            login: s.user_login,
+            display_name: u?.display_name ?? s.user_login,
+            profile_image_url: u?.profile_image_url ?? null,
+            broadcaster_type: u?.broadcaster_type ?? "",
+            description: u?.description ?? "",
+            view_count: u?.view_count ?? 0,
+            is_live: true,
+            live_viewer_count: s.viewer_count,
+            title: s.title,
+            game_name: s.game_name,
+            game_id: s.game_id,
+            language: s.language ?? null,
+            started_at: s.started_at,
+          };
+        }),
       });
     }
 
