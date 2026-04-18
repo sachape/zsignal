@@ -448,18 +448,6 @@ const ResultPage = () => {
             {summary.live_title ? ` · ${summary.live_title}` : ""}
           </div>
         )}
-          description={
-            summary.is_partial
-              ? `${summary.category} · données publiques uniquement${
-                  summary.broadcaster_type === "affiliate" ? " · Affilié" : ""
-                }${summary.broadcaster_type === "partner" ? " · Partenaire" : ""}`
-              : `${summary.category} · ~${summary.avg_viewers} viewers moyens · ${
-                  summary.followers_available === false
-                    ? "followers indisponibles"
-                    : `${summary.follower_count} followers`
-                }${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`
-          }
-        />
 
         {summary.is_partial && (
           <Card className="mb-4 border-accent/30 bg-accent/5">
