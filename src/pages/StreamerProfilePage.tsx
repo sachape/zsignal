@@ -576,65 +576,7 @@ const StreamerProfilePage = () => {
           description={`@${report.identity?.platform_login ?? summary.channel_name} · profil à inspecter pour comparer, apprendre et extraire des mécaniques utiles.`}
         />
 
-        {/* Benchmark actions bar */}
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          {user && !isSelf && (
-            <Button
-              size="sm"
-              variant="default"
-              onClick={() => {
-                const el = document.getElementById("comparison-vs-you");
-                el?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-            >
-              <Scale className="h-3.5 w-3.5" /> Comparer à ma chaîne
-            </Button>
-          )}
-          <Button
-            size="sm"
-            variant={inWatchlist ? "secondary" : "outline"}
-            onClick={() => {
-              const loginKey = report.identity?.platform_login ?? summary.channel_name;
-              if (inWatchlist) {
-                removeFromWatchlist(user?.id ?? null, loginKey);
-                setInWatchlist(false);
-                toast({ title: "Retiré de la watchlist" });
-              } else {
-                addToWatchlist(user?.id ?? null, {
-                  login: loginKey,
-                  display_name: summary.display_name,
-                  category: summary.category ?? null,
-                });
-                setInWatchlist(true);
-                toast({ title: "Ajouté à la watchlist" });
-              }
-            }}
-          >
-            {inWatchlist ? (
-              <>
-                <BookmarkCheck className="h-3.5 w-3.5" /> Dans la watchlist
-              </>
-            ) : (
-              <>
-                <Bookmark className="h-3.5 w-3.5" /> Ajouter à ma watchlist
-              </>
-            )}
-          </Button>
-          {user && (
-            <Button asChild size="sm" variant="outline">
-              <Link to="/leaders">
-                <Trophy className="h-3.5 w-3.5" /> Voir dans Classements
-              </Link>
-            </Button>
-          )}
-          {user && (
-            <Button asChild size="sm" variant="ghost">
-              <Link to="/competitors">
-                <Users className="h-3.5 w-3.5" /> Concurrents
-              </Link>
-            </Button>
-          )}
-        </div>
+
 
 
         <Card className={`mb-6 ${toneStyles[framing.tone]}`}>
