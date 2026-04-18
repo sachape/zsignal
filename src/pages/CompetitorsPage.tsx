@@ -222,8 +222,8 @@ const CompetitorsPage = () => {
                     {i + 1}
                   </span>
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted text-[10px] font-semibold">
-                    {c.thumbnail_url ? (
-                      <img src={c.thumbnail_url} alt={c.login} className="h-full w-full object-cover" />
+                    {c.profile_image_url ? (
+                      <img src={c.profile_image_url} alt={c.login} className="h-full w-full object-cover" />
                     ) : (
                       c.login.slice(0, 2).toUpperCase()
                     )}
