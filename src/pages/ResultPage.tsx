@@ -342,11 +342,21 @@ const ResultPage = () => {
   const visibleCompetitors = isTeaser
     ? (directCompetitors?.matches ?? []).slice(0, 1)
     : (directCompetitors?.matches ?? []);
+  const payloadChannelLogin = summary.channel_name?.toLowerCase() ?? null;
+  const metadataChannelLogin = saved?.platform_login?.toLowerCase() ?? null;
+  const payloadMetadataMismatch = Boolean(
+    isPersisted &&
+      saved &&
+      metadataChannelLogin &&
+      payloadChannelLogin &&
+      metadataChannelLogin !== payloadChannelLogin,
+  );
   const isMismatchedOrDemo = Boolean(
     isPersisted &&
       saved &&
       twitchAccount &&
       (saved.is_demo ||
+        payloadMetadataMismatch ||
         (saved.platform_user_id &&
           twitchAccount.platform_user_id &&
           saved.platform_user_id !== twitchAccount.platform_user_id)),
