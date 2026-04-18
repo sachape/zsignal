@@ -33,6 +33,7 @@ import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { teaserStore } from "@/services/teaserStore";
 import {
   getLatestReport,
+  getLatestReportForPlatformUser,
   getReportById,
   getReportByJobId,
   type SavedReport,
@@ -53,7 +54,7 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { account: twitchAccount } = useTwitchConnection();
+  const { account: twitchAccount, loading: twitchLoading } = useTwitchConnection();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
   const teaserId = searchParams.get("teaser");
@@ -65,14 +66,16 @@ const ResultPage = () => {
   const [teaserChannel, setTeaserChannel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [noLiveReport, setNoLiveReport] = useState(false);
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || twitchLoading) return;
     let cancelled = false;
 
     (async () => {
       setLoading(true);
       setNotFound(false);
+      setNoLiveReport(false);
       setSaved(null);
       setReport(null);
       setIsTeaser(false);
@@ -121,6 +124,27 @@ const ResultPage = () => {
       }
 
       if (user) {
+        // Source-of-truth: if a Twitch account is connected, ONLY load a
+        // report that matches that connected account. Never silently fall
+        // back to demo/mock or another channel's report.
+        if (twitchAccount?.platform_user_id) {
+          const r = await getLatestReportForPlatformUser(
+            user.id,
+            twitchAccount.platform_user_id,
+          );
+          if (cancelled) return;
+          if (r) {
+            setSaved(r);
+            setReport(r.report);
+            navigate(`/result?report_id=${r.id}`, { replace: true });
+          } else {
+            setNoLiveReport(true);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Not connected → legacy/demo fallback is acceptable
         const r = await getLatestReport(user.id);
         if (cancelled) return;
         if (r) {
@@ -147,7 +171,7 @@ const ResultPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [reportId, legacyJobId, teaserId, channel, user, authLoading, navigate]);
+  }, [reportId, legacyJobId, teaserId, channel, user, authLoading, twitchAccount, twitchLoading, navigate]);
 
   if (loading) {
     return (
