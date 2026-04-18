@@ -1,5 +1,8 @@
 import { assembleReport } from "./reportAssembler";
-import { PublicChannelLookupService } from "./publicChannelLookup";
+import {
+  PublicChannelLookupService,
+  type PublicLookupSource,
+} from "./publicChannelLookup";
 import { teaserStore, type TeaserRecord } from "./teaserStore";
 
 export type TeaserStage =
@@ -16,10 +19,15 @@ export type TeaserStage =
 export interface RunTeaserOptions {
   channelInput: string;
   onStage?: (stage: TeaserStage) => void;
+  onLookupResolved?: (info: {
+    login: string;
+    source: PublicLookupSource;
+    displayName: string;
+  }) => void;
 }
 
 export type RunTeaserResult =
-  | { ok: true; record: TeaserRecord }
+  | { ok: true; record: TeaserRecord; source: PublicLookupSource }
   | { ok: false; reason: "not_found" | "failed"; message?: string };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -27,6 +35,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export async function runTeaserAnalysis({
   channelInput,
   onStage,
+  onLookupResolved,
 }: RunTeaserOptions): Promise<RunTeaserResult> {
   try {
     onStage?.("looking_up");
@@ -36,16 +45,22 @@ export async function runTeaserAnalysis({
       return { ok: false, reason: "not_found" };
     }
 
+    onLookupResolved?.({
+      login: match.login,
+      source: match.source,
+      displayName: match.data.profile.display_name,
+    });
+
     onStage?.("loading_data");
-    await sleep(350);
-    onStage?.("computing_facts");
-    await sleep(300);
-    onStage?.("scoring");
-    await sleep(300);
-    onStage?.("matching_competitors");
-    await sleep(300);
-    onStage?.("generating_recommendations");
     await sleep(250);
+    onStage?.("computing_facts");
+    await sleep(200);
+    onStage?.("scoring");
+    await sleep(200);
+    onStage?.("matching_competitors");
+    await sleep(200);
+    onStage?.("generating_recommendations");
+    await sleep(200);
 
     const report = assembleReport(match.data, `teaser-${match.login}`, {
       platform: "twitch",
@@ -59,7 +74,7 @@ export async function runTeaserAnalysis({
     teaserStore.setPendingChannel(match.login);
 
     onStage?.("completed");
-    return { ok: true, record };
+    return { ok: true, record, source: match.source };
   } catch (e) {
     onStage?.("failed");
     return {
