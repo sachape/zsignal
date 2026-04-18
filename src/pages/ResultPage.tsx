@@ -51,6 +51,7 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { account: twitchAccount } = useTwitchConnection();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
   const teaserId = searchParams.get("teaser");
@@ -208,6 +209,38 @@ const ResultPage = () => {
           title={summary.display_name}
           description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${summary.follower_count} followers${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
         />
+
+        {/* Mismatch / demo banner: clarify when this report does not belong
+            to the user's currently connected Twitch account. */}
+        {isPersisted && saved && twitchAccount && (
+          (saved.is_demo || (
+            saved.platform_user_id &&
+            saved.platform_user_id !== twitchAccount.platform_user_id
+          )) && (
+            <Card className="mb-6 border-warning/30 bg-warning/5">
+              <CardContent className="flex items-start gap-3 p-4">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    {saved.is_demo
+                      ? "Analyse de démonstration"
+                      : "Analyse d'un autre canal"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {saved.is_demo
+                      ? `Ce rapport a été généré avec des données de démo (${summary.display_name}). Il ne reflète pas ton compte Twitch connecté @${twitchAccount.platform_login}.`
+                      : `Ce rapport concerne ${summary.display_name}, pas ton compte Twitch connecté @${twitchAccount.platform_login}.`}
+                  </p>
+                </div>
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/analyze">
+                    <RefreshCw className="h-3.5 w-3.5" /> Analyser mon compte
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )
+        )}
 
         <div className="mb-8 grid gap-4 sm:grid-cols-4">
           <ScoreCard score={score.overall} />
