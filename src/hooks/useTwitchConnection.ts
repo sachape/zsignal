@@ -67,14 +67,39 @@ async function fetchAndCache(userId: string): Promise<void> {
     return;
   }
 
-  // Best-effort avatar lookup. Failure is non-fatal — fallback to initials.
+  // Canonical Twitch identity resolution.
+  //
+  // Priority order — must match what dashboard/search/rankings surfaces use:
+  //   1. twitch_profiles row (cached enriched profile from a prior analysis run)
+  //   2. twitch-live-fetch edge function (authoritative — uses the user's OAuth
+  //      token to call Helix /users; this is the same source that powers the
+  //      report identity header and dashboard avatar)
+  //   3. twitch-public-lookup as a final best-effort using the public login
+  //
+  // Historically only #1 + #3 were attempted, but #1 is rarely populated
+  // (no code path writes twitch_profiles for the connected user outside of
+  // analysis ingestion) and #3 sometimes fails or returns no image, leaving
+  // the header stuck on initials while every other surface had the avatar.
   let avatar: string | null = null;
+
   const { data: profile } = await supabase
     .from("twitch_profiles")
     .select("profile_image_url, twitch_user_id, login")
     .eq("user_id", userId)
     .maybeSingle();
   if (profile?.profile_image_url) avatar = profile.profile_image_url;
+
+  if (!avatar) {
+    try {
+      const { data: live } = await supabase.functions.invoke("twitch-live-fetch", {
+        body: {},
+      });
+      const url = live?.profile?.profile_image_url ?? null;
+      if (url) avatar = url;
+    } catch {
+      // non-fatal — fall through to public lookup
+    }
+  }
 
   if (!avatar && connected.platform_login) {
     try {
