@@ -79,11 +79,8 @@ const ResultPage = () => {
   const [selectionSource, setSelectionSource] = useState<SelectionSource>(null);
 
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
-  const showDebugPanel =
-    typeof window !== "undefined" &&
-    (import.meta.env.DEV ||
-      window.location.hostname.includes("lovableproject.com") ||
-      window.location.hostname.includes("id-preview--"));
+  // Debug panel is dev-only — never shipped in production UX.
+  const showDebugPanel = import.meta.env.DEV;
 
   useEffect(() => {
     if (authLoading || twitchLoading) return;
@@ -395,7 +392,7 @@ const ResultPage = () => {
       <PageContainer>
         {renderDebugPanel()}
 
-        {isMismatchedOrDemo && (
+        {showDebugPanel && isMismatchedOrDemo && (
           <Card className="mb-4 border-destructive/40 bg-destructive/10">
             <CardContent className="flex items-center gap-3 p-4">
               <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
@@ -541,12 +538,12 @@ const ResultPage = () => {
           <div className="flex flex-col gap-3 sm:col-span-3">
             <div className="grid gap-3 sm:grid-cols-3">
               <StatBlock
-                label={summary.is_partial ? "Vues moyennes récentes" : "Viewers moyens"}
+                label="Vues moyennes par VOD"
                 value={String(summary.avg_viewers)}
                 subtext={
                   summary.is_partial
-                    ? "Influencé par les rediffusions et événements récents"
-                    : "30 derniers jours"
+                    ? "Données publiques · influencé par les rediffusions"
+                    : "30 derniers jours · pas un compteur live"
                 }
               />
               <StatBlock
