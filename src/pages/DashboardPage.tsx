@@ -288,6 +288,8 @@ const DashboardPage = () => {
     report.competitor_groups.flatMap((g) => g.matches)[0] ??
     null;
   const recommendedPlaybook = recommendPlaybookForReport(report);
+  const foundation = diagnoseFoundationMode(report);
+  const foundationActive = foundation.isActive && !currentReport.is_demo;
 
   return (
     <AppShell>
