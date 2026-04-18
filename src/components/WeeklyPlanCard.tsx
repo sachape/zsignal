@@ -1,9 +1,17 @@
-import { useEffect, useState } from "react";
-import { Check, Sparkles, AlertTriangle, FlaskConical, ArrowRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Check,
+  Sparkles,
+  AlertTriangle,
+  FlaskConical,
+  ArrowRight,
+  Target,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import {
   buildWeeklyPlan,
@@ -32,7 +40,7 @@ const effortLabel: Record<Effort, string> = {
 };
 
 const WeeklyPlanCard = ({ report, compact }: Props) => {
-  const plan = buildWeeklyPlan(report);
+  const plan = useMemo(() => buildWeeklyPlan(report), [report]);
   const [done, setDone] = useState<string[]>([]);
 
   useEffect(() => {
@@ -43,22 +51,30 @@ const WeeklyPlanCard = ({ report, compact }: Props) => {
     setDone(toggleActionCompletion(plan.weekKey, id));
   };
 
+  const total = plan.actions.length;
   const completedCount = plan.actions.filter((a) => done.includes(a.id)).length;
+  const remaining = total - completedCount;
+  const progressPct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
 
   return (
     <Card>
       <CardContent className="p-5">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">
-                Plan de la semaine
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {plan.actions.length > 0
-                  ? `${completedCount} / ${plan.actions.length} action(s) cochée(s)`
-                  : "Aucune action prioritaire détectée"}
+        {/* Weekly focus header — ties the plan to the main blocker */}
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-2">
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Plan de la semaine
+                </h3>
+                <Badge variant="outline" className="gap-1 text-[10px] text-primary">
+                  <Target className="h-3 w-3" />
+                  Focus : {plan.focus.label}
+                </Badge>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {plan.focus.rationale}
               </p>
             </div>
           </div>
@@ -71,12 +87,28 @@ const WeeklyPlanCard = ({ report, compact }: Props) => {
           )}
         </div>
 
+        {/* Weekly progression strip */}
+        {total > 0 && (
+          <div className="mb-4">
+            <div className="mb-1.5 flex items-center justify-between text-xs">
+              <span className="font-medium text-foreground">
+                Progression de la semaine
+              </span>
+              <span className="text-muted-foreground">
+                {completedCount}/{total} faites · {remaining} restante
+                {remaining > 1 ? "s" : ""}
+              </span>
+            </div>
+            <Progress value={progressPct} className="h-1.5" />
+          </div>
+        )}
+
         {plan.actions.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Lance une analyse pour générer un plan personnalisé.
           </p>
         ) : (
-          <ul className="space-y-3">
+          <ol className="space-y-3">
             {plan.actions.map((a) => {
               const isDone = done.includes(a.id);
               return (
@@ -101,20 +133,36 @@ const WeeklyPlanCard = ({ report, compact }: Props) => {
                     {isDone && <Check className="h-3 w-3" />}
                   </button>
                   <div className="min-w-0 flex-1">
-                    <p
-                      className={cn(
-                        "text-sm font-semibold",
-                        isDone ? "line-through text-muted-foreground" : "text-foreground",
-                      )}
-                    >
-                      {a.action}
-                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] font-semibold text-primary"
+                      >
+                        Étape {a.step}
+                      </Badge>
+                      <p
+                        className={cn(
+                          "text-sm font-semibold",
+                          isDone
+                            ? "line-through text-muted-foreground"
+                            : "text-foreground",
+                        )}
+                      >
+                        {a.action}
+                      </p>
+                    </div>
                     <p className="mt-1 text-xs text-muted-foreground">{a.problem}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                      <Badge variant="outline" className={cn("text-[10px]", impactStyle[a.impact])}>
+                      <Badge
+                        variant="outline"
+                        className={cn("text-[10px]", impactStyle[a.impact])}
+                      >
                         Impact {a.impact}
                       </Badge>
-                      <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] text-muted-foreground"
+                      >
                         {effortLabel[a.effort]}
                       </Badge>
                     </div>
@@ -122,7 +170,7 @@ const WeeklyPlanCard = ({ report, compact }: Props) => {
                 </li>
               );
             })}
-          </ul>
+          </ol>
         )}
 
         {!compact && plan.experiment && (
@@ -130,12 +178,28 @@ const WeeklyPlanCard = ({ report, compact }: Props) => {
             <div className="mb-1 flex items-center gap-2">
               <FlaskConical className="h-3.5 w-3.5 text-accent" />
               <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-                Test de la semaine
+                Test de la semaine · {plan.experiment.duration}
               </p>
             </div>
-            <p className="text-sm font-semibold text-foreground">{plan.experiment.title}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{plan.experiment.hypothesis}</p>
-            <p className="mt-1.5 text-xs text-foreground">{plan.experiment.how}</p>
+            <p className="text-sm font-semibold text-foreground">
+              {plan.experiment.title}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground/80">Hypothèse : </span>
+              {plan.experiment.hypothesis}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground/80">Mise en place : </span>
+              {plan.experiment.how}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground/80">Signal à observer : </span>
+              {plan.experiment.signalToObserve}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground/80">Pourquoi maintenant : </span>
+              {plan.experiment.whyNow}
+            </p>
           </div>
         )}
 
