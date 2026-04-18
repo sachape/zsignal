@@ -767,6 +767,74 @@ const StreamerProfilePage = () => {
           </Card>
         </div>
 
+        {/* Mécaniques observées */}
+        {(() => {
+          const mechanics = buildObservedMechanics(report, myReport?.report ?? null);
+          if (mechanics.length === 0) {
+            return (
+              <Card className="mb-6 border-dashed">
+                <CardContent className="p-5">
+                  <div className="mb-1 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="text-sm font-semibold text-foreground">Mécaniques observées</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Pas assez de signaux publics pour extraire des mécaniques fiables sur ce profil.
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          }
+          return (
+            <Card className="mb-6">
+              <CardContent className="p-5">
+                <div className="mb-1 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-foreground" />
+                  <h3 className="text-sm font-semibold text-foreground">Mécaniques observées</h3>
+                  <Badge variant="outline" className="ml-auto text-[10px]">
+                    {mechanics.length} pattern{mechanics.length > 1 ? "s" : ""}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Patterns détectés à partir des signaux publics. Les signaux faibles sont marqués comme inférés.
+                </p>
+                <ul className="space-y-2">
+                  {mechanics.map((m) => {
+                    const meta = usefulnessMeta[m.usefulness];
+                    return (
+                      <li
+                        key={m.key}
+                        className="rounded-md border border-border/50 bg-background/30 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-medium text-foreground">
+                                {m.certainty === "soft" ? `Probable : ${m.label}` : m.label}
+                              </span>
+                              {m.certainty === "soft" && (
+                                <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                                  signal faible
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="mt-1 text-xs text-muted-foreground">{m.detail}</p>
+                          </div>
+                          <span
+                            className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${meta.tone}`}
+                          >
+                            {meta.label}
+                          </span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {/* Secondary signals row */}
         <div className="mb-6 grid gap-4 sm:grid-cols-3">
           <Card>
