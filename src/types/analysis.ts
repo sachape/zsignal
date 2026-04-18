@@ -22,6 +22,10 @@ export interface TwitchProfile {
   profile_image_url: string;
   view_count: number;
   follower_count: number;
+  /** True when follower_count was retrieved live from the Twitch API. */
+  followers_available?: boolean;
+  /** True when the followers scope is missing on the connected account. */
+  followers_missing_scope?: boolean;
   broadcaster_type: string;
   created_at_twitch: string;
   fetched_at: string;
