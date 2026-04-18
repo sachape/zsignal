@@ -7,6 +7,7 @@ import {
   BookOpen,
   Trophy,
   LogOut,
+  Stethoscope,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -29,6 +30,7 @@ import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 
 const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
+  { title: "Diagnostic détaillé", url: "/result", icon: Stethoscope, end: false },
   { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
 ];
 
