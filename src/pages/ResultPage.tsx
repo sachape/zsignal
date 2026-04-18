@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import {
-  User,
   TrendingDown,
   Clock,
   Target,
@@ -41,6 +40,14 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 
+type SelectionSource =
+  | "explicit_report_id"
+  | "job_id"
+  | "latest_matching_twitch_report"
+  | "legacy_fallback"
+  | "no_matching_report"
+  | null;
+
 const categoryIcons: Record<string, typeof Clock> = {
   regularity: Clock,
   content: Lightbulb,
@@ -68,6 +75,14 @@ const ResultPage = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [noLiveReport, setNoLiveReport] = useState(false);
+  const [selectionSource, setSelectionSource] = useState<SelectionSource>(null);
+
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const showDebugPanel =
+    typeof window !== "undefined" &&
+    (import.meta.env.DEV ||
+      window.location.hostname.includes("lovableproject.com") ||
+      window.location.hostname.includes("id-preview--"));
 
   useEffect(() => {
     if (authLoading || twitchLoading) return;
@@ -77,12 +92,12 @@ const ResultPage = () => {
       setLoading(true);
       setNotFound(false);
       setNoLiveReport(false);
+      setSelectionSource(null);
       setSaved(null);
       setReport(null);
       setIsTeaser(false);
       setTeaserChannel(null);
 
-      // Teaser mode (anonymous, sessionStorage)
       if (teaserId) {
         const rec = teaserStore.get(teaserId);
         if (cancelled) return;
@@ -98,6 +113,7 @@ const ResultPage = () => {
       }
 
       if (reportId && user) {
+        setSelectionSource("explicit_report_id");
         const r = await getReportById(reportId, user.id);
         if (cancelled) return;
         if (r) {
@@ -111,6 +127,7 @@ const ResultPage = () => {
       }
 
       if (legacyJobId && user) {
+        setSelectionSource("job_id");
         const r = await getReportByJobId(legacyJobId, user.id);
         if (cancelled) return;
         if (r) {
@@ -125,9 +142,6 @@ const ResultPage = () => {
       }
 
       if (user) {
-        // Source-of-truth: if a Twitch account is connected, ONLY load a
-        // report that matches that connected account. Never silently fall
-        // back to demo/mock or another channel's report.
         if (twitchAccount?.platform_user_id) {
           const r = await getLatestReportForPlatformUser(
             user.id,
@@ -135,19 +149,21 @@ const ResultPage = () => {
           );
           if (cancelled) return;
           if (r) {
+            setSelectionSource("latest_matching_twitch_report");
             setSaved(r);
             setReport(r.report);
             navigate(`/result?report_id=${r.id}`, { replace: true });
           } else {
+            setSelectionSource("no_matching_report");
             setNoLiveReport(true);
           }
           setLoading(false);
           return;
         }
 
-        // Not connected → legacy/demo fallback is acceptable
         const r = await getLatestReport(user.id);
         if (cancelled) return;
+        setSelectionSource("legacy_fallback");
         if (r) {
           setSaved(r);
           setReport(r.report);
@@ -159,7 +175,6 @@ const ResultPage = () => {
         return;
       }
 
-      // Anonymous user, no teaser id, fallback to channel param redirect to teaser flow
       if (channel) {
         navigate(`/analyze?channel=${encodeURIComponent(channel)}&mode=teaser`, { replace: true });
         return;
@@ -174,6 +189,68 @@ const ResultPage = () => {
     };
   }, [reportId, legacyJobId, teaserId, channel, user, authLoading, twitchAccount, twitchLoading, navigate]);
 
+  const renderDebugPanel = () => {
+    if (!showDebugPanel) return null;
+
+    return (
+      <Card className="mb-4 border-accent/30 bg-accent/5">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-accent">
+            Debug /result
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-2 text-xs sm:grid-cols-2">
+            <div>
+              <span className="text-muted-foreground">current URL:</span>{" "}
+              <span className="font-mono text-foreground break-all">{currentUrl || "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">selection source:</span>{" "}
+              <span className="font-mono text-foreground">{selectionSource ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">report_id:</span>{" "}
+              <span className="font-mono text-foreground">{reportId ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">jobId:</span>{" "}
+              <span className="font-mono text-foreground">{legacyJobId ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">connected platform_user_id:</span>{" "}
+              <span className="font-mono text-foreground">{twitchAccount?.platform_user_id ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">connected login:</span>{" "}
+              <span className="font-mono text-foreground">{twitchAccount?.platform_login ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">selected report id:</span>{" "}
+              <span className="font-mono text-foreground">{saved?.id ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">selected report platform_user_id:</span>{" "}
+              <span className="font-mono text-foreground">{saved?.platform_user_id ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">selected report platform_login:</span>{" "}
+              <span className="font-mono text-foreground">{saved?.platform_login ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">selected report channel:</span>{" "}
+              <span className="font-mono text-foreground">{report?.channel_summary.display_name ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">selected report is_demo:</span>{" "}
+              <span className="font-mono text-foreground">{saved ? String(saved.is_demo) : "—"}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   if (loading) {
     return (
       <AppShell>
@@ -182,14 +259,14 @@ const ResultPage = () => {
     );
   }
 
-  // No live report yet for the connected Twitch account — never show a
-  // mismatched demo as if it were the current account.
   if (noLiveReport && twitchAccount) {
     const displayName =
       twitchAccount.platform_display_name || twitchAccount.platform_login || "ton compte";
+
     return (
       <AppShell>
         <PageContainer size="sm">
+          {renderDebugPanel()}
           <Button
             asChild
             variant="ghost"
@@ -237,6 +314,7 @@ const ResultPage = () => {
     return (
       <AppShell>
         <PageContainer size="sm">
+          {renderDebugPanel()}
           <EmptyReportState
             title="Aucun rapport trouvé"
             description="Le rapport demandé n'existe pas ou ne t'appartient pas. Lance une nouvelle analyse pour commencer."
@@ -264,10 +342,42 @@ const ResultPage = () => {
   const visibleCompetitors = isTeaser
     ? (directCompetitors?.matches ?? []).slice(0, 1)
     : (directCompetitors?.matches ?? []);
+  const payloadChannelLogin = summary.channel_name?.toLowerCase() ?? null;
+  const metadataChannelLogin = saved?.platform_login?.toLowerCase() ?? null;
+  const payloadMetadataMismatch = Boolean(
+    isPersisted &&
+      saved &&
+      metadataChannelLogin &&
+      payloadChannelLogin &&
+      metadataChannelLogin !== payloadChannelLogin,
+  );
+  const isMismatchedOrDemo = Boolean(
+    isPersisted &&
+      saved &&
+      twitchAccount &&
+      (saved.is_demo ||
+        payloadMetadataMismatch ||
+        (saved.platform_user_id &&
+          twitchAccount.platform_user_id &&
+          saved.platform_user_id !== twitchAccount.platform_user_id)),
+  );
 
   return (
     <AppShell>
       <PageContainer>
+        {renderDebugPanel()}
+
+        {isMismatchedOrDemo && (
+          <Card className="mb-4 border-destructive/40 bg-destructive/10">
+            <CardContent className="flex items-center gap-3 p-4">
+              <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
+              <p className="text-sm font-semibold text-foreground">
+                DEBUG: mismatched or demo report is being rendered
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {user && (
           <Button
             asChild
@@ -288,13 +398,11 @@ const ResultPage = () => {
           description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${summary.follower_count} followers${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
         />
 
-        {/* Mismatch / demo banner: clarify when this report does not belong
-            to the user's currently connected Twitch account. */}
         {isPersisted && saved && twitchAccount && (
-          (saved.is_demo || (
-            saved.platform_user_id &&
-            saved.platform_user_id !== twitchAccount.platform_user_id
-          )) && (
+          (saved.is_demo ||
+            payloadMetadataMismatch ||
+            (saved.platform_user_id &&
+              saved.platform_user_id !== twitchAccount.platform_user_id)) && (
             <Card className="mb-6 border-warning/30 bg-warning/5">
               <CardContent className="flex items-start gap-3 p-4">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
@@ -302,19 +410,31 @@ const ResultPage = () => {
                   <p className="text-sm font-semibold text-foreground">
                     {saved.is_demo
                       ? "Analyse de démonstration"
-                      : "Analyse d'un autre canal"}
+                      : payloadMetadataMismatch
+                        ? "Rapport incohérent"
+                        : "Analyse d'un autre canal"}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {saved.is_demo
                       ? `Ce rapport a été généré avec des données de démo (${summary.display_name}). Il ne reflète pas ton compte Twitch connecté @${twitchAccount.platform_login}.`
-                      : `Ce rapport concerne ${summary.display_name}, pas ton compte Twitch connecté @${twitchAccount.platform_login}.`}
+                      : payloadMetadataMismatch
+                        ? `Les métadonnées du rapport ciblent @${saved.platform_login}, mais le contenu affiché est encore ${summary.display_name}.`
+                        : `Ce rapport concerne ${summary.display_name}, pas ton compte Twitch connecté @${twitchAccount.platform_login}.`}
                   </p>
                 </div>
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/analyze">
-                    <RefreshCw className="h-3.5 w-3.5" /> Analyser mon compte
-                  </Link>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/connect-twitch">Voir mon compte connecté</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/analyze">
+                      <RefreshCw className="h-3.5 w-3.5" /> Analyser mon compte
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm" variant="ghost">
+                    <Link to="/dashboard">Retour au tableau de bord</Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )
@@ -357,7 +477,6 @@ const ResultPage = () => {
           </div>
         </div>
 
-        {/* Detailed score breakdown — hidden in teaser to preserve curiosity */}
         {!isTeaser && (
           <Card className="mb-8">
             <CardHeader>
@@ -438,10 +557,26 @@ const ResultPage = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              { label: "Followers", value: `${ap.followers.current} / ${ap.followers.target}`, pct: Math.min(100, Math.round((ap.followers.current / ap.followers.target) * 100)) },
-              { label: "Viewers moyens", value: `${ap.avg_viewers.current} / ${ap.avg_viewers.target}`, pct: Math.min(100, Math.round((ap.avg_viewers.current / ap.avg_viewers.target) * 100)) },
-              { label: "Jours de stream", value: `${ap.stream_days.current} / ${ap.stream_days.target}`, pct: Math.min(100, Math.round((ap.stream_days.current / ap.stream_days.target) * 100)) },
-              { label: "Heures de stream", value: `${ap.stream_hours.current} / ${ap.stream_hours.target}`, pct: Math.min(100, Math.round((ap.stream_hours.current / ap.stream_hours.target) * 100)) },
+              {
+                label: "Followers",
+                value: `${ap.followers.current} / ${ap.followers.target}`,
+                pct: Math.min(100, Math.round((ap.followers.current / ap.followers.target) * 100)),
+              },
+              {
+                label: "Viewers moyens",
+                value: `${ap.avg_viewers.current} / ${ap.avg_viewers.target}`,
+                pct: Math.min(100, Math.round((ap.avg_viewers.current / ap.avg_viewers.target) * 100)),
+              },
+              {
+                label: "Jours de stream",
+                value: `${ap.stream_days.current} / ${ap.stream_days.target}`,
+                pct: Math.min(100, Math.round((ap.stream_days.current / ap.stream_days.target) * 100)),
+              },
+              {
+                label: "Heures de stream",
+                value: `${ap.stream_hours.current} / ${ap.stream_hours.target}`,
+                pct: Math.min(100, Math.round((ap.stream_hours.current / ap.stream_hours.target) * 100)),
+              },
             ].map((item) => (
               <ProgressRow key={item.label} label={item.label} value={item.value} pct={item.pct} />
             ))}
