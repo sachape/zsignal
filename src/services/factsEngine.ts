@@ -32,8 +32,8 @@ export function extractChannelFacts(
   const avgDuration = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
   const totalHours30d = durations.reduce((a, b) => a + b, 0) / 60;
 
-  // Category analysis from video titles/game_ids
-  const categories = clips.map((c) => c.game_id);
+  // Category analysis from clip game_ids
+  const categories = clips.map((c) => c.game_id).filter(Boolean);
   const catCounts: Record<string, number> = {};
   categories.forEach((c) => { catCounts[c] = (catCounts[c] || 0) + 1; });
   const dominant = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0];
@@ -53,14 +53,20 @@ export function extractChannelFacts(
     const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
     const variance = gaps.reduce((a, b) => a + Math.pow(b - avgGap, 2), 0) / gaps.length;
     const stdDev = Math.sqrt(variance);
-    // Lower std dev = more consistent. Score 0-100.
     consistencyScore = Math.max(0, Math.min(100, Math.round(100 - stdDev * 15)));
   }
 
-  // Avg viewers from video view counts (rough proxy)
-  const avgViewers = videos30d.length
+  // VOD-derived avg view metric. NOT a live concurrent viewers count.
+  // The label is intentionally honest: "Vues moyennes par VOD (30j)".
+  // Influenced by rebroadcasts, raids, events. Confidence is low when the
+  // VOD pool is small.
+  const avgVodViews = videos30d.length
     ? Math.round(videos30d.reduce((a, v) => a + v.view_count, 0) / videos30d.length)
     : 0;
+  const vodViewsConfidence = videos30d.length >= 6 ? 0.6 : videos30d.length >= 3 ? 0.4 : 0.2;
+
+  const followersAvailable = profile.followers_available ?? true;
+  const followersValue = followersAvailable ? profile.follower_count : 0;
 
   // Affiliate thresholds
   const AFFILIATE = { followers: 50, avg_viewers: 3, stream_days_30d: 7, stream_hours_30d: 8 };
@@ -74,10 +80,15 @@ export function extractChannelFacts(
     { key: "dominant_category", value: dominantCategory, label: "Catégorie dominante", confidence: dominant ? 0.9 : 0.3 },
     { key: "category_switch_rate", value: Math.round(switchRate * 100), label: "Taux de changement de catégorie (%)", confidence: 0.8 },
     { key: "posting_consistency_score", value: consistencyScore, label: "Score de régularité", confidence: uniqueDays.length >= 3 ? 0.9 : 0.5 },
-    { key: "avg_viewers", value: avgViewers, label: "Viewers moyens estimés", confidence: 0.7 },
-    { key: "follower_count", value: profile.follower_count, label: "Followers", confidence: 1 },
-    { key: "followers_remaining", value: Math.max(0, AFFILIATE.followers - profile.follower_count), label: "Followers restants (affilié)", confidence: 1 },
-    { key: "avg_viewers_remaining", value: Math.max(0, AFFILIATE.avg_viewers - avgViewers), label: "Viewers moyens restants (affilié)", confidence: 0.7 },
+    // Honest naming: this is the average view_count of recent VODs, not a
+    // live concurrent viewer count. The legacy `avg_viewers` key is kept
+    // for backward compatibility in the report payload.
+    { key: "avg_vod_views_30d", value: avgVodViews, label: "Vues moyennes par VOD (30j)", confidence: vodViewsConfidence },
+    { key: "avg_viewers", value: avgVodViews, label: "Vues moyennes par VOD (30j)", confidence: vodViewsConfidence },
+    { key: "follower_count", value: followersValue, label: "Followers", confidence: followersAvailable ? 1 : 0 },
+    { key: "followers_available", value: followersAvailable ? 1 : 0, label: "Followers disponibles", confidence: 1 },
+    { key: "followers_remaining", value: followersAvailable ? Math.max(0, AFFILIATE.followers - followersValue) : 0, label: "Followers restants (affilié)", confidence: followersAvailable ? 1 : 0 },
+    { key: "avg_viewers_remaining", value: Math.max(0, AFFILIATE.avg_viewers - avgVodViews), label: "Viewers moyens restants (affilié)", confidence: vodViewsConfidence },
     { key: "stream_days_remaining", value: Math.max(0, AFFILIATE.stream_days_30d - uniqueDays.length), label: "Jours de stream restants (affilié)", confidence: 1 },
     { key: "stream_hours_remaining", value: Math.max(0, Math.round((AFFILIATE.stream_hours_30d - totalHours30d) * 10) / 10), label: "Heures restantes (affilié)", confidence: 1 },
     { key: "unique_stream_days_30d", value: uniqueDays.length, label: "Jours uniques streamés (30j)", confidence: 1 },
