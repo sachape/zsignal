@@ -179,7 +179,7 @@ const SidebarStreamerSearch = ({ collapsed }: Props) => {
                         onClick={() => goToProfile(s.login)}
                         className={cn(
                           "flex w-full items-center gap-2 px-2 py-1.5 text-left transition-colors",
-                          active && "bg-accent text-accent-foreground",
+                          active && "bg-secondary text-foreground",
                         )}
                       >
                         {s.thumbnail_url ? (

@@ -196,7 +196,7 @@ const LeadersPage = () => {
                         key={c.id}
                         type="button"
                         onClick={() => pickCategory(c.name)}
-                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs hover:bg-accent"
+                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs hover:bg-secondary"
                       >
                         {c.box_art_url && (
                           <img
