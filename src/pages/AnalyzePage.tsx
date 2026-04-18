@@ -232,6 +232,25 @@ const AnalyzePage = () => {
               value={((Math.max(0, currentIndex) + 1) / order.length) * 100}
               className="mt-6"
             />
+
+            {import.meta.env.DEV && (
+              <div className="mt-6 rounded-md border border-border/60 bg-muted/40 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground">
+                <div className="mb-1 font-semibold text-foreground">DEBUG /analyze</div>
+                <div>raw input (?channel): {urlChannel || "—"}</div>
+                <div>normalized searched: {normalizeChannelInput(urlChannel) ?? "—"}</div>
+                <div>mode: {mode}</div>
+                <div>connected twitch login: {connectedLogin || "—"}</div>
+                <div>
+                  source used:{" "}
+                  {mode === "teaser"
+                    ? "url_channel_param (isolated from auth)"
+                    : connectedLogin
+                      ? "connected_twitch_login"
+                      : "url_channel_param"}
+                </div>
+                <div>resolved channel: {channel || "—"}</div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </PageContainer>
