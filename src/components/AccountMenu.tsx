@@ -25,12 +25,27 @@ import { useTwitchConnection } from "@/hooks/useTwitchConnection";
  */
 const AccountMenu = () => {
   const { user } = useAuth();
-  const { isConnected, account } = useTwitchConnection();
+  const { isConnected, account, initializing } = useTwitchConnection();
   const navigate = useNavigate();
 
   if (!user) return null;
 
-  // Not connected: single CTA, no dropdown noise.
+  // Loading / first resolution with no cached identity: render a neutral
+  // placeholder. We must NEVER fall back to the "Connecter Twitch" CTA here,
+  // otherwise the control flickers to a fake disconnected state on every
+  // route change.
+  if (initializing) {
+    return (
+      <div
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-card/40"
+        aria-label="Chargement du compte Twitch"
+      >
+        <span className="h-3.5 w-3.5 animate-pulse rounded-full bg-muted" />
+      </div>
+    );
+  }
+
+  // Confirmed disconnected: single CTA, no dropdown noise.
   if (!isConnected || !account) {
     return (
       <Button
