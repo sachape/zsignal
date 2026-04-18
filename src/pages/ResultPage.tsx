@@ -428,16 +428,33 @@ const ResultPage = () => {
               : "Rapport d'analyse"
           }
           title={summary.display_name}
+          avatarUrl={report.identity?.avatar_url ?? null}
+          avatarLogin={report.identity?.platform_login ?? summary.channel_name}
+          badges={[
+            ...(summary.broadcaster_type === "partner"
+              ? [{ label: "Partenaire", variant: "accent" as const }]
+              : summary.broadcaster_type === "affiliate"
+                ? [{ label: "Affilié", variant: "secondary" as const }]
+                : []),
+            ...(summary.is_live
+              ? [{ label: "Live", variant: "destructive" as const }]
+              : []),
+            ...(summary.category
+              ? [{ label: summary.category, variant: "outline" as const }]
+              : []),
+          ]}
           description={
             summary.is_partial
-              ? `${summary.category} · données publiques uniquement${
-                  summary.broadcaster_type === "affiliate" ? " · Affilié" : ""
-                }${summary.broadcaster_type === "partner" ? " · Partenaire" : ""}`
-              : `${summary.category} · ~${summary.avg_viewers} viewers moyens en live · ${
+              ? `Données publiques uniquement${
+                  summary.followers_available === false
+                    ? " · followers indisponibles"
+                    : ""
+                }`
+              : `~${summary.avg_viewers} viewers moyens en live · ${
                   summary.followers_available === false
                     ? "followers indisponibles"
                     : `${summary.follower_count} followers`
-                }${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`
+                }`
           }
         />
 
