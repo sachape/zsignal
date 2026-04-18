@@ -104,7 +104,8 @@ const DashboardPage = () => {
           <PageHeader
             eyebrow="Tableau de bord"
             title={displayName}
-            description={`@${account.platform_login} · Compte Twitch connecté`}
+            avatarLogin={account.platform_login}
+            description="Compte Twitch connecté"
           />
 
           <Card className="mb-6">
