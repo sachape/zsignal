@@ -266,41 +266,20 @@ const DashboardPage = () => {
           ]}
           description="Aperçu rapide — consulte le rapport complet pour le détail."
           action={
-            <div className="flex gap-2">
-              <Button asChild variant="outline" size="sm">
-                <Link to={`/result?report_id=${currentReport.id}`}>
-                  <FileText className="h-4 w-4" /> Rapport complet
-                </Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link to="/analyze">
-                  <RefreshCw className="h-4 w-4" /> Relancer
-                </Link>
-              </Button>
-            </div>
+            <Button asChild size="sm">
+              <Link to={`/result?report_id=${currentReport.id}`}>
+                <FileText className="h-4 w-4" /> Rapport complet
+              </Link>
+            </Button>
           }
         />
 
         <div className="mb-6 grid gap-3 sm:grid-cols-2">
-          <Card>
-            <CardContent className="flex items-center gap-3 p-4">
-              {isFresh ? (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
-              ) : (
-                <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-foreground">
-                  {isFresh ? "Analyse à jour" : "Analyse à rafraîchir"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Dernière analyse : {formatDate(currentReport.created_at)}
-                  {ageDays > 0 && ` · il y a ${ageDays} j`}
-                  {currentReport.is_demo && " · démo"}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <SyncStatusCard
+            state={"synchronized" as SyncState}
+            lastUpdatedLabel={`${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}`}
+            manualHref="/analyze"
+          />
 
           <Card>
             <CardContent className="flex items-center gap-3 p-4">
