@@ -36,7 +36,7 @@ const StreamerProfilePage = () => {
       const result = await runTeaserAnalysis({ channelInput: login });
       if (cancelled) return;
 
-      if (!result.ok) {
+      if (result.ok !== true) {
         setError(result.reason);
         setLoading(false);
         return;
