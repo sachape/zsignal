@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   AlertCircle,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppShell from "@/components/AppShell";
