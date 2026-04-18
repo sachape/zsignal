@@ -257,7 +257,39 @@ async function fetchCompetitorCandidates(
   const results = (j?.data ?? []) as HelixSearchChannel[];
   return results
     .filter((c) => c.broadcaster_login?.toLowerCase() !== excludeLogin)
-    .slice(0, 6);
+    .slice(0, 12);
+}
+
+async function batchUsers(
+  ids: string[],
+  helixHeaders: Record<string, string>,
+): Promise<Map<string, HelixUser>> {
+  const out = new Map<string, HelixUser>();
+  if (ids.length === 0) return out;
+  const url =
+    "https://api.twitch.tv/helix/users?" +
+    ids.map((id) => `id=${encodeURIComponent(id)}`).join("&");
+  const res = await fetch(url, { headers: helixHeaders });
+  if (!res.ok) return out;
+  const j = await res.json();
+  for (const u of (j?.data ?? []) as HelixUser[]) out.set(u.id, u);
+  return out;
+}
+
+async function batchStreams(
+  ids: string[],
+  helixHeaders: Record<string, string>,
+): Promise<Map<string, HelixStream>> {
+  const out = new Map<string, HelixStream>();
+  if (ids.length === 0) return out;
+  const url =
+    "https://api.twitch.tv/helix/streams?" +
+    ids.map((id) => `user_id=${encodeURIComponent(id)}`).join("&");
+  const res = await fetch(url, { headers: helixHeaders });
+  if (!res.ok) return out;
+  const j = await res.json();
+  for (const s of (j?.data ?? []) as HelixStream[]) out.set(s.user_id, s);
+  return out;
 }
 
 Deno.serve(async (req) => {
