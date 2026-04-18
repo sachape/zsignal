@@ -191,6 +191,15 @@ const DashboardPage = () => {
             description="Compte Twitch connecté"
           />
 
+          <div className="mb-6">
+            <SyncStatusCard
+              state={syncSnapshot?.state ?? "no_analysis"}
+              lastUpdatedLabel={null}
+              onManualRefresh={handleManualRefresh}
+              manualBusy={manualRefreshing}
+            />
+          </div>
+
           <Card className="mb-6">
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
@@ -201,15 +210,10 @@ const DashboardPage = () => {
                   Compte Twitch connecté
                 </h2>
                 <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                  Aucune analyse encore disponible pour ce compte. Lance ta première
-                  analyse — les prochaines mises à jour seront automatisées.
+                  Première analyse en préparation. Les prochaines mises à jour
+                  se feront automatiquement.
                 </p>
               </div>
-              <Button asChild className="mt-2">
-                <Link to="/analyze">
-                  <Zap className="h-4 w-4" /> Analyser mon compte
-                </Link>
-              </Button>
             </CardContent>
           </Card>
 
