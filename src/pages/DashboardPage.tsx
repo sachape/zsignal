@@ -12,18 +12,18 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import SectionHeader from "@/components/SectionHeader";
 import ScoreCard from "@/components/ScoreCard";
-import StatBlock from "@/components/StatBlock";
+
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
 import WeeklyPlanCard from "@/components/WeeklyPlanCard";
-import ProgressionSignalsCard from "@/components/ProgressionSignalsCard";
 import StreamerBenchmarkCard from "@/components/StreamerBenchmarkCard";
 import PlaybookCard from "@/components/PlaybookCard";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import WeeklySequenceCard from "@/components/WeeklySequenceCard";
+import NextMilestoneCard from "@/components/NextMilestoneCard";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,7 +42,7 @@ import {
   enqueueRefreshForSelf,
   processPendingForAccount,
 } from "@/services/autoRefreshRunner";
-import { buildProgressionSignals } from "@/services/progressionSignals";
+
 import { recommendPlaybookForReport } from "@/services/playbookLibrary";
 
 const formatDate = (iso: string) =>
@@ -282,7 +282,7 @@ const DashboardPage = () => {
       .filter((m) => m.pct < 100)
       .sort((a, b) => b.pct - a.pct)[0] ?? milestones.map((m) => ({ ...m, pct: 100 }))[0];
 
-  const signals = buildProgressionSignals(currentReport, previous);
+  
   const oneCompetitor =
     report.competitor_groups.find((g) => g.type === "direct")?.matches[0] ??
     report.competitor_groups.flatMap((g) => g.matches)[0] ??
@@ -317,35 +317,24 @@ const DashboardPage = () => {
           }
         />
 
-        {/* Top row: state strip — score / delta / sync.
-            In foundation mode we keep only score + sync to reduce noise. */}
-        <div
-          className={
-            foundationActive
-              ? "mb-6 grid gap-3 sm:grid-cols-2"
-              : "mb-6 grid gap-3 sm:grid-cols-3"
-          }
-        >
+        {/* Top state strip — kept minimal: score + sync only.
+            Évolution is demoted into the Sync card subtext to reduce
+            analytical noise on the dashboard. */}
+        <div className="mb-6 grid gap-3 sm:grid-cols-2">
           <ScoreCard score={score.overall} />
-          {!foundationActive && (
-            <StatBlock
-              label="Évolution"
-              value={delta === null ? "—" : delta > 0 ? `+${delta}` : String(delta)}
-              subtext={
-                delta === null
-                  ? "Première analyse"
-                  : delta === 0
-                    ? "Stable depuis la dernière analyse"
-                    : "depuis la dernière analyse"
-              }
-              accent={delta !== null && delta > 0}
-            />
-          )}
           <SyncStatusCard
             state={syncSnapshot?.state ?? ("synchronized" as SyncState)}
             lastUpdatedLabel={
               currentReport
-                ? `${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}`
+                ? `${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}${
+                    delta === null
+                      ? ""
+                      : delta === 0
+                        ? " · stable"
+                        : delta > 0
+                          ? ` · +${delta} pts`
+                          : ` · ${delta} pts`
+                  }`
                 : null
             }
             onManualRefresh={handleManualRefresh}
@@ -384,51 +373,31 @@ const DashboardPage = () => {
           </>
         )}
 
-        {/* Next milestone strip — optimization-mode only. */}
-        {!foundationActive && (
-          <Card className="mb-6">
-            <CardContent className="p-5">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground">
-                    Prochain palier · {nextMilestone.label}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Progression vers l'affiliation</p>
-                </div>
-                <Button asChild variant="ghost" size="sm">
-                  <Link to={`/result?report_id=${currentReport.id}`}>
-                    Détail <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-              </div>
-              <ProgressRow
-                label={nextMilestone.label}
-                value={`${nextMilestone.current} / ${nextMilestone.target}`}
-                pct={nextMilestone.pct}
-              />
-            </CardContent>
-          </Card>
-        )}
+        {/* Next milestone — reframed as a near-term objective with rationale.
+            In foundation mode the copy explicitly says stability comes first. */}
+        <NextMilestoneCard
+          milestone={nextMilestone}
+          reportId={currentReport.id}
+          foundationActive={foundationActive}
+        />
 
-        {/* Main coaching: weekly plan + signals — optimization-mode only.
-            In foundation mode the WeeklySequenceCard above replaces both. */}
+        {/* Weekly plan — the single source of "what to do this week".
+            Progression signals card was removed from the dashboard to keep
+            the page focused on action, not on layered analytics. */}
         {!foundationActive && (
-          <div className="mb-6 grid gap-4 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <WeeklyPlanCard report={report} compact />
-            </div>
-            <ProgressionSignalsCard signals={signals} />
+          <div className="mb-6">
+            <WeeklyPlanCard report={report} compact />
           </div>
         )}
 
-        {/* Action of the day from the report */}
+        {/* Action of the day — one signal to observe today */}
         {report.next_best_action && (
           <Card className="mb-6 border-accent/30 bg-accent/5">
             <CardContent className="p-4">
               <div className="mb-1 flex items-center gap-2">
                 <Zap className="h-4 w-4 text-accent" />
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
-                  À faire aujourd'hui
+                  À observer aujourd'hui
                 </h3>
               </div>
               <p className="text-sm font-semibold text-foreground">
@@ -439,83 +408,76 @@ const DashboardPage = () => {
                   {report.next_best_action.action}
                 </p>
               )}
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Pourquoi maintenant : c'est le signal le plus exploitable cette
+                semaine. Si tu l'ignores, tu perds une boucle de feedback courte
+                et la prochaine décision devient moins claire.
+              </p>
             </CardContent>
           </Card>
         )}
 
-        {/* Benchmark + Resource — optimization-mode only.
-            In foundation mode we keep a single resource block (playbook)
-            tied to the current blocker, no benchmark noise. */}
-        {!foundationActive ? (
-          <div className="mb-8 grid gap-4 lg:grid-cols-2">
+        {/* One thing to observe + one playbook — flat layout, no benchmark grid.
+            In foundation mode the observation is hidden to keep the page
+            focused strictly on the blocker and the sequence. */}
+        <div className="mb-8 grid gap-4 lg:grid-cols-2">
+          {!foundationActive && oneCompetitor && (
             <div>
               <SectionHeader
-                title="À observer cette semaine"
-                description={
-                  oneCompetitor
-                    ? `Pourquoi ${oneCompetitor.display_name} compte pour toi : ${oneCompetitor.match_reasons[0]?.toLowerCase() ?? "profil proche du tien"}.`
-                    : "Le match le plus actionnable cette semaine."
-                }
+                title="Une chaîne à observer"
+                description="Pourquoi ça compte : observer une chaîne proche te donne un point de comparaison concret. Sans ça, tu optimises à l'aveugle."
                 align="left"
               />
-              {oneCompetitor ? (
-                <StreamerBenchmarkCard
-                  competitor={oneCompetitor}
-                  groupLabel={
-                    oneCompetitor.group === "direct"
-                      ? "Direct"
-                      : oneCompetitor.group === "catch-up"
-                        ? "À rattraper"
-                        : "Inspiration"
-                  }
-                  copyMechanic={
-                    oneCompetitor.content_format === "ranked"
-                      ? "Une session ranked dédiée par semaine, sans variety au milieu."
-                      : oneCompetitor.content_format === "casting"
-                        ? "Un format d'analyse court (10 min) en début ou fin de stream."
-                        : oneCompetitor.content_format === "chill"
-                          ? "Un créneau 'chill' identifiable dans le planning."
-                          : undefined
-                  }
-                />
-              ) : (
-                <Card>
-                  <CardContent className="p-5 text-sm text-muted-foreground">
-                    Pas de concurrent direct très proche pour le moment.
-                    Explore les classements pour repérer une chaîne à observer.
-                  </CardContent>
-                </Card>
-              )}
+              <StreamerBenchmarkCard
+                competitor={oneCompetitor}
+                groupLabel={
+                  oneCompetitor.group === "direct"
+                    ? "Direct"
+                    : oneCompetitor.group === "catch-up"
+                      ? "À rattraper"
+                      : "Inspiration"
+                }
+                copyMechanic={
+                  oneCompetitor.content_format === "ranked"
+                    ? "Une session ranked dédiée par semaine, sans variety au milieu."
+                    : oneCompetitor.content_format === "casting"
+                      ? "Un format d'analyse court (10 min) en début ou fin de stream."
+                      : oneCompetitor.content_format === "chill"
+                        ? "Un créneau 'chill' identifiable dans le planning."
+                        : undefined
+                }
+              />
               <Button asChild variant="ghost" size="sm" className="mt-2">
                 <Link to="/competitors">
                   Tous les concurrents <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </Button>
             </div>
-            <div>
-              <SectionHeader
-                title="Ressource recommandée"
-                description="Liée à ta faiblesse principale détectée."
-                align="left"
-              />
-              <PlaybookCard playbook={recommendedPlaybook} />
+          )}
+          <div className={foundationActive || !oneCompetitor ? "lg:col-span-2" : ""}>
+            <SectionHeader
+              title={
+                foundationActive
+                  ? "Ressource pour débloquer cette semaine"
+                  : "Ressource recommandée"
+              }
+              description={
+                foundationActive
+                  ? "Un playbook court, lié à ton blocage principal. Le signal que tu cherches à créer : une première semaine cohérente et lisible."
+                  : "Liée à ta faiblesse principale. Pourquoi : un playbook ciblé crée un changement mesurable en 7 jours, là où une recommandation isolée se perd."
+              }
+              align="left"
+            />
+            <PlaybookCard playbook={recommendedPlaybook} />
+            {!foundationActive && (
               <Button asChild variant="ghost" size="sm" className="mt-2">
                 <Link to="/playbooks">
                   Tous les playbooks <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </Button>
-            </div>
+            )}
           </div>
-        ) : (
-          <div className="mb-8">
-            <SectionHeader
-              title="Ressource pour débloquer cette semaine"
-              description="Un playbook court, lié à ton blocage principal."
-              align="left"
-            />
-            <PlaybookCard playbook={recommendedPlaybook} />
-          </div>
-        )}
+        </div>
       </PageContainer>
     </AppShell>
   );
