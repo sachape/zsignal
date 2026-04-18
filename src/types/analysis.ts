@@ -98,6 +98,16 @@ export interface CompetitorMatch {
   group: 'direct' | 'catch-up' | 'inspiration';
   match_reasons: string[];
   strengths: string[]; // where competitor is better
+  /** 0-100 weighted multi-dim fit (lang, type, format, size, activity, category). */
+  fit_score?: number;
+  /** 0-100 confidence in the suggestion (how much real signal we have). */
+  confidence_score?: number;
+  /** Inferred channel type (solo / team / media / event / hybrid). */
+  channel_type?: 'solo' | 'team' | 'media' | 'event' | 'hybrid' | 'unknown';
+  /** Inferred content format (ranked / chill / casting / event / variety …). */
+  content_format?: string;
+  /** Relative size band vs target (micro / small / medium / large / event-media). */
+  size_band?: 'micro' | 'small' | 'medium' | 'large' | 'event-media' | 'unknown';
 }
 
 export interface Recommendation {
