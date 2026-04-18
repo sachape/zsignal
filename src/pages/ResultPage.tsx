@@ -25,12 +25,13 @@ import LockedOverlay from "@/components/LockedOverlay";
 import StatBlock from "@/components/StatBlock";
 import EmptyReportState from "@/components/EmptyReportState";
 import CompetitorFeedbackBar from "@/components/CompetitorFeedbackBar";
-import { LoadingState } from "@/components/StateView";
+import { ErrorState, LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { teaserStore } from "@/services/teaserStore";
+import { validateReportConsistency } from "@/services/reportConsistency";
 import {
   getLatestReport,
   getLatestReportForPlatformUser,
@@ -203,7 +204,7 @@ const ResultPage = () => {
           <div className="grid gap-2 text-xs sm:grid-cols-2">
             <div>
               <span className="text-muted-foreground">current URL:</span>{" "}
-              <span className="font-mono text-foreground break-all">{currentUrl || "—"}</span>
+              <span className="font-mono break-all text-foreground">{currentUrl || "—"}</span>
             </div>
             <div>
               <span className="text-muted-foreground">selection source:</span>{" "}
@@ -236,6 +237,10 @@ const ResultPage = () => {
             <div>
               <span className="text-muted-foreground">selected report platform_login:</span>{" "}
               <span className="font-mono text-foreground">{saved?.platform_login ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">selected report payload login:</span>{" "}
+              <span className="font-mono text-foreground">{report?.channel_summary.channel_name ?? "—"}</span>
             </div>
             <div>
               <span className="text-muted-foreground">selected report channel:</span>{" "}
@@ -325,6 +330,37 @@ const ResultPage = () => {
   }
 
   const isPersisted = !!saved;
+  const consistency = isPersisted && saved
+    ? validateReportConsistency(saved, report)
+    : { isConsistent: true, reason: "ok" as const };
+  const isCorruptedLiveReport = isPersisted && saved && !saved.is_demo && !consistency.isConsistent;
+
+  if (isCorruptedLiveReport) {
+    return (
+      <AppShell>
+        <PageContainer size="sm">
+          {renderDebugPanel()}
+          <ErrorState
+            title="Ce rapport est incohérent"
+            description="Les données de ce rapport ne correspondent pas à l'identité de la chaîne analysée. Régénère un rapport propre pour continuer."
+            action={
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button asChild>
+                  <Link to="/analyze">
+                    <RefreshCw className="h-4 w-4" /> Régénérer le rapport
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/dashboard">Retour au tableau de bord</Link>
+                </Button>
+              </div>
+            }
+          />
+        </PageContainer>
+      </AppShell>
+    );
+  }
+
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
   const ctaLink = user
     ? "/connect-twitch"
@@ -342,24 +378,15 @@ const ResultPage = () => {
   const visibleCompetitors = isTeaser
     ? (directCompetitors?.matches ?? []).slice(0, 1)
     : (directCompetitors?.matches ?? []);
-  const payloadChannelLogin = summary.channel_name?.toLowerCase() ?? null;
-  const metadataChannelLogin = saved?.platform_login?.toLowerCase() ?? null;
-  const payloadMetadataMismatch = Boolean(
+  const accountMismatch = Boolean(
     isPersisted &&
       saved &&
-      metadataChannelLogin &&
-      payloadChannelLogin &&
-      metadataChannelLogin !== payloadChannelLogin,
+      twitchAccount?.platform_user_id &&
+      saved.platform_user_id &&
+      saved.platform_user_id !== twitchAccount.platform_user_id,
   );
   const isMismatchedOrDemo = Boolean(
-    isPersisted &&
-      saved &&
-      twitchAccount &&
-      (saved.is_demo ||
-        payloadMetadataMismatch ||
-        (saved.platform_user_id &&
-          twitchAccount.platform_user_id &&
-          saved.platform_user_id !== twitchAccount.platform_user_id)),
+    isPersisted && saved && twitchAccount && (saved.is_demo || accountMismatch),
   );
 
   return (
@@ -398,46 +425,35 @@ const ResultPage = () => {
           description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${summary.follower_count} followers${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
         />
 
-        {isPersisted && saved && twitchAccount && (
-          (saved.is_demo ||
-            payloadMetadataMismatch ||
-            (saved.platform_user_id &&
-              saved.platform_user_id !== twitchAccount.platform_user_id)) && (
-            <Card className="mb-6 border-warning/30 bg-warning/5">
-              <CardContent className="flex items-start gap-3 p-4">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-foreground">
-                    {saved.is_demo
-                      ? "Analyse de démonstration"
-                      : payloadMetadataMismatch
-                        ? "Rapport incohérent"
-                        : "Analyse d'un autre canal"}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {saved.is_demo
-                      ? `Ce rapport a été généré avec des données de démo (${summary.display_name}). Il ne reflète pas ton compte Twitch connecté @${twitchAccount.platform_login}.`
-                      : payloadMetadataMismatch
-                        ? `Les métadonnées du rapport ciblent @${saved.platform_login}, mais le contenu affiché est encore ${summary.display_name}.`
-                        : `Ce rapport concerne ${summary.display_name}, pas ton compte Twitch connecté @${twitchAccount.platform_login}.`}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/connect-twitch">Voir mon compte connecté</Link>
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/analyze">
-                      <RefreshCw className="h-3.5 w-3.5" /> Analyser mon compte
-                    </Link>
-                  </Button>
-                  <Button asChild size="sm" variant="ghost">
-                    <Link to="/dashboard">Retour au tableau de bord</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )
+        {isPersisted && saved && twitchAccount && (saved.is_demo || accountMismatch) && (
+          <Card className="mb-6 border-warning/30 bg-warning/5">
+            <CardContent className="flex items-start gap-3 p-4">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-foreground">
+                  {saved.is_demo ? "Analyse de démonstration" : "Analyse d'un autre canal"}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {saved.is_demo
+                    ? `Ce rapport a été généré avec des données de démo (${summary.display_name}). Il ne reflète pas ton compte Twitch connecté @${twitchAccount.platform_login}.`
+                    : `Ce rapport concerne ${summary.display_name}, pas ton compte Twitch connecté @${twitchAccount.platform_login}.`}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/connect-twitch">Voir mon compte connecté</Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/analyze">
+                    <RefreshCw className="h-3.5 w-3.5" /> Analyser mon compte
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="ghost">
+                  <Link to="/dashboard">Retour au tableau de bord</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         <div className="mb-8 grid gap-4 sm:grid-cols-4">
@@ -526,10 +542,7 @@ const ResultPage = () => {
                   reasons={c.match_reasons}
                 />
                 {isPersisted && saved && (
-                  <CompetitorFeedbackBar
-                    reportId={saved.id}
-                    competitorKey={c.competitor_login}
-                  />
+                  <CompetitorFeedbackBar reportId={saved.id} competitorKey={c.competitor_login} />
                 )}
               </div>
             ))}

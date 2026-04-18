@@ -18,10 +18,15 @@ export function validateReportConsistency(
     return { isConsistent: true, reason: "ok" };
   }
 
-  const payloadLogin = report.channel_summary.channel_name?.trim().toLowerCase();
   const metadataLogin = saved.platform_login.trim().toLowerCase();
+  const summaryLogin = report.channel_summary.channel_name?.trim().toLowerCase();
+  const identityLogin = report.identity?.platform_login?.trim().toLowerCase() ?? summaryLogin;
 
-  if (!payloadLogin || payloadLogin !== metadataLogin) {
+  if (!summaryLogin || !identityLogin) {
+    return { isConsistent: false, reason: "metadata_payload_identity_mismatch" };
+  }
+
+  if (summaryLogin !== metadataLogin || identityLogin !== metadataLogin) {
     return { isConsistent: false, reason: "metadata_payload_identity_mismatch" };
   }
 

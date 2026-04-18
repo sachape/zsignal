@@ -24,12 +24,6 @@ export type RunTeaserResult =
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/**
- * Teaser analysis pipeline.
- * - Resolves a public channel via PublicChannelLookupService
- * - Runs the existing deterministic engines via assembleReport
- * - Stores the result in sessionStorage (NOT in Supabase)
- */
 export async function runTeaserAnalysis({
   channelInput,
   onStage,
@@ -53,7 +47,14 @@ export async function runTeaserAnalysis({
     onStage?.("generating_recommendations");
     await sleep(250);
 
-    const report = assembleReport(match.data, `teaser-${match.login}`);
+    const report = assembleReport(match.data, `teaser-${match.login}`, {
+      platform: "twitch",
+      platform_user_id: match.data.profile.twitch_user_id ?? null,
+      platform_login: match.login,
+      display_name: match.data.profile.display_name,
+      avatar_url: match.data.profile.profile_image_url || null,
+      is_demo: true,
+    });
     const record = teaserStore.save(match.login, report);
     teaserStore.setPendingChannel(match.login);
 
