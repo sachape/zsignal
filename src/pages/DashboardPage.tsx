@@ -222,14 +222,23 @@ const DashboardPage = () => {
   const ageDays = daysSince(currentReport.created_at);
   const isFresh = ageDays <= 7;
 
+  const followersAvailable = summary.followers_available !== false;
+  const followersMissingScope = summary.followers_missing_scope === true;
+
   const milestones = [
-    { label: "Followers", current: ap.followers.current, target: ap.followers.target },
-    { label: "Viewers moyens", current: ap.avg_viewers.current, target: ap.avg_viewers.target },
-    { label: "Jours de stream", current: ap.stream_days.current, target: ap.stream_days.target },
-    { label: "Heures de stream", current: ap.stream_hours.current, target: ap.stream_hours.target },
+    {
+      label: "Followers",
+      current: ap.followers.current ?? 0,
+      target: ap.followers.target,
+      available: ap.followers.available !== false,
+    },
+    { label: "Viewers moyens", current: ap.avg_viewers.current, target: ap.avg_viewers.target, available: true },
+    { label: "Jours de stream", current: ap.stream_days.current, target: ap.stream_days.target, available: true },
+    { label: "Heures de stream", current: ap.stream_hours.current, target: ap.stream_hours.target, available: true },
   ];
   const nextMilestone =
     milestones
+      .filter((m) => m.available)
       .map((m) => ({ ...m, pct: Math.min(100, Math.round((m.current / m.target) * 100)) }))
       .filter((m) => m.pct < 100)
       .sort((a, b) => b.pct - a.pct)[0] ?? milestones.map((m) => ({ ...m, pct: 100 }))[0];
