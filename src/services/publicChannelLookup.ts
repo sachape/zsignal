@@ -237,7 +237,6 @@ export const PublicChannelLookupService = {
     }
 
     const ch = data.channel;
-    const fallbackGameId = data.live?.game_id ?? "";
     const videos = toAppVideos(data.videos ?? []);
     const clips = toAppClips(data.clips ?? []);
 
