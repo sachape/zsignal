@@ -124,6 +124,9 @@ const AppSidebar = () => {
             </div>
             {!collapsed && (
               <div className="min-w-0 flex-1">
+                <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  Compte StreamPulse
+                </p>
                 <p className="truncate text-xs font-medium text-foreground">
                   {user.email}
                 </p>
