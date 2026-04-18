@@ -364,6 +364,15 @@ Deno.serve(async (req) => {
       helixHeaders,
     );
 
+    // Enrich candidates with /users (description, view_count) and /streams
+    // (live viewer_count + game_name) so the frontend can run a meaningful
+    // weighted similarity (language, type, format, size, activity).
+    const candidateIds = competitors.map((c) => c.id).filter(Boolean);
+    const [candUsers, candStreams] = await Promise.all([
+      batchUsers(candidateIds, helixHeaders),
+      batchStreams(candidateIds, helixHeaders),
+    ]);
+
     return json({
       success: true,
       source: lookup.source,
@@ -409,16 +418,26 @@ Deno.serve(async (req) => {
           }
         : null,
       dominant_category: topGameName ?? null,
-      competitors: competitors.map((c) => ({
-        id: c.id,
-        login: c.broadcaster_login,
-        display_name: c.display_name,
-        thumbnail_url: c.thumbnail_url ?? null,
-        is_live: c.is_live ?? false,
-        game_name: c.game_name ?? null,
-        title: c.title ?? null,
-        started_at: c.started_at ?? null,
-      })),
+      competitors: competitors.map((c) => {
+        const userInfo = candUsers.get(c.id);
+        const streamInfo = candStreams.get(c.id);
+        return {
+          id: c.id,
+          login: c.broadcaster_login,
+          display_name: c.display_name,
+          thumbnail_url: c.thumbnail_url ?? null,
+          is_live: streamInfo ? true : c.is_live ?? false,
+          game_name: streamInfo?.game_name ?? c.game_name ?? null,
+          title: streamInfo?.title ?? c.title ?? null,
+          started_at: streamInfo?.started_at ?? c.started_at ?? null,
+          language:
+            streamInfo?.language ?? c.broadcaster_language ?? null,
+          live_viewer_count: streamInfo?.viewer_count ?? null,
+          description: userInfo?.description ?? "",
+          broadcaster_type: userInfo?.broadcaster_type ?? "",
+          view_count: userInfo?.view_count ?? 0,
+        };
+      }),
     });
   } catch (e) {
     console.error("twitch-public-lookup error", e);
