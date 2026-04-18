@@ -238,6 +238,10 @@ const ResultPage = () => {
               <span className="font-mono text-foreground">{saved?.platform_login ?? "—"}</span>
             </div>
             <div>
+              <span className="text-muted-foreground">selected report channel:</span>{" "}
+              <span className="font-mono text-foreground">{report?.channel_summary.display_name ?? "—"}</span>
+            </div>
+            <div>
               <span className="text-muted-foreground">selected report is_demo:</span>{" "}
               <span className="font-mono text-foreground">{saved ? String(saved.is_demo) : "—"}</span>
             </div>
