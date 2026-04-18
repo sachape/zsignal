@@ -128,6 +128,19 @@ export interface ChannelSummary {
   /** True when the followers scope (moderator:read:followers) is missing. */
   followers_missing_scope?: boolean;
   description: string;
+  /**
+   * True when the report was generated from PUBLIC Twitch data only
+   * (no user OAuth). Some metrics (exact followers, unique chatters, live
+   * viewer history) are not retrievable in that mode — UI must frame the
+   * report as a "public teaser" with an unlock CTA.
+   */
+  is_partial?: boolean;
+  /** True if the channel is live right now (Get Streams). */
+  is_live?: boolean;
+  /** Current live viewer count (only when is_live === true). */
+  live_viewer_count?: number | null;
+  /** Title of the current live broadcast (only when is_live === true). */
+  live_title?: string | null;
 }
 
 export interface ReportIdentity {

@@ -62,14 +62,25 @@ export async function runTeaserAnalysis({
     onStage?.("generating_recommendations");
     await sleep(200);
 
-    const report = assembleReport(match.data, `teaser-${match.login}`, {
-      platform: "twitch",
-      platform_user_id: match.data.profile.twitch_user_id ?? null,
-      platform_login: match.login,
-      display_name: match.data.profile.display_name,
-      avatar_url: match.data.profile.profile_image_url || null,
-      is_demo: true,
-    });
+    const report = assembleReport(
+      match.data,
+      `teaser-${match.login}`,
+      {
+        platform: "twitch",
+        platform_user_id: match.data.profile.twitch_user_id ?? null,
+        platform_login: match.login,
+        display_name: match.data.profile.display_name,
+        avatar_url: match.data.profile.profile_image_url || null,
+        is_demo: true,
+      },
+      {
+        is_partial: true,
+        live: match.live,
+        competitor_groups:
+          match.competitorGroups.length > 0 ? match.competitorGroups : undefined,
+        dominant_category_override: match.dominantCategory,
+      },
+    );
     const record = teaserStore.save(match.login, report);
     teaserStore.setPendingChannel(match.login);
 
