@@ -758,6 +758,7 @@ const StreamerProfilePage = () => {
             </Card>
           );
         })()}
+        </div>
 
         {/* Key public benchmark signals */}
         <div className="mb-3">
