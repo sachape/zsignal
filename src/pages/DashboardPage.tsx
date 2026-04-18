@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   Zap,
@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
+import { supabase } from "@/integrations/supabase/client";
 import { validateReportConsistency } from "@/services/reportConsistency";
 import {
   getLatestReport,
@@ -37,6 +38,11 @@ import {
   getRecentReports,
   type SavedReport,
 } from "@/services/reportRepository";
+import { resolveSyncSnapshot, type SyncSnapshot } from "@/services/syncStateResolver";
+import {
+  enqueueRefreshForSelf,
+  processPendingForAccount,
+} from "@/services/autoRefreshRunner";
 
 const categoryIcons: Record<string, typeof Clock> = {
   regularity: Clock,
@@ -352,9 +358,14 @@ const DashboardPage = () => {
 
         <div className="mb-6 grid gap-3 sm:grid-cols-2">
           <SyncStatusCard
-            state={"synchronized" as SyncState}
-            lastUpdatedLabel={`${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}`}
-            manualHref="/analyze"
+            state={syncSnapshot?.state ?? ("synchronized" as SyncState)}
+            lastUpdatedLabel={
+              currentReport
+                ? `${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}`
+                : null
+            }
+            onManualRefresh={handleManualRefresh}
+            manualBusy={manualRefreshing}
           />
 
           <Card>
