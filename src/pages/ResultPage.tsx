@@ -427,17 +427,27 @@ const ResultPage = () => {
                 : "Aperçu gratuit"
               : "Rapport d'analyse"
           }
-          title={
-            <span className="inline-flex flex-wrap items-center gap-2">
-              {summary.display_name}
-              {summary.is_live && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-                  Live · {summary.live_viewer_count ?? 0} viewers
-                </span>
-              )}
-            </span>
+          title={summary.display_name}
+          description={
+            summary.is_partial
+              ? `${summary.category} · données publiques uniquement${
+                  summary.broadcaster_type === "affiliate" ? " · Affilié" : ""
+                }${summary.broadcaster_type === "partner" ? " · Partenaire" : ""}`
+              : `${summary.category} · ~${summary.avg_viewers} viewers moyens · ${
+                  summary.followers_available === false
+                    ? "followers indisponibles"
+                    : `${summary.follower_count} followers`
+                }${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`
           }
+        />
+
+        {summary.is_live && (
+          <div className="-mt-3 mb-4 inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+            En live · {summary.live_viewer_count ?? 0} viewers
+            {summary.live_title ? ` · ${summary.live_title}` : ""}
+          </div>
+        )}
           description={
             summary.is_partial
               ? `${summary.category} · données publiques uniquement${
