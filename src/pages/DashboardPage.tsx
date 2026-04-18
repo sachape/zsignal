@@ -25,6 +25,7 @@ import EmptyReportState from "@/components/EmptyReportState";
 import ReportHistoryList from "@/components/ReportHistoryList";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
+import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
