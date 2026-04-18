@@ -17,6 +17,7 @@ import CompetitorsPage from "./pages/CompetitorsPage.tsx";
 import PlaybooksPage from "./pages/PlaybooksPage.tsx";
 import PlaybookDetailPage from "./pages/PlaybookDetailPage.tsx";
 import StreamerProfilePage from "./pages/StreamerProfilePage.tsx";
+import LeadersPage from "./pages/LeadersPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,14 @@ const App = () => (
             />
             <Route path="/playbooks" element={<PlaybooksPage />} />
             <Route path="/playbooks/:slug" element={<PlaybookDetailPage />} />
+            <Route
+              path="/leaders"
+              element={
+                <ProtectedRoute>
+                  <LeadersPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/streamer/:login" element={<StreamerProfilePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

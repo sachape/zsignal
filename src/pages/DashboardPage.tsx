@@ -2,7 +2,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   Zap,
-  Link2,
   ArrowRight,
   FileText,
   AlertCircle,
@@ -15,7 +14,6 @@ import SectionHeader from "@/components/SectionHeader";
 import ScoreCard from "@/components/ScoreCard";
 import StatBlock from "@/components/StatBlock";
 import EmptyReportState from "@/components/EmptyReportState";
-import ReportHistoryList from "@/components/ReportHistoryList";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
@@ -413,23 +411,43 @@ const DashboardPage = () => {
           </Card>
         )}
 
-        {/* Benchmark + Resource */}
+        {/* Benchmark + Resource — strong retention blocks */}
         <div className="mb-8 grid gap-4 lg:grid-cols-2">
           <div>
             <SectionHeader
-              title="Un concurrent à observer"
-              description="Le match le plus actionnable cette semaine."
+              title="À observer cette semaine"
+              description={
+                oneCompetitor
+                  ? `Pourquoi ${oneCompetitor.display_name} compte pour toi : ${oneCompetitor.match_reasons[0]?.toLowerCase() ?? "profil proche du tien"}.`
+                  : "Le match le plus actionnable cette semaine."
+              }
               align="left"
             />
             {oneCompetitor ? (
               <StreamerBenchmarkCard
                 competitor={oneCompetitor}
-                groupLabel={oneCompetitor.group === "direct" ? "Direct" : oneCompetitor.group === "catch-up" ? "À rattraper" : "Inspiration"}
+                groupLabel={
+                  oneCompetitor.group === "direct"
+                    ? "Direct"
+                    : oneCompetitor.group === "catch-up"
+                      ? "À rattraper"
+                      : "Inspiration"
+                }
+                copyMechanic={
+                  oneCompetitor.content_format === "ranked"
+                    ? "Une session ranked dédiée par semaine, sans variety au milieu."
+                    : oneCompetitor.content_format === "casting"
+                      ? "Un format d'analyse court (10 min) en début ou fin de stream."
+                      : oneCompetitor.content_format === "chill"
+                        ? "Un créneau 'chill' identifiable dans le planning."
+                        : undefined
+                }
               />
             ) : (
               <Card>
                 <CardContent className="p-5 text-sm text-muted-foreground">
-                  Aucun concurrent crédible identifié pour le moment.
+                  Pas de concurrent direct très proche pour le moment.
+                  Explore les classements pour repérer une chaîne à observer.
                 </CardContent>
               </Card>
             )}
@@ -453,36 +471,6 @@ const DashboardPage = () => {
             </Button>
           </div>
         </div>
-
-        {/* Connection state (compact) */}
-        <Card className="mb-6">
-          <CardContent className="flex items-center gap-3 p-4">
-            <Link2 className={`h-4 w-4 shrink-0 ${isConnected ? "text-success" : "text-warning"}`} />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-foreground">
-                {isConnected ? "Twitch connecté" : "Twitch non connecté"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {isConnected
-                  ? `Compte : @${account?.platform_login}`
-                  : "Connecte Twitch pour des analyses personnalisées."}
-              </p>
-            </div>
-            {!isConnected && (
-              <Button asChild variant="outline" size="sm">
-                <Link to="/connect-twitch">Connecter</Link>
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent analyses (compact, no longer the focus) */}
-        {history.length > 1 && (
-          <section>
-            <SectionHeader title="Analyses récentes" align="left" />
-            <ReportHistoryList reports={history} />
-          </section>
-        )}
       </PageContainer>
     </AppShell>
   );
