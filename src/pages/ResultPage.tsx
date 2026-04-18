@@ -27,6 +27,7 @@ import { LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { teaserStore } from "@/services/teaserStore";
 import {
   getLatestReport,
