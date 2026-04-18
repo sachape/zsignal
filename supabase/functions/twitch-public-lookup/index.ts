@@ -1,9 +1,16 @@
-// Twitch public channel lookup (no user OAuth required).
-// Uses an App Access Token (client_credentials) to query Helix:
-//   1. GET /users?login=...        (exact match)
-//   2. GET /search/channels?query  (fallback fuzzy)
+// Twitch public channel lookup + public enrichment (no user OAuth required).
 //
-// Returns a normalized channel identity for the public teaser flow.
+// Pipeline (server-side only, App Access Token via client_credentials):
+//   1. Identity        : GET /users?login=...  (fallback /search/channels)
+//   2. Recent VODs     : GET /videos?user_id=...&first=20&type=archive
+//   3. Recent clips    : GET /clips?broadcaster_id=...&first=20&started_at=last_30d
+//   4. Live state      : GET /streams?user_id=...
+//   5. Top game info   : GET /games?id=...  (resolve dominant category name)
+//   6. Competitors     : GET /search/channels?query=<dominant_category>&first=20
+//
+// Returns a JSON payload the frontend uses to build an honest public teaser.
+// We never fabricate followers — that requires moderator:read:followers scope
+// on a connected user account.
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -39,7 +46,6 @@ function normalizeLogin(raw: string): string | null {
   return /^[a-z0-9_]{3,25}$/.test(v) ? v : null;
 }
 
-// Tiny in-memory app access token cache (per isolate).
 let cachedAppToken: { token: string; expiresAt: number } | null = null;
 
 async function getAppAccessToken(
@@ -89,6 +95,168 @@ interface HelixSearchChannel {
   thumbnail_url?: string;
   is_live?: boolean;
   game_name?: string;
+  game_id?: string;
+  title?: string;
+  started_at?: string;
+}
+
+interface HelixVideo {
+  id: string;
+  title: string;
+  duration: string; // e.g. "3h21m45s"
+  view_count: number;
+  created_at: string;
+  language: string;
+  type: string; // archive | upload | highlight
+  stream_id: string | null;
+  url?: string;
+  thumbnail_url?: string;
+}
+
+interface HelixClip {
+  id: string;
+  title: string;
+  view_count: number;
+  creator_name: string;
+  created_at: string;
+  duration: number;
+  game_id: string;
+  broadcaster_id: string;
+}
+
+interface HelixStream {
+  id: string;
+  user_id: string;
+  user_login: string;
+  game_id: string;
+  game_name: string;
+  type: string; // "live"
+  title: string;
+  viewer_count: number;
+  started_at: string;
+  language: string;
+}
+
+async function lookupChannel(
+  login: string,
+  helixHeaders: Record<string, string>,
+): Promise<{ user: HelixUser; source: "exact_get_users" | "search_channels" } | null> {
+  // 1) Exact via /users
+  const usersRes = await fetch(
+    `https://api.twitch.tv/helix/users?login=${encodeURIComponent(login)}`,
+    { headers: helixHeaders },
+  );
+  if (usersRes.ok) {
+    const usersJson = await usersRes.json();
+    const u: HelixUser | undefined = usersJson?.data?.[0];
+    if (u) return { user: u, source: "exact_get_users" };
+  } else {
+    console.warn("get_users failed", usersRes.status, await usersRes.text());
+  }
+
+  // 2) Fallback: /search/channels
+  const searchRes = await fetch(
+    `https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(login)}&first=20`,
+    { headers: helixHeaders },
+  );
+  if (!searchRes.ok) return null;
+  const searchJson = await searchRes.json();
+  const results: HelixSearchChannel[] = searchJson?.data ?? [];
+  const exact = results.find(
+    (c) => c.broadcaster_login?.toLowerCase() === login,
+  );
+  if (!exact) return null;
+
+  const u2 = await fetch(
+    `https://api.twitch.tv/helix/users?id=${encodeURIComponent(exact.id)}`,
+    { headers: helixHeaders },
+  );
+  if (!u2.ok) return null;
+  const j = await u2.json();
+  const full: HelixUser | undefined = j?.data?.[0];
+  if (!full) return null;
+  return { user: full, source: "search_channels" };
+}
+
+async function fetchRecentVideos(
+  userId: string,
+  helixHeaders: Record<string, string>,
+): Promise<HelixVideo[]> {
+  const res = await fetch(
+    `https://api.twitch.tv/helix/videos?user_id=${encodeURIComponent(userId)}&first=20&type=archive&sort=time`,
+    { headers: helixHeaders },
+  );
+  if (!res.ok) {
+    console.warn("get_videos failed", res.status, await res.text());
+    return [];
+  }
+  const j = await res.json();
+  return (j?.data ?? []) as HelixVideo[];
+}
+
+async function fetchRecentClips(
+  broadcasterId: string,
+  helixHeaders: Record<string, string>,
+): Promise<HelixClip[]> {
+  const startedAt = new Date(Date.now() - 30 * 86400000).toISOString();
+  const res = await fetch(
+    `https://api.twitch.tv/helix/clips?broadcaster_id=${encodeURIComponent(broadcasterId)}&first=20&started_at=${encodeURIComponent(startedAt)}`,
+    { headers: helixHeaders },
+  );
+  if (!res.ok) {
+    console.warn("get_clips failed", res.status, await res.text());
+    return [];
+  }
+  const j = await res.json();
+  return (j?.data ?? []) as HelixClip[];
+}
+
+async function fetchLiveStream(
+  userId: string,
+  helixHeaders: Record<string, string>,
+): Promise<HelixStream | null> {
+  const res = await fetch(
+    `https://api.twitch.tv/helix/streams?user_id=${encodeURIComponent(userId)}`,
+    { headers: helixHeaders },
+  );
+  if (!res.ok) {
+    console.warn("get_streams failed", res.status, await res.text());
+    return null;
+  }
+  const j = await res.json();
+  return (j?.data?.[0] as HelixStream | undefined) ?? null;
+}
+
+async function fetchGameName(
+  gameId: string | null | undefined,
+  helixHeaders: Record<string, string>,
+): Promise<string | null> {
+  if (!gameId) return null;
+  const res = await fetch(
+    `https://api.twitch.tv/helix/games?id=${encodeURIComponent(gameId)}`,
+    { headers: helixHeaders },
+  );
+  if (!res.ok) return null;
+  const j = await res.json();
+  return j?.data?.[0]?.name ?? null;
+}
+
+async function fetchCompetitorCandidates(
+  query: string,
+  excludeLogin: string,
+  helixHeaders: Record<string, string>,
+): Promise<HelixSearchChannel[]> {
+  if (!query) return [];
+  const res = await fetch(
+    `https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&first=20&live_only=false`,
+    { headers: helixHeaders },
+  );
+  if (!res.ok) return [];
+  const j = await res.json();
+  const results = (j?.data ?? []) as HelixSearchChannel[];
+  return results
+    .filter((c) => c.broadcaster_login?.toLowerCase() !== excludeLogin)
+    .slice(0, 6);
 }
 
 Deno.serve(async (req) => {
@@ -125,87 +293,99 @@ Deno.serve(async (req) => {
       Authorization: `Bearer ${token}`,
     };
 
-    // 1) Exact match via /users?login=
-    const usersRes = await fetch(
-      `https://api.twitch.tv/helix/users?login=${encodeURIComponent(login)}`,
-      { headers: helixHeaders },
-    );
-    if (usersRes.ok) {
-      const usersJson = await usersRes.json();
-      const u: HelixUser | undefined = usersJson?.data?.[0];
-      if (u) {
-        return json({
-          success: true,
-          source: "exact_get_users",
-          login: u.login,
-          channel: {
-            id: u.id,
-            login: u.login,
-            display_name: u.display_name,
-            description: u.description ?? "",
-            profile_image_url: u.profile_image_url ?? "",
-            broadcaster_type: u.broadcaster_type ?? "",
-            view_count: u.view_count ?? 0,
-            created_at: u.created_at ?? null,
-          },
-        });
-      }
-    } else {
-      console.warn("get_users failed", usersRes.status, await usersRes.text());
+    const lookup = await lookupChannel(login, helixHeaders);
+    if (!lookup) {
+      return json({
+        success: false,
+        reason: "not_found",
+        searched_login: login,
+      });
     }
 
-    // 2) Fallback: search channels (fuzzy), pick best login match
-    const searchRes = await fetch(
-      `https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(login)}&first=20`,
-      { headers: helixHeaders },
-    );
-    if (searchRes.ok) {
-      const searchJson = await searchRes.json();
-      const results: HelixSearchChannel[] = searchJson?.data ?? [];
-      const exact = results.find(
-        (c) => c.broadcaster_login?.toLowerCase() === login,
-      );
-      const pick = exact ?? null;
-      if (pick) {
-        // Re-query /users by id to get full profile fields.
-        const u2 = await fetch(
-          `https://api.twitch.tv/helix/users?id=${encodeURIComponent(pick.id)}`,
-          { headers: helixHeaders },
-        );
-        let full: HelixUser | undefined;
-        if (u2.ok) {
-          const j = await u2.json();
-          full = j?.data?.[0];
-        }
-        return json({
-          success: true,
-          source: "search_channels",
-          login: pick.broadcaster_login,
-          channel: {
-            id: pick.id,
-            login: pick.broadcaster_login,
-            display_name: pick.display_name,
-            description: full?.description ?? "",
-            profile_image_url:
-              full?.profile_image_url ?? pick.thumbnail_url ?? "",
-            broadcaster_type: full?.broadcaster_type ?? "",
-            view_count: full?.view_count ?? 0,
-            created_at: full?.created_at ?? null,
-          },
-        });
-      }
-    } else {
-      console.warn(
-        "search_channels failed",
-        searchRes.status,
-        await searchRes.text(),
-      );
+    const u = lookup.user;
+
+    // Enrich in parallel — failures degrade gracefully.
+    const [videos, clips, live] = await Promise.all([
+      fetchRecentVideos(u.id, helixHeaders),
+      fetchRecentClips(u.id, helixHeaders),
+      fetchLiveStream(u.id, helixHeaders),
+    ]);
+
+    // Resolve dominant category name from clips' game_ids (most frequent)
+    const gameCounts: Record<string, number> = {};
+    for (const c of clips) {
+      if (c.game_id) gameCounts[c.game_id] = (gameCounts[c.game_id] ?? 0) + 1;
     }
+    const topGameId =
+      Object.entries(gameCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ??
+      live?.game_id ??
+      null;
+    const topGameName =
+      live?.game_name ?? (await fetchGameName(topGameId, helixHeaders));
+
+    // Competitor candidates from real Search Channels (best-effort)
+    const competitorQuery = topGameName ?? "";
+    const competitors = await fetchCompetitorCandidates(
+      competitorQuery,
+      u.login.toLowerCase(),
+      helixHeaders,
+    );
 
     return json({
-      success: false,
-      reason: "not_found",
-      searched_login: login,
+      success: true,
+      source: lookup.source,
+      login: u.login,
+      channel: {
+        id: u.id,
+        login: u.login,
+        display_name: u.display_name,
+        description: u.description ?? "",
+        profile_image_url: u.profile_image_url ?? "",
+        broadcaster_type: u.broadcaster_type ?? "",
+        view_count: u.view_count ?? 0,
+        created_at: u.created_at ?? null,
+      },
+      videos: videos.map((v) => ({
+        id: v.id,
+        title: v.title,
+        duration: v.duration,
+        view_count: v.view_count,
+        created_at: v.created_at,
+        language: v.language,
+        type: v.type,
+        stream_id: v.stream_id,
+      })),
+      clips: clips.map((c) => ({
+        id: c.id,
+        title: c.title,
+        view_count: c.view_count,
+        creator_name: c.creator_name,
+        created_at: c.created_at,
+        duration: c.duration,
+        game_id: c.game_id,
+      })),
+      live: live
+        ? {
+            id: live.id,
+            title: live.title,
+            game_id: live.game_id,
+            game_name: live.game_name,
+            viewer_count: live.viewer_count,
+            started_at: live.started_at,
+            language: live.language,
+          }
+        : null,
+      dominant_category: topGameName ?? null,
+      competitors: competitors.map((c) => ({
+        id: c.id,
+        login: c.broadcaster_login,
+        display_name: c.display_name,
+        thumbnail_url: c.thumbnail_url ?? null,
+        is_live: c.is_live ?? false,
+        game_name: c.game_name ?? null,
+        title: c.title ?? null,
+        started_at: c.started_at ?? null,
+      })),
     });
   } catch (e) {
     console.error("twitch-public-lookup error", e);
