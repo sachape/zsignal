@@ -23,12 +23,13 @@ import RecommendationCard from "@/components/RecommendationCard";
 import StatBlock from "@/components/StatBlock";
 import EmptyReportState from "@/components/EmptyReportState";
 import ReportHistoryList from "@/components/ReportHistoryList";
-import { LoadingState } from "@/components/StateView";
+import { ErrorState, LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
+import { validateReportConsistency } from "@/services/reportConsistency";
 import {
   getLatestReport,
   getLatestReportForPlatformUser,
@@ -61,7 +62,6 @@ const daysSince = (iso: string) => {
 const DashboardPage = () => {
   const { user } = useAuth();
   const { isConnected, account, loading: connectionLoading } = useTwitchConnection();
-  /** Report bound to the currently connected Twitch account, if any. */
   const [currentReport, setCurrentReport] = useState<SavedReport | null>(null);
   const [history, setHistory] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,11 +72,6 @@ const DashboardPage = () => {
     (async () => {
       setLoading(true);
       const platformUserId = account?.platform_user_id ?? null;
-
-      // Source-of-truth rules:
-      // - Connected account → fetch latest report whose job is bound to this
-      //   exact Twitch user_id. Demo/mock reports must NEVER override this.
-      // - Not connected → fall back to most recent report (legacy / demo allowed).
       const currentPromise = platformUserId
         ? getLatestReportForPlatformUser(user.id, platformUserId)
         : getLatestReport(user.id);
@@ -100,7 +95,6 @@ const DashboardPage = () => {
     );
   }
 
-  // ── Case A: Twitch connected, no live report yet for this account ───────────
   if (isConnected && account && !currentReport) {
     const displayName =
       account.platform_display_name || account.platform_login || "ta chaîne";
@@ -137,10 +131,7 @@ const DashboardPage = () => {
 
           {history.length > 0 && (
             <section>
-              <SectionHeader
-                title="Analyses précédentes (démo)"
-                align="left"
-              />
+              <SectionHeader title="Analyses précédentes (démo)" align="left" />
               <p className="mb-3 text-xs text-muted-foreground">
                 Ces analyses ont été générées avec des données de démonstration et
                 ne reflètent pas ton vrai compte Twitch.
@@ -153,7 +144,6 @@ const DashboardPage = () => {
     );
   }
 
-  // ── Case B: nothing at all (no connection, no report) ───────────────────────
   if (!currentReport) {
     return (
       <AppShell>
@@ -168,7 +158,52 @@ const DashboardPage = () => {
     );
   }
 
-  // ── Case C: a report exists for the current context ─────────────────────────
+  const currentConsistency = validateReportConsistency(currentReport, currentReport.report);
+  const isCorruptedLiveReport = !currentReport.is_demo && !currentConsistency.isConsistent;
+
+  if (isCorruptedLiveReport) {
+    const displayName =
+      account?.platform_display_name || account?.platform_login || "ta chaîne";
+
+    return (
+      <AppShell>
+        <PageContainer>
+          <PageHeader
+            eyebrow="Tableau de bord"
+            title={displayName}
+            description={
+              account?.platform_login
+                ? `@${account.platform_login} · Compte Twitch connecté`
+                : "Rapport live"
+            }
+          />
+          <ErrorState
+            title="Ce rapport est incohérent"
+            description="La dernière analyse live ne correspond pas à l'identité du compte connecté. Régénère un rapport propre pour continuer."
+            action={
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button asChild>
+                  <Link to="/analyze">
+                    <RefreshCw className="h-4 w-4" /> Régénérer le rapport
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/dashboard">Retour au tableau de bord</Link>
+                </Button>
+              </div>
+            }
+          />
+          {history.length > 0 && (
+            <section className="mt-8">
+              <SectionHeader title="Analyses récentes" align="left" />
+              <ReportHistoryList reports={history} />
+            </section>
+          )}
+        </PageContainer>
+      </AppShell>
+    );
+  }
+
   const report = currentReport.report;
   const score = report.score;
   const ap = report.affiliate_progress;
@@ -177,34 +212,27 @@ const DashboardPage = () => {
     .filter((r) => r.type === "priority")
     .slice(0, 3);
 
-  // Identity shown in the header is always the connected account when present,
-  // so the dashboard never claims a demo channel as "yours".
-  const headerTitle = account?.platform_display_name
-    || account?.platform_login
-    || summary.display_name;
+  const headerTitle = account?.platform_display_name || account?.platform_login || summary.display_name;
   const headerEyebrow = isConnected ? "Tableau de bord · Twitch connecté" : "Tableau de bord";
 
-  // Score delta vs previous report for the same channel
   const previous = history.find(
     (r) => r.id !== currentReport.id && r.platform_user_id === currentReport.platform_user_id,
   );
   const delta = previous ? score.overall - previous.report.score.overall : null;
-
-  // Freshness
   const ageDays = daysSince(currentReport.created_at);
   const isFresh = ageDays <= 7;
 
-  // Next milestone
   const milestones = [
     { label: "Followers", current: ap.followers.current, target: ap.followers.target },
     { label: "Viewers moyens", current: ap.avg_viewers.current, target: ap.avg_viewers.target },
     { label: "Jours de stream", current: ap.stream_days.current, target: ap.stream_days.target },
     { label: "Heures de stream", current: ap.stream_hours.current, target: ap.stream_hours.target },
   ];
-  const nextMilestone = milestones
-    .map((m) => ({ ...m, pct: Math.min(100, Math.round((m.current / m.target) * 100)) }))
-    .filter((m) => m.pct < 100)
-    .sort((a, b) => b.pct - a.pct)[0] ?? milestones.map((m) => ({ ...m, pct: 100 }))[0];
+  const nextMilestone =
+    milestones
+      .map((m) => ({ ...m, pct: Math.min(100, Math.round((m.current / m.target) * 100)) }))
+      .filter((m) => m.pct < 100)
+      .sort((a, b) => b.pct - a.pct)[0] ?? milestones.map((m) => ({ ...m, pct: 100 }))[0];
 
   return (
     <AppShell>
@@ -233,7 +261,6 @@ const DashboardPage = () => {
           }
         />
 
-        {/* Status row */}
         <div className="mb-6 grid gap-3 sm:grid-cols-2">
           <Card>
             <CardContent className="flex items-center gap-3 p-4">
@@ -257,9 +284,7 @@ const DashboardPage = () => {
 
           <Card>
             <CardContent className="flex items-center gap-3 p-4">
-              <Link2
-                className={`h-4 w-4 shrink-0 ${isConnected ? "text-success" : "text-warning"}`}
-              />
+              <Link2 className={`h-4 w-4 shrink-0 ${isConnected ? "text-success" : "text-warning"}`} />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-foreground">
                   {isConnected ? "Twitch connecté" : "Twitch non connecté"}
@@ -279,7 +304,6 @@ const DashboardPage = () => {
           </Card>
         </div>
 
-        {/* Hero */}
         <div className="mb-6 grid gap-4 sm:grid-cols-4">
           <ScoreCard score={score.overall} />
           <div className="flex flex-col gap-3 sm:col-span-3">

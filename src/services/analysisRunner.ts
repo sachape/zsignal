@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { assembleReport } from "./reportAssembler";
-import { allMockStreamers, nexaGaming } from "@/data/mockStreamers";
-import type { AnalysisReport, MockStreamerData } from "@/types/analysis";
+import { resolveAnalysisDataset } from "./liveReportSource";
+import type { AnalysisReport } from "@/types/analysis";
 
 export type JobStage =
   | "pending"
@@ -17,11 +17,10 @@ export type JobStage =
 export interface RunAnalysisOptions {
   channelName: string;
   userId: string;
-  /** Identity of the connected channel being analyzed. Required to bind the
-   * resulting report to the user's connected Twitch account. */
   platform?: string | null;
   platformUserId?: string | null;
   platformLogin?: string | null;
+  platformDisplayName?: string | null;
   onStage?: (stage: JobStage) => void;
 }
 
@@ -31,40 +30,26 @@ export interface RunAnalysisResult {
   report: AnalysisReport;
 }
 
-/**
- * Resolves source data for a channel.
- * For now, uses mock streamers. Will be replaced with Twitch ingestion later.
- */
-function resolveStreamerData(channel: string): MockStreamerData {
-  const key = channel.toLowerCase().replace(/\s+/g, "_");
-  return (allMockStreamers as Record<string, MockStreamerData>)[key] || nexaGaming;
-}
-
-/**
- * Real analysis pipeline:
- * 1. Insert analysis_jobs (queued -> processing)
- * 2. Load source data (mock for now)
- * 3. Run engines (facts -> score -> recos -> competitors)
- * 4. Persist final report in analysis_reports
- * 5. Mark job completed
- */
 export async function runAnalysis({
   channelName,
   userId,
   platform,
   platformUserId,
   platformLogin,
+  platformDisplayName,
   onStage,
 }: RunAnalysisOptions): Promise<RunAnalysisResult> {
   onStage?.("pending");
 
-  // 1. Create job — persist platform identity so the report can be matched
-  //    back to the connected Twitch account on the dashboard.
+  const canonicalLogin = (platformLogin ?? channelName).trim().toLowerCase();
+  const canonicalDisplayName =
+    platformDisplayName?.trim() || platformLogin?.trim() || channelName.trim();
+
   const { data: job, error: jobErr } = await supabase
     .from("analysis_jobs")
     .insert({
       user_id: userId,
-      channel_name: channelName,
+      channel_name: canonicalLogin,
       status: "processing",
       started_at: new Date().toISOString(),
       platform: platform ?? null,
@@ -79,12 +64,14 @@ export async function runAnalysis({
   }
 
   try {
-    // 2. Load data
     onStage?.("loading_data");
-    const data = resolveStreamerData(channelName);
+    const data = resolveAnalysisDataset({
+      login: canonicalLogin,
+      displayName: canonicalDisplayName,
+      platformUserId,
+    });
     await sleep(400);
 
-    // 3. Engines (assembleReport runs facts/score/recos/competitors)
     onStage?.("computing_facts");
     await sleep(400);
     onStage?.("scoring");
@@ -94,9 +81,15 @@ export async function runAnalysis({
     onStage?.("generating_recommendations");
     await sleep(300);
 
-    const report = assembleReport(data, job.id);
+    const report = assembleReport(data, job.id, {
+      platform: platform ?? null,
+      platform_user_id: platformUserId ?? null,
+      platform_login: canonicalLogin,
+      display_name: canonicalDisplayName,
+      avatar_url: data.profile.profile_image_url || null,
+      is_demo: !platformUserId,
+    });
 
-    // 4. Save report
     onStage?.("saving");
     const { data: saved, error: repErr } = await supabase
       .from("analysis_reports")
@@ -113,7 +106,6 @@ export async function runAnalysis({
       throw new Error(`Échec de sauvegarde du rapport: ${repErr?.message}`);
     }
 
-    // 5. Mark job complete
     await supabase
       .from("analysis_jobs")
       .update({ status: "completed", completed_at: new Date().toISOString() })

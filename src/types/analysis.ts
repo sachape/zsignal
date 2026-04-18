@@ -117,6 +117,15 @@ export interface ChannelSummary {
   description: string;
 }
 
+export interface ReportIdentity {
+  platform: string | null;
+  platform_user_id: string | null;
+  platform_login: string;
+  display_name: string;
+  avatar_url: string | null;
+  is_demo: boolean;
+}
+
 export interface AffiliateProgress {
   avg_viewers: { current: number; target: number };
   stream_days: { current: number; target: number };
@@ -127,6 +136,7 @@ export interface AffiliateProgress {
 
 export interface AnalysisReport {
   job_id: string;
+  identity?: ReportIdentity;
   channel_summary: ChannelSummary;
   facts: ChannelFact[];
   score: StreamScore;

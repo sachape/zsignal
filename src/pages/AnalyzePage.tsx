@@ -84,6 +84,7 @@ const AnalyzePage = () => {
             platform: account ? "twitch" : null,
             platformUserId: account?.platform_user_id ?? null,
             platformLogin: account?.platform_login ?? null,
+            platformDisplayName: account?.platform_display_name ?? null,
             onStage: (s) => setCurrentStage(s),
           });
           setTimeout(() => navigate(`/result?report_id=${reportId}`), 500);
