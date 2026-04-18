@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { assembleReport } from "./reportAssembler";
 import { resolveAnalysisDataset } from "./liveReportSource";
 import { fetchLiveTwitchProfile } from "./twitchLiveProfile";
+import { buildCompetitorGroups, type CandidateChannel, type TargetSignal } from "./competitorEngine";
 
 /**
  * Hybrid auto-refresh: the backend (or callsite) creates a `queued`
@@ -52,6 +53,7 @@ export async function processQueuedJob(
       login: platformLogin,
       displayName: platformDisplayName ?? platformLogin,
       platformUserId,
+      liveOnly: true,
       liveProfile: liveProfile
         ? {
             id: liveProfile.profile?.id ?? null,
@@ -64,8 +66,37 @@ export async function processQueuedJob(
             follower_count: liveProfile.follower_count ?? null,
             followers_available: liveProfile.followers_available,
             followers_missing_scope: liveProfile.missing_scope,
+            videos: liveProfile.videos,
+            clips: liveProfile.clips,
           }
         : null,
+    });
+
+    const competitorGroups = buildCompetitorGroups({
+      target: {
+        login: platformLogin,
+        language: "fr",
+        dominant_category: liveProfile?.dominant_category ?? null,
+        recent_titles: (liveProfile?.videos ?? []).slice(0, 10).map((v) => v.title),
+        channel_type: "solo",
+        content_format: "unknown",
+        size_proxy: liveProfile?.profile?.view_count ?? 0,
+      } satisfies TargetSignal,
+      candidates: (liveProfile?.competitors ?? []).map<CandidateChannel>((c) => ({
+        id: c.id,
+        login: c.login,
+        display_name: c.display_name,
+        broadcaster_type: c.broadcaster_type,
+        description: c.description,
+        is_live: c.is_live,
+        live_title: c.title,
+        live_viewer_count: c.live_viewer_count ?? null,
+        game_name: c.game_name,
+        language: c.language,
+        recent_titles: c.title ? [c.title] : [],
+        view_count: c.view_count,
+      })),
+      teaser: false,
     });
 
     const report = assembleReport(data, jobId, {
@@ -75,6 +106,17 @@ export async function processQueuedJob(
       display_name: platformDisplayName ?? platformLogin,
       avatar_url: liveProfile?.profile?.profile_image_url ?? null,
       is_demo: false,
+    }, {
+      live: liveProfile?.live
+        ? {
+            title: liveProfile.live.title,
+            game_name: liveProfile.live.game_name,
+            viewer_count: liveProfile.live.viewer_count,
+            started_at: liveProfile.live.started_at,
+          }
+        : null,
+      competitor_groups: competitorGroups,
+      dominant_category_override: liveProfile?.dominant_category ?? null,
     });
 
     const { data: saved, error: repErr } = await supabase

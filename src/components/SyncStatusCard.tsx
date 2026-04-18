@@ -68,7 +68,7 @@ const STATE_META: Record<
   partial_refresh: {
     icon: AlertCircle,
     iconClass: "text-warning",
-    title: "Données partielles",
+    title: "Synchronisé · données partielles",
     tone: "border-warning/30 bg-warning/5",
   },
   refresh_failed: {

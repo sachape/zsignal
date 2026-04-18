@@ -89,7 +89,16 @@ const DashboardPage = () => {
     setHistory(h);
 
     if (platformUserId) {
-      const snap = await resolveSyncSnapshot(user.id, platformUserId, c?.created_at ?? null);
+      const followersAvailable = c?.report?.channel_summary?.followers_available !== false;
+      const streams30d = Number(
+        c?.report?.facts?.find((f) => f.key === "streams_30d")?.value ?? 0,
+      );
+      const snap = await resolveSyncSnapshot(
+        user.id,
+        platformUserId,
+        c?.created_at ?? null,
+        { followersAvailable, hasAnyVideos: streams30d > 0 },
+      );
       setSyncSnapshot(snap);
     } else {
       setSyncSnapshot(null);
@@ -413,9 +422,9 @@ const DashboardPage = () => {
                 accent={delta !== null && delta > 0}
               />
               <StatBlock
-                label="Viewers moyens"
+                label="Vues moyennes par VOD"
                 value={String(summary.avg_viewers)}
-                subtext="30 derniers jours"
+                subtext="30 derniers jours · pas du live"
               />
               <StatBlock
                 label="Followers"
