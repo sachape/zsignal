@@ -44,6 +44,7 @@ const ReportHistoryList = ({ reports }: { reports: SavedReport[] }) => {
                 </div>
               </div>
               <div className="flex items-center gap-3">
+                {r.is_demo && <Badge variant="muted">Démo</Badge>}
                 <Badge variant="muted">Score {r.report.score.overall}</Badge>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
