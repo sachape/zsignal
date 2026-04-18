@@ -420,16 +420,58 @@ const ResultPage = () => {
         )}
 
         <PageHeader
-          eyebrow={isTeaser ? "Aperçu gratuit" : "Rapport d'analyse"}
-          title={summary.display_name}
-          description={`${summary.category} · ~${summary.avg_viewers} viewers moyens · ${
-            summary.followers_available === false
-              ? "followers indisponibles"
-              : `${summary.follower_count} followers`
-          }${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`}
+          eyebrow={
+            isTeaser
+              ? summary.is_partial
+                ? "Aperçu public · données Twitch publiques"
+                : "Aperçu gratuit"
+              : "Rapport d'analyse"
+          }
+          title={
+            <span className="inline-flex flex-wrap items-center gap-2">
+              {summary.display_name}
+              {summary.is_live && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+                  Live · {summary.live_viewer_count ?? 0} viewers
+                </span>
+              )}
+            </span>
+          }
+          description={
+            summary.is_partial
+              ? `${summary.category} · données publiques uniquement${
+                  summary.broadcaster_type === "affiliate" ? " · Affilié" : ""
+                }${summary.broadcaster_type === "partner" ? " · Partenaire" : ""}`
+              : `${summary.category} · ~${summary.avg_viewers} viewers moyens · ${
+                  summary.followers_available === false
+                    ? "followers indisponibles"
+                    : `${summary.follower_count} followers`
+                }${summary.broadcaster_type === "affiliate" ? " · Affilié" : ""}`
+          }
         />
 
-        {summary.followers_available === false && !saved?.is_demo && (
+        {summary.is_partial && (
+          <Card className="mb-4 border-accent/30 bg-accent/5">
+            <CardContent className="flex flex-wrap items-start gap-3 p-4">
+              <Zap className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="text-sm font-semibold text-foreground">
+                  Analyse basée sur les données publiques disponibles
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Followers exacts, chatters uniques et historique live nécessitent la
+                  connexion Twitch. Connecte ta chaîne pour débloquer le rapport complet.
+                </p>
+              </div>
+              <Button asChild size="sm">
+                <Link to="/auth">Débloquer le rapport complet</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {summary.followers_available === false && !saved?.is_demo && !summary.is_partial && (
           <Card className="mb-4 border-warning/30 bg-warning/5">
             <CardContent className="flex flex-wrap items-center gap-3 p-3">
               <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
