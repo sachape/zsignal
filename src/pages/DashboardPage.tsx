@@ -172,10 +172,9 @@ const DashboardPage = () => {
           <PageHeader
             eyebrow="Tableau de bord"
             title={displayName}
+            avatarLogin={account?.platform_login ?? null}
             description={
-              account?.platform_login
-                ? `@${account.platform_login} · Compte Twitch connecté`
-                : "Rapport live"
+              account?.platform_login ? "Compte Twitch connecté" : "Rapport live"
             }
           />
           <ErrorState
