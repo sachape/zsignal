@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.twitch-public-lookup]
 verify_jwt = false
+
+[functions.twitch-refresh-enqueue]
+verify_jwt = false

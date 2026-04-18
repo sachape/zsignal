@@ -23,6 +23,7 @@ interface Props {
   nextSyncLabel?: string | null;
   onManualRefresh?: () => void;
   manualHref?: string;
+  manualBusy?: boolean;
 }
 
 const formatRelative = (iso: string) => {
@@ -84,6 +85,7 @@ const SyncStatusCard = ({
   nextSyncLabel,
   onManualRefresh,
   manualHref,
+  manualBusy,
 }: Props) => {
   const meta = STATE_META[state];
   const Icon = meta.icon;
@@ -112,6 +114,7 @@ const SyncStatusCard = ({
             asChild={!!manualHref}
             variant="ghost"
             size="sm"
+            disabled={manualBusy}
             onClick={onManualRefresh}
             className="text-xs text-muted-foreground hover:text-foreground"
           >
@@ -121,7 +124,8 @@ const SyncStatusCard = ({
               </Link>
             ) : (
               <>
-                <RefreshCw className="h-3.5 w-3.5" /> Actualiser maintenant
+                <RefreshCw className={`h-3.5 w-3.5 ${manualBusy ? "animate-spin" : ""}`} />{" "}
+                {manualBusy ? "Mise à jour…" : "Actualiser maintenant"}
               </>
             )}
           </Button>

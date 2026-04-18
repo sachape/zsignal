@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   Zap,
@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
+import { supabase } from "@/integrations/supabase/client";
 import { validateReportConsistency } from "@/services/reportConsistency";
 import {
   getLatestReport,
@@ -37,6 +38,11 @@ import {
   getRecentReports,
   type SavedReport,
 } from "@/services/reportRepository";
+import { resolveSyncSnapshot, type SyncSnapshot } from "@/services/syncStateResolver";
+import {
+  enqueueRefreshForSelf,
+  processPendingForAccount,
+} from "@/services/autoRefreshRunner";
 
 const categoryIcons: Record<string, typeof Clock> = {
   regularity: Clock,
@@ -66,27 +72,103 @@ const DashboardPage = () => {
   const [currentReport, setCurrentReport] = useState<SavedReport | null>(null);
   const [history, setHistory] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncSnapshot, setSyncSnapshot] = useState<SyncSnapshot | null>(null);
+  const [manualRefreshing, setManualRefreshing] = useState(false);
+  const autoTriggeredRef = useRef(false);
+  const processingRef = useRef(false);
+
+  const loadDashboardState = useCallback(async () => {
+    if (!user) return;
+    const platformUserId = account?.platform_user_id ?? null;
+    const currentPromise = platformUserId
+      ? getLatestReportForPlatformUser(user.id, platformUserId)
+      : getLatestReport(user.id);
+
+    const [c, h] = await Promise.all([currentPromise, getRecentReports(user.id, 5)]);
+    setCurrentReport(c);
+    setHistory(h);
+
+    if (platformUserId) {
+      const snap = await resolveSyncSnapshot(user.id, platformUserId, c?.created_at ?? null);
+      setSyncSnapshot(snap);
+    } else {
+      setSyncSnapshot(null);
+    }
+  }, [user, account]);
 
   useEffect(() => {
     if (!user || connectionLoading) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const platformUserId = account?.platform_user_id ?? null;
-      const currentPromise = platformUserId
-        ? getLatestReportForPlatformUser(user.id, platformUserId)
-        : getLatestReport(user.id);
-
-      const [c, h] = await Promise.all([currentPromise, getRecentReports(user.id, 5)]);
-      if (cancelled) return;
-      setCurrentReport(c);
-      setHistory(h);
-      setLoading(false);
+      await loadDashboardState();
+      if (!cancelled) setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, account, connectionLoading]);
+  }, [user, connectionLoading, loadDashboardState]);
+
+  // Auto-trigger first analysis if connected with no report and no job yet.
+  useEffect(() => {
+    if (!user || !account?.platform_user_id || !syncSnapshot) return;
+    if (autoTriggeredRef.current) return;
+    if (syncSnapshot.state !== "no_analysis") return;
+    autoTriggeredRef.current = true;
+    (async () => {
+      await enqueueRefreshForSelf("auto_first");
+      await loadDashboardState();
+    })();
+  }, [user, account, syncSnapshot, loadDashboardState]);
+
+  // Hybrid pipeline: claim and run any queued job for the connected account.
+  useEffect(() => {
+    if (!user || !account?.platform_user_id || !account.platform_login) return;
+    if (!syncSnapshot || processingRef.current) return;
+    if (syncSnapshot.lastJobStatus !== "queued") return;
+    processingRef.current = true;
+    (async () => {
+      await processPendingForAccount(
+        user.id,
+        account.platform_user_id!,
+        account.platform_login!,
+        account.platform_display_name ?? null,
+      );
+      processingRef.current = false;
+      await loadDashboardState();
+    })();
+  }, [user, account, syncSnapshot, loadDashboardState]);
+
+  // Realtime: react to job changes for this user.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`dashboard-jobs-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "analysis_jobs",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          loadDashboardState();
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, loadDashboardState]);
+
+  const handleManualRefresh = useCallback(async () => {
+    if (manualRefreshing) return;
+    setManualRefreshing(true);
+    await enqueueRefreshForSelf("manual");
+    await loadDashboardState();
+    setManualRefreshing(false);
+  }, [manualRefreshing, loadDashboardState]);
 
   if (loading) {
     return (
@@ -109,6 +191,15 @@ const DashboardPage = () => {
             description="Compte Twitch connecté"
           />
 
+          <div className="mb-6">
+            <SyncStatusCard
+              state={syncSnapshot?.state ?? "no_analysis"}
+              lastUpdatedLabel={null}
+              onManualRefresh={handleManualRefresh}
+              manualBusy={manualRefreshing}
+            />
+          </div>
+
           <Card className="mb-6">
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
@@ -119,15 +210,10 @@ const DashboardPage = () => {
                   Compte Twitch connecté
                 </h2>
                 <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                  Aucune analyse encore disponible pour ce compte. Lance ta première
-                  analyse — les prochaines mises à jour seront automatisées.
+                  Première analyse en préparation. Les prochaines mises à jour
+                  se feront automatiquement.
                 </p>
               </div>
-              <Button asChild className="mt-2">
-                <Link to="/analyze">
-                  <Zap className="h-4 w-4" /> Analyser mon compte
-                </Link>
-              </Button>
             </CardContent>
           </Card>
 
@@ -276,9 +362,14 @@ const DashboardPage = () => {
 
         <div className="mb-6 grid gap-3 sm:grid-cols-2">
           <SyncStatusCard
-            state={"synchronized" as SyncState}
-            lastUpdatedLabel={`${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}`}
-            manualHref="/analyze"
+            state={syncSnapshot?.state ?? ("synchronized" as SyncState)}
+            lastUpdatedLabel={
+              currentReport
+                ? `${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}`
+                : null
+            }
+            onManualRefresh={handleManualRefresh}
+            manualBusy={manualRefreshing}
           />
 
           <Card>
