@@ -53,14 +53,25 @@ const AnalyzePage = () => {
   const { user, loading: authLoading } = useAuth();
   const { account, loading: connectionLoading } = useTwitchConnection();
 
-  // For authenticated users with a connected Twitch account, the connected
-  // login is the canonical channel — we ignore stale ?channel= values that
-  // could point at an old demo channel.
   const urlChannel = searchParams.get("channel") || "";
   const connectedLogin = account?.platform_login ?? "";
-  const channel = user && connectedLogin ? connectedLogin : urlChannel;
+  const modeParam = searchParams.get("mode");
 
-  const mode = searchParams.get("mode") === "teaser" || !user ? "teaser" : "full";
+  // Mode resolution:
+  // - explicit ?mode=teaser  -> always teaser (public search, isolated from auth context)
+  // - unauthenticated        -> teaser
+  // - authenticated otherwise -> full
+  const mode: "teaser" | "full" =
+    modeParam === "teaser" || !user ? "teaser" : "full";
+
+  // Canonical channel source-of-truth:
+  // - teaser mode: ONLY the URL ?channel= param (normalized). Never fall back
+  //   to the connected Twitch account — public search must be fully isolated.
+  // - full mode: the connected Twitch login is canonical.
+  const channel =
+    mode === "teaser"
+      ? (normalizeChannelInput(urlChannel) ?? urlChannel)
+      : (connectedLogin || urlChannel);
   const [currentStage, setCurrentStage] = useState<Stage>("pending");
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
