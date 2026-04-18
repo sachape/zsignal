@@ -90,6 +90,11 @@ interface EdgeCompetitor {
   game_name: string | null;
   title: string | null;
   started_at: string | null;
+  language?: string | null;
+  live_viewer_count?: number | null;
+  description?: string;
+  broadcaster_type?: string;
+  view_count?: number;
 }
 
 interface EdgeResponse {
