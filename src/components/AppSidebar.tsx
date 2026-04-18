@@ -5,8 +5,7 @@ import {
   CalendarCheck,
   Users,
   BookOpen,
-  FileText,
-  Link2,
+  Trophy,
   LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -35,12 +34,8 @@ const cockpitItems = [
 
 const benchmarkItems = [
   { title: "Concurrents", url: "/competitors", icon: Users, end: false },
+  { title: "Classements", url: "/leaders", icon: Trophy, end: false },
   { title: "Playbooks", url: "/playbooks", icon: BookOpen, end: false },
-];
-
-const settingsItems = [
-  { title: "Rapport complet", url: "/result", icon: FileText, end: false },
-  { title: "Twitch", url: "/connect-twitch", icon: Link2, end: false },
 ];
 
 const AppSidebar = () => {
