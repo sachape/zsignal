@@ -65,28 +65,50 @@ export async function runAnalysis({
 
   try {
     onStage?.("loading_data");
+
+    // ---- Live Twitch fetch (real profile + real follower count) ----
+    let liveProfile: Awaited<ReturnType<typeof fetchLiveTwitchProfile>> | null = null;
+    if (platform === "twitch" && platformUserId) {
+      liveProfile = await fetchLiveTwitchProfile();
+    }
+
     const data = resolveAnalysisDataset({
       login: canonicalLogin,
       displayName: canonicalDisplayName,
       platformUserId,
+      liveProfile: liveProfile
+        ? {
+            id: liveProfile.profile?.id ?? null,
+            login: liveProfile.profile?.login ?? null,
+            display_name: liveProfile.profile?.display_name ?? null,
+            description: liveProfile.profile?.description ?? null,
+            profile_image_url: liveProfile.profile?.profile_image_url ?? null,
+            broadcaster_type: liveProfile.profile?.broadcaster_type ?? null,
+            view_count: liveProfile.profile?.view_count ?? null,
+            follower_count: liveProfile.follower_count ?? null,
+            followers_available: liveProfile.followers_available,
+            followers_missing_scope: liveProfile.missing_scope,
+          }
+        : null,
     });
-    await sleep(400);
+    await sleep(200);
 
     onStage?.("computing_facts");
-    await sleep(400);
-    onStage?.("scoring");
-    await sleep(400);
-    onStage?.("matching_competitors");
-    await sleep(400);
-    onStage?.("generating_recommendations");
     await sleep(300);
+    onStage?.("scoring");
+    await sleep(300);
+    onStage?.("matching_competitors");
+    await sleep(300);
+    onStage?.("generating_recommendations");
+    await sleep(200);
 
     const report = assembleReport(data, job.id, {
       platform: platform ?? null,
       platform_user_id: platformUserId ?? null,
       platform_login: canonicalLogin,
       display_name: canonicalDisplayName,
-      avatar_url: data.profile.profile_image_url || null,
+      avatar_url:
+        liveProfile?.profile?.profile_image_url || data.profile.profile_image_url || null,
       is_demo: !platformUserId,
     });
 
