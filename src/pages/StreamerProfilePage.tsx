@@ -919,74 +919,7 @@ const StreamerProfilePage = () => {
           );
         })()}
 
-        {/* Secondary signals row */}
-        <div className="mb-6 grid gap-4 sm:grid-cols-3">
-          <Card>
-            <CardContent className="p-4">
-              <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                <CalendarRange className="h-3.5 w-3.5" /> Régularité
-              </div>
-              <p className="text-sm font-medium text-foreground">
-                {consistency >= 70 ? "Cadence lisible" : consistency >= 40 ? "Cadence variable" : "Cadence irrégulière"}
-              </p>
-              <p className="text-xs text-muted-foreground">Score {consistency}/100</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                <Activity className="h-3.5 w-3.5" /> Stabilité catégorie
-              </div>
-              <p className="text-sm font-medium text-foreground">
-                {switchRate <= 20 ? "Très stable" : switchRate <= 50 ? "Moyennement stable" : "Très variable"}
-              </p>
-              <p className="text-xs text-muted-foreground">{switchRate}% de changement</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                <Film className="h-3.5 w-3.5" /> Loop discovery
-              </div>
-              <p className="text-sm font-medium text-foreground">
-                {clips30d >= 5 ? "Actif" : clips30d > 0 ? "Modéré" : "Faible ou absent"}
-              </p>
-              <p className="text-xs text-muted-foreground">{clips30d} clips sur 30j</p>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Visible weakness — kept compact, demoted */}
-        {weakest && (
-          <Card className="mb-6">
-            <CardContent className="p-4">
-              <div className="mb-1 flex items-center gap-2">
-                <Target className="h-3.5 w-3.5 text-warning" />
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Point faible visible
-                </h3>
-              </div>
-              <p className="text-sm text-foreground">
-                {weakest.dimension} —{" "}
-                <span className="text-muted-foreground">
-                  {weakest.reasons[0] ?? "Signal public faible sur cette dimension."}
-                </span>
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {summary.is_live && (
-          <Card className="border-destructive/30 bg-destructive/5">
-            <CardContent className="flex items-center gap-3 p-4">
-              <Radio className="h-4 w-4 text-destructive" />
-              <p className="text-sm text-foreground">
-                Actuellement en live ·{" "}
-                <span className="text-muted-foreground">{summary.live_title}</span>
-              </p>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Why inspect this profile now — closing CTA */}
         <Card className="mt-6 border-primary/20 bg-primary/5">
