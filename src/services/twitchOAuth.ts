@@ -1,35 +1,64 @@
-// Twitch OAuth service — placeholder until live credentials are available
+// Twitch OAuth service — live flow via twitch-oauth edge function
+import { supabase } from "@/integrations/supabase/client";
 
-const TWITCH_CLIENT_ID = ""; // Will be set when credentials are available
 const REDIRECT_URI = `${window.location.origin}/twitch/callback`;
+const STATE_KEY = "streampulse_twitch_oauth_state";
+
+function generateState(): string {
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 /**
- * Build the Twitch OAuth authorization URL and redirect the user.
- * Non-functional until TWITCH_CLIENT_ID is configured.
+ * Build the Twitch authorize URL via the edge function (which holds the client_id),
+ * store a CSRF state token, then redirect the browser.
  */
-export function initiateTwitchOAuth(): void {
-  if (!TWITCH_CLIENT_ID) {
-    console.warn("[TwitchOAuth] Client ID not configured — OAuth disabled.");
-    return;
-  }
+export async function initiateTwitchOAuth(): Promise<void> {
+  const state = generateState();
+  sessionStorage.setItem(STATE_KEY, state);
 
-  const params = new URLSearchParams({
-    client_id: TWITCH_CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
-    response_type: "code",
-    scope: "user:read:email analytics:read:games",
+  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+  const fnUrl = `https://${projectId}.supabase.co/functions/v1/twitch-oauth?action=authorize-url&redirect_uri=${encodeURIComponent(
+    REDIRECT_URI,
+  )}&state=${encodeURIComponent(state)}`;
+
+  const res = await fetch(fnUrl, {
+    headers: {
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    },
   });
-
-  window.location.href = `https://id.twitch.tv/oauth2/authorize?${params.toString()}`;
+  const data = await res.json();
+  if (!res.ok || !data.url) {
+    console.error("[TwitchOAuth] authorize-url failed", data);
+    throw new Error(data.error || "Impossible d'initier la connexion Twitch.");
+  }
+  window.location.href = data.url;
 }
 
 /**
  * Exchange authorization code for tokens via the backend edge function.
- * Returns the platform_login on success.
+ * Validates the CSRF state, then calls twitch-oauth POST.
  */
 export async function completeTwitchCallback(
-  _code: string
+  code: string,
+  state: string,
 ): Promise<{ success: boolean; platform_login?: string; error?: string }> {
-  // TODO: call supabase.functions.invoke("twitch-oauth", { body: { code, redirect_uri } })
-  return { success: false, error: "Twitch OAuth not yet configured." };
+  const expectedState = sessionStorage.getItem(STATE_KEY);
+  sessionStorage.removeItem(STATE_KEY);
+  if (!expectedState || expectedState !== state) {
+    return { success: false, error: "État OAuth invalide. Réessaie." };
+  }
+
+  const { data, error } = await supabase.functions.invoke("twitch-oauth", {
+    body: { code, redirect_uri: REDIRECT_URI },
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  if (!data?.success) {
+    return { success: false, error: data?.error || "Échec de la connexion Twitch." };
+  }
+  return { success: true, platform_login: data.platform_login };
 }

@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { completeTwitchCallback } from "@/services/twitchOAuth";
 
 type CallbackState = "processing" | "error" | "cancelled";
 
@@ -17,28 +18,39 @@ const TwitchCallbackPage = () => {
   useEffect(() => {
     const error = searchParams.get("error");
     const code = searchParams.get("code");
+    const stateParam = searchParams.get("state");
 
     if (error) {
       if (error === "access_denied") {
         setState("cancelled");
       } else {
         setState("error");
-        setErrorMsg(error);
+        setErrorMsg(searchParams.get("error_description") || error);
       }
       return;
     }
 
-    if (!code) {
+    if (!code || !stateParam) {
       setState("error");
-      setErrorMsg("Code d'autorisation manquant.");
+      setErrorMsg("Paramètres OAuth manquants.");
       return;
     }
 
-    const timer = setTimeout(() => {
-      navigate("/connect-twitch?connected=true", { replace: true });
-    }, 2000);
+    let cancelled = false;
+    (async () => {
+      const result = await completeTwitchCallback(code, stateParam);
+      if (cancelled) return;
+      if (result.success) {
+        navigate("/connect-twitch?connected=true", { replace: true });
+      } else {
+        setState("error");
+        setErrorMsg(result.error || "Erreur lors de la connexion.");
+      }
+    })();
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams, navigate]);
 
   return (
