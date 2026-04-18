@@ -12,6 +12,8 @@ import {
   Activity,
   Film,
   CalendarRange,
+  Scale,
+  ArrowRight,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -33,6 +35,110 @@ import {
 import type { AnalysisReport } from "@/types/analysis";
 
 type Relation = "direct" | "catch-up" | "inspiration" | "self" | "none" | "unknown";
+
+type CompStatus = "ahead" | "similar" | "behind" | "unknown";
+
+interface CompRow {
+  key: string;
+  label: string;
+  status: CompStatus;
+  theirs: string;
+  yours: string;
+  /** Higher = more important gap to focus on first. */
+  gapWeight: number;
+  /** Concrete mechanic to copy if they are ahead. */
+  mechanic: string;
+}
+
+function factNum(report: AnalysisReport, key: string): number {
+  const f = report.facts.find((x) => x.key === key);
+  return Number(f?.value ?? 0);
+}
+
+function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[] {
+  const rows: CompRow[] = [];
+
+  // Regularity (consistency)
+  const tCons = factNum(target, "posting_consistency_score");
+  const mCons = factNum(mine, "posting_consistency_score");
+  rows.push({
+    key: "regularity",
+    label: "Régularité",
+    status:
+      tCons - mCons >= 15 ? "ahead" : mCons - tCons >= 15 ? "behind" : "similar",
+    theirs: `${tCons}/100`,
+    yours: `${mCons}/100`,
+    gapWeight: Math.max(0, tCons - mCons) * 1.2,
+    mechanic: "Fixer 3 créneaux fixes par semaine et les tenir 4 semaines de suite.",
+  });
+
+  // Clips activity (discovery loop)
+  const tClips = factNum(target, "clips_30d");
+  const mClips = factNum(mine, "clips_30d");
+  rows.push({
+    key: "clips",
+    label: "Loop discovery (clips)",
+    status:
+      tClips - mClips >= 3 ? "ahead" : mClips - tClips >= 3 ? "behind" : "similar",
+    theirs: `${tClips} clips/30j`,
+    yours: `${mClips} clips/30j`,
+    gapWeight: Math.max(0, tClips - mClips) * 2,
+    mechanic: "Publier 2-3 clips après chaque stream pour activer la discovery.",
+  });
+
+  // Category consistency (lower switch rate = more stable)
+  const tSwitch = factNum(target, "category_switch_rate");
+  const mSwitch = factNum(mine, "category_switch_rate");
+  rows.push({
+    key: "category",
+    label: "Stabilité catégorie",
+    status:
+      mSwitch - tSwitch >= 15 ? "ahead" : tSwitch - mSwitch >= 15 ? "behind" : "similar",
+    theirs: `${tSwitch}% changement`,
+    yours: `${mSwitch}% changement`,
+    gapWeight: Math.max(0, mSwitch - tSwitch) * 0.8,
+    mechanic: "Garder une catégorie principale claire pendant 3-4 streams d'affilée.",
+  });
+
+  // Positioning / structure via score breakdown
+  const dimScore = (rep: AnalysisReport, name: string) =>
+    rep.score.breakdown.find((b) =>
+      b.dimension.toLowerCase().includes(name.toLowerCase()),
+    )?.score ?? 0;
+
+  const tPos = dimScore(target, "positionnement") || dimScore(target, "positioning");
+  const mPos = dimScore(mine, "positionnement") || dimScore(mine, "positioning");
+  if (tPos || mPos) {
+    rows.push({
+      key: "positioning",
+      label: "Clarté du positionnement",
+      status:
+        tPos - mPos >= 10 ? "ahead" : mPos - tPos >= 10 ? "behind" : "similar",
+      theirs: `${tPos}/100`,
+      yours: `${mPos}/100`,
+      gapWeight: Math.max(0, tPos - mPos),
+      mechanic: "Clarifier la bio et un titre récurrent qui dit ce que tu fais.",
+    });
+  }
+
+  // Content structure
+  const tStr = dimScore(target, "structure") || dimScore(target, "contenu");
+  const mStr = dimScore(mine, "structure") || dimScore(mine, "contenu");
+  if (tStr || mStr) {
+    rows.push({
+      key: "structure",
+      label: "Structure du contenu",
+      status:
+        tStr - mStr >= 10 ? "ahead" : mStr - tStr >= 10 ? "behind" : "similar",
+      theirs: `${tStr}/100`,
+      yours: `${mStr}/100`,
+      gapWeight: Math.max(0, tStr - mStr) * 0.9,
+      mechanic: "Standardiser une structure de titre récurrente sur tes lives.",
+    });
+  }
+
+  return rows;
+}
 
 interface RelationFraming {
   label: string;
@@ -290,6 +396,114 @@ const StreamerProfilePage = () => {
             <p className="text-sm text-muted-foreground">{framing.why}</p>
           </CardContent>
         </Card>
+
+        {/* Comparison vs you */}
+        {(() => {
+          if (isSelf) return null;
+          if (!user) return null;
+          if (!myReport?.report) {
+            return (
+              <Card className="mb-6 border-dashed">
+                <CardContent className="p-5">
+                  <div className="mb-1 flex items-center gap-2">
+                    <Scale className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="text-sm font-semibold text-foreground">Comparaison vs toi</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Lance une première analyse de ta chaîne pour comparer ce profil au tien.
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          }
+
+          const rows = buildComparison(report, myReport.report);
+          const aheadRows = rows.filter((r) => r.status === "ahead");
+          const mainGap = aheadRows.slice().sort((a, b) => b.gapWeight - a.gapWeight)[0];
+          const tooThin = rows.length === 0 || aheadRows.length === 0 && rows.every((r) => r.status === "unknown");
+
+          const statusStyles: Record<CompStatus, string> = {
+            ahead: "text-warning",
+            behind: "text-success",
+            similar: "text-muted-foreground",
+            unknown: "text-muted-foreground",
+          };
+          const statusLabel: Record<CompStatus, string> = {
+            ahead: "Iel devant",
+            behind: "Toi devant",
+            similar: "Similaire",
+            unknown: "Indispo.",
+          };
+
+          return (
+            <Card className="mb-6">
+              <CardContent className="p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <Scale className="h-4 w-4 text-foreground" />
+                  <h3 className="text-sm font-semibold text-foreground">Comparaison vs toi</h3>
+                  <Badge variant="outline" className="ml-auto text-[10px]">
+                    {rows.length} dimensions clés
+                  </Badge>
+                </div>
+
+                {tooThin ? (
+                  <p className="text-sm text-muted-foreground">
+                    Pas assez de signaux publics communs pour comparer en détail. Observation utile : ce
+                    profil semble surtout intéressant à observer pour sa cadence et sa loop de clips.
+                  </p>
+                ) : (
+                  <>
+                    <div className="space-y-1.5">
+                      {rows.map((r) => (
+                        <div
+                          key={r.key}
+                          className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 rounded-md border border-border/40 bg-background/30 px-3 py-2"
+                        >
+                          <span className="text-sm text-foreground">{r.label}</span>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            Iel {r.theirs}
+                          </span>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            Toi {r.yours}
+                          </span>
+                          <span className={`text-[11px] font-medium ${statusStyles[r.status]}`}>
+                            {statusLabel[r.status]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {mainGap && (
+                      <div className="mt-4 rounded-md border border-warning/30 bg-warning/5 p-3">
+                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-warning">
+                          <Target className="h-3.5 w-3.5" />
+                          Écart principal à combler
+                        </div>
+                        <p className="text-sm text-foreground">
+                          <span className="font-medium">{mainGap.label}</span> — c'est l'écart le plus
+                          significatif entre ce profil et toi en ce moment.
+                        </p>
+                      </div>
+                    )}
+
+                    {mainGap && (
+                      <div className="mt-3 rounded-md border border-primary/30 bg-primary/5 p-3">
+                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
+                          <Lightbulb className="h-3.5 w-3.5" />
+                          Première mécanique à copier
+                        </div>
+                        <p className="text-sm text-foreground flex items-start gap-2">
+                          <ArrowRight className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                          <span>{mainGap.mechanic}</span>
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* Key public benchmark signals */}
         <div className="mb-3">
