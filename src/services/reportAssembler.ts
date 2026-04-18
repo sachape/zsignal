@@ -45,18 +45,27 @@ export function assembleReport(
   const dominantCat = String(getFact("dominant_category")?.value ?? "Variété");
   const avgViewers = Number(getFact("avg_viewers")?.value ?? 0);
 
+  const followersAvailable = profile.followers_available ?? true;
+  const followersValue = followersAvailable ? profile.follower_count : 0;
+
   const channel_summary: ChannelSummary = {
     channel_name: identity.platform_login,
     display_name: identity.display_name,
     category: dominantCat,
     avg_viewers: avgViewers,
     broadcaster_type: profile.broadcaster_type || "none",
-    follower_count: profile.follower_count,
+    follower_count: followersValue,
+    followers_available: followersAvailable,
+    followers_missing_scope: profile.followers_missing_scope ?? false,
     description: profile.description,
   };
 
   const affiliate_progress: AffiliateProgress = {
-    followers: { current: profile.follower_count, target: 50 },
+    followers: {
+      current: followersAvailable ? followersValue : null,
+      target: 50,
+      available: followersAvailable,
+    },
     avg_viewers: { current: avgViewers, target: 3 },
     stream_days: {
       current: Number(getFact("unique_stream_days_30d")?.value ?? 0),
