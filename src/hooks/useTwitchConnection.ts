@@ -12,66 +12,149 @@ interface TwitchAccount {
   profile_image_url?: string | null;
 }
 
+/**
+ * Module-level cache of the resolved Twitch identity per StreamPulse user.
+ *
+ * Why a module cache: previously, every component using this hook owned its
+ * own state and every route mount started at `loading=true, account=null`.
+ * That made the top-right Twitch control flicker to the disconnected CTA
+ * during navigation, even though the connection was still valid. The cache
+ * preserves the last known identity across route changes and remounts; the
+ * fetch then runs in the background to revalidate without blanking the UI.
+ *
+ * Status semantics:
+ *   - "idle"        → no fetch attempted yet for this user
+ *   - "loading"     → first fetch in flight, no cached account yet
+ *   - "revalidating"→ fetch in flight but a cached account is already known
+ *   - "resolved"    → fetch completed, cache reflects the truth (account or null)
+ */
+type FetchStatus = "idle" | "loading" | "revalidating" | "resolved";
+
+interface CacheEntry {
+  account: TwitchAccount | null;
+  status: FetchStatus;
+}
+
+const cache = new Map<string, CacheEntry>();
+const inflight = new Map<string, Promise<void>>();
+const listeners = new Set<() => void>();
+
+function notify() {
+  for (const l of listeners) l();
+}
+
+function setEntry(userId: string, entry: CacheEntry) {
+  cache.set(userId, entry);
+  notify();
+}
+
+async function fetchAndCache(userId: string): Promise<void> {
+  const existing = cache.get(userId);
+  setEntry(userId, {
+    account: existing?.account ?? null,
+    status: existing?.account ? "revalidating" : "loading",
+  });
+
+  const { data: connected } = await supabase
+    .from("connected_accounts")
+    .select("id, platform_login, platform_display_name, platform_user_id, created_at")
+    .eq("user_id", userId)
+    .eq("platform", "twitch")
+    .maybeSingle();
+
+  if (!connected) {
+    setEntry(userId, { account: null, status: "resolved" });
+    return;
+  }
+
+  // Best-effort avatar lookup. Failure is non-fatal — fallback to initials.
+  let avatar: string | null = null;
+  const { data: profile } = await supabase
+    .from("twitch_profiles")
+    .select("profile_image_url, twitch_user_id, login")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (profile?.profile_image_url) avatar = profile.profile_image_url;
+
+  if (!avatar && connected.platform_login) {
+    try {
+      const { data: lookup } = await supabase.functions.invoke("twitch-public-lookup", {
+        body: { login: connected.platform_login },
+      });
+      const url = lookup?.profile?.profile_image_url ?? lookup?.profile_image_url ?? null;
+      if (url) avatar = url;
+    } catch {
+      // ignore — avatar stays null and UI falls back to initials
+    }
+  }
+
+  setEntry(userId, {
+    account: { ...connected, profile_image_url: avatar },
+    status: "resolved",
+  });
+}
+
+function ensureFetch(userId: string) {
+  if (inflight.has(userId)) return inflight.get(userId)!;
+  const p = fetchAndCache(userId).finally(() => {
+    inflight.delete(userId);
+  });
+  inflight.set(userId, p);
+  return p;
+}
+
 export function useTwitchConnection() {
   const { user } = useAuth();
-  const [account, setAccount] = useState<TwitchAccount | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, force] = useState(0);
 
   useEffect(() => {
-    if (!user) {
-      setAccount(null);
-      setLoading(false);
-      return;
-    }
-
-    const fetchAccount = async () => {
-      setLoading(true);
-      const { data: connected } = await supabase
-        .from("connected_accounts")
-        .select("id, platform_login, platform_display_name, platform_user_id, created_at")
-        .eq("user_id", user.id)
-        .eq("platform", "twitch")
-        .maybeSingle();
-
-      if (!connected) {
-        setAccount(null);
-        setLoading(false);
-        return;
-      }
-
-      // Best-effort avatar lookup. Failure is non-fatal — fallback to initials.
-      // 1) Try cached twitch_profiles row for this user.
-      let avatar: string | null = null;
-      const { data: profile } = await supabase
-        .from("twitch_profiles")
-        .select("profile_image_url, twitch_user_id, login")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (profile?.profile_image_url) avatar = profile.profile_image_url;
-
-      // 2) Fallback: resolve via public lookup edge function using login.
-      if (!avatar && connected.platform_login) {
-        try {
-          const { data: lookup } = await supabase.functions.invoke("twitch-public-lookup", {
-            body: { login: connected.platform_login },
-          });
-          const url = lookup?.profile?.profile_image_url ?? lookup?.profile_image_url ?? null;
-          if (url) avatar = url;
-        } catch {
-          // ignore — avatar stays null and UI falls back to initials
-        }
-      }
-
-      setAccount({ ...connected, profile_image_url: avatar });
-      setLoading(false);
+    const tick = () => force((n) => n + 1);
+    listeners.add(tick);
+    return () => {
+      listeners.delete(tick);
     };
+  }, []);
 
-    fetchAccount();
+  useEffect(() => {
+    if (!user) return;
+    const entry = cache.get(user.id);
+    // Trigger a fetch on first sight of this user, or refresh stale data.
+    if (!entry || entry.status === "idle") {
+      ensureFetch(user.id);
+    }
   }, [user]);
+
+  if (!user) {
+    // Logged out: not loading, not connected. No flicker risk because there
+    // is no previously-known identity to preserve.
+    return {
+      isConnected: false,
+      account: null as TwitchAccount | null,
+      loading: false,
+      revalidating: false,
+      /**
+       * `true` while the very first resolution is in flight AND no cached
+       * identity exists yet. Components should treat this as "unknown",
+       * not as "disconnected".
+       */
+      initializing: false,
+    };
+  }
+
+  const entry = cache.get(user.id);
+  const account = entry?.account ?? null;
+  const status: FetchStatus = entry?.status ?? "loading";
+  const initializing = status === "loading" && !account;
+  const revalidating = status === "revalidating";
 
   return {
     isConnected: !!account,
     account,
-    loading,
+    // Kept for backwards compatibility: `loading` is true only when we have
+    // no cached identity yet. Once we have one, navigations no longer flip
+    // this back to true.
+    loading: initializing,
+    revalidating,
+    initializing,
   };
 }
