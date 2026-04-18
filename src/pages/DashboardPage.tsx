@@ -12,6 +12,7 @@ import {
   FileText,
   CheckCircle2,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -30,6 +31,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import {
   getLatestReport,
+  getLatestReportForPlatformUser,
   getRecentReports,
   type SavedReport,
 } from "@/services/reportRepository";
@@ -58,29 +60,37 @@ const daysSince = (iso: string) => {
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { isConnected } = useTwitchConnection();
-  const [latest, setLatest] = useState<SavedReport | null>(null);
+  const { isConnected, account, loading: connectionLoading } = useTwitchConnection();
+  /** Report bound to the currently connected Twitch account, if any. */
+  const [currentReport, setCurrentReport] = useState<SavedReport | null>(null);
   const [history, setHistory] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || connectionLoading) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [l, h] = await Promise.all([
-        getLatestReport(user.id),
-        getRecentReports(user.id, 5),
-      ]);
+      const platformUserId = account?.platform_user_id ?? null;
+
+      // Source-of-truth rules:
+      // - Connected account → fetch latest report whose job is bound to this
+      //   exact Twitch user_id. Demo/mock reports must NEVER override this.
+      // - Not connected → fall back to most recent report (legacy / demo allowed).
+      const currentPromise = platformUserId
+        ? getLatestReportForPlatformUser(user.id, platformUserId)
+        : getLatestReport(user.id);
+
+      const [c, h] = await Promise.all([currentPromise, getRecentReports(user.id, 5)]);
       if (cancelled) return;
-      setLatest(l);
+      setCurrentReport(c);
       setHistory(h);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, account, connectionLoading]);
 
   if (loading) {
     return (
@@ -90,17 +100,67 @@ const DashboardPage = () => {
     );
   }
 
-  if (!latest) {
+  // ── Case A: Twitch connected, no live report yet for this account ───────────
+  if (isConnected && account && !currentReport) {
+    const displayName =
+      account.platform_display_name || account.platform_login || "ta chaîne";
+    return (
+      <AppShell>
+        <PageContainer>
+          <PageHeader
+            eyebrow="Tableau de bord"
+            title={displayName}
+            description={`@${account.platform_login} · Compte Twitch connecté`}
+          />
+
+          <Card className="mb-6">
+            <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+                <Sparkles className="h-4 w-4 text-primary" />
+              </div>
+              <div className="space-y-1.5">
+                <h2 className="text-base font-semibold text-foreground">
+                  Compte Twitch connecté
+                </h2>
+                <p className="mx-auto max-w-md text-sm text-muted-foreground">
+                  Aucune analyse live disponible pour ce compte pour le moment.
+                  Lance ta première analyse pour découvrir ton StreamScore réel.
+                </p>
+              </div>
+              <Button asChild className="mt-2">
+                <Link to="/analyze">
+                  <Zap className="h-4 w-4" /> Lancer ma première analyse live
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          {history.length > 0 && (
+            <section>
+              <SectionHeader
+                title="Analyses précédentes (démo)"
+                align="left"
+              />
+              <p className="mb-3 text-xs text-muted-foreground">
+                Ces analyses ont été générées avec des données de démonstration et
+                ne reflètent pas ton vrai compte Twitch.
+              </p>
+              <ReportHistoryList reports={history} />
+            </section>
+          )}
+        </PageContainer>
+      </AppShell>
+    );
+  }
+
+  // ── Case B: nothing at all (no connection, no report) ───────────────────────
+  if (!currentReport) {
     return (
       <AppShell>
         <PageContainer size="sm">
           <PageHeader
             title="Bienvenue sur ton tableau de bord"
-            description={
-              isConnected
-                ? "Lance ta première analyse pour démarrer."
-                : "Tu peux lancer une analyse de démonstration ou connecter Twitch."
-            }
+            description="Tu peux lancer une analyse de démonstration ou connecter Twitch."
           />
           <EmptyReportState />
         </PageContainer>
@@ -108,7 +168,8 @@ const DashboardPage = () => {
     );
   }
 
-  const report = latest.report;
+  // ── Case C: a report exists for the current context ─────────────────────────
+  const report = currentReport.report;
   const score = report.score;
   const ap = report.affiliate_progress;
   const summary = report.channel_summary;
@@ -116,15 +177,24 @@ const DashboardPage = () => {
     .filter((r) => r.type === "priority")
     .slice(0, 3);
 
-  // Score delta vs previous report
-  const previous = history.find((r) => r.id !== latest.id);
+  // Identity shown in the header is always the connected account when present,
+  // so the dashboard never claims a demo channel as "yours".
+  const headerTitle = account?.platform_display_name
+    || account?.platform_login
+    || summary.display_name;
+  const headerEyebrow = isConnected ? "Tableau de bord · Twitch connecté" : "Tableau de bord";
+
+  // Score delta vs previous report for the same channel
+  const previous = history.find(
+    (r) => r.id !== currentReport.id && r.platform_user_id === currentReport.platform_user_id,
+  );
   const delta = previous ? score.overall - previous.report.score.overall : null;
 
   // Freshness
-  const ageDays = daysSince(latest.created_at);
+  const ageDays = daysSince(currentReport.created_at);
   const isFresh = ageDays <= 7;
 
-  // Next milestone (the closest-to-target affiliate progress item)
+  // Next milestone
   const milestones = [
     { label: "Followers", current: ap.followers.current, target: ap.followers.target },
     { label: "Viewers moyens", current: ap.avg_viewers.current, target: ap.avg_viewers.target },
@@ -140,13 +210,17 @@ const DashboardPage = () => {
     <AppShell>
       <PageContainer>
         <PageHeader
-          eyebrow="Tableau de bord"
-          title={summary.display_name}
-          description="Ton aperçu rapide — consulte le rapport complet pour le détail."
+          eyebrow={headerEyebrow}
+          title={headerTitle}
+          description={
+            isConnected && account
+              ? `@${account.platform_login} · Aperçu rapide — consulte le rapport complet pour le détail.`
+              : "Ton aperçu rapide — consulte le rapport complet pour le détail."
+          }
           action={
             <div className="flex gap-2">
               <Button asChild variant="outline" size="sm">
-                <Link to={`/result?report_id=${latest.id}`}>
+                <Link to={`/result?report_id=${currentReport.id}`}>
                   <FileText className="h-4 w-4" /> Rapport complet
                 </Link>
               </Button>
@@ -159,7 +233,7 @@ const DashboardPage = () => {
           }
         />
 
-        {/* Status row: freshness + Twitch connection */}
+        {/* Status row */}
         <div className="mb-6 grid gap-3 sm:grid-cols-2">
           <Card>
             <CardContent className="flex items-center gap-3 p-4">
@@ -173,8 +247,9 @@ const DashboardPage = () => {
                   {isFresh ? "Analyse à jour" : "Analyse à rafraîchir"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Dernière analyse : {formatDate(latest.created_at)}
+                  Dernière analyse : {formatDate(currentReport.created_at)}
                   {ageDays > 0 && ` · il y a ${ageDays} j`}
+                  {currentReport.is_demo && " · démo"}
                 </p>
               </div>
             </CardContent>
@@ -191,7 +266,7 @@ const DashboardPage = () => {
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {isConnected
-                    ? "Tes prochaines analyses utiliseront tes vraies données."
+                    ? `Compte : @${account?.platform_login}`
                     : "Connecte Twitch pour des analyses personnalisées."}
                 </p>
               </div>
@@ -204,7 +279,7 @@ const DashboardPage = () => {
           </Card>
         </div>
 
-        {/* Hero: score + delta + key stats */}
+        {/* Hero */}
         <div className="mb-6 grid gap-4 sm:grid-cols-4">
           <ScoreCard score={score.overall} />
           <div className="flex flex-col gap-3 sm:col-span-3">
@@ -235,7 +310,6 @@ const DashboardPage = () => {
               />
             </div>
 
-            {/* Today's priority — single most important next action */}
             {report.next_best_action && (
               <Card className="border-accent/30 bg-accent/5">
                 <CardContent className="p-4">
@@ -254,7 +328,6 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Next milestone (compact teaser, full breakdown lives on /result) */}
         <Card className="mb-8">
           <CardContent className="p-5">
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -265,7 +338,7 @@ const DashboardPage = () => {
                 <p className="text-xs text-muted-foreground">Progression vers l'affiliation</p>
               </div>
               <Button asChild variant="ghost" size="sm">
-                <Link to={`/result?report_id=${latest.id}`}>
+                <Link to={`/result?report_id=${currentReport.id}`}>
                   Détail <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </Button>
@@ -278,12 +351,11 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
 
-        {/* Top 3 recos (teasers) */}
         <section className="mb-8">
           <div className="mb-3 flex items-center justify-between">
             <SectionHeader title="À prioriser" align="left" />
             <Button asChild variant="ghost" size="sm">
-              <Link to={`/result?report_id=${latest.id}`}>
+              <Link to={`/result?report_id=${currentReport.id}`}>
                 Toutes les actions <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
@@ -301,7 +373,6 @@ const DashboardPage = () => {
           </div>
         </section>
 
-        {/* Recent analyses */}
         <section>
           <SectionHeader title="Analyses récentes" align="left" />
           <ReportHistoryList reports={history} />

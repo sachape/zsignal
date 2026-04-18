@@ -17,6 +17,11 @@ export type JobStage =
 export interface RunAnalysisOptions {
   channelName: string;
   userId: string;
+  /** Identity of the connected channel being analyzed. Required to bind the
+   * resulting report to the user's connected Twitch account. */
+  platform?: string | null;
+  platformUserId?: string | null;
+  platformLogin?: string | null;
   onStage?: (stage: JobStage) => void;
 }
 
@@ -46,11 +51,15 @@ function resolveStreamerData(channel: string): MockStreamerData {
 export async function runAnalysis({
   channelName,
   userId,
+  platform,
+  platformUserId,
+  platformLogin,
   onStage,
 }: RunAnalysisOptions): Promise<RunAnalysisResult> {
   onStage?.("pending");
 
-  // 1. Create job
+  // 1. Create job — persist platform identity so the report can be matched
+  //    back to the connected Twitch account on the dashboard.
   const { data: job, error: jobErr } = await supabase
     .from("analysis_jobs")
     .insert({
@@ -58,6 +67,9 @@ export async function runAnalysis({
       channel_name: channelName,
       status: "processing",
       started_at: new Date().toISOString(),
+      platform: platform ?? null,
+      platform_user_id: platformUserId ?? null,
+      platform_login: platformLogin ?? null,
     })
     .select()
     .single();

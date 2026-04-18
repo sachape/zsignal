@@ -20,6 +20,9 @@ export type Database = {
           completed_at: string | null
           created_at: string
           id: string
+          platform: string | null
+          platform_login: string | null
+          platform_user_id: string | null
           started_at: string | null
           status: string
           updated_at: string
@@ -30,6 +33,9 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          platform?: string | null
+          platform_login?: string | null
+          platform_user_id?: string | null
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -40,6 +46,9 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          platform?: string | null
+          platform_login?: string | null
+          platform_user_id?: string | null
           started_at?: string | null
           status?: string
           updated_at?: string
