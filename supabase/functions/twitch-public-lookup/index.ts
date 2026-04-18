@@ -304,13 +304,51 @@ Deno.serve(async (req) => {
       return json({ error: "Twitch credentials not configured." }, 500);
     }
 
-    let body: { input?: string } = {};
+    let body: { input?: string; mode?: "lookup" | "search"; limit?: number } = {};
     try {
       body = await req.json();
     } catch {
       return json({ error: "Invalid JSON body." }, 400);
     }
-    const rawInput = (body.input ?? "").toString();
+    const rawInput = (body.input ?? "").toString().trim();
+    const mode = body.mode ?? "lookup";
+
+    const token = await getAppAccessToken(clientId, clientSecret);
+    const helixHeaders = {
+      "Client-ID": clientId,
+      Authorization: `Bearer ${token}`,
+    };
+
+    // Lightweight autocomplete: just /search/channels, no enrichment.
+    if (mode === "search") {
+      if (rawInput.length < 2) {
+        return json({ success: true, mode: "search", suggestions: [] });
+      }
+      const limit = Math.min(Math.max(body.limit ?? 8, 1), 20);
+      const res = await fetch(
+        `https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(rawInput)}&first=${limit}&live_only=false`,
+        { headers: helixHeaders },
+      );
+      if (!res.ok) {
+        return json({ success: true, mode: "search", suggestions: [] });
+      }
+      const j = await res.json();
+      const results = (j?.data ?? []) as HelixSearchChannel[];
+      return json({
+        success: true,
+        mode: "search",
+        suggestions: results.map((c) => ({
+          id: c.id,
+          login: c.broadcaster_login,
+          display_name: c.display_name,
+          thumbnail_url: c.thumbnail_url ?? null,
+          is_live: c.is_live ?? false,
+          game_name: c.game_name ?? null,
+          language: c.broadcaster_language ?? null,
+        })),
+      });
+    }
+
     const login = normalizeLogin(rawInput);
     if (!login) {
       return json({
@@ -319,12 +357,6 @@ Deno.serve(async (req) => {
         raw_input: rawInput,
       });
     }
-
-    const token = await getAppAccessToken(clientId, clientSecret);
-    const helixHeaders = {
-      "Client-ID": clientId,
-      Authorization: `Bearer ${token}`,
-    };
 
     const lookup = await lookupChannel(login, helixHeaders);
     if (!lookup) {
