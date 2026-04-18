@@ -651,6 +651,7 @@ const StreamerProfilePage = () => {
         </Card>
 
         {/* Comparison vs you */}
+        <div id="comparison-vs-you">
         {(() => {
           if (isSelf) return null;
           if (!user) return null;
