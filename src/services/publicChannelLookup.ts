@@ -3,10 +3,14 @@ import type {
   MockStreamerData,
   TwitchVideo,
   TwitchClip,
-  CompetitorMatch,
   CompetitorGroup,
 } from "@/types/analysis";
 import { normalizeChannelInput } from "./channelInputNormalizer";
+import {
+  buildCompetitorGroups,
+  type CandidateChannel,
+  type TargetSignal,
+} from "./competitorEngine";
 
 export type PublicLookupSource =
   | "exact_get_users"
