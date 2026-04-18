@@ -12,6 +12,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { runAnalysis, type JobStage } from "@/services/analysisRunner";
 import { runTeaserAnalysis, type TeaserStage } from "@/services/teaserAnalysisRunner";
+import { normalizeChannelInput } from "@/services/channelInputNormalizer";
+import { teaserStore } from "@/services/teaserStore";
 
 type Stage = JobStage | TeaserStage;
 
@@ -53,14 +55,25 @@ const AnalyzePage = () => {
   const { user, loading: authLoading } = useAuth();
   const { account, loading: connectionLoading } = useTwitchConnection();
 
-  // For authenticated users with a connected Twitch account, the connected
-  // login is the canonical channel — we ignore stale ?channel= values that
-  // could point at an old demo channel.
   const urlChannel = searchParams.get("channel") || "";
   const connectedLogin = account?.platform_login ?? "";
-  const channel = user && connectedLogin ? connectedLogin : urlChannel;
+  const modeParam = searchParams.get("mode");
 
-  const mode = searchParams.get("mode") === "teaser" || !user ? "teaser" : "full";
+  // Mode resolution:
+  // - explicit ?mode=teaser  -> always teaser (public search, isolated from auth context)
+  // - unauthenticated        -> teaser
+  // - authenticated otherwise -> full
+  const mode: "teaser" | "full" =
+    modeParam === "teaser" || !user ? "teaser" : "full";
+
+  // Canonical channel source-of-truth:
+  // - teaser mode: ONLY the URL ?channel= param (normalized). Never fall back
+  //   to the connected Twitch account — public search must be fully isolated.
+  // - full mode: the connected Twitch login is canonical.
+  const channel =
+    mode === "teaser"
+      ? (normalizeChannelInput(urlChannel) ?? urlChannel)
+      : (connectedLogin || urlChannel);
   const [currentStage, setCurrentStage] = useState<Stage>("pending");
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -71,6 +84,11 @@ const AnalyzePage = () => {
     if (!channel) {
       setError("Aucune chaîne fournie. Retourne à l'accueil pour lancer une analyse.");
       return;
+    }
+    // Public search must be isolated: clear stale teaser/pending channel
+    // state so the searched channel is the only active teaser target.
+    if (mode === "teaser") {
+      teaserStore.clearPendingChannel();
     }
     startedRef.current = true;
 
@@ -214,6 +232,25 @@ const AnalyzePage = () => {
               value={((Math.max(0, currentIndex) + 1) / order.length) * 100}
               className="mt-6"
             />
+
+            {import.meta.env.DEV && (
+              <div className="mt-6 rounded-md border border-border/60 bg-muted/40 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground">
+                <div className="mb-1 font-semibold text-foreground">DEBUG /analyze</div>
+                <div>raw input (?channel): {urlChannel || "—"}</div>
+                <div>normalized searched: {normalizeChannelInput(urlChannel) ?? "—"}</div>
+                <div>mode: {mode}</div>
+                <div>connected twitch login: {connectedLogin || "—"}</div>
+                <div>
+                  source used:{" "}
+                  {mode === "teaser"
+                    ? "url_channel_param (isolated from auth)"
+                    : connectedLogin
+                      ? "connected_twitch_login"
+                      : "url_channel_param"}
+                </div>
+                <div>resolved channel: {channel || "—"}</div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </PageContainer>
