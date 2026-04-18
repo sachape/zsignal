@@ -67,7 +67,11 @@ export function assembleReport(
     teaserOverrides?.competitor_groups ?? findCompetitors(profile, facts);
 
   const getFact = (key: string) => facts.find((f) => f.key === key);
-  const dominantCat = String(getFact("dominant_category")?.value ?? "Variété");
+  const dominantCat = String(
+    teaserOverrides?.dominant_category_override ??
+      getFact("dominant_category")?.value ??
+      "Variété",
+  );
   const avgViewers = Number(getFact("avg_viewers")?.value ?? 0);
 
   const followersAvailable = profile.followers_available ?? true;
@@ -83,6 +87,10 @@ export function assembleReport(
     followers_available: followersAvailable,
     followers_missing_scope: profile.followers_missing_scope ?? false,
     description: profile.description,
+    is_partial: teaserOverrides?.is_partial ?? false,
+    is_live: !!teaserOverrides?.live,
+    live_viewer_count: teaserOverrides?.live?.viewer_count ?? null,
+    live_title: teaserOverrides?.live?.title ?? null,
   };
 
   const affiliate_progress: AffiliateProgress = {
