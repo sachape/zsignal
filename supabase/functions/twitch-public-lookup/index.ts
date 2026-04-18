@@ -98,6 +98,7 @@ interface HelixSearchChannel {
   game_id?: string;
   title?: string;
   started_at?: string;
+  broadcaster_language?: string;
 }
 
 interface HelixVideo {
