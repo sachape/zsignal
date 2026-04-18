@@ -1,8 +1,23 @@
+// Twitch OAuth edge function
+// Two actions:
+//   - GET ?action=authorize-url&redirect_uri=...&state=... → returns { url }
+//   - POST { action: "exchange", code, redirect_uri, state } → exchanges code, stores tokens
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const TWITCH_SCOPES = [
+  "user:read:email",
+  "channel:read:subscriptions",
+  "analytics:read:games",
+  "moderator:read:followers",
+].join(" ");
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -10,53 +25,153 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const clientId = Deno.env.get("TWITCH_CLIENT_ID");
+    const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET");
+    if (!clientId || !clientSecret) {
+      return json({ error: "Twitch credentials not configured." }, 500);
+    }
+
+    const url = new URL(req.url);
+
+    // ---- Action 1: Build authorize URL (no auth needed, just returns a URL) ----
+    if (req.method === "GET" && url.searchParams.get("action") === "authorize-url") {
+      const redirectUri = url.searchParams.get("redirect_uri");
+      const state = url.searchParams.get("state");
+      if (!redirectUri || !state) {
+        return json({ error: "Missing redirect_uri or state." }, 400);
+      }
+      const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: "code",
+        scope: TWITCH_SCOPES,
+        state,
+        force_verify: "true",
+      });
+      return json({
+        url: `https://id.twitch.tv/oauth2/authorize?${params.toString()}`,
+      });
+    }
+
+    // ---- Action 2: Exchange code for tokens (auth required) ----
+    if (req.method !== "POST") {
+      return json({ error: "Method not allowed." }, 405);
+    }
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing authorization" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ error: "Missing authorization." }, 401);
     }
 
-    const { code, redirect_uri } = await req.json();
-    if (!code || !redirect_uri) {
-      return new Response(JSON.stringify({ error: "Missing code or redirect_uri" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Verify user
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
-
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: userError,
+    } = await userClient.auth.getUser();
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ error: "Unauthorized" }, 401);
     }
 
-    // TODO: Exchange code for tokens with Twitch API
-    // const clientId = Deno.env.get("TWITCH_CLIENT_ID");
-    // const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET");
-    // const tokenResponse = await fetch("https://id.twitch.tv/oauth2/token", { ... });
+    const body = await req.json().catch(() => ({}));
+    const { code, redirect_uri } = body as {
+      code?: string;
+      redirect_uri?: string;
+    };
+    if (!code || !redirect_uri) {
+      return json({ error: "Missing code or redirect_uri." }, 400);
+    }
 
-    return new Response(
-      JSON.stringify({ success: false, error: "Twitch credentials not yet configured." }),
-      {
-        status: 501,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
-  } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // 1) Exchange code → tokens
+    const tokenRes = await fetch("https://id.twitch.tv/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+        grant_type: "authorization_code",
+        redirect_uri,
+      }),
     });
+    const tokenData = await tokenRes.json();
+    if (!tokenRes.ok) {
+      console.error("[twitch-oauth] token exchange failed", tokenData);
+      return json(
+        { error: tokenData.message || "Token exchange failed.", details: tokenData },
+        400,
+      );
+    }
+
+    const accessToken = tokenData.access_token as string;
+    const refreshToken = tokenData.refresh_token as string;
+    const expiresIn = tokenData.expires_in as number;
+    const scope = Array.isArray(tokenData.scope)
+      ? tokenData.scope.join(" ")
+      : String(tokenData.scope ?? "");
+
+    // 2) Fetch Twitch user identity
+    const userRes = await fetch("https://api.twitch.tv/helix/users", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Client-Id": clientId,
+      },
+    });
+    const userJson = await userRes.json();
+    if (!userRes.ok || !userJson.data?.[0]) {
+      console.error("[twitch-oauth] helix /users failed", userJson);
+      return json({ error: "Failed to fetch Twitch user." }, 400);
+    }
+    const tw = userJson.data[0];
+
+    // 3) Upsert into connected_accounts using service role (bypass RLS, scoped to this user_id)
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+    const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+
+    // Delete any prior twitch row for this user, then insert fresh
+    await adminClient
+      .from("connected_accounts")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("platform", "twitch");
+
+    const { error: insertError } = await adminClient
+      .from("connected_accounts")
+      .insert({
+        user_id: user.id,
+        platform: "twitch",
+        platform_user_id: tw.id,
+        platform_login: tw.login,
+        platform_display_name: tw.display_name,
+        access_token_encrypted: accessToken,
+        refresh_token_encrypted: refreshToken,
+        scope,
+        expires_at: expiresAt,
+      });
+    if (insertError) {
+      console.error("[twitch-oauth] insert failed", insertError);
+      return json({ error: "Failed to store connection." }, 500);
+    }
+
+    return json({
+      success: true,
+      platform_login: tw.login,
+      platform_display_name: tw.display_name,
+    });
+  } catch (err) {
+    console.error("[twitch-oauth] unexpected", err);
+    return json({ error: String(err) }, 500);
   }
 });
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
