@@ -420,6 +420,18 @@ const StreamerProfilePage = () => {
   const [myReport, setMyReport] = useState<SavedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inWatchlist, setInWatchlist] = useState(false);
+
+  useEffect(() => {
+    if (!login) {
+      setInWatchlist(false);
+      return;
+    }
+    setInWatchlist(isInWatchlist(user?.id ?? null, login));
+    const sync = () => setInWatchlist(isInWatchlist(user?.id ?? null, login));
+    window.addEventListener("streampulse:watchlist-changed", sync);
+    return () => window.removeEventListener("streampulse:watchlist-changed", sync);
+  }, [user?.id, login]);
 
   useEffect(() => {
     if (!login) return;
