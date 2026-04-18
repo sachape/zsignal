@@ -249,11 +249,21 @@ const DashboardPage = () => {
         <PageHeader
           eyebrow={headerEyebrow}
           title={headerTitle}
-          description={
-            isConnected && account
-              ? `@${account.platform_login} · Aperçu rapide — consulte le rapport complet pour le détail.`
-              : "Ton aperçu rapide — consulte le rapport complet pour le détail."
+          avatarUrl={report.identity?.avatar_url ?? null}
+          avatarLogin={
+            account?.platform_login ?? report.identity?.platform_login ?? null
           }
+          badges={[
+            ...(summary.broadcaster_type === "partner"
+              ? [{ label: "Partenaire", variant: "accent" as const }]
+              : summary.broadcaster_type === "affiliate"
+                ? [{ label: "Affilié", variant: "secondary" as const }]
+                : []),
+            ...(summary.is_live
+              ? [{ label: "Live", variant: "destructive" as const }]
+              : []),
+          ]}
+          description="Aperçu rapide — consulte le rapport complet pour le détail."
           action={
             <div className="flex gap-2">
               <Button asChild variant="outline" size="sm">
