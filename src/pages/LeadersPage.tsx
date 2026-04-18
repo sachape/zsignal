@@ -67,12 +67,11 @@ const LeadersPage = () => {
   const [liveFilter, setLiveFilter] = useState<LiveFilter>("all");
   const [sort, setSort] = useState<SortKey>("viewers");
 
-  // Category autocomplete state.
+  // Category combobox state.
+  const [catOpen, setCatOpen] = useState(false);
   const [catQuery, setCatQuery] = useState<string>("");
   const [catSuggestions, setCatSuggestions] = useState<LeaderCategory[]>([]);
   const [catSearching, setCatSearching] = useState(false);
-  const [showSuggest, setShowSuggest] = useState(false);
-  const suggestRef = useRef<HTMLDivElement | null>(null);
 
   // Ranking data.
   const [rows, setRows] = useState<LeaderChannel[]>([]);
@@ -80,29 +79,23 @@ const LeadersPage = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  // Debounced category autocomplete.
+  // Debounced category search inside the combobox.
+  // Below the threshold we surface curated presets so the dropdown isn't empty.
   useEffect(() => {
-    if (catQuery.trim().length < 2) {
-      setCatSuggestions([]);
+    const q = catQuery.trim();
+    if (q.length < 2) {
+      setCatSuggestions(LEADER_CATEGORY_PRESETS.map((name) => ({ id: name, name, box_art_url: null })));
+      setCatSearching(false);
       return;
     }
     setCatSearching(true);
     const t = setTimeout(async () => {
-      const res = await searchCategories(catQuery);
+      const res = await searchCategories(q);
       setCatSuggestions(res);
       setCatSearching(false);
     }, 250);
     return () => clearTimeout(t);
   }, [catQuery]);
-
-  // Close suggestion popover on outside click.
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (!suggestRef.current?.contains(e.target as Node)) setShowSuggest(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
 
   // Load ranking when category or language changes.
   useEffect(() => {
@@ -148,7 +141,7 @@ const LeadersPage = () => {
   const pickCategory = (name: string) => {
     setCategory(name);
     setCatQuery("");
-    setShowSuggest(false);
+    setCatOpen(false);
   };
 
   return (
