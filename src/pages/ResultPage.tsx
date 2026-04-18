@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   AlertCircle,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppShell from "@/components/AppShell";
@@ -33,6 +34,7 @@ import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { teaserStore } from "@/services/teaserStore";
 import {
   getLatestReport,
+  getLatestReportForPlatformUser,
   getReportById,
   getReportByJobId,
   type SavedReport,
@@ -53,7 +55,7 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { account: twitchAccount } = useTwitchConnection();
+  const { account: twitchAccount, loading: twitchLoading } = useTwitchConnection();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
   const teaserId = searchParams.get("teaser");
@@ -65,14 +67,16 @@ const ResultPage = () => {
   const [teaserChannel, setTeaserChannel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [noLiveReport, setNoLiveReport] = useState(false);
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || twitchLoading) return;
     let cancelled = false;
 
     (async () => {
       setLoading(true);
       setNotFound(false);
+      setNoLiveReport(false);
       setSaved(null);
       setReport(null);
       setIsTeaser(false);
@@ -121,6 +125,27 @@ const ResultPage = () => {
       }
 
       if (user) {
+        // Source-of-truth: if a Twitch account is connected, ONLY load a
+        // report that matches that connected account. Never silently fall
+        // back to demo/mock or another channel's report.
+        if (twitchAccount?.platform_user_id) {
+          const r = await getLatestReportForPlatformUser(
+            user.id,
+            twitchAccount.platform_user_id,
+          );
+          if (cancelled) return;
+          if (r) {
+            setSaved(r);
+            setReport(r.report);
+            navigate(`/result?report_id=${r.id}`, { replace: true });
+          } else {
+            setNoLiveReport(true);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Not connected → legacy/demo fallback is acceptable
         const r = await getLatestReport(user.id);
         if (cancelled) return;
         if (r) {
@@ -147,12 +172,63 @@ const ResultPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [reportId, legacyJobId, teaserId, channel, user, authLoading, navigate]);
+  }, [reportId, legacyJobId, teaserId, channel, user, authLoading, twitchAccount, twitchLoading, navigate]);
 
   if (loading) {
     return (
       <AppShell>
         <LoadingState />
+      </AppShell>
+    );
+  }
+
+  // No live report yet for the connected Twitch account — never show a
+  // mismatched demo as if it were the current account.
+  if (noLiveReport && twitchAccount) {
+    const displayName =
+      twitchAccount.platform_display_name || twitchAccount.platform_login || "ton compte";
+    return (
+      <AppShell>
+        <PageContainer size="sm">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
+          >
+            <Link to="/dashboard">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Tableau de bord
+            </Link>
+          </Button>
+          <PageHeader
+            eyebrow="Rapport live"
+            title={displayName}
+            description={`@${twitchAccount.platform_login} · Compte Twitch connecté`}
+          />
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h3 className="text-base font-semibold text-foreground">
+                Aucune analyse live pour ce compte
+              </h3>
+              <p className="mx-auto max-w-md text-sm text-muted-foreground">
+                Tu n'as pas encore lancé d'analyse live pour @{twitchAccount.platform_login}.
+                Lance ta première analyse pour découvrir ton StreamScore réel.
+              </p>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                <Button asChild>
+                  <Link to="/analyze">
+                    <Zap className="h-4 w-4" /> Lancer ma première analyse live
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/dashboard">Retour au tableau de bord</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </PageContainer>
       </AppShell>
     );
   }
