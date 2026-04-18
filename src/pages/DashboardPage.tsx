@@ -2,7 +2,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   Zap,
-  Link2,
   ArrowRight,
   FileText,
   AlertCircle,
@@ -15,7 +14,6 @@ import SectionHeader from "@/components/SectionHeader";
 import ScoreCard from "@/components/ScoreCard";
 import StatBlock from "@/components/StatBlock";
 import EmptyReportState from "@/components/EmptyReportState";
-import ReportHistoryList from "@/components/ReportHistoryList";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
