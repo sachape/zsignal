@@ -22,6 +22,10 @@ export interface TwitchProfile {
   profile_image_url: string;
   view_count: number;
   follower_count: number;
+  /** True when follower_count was retrieved live from the Twitch API. */
+  followers_available?: boolean;
+  /** True when the followers scope is missing on the connected account. */
+  followers_missing_scope?: boolean;
   broadcaster_type: string;
   created_at_twitch: string;
   fetched_at: string;
@@ -114,6 +118,15 @@ export interface ChannelSummary {
   avg_viewers: number;
   broadcaster_type: string;
   follower_count: number;
+  /**
+   * True when follower_count is the real value returned by the Twitch API.
+   * False when followers could not be retrieved (missing scope, transient API
+   * failure, no live source). The UI must NOT display follower_count as a
+   * trustworthy number in that case — show "Followers indisponibles" instead.
+   */
+  followers_available?: boolean;
+  /** True when the followers scope (moderator:read:followers) is missing. */
+  followers_missing_scope?: boolean;
   description: string;
 }
 
@@ -131,7 +144,7 @@ export interface AffiliateProgress {
   stream_days: { current: number; target: number };
   unique_chatters: { current: number; target: number };
   stream_hours: { current: number; target: number };
-  followers: { current: number; target: number };
+  followers: { current: number | null; target: number; available?: boolean };
 }
 
 export interface AnalysisReport {
