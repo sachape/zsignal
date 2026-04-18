@@ -12,7 +12,7 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import SectionHeader from "@/components/SectionHeader";
 import ScoreCard from "@/components/ScoreCard";
-import StatBlock from "@/components/StatBlock";
+
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
@@ -42,7 +42,7 @@ import {
   enqueueRefreshForSelf,
   processPendingForAccount,
 } from "@/services/autoRefreshRunner";
-import { buildProgressionSignals } from "@/services/progressionSignals";
+
 import { recommendPlaybookForReport } from "@/services/playbookLibrary";
 
 const formatDate = (iso: string) =>
