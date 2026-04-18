@@ -43,6 +43,7 @@ import {
   removeFromWatchlist,
 } from "@/services/benchmarkWatchlist";
 import { toast } from "@/hooks/use-toast";
+import { evaluatePairwiseFit, type CandidateChannel, type TargetSignal } from "@/services/competitorEngine";
 
 type Relation = "direct" | "catch-up" | "inspiration" | "self" | "none" | "unknown";
 
@@ -328,6 +329,12 @@ interface RelationFraming {
   why: string;
 }
 
+/**
+ * Build the relation between target and connected user using the SAME
+ * benchmark engine as the global Competitors page (evaluatePairwiseFit).
+ * This guarantees that a profile labeled "concurrent direct" here is also
+ * eligible to surface in the Competitors page (assuming source data exists).
+ */
 function buildRelation(
   target: AnalysisReport,
   mine: AnalysisReport | null,
@@ -357,39 +364,80 @@ function buildRelation(
     };
   }
 
-  const mineCategory = mine.channel_summary.category?.toLowerCase() ?? "";
-  const targetCategory = target.channel_summary.category?.toLowerCase() ?? "";
-  const sameCategory = !!mineCategory && mineCategory === targetCategory;
+  // Build a TargetSignal from "mine" and a CandidateChannel from the opened
+  // streamer, then run the shared engine. This is the exact same scoring that
+  // feeds the global Competitors page.
+  const mineRecentTitles: string[] = [];
+  const myTarget: TargetSignal = {
+    login: mine.identity?.platform_login ?? mine.channel_summary.channel_name,
+    language: "fr",
+    dominant_category: mine.channel_summary.category ?? null,
+    recent_titles: mineRecentTitles,
+    channel_type: "solo",
+    content_format: "unknown",
+    size_proxy:
+      mine.channel_summary.follower_count ||
+      mine.channel_summary.avg_viewers * 1000 ||
+      0,
+  };
+  const candidate: CandidateChannel = {
+    id: target.identity?.platform_user_id ?? target.channel_summary.channel_name,
+    login: target.identity?.platform_login ?? target.channel_summary.channel_name,
+    display_name: target.channel_summary.display_name,
+    broadcaster_type: target.channel_summary.broadcaster_type,
+    description: target.channel_summary.description,
+    is_live: !!target.channel_summary.is_live,
+    live_title: target.channel_summary.live_title ?? null,
+    live_viewer_count: target.channel_summary.live_viewer_count ?? null,
+    game_name: target.channel_summary.category ?? null,
+    language: "fr",
+    recent_titles: target.channel_summary.live_title
+      ? [target.channel_summary.live_title]
+      : [],
+    view_count:
+      target.channel_summary.follower_count ||
+      target.channel_summary.avg_viewers * 1000 ||
+      0,
+  };
 
-  const mineScore = mine.score.overall;
-  const targetScore = target.score.overall;
-  const delta = targetScore - mineScore;
+  const fit = evaluatePairwiseFit(myTarget, candidate);
 
-  if (sameCategory && Math.abs(delta) <= 8) {
+  if (fit.relation === "direct") {
+    if (fit.is_potential) {
+      return {
+        relation: "direct",
+        framing: {
+          label: "Concurrent direct potentiel",
+          tone: "primary",
+          headline: "Match direct à confirmer",
+          why: "Le moteur de benchmark le considère proche de toi, mais le signal n'est pas complet. À observer comme un concurrent direct probable.",
+        },
+      };
+    }
     return {
       relation: "direct",
       framing: {
         label: "Concurrent direct",
         tone: "primary",
         headline: "Ce streamer joue dans ta cour",
-        why: "Même catégorie principale et niveau d'exécution proche du tien — un viewer pourrait hésiter entre vous deux.",
+        why: "Catégorie, format et taille proches du tien selon le moteur benchmark — un viewer pourrait hésiter entre vous deux.",
       },
     };
   }
 
-  if (delta > 8 && delta <= 25) {
+  if (fit.relation === "catch-up") {
     return {
       relation: "catch-up",
       framing: {
         label: "À rattraper",
         tone: "accent",
         headline: "Profil à rattraper",
-        why: "Ce streamer a un cran d'exécution au-dessus du tien. C'est exactement le type de chaîne dont tu peux copier les mécaniques.",
+        why: "Un cran d'exécution au-dessus du tien, mais réaliste. C'est exactement le type de chaîne dont tu peux copier les mécaniques.",
       },
     };
   }
 
-  if (delta > 25) {
+  if (fit.relation === "inspiration") {
     return {
       relation: "inspiration",
       framing: {

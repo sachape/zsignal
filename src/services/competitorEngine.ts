@@ -318,6 +318,69 @@ export interface BuildCompetitorGroupsOpts {
   teaser?: boolean;
 }
 
+/**
+ * Pairwise fit evaluation — used by the streamer profile page so that the
+ * pairwise comparison and the global Competitors page use the EXACT same
+ * scoring logic. Avoids the contradiction where a profile is labeled
+ * "concurrent direct" individually but is missing from the Competitors page.
+ */
+export interface PairwiseFit {
+  relation: 'direct' | 'catch-up' | 'inspiration' | 'none';
+  fit_score: number;
+  confidence_score: number;
+  size_band: SizeBand;
+  channel_type: ChannelType;
+  content_format: ContentFormat;
+  reasons: string[];
+  excluded: boolean;
+  is_potential: boolean;
+}
+
+export function evaluatePairwiseFit(
+  target: TargetSignal,
+  candidate: CandidateChannel,
+): PairwiseFit {
+  const fit = computeFit(target, candidate);
+  if (fit.excluded) {
+    return {
+      relation: 'none',
+      fit_score: 0,
+      confidence_score: fit.confidence_score,
+      size_band: fit.size_band,
+      channel_type: fit.channel_type,
+      content_format: fit.content_format,
+      reasons: fit.reasons,
+      excluded: true,
+      is_potential: false,
+    };
+  }
+  let relation: PairwiseFit['relation'] = 'none';
+  if (fit.size_band === 'small' || fit.size_band === 'micro') relation = 'direct';
+  else if (fit.size_band === 'medium') relation = 'catch-up';
+  else if (fit.size_band === 'large' || fit.size_band === 'event-media') relation = 'inspiration';
+
+  let isPotential = false;
+  // Promotion: a medium candidate with strong fit becomes "direct potentiel".
+  if (relation === 'catch-up' && fit.fit_score >= 50) {
+    relation = 'direct';
+    isPotential = true;
+  }
+  if (relation === 'direct' && fit.confidence_score < 60) {
+    isPotential = true;
+  }
+  return {
+    relation,
+    fit_score: fit.fit_score,
+    confidence_score: fit.confidence_score,
+    size_band: fit.size_band,
+    channel_type: fit.channel_type,
+    content_format: fit.content_format,
+    reasons: fit.reasons,
+    excluded: false,
+    is_potential: isPotential,
+  };
+}
+
 export function buildCompetitorGroups(
   opts: BuildCompetitorGroupsOpts,
 ): CompetitorGroup[] {
@@ -328,45 +391,52 @@ export function buildCompetitorGroups(
     .map((c) => ({ cand: c, fit: computeFit(target, c) }))
     .filter((x) => !x.fit.excluded);
 
-  // Confidence threshold: stricter in teaser mode.
-  const minConfidence = teaser ? 55 : 45;
+  // Confidence threshold: stricter in teaser mode, broader in connected mode
+  // so credible profiles aren't discarded too early. Pairwise comparison on
+  // the streamer profile page uses the same engine — keep this consistent.
+  const minConfidence = teaser ? 55 : 35;
   const usable = scored.filter((x) => x.fit.confidence_score >= minConfidence);
 
-  // Bucket by size band relative to target.
+  // Bucket. Medium-band candidates with a strong fit are promoted as "direct
+  // potentiel" so the global page can surface profiles that pairwise
+  // comparison would also flag as direct.
   const direct: typeof usable = [];
+  const directPotential: typeof usable = [];
   const catchUp: typeof usable = [];
   const inspiration: typeof usable = [];
   for (const x of usable) {
     if (x.fit.size_band === "small" || x.fit.size_band === "micro") {
       direct.push(x);
     } else if (x.fit.size_band === "medium") {
-      catchUp.push(x);
+      if (x.fit.fit_score >= 50) directPotential.push(x);
+      else catchUp.push(x);
     } else if (x.fit.size_band === "large" || x.fit.size_band === "event-media") {
       inspiration.push(x);
     }
   }
 
-  // Sort each bucket by fit_score desc, then confidence desc.
   const sortFit = (arr: typeof usable) =>
     arr.sort((a, b) =>
       b.fit.fit_score - a.fit.fit_score ||
       b.fit.confidence_score - a.fit.confidence_score,
     );
-  sortFit(direct); sortFit(catchUp); sortFit(inspiration);
+  sortFit(direct); sortFit(directPotential); sortFit(catchUp); sortFit(inspiration);
 
   const directLimit = teaser ? 1 : 3;
-  const catchUpLimit = teaser ? 1 : 2;
-  const inspirationLimit = 1;
+  const directPotentialLimit = teaser ? 1 : 3;
+  const catchUpLimit = teaser ? 1 : 3;
+  const inspirationLimit = teaser ? 1 : 2;
 
   const toMatch = (
     x: { cand: CandidateChannel; fit: FitResult },
     group: CompetitorMatch["group"],
+    forcePotential = false,
   ): CompetitorMatch => ({
     id: `comp-${x.cand.login}`,
     competitor_login: x.cand.login,
     display_name: x.cand.display_name,
     similarity_score: x.fit.fit_score,
-    follower_count: 0, // public lookup doesn't return followers
+    follower_count: 0,
     avg_viewers: x.cand.is_live ? (x.cand.live_viewer_count ?? 0) : 0,
     group,
     match_reasons: x.fit.reasons.slice(0, 3),
@@ -379,15 +449,21 @@ export function buildCompetitorGroups(
     channel_type: x.fit.channel_type,
     content_format: x.fit.content_format,
     size_band: x.fit.size_band,
+    is_potential:
+      forcePotential || (group === "direct" && x.fit.confidence_score < 60),
   });
 
   const groups: CompetitorGroup[] = [];
-  const directPicks = direct.slice(0, directLimit).map((x) => toMatch(x, "direct"));
+  const directConfirmed = direct.slice(0, directLimit).map((x) => toMatch(x, "direct"));
+  const directPotentialPicks = directPotential
+    .slice(0, directPotentialLimit)
+    .map((x) => toMatch(x, "direct", true));
+  const allDirect = [...directConfirmed, ...directPotentialPicks];
   const catchUpPicks = catchUp.slice(0, catchUpLimit).map((x) => toMatch(x, "catch-up"));
   const inspirationPicks = inspiration.slice(0, inspirationLimit).map((x) => toMatch(x, "inspiration"));
 
-  if (directPicks.length) {
-    groups.push({ type: "direct", label: "Concurrents directs", matches: directPicks });
+  if (allDirect.length) {
+    groups.push({ type: "direct", label: "Concurrents directs", matches: allDirect });
   }
   if (catchUpPicks.length) {
     groups.push({ type: "catch-up", label: "Chaînes à rattraper", matches: catchUpPicks });

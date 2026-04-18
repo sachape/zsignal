@@ -133,7 +133,10 @@ const CompetitorsPage = () => {
   const directMatches = report.report.competitor_groups.find(
     (g) => g.type === "direct",
   )?.matches ?? [];
-  const directIsWeak = directMatches.length === 0;
+  const confirmedDirect = directMatches.filter((m) => !m.is_potential);
+  const potentialDirect = directMatches.filter((m) => m.is_potential);
+  const directIsWeak = confirmedDirect.length === 0;
+  const onlyPotentials = directIsWeak && potentialDirect.length > 0;
 
   const opportunities = buildCopyableOpportunities(report.report);
   const category = report.report.channel_summary.category;
@@ -171,12 +174,14 @@ const CompetitorsPage = () => {
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground">
-                  Pas de concurrent direct très proche pour le moment.
+                  {onlyPotentials
+                    ? "Concurrents directs potentiels — à confirmer."
+                    : "Pas de concurrent direct très proche pour le moment."}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Voici plutôt des chaînes à observer, des inspirations, et des
-                  mécaniques à copier — adaptées à ton stade actuel. Le
-                  benchmark reste utile même sans match parfait.
+                  {onlyPotentials
+                    ? "Le moteur a identifié des profils crédibles mais sans tous les signaux nécessaires pour les confirmer. Inspecte chaque profil pour valider la pertinence."
+                    : "Voici plutôt des chaînes à observer, des inspirations, et des mécaniques à copier — adaptées à ton stade actuel. Le benchmark reste utile même sans match parfait."}
                 </p>
               </div>
             </CardContent>

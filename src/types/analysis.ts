@@ -108,6 +108,12 @@ export interface CompetitorMatch {
   content_format?: string;
   /** Relative size band vs target (micro / small / medium / large / event-media). */
   size_band?: 'micro' | 'small' | 'medium' | 'large' | 'event-media' | 'unknown';
+  /**
+   * True when the engine considers this match credible but not fully
+   * confirmed (medium confidence, or promoted to "direct" from a slightly
+   * larger size band). UI should label these as "concurrent direct potentiel".
+   */
+  is_potential?: boolean;
 }
 
 export interface Recommendation {
