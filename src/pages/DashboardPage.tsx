@@ -66,27 +66,103 @@ const DashboardPage = () => {
   const [currentReport, setCurrentReport] = useState<SavedReport | null>(null);
   const [history, setHistory] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncSnapshot, setSyncSnapshot] = useState<SyncSnapshot | null>(null);
+  const [manualRefreshing, setManualRefreshing] = useState(false);
+  const autoTriggeredRef = useRef(false);
+  const processingRef = useRef(false);
+
+  const loadDashboardState = useCallback(async () => {
+    if (!user) return;
+    const platformUserId = account?.platform_user_id ?? null;
+    const currentPromise = platformUserId
+      ? getLatestReportForPlatformUser(user.id, platformUserId)
+      : getLatestReport(user.id);
+
+    const [c, h] = await Promise.all([currentPromise, getRecentReports(user.id, 5)]);
+    setCurrentReport(c);
+    setHistory(h);
+
+    if (platformUserId) {
+      const snap = await resolveSyncSnapshot(user.id, platformUserId, c?.created_at ?? null);
+      setSyncSnapshot(snap);
+    } else {
+      setSyncSnapshot(null);
+    }
+  }, [user, account]);
 
   useEffect(() => {
     if (!user || connectionLoading) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const platformUserId = account?.platform_user_id ?? null;
-      const currentPromise = platformUserId
-        ? getLatestReportForPlatformUser(user.id, platformUserId)
-        : getLatestReport(user.id);
-
-      const [c, h] = await Promise.all([currentPromise, getRecentReports(user.id, 5)]);
-      if (cancelled) return;
-      setCurrentReport(c);
-      setHistory(h);
-      setLoading(false);
+      await loadDashboardState();
+      if (!cancelled) setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, account, connectionLoading]);
+  }, [user, connectionLoading, loadDashboardState]);
+
+  // Auto-trigger first analysis if connected with no report and no job yet.
+  useEffect(() => {
+    if (!user || !account?.platform_user_id || !syncSnapshot) return;
+    if (autoTriggeredRef.current) return;
+    if (syncSnapshot.state !== "no_analysis") return;
+    autoTriggeredRef.current = true;
+    (async () => {
+      await enqueueRefreshForSelf("auto_first");
+      await loadDashboardState();
+    })();
+  }, [user, account, syncSnapshot, loadDashboardState]);
+
+  // Hybrid pipeline: claim and run any queued job for the connected account.
+  useEffect(() => {
+    if (!user || !account?.platform_user_id || !account.platform_login) return;
+    if (!syncSnapshot || processingRef.current) return;
+    if (syncSnapshot.lastJobStatus !== "queued") return;
+    processingRef.current = true;
+    (async () => {
+      await processPendingForAccount(
+        user.id,
+        account.platform_user_id!,
+        account.platform_login!,
+        account.platform_display_name ?? null,
+      );
+      processingRef.current = false;
+      await loadDashboardState();
+    })();
+  }, [user, account, syncSnapshot, loadDashboardState]);
+
+  // Realtime: react to job changes for this user.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`dashboard-jobs-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "analysis_jobs",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          loadDashboardState();
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, loadDashboardState]);
+
+  const handleManualRefresh = useCallback(async () => {
+    if (manualRefreshing) return;
+    setManualRefreshing(true);
+    await enqueueRefreshForSelf("manual");
+    await loadDashboardState();
+    setManualRefreshing(false);
+  }, [manualRefreshing, loadDashboardState]);
 
   if (loading) {
     return (
