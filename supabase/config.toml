@@ -2,3 +2,6 @@ project_id = "poblhczgdbnfunroshul"
 
 [functions.twitch-oauth]
 verify_jwt = false
+
+[functions.twitch-public-lookup]
+verify_jwt = false
