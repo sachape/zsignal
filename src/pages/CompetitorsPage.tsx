@@ -81,8 +81,7 @@ const CompetitorsPage = () => {
               liveProfile.follower_count ??
               liveProfile.profile?.view_count ??
               r?.report.channel_summary.follower_count ??
-              r?.report.channel_summary.avg_viewers * 1000 ??
-              0,
+              ((r?.report.channel_summary.avg_viewers ?? 0) * 1000),
           };
           const candidates = liveProfile.competitors.map<CandidateChannel>((c) => ({
             id: c.id,
