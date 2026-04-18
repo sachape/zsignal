@@ -20,11 +20,13 @@ export type Database = {
           completed_at: string | null
           created_at: string
           id: string
+          last_error: string | null
           platform: string | null
           platform_login: string | null
           platform_user_id: string | null
           started_at: string | null
           status: string
+          trigger_source: string
           updated_at: string
           user_id: string
         }
@@ -33,11 +35,13 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          last_error?: string | null
           platform?: string | null
           platform_login?: string | null
           platform_user_id?: string | null
           started_at?: string | null
           status?: string
+          trigger_source?: string
           updated_at?: string
           user_id: string
         }
@@ -46,11 +50,13 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          last_error?: string | null
           platform?: string | null
           platform_login?: string | null
           platform_user_id?: string | null
           started_at?: string | null
           status?: string
+          trigger_source?: string
           updated_at?: string
           user_id?: string
         }
@@ -208,6 +214,8 @@ export type Database = {
           created_at: string
           expires_at: string | null
           id: string
+          last_auto_refresh_at: string | null
+          next_auto_refresh_at: string | null
           platform: string
           platform_display_name: string | null
           platform_login: string | null
@@ -222,6 +230,8 @@ export type Database = {
           created_at?: string
           expires_at?: string | null
           id?: string
+          last_auto_refresh_at?: string | null
+          next_auto_refresh_at?: string | null
           platform?: string
           platform_display_name?: string | null
           platform_login?: string | null
@@ -236,6 +246,8 @@ export type Database = {
           created_at?: string
           expires_at?: string | null
           id?: string
+          last_auto_refresh_at?: string | null
+          next_auto_refresh_at?: string | null
           platform?: string
           platform_display_name?: string | null
           platform_login?: string | null
