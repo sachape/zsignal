@@ -181,6 +181,57 @@ const ResultPage = () => {
     );
   }
 
+  // No live report yet for the connected Twitch account — never show a
+  // mismatched demo as if it were the current account.
+  if (noLiveReport && twitchAccount) {
+    const displayName =
+      twitchAccount.platform_display_name || twitchAccount.platform_login || "ton compte";
+    return (
+      <AppShell>
+        <PageContainer size="sm">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
+          >
+            <Link to="/dashboard">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Tableau de bord
+            </Link>
+          </Button>
+          <PageHeader
+            eyebrow="Rapport live"
+            title={displayName}
+            description={`@${twitchAccount.platform_login} · Compte Twitch connecté`}
+          />
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h3 className="text-base font-semibold text-foreground">
+                Aucune analyse live pour ce compte
+              </h3>
+              <p className="mx-auto max-w-md text-sm text-muted-foreground">
+                Tu n'as pas encore lancé d'analyse live pour @{twitchAccount.platform_login}.
+                Lance ta première analyse pour découvrir ton StreamScore réel.
+              </p>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                <Button asChild>
+                  <Link to="/analyze">
+                    <Zap className="h-4 w-4" /> Lancer ma première analyse live
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/dashboard">Retour au tableau de bord</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </PageContainer>
+      </AppShell>
+    );
+  }
+
   if (notFound || !report) {
     return (
       <AppShell>
