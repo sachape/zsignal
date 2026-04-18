@@ -10,6 +10,8 @@ import {
   Zap,
   Trophy,
   ArrowLeft,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppShell from "@/components/AppShell";
