@@ -12,6 +12,8 @@ import {
   Activity,
   Film,
   CalendarRange,
+  Scale,
+  ArrowRight,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -31,7 +33,6 @@ import {
   type SavedReport,
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
-import { Scale, ArrowRight } from "lucide-react";
 
 type Relation = "direct" | "catch-up" | "inspiration" | "self" | "none" | "unknown";
 
