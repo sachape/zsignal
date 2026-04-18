@@ -73,7 +73,7 @@ const AppSidebar = () => {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader className="pb-3">
         <NavLink
           to={user ? "/dashboard" : "/"}
           className="flex h-10 items-center gap-2 px-2"
@@ -90,7 +90,15 @@ const AppSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent>
+        {!collapsed && (
+          <div className="px-2 pt-1">
+            <div className="mb-1.5 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+              Recherche
+            </div>
+          </div>
+        )}
         <SidebarStreamerSearch collapsed={collapsed} />
+        <div className="mx-2 mb-1 mt-1 h-px bg-border/50" />
 
         <SidebarGroup>
           {!collapsed && <SidebarGroupLabel>Cockpit</SidebarGroupLabel>}
