@@ -268,13 +268,21 @@ const CompetitorsPage = () => {
   }, [confirmedDirect, potentialDirect, catchUpMatches, inspirationMatches]);
 
   useEffect(() => {
-    if (!benchmarkReport) return;
-    const totalMatches = benchmarkReport.competitor_groups.reduce(
+    // Niche-leaders fallback: surface category top channels when the personal
+    // benchmark is thin OR when the seed comes from a generic fallback. The
+    // seed-derived category guarantees the page is never empty.
+    const totalMatches = (benchmarkReport?.competitor_groups ?? []).reduce(
       (n, g) => n + g.matches.length,
       0,
     );
-    const cat = benchmarkReport.channel_summary.category || null;
-    if (!cat) return;
+    const cat =
+      benchmarkReport?.channel_summary.category ||
+      seed?.category ||
+      null;
+    if (!cat) {
+      setNicheLeaders([]);
+      return;
+    }
     if (totalMatches >= 6) {
       setNicheLeaders([]);
       return;
@@ -287,7 +295,7 @@ const CompetitorsPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [benchmarkReport]);
+  }, [benchmarkReport, seed]);
 
   if (loading) {
     return (
