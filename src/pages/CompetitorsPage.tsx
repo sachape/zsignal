@@ -29,6 +29,10 @@ import {
   type CompetitorPoolDebug,
   type TargetSignal,
 } from "@/services/competitorEngine";
+import {
+  resolveBenchmarkSeed,
+  type BenchmarkSeed,
+} from "@/services/benchmarkSeedResolver";
 import type { AnalysisReport, CompetitorGroup, CompetitorMatch } from "@/types/analysis";
 
 interface RenderSection {
@@ -48,6 +52,7 @@ const CompetitorsPage = () => {
   const [nicheLeaders, setNicheLeaders] = useState<LeaderChannel[]>([]);
   const [liveGroups, setLiveGroups] = useState<CompetitorGroup[] | null>(null);
   const [debug, setDebug] = useState<CompetitorPoolDebug | null>(null);
+  const [seed, setSeed] = useState<BenchmarkSeed | null>(null);
 
   useEffect(() => {
     if (authLoading || connectionLoading || !user) return;
@@ -63,7 +68,32 @@ const CompetitorsPage = () => {
 
       if (!cancelled && account?.platform_user_id) {
         try {
-          const liveProfile = await fetchLiveTwitchProfile();
+          // First pass: fetch live profile to know if the connected account
+          // already produces its own dominant category.
+          const initialPreview = await fetchLiveTwitchProfile();
+
+          // Resolve a benchmark seed from all available sources (live cat,
+          // recent clips, last report, recently opened profiles, watchlist,
+          // manual fallback). The page must never collapse to 0 candidates.
+          const resolvedSeed = resolveBenchmarkSeed({
+            userId: user.id,
+            livePreview: initialPreview,
+            report: r,
+          });
+
+          // Second pass: if the connected account had no personal seed, ask
+          // the edge function to use our resolved seed as a category hint so
+          // the candidate pool is populated from the chosen seed category.
+          const needsHint =
+            initialPreview.seed_source === "none" ||
+            initialPreview.competitors.length === 0;
+          const liveProfile = needsHint
+            ? await fetchLiveTwitchProfile({
+                category_hint: resolvedSeed.category,
+                language_hint: resolvedSeed.language,
+              })
+            : initialPreview;
+
           const target: TargetSignal = {
             login:
               account.platform_login ??
@@ -71,9 +101,12 @@ const CompetitorsPage = () => {
               r?.report.identity?.platform_login ??
               r?.report.channel_summary.channel_name ??
               "",
-            language: "fr",
+            language: resolvedSeed.language,
             dominant_category:
-              liveProfile.dominant_category ?? r?.report.channel_summary.category ?? null,
+              liveProfile.dominant_category ??
+              resolvedSeed.category ??
+              r?.report.channel_summary.category ??
+              null,
             recent_titles: liveProfile.videos.slice(0, 10).map((v) => v.title),
             channel_type: "solo",
             content_format: "unknown",
@@ -112,16 +145,19 @@ const CompetitorsPage = () => {
           if (!cancelled) {
             setLiveGroups(computedGroups);
             setDebug(poolDebug);
+            setSeed(resolvedSeed);
           }
         } catch {
           if (!cancelled) {
             setLiveGroups(null);
             setDebug(null);
+            setSeed(null);
           }
         }
       } else if (!cancelled) {
         setLiveGroups(null);
         setDebug(null);
+        setSeed(null);
       }
 
       if (!cancelled) {
@@ -232,13 +268,21 @@ const CompetitorsPage = () => {
   }, [confirmedDirect, potentialDirect, catchUpMatches, inspirationMatches]);
 
   useEffect(() => {
-    if (!benchmarkReport) return;
-    const totalMatches = benchmarkReport.competitor_groups.reduce(
+    // Niche-leaders fallback: surface category top channels when the personal
+    // benchmark is thin OR when the seed comes from a generic fallback. The
+    // seed-derived category guarantees the page is never empty.
+    const totalMatches = (benchmarkReport?.competitor_groups ?? []).reduce(
       (n, g) => n + g.matches.length,
       0,
     );
-    const cat = benchmarkReport.channel_summary.category || null;
-    if (!cat) return;
+    const cat =
+      benchmarkReport?.channel_summary.category ||
+      seed?.category ||
+      null;
+    if (!cat) {
+      setNicheLeaders([]);
+      return;
+    }
     if (totalMatches >= 6) {
       setNicheLeaders([]);
       return;
@@ -251,7 +295,7 @@ const CompetitorsPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [benchmarkReport]);
+  }, [benchmarkReport, seed]);
 
   if (loading) {
     return (
@@ -314,6 +358,17 @@ const CompetitorsPage = () => {
                 <p className="text-sm font-semibold text-foreground">Benchmark debug</p>
                 <Badge variant="outline" className="text-[10px] text-primary">DEV only</Badge>
               </div>
+              {seed && (
+                <div className="mb-3 rounded-md border border-border/60 bg-background/60 p-2 text-xs text-muted-foreground">
+                  <p className="font-medium text-foreground">Seed sélectionné</p>
+                  <p>
+                    Source: <span className="text-foreground">{seed.source}</span> · Catégorie:{" "}
+                    <span className="text-foreground">{seed.category}</span> · Langue:{" "}
+                    <span className="text-foreground">{seed.language}</span>
+                  </p>
+                  <p className="mt-1 italic">{seed.note}</p>
+                </div>
+              )}
               <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
                 <p>Total candidats: <span className="text-foreground">{debug.total_candidates}</span></p>
                 <p>Direct confirmés: <span className="text-foreground">{debug.direct_confirmed}</span></p>
@@ -335,6 +390,33 @@ const CompetitorsPage = () => {
             </CardContent>
           </Card>
         )}
+
+        {seed &&
+          (seed.source === "recent_profile" ||
+            seed.source === "watchlist" ||
+            seed.source === "manual_fallback") && (
+            <Card className="mb-6 border-border/70 bg-card/40">
+              <CardContent className="flex items-start gap-3 p-4">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground">
+                    Benchmark seedé depuis{" "}
+                    {seed.source === "manual_fallback"
+                      ? "une catégorie générique"
+                      : seed.source === "watchlist"
+                        ? "ta watchlist"
+                        : "un profil récemment ouvert"}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Ton compte connecté n'a pas encore assez de signal personnel récent
+                    pour seeder directement le benchmark. La page reste utile via la
+                    catégorie « {seed.category} ». Lance ou termine un stream pour
+                    affiner le benchmark sur tes propres données.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
         {directIsWeak && (
           <Card className="mb-6 border-primary/30 bg-primary/5">

@@ -288,6 +288,21 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return json({ error: "Missing authorization." }, 401);
 
+    // Optional hints from the client to seed candidate discovery when the
+    // connected account itself lacks recent activity (no live stream, no
+    // recent clips => no dominant category from personal data alone).
+    let categoryHint: string | null = null;
+    let languageHint: string | null = null;
+    try {
+      const body = await req.clone().json().catch(() => ({}));
+      if (body && typeof body.category_hint === "string" && body.category_hint.trim()) {
+        categoryHint = body.category_hint.trim();
+      }
+      if (body && typeof body.language_hint === "string" && body.language_hint.trim()) {
+        languageHint = body.language_hint.trim();
+      }
+    } catch { /* ignore */ }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -415,7 +430,7 @@ Deno.serve(async (req) => {
       fetchLive(broadcasterId, userHeaders),
     ]);
 
-    // ---- 4. Dominant category resolution ----
+    // ---- 4. Dominant category resolution (with multi-source fallback) ----
     const gameCounts: Record<string, number> = {};
     for (const c of clips) {
       if (c.game_id) gameCounts[c.game_id] = (gameCounts[c.game_id] ?? 0) + 1;
@@ -424,8 +439,21 @@ Deno.serve(async (req) => {
       Object.entries(gameCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ??
       live?.game_id ??
       null;
-    const dominantCategory =
+    let dominantCategory: string | null =
       live?.game_name ?? (await fetchGameName(topGameId, userHeaders));
+
+    // Seed source tracking — exposed to the client for dev debug visibility.
+    let seedSource: string;
+    if (live?.game_name) seedSource = "live_stream";
+    else if (topGameId) seedSource = "recent_clips";
+    else seedSource = "none";
+
+    // Fallback: if personal data yields no category, accept a client-provided
+    // category hint (recently opened profile, watchlist, manual, rankings).
+    if (!dominantCategory && categoryHint) {
+      dominantCategory = categoryHint;
+      seedSource = "category_hint";
+    }
 
     // ---- 5. Competitor candidates (App Access Token for /search/channels) ----
     let competitors: Array<{
@@ -468,10 +496,16 @@ Deno.serve(async (req) => {
         }
 
         // Broaden the candidate pool: name-matched search + real category leaderboard.
+        const effectiveLanguage = languageHint ?? null;
         const [searchCandidates, topLive] = await Promise.all([
           fetchCompetitorCandidates(dominantCategory, broadcasterLogin, appHeaders),
           gameId
-            ? fetchTopLiveInCategory(gameId, broadcasterLogin, appHeaders)
+            ? fetchTopLiveInCategory(
+                gameId,
+                broadcasterLogin,
+                appHeaders,
+                effectiveLanguage ?? undefined,
+              )
             : Promise.resolve([] as HelixStream[]),
         ]);
 
@@ -572,6 +606,8 @@ Deno.serve(async (req) => {
           }
         : null,
       dominant_category: dominantCategory ?? null,
+      seed_source: seedSource,
+      category_hint_used: categoryHint,
       competitors,
     });
   } catch (err) {

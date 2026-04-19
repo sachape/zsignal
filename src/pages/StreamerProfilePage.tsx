@@ -498,6 +498,22 @@ const StreamerProfilePage = () => {
         return;
       }
       setReport(result.record.report);
+      // Track this opened benchmark profile so the global Competitors page
+      // can use it as a seed when the connected account itself lacks signal.
+      try {
+        const { trackOpenedProfile } = await import("@/services/recentlyOpenedProfiles");
+        trackOpenedProfile(user?.id ?? null, {
+          login: result.record.report.channel_summary.channel_name?.toLowerCase() || login,
+          display_name:
+            result.record.report.identity?.display_name ??
+            result.record.report.channel_summary.channel_name ??
+            login,
+          category: result.record.report.channel_summary.category ?? null,
+          language: null,
+        });
+      } catch {
+        /* tracking is best-effort */
+      }
       setLoading(false);
     })();
     return () => {
