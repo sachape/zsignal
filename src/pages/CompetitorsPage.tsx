@@ -52,6 +52,7 @@ const CompetitorsPage = () => {
   const [nicheLeaders, setNicheLeaders] = useState<LeaderChannel[]>([]);
   const [liveGroups, setLiveGroups] = useState<CompetitorGroup[] | null>(null);
   const [debug, setDebug] = useState<CompetitorPoolDebug | null>(null);
+  const [seed, setSeed] = useState<BenchmarkSeed | null>(null);
 
   useEffect(() => {
     if (authLoading || connectionLoading || !user) return;
@@ -67,7 +68,32 @@ const CompetitorsPage = () => {
 
       if (!cancelled && account?.platform_user_id) {
         try {
-          const liveProfile = await fetchLiveTwitchProfile();
+          // First pass: fetch live profile to know if the connected account
+          // already produces its own dominant category.
+          const initialPreview = await fetchLiveTwitchProfile();
+
+          // Resolve a benchmark seed from all available sources (live cat,
+          // recent clips, last report, recently opened profiles, watchlist,
+          // manual fallback). The page must never collapse to 0 candidates.
+          const resolvedSeed = resolveBenchmarkSeed({
+            userId: user.id,
+            livePreview: initialPreview,
+            report: r,
+          });
+
+          // Second pass: if the connected account had no personal seed, ask
+          // the edge function to use our resolved seed as a category hint so
+          // the candidate pool is populated from the chosen seed category.
+          const needsHint =
+            initialPreview.seed_source === "none" ||
+            initialPreview.competitors.length === 0;
+          const liveProfile = needsHint
+            ? await fetchLiveTwitchProfile({
+                category_hint: resolvedSeed.category,
+                language_hint: resolvedSeed.language,
+              })
+            : initialPreview;
+
           const target: TargetSignal = {
             login:
               account.platform_login ??
@@ -75,9 +101,12 @@ const CompetitorsPage = () => {
               r?.report.identity?.platform_login ??
               r?.report.channel_summary.channel_name ??
               "",
-            language: "fr",
+            language: resolvedSeed.language,
             dominant_category:
-              liveProfile.dominant_category ?? r?.report.channel_summary.category ?? null,
+              liveProfile.dominant_category ??
+              resolvedSeed.category ??
+              r?.report.channel_summary.category ??
+              null,
             recent_titles: liveProfile.videos.slice(0, 10).map((v) => v.title),
             channel_type: "solo",
             content_format: "unknown",
@@ -116,16 +145,19 @@ const CompetitorsPage = () => {
           if (!cancelled) {
             setLiveGroups(computedGroups);
             setDebug(poolDebug);
+            setSeed(resolvedSeed);
           }
         } catch {
           if (!cancelled) {
             setLiveGroups(null);
             setDebug(null);
+            setSeed(null);
           }
         }
       } else if (!cancelled) {
         setLiveGroups(null);
         setDebug(null);
+        setSeed(null);
       }
 
       if (!cancelled) {
