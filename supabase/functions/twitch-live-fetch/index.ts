@@ -430,7 +430,7 @@ Deno.serve(async (req) => {
       fetchLive(broadcasterId, userHeaders),
     ]);
 
-    // ---- 4. Dominant category resolution ----
+    // ---- 4. Dominant category resolution (with multi-source fallback) ----
     const gameCounts: Record<string, number> = {};
     for (const c of clips) {
       if (c.game_id) gameCounts[c.game_id] = (gameCounts[c.game_id] ?? 0) + 1;
@@ -439,8 +439,21 @@ Deno.serve(async (req) => {
       Object.entries(gameCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ??
       live?.game_id ??
       null;
-    const dominantCategory =
+    let dominantCategory: string | null =
       live?.game_name ?? (await fetchGameName(topGameId, userHeaders));
+
+    // Seed source tracking — exposed to the client for dev debug visibility.
+    let seedSource: string;
+    if (live?.game_name) seedSource = "live_stream";
+    else if (topGameId) seedSource = "recent_clips";
+    else seedSource = "none";
+
+    // Fallback: if personal data yields no category, accept a client-provided
+    // category hint (recently opened profile, watchlist, manual, rankings).
+    if (!dominantCategory && categoryHint) {
+      dominantCategory = categoryHint;
+      seedSource = "category_hint";
+    }
 
     // ---- 5. Competitor candidates (App Access Token for /search/channels) ----
     let competitors: Array<{
