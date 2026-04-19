@@ -288,6 +288,21 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return json({ error: "Missing authorization." }, 401);
 
+    // Optional hints from the client to seed candidate discovery when the
+    // connected account itself lacks recent activity (no live stream, no
+    // recent clips => no dominant category from personal data alone).
+    let categoryHint: string | null = null;
+    let languageHint: string | null = null;
+    try {
+      const body = await req.clone().json().catch(() => ({}));
+      if (body && typeof body.category_hint === "string" && body.category_hint.trim()) {
+        categoryHint = body.category_hint.trim();
+      }
+      if (body && typeof body.language_hint === "string" && body.language_hint.trim()) {
+        languageHint = body.language_hint.trim();
+      }
+    } catch { /* ignore */ }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
