@@ -29,6 +29,10 @@ import {
   type CompetitorPoolDebug,
   type TargetSignal,
 } from "@/services/competitorEngine";
+import {
+  resolveBenchmarkSeed,
+  type BenchmarkSeed,
+} from "@/services/benchmarkSeedResolver";
 import type { AnalysisReport, CompetitorGroup, CompetitorMatch } from "@/types/analysis";
 
 interface RenderSection {
