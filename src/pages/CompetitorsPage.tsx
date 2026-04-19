@@ -358,6 +358,17 @@ const CompetitorsPage = () => {
                 <p className="text-sm font-semibold text-foreground">Benchmark debug</p>
                 <Badge variant="outline" className="text-[10px] text-primary">DEV only</Badge>
               </div>
+              {seed && (
+                <div className="mb-3 rounded-md border border-border/60 bg-background/60 p-2 text-xs text-muted-foreground">
+                  <p className="font-medium text-foreground">Seed sélectionné</p>
+                  <p>
+                    Source: <span className="text-foreground">{seed.source}</span> · Catégorie:{" "}
+                    <span className="text-foreground">{seed.category}</span> · Langue:{" "}
+                    <span className="text-foreground">{seed.language}</span>
+                  </p>
+                  <p className="mt-1 italic">{seed.note}</p>
+                </div>
+              )}
               <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
                 <p>Total candidats: <span className="text-foreground">{debug.total_candidates}</span></p>
                 <p>Direct confirmés: <span className="text-foreground">{debug.direct_confirmed}</span></p>
@@ -379,6 +390,33 @@ const CompetitorsPage = () => {
             </CardContent>
           </Card>
         )}
+
+        {seed &&
+          (seed.source === "recent_profile" ||
+            seed.source === "watchlist" ||
+            seed.source === "manual_fallback") && (
+            <Card className="mb-6 border-border/70 bg-card/40">
+              <CardContent className="flex items-start gap-3 p-4">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground">
+                    Benchmark seedé depuis{" "}
+                    {seed.source === "manual_fallback"
+                      ? "une catégorie générique"
+                      : seed.source === "watchlist"
+                        ? "ta watchlist"
+                        : "un profil récemment ouvert"}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Ton compte connecté n'a pas encore assez de signal personnel récent
+                    pour seeder directement le benchmark. La page reste utile via la
+                    catégorie « {seed.category} ». Lance ou termine un stream pour
+                    affiner le benchmark sur tes propres données.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
         {directIsWeak && (
           <Card className="mb-6 border-primary/30 bg-primary/5">
