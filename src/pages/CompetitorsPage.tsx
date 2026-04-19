@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Trophy, Users, Info, Bug } from "lucide-react";
+import { ArrowLeft, Trophy, Users, Info, Bug, Compass } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -8,6 +8,7 @@ import SectionHeader from "@/components/SectionHeader";
 import StreamerBenchmarkCard from "@/components/StreamerBenchmarkCard";
 import OpportunityCard from "@/components/OpportunityCard";
 import EmptyReportState from "@/components/EmptyReportState";
+import NicheChooser from "@/components/NicheChooser";
 import { LoadingState } from "@/components/StateView";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ import {
   resolveBenchmarkSeed,
   type BenchmarkSeed,
 } from "@/services/benchmarkSeedResolver";
+import { getPreferredNiche } from "@/services/preferredNiche";
 import type { AnalysisReport, CompetitorGroup, CompetitorMatch } from "@/types/analysis";
 
 interface RenderSection {
@@ -44,6 +46,29 @@ interface RenderSection {
   emptyHint: string;
 }
 
+/** Two explicit experience modes. */
+type PageMode = "personal" | "exploration";
+
+/**
+ * A candidate is "placeholder-quality" when its identity is too thin to be
+ * surfaced as a credible benchmark profile. We never let those become primary
+ * outputs (direct / direct-potential).
+ */
+function isPlaceholderQuality(m: CompetitorMatch): boolean {
+  const name = (m.display_name ?? "").trim();
+  const login = (m.competitor_login ?? "").trim();
+  if (!name || !login) return true;
+  if (name.length < 2) return true;
+  // Reject obvious "unknown / null / undefined" rows.
+  if (/^(unknown|null|undefined|n\/a|na)$/i.test(name)) return true;
+  if (/^(unknown|null|undefined)$/i.test(login)) return true;
+  // No category context AND no fit/confidence → not credible enough.
+  const hasContext = (m.match_reasons?.length ?? 0) > 0;
+  const hasScore = (m.fit_score ?? m.similarity_score ?? 0) > 0;
+  if (!hasContext && !hasScore) return true;
+  return false;
+}
+
 const CompetitorsPage = () => {
   const { user, loading: authLoading } = useAuth();
   const { account, loading: connectionLoading } = useTwitchConnection();
@@ -53,6 +78,15 @@ const CompetitorsPage = () => {
   const [liveGroups, setLiveGroups] = useState<CompetitorGroup[] | null>(null);
   const [debug, setDebug] = useState<CompetitorPoolDebug | null>(null);
   const [seed, setSeed] = useState<BenchmarkSeed | null>(null);
+  const [nicheVersion, setNicheVersion] = useState(0);
+
+  // Re-run discovery when the user picks a niche.
+  useEffect(() => {
+    const handler = () => setNicheVersion((v) => v + 1);
+    window.addEventListener("streampulse:preferred-niche-changed", handler);
+    return () =>
+      window.removeEventListener("streampulse:preferred-niche-changed", handler);
+  }, []);
 
   useEffect(() => {
     if (authLoading || connectionLoading || !user) return;
@@ -68,29 +102,25 @@ const CompetitorsPage = () => {
 
       if (!cancelled && account?.platform_user_id) {
         try {
-          // First pass: fetch live profile to know if the connected account
-          // already produces its own dominant category.
           const initialPreview = await fetchLiveTwitchProfile();
 
-          // Resolve a benchmark seed from all available sources (live cat,
-          // recent clips, last report, recently opened profiles, watchlist,
-          // manual fallback). The page must never collapse to 0 candidates.
+          // Resolve a TRUSTWORTHY seed. Returns null if no good source exists.
           const resolvedSeed = resolveBenchmarkSeed({
             userId: user.id,
             livePreview: initialPreview,
             report: r,
           });
 
-          // Second pass: if the connected account had no personal seed, ask
-          // the edge function to use our resolved seed as a category hint so
-          // the candidate pool is populated from the chosen seed category.
+          // Only request a category-hinted second pass if we have a real seed.
+          // We never use a generic "Just Chatting" hint to fake direct matches.
           const needsHint =
-            initialPreview.seed_source === "none" ||
-            initialPreview.competitors.length === 0;
+            !!resolvedSeed &&
+            (initialPreview.seed_source === "none" ||
+              initialPreview.competitors.length === 0);
           const liveProfile = needsHint
             ? await fetchLiveTwitchProfile({
-                category_hint: resolvedSeed.category,
-                language_hint: resolvedSeed.language,
+                category_hint: resolvedSeed!.category,
+                language_hint: resolvedSeed!.language,
               })
             : initialPreview;
 
@@ -101,10 +131,10 @@ const CompetitorsPage = () => {
               r?.report.identity?.platform_login ??
               r?.report.channel_summary.channel_name ??
               "",
-            language: resolvedSeed.language,
+            language: resolvedSeed?.language ?? "fr",
             dominant_category:
               liveProfile.dominant_category ??
-              resolvedSeed.category ??
+              resolvedSeed?.category ??
               r?.report.channel_summary.category ??
               null,
             recent_titles: liveProfile.videos.slice(0, 10).map((v) => v.title),
@@ -167,7 +197,7 @@ const CompetitorsPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [user, account, authLoading, connectionLoading]);
+  }, [user, account, authLoading, connectionLoading, nicheVersion]);
 
   const effectiveGroups = useMemo(() => {
     if (liveGroups && liveGroups.length > 0) return liveGroups;
@@ -175,7 +205,10 @@ const CompetitorsPage = () => {
   }, [liveGroups, report]);
 
   const allMatches = useMemo(
-    () => effectiveGroups.flatMap((group) => group.matches),
+    () =>
+      effectiveGroups
+        .flatMap((group) => group.matches)
+        .filter((m) => !isPlaceholderQuality(m)),
     [effectiveGroups],
   );
 
@@ -200,6 +233,26 @@ const CompetitorsPage = () => {
     [allMatches],
   );
 
+  /**
+   * Decide MODE.
+   * Personal mode requires:
+   *   - a strong/medium trust seed (not weak/exploratory)
+   *   - AND at least one credible match (confirmed direct OR catch-up OR
+   *     a potential direct that is clearly above noise)
+   * Otherwise → exploration mode (no fake direct competitors).
+   */
+  const mode: PageMode = useMemo(() => {
+    if (!seed) return "exploration";
+    if (seed.trust === "weak") return "exploration";
+    const hasCredibleMatch =
+      confirmedDirect.length > 0 ||
+      catchUpMatches.length > 0 ||
+      potentialDirect.some(
+        (m) => (m.confidence_score ?? 0) >= 60 && (m.fit_score ?? 0) >= 60,
+      );
+    return hasCredibleMatch ? "personal" : "exploration";
+  }, [seed, confirmedDirect, potentialDirect, catchUpMatches]);
+
   const benchmarkReport: AnalysisReport | null = useMemo(() => {
     if (!report) return null;
     if (liveGroups) {
@@ -213,9 +266,36 @@ const CompetitorsPage = () => {
     [benchmarkReport],
   );
 
+  /**
+   * In PERSONAL mode we render direct/direct-potential/catch-up/inspiration.
+   * In EXPLORATION mode we NEVER render direct or direct-potential — we
+   * fold credible "observe" candidates into a single safe section instead.
+   */
   const renderSections: RenderSection[] = useMemo(() => {
-    const sections: RenderSection[] = [];
+    if (mode === "exploration") {
+      const observe = [
+        ...catchUpMatches,
+        ...inspirationMatches,
+        // demoted potentials become "à observer" only — never "direct"
+        ...potentialDirect.filter(
+          (m) => (m.confidence_score ?? 0) >= 50,
+        ),
+      ];
+      if (observe.length === 0) return [];
+      return [
+        {
+          key: "observe",
+          title: "Profils à observer",
+          description:
+            "Profils potentiellement intéressants pour ta niche. Pas validés comme concurrents directs — à inspecter avant d'en tirer des conclusions.",
+          badge: "À observer",
+          matches: observe.slice(0, 9),
+          emptyHint: "",
+        },
+      ];
+    }
 
+    const sections: RenderSection[] = [];
     if (confirmedDirect.length > 0) {
       sections.push({
         key: "direct-confirmed",
@@ -227,11 +307,13 @@ const CompetitorsPage = () => {
         emptyHint: "",
       });
     }
-
     if (potentialDirect.length > 0) {
       sections.push({
         key: "direct-potential",
-        title: confirmedDirect.length > 0 ? "Concurrents directs potentiels" : "À observer de près",
+        title:
+          confirmedDirect.length > 0
+            ? "Concurrents directs potentiels"
+            : "À observer de près",
         description:
           "Profils crédibles et proches, mais avec un ou plusieurs signaux encore incomplets. À confirmer via l'inspection de profil.",
         badge: "Direct potentiel",
@@ -239,7 +321,6 @@ const CompetitorsPage = () => {
         emptyHint: "",
       });
     }
-
     if (catchUpMatches.length > 0) {
       sections.push({
         key: "catch-up",
@@ -251,7 +332,6 @@ const CompetitorsPage = () => {
         emptyHint: "",
       });
     }
-
     if (inspirationMatches.length > 0) {
       sections.push({
         key: "inspiration",
@@ -263,39 +343,39 @@ const CompetitorsPage = () => {
         emptyHint: "",
       });
     }
-
     return sections;
-  }, [confirmedDirect, potentialDirect, catchUpMatches, inspirationMatches]);
+  }, [
+    mode,
+    confirmedDirect,
+    potentialDirect,
+    catchUpMatches,
+    inspirationMatches,
+  ]);
 
+  // Niche leaders fallback: always useful in exploration; thin-fill in personal.
   useEffect(() => {
-    // Niche-leaders fallback: surface category top channels when the personal
-    // benchmark is thin OR when the seed comes from a generic fallback. The
-    // seed-derived category guarantees the page is never empty.
-    const totalMatches = (benchmarkReport?.competitor_groups ?? []).reduce(
-      (n, g) => n + g.matches.length,
-      0,
-    );
     const cat =
       benchmarkReport?.channel_summary.category ||
       seed?.category ||
+      getPreferredNiche(user?.id)?.category ||
       null;
     if (!cat) {
       setNicheLeaders([]);
       return;
     }
-    if (totalMatches >= 6) {
+    if (mode === "personal" && allMatches.length >= 6) {
       setNicheLeaders([]);
       return;
     }
     let cancelled = false;
     (async () => {
       const data = await fetchLeaders({ category: cat });
-      if (!cancelled) setNicheLeaders(data.slice(0, 6));
+      if (!cancelled) setNicheLeaders(data.slice(0, 8));
     })();
     return () => {
       cancelled = true;
     };
-  }, [benchmarkReport, seed]);
+  }, [benchmarkReport, seed, mode, allMatches.length, user, nicheVersion]);
 
   if (loading) {
     return (
@@ -318,9 +398,11 @@ const CompetitorsPage = () => {
     );
   }
 
-  const directIsWeak = confirmedDirect.length === 0;
-  const onlyPotentials = directIsWeak && potentialDirect.length > 0;
-  const category = benchmarkReport?.channel_summary.category ?? report.report.channel_summary.category;
+  const category =
+    benchmarkReport?.channel_summary.category ??
+    seed?.category ??
+    getPreferredNiche(user?.id)?.category ??
+    null;
   const hasRenderableBenchmark = renderSections.length > 0;
   const copyMechanicsCount = opportunities.length;
 
@@ -338,9 +420,17 @@ const CompetitorsPage = () => {
           </Link>
         </Button>
         <PageHeader
-          eyebrow="Benchmark"
-          title="Concurrents & inspirations"
-          description="Qui regarder, qui rattraper, et quelles mécaniques copier."
+          eyebrow={mode === "personal" ? "Benchmark" : "Exploration de niche"}
+          title={
+            mode === "personal"
+              ? "Concurrents & inspirations"
+              : "Explorer la niche"
+          }
+          description={
+            mode === "personal"
+              ? "Qui regarder, qui rattraper, et quelles mécaniques copier."
+              : "Ton signal personnel n'est pas encore assez fiable pour un benchmark direct. Voici les profils à observer et les mécaniques à copier dans la niche."
+          }
           action={
             <Button asChild variant="outline" size="sm">
               <Link to="/leaders">
@@ -357,18 +447,28 @@ const CompetitorsPage = () => {
                 <Bug className="h-4 w-4 text-primary" />
                 <p className="text-sm font-semibold text-foreground">Benchmark debug</p>
                 <Badge variant="outline" className="text-[10px] text-primary">DEV only</Badge>
+                <Badge variant="outline" className="text-[10px] text-primary">
+                  Mode : {mode}
+                </Badge>
               </div>
-              {seed && (
-                <div className="mb-3 rounded-md border border-border/60 bg-background/60 p-2 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground">Seed sélectionné</p>
-                  <p>
-                    Source: <span className="text-foreground">{seed.source}</span> · Catégorie:{" "}
-                    <span className="text-foreground">{seed.category}</span> · Langue:{" "}
-                    <span className="text-foreground">{seed.language}</span>
+              <div className="mb-3 rounded-md border border-border/60 bg-background/60 p-2 text-xs text-muted-foreground">
+                <p className="font-medium text-foreground">Seed</p>
+                {seed ? (
+                  <>
+                    <p>
+                      Source: <span className="text-foreground">{seed.source}</span>{" "}
+                      · Trust: <span className="text-foreground">{seed.trust}</span>{" "}
+                      · Catégorie: <span className="text-foreground">{seed.category}</span>{" "}
+                      · Langue: <span className="text-foreground">{seed.language}</span>
+                    </p>
+                    <p className="mt-1 italic">{seed.note}</p>
+                  </>
+                ) : (
+                  <p className="italic">
+                    Aucun seed fiable — passage en mode exploration.
                   </p>
-                  <p className="mt-1 italic">{seed.note}</p>
-                </div>
-              )}
+                )}
+              </div>
               <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
                 <p>Total candidats: <span className="text-foreground">{debug.total_candidates}</span></p>
                 <p>Direct confirmés: <span className="text-foreground">{debug.direct_confirmed}</span></p>
@@ -391,47 +491,43 @@ const CompetitorsPage = () => {
           </Card>
         )}
 
-        {seed &&
-          (seed.source === "recent_profile" ||
-            seed.source === "watchlist" ||
-            seed.source === "manual_fallback") && (
-            <Card className="mb-6 border-border/70 bg-card/40">
-              <CardContent className="flex items-start gap-3 p-4">
-                <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground">
-                    Benchmark seedé depuis{" "}
-                    {seed.source === "manual_fallback"
-                      ? "une catégorie générique"
-                      : seed.source === "watchlist"
-                        ? "ta watchlist"
-                        : "un profil récemment ouvert"}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Ton compte connecté n'a pas encore assez de signal personnel récent
-                    pour seeder directement le benchmark. La page reste utile via la
-                    catégorie « {seed.category} ». Lance ou termine un stream pour
-                    affiner le benchmark sur tes propres données.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-        {directIsWeak && (
+        {mode === "exploration" && (
           <Card className="mb-6 border-primary/30 bg-primary/5">
             <CardContent className="flex items-start gap-3 p-4">
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <Compass className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground">
-                  {onlyPotentials
-                    ? "Concurrents directs potentiels — à confirmer."
-                    : "Pas de concurrent direct très proche pour le moment."}
+                  Ton signal est encore trop faible pour un benchmark direct fiable.
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {onlyPotentials
-                    ? "Le moteur a identifié des profils crédibles mais sans tous les signaux nécessaires pour les confirmer. Inspecte chaque profil pour valider la pertinence."
-                    : "Voici plutôt des chaînes à observer, des inspirations, et des mécaniques à copier — adaptées à ton stade actuel. Le benchmark reste utile même sans match parfait."}
+                  Voici plutôt les profils à observer dans ta niche et les
+                  mécaniques à copier. Pour affiner : lance ou termine un stream,
+                  ouvre des profils benchmark, ou choisis explicitement ta niche
+                  ci-dessous.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {mode === "exploration" && (
+          <NicheChooser userId={user?.id} defaultLanguage="fr" />
+        )}
+
+        {mode === "personal" && seed?.trust === "medium" && (
+          <Card className="mb-6 border-border/70 bg-card/40">
+            <CardContent className="flex items-start gap-3 p-4">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  Benchmark basé sur{" "}
+                  {seed.source === "selected_niche"
+                    ? "la niche que tu as choisie"
+                    : "ton dernier rapport"}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Catégorie utilisée : « {seed.category} ». Lance ou termine un
+                  stream pour passer à un signal personnel encore plus précis.
                 </p>
               </div>
             </CardContent>
@@ -462,7 +558,7 @@ const CompetitorsPage = () => {
               </div>
             </section>
           ))
-        ) : (
+        ) : mode === "personal" ? (
           <section className="mb-8">
             <div className="mb-3 flex items-center gap-2">
               <Badge variant="outline" className="text-[10px] text-primary">
@@ -470,7 +566,7 @@ const CompetitorsPage = () => {
               </Badge>
               <SectionHeader
                 title="Aucun match confirmé pour l'instant"
-                description="Le moteur n'a pas validé de concurrent visible dans les groupes principaux. Les leaders de niche et les opportunités restent affichés pour garder une page utile."
+                description="Le moteur n'a pas validé de concurrent visible. Les leaders de niche et les opportunités restent affichés."
                 align="left"
               />
             </div>
@@ -478,12 +574,14 @@ const CompetitorsPage = () => {
               <CardContent className="flex items-start gap-3 p-5 text-sm text-muted-foreground">
                 <Users className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>
-                  Aucun concurrent confirmé, potentiel, à rattraper ou inspiration n'a été rendu depuis le benchmark actif. Consulte les leaders de niche et les opportunités à copier ci-dessous.
+                  Aucun concurrent confirmé n'a été rendu depuis le benchmark
+                  actif. Consulte les leaders de niche et les opportunités à
+                  copier ci-dessous.
                 </p>
               </CardContent>
             </Card>
           </section>
-        )}
+        ) : null}
 
         {nicheLeaders.length > 0 && (
           <section className="mb-8">
