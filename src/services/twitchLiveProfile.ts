@@ -65,6 +65,16 @@ export interface LiveTwitchProfileResult {
   clips: LiveTwitchClip[];
   live: LiveTwitchStream | null;
   dominant_category: string | null;
+  /**
+   * Where the candidate-discovery seed came from. One of:
+   *   - "live_stream"     : current live category
+   *   - "recent_clips"    : most frequent recent-clip category
+   *   - "category_hint"   : client-provided fallback (recently opened, watchlist, manual)
+   *   - "none"            : no seed could be derived
+   */
+  seed_source: string;
+  /** The category hint actually used (if any) to seed candidate discovery. */
+  category_hint_used: string | null;
   competitors: LiveCompetitorCandidate[];
 }
 
@@ -78,23 +88,36 @@ const empty = (): LiveTwitchProfileResult => ({
   clips: [],
   live: null,
   dominant_category: null,
+  seed_source: "none",
+  category_hint_used: null,
   competitors: [],
 });
 
+export interface FetchLiveOptions {
+  /** Fallback category hint when the connected account itself lacks a seed. */
+  category_hint?: string | null;
+  /** Optional language constraint when expanding the candidate pool. */
+  language_hint?: string | null;
+}
+
 /**
  * Calls the twitch-live-fetch edge function which uses the stored OAuth
- * access token to query the connected Twitch account in full:
- *   /users, /channels/followers, /videos, /clips, /streams, /games,
- *   /search/channels (App token).
+ * access token to query the connected Twitch account in full.
  *
- * Returns a soft-failure object when the call fails so the caller can still
- * produce a report (with followers/videos marked unavailable rather than
- * fake-zero or mock-contaminated).
+ * Optional hints (category/language) are passed through and used by the
+ * edge function as a fallback seed when the connected account has too
+ * little personal activity to derive a dominant category itself.
  */
-export async function fetchLiveTwitchProfile(): Promise<LiveTwitchProfileResult> {
+export async function fetchLiveTwitchProfile(
+  options: FetchLiveOptions = {},
+): Promise<LiveTwitchProfileResult> {
   try {
+    const body: Record<string, string> = {};
+    if (options.category_hint) body.category_hint = options.category_hint;
+    if (options.language_hint) body.language_hint = options.language_hint;
+
     const { data, error } = await supabase.functions.invoke("twitch-live-fetch", {
-      body: {},
+      body,
     });
 
     if (error || !data?.success) {
@@ -114,6 +137,10 @@ export async function fetchLiveTwitchProfile(): Promise<LiveTwitchProfileResult>
       live: (data.live as LiveTwitchStream | null) ?? null,
       dominant_category:
         typeof data.dominant_category === "string" ? data.dominant_category : null,
+      seed_source:
+        typeof data.seed_source === "string" ? data.seed_source : "none",
+      category_hint_used:
+        typeof data.category_hint_used === "string" ? data.category_hint_used : null,
       competitors: Array.isArray(data.competitors)
         ? (data.competitors as LiveCompetitorCandidate[])
         : [],
