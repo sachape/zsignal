@@ -496,10 +496,16 @@ Deno.serve(async (req) => {
         }
 
         // Broaden the candidate pool: name-matched search + real category leaderboard.
+        const effectiveLanguage = languageHint ?? null;
         const [searchCandidates, topLive] = await Promise.all([
           fetchCompetitorCandidates(dominantCategory, broadcasterLogin, appHeaders),
           gameId
-            ? fetchTopLiveInCategory(gameId, broadcasterLogin, appHeaders)
+            ? fetchTopLiveInCategory(
+                gameId,
+                broadcasterLogin,
+                appHeaders,
+                effectiveLanguage ?? undefined,
+              )
             : Promise.resolve([] as HelixStream[]),
         ]);
 
