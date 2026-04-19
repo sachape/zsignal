@@ -606,6 +606,8 @@ Deno.serve(async (req) => {
           }
         : null,
       dominant_category: dominantCategory ?? null,
+      seed_source: seedSource,
+      category_hint_used: categoryHint,
       competitors,
     });
   } catch (err) {
