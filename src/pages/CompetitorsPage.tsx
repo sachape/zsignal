@@ -257,23 +257,39 @@ const CompetitorsPage = () => {
 
   /**
    * Decide MODE.
-   * Personal mode requires:
-   *   - a strong/medium trust seed (not weak/exploratory)
-   *   - AND at least one credible match (confirmed direct OR catch-up OR
-   *     a potential direct that is clearly above noise)
-   * Otherwise → exploration mode (no fake direct competitors).
+   * Personal mode requires ALL of:
+   *   - a non-null seed
+   *   - seed.trust ≠ "weak"
+   *   - seed category is a real, usable benchmark category (not "unknown")
+   *   - at least one CREDIBLE rendered match after placeholder filtering
+   * If any of those fail → exploration mode (no fake direct competitors).
+   * The rejection reason is exposed in the dev debug block.
    */
-  const mode: PageMode = useMemo(() => {
-    if (!seed) return "exploration";
-    if (seed.trust === "weak") return "exploration";
+  const modeDecision = useMemo<{ mode: PageMode; reason: string | null }>(() => {
+    if (!seed) {
+      return { mode: "exploration", reason: "no_trustworthy_seed" };
+    }
+    if (seed.trust === "weak") {
+      return { mode: "exploration", reason: "seed_trust_weak" };
+    }
+    if (!isSeedCategoryTrustworthy(seed)) {
+      return { mode: "exploration", reason: "category_unknown" };
+    }
     const hasCredibleMatch =
       confirmedDirect.length > 0 ||
       catchUpMatches.length > 0 ||
       potentialDirect.some(
         (m) => (m.confidence_score ?? 0) >= 60 && (m.fit_score ?? 0) >= 60,
       );
-    return hasCredibleMatch ? "personal" : "exploration";
+    if (!hasCredibleMatch) {
+      return {
+        mode: "exploration",
+        reason: "no_credible_candidates_after_filtering",
+      };
+    }
+    return { mode: "personal", reason: null };
   }, [seed, confirmedDirect, potentialDirect, catchUpMatches]);
+  const mode: PageMode = modeDecision.mode;
 
   const benchmarkReport: AnalysisReport | null = useMemo(() => {
     if (!report) return null;
