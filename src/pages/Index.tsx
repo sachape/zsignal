@@ -1,7 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, ArrowRight, BarChart3, Users, CalendarCheck, ShieldCheck, EyeOff, Settings, AlertCircle } from "lucide-react";
+import {
+  Search,
+  ArrowRight,
+  BarChart3,
+  Users,
+  CalendarCheck,
+  ShieldCheck,
+  EyeOff,
+  Settings,
+  AlertCircle,
+  Zap,
+  Target,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 import LandingNav from "@/components/LandingNav";
 import SectionHeader from "@/components/SectionHeader";
@@ -13,6 +27,48 @@ import ProgressRow from "@/components/ProgressRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+const ANALYSE_SIGNALS = [
+  "Cadence de stream",
+  "Titres de stream",
+  "Catégories jouées",
+  "Clips & moments forts",
+  "Régularité hebdomadaire",
+  "Positionnement de niche",
+  "Signaux de croissance",
+  "Engagement du chat",
+  "Durée des sessions",
+  "Progression d'affiliation",
+];
+
+const FAQ_ITEMS = [
+  {
+    q: "Est-ce que je dois connecter mon compte Twitch ?",
+    a: "Non. L'aperçu gratuit fonctionne uniquement à partir de ton nom d'utilisateur public. Aucune connexion, aucune autorisation requise.",
+  },
+  {
+    q: "Est-ce que ça marche si je débute ?",
+    a: "Oui. L'outil est conçu pour les streamers de tous niveaux. Si tu streames depuis moins de 3 mois, il t'aide à poser des bases solides avant de chercher à croître.",
+  },
+  {
+    q: "Est-ce que c'est réservé à Twitch ?",
+    a: "Pour l'instant, StreamPulse analyse les chaînes Twitch. Le support d'autres plateformes est en cours de développement.",
+  },
+  {
+    q: "Combien de temps ça prend ?",
+    a: "L'analyse complète prend moins de 60 secondes. Ton plan d'action est disponible immédiatement après.",
+  },
+  {
+    q: "Est-ce que StreamPulse publie ou modifie quelque chose sur ma chaîne ?",
+    a: "Non. L'outil est 100 % en lecture seule. Il n'écrit, ne publie et n'interagit jamais en ton nom.",
+  },
+];
 
 const Index = () => {
   const [username, setUsername] = useState("");
@@ -101,30 +157,153 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Value Props */}
+      {/* Pourquoi Stream Spark */}
       <section className="py-16">
         <div className="container mx-auto max-w-6xl px-4 md:px-6">
           <SectionHeader
-            label="Ce que tu obtiens"
-            title="De la clarté en 3 étapes"
-            description="Fini les devinettes. StreamPulse te donne des insights structurés et actionnables sur ta chaîne Twitch."
+            label="Pourquoi Stream Spark"
+            title="Ce qui change vraiment"
+            description="Fini les devinettes. Chaque décision s'appuie sur des données concrètes issues de ta chaîne."
           />
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <ValueCard
               icon={BarChart3}
-              title="StreamScore"
-              description="Un score unique qui reflète la santé de ta chaîne — qualité de stream, régularité, engagement et dynamique de croissance."
+              title="Un score qui parle"
+              description="Le StreamScore condense la santé de ta chaîne en un seul chiffre clair — qualité, régularité, engagement, croissance."
+            />
+            <ValueCard
+              icon={Target}
+              title="Priorités actionnables"
+              description="Trois actions par semaine, classées par impact. Pas de théorie — des étapes concrètes applicables dès aujourd'hui."
             />
             <ValueCard
               icon={Users}
-              title="Concurrents pertinents"
-              description="Trouve des streamers de ton niveau qui progressent plus vite. Comprends ce qu'ils font différemment pour combler l'écart."
+              title="Benchmarks pertinents"
+              description="Identifie les streamers qui progressent dans ta niche et comprends exactement ce qu'ils font différemment."
             />
             <ValueCard
-              icon={CalendarCheck}
-              title="Plan d'action hebdomadaire"
-              description="Trois actions claires par semaine, classées par impact. Pas de conseils vagues — des étapes concrètes applicables dès aujourd'hui."
+              icon={Zap}
+              title="Résultat en 60 secondes"
+              description="Pas d'inscription requise pour l'aperçu. Ton diagnostic complet est disponible immédiatement."
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Comment ça marche */}
+      <section className="border-t border-border py-16">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
+          <SectionHeader
+            label="Comment ça marche"
+            title="3 étapes, c'est tout"
+          />
+          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
+            {[
+              {
+                step: "01",
+                title: "Tu entres ton compte",
+                description:
+                  "Tape ton nom d'utilisateur Twitch ou colle l'URL de ta chaîne. Aucune connexion requise.",
+              },
+              {
+                step: "02",
+                title: "On analyse tes signaux",
+                description:
+                  "StreamPulse examine ta cadence, tes titres, ta régularité, tes clips et bien d'autres indicateurs de croissance.",
+              },
+              {
+                step: "03",
+                title: "Tu reçois des priorités claires",
+                description:
+                  "Un plan d'action structuré, des concurrents pertinents et un score pour suivre ta progression dans le temps.",
+              },
+            ].map(({ step, title, description }) => (
+              <Card key={step} className="relative overflow-hidden">
+                <CardContent className="p-6">
+                  <span className="mb-4 block text-4xl font-bold tracking-tighter text-primary/20">
+                    {step}
+                  </span>
+                  <h3 className="mb-2 text-base font-semibold text-foreground">
+                    {title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Ce que l'outil analyse */}
+      <section className="py-16">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
+          <SectionHeader
+            label="Sous le capot"
+            title="Ce que l'outil analyse"
+            description="StreamPulse croise plusieurs signaux pour te donner un diagnostic complet de ta chaîne."
+          />
+          <div className="mx-auto max-w-3xl">
+            <div className="flex flex-wrap justify-center gap-3">
+              {ANALYSE_SIGNALS.map((signal) => (
+                <span
+                  key={signal}
+                  className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                >
+                  {signal}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pour qui */}
+      <section className="border-t border-border py-16">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
+          <SectionHeader
+            label="Pour qui"
+            title="Fait pour toi si…"
+          />
+          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
+            {[
+              {
+                icon: TrendingUp,
+                profile: "Débutant sérieux",
+                description:
+                  "Tu streames depuis peu mais tu veux poser les bonnes bases dès le début, éviter les erreurs classiques et progresser plus vite.",
+              },
+              {
+                icon: BarChart3,
+                profile: "Streamer qui stagne",
+                description:
+                  "Tu publies régulièrement mais ta croissance est à l'arrêt. Tu veux comprendre ce qui bloque et identifier les leviers concrets.",
+              },
+              {
+                icon: Target,
+                profile: "Créateur structuré",
+                description:
+                  "Tu veux suivre ta progression dans le temps, valider tes décisions par des données et construire une stratégie de contenu cohérente.",
+              },
+            ].map(({ icon: Icon, profile, description }) => (
+              <Card
+                key={profile}
+                className="transition-colors hover:border-primary/40"
+              >
+                <CardContent className="p-6">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="mb-2 text-base font-semibold text-foreground">
+                    {profile}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -164,6 +343,65 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="border-t border-border py-16">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
+          <SectionHeader
+            label="Questions fréquentes"
+            title="Tout ce que tu veux savoir"
+          />
+          <div className="mx-auto max-w-2xl">
+            <Accordion type="single" collapsible className="w-full">
+              {FAQ_ITEMS.map((item, i) => (
+                <AccordionItem key={i} value={`faq-${i}`}>
+                  <AccordionTrigger className="text-left text-sm font-medium text-foreground hover:no-underline hover:text-primary">
+                    {item.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="py-16">
+        <div className="container mx-auto max-w-6xl px-4 md:px-6">
+          <div className="mx-auto max-w-xl rounded-xl border border-primary/20 bg-primary/5 px-6 py-12 text-center">
+            <span className="mb-3 inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium uppercase tracking-wider text-primary">
+              <Clock className="h-3.5 w-3.5" />
+              Moins de 60 secondes
+            </span>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Prêt à voir où tu en es ?
+            </h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Entre ton nom de chaîne et reçois ton diagnostic immédiatement. Gratuit, sans compte.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <div className="relative w-full max-w-xs">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="ton pseudo Twitch"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
+                  className="border-border bg-background pl-9 focus-visible:ring-1"
+                />
+              </div>
+              <Button onClick={handleAnalyze} className="w-full shrink-0 sm:w-auto">
+                Analyser ma chaîne
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
