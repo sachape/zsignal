@@ -92,6 +92,8 @@ export interface CompetitorMatch {
   id: string;
   competitor_login: string;
   display_name: string;
+  /** Canonical Twitch avatar URL. Null when enrichment failed. */
+  profile_image_url?: string | null;
   similarity_score: number;
   follower_count: number;
   avg_viewers: number;

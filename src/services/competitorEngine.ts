@@ -31,6 +31,8 @@ export interface CandidateChannel {
   id: string;
   login: string;
   display_name: string;
+  /** Canonical Twitch avatar (from /helix/users enrichment). */
+  profile_image_url?: string | null;
   /** Real broadcaster type if known: 'partner' | 'affiliate' | '' */
   broadcaster_type?: string;
   description?: string;
@@ -459,6 +461,7 @@ function scoreCompetitorPool(opts: BuildCompetitorGroupsOpts): {
     id: `comp-${x.cand.login}`,
     competitor_login: x.cand.login,
     display_name: x.cand.display_name,
+    profile_image_url: x.cand.profile_image_url ?? null,
     similarity_score: x.fit.fit_score,
     follower_count: 0,
     avg_viewers: x.cand.is_live ? (x.cand.live_viewer_count ?? 0) : 0,

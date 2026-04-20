@@ -35,7 +35,10 @@ export interface LiveCompetitorCandidate {
   id: string;
   login: string;
   display_name: string;
+  /** Live thumbnail URL (stream preview). NOT the avatar. */
   thumbnail_url: string | null;
+  /** Canonical Twitch avatar (from /helix/users). May be null if not enriched. */
+  profile_image_url: string | null;
   is_live: boolean;
   game_name: string | null;
   title: string | null;

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Users, ArrowRight, Radio } from "lucide-react";
+import { ArrowRight, Radio } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { CompetitorMatch } from "@/types/analysis";
 
 interface Props {
@@ -17,13 +18,27 @@ interface Props {
 const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel }: Props) => {
   const isLive = (competitor.avg_viewers ?? 0) > 0;
   const isPotential = competitor.is_potential === true && competitor.group === "direct";
+  const initials = (competitor.display_name || competitor.competitor_login || "?")
+    .slice(0, 2)
+    .toUpperCase();
+  const avatarUrl = competitor.profile_image_url ?? undefined;
+
   return (
     <Card className="h-full">
       <CardContent className="flex h-full flex-col gap-3 p-5">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-accent/10">
-            <Users className="h-5 w-5 text-accent" />
-          </div>
+          <Avatar className="h-11 w-11 shrink-0 border border-border/60">
+            {avatarUrl && (
+              <AvatarImage
+                src={avatarUrl}
+                alt={competitor.display_name}
+                loading="lazy"
+              />
+            )}
+            <AvatarFallback className="bg-accent/10 text-xs font-semibold text-accent">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-foreground">
               {competitor.display_name}

@@ -172,6 +172,7 @@ const CompetitorsPage = () => {
             id: c.id,
             login: c.login,
             display_name: c.display_name,
+            profile_image_url: c.profile_image_url ?? null,
             broadcaster_type: c.broadcaster_type,
             description: c.description,
             is_live: c.is_live,
@@ -226,13 +227,33 @@ const CompetitorsPage = () => {
     return report?.report.competitor_groups ?? [];
   }, [liveGroups, report]);
 
-  const allMatches = useMemo(
-    () =>
-      effectiveGroups
-        .flatMap((group) => group.matches)
-        .filter((m) => !isPlaceholderQuality(m)),
+  const allMatchesRaw = useMemo(
+    () => effectiveGroups.flatMap((group) => group.matches),
     [effectiveGroups],
   );
+
+  const allMatches = useMemo(
+    () => allMatchesRaw.filter((m) => !isPlaceholderQuality(m)),
+    [allMatchesRaw],
+  );
+
+  /**
+   * Avatar coverage stats (dev-only debug). Counts only candidates that pass
+   * the identity quality gate. A "real" avatar is a non-empty profile_image_url
+   * URL string. Anything else falls back to initials in the card.
+   */
+  const avatarStats = useMemo(() => {
+    const rendered = allMatches.length;
+    const withAvatar = allMatches.filter(
+      (m) => typeof m.profile_image_url === "string" && m.profile_image_url.length > 0,
+    ).length;
+    return {
+      rendered,
+      withAvatar,
+      fallback: rendered - withAvatar,
+      rejected: allMatchesRaw.length - rendered,
+    };
+  }, [allMatches, allMatchesRaw]);
 
   const directMatches = useMemo(
     () => allMatches.filter((m) => m.group === "direct"),
@@ -519,6 +540,15 @@ const CompetitorsPage = () => {
                 <p>À rattraper: <span className="text-foreground">{debug.catch_up}</span></p>
                 <p>Inspirations: <span className="text-foreground">{debug.inspiration}</span></p>
                 <p>Copy mechanics: <span className="text-foreground">{copyMechanicsCount}</span></p>
+              </div>
+              <div className="mt-3 rounded-md border border-border/60 bg-background/60 p-2 text-xs text-muted-foreground">
+                <p className="font-medium text-foreground">Couverture avatar</p>
+                <p>
+                  Rendus: <span className="text-foreground">{avatarStats.rendered}</span>{" "}
+                  · avec avatar réel: <span className="text-foreground">{avatarStats.withAvatar}</span>{" "}
+                  · fallback initiales: <span className="text-foreground">{avatarStats.fallback}</span>{" "}
+                  · rejetés (qualité): <span className="text-foreground">{avatarStats.rejected}</span>
+                </p>
               </div>
               {debug.filtered_out.length > 0 && (
                 <div className="mt-3 space-y-1 text-xs text-muted-foreground">
