@@ -66,17 +66,18 @@ const DEFAULT_LANGUAGE = "fr";
 
 /**
  * A category string is "usable" when it actually carries benchmark meaning.
- * We reject empty / unknown / placeholder values so they never seed a
+ * Empty / unknown / placeholder values are rejected so they never seed a
  * "personal" benchmark mode.
  */
 function isUsableCategory(raw: string | null | undefined): raw is string {
   if (!raw) return false;
   const v = raw.trim();
   if (v.length < 2) return false;
-  if (/^(unknown|inconnu|inconnue|n\/a|na|null|undefined|none|-)$/i.test(v))
-    return true ? false : false;
-  if (/^(unknown|inconnu|inconnue|n\/a|na|null|undefined|none|-)$/i.test(v))
+  if (
+    /^(unknown|inconnu|inconnue|n\/?a|null|undefined|none|-+|\?+)$/i.test(v)
+  ) {
     return false;
+  }
   return true;
 }
 
@@ -87,7 +88,7 @@ export function resolveBenchmarkSeed(
 
   // 1. Live stream category — strongest possible signal
   const liveCat = input.livePreview?.live?.game_name?.trim();
-  if (liveCat) {
+  if (isUsableCategory(liveCat)) {
     return {
       category: liveCat,
       language,
@@ -99,7 +100,7 @@ export function resolveBenchmarkSeed(
 
   // 2. Dominant category from recent clips/VODs — still strong
   const dominant = input.livePreview?.dominant_category?.trim();
-  if (dominant) {
+  if (isUsableCategory(dominant)) {
     return {
       category: dominant,
       language,
@@ -109,9 +110,23 @@ export function resolveBenchmarkSeed(
     };
   }
 
-  // 3. Stored report channel_summary
+  // 3. User-explicit preferred niche — promoted above report_summary because
+  // a stored report category may be stale or literally "unknown".
+  const preferred = getPreferredNiche(input.userId);
+  if (isUsableCategory(preferred?.category)) {
+    return {
+      category: preferred!.category,
+      language: preferred!.language || language,
+      source: "selected_niche",
+      trust: "medium",
+      note: "Niche choisie manuellement par l'utilisateur",
+    };
+  }
+
+  // 4. Stored report channel_summary — only if usable.
+  // An "unknown" / empty stored category MUST NOT seed personal mode.
   const reportCat = input.report?.report.channel_summary.category?.trim();
-  if (reportCat) {
+  if (isUsableCategory(reportCat)) {
     return {
       category: reportCat,
       language,
@@ -121,21 +136,9 @@ export function resolveBenchmarkSeed(
     };
   }
 
-  // 4. User-explicit preferred niche — trustworthy because intentional
-  const preferred = getPreferredNiche(input.userId);
-  if (preferred?.category) {
-    return {
-      category: preferred.category,
-      language: preferred.language || language,
-      source: "selected_niche",
-      trust: "medium",
-      note: "Niche choisie manuellement par l'utilisateur",
-    };
-  }
-
   // 5. Recently opened benchmark profiles — weak (exploratory)
   const opened = getDominantOpenedCategory(input.userId);
-  if (opened) {
+  if (opened && isUsableCategory(opened.category)) {
     return {
       category: opened.category,
       language,
@@ -148,10 +151,10 @@ export function resolveBenchmarkSeed(
 
   // 6. Watchlist — weak
   const watchlist = getWatchlist(input.userId);
-  const wlCat = watchlist.find((w) => w.category && w.category.trim());
-  if (wlCat?.category) {
+  const wlCat = watchlist.find((w) => isUsableCategory(w.category));
+  if (wlCat) {
     return {
-      category: wlCat.category,
+      category: wlCat.category!,
       language,
       source: "watchlist",
       trust: "weak",
