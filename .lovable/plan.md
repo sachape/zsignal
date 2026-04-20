@@ -1,53 +1,59 @@
 
+Switching this project to external project `upnkprejbknbfsrwbmys` cannot be completed by the agent, because the actual project binding happens through Lovable’s UI OAuth flow. The message in your screenshot means only the Supabase organization is linked to your workspace; the Lovable project itself is not finished linking yet.
 
-# Switch backend to external Supabase project `upnkprejbknbfsrwbmys`
+## What to do now
 
-## What this changes
+### 1. Open the project-level Supabase connection screen
 
-Disconnect from the current Lovable Cloud backend (project `poblhczgdbnfunroshul`) and connect the app to the external Supabase project `upnkprejbknbfsrwbmys` for auth, database, storage, and edge functions.
+#### Desktop
+- In the project editor, click the project name/logo in the top-left
+- Open `Settings`
+- Go to the `Supabase` tab under `Integrations`
+- Click `Connect Supabase` or reopen the existing Supabase connection flow
+- Choose organization `zsignal`
+- Then select project `upnkprejbknbfsrwbmys`
 
-## Important caveat (please read)
+#### Mobile
+- In chat mode, tap the `...` button in the bottom-right, then open `Settings`
+- Or tap the project name at the top, then open `Settings`
+- Go to the `Supabase` / `Integrations` section
+- Reopen the connection flow
+- Choose organization `zsignal`
+- Then select project `upnkprejbknbfsrwbmys`
 
-Lovable does not support migrating an already-Cloud-enabled project to an externally-managed Supabase project from inside the agent. Lovable Cloud cannot be disabled on this project once enabled — `src/integrations/supabase/client.ts`, `src/integrations/supabase/types.ts`, `.env`, and `supabase/config.toml` are auto-managed and pinned to the Cloud project ref `poblhczgdbnfunroshul`.
+## If you still do not see the project picker
 
-To use external project `upnkprejbknbfsrwbmys` instead, you have two real options:
+Use these checks:
 
-### Option A — Recommended: stay on Lovable Cloud
-Keep the current connected backend. Everything (auth, DB, edge functions, storage) already works. No migration needed.
+1. Verify `upnkprejbknbfsrwbmys` is actually inside the linked Supabase organization `zsignal`
+2. If it belongs to a different organization, link that organization too
+3. Reopen Lovable project settings and retry the Supabase connection flow
+4. If needed, use Lovable’s command palette on desktop (`Cmd+K` / `Ctrl+K`) and search for `Settings`, then open the Supabase integration from there
 
-### Option B — Move to external Supabase project `upnkprejbknbfsrwbmys`
-This requires steps that must be done by you, outside the agent:
+## Why I cannot do it for you
 
-1. In Lovable, open the project's **Connectors → Supabase** panel and connect external project `upnkprejbknbfsrwbmys` (you'll authorize Lovable in the Supabase dashboard). This re-points `src/integrations/supabase/client.ts`, `.env`, and `supabase/config.toml` to the new project. The agent cannot trigger this OAuth flow.
-2. In the Supabase dashboard for `upnkprejbknbfsrwbmys`, replicate the schema currently in `poblhczgdbnfunroshul`:
-   - Tables: `profiles`, `connected_accounts`, `twitch_profiles`, `analysis_jobs`, `analysis_reports`, `channel_facts`, `competitor_matches`, `competitor_feedback`, `recommendations`, `stream_scores`, `twitch_clips`, `twitch_videos`
-   - RLS policies (same as current)
-   - Functions: `handle_new_user`, `update_updated_at_column`
-   - Trigger on `auth.users` to call `handle_new_user` on signup (currently missing — see note below)
-3. Re-add secrets in the new project: `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, `LOVABLE_API_KEY`.
-4. Redeploy edge functions: `twitch-oauth`, `twitch-analyze`, `twitch-live-fetch`, `twitch-public-lookup`, `twitch-refresh-enqueue`.
-5. Re-run `supabase/migrations/` against the new project.
+The agent cannot click through Lovable’s project settings, OAuth authorization, or project-selection UI. That binding step is user-driven in the Lovable interface.
 
-Once steps 1–5 are done, I can verify signup end-to-end and write profiles into `upnkprejbknbfsrwbmys.profiles`.
+## What I will verify immediately after you select the project
 
-### Bug found while planning (worth fixing either way)
+Once you finish the selection, I can audit and complete the technical migration by checking that:
+- `.env` now points to `upnkprejbknbfsrwbmys`
+- `src/integrations/supabase/client.ts` is using the new generated config
+- `supabase/config.toml` now has `project_id = "upnkprejbknbfsrwbmys"`
 
-The `handle_new_user` function exists but **no trigger is attached to `auth.users`**, so signup currently does NOT auto-insert into `profiles`. `AuthPage` only calls `supabase.auth.signUp` and never inserts the profile row manually. On the current Cloud project, new users have an `auth.users` row but no `profiles` row.
+Then I can handle the remaining backend work:
+- recreate schema and RLS in the external project if needed
+- ensure the `on_auth_user_created` trigger exists
+- redeploy required edge functions
+- verify a real signup writes into `profiles`
+- confirm with exactly: `Supabase connected`
 
-Fix (applies to whichever project you end up on):
+## Fastest path
 
-```sql
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
-```
+1. Open project `Settings`
+2. Go to `Supabase` under `Integrations`
+3. Reopen the connection flow
+4. Select `upnkprejbknbfsrwbmys`
+5. Send me a screenshot of that selected project, or tell me “project selected”
 
-## What I need from you
-
-Please pick one:
-
-1. **Stay on Lovable Cloud** and I'll just add the missing `on_auth_user_created` trigger so signup writes to `profiles` correctly.
-2. **Proceed with external project `upnkprejbknbfsrwbmys`** — confirm you've completed step 1 (connected the external Supabase project from the Connectors panel), and I'll handle steps 2–5 and the verification.
-
-I cannot say "Supabase connected" until one of these paths is complete and a real signup has written a row into the target project's `profiles` table.
-
+After that, I can take over the verification and cleanup work.
