@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import WeeklyPlanCard from "@/components/WeeklyPlanCard";
+import MainBlockerCard from "@/components/MainBlockerCard";
 import EmptyReportState from "@/components/EmptyReportState";
 import { LoadingState } from "@/components/StateView";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
+import { diagnoseFoundationMode } from "@/services/foundationMode";
 import {
   getLatestReport,
   getLatestReportForPlatformUser,
@@ -61,6 +63,11 @@ const WeeklyPlanPage = () => {
     );
   }
 
+  // Surface the foundation blocker at the top so the plan reads as the
+  // execution surface of the diagnosis, not a parallel module.
+  const foundation = diagnoseFoundationMode(report.report);
+  const foundationActive = foundation.isActive && !report.is_demo;
+
   return (
     <AppShell>
       <PageContainer size="sm">
@@ -72,8 +79,18 @@ const WeeklyPlanPage = () => {
         <PageHeader
           eyebrow="Coaching"
           title="Plan de la semaine"
-          description="Trois actions, un test, une chose à éviter. Coche au fur et à mesure."
+          description="Étape 1, 2, 3, un test et une chose à éviter. Coche au fur et à mesure."
+          action={
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <Link to={`/result?report_id=${report.id}`}>
+                <FileText className="h-3.5 w-3.5" /> Diagnostic complet
+              </Link>
+            </Button>
+          }
         />
+        {foundationActive && (
+          <MainBlockerCard blocker={foundation.blocker} reportId={report.id} />
+        )}
         <WeeklyPlanCard report={report.report} />
       </PageContainer>
     </AppShell>

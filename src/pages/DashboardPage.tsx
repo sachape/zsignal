@@ -368,8 +368,8 @@ const DashboardPage = () => {
         {foundationActive && (
           <>
             <FoundationModeBanner reasons={foundation.reasons} />
-            <MainBlockerCard blocker={foundation.blocker} />
-            <WeeklySequenceCard actions={foundation.sequence} />
+            <MainBlockerCard blocker={foundation.blocker} reportId={currentReport.id} />
+            <WeeklySequenceCard actions={foundation.sequence} showPlanLink />
           </>
         )}
 
