@@ -81,6 +81,8 @@ interface HelixUserSlim {
   description?: string;
   broadcaster_type?: string;
   view_count?: number;
+  /** Canonical Twitch avatar — only retrievable from /helix/users. */
+  profile_image_url?: string;
 }
 
 // ---- App Access Token cache (used for /search/channels, batched lookups) ----
@@ -461,6 +463,8 @@ Deno.serve(async (req) => {
       login: string;
       display_name: string;
       thumbnail_url: string | null;
+      /** Canonical avatar from /helix/users — used by the UI. */
+      profile_image_url: string | null;
       is_live: boolean;
       game_name: string | null;
       title: string | null;
@@ -540,11 +544,19 @@ Deno.serve(async (req) => {
         competitors = candidates.map((c) => {
           const u = candUsers.get(c.id);
           const s = candStreams.get(c.id);
+          // Canonical avatar priority: /helix/users.profile_image_url first
+          // (real Twitch avatar), then /search/channels.thumbnail_url as a
+          // fallback (search returns the avatar in this field too).
+          const avatar =
+            u?.profile_image_url ||
+            c.thumbnail_url ||
+            null;
           return {
             id: c.id,
             login: c.broadcaster_login,
             display_name: c.display_name,
             thumbnail_url: c.thumbnail_url ?? null,
+            profile_image_url: avatar,
             is_live: s ? true : (c.is_live ?? false),
             game_name: s?.game_name ?? c.game_name ?? null,
             title: s?.title ?? c.title ?? null,
