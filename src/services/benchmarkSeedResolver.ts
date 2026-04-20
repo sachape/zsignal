@@ -64,6 +64,22 @@ export interface ResolveSeedInput {
 
 const DEFAULT_LANGUAGE = "fr";
 
+/**
+ * A category string is "usable" when it actually carries benchmark meaning.
+ * We reject empty / unknown / placeholder values so they never seed a
+ * "personal" benchmark mode.
+ */
+function isUsableCategory(raw: string | null | undefined): raw is string {
+  if (!raw) return false;
+  const v = raw.trim();
+  if (v.length < 2) return false;
+  if (/^(unknown|inconnu|inconnue|n\/a|na|null|undefined|none|-)$/i.test(v))
+    return true ? false : false;
+  if (/^(unknown|inconnu|inconnue|n\/a|na|null|undefined|none|-)$/i.test(v))
+    return false;
+  return true;
+}
+
 export function resolveBenchmarkSeed(
   input: ResolveSeedInput,
 ): BenchmarkSeed | null {
