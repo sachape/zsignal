@@ -52,21 +52,43 @@ type PageMode = "personal" | "exploration";
 /**
  * A candidate is "placeholder-quality" when its identity is too thin to be
  * surfaced as a credible benchmark profile. We never let those become primary
- * outputs (direct / direct-potential).
+ * outputs (direct / direct-potential), and they don't count toward credibility.
  */
 function isPlaceholderQuality(m: CompetitorMatch): boolean {
   const name = (m.display_name ?? "").trim();
   const login = (m.competitor_login ?? "").trim();
   if (!name || !login) return true;
-  if (name.length < 2) return true;
-  // Reject obvious "unknown / null / undefined" rows.
-  if (/^(unknown|null|undefined|n\/a|na)$/i.test(name)) return true;
-  if (/^(unknown|null|undefined)$/i.test(login)) return true;
+  if (name.length < 2 || login.length < 2) return true;
+
+  // Reject obvious "unknown / null / undefined" identity rows.
+  if (/^(unknown|null|undefined|n\/?a|na|none|-+|\?+)$/i.test(name)) return true;
+  if (/^(unknown|null|undefined|none|-+|\?+)$/i.test(login)) return true;
+
+  // Reject synthetic placeholders like "UnknownRock", "UnknownLive", "Unknown42"
+  if (/^unknown[a-z0-9_-]*$/i.test(name)) return true;
+  if (/^unknown[a-z0-9_-]*$/i.test(login)) return true;
+
   // No category context AND no fit/confidence → not credible enough.
   const hasContext = (m.match_reasons?.length ?? 0) > 0;
   const hasScore = (m.fit_score ?? m.similarity_score ?? 0) > 0;
   if (!hasContext && !hasScore) return true;
+
   return false;
+}
+
+/**
+ * A seed is "category-trustworthy" only if its category is a real benchmark
+ * value. Empty / unknown / placeholder categories CANNOT activate personal mode
+ * even if the seed source is otherwise medium-trust.
+ */
+function isSeedCategoryTrustworthy(seed: BenchmarkSeed | null): boolean {
+  if (!seed) return false;
+  const v = (seed.category ?? "").trim();
+  if (v.length < 2) return false;
+  if (/^(unknown|inconnu|inconnue|n\/?a|null|undefined|none|-+|\?+)$/i.test(v)) {
+    return false;
+  }
+  return true;
 }
 
 const CompetitorsPage = () => {
