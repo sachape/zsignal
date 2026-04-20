@@ -488,6 +488,11 @@ const CompetitorsPage = () => {
                 <Badge variant="outline" className="text-[10px] text-primary">
                   Mode : {mode}
                 </Badge>
+                {modeDecision.reason && (
+                  <Badge variant="outline" className="text-[10px] text-destructive">
+                    personal_mode_rejected: {modeDecision.reason}
+                  </Badge>
+                )}
               </div>
               <div className="mb-3 rounded-md border border-border/60 bg-background/60 p-2 text-xs text-muted-foreground">
                 <p className="font-medium text-foreground">Seed</p>
