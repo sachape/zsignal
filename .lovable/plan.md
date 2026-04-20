@@ -1,97 +1,53 @@
 
 
-# Step 3a — Twitch Foundation Without Live Credentials
+# Switch backend to external Supabase project `upnkprejbknbfsrwbmys`
 
-## Overview
+## What this changes
 
-Build the full structural foundation for Twitch connection and analysis so that plugging in live credentials later requires minimal rework. No real API calls, no secrets needed.
+Disconnect from the current Lovable Cloud backend (project `poblhczgdbnfunroshul`) and connect the app to the external Supabase project `upnkprejbknbfsrwbmys` for auth, database, storage, and edge functions.
 
----
+## Important caveat (please read)
 
-## 1. Database Migration
+Lovable does not support migrating an already-Cloud-enabled project to an externally-managed Supabase project from inside the agent. Lovable Cloud cannot be disabled on this project once enabled — `src/integrations/supabase/client.ts`, `src/integrations/supabase/types.ts`, `.env`, and `supabase/config.toml` are auto-managed and pinned to the Cloud project ref `poblhczgdbnfunroshul`.
 
-The `connected_accounts` table already exists with correct schema and RLS. No changes needed there.
+To use external project `upnkprejbknbfsrwbmys` instead, you have two real options:
 
-**New tables** (single migration):
+### Option A — Recommended: stay on Lovable Cloud
+Keep the current connected backend. Everything (auth, DB, edge functions, storage) already works. No migration needed.
 
-| Table | Key columns | Purpose |
-|---|---|---|
-| `analysis_jobs` | id, user_id, channel_name, status (queued/processing/done/failed), started_at, completed_at, created_at | Tracks analysis runs |
-| `twitch_profiles` | id, user_id, twitch_user_id, login, display_name, description, profile_image_url, view_count, follower_count, broadcaster_type, fetched_at | Cached Twitch profile data |
-| `twitch_videos` | id, analysis_job_id, twitch_video_id, title, view_count, duration, created_at | Recent VODs |
-| `twitch_clips` | id, analysis_job_id, twitch_clip_id, title, view_count, creator_name, created_at | Top clips |
-| `channel_facts` | id, analysis_job_id, fact_key, fact_value, confidence, created_at | Key-value facts extracted from data |
-| `stream_scores` | id, analysis_job_id, overall_score, regularity, engagement, growth, discoverability, content_quality, community, monetization_readiness, affiliate_progress, created_at | StreamScore breakdown |
-| `competitor_matches` | id, analysis_job_id, competitor_login, display_name, similarity_score, follower_count, avg_viewers, created_at | Matched competitors |
-| `recommendations` | id, analysis_job_id, priority, title, description, category, is_locked, created_at | Action items |
-| `analysis_reports` | id, analysis_job_id, user_id, channel_summary, report_data (jsonb), created_at | Final compiled report |
+### Option B — Move to external Supabase project `upnkprejbknbfsrwbmys`
+This requires steps that must be done by you, outside the agent:
 
-All tables: RLS enabled, user can only access own data (via user_id or join through analysis_job).
+1. In Lovable, open the project's **Connectors → Supabase** panel and connect external project `upnkprejbknbfsrwbmys` (you'll authorize Lovable in the Supabase dashboard). This re-points `src/integrations/supabase/client.ts`, `.env`, and `supabase/config.toml` to the new project. The agent cannot trigger this OAuth flow.
+2. In the Supabase dashboard for `upnkprejbknbfsrwbmys`, replicate the schema currently in `poblhczgdbnfunroshul`:
+   - Tables: `profiles`, `connected_accounts`, `twitch_profiles`, `analysis_jobs`, `analysis_reports`, `channel_facts`, `competitor_matches`, `competitor_feedback`, `recommendations`, `stream_scores`, `twitch_clips`, `twitch_videos`
+   - RLS policies (same as current)
+   - Functions: `handle_new_user`, `update_updated_at_column`
+   - Trigger on `auth.users` to call `handle_new_user` on signup (currently missing — see note below)
+3. Re-add secrets in the new project: `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, `LOVABLE_API_KEY`.
+4. Redeploy edge functions: `twitch-oauth`, `twitch-analyze`, `twitch-live-fetch`, `twitch-public-lookup`, `twitch-refresh-enqueue`.
+5. Re-run `supabase/migrations/` against the new project.
 
-## 2. New Routes & Components
+Once steps 1–5 are done, I can verify signup end-to-end and write profiles into `upnkprejbknbfsrwbmys.profiles`.
 
-**Route: `/twitch/callback`** — new `TwitchCallbackPage.tsx`
-- Reads `code` and `error` from query params
-- States: processing (spinner), success (redirect to /connect-twitch?connected=true), cancelled, error
-- Will call the edge function when live — for now shows processing then redirects with mock success
+### Bug found while planning (worth fixing either way)
 
-**Updated: `/connect-twitch`** — refactored `ConnectTwitchPage.tsx`
-- Reads `connected` query param and checks `connected_accounts` table
-- States: default (current trust page), loading, success ("Compte connecté"), already-connected, error
-- "Connect Twitch" button builds the OAuth URL (using a `TWITCH_CLIENT_ID` env var placeholder — non-functional until credentials arrive)
+The `handle_new_user` function exists but **no trigger is attached to `auth.users`**, so signup currently does NOT auto-insert into `profiles`. `AuthPage` only calls `supabase.auth.signUp` and never inserts the profile row manually. On the current Cloud project, new users have an `auth.users` row but no `profiles` row.
 
-## 3. Edge Function Stubs
+Fix (applies to whichever project you end up on):
 
-**`supabase/functions/twitch-oauth/index.ts`**
-- Accepts `{ code, redirect_uri }` POST
-- Structure: validate input, exchange code for token (commented out real call), store in `connected_accounts`
-- Returns `{ success, platform_login }` or error
-- Full CORS support, JWT validation in code
+```sql
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+```
 
-**`supabase/functions/twitch-analyze/index.ts`**
-- Accepts `{ channel_name }` POST
-- Structure: create analysis_job, fetch profile (stub), fetch videos (stub), compute score (stub), generate recommendations (stub), compile report
-- Returns job_id
-- Placeholder logic only — ready for real Twitch API calls later
+## What I need from you
 
-## 4. TypeScript Types & Service Contracts
+Please pick one:
 
-**`src/types/analysis.ts`** — all domain types:
-- `AnalysisJob`, `TwitchProfile`, `StreamScore`, `CompetitorMatch`, `Recommendation`, `AnalysisReport`, `ChannelSummary`, `AffiliateProgress`
+1. **Stay on Lovable Cloud** and I'll just add the missing `on_auth_user_created` trigger so signup writes to `profiles` correctly.
+2. **Proceed with external project `upnkprejbknbfsrwbmys`** — confirm you've completed step 1 (connected the external Supabase project from the Connectors panel), and I'll handle steps 2–5 and the verification.
 
-**`src/services/` directory** — one file per engine:
-- `twitchOAuth.ts` — `initiateTwitchOAuth()`, `completeTwitchCallback(code)`
-- `twitchIngestion.ts` — `fetchTwitchProfile(login)`, `fetchRecentVideos(userId)`, `fetchTopClips(userId)`
-- `factsEngine.ts` — `extractChannelFacts(profile, videos, clips)`
-- `streamScoreEngine.ts` — `computeStreamScore(facts)`
-- `competitorEngine.ts` — `findCompetitors(profile, facts)`
-- `recommendationEngine.ts` — `generateRecommendations(score, facts, competitors)`
-
-Each exports typed async functions with TODO bodies. No fake heavy logic.
-
-## 5. Mock Data & Page Wiring
-
-**`src/data/mockAnalysis.ts`** — single typed mock `AnalysisReport` matching the real contract. Used by `/result` and `/analyze`.
-
-**`/analyze` refactor**: imports `AnalysisJob` type, simulates job status progression, navigates to `/result` with job reference.
-
-**`/result` refactor**: consumes `AnalysisReport` type from mock data instead of scattered inline values. Same UI, but data flows through the typed contract.
-
-## 6. Hook
-
-**`src/hooks/useTwitchConnection.ts`** — queries `connected_accounts` for current user's Twitch connection. Returns `{ isConnected, account, loading }`.
-
-## 7. Files Changed Summary
-
-- 1 migration (9 new tables)
-- 2 edge function stubs
-- 1 types file
-- 6 service files
-- 1 mock data file
-- 1 hook
-- 1 new page (TwitchCallbackPage)
-- 3 updated pages (ConnectTwitchPage, AnalyzePage, ResultPage)
-- App.tsx (add /twitch/callback route)
-
-No secrets required. No live Twitch calls. Full structural readiness.
+I cannot say "Supabase connected" until one of these paths is complete and a real signup has written a row into the target project's `profiles` table.
 
