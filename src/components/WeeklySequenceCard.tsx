@@ -1,26 +1,40 @@
-import { ListChecks } from "lucide-react";
+import { ListChecks, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { WeeklySequenceAction } from "@/services/foundationMode";
 
 interface Props {
   actions: WeeklySequenceAction[];
+  /** When true, shows a link to the full /plan page (used on dashboard). */
+  showPlanLink?: boolean;
 }
 
-const WeeklySequenceCard = ({ actions }: Props) => {
+const WeeklySequenceCard = ({ actions, showPlanLink }: Props) => {
   return (
     <Card className="mb-6">
       <CardContent className="p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <ListChecks className="h-4 w-4 text-primary" />
-          <div>
-            <h3 className="text-sm font-semibold text-foreground">
-              Ce que tu fais cette semaine
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Une séquence courte et ordonnée. L'ordre compte.
-            </p>
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="flex items-start gap-2">
+            <ListChecks className="mt-0.5 h-4 w-4 text-primary" />
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">
+                Ce que tu fais cette semaine
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Une séquence courte et ordonnée. L'ordre compte. Le signal que tu cherches à
+                créer : une première semaine cohérente et lisible.
+              </p>
+            </div>
           </div>
+          {showPlanLink && (
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/plan">
+                Plan détaillé <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          )}
         </div>
         <ol className="space-y-3">
           {actions.map((a) => (
