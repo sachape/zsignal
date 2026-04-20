@@ -12,6 +12,7 @@ import {
   AlertCircle,
   RefreshCw,
   Sparkles,
+  CalendarCheck,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppShell from "@/components/AppShell";
@@ -40,6 +41,8 @@ import {
   type SavedReport,
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
+import MainBlockerCard from "@/components/MainBlockerCard";
+import { diagnoseFoundationMode } from "@/services/foundationMode";
 
 type SelectionSource =
   | "explicit_report_id"
