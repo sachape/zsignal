@@ -1,4 +1,4 @@
-project_id = "poblhczgdbnfunroshul"
+project_id = "upnkprejbknbfsrwbmys"
 
 [functions.twitch-oauth]
 verify_jwt = false
