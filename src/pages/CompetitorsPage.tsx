@@ -52,21 +52,43 @@ type PageMode = "personal" | "exploration";
 /**
  * A candidate is "placeholder-quality" when its identity is too thin to be
  * surfaced as a credible benchmark profile. We never let those become primary
- * outputs (direct / direct-potential).
+ * outputs (direct / direct-potential), and they don't count toward credibility.
  */
 function isPlaceholderQuality(m: CompetitorMatch): boolean {
   const name = (m.display_name ?? "").trim();
   const login = (m.competitor_login ?? "").trim();
   if (!name || !login) return true;
-  if (name.length < 2) return true;
-  // Reject obvious "unknown / null / undefined" rows.
-  if (/^(unknown|null|undefined|n\/a|na)$/i.test(name)) return true;
-  if (/^(unknown|null|undefined)$/i.test(login)) return true;
+  if (name.length < 2 || login.length < 2) return true;
+
+  // Reject obvious "unknown / null / undefined" identity rows.
+  if (/^(unknown|null|undefined|n\/?a|na|none|-+|\?+)$/i.test(name)) return true;
+  if (/^(unknown|null|undefined|none|-+|\?+)$/i.test(login)) return true;
+
+  // Reject synthetic placeholders like "UnknownRock", "UnknownLive", "Unknown42"
+  if (/^unknown[a-z0-9_-]*$/i.test(name)) return true;
+  if (/^unknown[a-z0-9_-]*$/i.test(login)) return true;
+
   // No category context AND no fit/confidence → not credible enough.
   const hasContext = (m.match_reasons?.length ?? 0) > 0;
   const hasScore = (m.fit_score ?? m.similarity_score ?? 0) > 0;
   if (!hasContext && !hasScore) return true;
+
   return false;
+}
+
+/**
+ * A seed is "category-trustworthy" only if its category is a real benchmark
+ * value. Empty / unknown / placeholder categories CANNOT activate personal mode
+ * even if the seed source is otherwise medium-trust.
+ */
+function isSeedCategoryTrustworthy(seed: BenchmarkSeed | null): boolean {
+  if (!seed) return false;
+  const v = (seed.category ?? "").trim();
+  if (v.length < 2) return false;
+  if (/^(unknown|inconnu|inconnue|n\/?a|null|undefined|none|-+|\?+)$/i.test(v)) {
+    return false;
+  }
+  return true;
 }
 
 const CompetitorsPage = () => {
@@ -235,23 +257,39 @@ const CompetitorsPage = () => {
 
   /**
    * Decide MODE.
-   * Personal mode requires:
-   *   - a strong/medium trust seed (not weak/exploratory)
-   *   - AND at least one credible match (confirmed direct OR catch-up OR
-   *     a potential direct that is clearly above noise)
-   * Otherwise → exploration mode (no fake direct competitors).
+   * Personal mode requires ALL of:
+   *   - a non-null seed
+   *   - seed.trust ≠ "weak"
+   *   - seed category is a real, usable benchmark category (not "unknown")
+   *   - at least one CREDIBLE rendered match after placeholder filtering
+   * If any of those fail → exploration mode (no fake direct competitors).
+   * The rejection reason is exposed in the dev debug block.
    */
-  const mode: PageMode = useMemo(() => {
-    if (!seed) return "exploration";
-    if (seed.trust === "weak") return "exploration";
+  const modeDecision = useMemo<{ mode: PageMode; reason: string | null }>(() => {
+    if (!seed) {
+      return { mode: "exploration", reason: "no_trustworthy_seed" };
+    }
+    if (seed.trust === "weak") {
+      return { mode: "exploration", reason: "seed_trust_weak" };
+    }
+    if (!isSeedCategoryTrustworthy(seed)) {
+      return { mode: "exploration", reason: "category_unknown" };
+    }
     const hasCredibleMatch =
       confirmedDirect.length > 0 ||
       catchUpMatches.length > 0 ||
       potentialDirect.some(
         (m) => (m.confidence_score ?? 0) >= 60 && (m.fit_score ?? 0) >= 60,
       );
-    return hasCredibleMatch ? "personal" : "exploration";
+    if (!hasCredibleMatch) {
+      return {
+        mode: "exploration",
+        reason: "no_credible_candidates_after_filtering",
+      };
+    }
+    return { mode: "personal", reason: null };
   }, [seed, confirmedDirect, potentialDirect, catchUpMatches]);
+  const mode: PageMode = modeDecision.mode;
 
   const benchmarkReport: AnalysisReport | null = useMemo(() => {
     if (!report) return null;
@@ -450,6 +488,11 @@ const CompetitorsPage = () => {
                 <Badge variant="outline" className="text-[10px] text-primary">
                   Mode : {mode}
                 </Badge>
+                {modeDecision.reason && (
+                  <Badge variant="outline" className="text-[10px] text-destructive">
+                    personal_mode_rejected: {modeDecision.reason}
+                  </Badge>
+                )}
               </div>
               <div className="mb-3 rounded-md border border-border/60 bg-background/60 p-2 text-xs text-muted-foreground">
                 <p className="font-medium text-foreground">Seed</p>
