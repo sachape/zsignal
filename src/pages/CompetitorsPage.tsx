@@ -521,6 +521,15 @@ const CompetitorsPage = () => {
                 <p>Inspirations: <span className="text-foreground">{debug.inspiration}</span></p>
                 <p>Copy mechanics: <span className="text-foreground">{copyMechanicsCount}</span></p>
               </div>
+              <div className="mt-3 rounded-md border border-border/60 bg-background/60 p-2 text-xs text-muted-foreground">
+                <p className="font-medium text-foreground">Couverture avatar</p>
+                <p>
+                  Rendus: <span className="text-foreground">{avatarStats.rendered}</span>{" "}
+                  · avec avatar réel: <span className="text-foreground">{avatarStats.withAvatar}</span>{" "}
+                  · fallback initiales: <span className="text-foreground">{avatarStats.fallback}</span>{" "}
+                  · rejetés (qualité): <span className="text-foreground">{avatarStats.rejected}</span>
+                </p>
+              </div>
               {debug.filtered_out.length > 0 && (
                 <div className="mt-3 space-y-1 text-xs text-muted-foreground">
                   <p className="font-medium text-foreground">Filtrés</p>
