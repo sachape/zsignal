@@ -172,6 +172,7 @@ const CompetitorsPage = () => {
             id: c.id,
             login: c.login,
             display_name: c.display_name,
+            profile_image_url: c.profile_image_url ?? null,
             broadcaster_type: c.broadcaster_type,
             description: c.description,
             is_live: c.is_live,
