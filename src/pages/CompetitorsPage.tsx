@@ -227,13 +227,33 @@ const CompetitorsPage = () => {
     return report?.report.competitor_groups ?? [];
   }, [liveGroups, report]);
 
-  const allMatches = useMemo(
-    () =>
-      effectiveGroups
-        .flatMap((group) => group.matches)
-        .filter((m) => !isPlaceholderQuality(m)),
+  const allMatchesRaw = useMemo(
+    () => effectiveGroups.flatMap((group) => group.matches),
     [effectiveGroups],
   );
+
+  const allMatches = useMemo(
+    () => allMatchesRaw.filter((m) => !isPlaceholderQuality(m)),
+    [allMatchesRaw],
+  );
+
+  /**
+   * Avatar coverage stats (dev-only debug). Counts only candidates that pass
+   * the identity quality gate. A "real" avatar is a non-empty profile_image_url
+   * URL string. Anything else falls back to initials in the card.
+   */
+  const avatarStats = useMemo(() => {
+    const rendered = allMatches.length;
+    const withAvatar = allMatches.filter(
+      (m) => typeof m.profile_image_url === "string" && m.profile_image_url.length > 0,
+    ).length;
+    return {
+      rendered,
+      withAvatar,
+      fallback: rendered - withAvatar,
+      rejected: allMatchesRaw.length - rendered,
+    };
+  }, [allMatches, allMatchesRaw]);
 
   const directMatches = useMemo(
     () => allMatches.filter((m) => m.group === "direct"),
