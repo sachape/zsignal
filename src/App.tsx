@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthModalProvider } from "@/contexts/AuthModalContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 import AnalyzePage from "./pages/AnalyzePage.tsx";
@@ -29,6 +30,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <AuthModalProvider>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
@@ -73,6 +75,7 @@ const App = () => (
             <Route path="/streamer/:login" element={<StreamerProfilePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </AuthModalProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
