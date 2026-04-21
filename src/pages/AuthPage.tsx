@@ -61,6 +61,8 @@ const AuthPage = () => {
       setGoogleLoading(false);
     }
   };
+
+  const translateError = (msg: string): string => {
     if (msg.includes("Invalid login credentials"))
       return "Email ou mot de passe incorrect.";
     if (msg.includes("already registered"))
