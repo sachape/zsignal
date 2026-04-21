@@ -78,8 +78,9 @@ const Index = () => {
   const navigate = useNavigate();
   const { openAuthModal } = useAuthModal();
 
-  const handleAnalyze = () => {
-    const login = normalizeChannelInput(username);
+  const handleAnalyze = (explicitLogin?: string) => {
+    const login =
+      explicitLogin?.trim().toLowerCase() || normalizeChannelInput(username);
     if (!login) {
       setInputError(
         "Entre un nom d'utilisateur Twitch valide ou une URL twitch.tv/...",
@@ -115,38 +116,18 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mx-auto mt-10 max-w-lg"
+            className="mx-auto mt-10 max-w-lg text-left"
           >
-            <Card>
-              <CardContent className="flex gap-2 p-2">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="ex. nexagaming ou twitch.tv/nexagaming"
-                    value={username}
-                    onChange={(e) => {
-                      setUsername(e.target.value);
-                      if (inputError) setInputError(null);
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
-                    className="border-transparent bg-muted pl-9 focus-visible:ring-1"
-                    aria-invalid={!!inputError}
-                  />
-                </div>
-                <Button onClick={handleAnalyze} className="shrink-0">
-                  Analyser
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-            {inputError && (
-              <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-destructive">
-                <AlertCircle className="h-3.5 w-3.5" />
-                <span>{inputError}</span>
-              </div>
-            )}
-            <p className="mt-3 text-xs text-muted-foreground">
+            <HeroChannelSearch
+              value={username}
+              onChange={(next) => {
+                setUsername(next);
+                if (inputError) setInputError(null);
+              }}
+              onSubmit={(login) => handleAnalyze(login)}
+              inputError={inputError}
+            />
+            <p className="mt-3 text-center text-xs text-muted-foreground">
               Aperçu gratuit · pas de compte requis pour la première analyse
             </p>
             <Button
