@@ -19,6 +19,7 @@ import {
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import LandingNav from "@/components/LandingNav";
+import HeroChannelSearch from "@/components/HeroChannelSearch";
 import SectionHeader from "@/components/SectionHeader";
 import ValueCard from "@/components/ValueCard";
 import TrustCard from "@/components/TrustCard";
