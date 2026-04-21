@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Zap, Twitter, Github } from "lucide-react";
+import { Zap, Send, Code2 } from "lucide-react";
 
 const COLUMNS = [
   {
@@ -53,14 +53,14 @@ const LandingFooter = () => (
               aria-label="Twitter"
               className="flex h-8 w-8 items-center justify-center rounded-md border border-white/[0.06] text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
             >
-              <Twitter className="h-3.5 w-3.5" />
+              <Send className="h-3.5 w-3.5" />
             </a>
             <a
               href="#"
               aria-label="GitHub"
               className="flex h-8 w-8 items-center justify-center rounded-md border border-white/[0.06] text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
             >
-              <Github className="h-3.5 w-3.5" />
+              <Code2 className="h-3.5 w-3.5" />
             </a>
           </div>
         </div>
