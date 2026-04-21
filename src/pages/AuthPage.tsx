@@ -42,7 +42,25 @@ const AuthPage = () => {
     }
   };
 
-  const translateError = (msg: string): string => {
+  const handleGoogle = async () => {
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + redirectTo,
+      });
+      if (result.redirected) return;
+      if (result.error) {
+        setError("La connexion Google a échoué. Réessaie.");
+        setGoogleLoading(false);
+        return;
+      }
+      navigate(redirectTo);
+    } catch {
+      setError("La connexion Google a échoué. Réessaie.");
+      setGoogleLoading(false);
+    }
+  };
     if (msg.includes("Invalid login credentials"))
       return "Email ou mot de passe incorrect.";
     if (msg.includes("already registered"))
