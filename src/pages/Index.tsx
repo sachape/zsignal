@@ -298,43 +298,7 @@ const Index = () => {
       </section>
 
       {/* Demo Preview */}
-      <section className="py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <SectionHeader
-            label="Aperçu"
-            title="Un avant-goût de ton analyse"
-            description="Voici ce que StreamPulse génère pour ta chaîne."
-          />
-          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
-            <ScoreCard score={62} />
-            <div className="flex flex-col gap-3">
-              <CompetitorCard name="streamzilla_fr" followers="2.4K" similarity={87} />
-              <CompetitorCard name="nightowl_ttv" followers="1.8K" similarity={74} />
-            </div>
-            <Card>
-              <CardContent className="p-6">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Progression affiliation
-                </p>
-                <div className="mt-4 space-y-3">
-                  {[
-                    { label: "Viewers moyens", value: "2.8 / 3", pct: 93 },
-                    { label: "Jours de stream", value: "6 / 7", pct: 86 },
-                    { label: "Chatteurs uniques", value: "42 / 50", pct: 84 },
-                  ].map((item) => (
-                    <ProgressRow
-                      key={item.label}
-                      label={item.label}
-                      value={item.value}
-                      pct={item.pct}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      <DemoPreviewSection />
 
       {/* FAQ */}
       <section className="border-t border-border py-16">
