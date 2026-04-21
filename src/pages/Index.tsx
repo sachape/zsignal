@@ -386,7 +386,7 @@ const Index = () => {
                   className="border-border bg-background pl-9 focus-visible:ring-1"
                 />
               </div>
-              <Button onClick={handleAnalyze} className="w-full shrink-0 sm:w-auto">
+              <Button onClick={() => handleAnalyze()} className="w-full shrink-0 sm:w-auto">
                 Analyser ma chaîne
                 <ArrowRight className="h-4 w-4" />
               </Button>
