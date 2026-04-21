@@ -17,6 +17,7 @@ import {
   Clock,
 } from "lucide-react";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import LandingNav from "@/components/LandingNav";
 import SectionHeader from "@/components/SectionHeader";
 import ValueCard from "@/components/ValueCard";
@@ -74,6 +75,7 @@ const Index = () => {
   const [username, setUsername] = useState("");
   const [inputError, setInputError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { openAuthModal } = useAuthModal();
 
   const handleAnalyze = () => {
     const login = normalizeChannelInput(username);
@@ -148,7 +150,12 @@ const Index = () => {
             </p>
             <Button
               variant="link"
-              onClick={() => navigate("/auth?redirect=/dashboard")}
+              onClick={() =>
+                openAuthModal({
+                  redirectTo: "/dashboard",
+                  pendingChannel: normalizeChannelInput(username) || undefined,
+                })
+              }
               className="mt-1 text-muted-foreground hover:text-primary"
             >
               Déjà un compte ? Se connecter →

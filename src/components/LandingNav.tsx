@@ -2,9 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 
 const LandingNav = () => {
   const { user, signOut } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -43,11 +45,18 @@ const LandingNav = () => {
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm">
-                <Link to="/auth">Se connecter</Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => openAuthModal({ redirectTo: "/dashboard" })}
+              >
+                Se connecter
               </Button>
-              <Button asChild size="sm">
-                <Link to="/auth">Commencer</Link>
+              <Button
+                size="sm"
+                onClick={() => openAuthModal({ redirectTo: "/dashboard" })}
+              >
+                Commencer
               </Button>
             </>
           )}
