@@ -766,10 +766,8 @@ const ResultPage = () => {
                     ? "Crée un compte gratuit pour sauvegarder ton analyse, voir tous les concurrents, le plan d'action complet et suivre ta progression vers l'affiliation."
                     : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
-              <Button asChild className="mt-2">
-                <Link to={ctaLink}>
-                  {user ? "Connecter Twitch" : "Créer un compte gratuit"}
-                </Link>
+              <Button onClick={handleUnlock} className="mt-2">
+                {user ? "Connecter Twitch" : "Créer un compte gratuit"}
               </Button>
             </CardContent>
           </Card>
