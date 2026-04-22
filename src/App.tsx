@@ -31,7 +31,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <AuthModalProvider>
-          <Routes>
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/analyze" element={<AnalyzePage />} />
@@ -73,8 +73,8 @@ const App = () => (
               }
             />
             <Route path="/streamer/:login" element={<StreamerProfilePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </AuthModalProvider>
         </AuthProvider>
       </BrowserRouter>
