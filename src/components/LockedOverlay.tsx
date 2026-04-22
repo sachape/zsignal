@@ -1,7 +1,8 @@
 import { Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 
 interface LockedOverlayProps {
   message?: string;
@@ -15,16 +16,34 @@ const LockedOverlay = ({
   to,
 }: LockedOverlayProps) => {
   const { user } = useAuth();
-  const destination =
-    to || (user ? "/connect-twitch" : "/auth?redirect=/connect-twitch");
+  const { openAuthModal } = useAuthModal();
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (to) {
+      navigate(to);
+      return;
+    }
+    if (user) {
+      navigate("/connect-twitch");
+    } else {
+      openAuthModal({ redirectTo: "/connect-twitch" });
+    }
+  };
 
   return (
     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-lg bg-background/80 backdrop-blur-sm">
       <Lock className="h-4 w-4 text-muted-foreground" />
       <p className="text-sm font-medium text-muted-foreground">{message}</p>
-      <Button asChild size="sm">
-        <Link to={destination}>{cta}</Link>
-      </Button>
+      {to ? (
+        <Button asChild size="sm">
+          <Link to={to}>{cta}</Link>
+        </Button>
+      ) : (
+        <Button size="sm" onClick={handleClick}>
+          {cta}
+        </Button>
+      )}
     </div>
   );
 };

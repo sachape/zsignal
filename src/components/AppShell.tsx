@@ -1,16 +1,19 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import AccountMenu from "@/components/AccountMenu";
+import LandingNav from "@/components/LandingNav";
 import { useAuth } from "@/contexts/AuthContext";
 
 const AppShell = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
 
-  // Unauthenticated fallback (e.g. before redirect): plain shell, no sidebar.
+  // Unauthenticated visitors (e.g. teaser result preview): show the landing
+  // nav for premium continuity with the marketing site, instead of a bare page.
   if (!user) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <main>{children}</main>
+        <LandingNav />
+        <main className="pt-14">{children}</main>
       </div>
     );
   }

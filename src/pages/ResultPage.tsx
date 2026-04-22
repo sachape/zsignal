@@ -15,6 +15,7 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -66,6 +67,7 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const { account: twitchAccount, loading: twitchLoading } = useTwitchConnection();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
@@ -369,11 +371,21 @@ const ResultPage = () => {
   }
 
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
-  const ctaLink = user
-    ? "/connect-twitch"
-    : `/auth?redirect=${encodeURIComponent(
-        `/dashboard${teaserCtaChannel ? `?channel=${encodeURIComponent(teaserCtaChannel)}` : ""}`,
-      )}`;
+  const postAuthRedirect = `/dashboard${
+    teaserCtaChannel ? `?channel=${encodeURIComponent(teaserCtaChannel)}` : ""
+  }`;
+  const handleUnlock = () => {
+    if (user) {
+      navigate("/connect-twitch");
+    } else {
+      openAuthModal({
+        redirectTo: postAuthRedirect,
+        pendingChannel: teaserCtaChannel || null,
+        contextText:
+          "Crée ton compte pour débloquer le rapport complet et sauvegarder ton analyse.",
+      });
+    }
+  };
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
@@ -486,8 +498,8 @@ const ResultPage = () => {
                   connexion Twitch. Connecte ta chaîne pour débloquer le rapport complet.
                 </p>
               </div>
-              <Button asChild size="sm">
-                <Link to="/auth">Débloquer le rapport complet</Link>
+              <Button size="sm" onClick={handleUnlock}>
+                Débloquer le rapport complet
               </Button>
             </CardContent>
           </Card>
@@ -754,10 +766,8 @@ const ResultPage = () => {
                     ? "Crée un compte gratuit pour sauvegarder ton analyse, voir tous les concurrents, le plan d'action complet et suivre ta progression vers l'affiliation."
                     : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
-              <Button asChild className="mt-2">
-                <Link to={ctaLink}>
-                  {user ? "Connecter Twitch" : "Créer un compte gratuit"}
-                </Link>
+              <Button onClick={handleUnlock} className="mt-2">
+                {user ? "Connecter Twitch" : "Créer un compte gratuit"}
               </Button>
             </CardContent>
           </Card>
