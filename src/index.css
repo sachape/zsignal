@@ -94,6 +94,10 @@
   0% { transform: translateX(0); }
   100% { transform: translateX(450%); }
 }
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--rot, 0deg)); }
+}
 .bento-hero-border {
   position: absolute;
   inset: 0;
