@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight, Zap, TrendingUp, Users, Activity, Sparkles, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
@@ -43,49 +43,178 @@ const HeroSection = () => {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.12),transparent_55%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.04)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)] opacity-50" />
 
-      {/* Floating decorative ring (desktop only) */}
+      {/* ===== Floating UI illustrations (decorative) ===== */}
+
+      {/* RIGHT — StreamScore ring card */}
       <div
-        className="pointer-events-none absolute right-[8%] top-[28%] hidden lg:block"
+        className="pointer-events-none absolute right-[3%] top-[18%] hidden lg:block"
         style={{
           opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0)" : "translateY(20px)",
-          transition: "opacity 1200ms ease-out 600ms, transform 1200ms ease-out 600ms",
+          transform: mounted ? "translateY(0)" : "translateY(30px)",
+          transition: "opacity 1000ms ease-out 500ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 500ms",
         }}
         aria-hidden
       >
-        <div className="relative h-24 w-24 animate-[bento-rotate_20s_linear_infinite] rounded-full">
-          <svg viewBox="0 0 60 60" className="h-full w-full -rotate-90">
-            <defs>
-              <linearGradient id="heroRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="hsl(var(--primary))" />
-                <stop offset="100%" stopColor="hsl(var(--primary) / 0.4)" />
-              </linearGradient>
-            </defs>
-            <circle cx="30" cy="30" r={radius} fill="none" stroke="hsl(var(--muted))" strokeOpacity="0.3" strokeWidth="3" />
-            <circle
-              cx="30"
-              cy="30"
-              r={radius}
-              fill="none"
-              stroke="url(#heroRingGrad)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={offset}
-            />
-          </svg>
+        <div
+          style={{ ["--rot" as string]: "3deg", animation: "hero-float 6s ease-in-out infinite" }}
+        >
+          <div className="relative rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.4)]">
+            <div className="flex items-center gap-3">
+              <div className="relative h-16 w-16">
+                <svg viewBox="0 0 60 60" className="h-full w-full -rotate-90">
+                  <defs>
+                    <linearGradient id="heroRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" />
+                      <stop offset="100%" stopColor="hsl(var(--primary) / 0.4)" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="30" cy="30" r={radius} fill="none" stroke="hsl(var(--muted))" strokeOpacity="0.3" strokeWidth="4" />
+                  <circle cx="30" cy="30" r={radius} fill="none" stroke="url(#heroRingGrad)" strokeWidth="4" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-base font-bold tabular-nums">{ringScore}</span>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">StreamScore</span>
+                <span className="text-sm font-semibold">Bon rythme</span>
+                <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] text-primary">
+                  <TrendingUp className="h-2.5 w-2.5" /> +6 cette semaine
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* RIGHT — Mini sparkline / viewers card */}
       <div
-        className="pointer-events-none absolute left-[6%] top-[40%] hidden lg:block"
+        className="pointer-events-none absolute right-[8%] top-[55%] hidden lg:block"
         style={{
-          opacity: mounted ? 0.7 : 0,
-          transition: "opacity 1400ms ease-out 800ms",
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(40px)",
+          transition: "opacity 1000ms ease-out 750ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 750ms",
         }}
         aria-hidden
       >
-        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/30 to-transparent blur-xl" />
+        <div style={{ ["--rot" as string]: "-4deg", animation: "hero-float 7s ease-in-out infinite 1s" }}>
+          <div className="relative w-[200px] rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Viewers moy.</span>
+              <Activity className="h-3 w-3 text-primary" />
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-2xl font-bold tabular-nums">42</span>
+              <span className="text-[10px] text-primary">+12%</span>
+            </div>
+            <svg viewBox="0 0 120 30" className="mt-2 h-8 w-full">
+              <defs>
+                <linearGradient id="heroSparkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,22 L15,18 L30,20 L45,14 L60,16 L75,10 L90,12 L105,6 L120,8 L120,30 L0,30 Z" fill="url(#heroSparkGrad)" />
+              <path d="M0,22 L15,18 L30,20 L45,14 L60,16 L75,10 L90,12 L105,6 L120,8" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
       </div>
+
+      {/* RIGHT — Affiliation goal card (xl only) */}
+      <div
+        className="pointer-events-none absolute right-[14%] top-[82%] hidden xl:block"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(30px)",
+          transition: "opacity 1000ms ease-out 950ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 950ms",
+        }}
+        aria-hidden
+      >
+        <div style={{ ["--rot" as string]: "2deg", animation: "hero-float 8s ease-in-out infinite 0.5s" }}>
+          <div className="relative w-[180px] rounded-2xl border border-white/10 bg-card/60 p-3.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
+                <Trophy className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Objectif</span>
+                <span className="text-xs font-semibold">Affiliation</span>
+              </div>
+            </div>
+            <div className="mt-2.5">
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-muted-foreground">6/7 jours</span>
+                <span className="font-semibold tabular-nums text-primary">86%</span>
+              </div>
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted/40">
+                <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60" style={{ width: "86%" }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* LEFT — Insight pill card */}
+      <div
+        className="pointer-events-none absolute left-[4%] top-[28%] hidden lg:block"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(30px)",
+          transition: "opacity 1000ms ease-out 650ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 650ms",
+        }}
+        aria-hidden
+      >
+        <div style={{ ["--rot" as string]: "-3deg", animation: "hero-float 7.5s ease-in-out infinite 0.3s" }}>
+          <div className="relative rounded-2xl border border-white/10 bg-card/60 px-3.5 py-3 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Meilleur créneau</span>
+                <span className="text-xs font-semibold">Mardi · 21h</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* LEFT — Competitor card (xl only) */}
+      <div
+        className="pointer-events-none absolute left-[7%] top-[64%] hidden xl:block"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(40px)",
+          transition: "opacity 1000ms ease-out 850ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 850ms",
+        }}
+        aria-hidden
+      >
+        <div style={{ ["--rot" as string]: "4deg", animation: "hero-float 8s ease-in-out infinite 1.2s" }}>
+          <div className="relative w-[190px] rounded-2xl border border-white/10 bg-card/60 p-3.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Similaire</span>
+              <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold text-primary">87%</span>
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/40 to-primary/10 text-[10px] font-bold">
+                SZ
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold">streamzill…</span>
+                <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Users className="h-2.5 w-2.5" /> 2,4K abonnés
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Soft ambient glows behind clusters */}
+      <div className="pointer-events-none absolute right-[6%] top-[40%] hidden h-40 w-40 rounded-full bg-primary/15 blur-3xl lg:block" aria-hidden />
+      <div className="pointer-events-none absolute left-[6%] top-[50%] hidden h-32 w-32 rounded-full bg-primary/10 blur-3xl lg:block" aria-hidden />
+      <div className="pointer-events-none absolute right-[-10%] top-[20%] h-48 w-48 rounded-full bg-primary/10 blur-3xl lg:hidden" aria-hidden />
 
       <div className="container relative mx-auto max-w-6xl px-4 text-center md:px-6">
         <div
