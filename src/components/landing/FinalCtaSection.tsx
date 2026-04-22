@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, TrendingUp, Sparkles } from "lucide-react";
+import { Clock, TrendingUp, Sparkles, Activity } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
@@ -54,12 +54,14 @@ const FinalCtaSection = () => {
               </span>
 
               <h2 className="mt-5 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl lg:text-[3.25rem] lg:leading-[1.05]">
-                Ta prochaine palier de croissance commence maintenant.
+                Analyse ta chaîne.
+                <br />
+                Débloque ta progression.
               </h2>
 
               <p className="mt-5 max-w-lg text-base text-muted-foreground md:text-lg">
-                Entre ton nom de chaîne, reçois ton StreamScore, tes vrais
-                concurrents et un plan d'action clair. Sans installation.
+                StreamScore, concurrents pertinents et plan d'action clair.
+                Découvre ce qui freine ta croissance — en moins de 60 secondes.
               </p>
 
               <div className="mt-8 max-w-lg">
@@ -165,6 +167,43 @@ const FinalCtaSection = () => {
                         Stream mardi · 21h
                       </span>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating UI fragment — viewers + platform chips */}
+              <div
+                className="pointer-events-none absolute right-8 top-1/2 z-20 -translate-y-1/2"
+                style={{
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? "translate(0,-50%)" : "translate(16px,-50%)",
+                  transition:
+                    "opacity 800ms ease-out 1100ms, transform 1000ms cubic-bezier(0.16,1,0.3,1) 1100ms",
+                }}
+                aria-hidden
+              >
+                <div className="rounded-2xl border border-white/10 bg-card/70 px-3.5 py-2.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.35)]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
+                      <Activity className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                        Viewers moy.
+                      </span>
+                      <span className="text-xs font-semibold">
+                        42 · +12%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-1.5 border-t border-white/5 pt-2">
+                    <span className="rounded-full border border-white/10 bg-background/40 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Twitch
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-background/40 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Kick
+                    </span>
+                    <span className="text-[9px] text-muted-foreground/60">bientôt</span>
                   </div>
                 </div>
               </div>
