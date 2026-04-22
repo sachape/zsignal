@@ -80,3 +80,23 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 }
+
+@layer utilities {
+  .bg-dot-grid {
+    background-image: radial-gradient(hsl(var(--border)) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+  }
+
+  .text-gradient-primary {
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .card-glow {
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.2), 0 0 40px hsl(var(--primary) / 0.08);
+  }
+}

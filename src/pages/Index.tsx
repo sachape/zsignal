@@ -1,32 +1,13 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import {
-  Search,
-  ArrowRight,
-  BarChart3,
-  Users,
-  CalendarCheck,
-  ShieldCheck,
-  EyeOff,
-  Settings,
-  AlertCircle,
-  Zap,
-  Target,
-  TrendingUp,
-  Clock,
-} from "lucide-react";
-import { normalizeChannelInput } from "@/services/channelInputNormalizer";
+import { useRef, useState, useEffect, type CSSProperties } from "react";
 import LandingNav from "@/components/LandingNav";
-import SectionHeader from "@/components/SectionHeader";
-import ValueCard from "@/components/ValueCard";
-import TrustCard from "@/components/TrustCard";
-import ScoreCard from "@/components/ScoreCard";
-import CompetitorCard from "@/components/CompetitorCard";
-import ProgressRow from "@/components/ProgressRow";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import HeroSection from "@/components/HeroSection";
+import FeaturesSection from "@/components/FeaturesSection";
+import PreviewSection from "@/components/PreviewSection";
+import ForWhoSection from "@/components/ForWhoSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import PricingSection from "@/components/PricingSection";
+import FinalCtaSection from "@/components/FinalCtaSection";
+import FooterSection from "@/components/FooterSection";
 import {
   Accordion,
   AccordionContent,
@@ -34,19 +15,27 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const ANALYSE_SIGNALS = [
+// ── Marquee data ─────────────────────────────────────────────────────
+const SIGNALS_ROW1 = [
   "Cadence de stream",
   "Titres de stream",
   "Catégories jouées",
   "Clips & moments forts",
   "Régularité hebdomadaire",
   "Positionnement de niche",
+  "Heure de diffusion",
+];
+const SIGNALS_ROW2 = [
   "Signaux de croissance",
   "Engagement du chat",
   "Durée des sessions",
   "Progression d'affiliation",
+  "Qualité du stream",
+  "Analyse de niche",
+  "Score de fidélisation",
 ];
 
+// ── FAQ data ──────────────────────────────────────────────────────────
 const FAQ_ITEMS = [
   {
     q: "Est-ce que je dois connecter mon compte Twitch ?",
@@ -70,378 +59,161 @@ const FAQ_ITEMS = [
   },
 ];
 
-const Index = () => {
-  const [username, setUsername] = useState("");
-  const [inputError, setInputError] = useState<string | null>(null);
-  const navigate = useNavigate();
+// ── Inline CSS animations ─────────────────────────────────────────────
+const CSS = `
+  @keyframes idx-in {
+    from { opacity:0; transform:translateY(18px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes idx-pulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+`;
 
-  const handleAnalyze = () => {
-    const login = normalizeChannelInput(username);
-    if (!login) {
-      setInputError(
-        "Entre un nom d'utilisateur Twitch valide ou une URL twitch.tv/...",
-      );
-      return;
-    }
-    setInputError(null);
-    navigate(`/analyze?channel=${encodeURIComponent(login)}&mode=teaser`);
-  };
+function useVisible(threshold = 0.2) {
+  const ref = useRef<HTMLElement>(null);
+  const [v, setV] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setV(true); io.disconnect(); } },
+      { threshold },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return { ref, visible: v };
+}
+
+function anim(vis: boolean, delay = 0): CSSProperties {
+  return vis
+    ? { animation: `idx-in 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms both` }
+    : { opacity: 0 };
+}
+
+// ── Signals marquee ───────────────────────────────────────────────────
+function SignalsSection() {
+  const { ref, visible } = useVisible(0.1);
 
   return (
-    <div className="min-h-screen bg-background">
-      <LandingNav />
+    <section
+      ref={ref}
+      className="relative overflow-hidden border-t border-border/50 py-24"
+    >
+      <div className="absolute inset-0 bg-dot-grid opacity-[0.15]" />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden pt-28 pb-16">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.06),transparent_60%)]" />
-        <div className="container relative mx-auto max-w-6xl px-4 text-center md:px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="mb-4 inline-flex items-center rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium uppercase tracking-wider text-primary">
-              Copilote de croissance streamer
-            </span>
-            <h1 className="mx-auto max-w-3xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-              Analyse ta chaîne Twitch et découvre quoi améliorer pour progresser
-            </h1>
-            <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-              Obtiens ton StreamScore, repère les concurrents les plus pertinents et reçois un plan d'action clair pour faire grandir ta chaîne.
-            </p>
-          </motion.div>
-
-          {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mx-auto mt-10 max-w-lg"
-          >
-            <Card>
-              <CardContent className="flex gap-2 p-2">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="ex. nexagaming ou twitch.tv/nexagaming"
-                    value={username}
-                    onChange={(e) => {
-                      setUsername(e.target.value);
-                      if (inputError) setInputError(null);
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
-                    className="border-transparent bg-muted pl-9 focus-visible:ring-1"
-                    aria-invalid={!!inputError}
-                  />
-                </div>
-                <Button onClick={handleAnalyze} className="shrink-0">
-                  Analyser
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-            {inputError && (
-              <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-destructive">
-                <AlertCircle className="h-3.5 w-3.5" />
-                <span>{inputError}</span>
-              </div>
-            )}
-            <p className="mt-3 text-xs text-muted-foreground">
-              Aperçu gratuit · pas de compte requis pour la première analyse
-            </p>
-            <Button
-              variant="link"
-              onClick={() => navigate("/auth?redirect=/dashboard")}
-              className="mt-1 text-muted-foreground hover:text-primary"
-            >
-              Déjà un compte ? Se connecter →
-            </Button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Pourquoi Stream Spark */}
-      <section className="py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <SectionHeader
-            label="Pourquoi Stream Spark"
-            title="Ce qui change vraiment"
-            description="Fini les devinettes. Chaque décision s'appuie sur des données concrètes issues de ta chaîne."
-          />
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <ValueCard
-              icon={BarChart3}
-              title="Un score qui parle"
-              description="Le StreamScore condense la santé de ta chaîne en un seul chiffre clair — qualité, régularité, engagement, croissance."
+      <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
+        <div className="mb-12 text-center" style={anim(visible, 0)}>
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+            <span
+              className="h-1.5 w-1.5 rounded-full bg-primary"
+              style={{ animation: "idx-pulse 2s ease-in-out infinite" }}
             />
-            <ValueCard
-              icon={Target}
-              title="Priorités actionnables"
-              description="Trois actions par semaine, classées par impact. Pas de théorie — des étapes concrètes applicables dès aujourd'hui."
-            />
-            <ValueCard
-              icon={Users}
-              title="Benchmarks pertinents"
-              description="Identifie les streamers qui progressent dans ta niche et comprends exactement ce qu'ils font différemment."
-            />
-            <ValueCard
-              icon={Zap}
-              title="Résultat en 60 secondes"
-              description="Pas d'inscription requise pour l'aperçu. Ton diagnostic complet est disponible immédiatement."
-            />
-          </div>
+            Sous le capot
+          </span>
+          <h2 className="mx-auto mt-4 max-w-lg text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            Ce que l'outil analyse
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
+            StreamPulse croise plusieurs signaux pour te donner un diagnostic
+            complet et actionnable de ta chaîne.
+          </p>
         </div>
-      </section>
+      </div>
 
-      {/* Comment ça marche */}
-      <section className="border-t border-border py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <SectionHeader
-            label="Comment ça marche"
-            title="3 étapes, c'est tout"
-          />
-          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
-            {[
-              {
-                step: "01",
-                title: "Tu entres ton compte",
-                description:
-                  "Tape ton nom d'utilisateur Twitch ou colle l'URL de ta chaîne. Aucune connexion requise.",
-              },
-              {
-                step: "02",
-                title: "On analyse tes signaux",
-                description:
-                  "StreamPulse examine ta cadence, tes titres, ta régularité, tes clips et bien d'autres indicateurs de croissance.",
-              },
-              {
-                step: "03",
-                title: "Tu reçois des priorités claires",
-                description:
-                  "Un plan d'action structuré, des concurrents pertinents et un score pour suivre ta progression dans le temps.",
-              },
-            ].map(({ step, title, description }) => (
-              <Card key={step} className="relative overflow-hidden">
-                <CardContent className="p-6">
-                  <span className="mb-4 block text-4xl font-bold tracking-tighter text-primary/20">
-                    {step}
-                  </span>
-                  <h3 className="mb-2 text-base font-semibold text-foreground">
-                    {title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Ce que l'outil analyse */}
-      <section className="py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <SectionHeader
-            label="Sous le capot"
-            title="Ce que l'outil analyse"
-            description="StreamPulse croise plusieurs signaux pour te donner un diagnostic complet de ta chaîne."
-          />
-          <div className="mx-auto max-w-3xl">
-            <div className="flex flex-wrap justify-center gap-3">
-              {ANALYSE_SIGNALS.map((signal) => (
-                <span
-                  key={signal}
-                  className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                >
-                  {signal}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pour qui */}
-      <section className="border-t border-border py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <SectionHeader
-            label="Pour qui"
-            title="Fait pour toi si…"
-          />
-          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
-            {[
-              {
-                icon: TrendingUp,
-                profile: "Débutant sérieux",
-                description:
-                  "Tu streames depuis peu mais tu veux poser les bonnes bases dès le début, éviter les erreurs classiques et progresser plus vite.",
-              },
-              {
-                icon: BarChart3,
-                profile: "Streamer qui stagne",
-                description:
-                  "Tu publies régulièrement mais ta croissance est à l'arrêt. Tu veux comprendre ce qui bloque et identifier les leviers concrets.",
-              },
-              {
-                icon: Target,
-                profile: "Créateur structuré",
-                description:
-                  "Tu veux suivre ta progression dans le temps, valider tes décisions par des données et construire une stratégie de contenu cohérente.",
-              },
-            ].map(({ icon: Icon, profile, description }) => (
-              <Card
-                key={profile}
-                className="transition-colors hover:border-primary/40"
+      {/* Edge-to-edge marquee */}
+      <div className="mt-2 space-y-3 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+        <div className="flex gap-3">
+          <div className="flex shrink-0 animate-marquee gap-3 whitespace-nowrap">
+            {[...SIGNALS_ROW1, ...SIGNALS_ROW1].map((signal, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center rounded-full border border-border/60 bg-card px-4 py-2 text-sm font-medium text-foreground"
               >
-                <CardContent className="p-6">
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-                    <Icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <h3 className="mb-2 text-base font-semibold text-foreground">
-                    {profile}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {description}
-                  </p>
-                </CardContent>
-              </Card>
+                {signal}
+              </span>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Demo Preview */}
-      <section className="py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <SectionHeader
-            label="Aperçu"
-            title="Un avant-goût de ton analyse"
-            description="Voici ce que StreamPulse génère pour ta chaîne."
-          />
-          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
-            <ScoreCard score={62} />
-            <div className="flex flex-col gap-3">
-              <CompetitorCard name="streamzilla_fr" followers="2.4K" similarity={87} />
-              <CompetitorCard name="nightowl_ttv" followers="1.8K" similarity={74} />
-            </div>
-            <Card>
-              <CardContent className="p-6">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Progression affiliation
-                </p>
-                <div className="mt-4 space-y-3">
-                  {[
-                    { label: "Viewers moyens", value: "2.8 / 3", pct: 93 },
-                    { label: "Jours de stream", value: "6 / 7", pct: 86 },
-                    { label: "Chatteurs uniques", value: "42 / 50", pct: 84 },
-                  ].map((item) => (
-                    <ProgressRow
-                      key={item.label}
-                      label={item.label}
-                      value={item.value}
-                      pct={item.pct}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        <div className="flex gap-3">
+          <div className="flex shrink-0 animate-marquee-reverse gap-3 whitespace-nowrap">
+            {[...SIGNALS_ROW2, ...SIGNALS_ROW2].map((signal, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center rounded-full border border-primary/15 bg-primary/5 px-4 py-2 text-sm font-medium text-primary/80"
+              >
+                {signal}
+              </span>
+            ))}
           </div>
         </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="border-t border-border py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <SectionHeader
-            label="Questions fréquentes"
-            title="Tout ce que tu veux savoir"
-          />
-          <div className="mx-auto max-w-2xl">
-            <Accordion type="single" collapsible className="w-full">
-              {FAQ_ITEMS.map((item, i) => (
-                <AccordionItem key={i} value={`faq-${i}`}>
-                  <AccordionTrigger className="text-left text-sm font-medium text-foreground hover:no-underline hover:text-primary">
-                    {item.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-sm text-muted-foreground">
-                    {item.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section className="py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <div className="mx-auto max-w-xl rounded-xl border border-primary/20 bg-primary/5 px-6 py-12 text-center">
-            <span className="mb-3 inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium uppercase tracking-wider text-primary">
-              <Clock className="h-3.5 w-3.5" />
-              Moins de 60 secondes
-            </span>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Prêt à voir où tu en es ?
-            </h2>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Entre ton nom de chaîne et reçois ton diagnostic immédiatement. Gratuit, sans compte.
-            </p>
-            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <div className="relative w-full max-w-xs">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="ton pseudo Twitch"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
-                  className="border-border bg-background pl-9 focus-visible:ring-1"
-                />
-              </div>
-              <Button onClick={handleAnalyze} className="w-full shrink-0 sm:w-auto">
-                Analyser ma chaîne
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust */}
-      <section className="border-t border-border py-16">
-        <div className="container mx-auto max-w-6xl px-4 md:px-6">
-          <SectionHeader
-            label="Confiance & vie privée"
-            title="Ta chaîne reste la tienne"
-            description="StreamPulse ne touche jamais à ton stream. On analyse uniquement les données publiques pour t'aider à progresser."
-          />
-          <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3">
-            <TrustCard
-              icon={EyeOff}
-              title="Aucune publication"
-              description="On ne poste, ne chat et n'interagit jamais en ton nom."
-            />
-            <TrustCard
-              icon={Settings}
-              title="Aucune modification"
-              description="On ne modifie jamais les paramètres de ta chaîne ou de ton stream."
-            />
-            <TrustCard
-              icon={ShieldCheck}
-              title="Analyse en lecture seule"
-              description="On utilise uniquement les données publiques pour construire tes insights."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-8">
-        <div className="container mx-auto px-4 text-center text-xs text-muted-foreground">
-          © 2026 StreamPulse. Conçu pour les streamers qui veulent progresser.
-        </div>
-      </footer>
-    </div>
+      </div>
+    </section>
   );
-};
+}
+
+// ── FAQ section ───────────────────────────────────────────────────────
+function FaqSection() {
+  const { ref, visible } = useVisible();
+
+  return (
+    <section
+      ref={ref}
+      className="relative overflow-hidden border-t border-border/50 py-28"
+    >
+      <div className="absolute inset-0 bg-dot-grid opacity-[0.15]" />
+
+      <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
+        <div className="mb-12 text-center" style={anim(visible, 0)}>
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+            <span
+              className="h-1.5 w-1.5 rounded-full bg-primary"
+              style={{ animation: "idx-pulse 2s ease-in-out infinite" }}
+            />
+            FAQ
+          </span>
+          <h2 className="mx-auto mt-4 max-w-lg text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            Questions fréquentes
+          </h2>
+        </div>
+
+        <div
+          className="mx-auto max-w-2xl"
+          style={anim(visible, 100)}
+        >
+          <Accordion type="single" collapsible className="w-full">
+            {FAQ_ITEMS.map((item, i) => (
+              <AccordionItem key={i} value={`faq-${i}`}>
+                <AccordionTrigger className="text-left text-sm font-medium text-foreground hover:no-underline hover:text-primary">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Page orchestrator ─────────────────────────────────────────────────
+const Index = () => (
+  <div className="min-h-screen overflow-x-hidden bg-background">
+    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <LandingNav />
+    <HeroSection />
+    <FeaturesSection />
+    <PreviewSection />
+    <SignalsSection />
+    <ForWhoSection />
+    <TestimonialsSection />
+    <PricingSection />
+    <FaqSection />
+    <FinalCtaSection />
+    <FooterSection />
+  </div>
+);
 
 export default Index;
