@@ -92,31 +92,32 @@ const HeroSection = () => {
         className="pointer-events-none absolute right-[8%] top-[55%] hidden lg:block"
         style={{
           opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0) rotate(-4deg)" : "translateY(40px) rotate(-4deg)",
+          transform: mounted ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1000ms ease-out 750ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 750ms",
-          animation: mounted ? "bento-float 7s ease-in-out infinite 1s" : undefined,
         }}
         aria-hidden
       >
-        <div className="relative w-[200px] rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Viewers moy.</span>
-            <Activity className="h-3 w-3 text-primary" />
+        <div style={{ ["--rot" as string]: "-4deg", animation: "hero-float 7s ease-in-out infinite 1s" }}>
+          <div className="relative w-[200px] rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Viewers moy.</span>
+              <Activity className="h-3 w-3 text-primary" />
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-2xl font-bold tabular-nums">42</span>
+              <span className="text-[10px] text-primary">+12%</span>
+            </div>
+            <svg viewBox="0 0 120 30" className="mt-2 h-8 w-full">
+              <defs>
+                <linearGradient id="heroSparkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,22 L15,18 L30,20 L45,14 L60,16 L75,10 L90,12 L105,6 L120,8 L120,30 L0,30 Z" fill="url(#heroSparkGrad)" />
+              <path d="M0,22 L15,18 L30,20 L45,14 L60,16 L75,10 L90,12 L105,6 L120,8" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
-          <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-2xl font-bold tabular-nums">42</span>
-            <span className="text-[10px] text-primary">+12%</span>
-          </div>
-          <svg viewBox="0 0 120 30" className="mt-2 h-8 w-full">
-            <defs>
-              <linearGradient id="heroSparkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path d="M0,22 L15,18 L30,20 L45,14 L60,16 L75,10 L90,12 L105,6 L120,8 L120,30 L0,30 Z" fill="url(#heroSparkGrad)" />
-            <path d="M0,22 L15,18 L30,20 L45,14 L60,16 L75,10 L90,12 L105,6 L120,8" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
         </div>
       </div>
 
