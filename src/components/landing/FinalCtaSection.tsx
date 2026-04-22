@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, TrendingUp, Sparkles } from "lucide-react";
+import { Clock, TrendingUp, Sparkles, Activity } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
@@ -54,12 +54,14 @@ const FinalCtaSection = () => {
               </span>
 
               <h2 className="mt-5 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl lg:text-[3.25rem] lg:leading-[1.05]">
-                Ta prochaine palier de croissance commence maintenant.
+                Analyse ta chaîne.
+                <br />
+                Débloque ta progression.
               </h2>
 
               <p className="mt-5 max-w-lg text-base text-muted-foreground md:text-lg">
-                Entre ton nom de chaîne, reçois ton StreamScore, tes vrais
-                concurrents et un plan d'action clair. Sans installation.
+                StreamScore, concurrents pertinents et plan d'action clair.
+                Découvre ce qui freine ta croissance — en moins de 60 secondes.
               </p>
 
               <div className="mt-8 max-w-lg">
