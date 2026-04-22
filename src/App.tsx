@@ -73,8 +73,8 @@ const App = () => (
               }
             />
             <Route path="/streamer/:login" element={<StreamerProfilePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </AuthModalProvider>
         </AuthProvider>
       </BrowserRouter>
