@@ -170,6 +170,43 @@ const FinalCtaSection = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Floating UI fragment — viewers + platform chips */}
+              <div
+                className="pointer-events-none absolute right-8 top-1/2 z-20 -translate-y-1/2"
+                style={{
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? "translate(0,-50%)" : "translate(16px,-50%)",
+                  transition:
+                    "opacity 800ms ease-out 1100ms, transform 1000ms cubic-bezier(0.16,1,0.3,1) 1100ms",
+                }}
+                aria-hidden
+              >
+                <div className="rounded-2xl border border-white/10 bg-card/70 px-3.5 py-2.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.35)]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
+                      <Activity className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                        Viewers moy.
+                      </span>
+                      <span className="text-xs font-semibold">
+                        42 · +12%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-1.5 border-t border-white/5 pt-2">
+                    <span className="rounded-full border border-white/10 bg-background/40 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Twitch
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-background/40 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Kick
+                    </span>
+                    <span className="text-[9px] text-muted-foreground/60">bientôt</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
