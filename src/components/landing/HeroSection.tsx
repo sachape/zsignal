@@ -126,29 +126,30 @@ const HeroSection = () => {
         className="pointer-events-none absolute right-[14%] top-[82%] hidden xl:block"
         style={{
           opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0) rotate(2deg)" : "translateY(30px) rotate(2deg)",
+          transform: mounted ? "translateY(0)" : "translateY(30px)",
           transition: "opacity 1000ms ease-out 950ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 950ms",
-          animation: mounted ? "bento-float 8s ease-in-out infinite 0.5s" : undefined,
         }}
         aria-hidden
       >
-        <div className="relative w-[180px] rounded-2xl border border-white/10 bg-card/60 p-3.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
-              <Trophy className="h-3.5 w-3.5 text-primary" />
+        <div style={{ ["--rot" as string]: "2deg", animation: "hero-float 8s ease-in-out infinite 0.5s" }}>
+          <div className="relative w-[180px] rounded-2xl border border-white/10 bg-card/60 p-3.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
+                <Trophy className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Objectif</span>
+                <span className="text-xs font-semibold">Affiliation</span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Objectif</span>
-              <span className="text-xs font-semibold">Affiliation</span>
-            </div>
-          </div>
-          <div className="mt-2.5">
-            <div className="flex items-center justify-between text-[10px]">
-              <span className="text-muted-foreground">6/7 jours</span>
-              <span className="font-semibold tabular-nums text-primary">86%</span>
-            </div>
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted/40">
-              <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60" style={{ width: "86%" }} />
+            <div className="mt-2.5">
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-muted-foreground">6/7 jours</span>
+                <span className="font-semibold tabular-nums text-primary">86%</span>
+              </div>
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted/40">
+                <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60" style={{ width: "86%" }} />
+              </div>
             </div>
           </div>
         </div>
@@ -159,20 +160,21 @@ const HeroSection = () => {
         className="pointer-events-none absolute left-[4%] top-[28%] hidden lg:block"
         style={{
           opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0) rotate(-3deg)" : "translateY(30px) rotate(-3deg)",
+          transform: mounted ? "translateY(0)" : "translateY(30px)",
           transition: "opacity 1000ms ease-out 650ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 650ms",
-          animation: mounted ? "bento-float 7.5s ease-in-out infinite 0.3s" : undefined,
         }}
         aria-hidden
       >
-        <div className="relative rounded-2xl border border-white/10 bg-card/60 px-3.5 py-3 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Meilleur créneau</span>
-              <span className="text-xs font-semibold">Mardi · 21h</span>
+        <div style={{ ["--rot" as string]: "-3deg", animation: "hero-float 7.5s ease-in-out infinite 0.3s" }}>
+          <div className="relative rounded-2xl border border-white/10 bg-card/60 px-3.5 py-3 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Meilleur créneau</span>
+                <span className="text-xs font-semibold">Mardi · 21h</span>
+              </div>
             </div>
           </div>
         </div>
@@ -183,26 +185,27 @@ const HeroSection = () => {
         className="pointer-events-none absolute left-[7%] top-[64%] hidden xl:block"
         style={{
           opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0) rotate(4deg)" : "translateY(40px) rotate(4deg)",
+          transform: mounted ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1000ms ease-out 850ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 850ms",
-          animation: mounted ? "bento-float 8s ease-in-out infinite 1.2s" : undefined,
         }}
         aria-hidden
       >
-        <div className="relative w-[190px] rounded-2xl border border-white/10 bg-card/60 p-3.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Similaire</span>
-            <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold text-primary">87%</span>
-          </div>
-          <div className="mt-2 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/40 to-primary/10 text-[10px] font-bold">
-              SZ
+        <div style={{ ["--rot" as string]: "4deg", animation: "hero-float 8s ease-in-out infinite 1.2s" }}>
+          <div className="relative w-[190px] rounded-2xl border border-white/10 bg-card/60 p-3.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Similaire</span>
+              <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold text-primary">87%</span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-semibold">streamzill…</span>
-              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-                <Users className="h-2.5 w-2.5" /> 2,4K abonnés
-              </span>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/40 to-primary/10 text-[10px] font-bold">
+                SZ
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold">streamzill…</span>
+                <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Users className="h-2.5 w-2.5" /> 2,4K abonnés
+                </span>
+              </div>
             </div>
           </div>
         </div>
