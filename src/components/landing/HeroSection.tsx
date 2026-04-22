@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Zap, TrendingUp, Users, Target, Activity, Sparkles, Trophy } from "lucide-react";
+import { ArrowRight, Zap, TrendingUp, Users, Activity, Sparkles, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
