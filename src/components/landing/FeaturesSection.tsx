@@ -5,6 +5,7 @@ import {
   Target,
   Zap,
   Sparkles,
+  Gauge,
 } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import {
