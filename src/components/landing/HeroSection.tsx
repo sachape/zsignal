@@ -50,35 +50,38 @@ const HeroSection = () => {
         className="pointer-events-none absolute right-[3%] top-[18%] hidden lg:block"
         style={{
           opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0) rotate(3deg)" : "translateY(30px) rotate(3deg)",
+          transform: mounted ? "translateY(0)" : "translateY(30px)",
           transition: "opacity 1000ms ease-out 500ms, transform 1200ms cubic-bezier(0.16,1,0.3,1) 500ms",
-          animation: mounted ? "bento-float 6s ease-in-out infinite" : undefined,
         }}
         aria-hidden
       >
-        <div className="relative rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.4)]">
-          <div className="flex items-center gap-3">
-            <div className="relative h-16 w-16">
-              <svg viewBox="0 0 60 60" className="h-full w-full -rotate-90">
-                <defs>
-                  <linearGradient id="heroRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" />
-                    <stop offset="100%" stopColor="hsl(var(--primary) / 0.4)" />
-                  </linearGradient>
-                </defs>
-                <circle cx="30" cy="30" r={radius} fill="none" stroke="hsl(var(--muted))" strokeOpacity="0.3" strokeWidth="4" />
-                <circle cx="30" cy="30" r={radius} fill="none" stroke="url(#heroRingGrad)" strokeWidth="4" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-base font-bold tabular-nums">{ringScore}</span>
+        <div
+          style={{ ["--rot" as string]: "3deg", animation: "hero-float 6s ease-in-out infinite" }}
+        >
+          <div className="relative rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.4)]">
+            <div className="flex items-center gap-3">
+              <div className="relative h-16 w-16">
+                <svg viewBox="0 0 60 60" className="h-full w-full -rotate-90">
+                  <defs>
+                    <linearGradient id="heroRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" />
+                      <stop offset="100%" stopColor="hsl(var(--primary) / 0.4)" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="30" cy="30" r={radius} fill="none" stroke="hsl(var(--muted))" strokeOpacity="0.3" strokeWidth="4" />
+                  <circle cx="30" cy="30" r={radius} fill="none" stroke="url(#heroRingGrad)" strokeWidth="4" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-base font-bold tabular-nums">{ringScore}</span>
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">StreamScore</span>
-              <span className="text-sm font-semibold">Bon rythme</span>
-              <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] text-primary">
-                <TrendingUp className="h-2.5 w-2.5" /> +6 cette semaine
-              </span>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">StreamScore</span>
+                <span className="text-sm font-semibold">Bon rythme</span>
+                <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] text-primary">
+                  <TrendingUp className="h-2.5 w-2.5" /> +6 cette semaine
+                </span>
+              </div>
             </div>
           </div>
         </div>
