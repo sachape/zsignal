@@ -498,8 +498,8 @@ const ResultPage = () => {
                   connexion Twitch. Connecte ta chaîne pour débloquer le rapport complet.
                 </p>
               </div>
-              <Button asChild size="sm">
-                <Link to="/auth">Débloquer le rapport complet</Link>
+              <Button size="sm" onClick={handleUnlock}>
+                Débloquer le rapport complet
               </Button>
             </CardContent>
           </Card>
