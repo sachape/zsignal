@@ -44,7 +44,10 @@ import {
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import TwitchUnlockModal from "@/components/TwitchUnlockModal";
+import FoundationModeBanner from "@/components/FoundationModeBanner";
+import QualitativeScoreCard from "@/components/QualitativeScoreCard";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
+import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { onboardingFlags } from "@/services/onboardingFlags";
 
 type SelectionSource =
@@ -397,14 +400,29 @@ const ResultPage = () => {
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
+  const displayMode = getAccountDisplayMode(report);
+  const isReconstruction = displayMode.mode === "reconstruction";
+  const isExploration = displayMode.mode === "exploration";
+  const stage =
+    summary.broadcaster_type === "partner"
+      ? "partner"
+      : summary.broadcaster_type === "affiliate"
+        ? "affiliate"
+        : "rookie";
+  // Affiliates / partners never show the "progression vers l'affiliation" tracker.
+  // For rookies, we also hide it in reconstruction mode (no meaningful progress yet).
+  const showAffiliateProgression = stage === "rookie" && !isReconstruction;
   const priorityRecs = report.recommendations
     .filter((r) => r.type === "priority")
     .slice(0, 3);
   const nextAction = report.next_best_action;
   const directCompetitors = report.competitor_groups.find((g) => g.type === "direct");
-  const visibleCompetitors = isTeaser
+  const rawVisibleCompetitors = isTeaser
     ? (directCompetitors?.matches ?? []).slice(0, 1)
     : (directCompetitors?.matches ?? []);
+  // Reconstruction: no reliable competitor fit possible → hide section entirely.
+  const visibleCompetitors = isReconstruction ? [] : rawVisibleCompetitors;
+  const showCompetitorsSection = !isReconstruction;
   const accountMismatch = Boolean(
     isPersisted &&
       saved &&
@@ -577,8 +595,19 @@ const ResultPage = () => {
           </Card>
         )}
 
+        {(isReconstruction || isExploration) && (
+          <FoundationModeBanner reasons={displayMode.reasons} />
+        )}
+
         <div className="mb-8 grid gap-4 sm:grid-cols-4">
-          <ScoreCard score={score.overall} />
+          {isReconstruction ? (
+            <QualitativeScoreCard />
+          ) : (
+            <ScoreCard
+              score={score.overall}
+              label={isExploration ? "StreamScore · estimation" : "StreamScore"}
+            />
+          )}
           <div className="flex flex-col gap-3 sm:col-span-3">
             <div className="grid gap-3 sm:grid-cols-3">
               <StatBlock
@@ -640,7 +669,7 @@ const ResultPage = () => {
             Result must stay focused on deep diagnosis. */}
 
 
-        {!isTeaser && (
+        {!isTeaser && !isReconstruction && (
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -677,6 +706,7 @@ const ResultPage = () => {
           </Card>
         )}
 
+        {showCompetitorsSection && (
         <section className="mb-8">
           <SectionHeader title="Concurrents similaires" align="left" />
           <div className="space-y-3">
@@ -709,20 +739,14 @@ const ResultPage = () => {
             </div>
           )}
         </section>
+        )}
 
         {/* Stage-aware progression module:
             - rookie    → progression vers l'affiliation
             - affiliate → "Déjà affilié — bravo" with mature signals
             - partner   → "Statut partenaire confirmé" with finer signals  */}
         {(() => {
-          const stage =
-            summary.broadcaster_type === "partner"
-              ? "partner"
-              : summary.broadcaster_type === "affiliate"
-                ? "affiliate"
-                : "rookie";
-
-          if (stage === "rookie") {
+          if (showAffiliateProgression) {
             const followersValue =
               ap.followers.available === false
                 ? null
@@ -771,6 +795,12 @@ const ResultPage = () => {
                 </CardContent>
               </Card>
             );
+          }
+
+          // Rookie in reconstruction mode: no progression tracker shown —
+          // the FoundationModeBanner already framed the context.
+          if (stage === "rookie") {
+            return null;
           }
 
           // Affiliate or partner: replace affiliate tracker with stage-grade signals.
