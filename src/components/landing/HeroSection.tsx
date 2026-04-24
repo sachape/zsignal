@@ -208,21 +208,6 @@ const HeroSection = () => {
             ))}
           </ul>
 
-          <div className="mt-2 flex justify-center">
-            <button
-              type="button"
-              onClick={() =>
-                openAuthModal({
-                  redirectTo: "/dashboard",
-                  pendingChannel: normalizeChannelInput(username) || undefined,
-                })
-              }
-              className="inline-flex items-center gap-1 text-[10.5px] text-muted-foreground/70 underline-offset-4 transition-colors hover:text-foreground/90 hover:underline"
-            >
-              Déjà un compte ? Se connecter
-              <ArrowRight className="h-2.5 w-2.5" />
-            </button>
-          </div>
         </div>
       </div>
     </section>
