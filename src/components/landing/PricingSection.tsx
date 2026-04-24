@@ -11,33 +11,35 @@ import {
 
 const PLANS = [
   {
-    name: "Aperçu",
+    name: "Aperçu gratuit",
     price: "0€",
-    cadence: "pour toujours",
-    description: "Tout ce qu'il faut pour comprendre où tu en es.",
+    cadence: "sans compte",
+    description:
+      "Lance un premier diagnostic complet pour voir si StreamPulse t'apporte de la valeur.",
     features: [
-      "1 analyse complète par chaîne",
-      "StreamScore et breakdown",
-      "3 concurrents pertinents",
-      "Suivi de l'affiliation",
+      "1 analyse instantanée par chaîne",
+      "Score global et blocage principal",
+      "Progression vers l'affiliation",
+      "3 premières actions recommandées",
     ],
-    cta: "Analyser ma chaîne",
+    cta: "Lancer un diagnostic",
     recommended: false,
   },
   {
-    name: "Pro",
+    name: "Suivi complet",
     price: "9€",
-    cadence: "par mois",
-    description: "Pour piloter sérieusement ta croissance, semaine après semaine.",
+    cadence: "par mois · sans engagement",
+    description:
+      "Pour piloter ta croissance dans la durée, pas juste pour une analyse ponctuelle.",
     features: [
-      "Analyses illimitées + historique",
+      "Analyses illimitées et historique",
       "Plan d'action hebdomadaire",
-      "Comparaison avancée de chaînes",
+      "Comparaison étendue avec d'autres chaînes",
       "Détection des meilleurs créneaux",
       "Suggestions de contenu personnalisées",
-      "Accès prioritaire aux nouveautés",
+      "Suivi multi-chaînes (à venir)",
     ],
-    cta: "Démarrer l'essai",
+    cta: "Passer en suivi complet",
     recommended: true,
   },
 ];
@@ -50,8 +52,8 @@ const PricingSection = () => {
     <SectionShell id="pricing">
       <SectionHeading
         badge="Tarifs"
-        title="Simple, transparent, sans surprise"
-        subtitle="Commence gratuitement. Passe Pro quand tu veux suivre ta progression dans la durée."
+        title="Gratuit pour comprendre, payant pour progresser"
+        subtitle="Commence sans compte. Passe au suivi complet uniquement si tu veux suivre ta progression dans la durée."
       />
 
       <div
@@ -116,7 +118,7 @@ const PricingSection = () => {
       </div>
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
-        Aucun engagement · résiliable en un clic
+        Aperçu gratuit · pas de carte bancaire requise · résiliable en un clic
       </p>
     </SectionShell>
   );
