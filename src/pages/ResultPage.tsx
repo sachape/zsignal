@@ -43,7 +43,7 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
-import TeaserResultView from "@/components/result/TeaserResultView";
+import TwitchUnlockModal from "@/components/result/TwitchUnlockModal";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { onboardingFlags } from "@/services/onboardingFlags";
 
