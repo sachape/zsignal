@@ -30,8 +30,15 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [dropdownRect, setDropdownRect] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
