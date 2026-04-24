@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Activity, ShieldCheck, Eye, Timer, AlertTriangle, ListChecks } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
@@ -44,7 +43,7 @@ const HeroSection = () => {
   ];
 
   return (
-    <section className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-28">
+    <section className="relative overflow-hidden pt-28 pb-14 md:pt-32 md:pb-20">
       {/* Layered atmosphere */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.12),transparent_55%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.04)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)] opacity-50" />
@@ -53,7 +52,7 @@ const HeroSection = () => {
 
       {/* RIGHT — StreamScore ring card */}
       <div
-        className="pointer-events-none absolute right-[3%] top-[20%] hidden lg:block"
+        className="pointer-events-none absolute right-[6%] top-[26%] hidden lg:block xl:right-[10%]"
         style={{
           opacity: mounted ? 1 : 0,
           transform: mounted ? "translateY(0)" : "translateY(30px)",
@@ -80,9 +79,9 @@ const HeroSection = () => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">StreamScore</span>
-                <span className="text-sm font-semibold">Score de chaîne</span>
-                <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] text-primary">
+                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-foreground/60">StreamScore</span>
+                <span className="text-sm font-semibold text-foreground">Score de chaîne</span>
+                <span className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-primary">
                   <Activity className="h-2.5 w-2.5" /> Diagnostic instantané
                 </span>
               </div>
@@ -93,7 +92,7 @@ const HeroSection = () => {
 
       {/* LEFT — Main blocker card */}
       <div
-        className="pointer-events-none absolute left-[3%] top-[28%] hidden lg:block"
+        className="pointer-events-none absolute left-[6%] top-[34%] hidden lg:block xl:left-[10%]"
         style={{
           opacity: mounted ? 1 : 0,
           transform: mounted ? "translateY(0)" : "translateY(30px)",
@@ -102,18 +101,18 @@ const HeroSection = () => {
         aria-hidden
       >
         <div style={{ animation: "hero-float 7.5s ease-in-out infinite 0.3s" }}>
-          <div className="relative w-[220px] rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+          <div className="relative w-[210px] rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-warning/15">
                 <AlertTriangle className="h-3.5 w-3.5 text-warning" />
               </div>
-              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Blocage principal</span>
+              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-foreground/60">Blocage principal</span>
             </div>
             <p className="mt-2 text-xs font-semibold leading-snug text-foreground">
-              Régularité du planning trop faible
+              Régularité de planning trop faible
             </p>
-            <p className="mt-1 text-[10px] leading-snug text-muted-foreground">
-              3 streams / semaine, créneaux instables
+            <p className="mt-1 text-[10px] leading-snug text-foreground/65">
+              Créneaux instables sur 30 jours
             </p>
           </div>
         </div>
@@ -121,7 +120,7 @@ const HeroSection = () => {
 
       {/* RIGHT — 3-step action plan card */}
       <div
-        className="pointer-events-none absolute right-[6%] top-[62%] hidden lg:block"
+        className="pointer-events-none absolute right-[8%] top-[68%] hidden lg:block xl:right-[12%]"
         style={{
           opacity: mounted ? 1 : 0,
           transform: mounted ? "translateY(0)" : "translateY(40px)",
@@ -130,17 +129,17 @@ const HeroSection = () => {
         aria-hidden
       >
         <div style={{ animation: "hero-float 8s ease-in-out infinite 1s" }}>
-          <div className="relative w-[230px] rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
+          <div className="relative w-[220px] rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
                 <ListChecks className="h-3.5 w-3.5 text-primary" />
               </div>
-              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Plan d'action</span>
+              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-foreground/60">Plan d'action</span>
             </div>
             <ul className="mt-2.5 space-y-1.5 text-[11px] text-foreground/90">
               {[
                 "Fixer 2 créneaux récurrents",
-                "Retravailler 5 titres VOD",
+                "Retravailler tes titres VOD",
                 "Cibler 1 catégorie pivot",
               ].map((step, i) => (
                 <li key={step} className="flex items-start gap-2">
@@ -172,17 +171,17 @@ const HeroSection = () => {
             <Activity className="h-3 w-3" />
             Diagnostic Twitch instantané
           </span>
-          <h1 className="mx-auto mt-6 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-6xl md:text-7xl">
+          <h1 className="mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
             Comprends ce qui bloque ta chaîne Twitch.
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-base text-muted-foreground/90 md:text-lg">
+          <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground/90 md:text-lg">
             Entre ton pseudo et découvre en moins d'une minute ton score, ton
             principal frein de croissance et les premières actions à appliquer.
           </p>
         </div>
 
         <div
-          className="mx-auto mt-10 max-w-lg text-left"
+          className="mx-auto mt-7 max-w-lg text-left"
           style={{
             opacity: mounted ? 1 : 0,
             transform: mounted ? "translateY(0)" : "translateY(20px)",
@@ -200,7 +199,7 @@ const HeroSection = () => {
           />
 
           {/* Micro-réassurance directe sous l'input */}
-          <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground/90">
+          <ul className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-foreground/70">
             {trust.map(({ icon: Icon, label }) => (
               <li key={label} className="inline-flex items-center gap-1.5">
                 <Icon className="h-3 w-3 text-primary" />
@@ -209,20 +208,20 @@ const HeroSection = () => {
             ))}
           </ul>
 
-          <div className="mt-3 flex justify-center">
-            <Button
-              variant="link"
+          <div className="mt-2 flex justify-center">
+            <button
+              type="button"
               onClick={() =>
                 openAuthModal({
                   redirectTo: "/dashboard",
                   pendingChannel: normalizeChannelInput(username) || undefined,
                 })
               }
-              className="h-auto p-0 text-[11px] text-muted-foreground hover:text-primary"
+              className="inline-flex items-center gap-1 text-[10.5px] text-muted-foreground/70 underline-offset-4 transition-colors hover:text-foreground/90 hover:underline"
             >
               Déjà un compte ? Se connecter
-              <ArrowRight className="h-3 w-3" />
-            </Button>
+              <ArrowRight className="h-2.5 w-2.5" />
+            </button>
           </div>
         </div>
       </div>
