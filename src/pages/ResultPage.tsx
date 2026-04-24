@@ -689,10 +689,11 @@ const ResultPage = () => {
               <LockedOverlay
                 message={
                   isTeaser
-                    ? "Crée un compte pour voir tous les concurrents pertinents"
+                    ? "Connecte Twitch pour voir tous les concurrents pertinents"
                     : "Connecte Twitch pour voir plus de concurrents"
                 }
-                cta="Débloquer"
+                cta="Continuer avec Twitch"
+                onUnlock={handleUnlock}
               />
             </div>
           )}
