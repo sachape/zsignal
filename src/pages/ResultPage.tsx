@@ -86,8 +86,9 @@ const ResultPage = () => {
   const [selectionSource, setSelectionSource] = useState<SelectionSource>(null);
 
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
-  // Debug panel is dev-only — never shipped in production UX.
-  const showDebugPanel = import.meta.env.DEV;
+  // Debug panel is opt-in via ?debug=1 so it never leaks into the real user UX.
+  const showDebugPanel =
+    import.meta.env.DEV && searchParams.get("debug") === "1";
 
   useEffect(() => {
     if (authLoading || twitchLoading) return;
