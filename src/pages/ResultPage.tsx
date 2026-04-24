@@ -635,32 +635,10 @@ const ResultPage = () => {
           </div>
         </div>
 
-        {/* Bridge between diagnosis and execution: surface the same blocker as
-            the dashboard, and offer a direct link to the weekly plan so the
-            user always sees the loop diagnosis → blocker → plan. */}
-        {isPersisted && saved && !saved.is_demo && (() => {
-          const foundation = diagnoseFoundationMode(report);
-          if (!foundation.isActive) return null;
-          return (
-            <>
-              <MainBlockerCard blocker={foundation.blocker} />
-              <Card className="mb-8 border-primary/30 bg-primary/5">
-                <CardContent className="flex flex-wrap items-center gap-3 p-4">
-                  <CalendarCheck className="h-4 w-4 shrink-0 text-primary" />
-                  <p className="min-w-0 flex-1 text-xs text-foreground">
-                    Le diagnostic ci-dessous nourrit ton plan hebdomadaire. Passe à
-                    l'exécution dès que tu as compris pourquoi.
-                  </p>
-                  <Button asChild size="sm">
-                    <Link to="/plan">
-                      Voir le plan de la semaine <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </>
-          );
-        })()}
+        {/* No MainBlocker / plan bridge here: the cockpit is the single
+            home that surfaces the current blocker and the weekly plan link.
+            Result must stay focused on deep diagnosis. */}
+
 
         {!isTeaser && (
           <Card className="mb-8">
