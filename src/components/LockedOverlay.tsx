@@ -8,18 +8,29 @@ interface LockedOverlayProps {
   message?: string;
   cta?: string;
   to?: string;
+  /**
+   * Custom unlock handler. When provided, it overrides the default
+   * behaviour (which opens the generic auth modal). Used on flows that
+   * must stay Twitch-first, like the free result page.
+   */
+  onUnlock?: () => void;
 }
 
 const LockedOverlay = ({
   message = "Connecte-toi pour débloquer",
   cta = "Débloquer",
   to,
+  onUnlock,
 }: LockedOverlayProps) => {
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
   const navigate = useNavigate();
 
   const handleClick = () => {
+    if (onUnlock) {
+      onUnlock();
+      return;
+    }
     if (to) {
       navigate(to);
       return;

@@ -15,7 +15,7 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAuthModal } from "@/contexts/AuthModalContext";
+
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -43,7 +43,7 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
-import TeaserResultView from "@/components/result/TeaserResultView";
+import TwitchUnlockModal from "@/components/result/TwitchUnlockModal";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { onboardingFlags } from "@/services/onboardingFlags";
 
@@ -69,7 +69,7 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { openAuthModal } = useAuthModal();
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
   const { account: twitchAccount, loading: twitchLoading } = useTwitchConnection();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
@@ -374,7 +374,6 @@ const ResultPage = () => {
 
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
   const fromOnboarding = searchParams.get("from") === "onboarding";
-  const postAuthRedirect = `/connect-twitch`;
   const handleUnlock = () => {
     // Persist teaser id across the OAuth round-trip so the callback can
     // redirect the user back to /result?teaser=...&from=onboarding and
@@ -383,22 +382,16 @@ const ResultPage = () => {
       onboardingFlags.setPendingTeaserId(teaserId);
     }
     if (user) {
-      navigate("/connect-twitch");
-    } else {
-      openAuthModal({
-        redirectTo: postAuthRedirect,
-        pendingChannel: teaserCtaChannel || null,
-        contextText:
-          "Crée ton compte pour débloquer le rapport complet et sauvegarder ton analyse.",
-      });
+      // Authenticated: go straight to the Twitch connection surface (which
+      // kicks off OAuth). We do not show the generic auth modal here — this
+      // flow is Twitch-first.
+      navigate(`/connect-twitch${teaserId ? `?teaser=${teaserId}` : ""}`);
+      return;
     }
+    // Unauthenticated: open the Twitch-first unlock modal. No email / password
+    // / Google surface is shown on this path.
+    setUnlockModalOpen(true);
   };
-
-  // Teaser path: render the dedicated diagnostic-first view (no AppShell, no
-  // debug panel, no dashboard chrome — pure conversion-oriented experience).
-  if (isTeaser) {
-    return <TeaserResultView report={report} onUnlock={handleUnlock} fromOnboarding={fromOnboarding} />;
-  }
 
   const summary = report.channel_summary;
   const score = report.score;
@@ -696,10 +689,11 @@ const ResultPage = () => {
               <LockedOverlay
                 message={
                   isTeaser
-                    ? "Crée un compte pour voir tous les concurrents pertinents"
+                    ? "Connecte Twitch pour voir tous les concurrents pertinents"
                     : "Connecte Twitch pour voir plus de concurrents"
                 }
-                cta="Débloquer"
+                cta="Continuer avec Twitch"
+                onUnlock={handleUnlock}
               />
             </div>
           )}
@@ -836,19 +830,24 @@ const ResultPage = () => {
                   : "Tu veux l'analyse complète ?"}
               </h3>
               <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                {user
-                  ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
-                  : isTeaser
-                    ? "Crée un compte gratuit pour sauvegarder ton analyse, voir tous les concurrents, le plan d'action complet et suivre ta progression vers l'affiliation."
-                    : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
+                {isTeaser
+                  ? "Connecte Twitch pour sauvegarder ton analyse, débloquer les données enrichies et suivre ta progression."
+                  : user
+                    ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
+                    : "Connecte Twitch pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button onClick={handleUnlock} className="mt-2">
-                {user ? "Connecter Twitch" : "Créer un compte gratuit"}
+                Continuer avec Twitch
               </Button>
             </CardContent>
           </Card>
         )}
       </PageContainer>
+      <TwitchUnlockModal
+        open={unlockModalOpen}
+        onOpenChange={setUnlockModalOpen}
+        teaserId={teaserId}
+      />
     </AppShell>
   );
 };
