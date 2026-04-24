@@ -474,12 +474,12 @@ const ResultPage = () => {
             summary.is_partial
               ? `Données publiques uniquement${
                   summary.followers_available === false
-                    ? " · followers indisponibles"
+                    ? " · followers totaux disponibles après connexion Twitch"
                     : ""
                 }`
               : `~${summary.avg_viewers} viewers moyens en live · ${
                   summary.followers_available === false
-                    ? "followers indisponibles"
+                    ? "followers disponibles après reconnexion Twitch"
                     : `${summary.follower_count} followers`
                 }`
           }
