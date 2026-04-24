@@ -11,31 +11,31 @@ import { SectionHeading, SectionShell } from "./primitives";
 const FAQS = [
   {
     q: "Faut-il connecter Twitch pour commencer ?",
-    a: "Non. Entre simplement ton pseudo : StreamPulse lit les signaux publics de ta chaîne pour générer un premier diagnostic. La connexion arrive seulement si tu veux le suivi complet.",
+    a: "Non. Entre simplement ton pseudo : StreamPulse lit les signaux publics de ta chaîne pour générer un premier diagnostic. La connexion Twitch arrive seulement si tu veux le suivi complet.",
   },
   {
     q: "Quelles données sont analysées ?",
-    a: "Uniquement des données publiques : titres et catégories de tes streams récents, vues des VOD et clips, profil de chaîne. Aucune donnée privée n'est lue dans cette première étape.",
+    a: "StreamPulse analyse les signaux utiles de ta chaîne : régularité, progression vers l'objectif, dynamiques visibles et premiers indicateurs de performance. Le niveau de détail augmente avec le suivi complet.",
   },
   {
     q: "Puis-je essayer sans créer de compte ?",
-    a: "Oui. Le premier diagnostic est accessible sans compte. Tu crées un compte uniquement pour sauvegarder ton historique et débloquer le suivi continu.",
+    a: "Oui. Tu peux lancer un premier diagnostic sans compte. Le compte devient utile si tu veux sauvegarder ton analyse, la retrouver et aller plus loin.",
   },
   {
     q: "Que débloque la version complète ?",
-    a: "Analyses illimitées, historique de progression, plan d'action hebdomadaire, comparaison étendue avec d'autres chaînes et suggestions de contenu personnalisées.",
+    a: "Le suivi complet ajoute l'historique, une lecture plus riche de ta progression, davantage de contexte sur tes performances et un accompagnement plus utile dans le temps.",
   },
   {
     q: "Est-ce utile si je débute ?",
-    a: "Particulièrement, oui. StreamPulse t'évite les erreurs classiques en te montrant dès le départ ce qui pèse vraiment sur ta croissance — au lieu de te noyer dans des chiffres.",
+    a: "Oui. StreamPulse n'est pas réservé aux grosses chaînes. L'outil est justement utile pour poser de bonnes bases, éviter les erreurs classiques et suivre une progression plus claire.",
   },
   {
     q: "StreamPulse publie-t-il quoi que ce soit sur ma chaîne ?",
-    a: "Jamais. L'outil est en lecture seule. Aucun message, aucun follow, aucune action n'est effectuée sur ta chaîne ou ton compte.",
+    a: "Non. StreamPulse ne publie rien à ta place. Le diagnostic initial est en lecture seule.",
   },
   {
     q: "Pourrai-je suivre plusieurs chaînes plus tard ?",
-    a: "Oui, le suivi multi-chaînes fait partie des évolutions prévues pour les comptes Pro.",
+    a: "Oui, c'est prévu pour les usages plus avancés. L'expérience actuelle est centrée sur l'analyse et le suivi de ta chaîne, avec une ouverture progressive vers le multi-chaînes.",
   },
 ];
 
@@ -46,8 +46,8 @@ const FaqSection = () => {
     <SectionShell id="faq">
       <SectionHeading
         badge="FAQ"
-        title="Tout ce que tu te demandes avant de lancer"
-        subtitle="Les réponses courtes aux objections les plus fréquentes."
+        title="Les questions qu'on nous pose avant de lancer"
+        subtitle="Des réponses courtes, sans jargon, pour lever les derniers doutes."
       />
 
       <div
@@ -60,7 +60,7 @@ const FaqSection = () => {
             "opacity 700ms cubic-bezier(0.16,1,0.3,1), transform 700ms cubic-bezier(0.16,1,0.3,1)",
         }}
       >
-        <Accordion type="single" collapsible className="space-y-3">
+        <Accordion type="single" collapsible defaultValue="faq-0" className="space-y-3">
           {FAQS.map((item, i) => (
             <AccordionItem
               key={item.q}
