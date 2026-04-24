@@ -19,6 +19,16 @@ const TWITCH_SCOPES = [
   "moderator:read:followers",
 ].join(" ");
 
+async function deriveTwitchPassword(
+  twitchUserId: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<string> {
+  const input = new TextEncoder().encode(`${twitchUserId}:${clientId}:${clientSecret}`);
+  const digest = await crypto.subtle.digest("SHA-256", input);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -58,25 +68,9 @@ Deno.serve(async (req) => {
       return json({ error: "Method not allowed." }, 405);
     }
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return json({ error: "Missing authorization." }, 401);
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const {
-      data: { user },
-      error: userError,
-    } = await userClient.auth.getUser();
-    if (userError || !user) {
-      return json({ error: "Unauthorized" }, 401);
-    }
 
     const body = await req.json().catch(() => ({}));
     const { code, redirect_uri } = body as {
@@ -132,18 +126,62 @@ Deno.serve(async (req) => {
     // 3) Upsert into connected_accounts using service role (bypass RLS, scoped to this user_id)
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
     const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+    const syntheticEmail = `twitch-${tw.id}@users.streampulse.app`;
+    const derivedPassword = await deriveTwitchPassword(tw.id, clientId, clientSecret);
+
+    const { data: existingProfile } = await adminClient
+      .from("profiles")
+      .select("user_id")
+      .eq("email", syntheticEmail)
+      .maybeSingle();
+
+    let authUserId = existingProfile?.user_id ?? null;
+
+    if (!authUserId) {
+      const { data: createdUser, error: createUserError } = await adminClient.auth.admin.createUser({
+        email: syntheticEmail,
+        password: derivedPassword,
+        email_confirm: true,
+        user_metadata: {
+          twitch_login: tw.login,
+          twitch_display_name: tw.display_name,
+          auth_source: "twitch_oauth",
+        },
+      });
+
+      if (createUserError || !createdUser.user) {
+        console.error("[twitch-oauth] auth user creation failed", createUserError);
+        return json({ code: "session_bootstrap_failed", error: "Unable to initialize user session." }, 500);
+      }
+
+      authUserId = createdUser.user.id;
+    }
+
+    const authClient = createClient(supabaseUrl, supabaseAnonKey);
+    const {
+      data: authSession,
+      error: authSessionError,
+    } = await authClient.auth.signInWithPassword({
+      email: syntheticEmail,
+      password: derivedPassword,
+    });
+
+    if (authSessionError || !authSession.session || !authSession.user) {
+      console.error("[twitch-oauth] sign in failed", authSessionError);
+      return json({ code: "session_bootstrap_failed", error: "Unable to initialize user session." }, 500);
+    }
 
     // Delete any prior twitch row for this user, then insert fresh
     await adminClient
       .from("connected_accounts")
       .delete()
-      .eq("user_id", user.id)
+      .eq("user_id", authSession.user.id)
       .eq("platform", "twitch");
 
     const { error: insertError } = await adminClient
       .from("connected_accounts")
       .insert({
-        user_id: user.id,
+        user_id: authSession.user.id,
         platform: "twitch",
         platform_user_id: tw.id,
         platform_login: tw.login,
@@ -155,13 +193,14 @@ Deno.serve(async (req) => {
       });
     if (insertError) {
       console.error("[twitch-oauth] insert failed", insertError);
-      return json({ error: "Failed to store connection." }, 500);
+      return json({ code: "connection_store_failed", error: "Failed to store connection." }, 500);
     }
 
     return json({
       success: true,
       platform_login: tw.login,
       platform_display_name: tw.display_name,
+      session: authSession.session,
     });
   } catch (err) {
     console.error("[twitch-oauth] unexpected", err);

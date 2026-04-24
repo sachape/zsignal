@@ -5,7 +5,11 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { completeTwitchCallback, consumePendingTeaserId } from "@/services/twitchOAuth";
+import {
+  completeTwitchCallback,
+  consumePendingTeaserId,
+  peekPendingTeaserId,
+} from "@/services/twitchOAuth";
 import { onboardingFlags } from "@/services/onboardingFlags";
 
 type CallbackState = "processing" | "error" | "cancelled";
@@ -22,6 +26,11 @@ const TwitchCallbackPage = () => {
   const [state, setState] = useState<CallbackState>("processing");
   const [errorMsg, setErrorMsg] = useState("");
   const [stepIndex, setStepIndex] = useState(0);
+  const teaserId = peekPendingTeaserId();
+  const previewTarget = teaserId ? `/result?teaser=${encodeURIComponent(teaserId)}` : "/";
+  const retryTarget = teaserId
+    ? `/connect-twitch?teaser=${encodeURIComponent(teaserId)}`
+    : "/connect-twitch";
 
   // Honest, premium sequential loader. Steps advance every 900ms while the
   // OAuth exchange runs in parallel — we never block on the timer.
@@ -71,9 +80,12 @@ const TwitchCallbackPage = () => {
 
         // replace: true so the back button doesn't return to the callback URL.
         navigate(target, { replace: true });
-      } else {
+        return;
+      }
+
+      if ("error" in result) {
         setState("error");
-        setErrorMsg(result.error || "Erreur lors de la connexion.");
+        setErrorMsg(result.error);
       }
     })();
 
@@ -121,13 +133,15 @@ const TwitchCallbackPage = () => {
                     Connexion annulée
                   </h2>
                   <p className="mx-auto max-w-sm text-sm text-muted-foreground">
-                    Tu as refusé l'autorisation Twitch. Pas de souci — tu peux
-                    réessayer quand tu veux.
+                    Connexion annulée. Tu peux rester sur l’aperçu gratuit et reconnecter Twitch plus tard.
                   </p>
                 </div>
-                <Button onClick={() => navigate("/connect-twitch")} className="mt-2">
-                  Retour
-                </Button>
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                  <Button onClick={() => navigate(previewTarget)}>Revenir à l’aperçu</Button>
+                  <Button variant="ghost" onClick={() => navigate(retryTarget)}>
+                    Réessayer
+                  </Button>
+                </div>
               </>
             )}
 
@@ -138,16 +152,18 @@ const TwitchCallbackPage = () => {
                 </div>
                 <div className="space-y-1.5">
                   <h2 className="text-base font-semibold text-foreground">
-                    Erreur de connexion
+                    Connexion Twitch impossible
                   </h2>
                   <p className="mx-auto max-w-sm text-sm text-muted-foreground">
-                    {errorMsg ||
-                      "Une erreur est survenue lors de la connexion avec Twitch."}
+                    {errorMsg || "La connexion n’a pas pu être finalisée. Réessaie dans un instant."}
                   </p>
                 </div>
-                <Button onClick={() => navigate("/connect-twitch")} className="mt-2">
-                  Réessayer
-                </Button>
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                  <Button onClick={() => navigate(retryTarget)}>Réessayer</Button>
+                  <Button variant="ghost" onClick={() => navigate(previewTarget)}>
+                    Revenir à l’aperçu
+                  </Button>
+                </div>
               </>
             )}
 
