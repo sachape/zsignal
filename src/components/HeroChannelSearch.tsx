@@ -122,8 +122,8 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
   return (
     <div ref={containerRef} className="relative">
       <Card>
-        <CardContent className="flex gap-2 p-2">
-          <div className="relative flex-1">
+        <CardContent className="flex flex-col gap-2 p-2 sm:flex-row">
+          <div className="relative w-full flex-1 min-w-0">
             {loading ? (
               <Loader2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
             ) : (
@@ -132,7 +132,7 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
             <Input
               ref={inputRef}
               type="text"
-              placeholder="Pseudo Twitch ou URL de chaîne (ex. twitch.tv/nexagaming)"
+              placeholder="Pseudo Twitch ou URL de chaîne"
               value={value}
               onChange={(e) => {
                 onChange(e.target.value);
@@ -140,7 +140,7 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
               }}
               onFocus={() => setOpen(true)}
               onKeyDown={onKeyDown}
-              className="border-transparent bg-muted pl-9 focus-visible:ring-1"
+              className="h-11 w-full border-transparent bg-muted pl-9 focus-visible:ring-1 sm:h-10"
               aria-invalid={!!inputError}
               aria-autocomplete="list"
               aria-expanded={showDropdown}
@@ -148,7 +148,10 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
               role="combobox"
             />
           </div>
-          <Button onClick={submitDirect} className="shrink-0">
+          <Button
+            onClick={submitDirect}
+            className="h-11 w-full shrink-0 sm:h-10 sm:w-auto"
+          >
             Analyser ma chaîne
             <ArrowRight className="h-4 w-4" />
           </Button>
