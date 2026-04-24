@@ -1,9 +1,8 @@
 import {
-  Gauge,
-  AlertTriangle,
-  Target,
-  Sparkles,
+  History,
   Users,
+  Map,
+  Bell,
 } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import {
@@ -15,46 +14,38 @@ import {
 
 const FEATURES = [
   {
-    icon: Gauge,
-    label: "Lecture du niveau",
-    title: "Vois immédiatement où ta chaîne en est",
+    icon: History,
+    label: "Historique",
+    title: "Vois ta progression dans le temps",
     description:
-      "Un score lisible, interprété humainement, pour comprendre si ta chaîne progresse, stagne ou reste trop fragile.",
+      "Score, viewers, régularité, objectifs : tout est suivi semaine après semaine pour repérer ce qui marche vraiment.",
     hero: true,
     span: "md:col-span-3",
-  },
-  {
-    icon: AlertTriangle,
-    label: "Diagnostic",
-    title: "Identifie ce qui te freine vraiment",
-    description:
-      "StreamPulse fait remonter le blocage principal de ta chaîne pour éviter de corriger le mauvais problème.",
-    hero: true,
-    span: "md:col-span-3",
-  },
-  {
-    icon: Target,
-    label: "Objectif",
-    title: "Suis ta progression vers l'affiliation",
-    description:
-      "Viewers, jours de stream, chatteurs uniques : vois précisément ce qu'il te manque et à quel rythme tu avances.",
-    span: "md:col-span-2",
-  },
-  {
-    icon: Sparkles,
-    label: "Action",
-    title: "Décide quoi tester au prochain stream",
-    description:
-      "Repars avec une action prioritaire claire au lieu de te perdre dans des statistiques brutes.",
-    span: "md:col-span-2",
   },
   {
     icon: Users,
-    label: "Comparaison",
+    label: "Concurrents",
     title: "Compare-toi à des chaînes vraiment pertinentes",
     description:
-      "Pas un benchmark flou contre tout Twitch : des comparaisons utiles pour comprendre ce qui marche à ton niveau.",
-    span: "md:col-span-2",
+      "Pas un benchmark flou contre tout Twitch : des comparaisons utiles à ton niveau, ta langue, ton format.",
+    hero: true,
+    span: "md:col-span-3",
+  },
+  {
+    icon: Map,
+    label: "Plan détaillé",
+    title: "Un plan d'action enrichi, pas une seule action",
+    description:
+      "Au-delà de la première action prioritaire, vois la séquence complète à exécuter pour passer le prochain cap.",
+    span: "md:col-span-3",
+  },
+  {
+    icon: Bell,
+    label: "Suivi",
+    title: "Sois alerté quand ton diagnostic évolue",
+    description:
+      "Score qui chute, blocage qui change, nouvel objectif débloqué : tu restes au courant sans avoir à relancer une analyse.",
+    span: "md:col-span-3",
   },
 ];
 
@@ -70,9 +61,9 @@ const FeaturesSection = () => {
   return (
     <SectionShell id="features">
       <SectionHeading
-        badge="Bénéfices"
-        title="Ce que StreamPulse change concrètement pour toi"
-        subtitle="Pas une liste de features. Des réponses claires aux questions que tu te poses après chaque stream."
+        badge="Au-delà du premier diagnostic"
+        title="Ce que tu débloques avec le suivi complet"
+        subtitle="Le diagnostic gratuit te montre où tu en es. Le suivi complet t'aide à progresser dans la durée."
       />
 
       <div
