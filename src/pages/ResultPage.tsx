@@ -583,24 +583,41 @@ const ResultPage = () => {
             <div className="grid gap-3 sm:grid-cols-3">
               <StatBlock
                 label="Vues moyennes par VOD"
-                value={String(summary.avg_viewers)}
+                value={summary.avg_viewers > 0 ? String(summary.avg_viewers) : "—"}
                 subtext={
-                  summary.is_partial
-                    ? "Données publiques · influencé par les rediffusions"
-                    : "30 derniers jours · pas un compteur live"
+                  summary.avg_viewers > 0
+                    ? summary.is_partial
+                      ? "Données publiques · influencé par les rediffusions"
+                      : "30 derniers jours · pas un compteur live"
+                    : "Pas encore mesurable sur ces 30 jours"
                 }
               />
               <StatBlock
                 label="Régularité"
                 value={`${score.regularity}%`}
-                subtext={`${ap.stream_days.current}/${ap.stream_days.target} jours`}
+                subtext={
+                  ap.stream_days.current > 0
+                    ? `${ap.stream_days.current}/${ap.stream_days.target} jours`
+                    : "Aucun live détecté sur 30 jours"
+                }
               />
-              <StatBlock
-                label="Contenu"
-                value={`${score.content}%`}
-                subtext={`${report.facts.find((f) => f.key === "clips_30d")?.value ?? 0} clips`}
-                accent
-              />
+              {(() => {
+                const clipsCount = Number(
+                  report.facts.find((f) => f.key === "clips_30d")?.value ?? 0,
+                );
+                return (
+                  <StatBlock
+                    label="Contenu"
+                    value={`${score.content}%`}
+                    subtext={
+                      clipsCount > 0
+                        ? `${clipsCount} clips`
+                        : "Pas encore de clips récents"
+                    }
+                    accent
+                  />
+                );
+              })()}
             </div>
             <Card>
               <CardContent className="p-4">
