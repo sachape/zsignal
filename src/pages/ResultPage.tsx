@@ -43,6 +43,7 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
+import TeaserResultView from "@/components/result/TeaserResultView";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 
 type SelectionSource =
@@ -386,6 +387,13 @@ const ResultPage = () => {
       });
     }
   };
+
+  // Teaser path: render the dedicated diagnostic-first view (no AppShell, no
+  // debug panel, no dashboard chrome — pure conversion-oriented experience).
+  if (isTeaser) {
+    return <TeaserResultView report={report} onUnlock={handleUnlock} />;
+  }
+
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
