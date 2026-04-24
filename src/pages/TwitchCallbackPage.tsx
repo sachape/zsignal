@@ -91,7 +91,7 @@ const TwitchCallbackPage = () => {
       // The server-side edge function already bootstrapped a Supabase session
       // and wrote the connected_accounts row. Read back the authoritative
       // identity from the DB (source of truth) before running enrichment.
-      setStepIndex(2); // move the UI to "Enrichissement de ton diagnostic…"
+      setStepIndex(2); // move the UI to "On calcule ton StreamScore et ton plan…"
 
       const { data: sessionData } = await supabase.auth.getSession();
       if (cancelled) return;
