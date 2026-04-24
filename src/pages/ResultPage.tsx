@@ -699,48 +699,110 @@ const ResultPage = () => {
           )}
         </section>
 
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Progression vers l'affiliation
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {[
-              {
-                label: "Followers",
-                value:
-                  ap.followers.available === false
-                    ? `— / ${ap.followers.target}`
-                    : `${ap.followers.current ?? 0} / ${ap.followers.target}`,
-                pct:
-                  ap.followers.available === false
-                    ? 0
-                    : Math.min(
-                        100,
-                        Math.round(((ap.followers.current ?? 0) / ap.followers.target) * 100),
-                      ),
-              },
-              {
-                label: "Viewers moyens",
-                value: `${ap.avg_viewers.current} / ${ap.avg_viewers.target}`,
-                pct: Math.min(100, Math.round((ap.avg_viewers.current / ap.avg_viewers.target) * 100)),
-              },
-              {
-                label: "Jours de stream",
-                value: `${ap.stream_days.current} / ${ap.stream_days.target}`,
-                pct: Math.min(100, Math.round((ap.stream_days.current / ap.stream_days.target) * 100)),
-              },
-              {
-                label: "Heures de stream",
-                value: `${ap.stream_hours.current} / ${ap.stream_hours.target}`,
-                pct: Math.min(100, Math.round((ap.stream_hours.current / ap.stream_hours.target) * 100)),
-              },
-            ].map((item) => (
-              <ProgressRow key={item.label} label={item.label} value={item.value} pct={item.pct} />
-            ))}
-          </CardContent>
-        </Card>
+        {/* Stage-aware progression module:
+            - rookie    → progression vers l'affiliation
+            - affiliate → "Déjà affilié — bravo" with mature signals
+            - partner   → "Statut partenaire confirmé" with finer signals  */}
+        {(() => {
+          const stage =
+            summary.broadcaster_type === "partner"
+              ? "partner"
+              : summary.broadcaster_type === "affiliate"
+                ? "affiliate"
+                : "rookie";
+
+          if (stage === "rookie") {
+            const followersValue =
+              ap.followers.available === false
+                ? null
+                : Math.min(ap.followers.current ?? 0, ap.followers.target);
+            return (
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                    Progression vers l'affiliation
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {[
+                    {
+                      label: "Followers",
+                      value:
+                        followersValue === null
+                          ? "Disponible avec Twitch"
+                          : `${followersValue} / ${ap.followers.target}`,
+                      pct:
+                        followersValue === null
+                          ? 0
+                          : Math.min(
+                              100,
+                              Math.round((followersValue / ap.followers.target) * 100),
+                            ),
+                    },
+                    {
+                      label: "Viewers moyens",
+                      value: `${Math.min(ap.avg_viewers.current, ap.avg_viewers.target)} / ${ap.avg_viewers.target}`,
+                      pct: Math.min(100, Math.round((ap.avg_viewers.current / ap.avg_viewers.target) * 100)),
+                    },
+                    {
+                      label: "Jours de stream",
+                      value: `${Math.min(ap.stream_days.current, ap.stream_days.target)} / ${ap.stream_days.target}`,
+                      pct: Math.min(100, Math.round((ap.stream_days.current / ap.stream_days.target) * 100)),
+                    },
+                    {
+                      label: "Heures de stream",
+                      value: `${Math.min(ap.stream_hours.current, ap.stream_hours.target)} / ${ap.stream_hours.target}`,
+                      pct: Math.min(100, Math.round((ap.stream_hours.current / ap.stream_hours.target) * 100)),
+                    },
+                  ].map((item) => (
+                    <ProgressRow key={item.label} label={item.label} value={item.value} pct={item.pct} />
+                  ))}
+                </CardContent>
+              </Card>
+            );
+          }
+
+          // Affiliate or partner: replace affiliate tracker with stage-grade signals.
+          const isPartner = stage === "partner";
+          const signals = [
+            { label: "Régularité", value: Math.round(score.regularity) },
+            { label: "Momentum", value: Math.round(score.momentum) },
+            { label: "Structure de live", value: Math.round(score.structure) },
+            { label: "Contenu recyclable", value: Math.round(score.content) },
+          ];
+          return (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold text-foreground">
+                  {isPartner ? "Statut partenaire confirmé" : "Déjà affilié — bravo"}
+                </CardTitle>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {isPartner
+                    ? "Ton enjeu n'est plus de franchir un seuil, mais de piloter ta performance avec plus de précision."
+                    : "Tu as franchi le premier cap. L'enjeu maintenant est de stabiliser ta progression et de renforcer ce qui fait vraiment grandir ta chaîne."}
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {signals.map((s) => (
+                    <div
+                      key={s.label}
+                      className="rounded-lg border border-border/60 bg-muted/20 p-4"
+                    >
+                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {s.label}
+                      </div>
+                      <div className="mt-1 flex items-baseline gap-1">
+                        <span className="text-2xl font-bold text-foreground">{s.value}</span>
+                        <span className="text-xs text-muted-foreground">/ 100</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         <section className="mb-8">
           <SectionHeader title="Actions recommandées" align="left" />
