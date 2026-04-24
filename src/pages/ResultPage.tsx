@@ -669,7 +669,7 @@ const ResultPage = () => {
             Result must stay focused on deep diagnosis. */}
 
 
-        {!isTeaser && (
+        {!isTeaser && !isReconstruction && (
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
