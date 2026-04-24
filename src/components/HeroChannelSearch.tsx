@@ -132,7 +132,7 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
             <Input
               ref={inputRef}
               type="text"
-              placeholder="ex. nexagaming ou twitch.tv/nexagaming"
+              placeholder="Entre ton pseudo Twitch"
               value={value}
               onChange={(e) => {
                 onChange(e.target.value);
