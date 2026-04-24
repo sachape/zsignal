@@ -6,10 +6,90 @@ const REDIRECT_URI = `${window.location.origin}/twitch/callback`;
 const STATE_KEY = "streampulse_twitch_oauth_state";
 const STATE_TEASER_KEY = "streampulse_twitch_oauth_teaser_id";
 
+type TwitchOAuthErrorCode =
+  | "cancelled"
+  | "config_unavailable"
+  | "invalid_state"
+  | "session_bootstrap_failed"
+  | "temporary_unavailable";
+
+type TwitchOAuthFailure = {
+  success: false;
+  code: TwitchOAuthErrorCode;
+  error: string;
+};
+
+type TwitchOAuthSuccess = {
+  success: true;
+  platform_login?: string;
+};
+
+export type CompleteTwitchCallbackResult = TwitchOAuthSuccess | TwitchOAuthFailure;
+
 function generateNonce(): string {
   const arr = new Uint8Array(16);
   crypto.getRandomValues(arr);
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function mapAuthorizeError(rawError?: string): string {
+  const normalized = rawError?.toLowerCase() ?? "";
+
+  if (
+    normalized.includes("credentials not configured") ||
+    normalized.includes("client") ||
+    normalized.includes("redirect")
+  ) {
+    return "La connexion Twitch est temporairement indisponible. Réessaie dans un instant.";
+  }
+
+  return "Impossible de démarrer la connexion Twitch pour le moment. Réessaie dans un instant.";
+}
+
+function mapCallbackError(code?: string, rawError?: string): TwitchOAuthFailure {
+  const normalizedCode = code?.toLowerCase() ?? "";
+  const normalizedError = rawError?.toLowerCase() ?? "";
+
+  if (normalizedCode === "invalid_state") {
+    return {
+      success: false,
+      code: "invalid_state",
+      error: "La tentative de connexion a expiré. Réessaie pour relancer Twitch.",
+    };
+  }
+
+  if (
+    normalizedCode === "token_exchange_failed" ||
+    normalizedCode === "twitch_user_lookup_failed" ||
+    normalizedCode === "connection_store_failed" ||
+    normalizedCode === "session_bootstrap_failed" ||
+    normalizedError.includes("non-2xx") ||
+    normalizedError.includes("token exchange")
+  ) {
+    return {
+      success: false,
+      code: "temporary_unavailable",
+      error: "La connexion n’a pas pu être finalisée. Réessaie dans un instant.",
+    };
+  }
+
+  if (
+    normalizedCode === "config_unavailable" ||
+    normalizedError.includes("redirect") ||
+    normalizedError.includes("credentials not configured")
+  ) {
+    return {
+      success: false,
+      code: "config_unavailable",
+      error: "La configuration Twitch est temporairement indisponible. Réessaie dans un instant.",
+    };
+  }
+
+  return {
+    success: false,
+    code: "temporary_unavailable",
+    error: "La connexion n’a pas pu être finalisée. Réessaie dans un instant.",
+  };
 }
 
 /**
@@ -41,10 +121,9 @@ export async function initiateTwitchOAuth(options?: { teaserId?: string | null }
       apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     },
   });
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok || !data.url) {
-    console.error("[TwitchOAuth] authorize-url failed", data);
-    throw new Error(data.error || "Impossible d'initier la connexion Twitch.");
+    throw new Error(mapAuthorizeError(data.error));
   }
   window.location.href = data.url;
 }
@@ -53,12 +132,17 @@ export async function initiateTwitchOAuth(options?: { teaserId?: string | null }
  * Returns the `teaserId` that was associated with the OAuth round-trip, or null.
  * Reads sessionStorage first (fresh tab), falls back to the durable flag.
  */
-export function consumePendingTeaserId(): string | null {
+export function peekPendingTeaserId(): string | null {
   const fromSession = sessionStorage.getItem(STATE_TEASER_KEY);
-  sessionStorage.removeItem(STATE_TEASER_KEY);
   const fromFlags = onboardingFlags.getPendingTeaserId();
-  onboardingFlags.clearPendingTeaserId();
   return fromSession || fromFlags || null;
+}
+
+export function consumePendingTeaserId(): string | null {
+  const teaserId = peekPendingTeaserId();
+  sessionStorage.removeItem(STATE_TEASER_KEY);
+  onboardingFlags.clearPendingTeaserId();
+  return teaserId;
 }
 
 /**
@@ -68,11 +152,11 @@ export function consumePendingTeaserId(): string | null {
 export async function completeTwitchCallback(
   code: string,
   state: string,
-): Promise<{ success: boolean; platform_login?: string; error?: string }> {
+): Promise<CompleteTwitchCallbackResult> {
   const expectedState = sessionStorage.getItem(STATE_KEY);
   sessionStorage.removeItem(STATE_KEY);
   if (!expectedState || expectedState !== state) {
-    return { success: false, error: "État OAuth invalide. Réessaie." };
+    return mapCallbackError("invalid_state");
   }
 
   const { data, error } = await supabase.functions.invoke("twitch-oauth", {
@@ -80,10 +164,22 @@ export async function completeTwitchCallback(
   });
 
   if (error) {
-    return { success: false, error: error.message };
+    return mapCallbackError(undefined, error.message);
   }
   if (!data?.success) {
-    return { success: false, error: data?.error || "Échec de la connexion Twitch." };
+    return mapCallbackError(data?.code, data?.error);
   }
+
+  if (data.session?.access_token && data.session?.refresh_token) {
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    });
+
+    if (sessionError) {
+      return mapCallbackError("session_bootstrap_failed", sessionError.message);
+    }
+  }
+
   return { success: true, platform_login: data.platform_login };
 }
