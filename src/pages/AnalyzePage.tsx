@@ -268,11 +268,7 @@ const AnalyzePage = () => {
               ))}
             </ul>
 
-            <Progress
-              value={((Math.max(0, currentIndex) + 1) / order.length) * 100}
-              className="mt-6"
-            />
-
+            <Progress value={progress} className="mt-6" />
             {import.meta.env.DEV && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("debug") === "1" && (
               <div className="mt-6 rounded-md border border-border/60 bg-muted/40 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground">
                 <div className="mb-1 font-semibold text-foreground">DEBUG /analyze</div>
