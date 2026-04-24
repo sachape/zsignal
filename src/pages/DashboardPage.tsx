@@ -1,11 +1,15 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Zap,
   ArrowRight,
   FileText,
   AlertCircle,
   Sparkles,
+  X,
+  CalendarCheck,
+  BarChart3,
+  Users as UsersIcon,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -44,6 +48,7 @@ import {
 } from "@/services/autoRefreshRunner";
 
 import { recommendPlaybookForReport } from "@/services/playbookLibrary";
+import { onboardingFlags } from "@/services/onboardingFlags";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
