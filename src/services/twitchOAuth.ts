@@ -1,10 +1,12 @@
 // Twitch OAuth service — live flow via twitch-oauth edge function
 import { supabase } from "@/integrations/supabase/client";
+import { onboardingFlags } from "@/services/onboardingFlags";
 
 const REDIRECT_URI = `${window.location.origin}/twitch/callback`;
 const STATE_KEY = "streampulse_twitch_oauth_state";
+const STATE_TEASER_KEY = "streampulse_twitch_oauth_teaser_id";
 
-function generateState(): string {
+function generateNonce(): string {
   const arr = new Uint8Array(16);
   crypto.getRandomValues(arr);
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
@@ -13,15 +15,26 @@ function generateState(): string {
 /**
  * Build the Twitch authorize URL via the edge function (which holds the client_id),
  * store a CSRF state token, then redirect the browser.
+ *
+ * If the user comes from a teaser diagnostic, we persist the `teaserId` so we
+ * can reconcile the gratuit diagnostic with the enriched data after callback,
+ * without re-running an analysis from scratch.
  */
-export async function initiateTwitchOAuth(): Promise<void> {
-  const state = generateState();
-  sessionStorage.setItem(STATE_KEY, state);
+export async function initiateTwitchOAuth(options?: { teaserId?: string | null }): Promise<void> {
+  const nonce = generateNonce();
+  sessionStorage.setItem(STATE_KEY, nonce);
+
+  if (options?.teaserId) {
+    // Persist locally (sessionStorage) AND in the durable flags store so
+    // the callback can still recover it if the tab is restored.
+    sessionStorage.setItem(STATE_TEASER_KEY, options.teaserId);
+    onboardingFlags.setPendingTeaserId(options.teaserId);
+  }
 
   const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
   const fnUrl = `https://${projectId}.supabase.co/functions/v1/twitch-oauth?action=authorize-url&redirect_uri=${encodeURIComponent(
     REDIRECT_URI,
-  )}&state=${encodeURIComponent(state)}`;
+  )}&state=${encodeURIComponent(nonce)}`;
 
   const res = await fetch(fnUrl, {
     headers: {
@@ -34,6 +47,18 @@ export async function initiateTwitchOAuth(): Promise<void> {
     throw new Error(data.error || "Impossible d'initier la connexion Twitch.");
   }
   window.location.href = data.url;
+}
+
+/**
+ * Returns the `teaserId` that was associated with the OAuth round-trip, or null.
+ * Reads sessionStorage first (fresh tab), falls back to the durable flag.
+ */
+export function consumePendingTeaserId(): string | null {
+  const fromSession = sessionStorage.getItem(STATE_TEASER_KEY);
+  sessionStorage.removeItem(STATE_TEASER_KEY);
+  const fromFlags = onboardingFlags.getPendingTeaserId();
+  onboardingFlags.clearPendingTeaserId();
+  return fromSession || fromFlags || null;
 }
 
 /**
