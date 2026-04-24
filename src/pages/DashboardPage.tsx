@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
-  Zap,
   ArrowRight,
   FileText,
   AlertCircle,
@@ -14,16 +13,11 @@ import {
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import SectionHeader from "@/components/SectionHeader";
 import ScoreCard from "@/components/ScoreCard";
 
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
-import ProgressRow from "@/components/ProgressRow";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
-import WeeklyPlanCard from "@/components/WeeklyPlanCard";
-import StreamerBenchmarkCard from "@/components/StreamerBenchmarkCard";
-import PlaybookCard from "@/components/PlaybookCard";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import WeeklySequenceCard from "@/components/WeeklySequenceCard";
@@ -47,8 +41,8 @@ import {
   processPendingForAccount,
 } from "@/services/autoRefreshRunner";
 
-import { recommendPlaybookForReport } from "@/services/playbookLibrary";
 import { onboardingFlags } from "@/services/onboardingFlags";
+
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
