@@ -75,7 +75,7 @@ const PricingSection = () => {
 
       <div
         ref={ref}
-        className="mx-auto mt-14 grid max-w-4xl gap-5 md:grid-cols-2"
+        className="mx-auto mt-10 grid max-w-4xl gap-5 md:mt-14 md:grid-cols-2"
       >
         {PLANS.map((plan, i) => (
           <div

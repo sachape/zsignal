@@ -21,7 +21,7 @@ export const SectionShell = ({
   glow?: boolean;
   grid?: boolean;
 }) => (
-  <section id={id} className={`relative overflow-hidden py-24 md:py-32 ${className}`}>
+  <section id={id} className={`relative overflow-hidden py-16 sm:py-20 md:py-28 lg:py-32 ${className}`}>
     {glow && (
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.06),transparent_60%)]" />
     )}
@@ -49,11 +49,11 @@ export const SectionHeading = ({
 }) => (
   <div className="mx-auto max-w-2xl text-center">
     {badge && <SectionBadge>{badge}</SectionBadge>}
-    <h2 className="mt-4 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl">
+    <h2 className="mt-4 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl md:text-5xl">
       {title}
     </h2>
     {subtitle && (
-      <p className="mt-4 text-base text-muted-foreground md:text-lg">{subtitle}</p>
+      <p className="mt-3 text-sm text-muted-foreground sm:mt-4 sm:text-base md:text-lg">{subtitle}</p>
     )}
   </div>
 );
