@@ -17,9 +17,9 @@ import { runAnalysis } from "@/services/analysisRunner";
 type CallbackState = "processing" | "error" | "cancelled" | "enrichment_failed";
 
 const PROGRESS_STEPS = [
-  "Connexion à Twitch…",
-  "Récupération de tes données récentes…",
-  "Enrichissement de ton diagnostic…",
+  "On vérifie ta chaîne Twitch…",
+  "On lit tes 30 derniers jours de stream…",
+  "On calcule ton StreamScore et ton plan…",
 ];
 
 const devLog = (...args: unknown[]) => {
