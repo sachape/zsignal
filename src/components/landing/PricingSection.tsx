@@ -1,6 +1,6 @@
 import { Check, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import {
   GlassCard,
@@ -47,7 +47,23 @@ const PLANS = [
 
 const PricingSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.25);
-  const navigate = useNavigate();
+  const { openAuthModal } = useAuthModal();
+
+  const handlePlanClick = (recommended: boolean) => {
+    if (recommended) {
+      openAuthModal({ redirectTo: "/dashboard" });
+      return;
+    }
+    // Free plan: scroll back to hero and focus the search input
+    const hero = document.querySelector<HTMLElement>("section");
+    hero?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(() => {
+      const input = document.querySelector<HTMLInputElement>(
+        'input[type="text"], input[type="search"]',
+      );
+      input?.focus();
+    }, 600);
+  };
 
   return (
     <SectionShell id="pricing">
@@ -112,7 +128,7 @@ const PricingSection = () => {
                   size="lg"
                   variant={plan.recommended ? "default" : "outline"}
                   className="w-full"
-                  onClick={() => navigate("/")}
+                  onClick={() => handlePlanClick(plan.recommended)}
                 >
                   {plan.cta}
                 </Button>

@@ -192,7 +192,7 @@ const DemoPreviewSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.25);
 
   return (
-    <section className="relative overflow-hidden py-20 md:py-24">
+    <section id="preview" className="relative overflow-hidden py-20 md:py-24">
       {/* Background spotlight */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.10),transparent_60%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.15)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.15)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-30" />

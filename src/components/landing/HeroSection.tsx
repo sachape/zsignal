@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Activity, ShieldCheck, Eye, Timer, AlertTriangle, ListChecks } from "lucide-react";
+import { Activity, ShieldCheck, Eye, Timer, AlertTriangle, ListChecks } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
-import { useAuthModal } from "@/contexts/AuthModalContext";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 
 const HeroSection = () => {
@@ -10,7 +9,6 @@ const HeroSection = () => {
   const [inputError, setInputError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
-  const { openAuthModal } = useAuthModal();
 
   useEffect(() => {
     const t = requestAnimationFrame(() => setMounted(true));
@@ -208,21 +206,6 @@ const HeroSection = () => {
             ))}
           </ul>
 
-          <div className="mt-2 flex justify-center">
-            <button
-              type="button"
-              onClick={() =>
-                openAuthModal({
-                  redirectTo: "/dashboard",
-                  pendingChannel: normalizeChannelInput(username) || undefined,
-                })
-              }
-              className="inline-flex items-center gap-1 text-[10.5px] text-muted-foreground/70 underline-offset-4 transition-colors hover:text-foreground/90 hover:underline"
-            >
-              Déjà un compte ? Se connecter
-              <ArrowRight className="h-2.5 w-2.5" />
-            </button>
-          </div>
         </div>
       </div>
     </section>
