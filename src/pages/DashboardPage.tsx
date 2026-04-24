@@ -334,6 +334,55 @@ const DashboardPage = () => {
           }
         />
 
+        {/* Slim welcome banner — first cockpit visit only. Dismissable.
+            We deliberately keep this minimal: no walkthrough, no checklist,
+            no hotspots. The cockpit must remain a real product home. */}
+        {showWelcome && (
+          <div className="mb-6 flex flex-col gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+            <div className="flex flex-1 items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-foreground sm:text-base">
+                  Ton cockpit est prêt.
+                </div>
+                <div className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+                  Reviens ici pour piloter ta progression chaque semaine.
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    to={`/result?report_id=${currentReport.id}`}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/60 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                  >
+                    <BarChart3 className="h-3 w-3" /> Diagnostic détaillé
+                  </Link>
+                  <Link
+                    to="/plan"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/60 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                  >
+                    <CalendarCheck className="h-3 w-3" /> Plan de la semaine
+                  </Link>
+                  <Link
+                    to="/competitors"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/60 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                  >
+                    <UsersIcon className="h-3 w-3" /> Benchmark
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={dismissWelcome}
+              aria-label="Fermer"
+              className="self-start rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:self-center"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {/* Top state strip — kept minimal: score + sync only.
             Évolution is demoted into the Sync card subtext to reduce
             analytical noise on the dashboard. */}
