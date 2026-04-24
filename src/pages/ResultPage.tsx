@@ -797,6 +797,12 @@ const ResultPage = () => {
             );
           }
 
+          // Rookie in reconstruction mode: no progression tracker shown —
+          // the FoundationModeBanner already framed the context.
+          if (stage === "rookie") {
+            return null;
+          }
+
           // Affiliate or partner: replace affiliate tracker with stage-grade signals.
           const isPartner = stage === "partner";
           const signals = [
