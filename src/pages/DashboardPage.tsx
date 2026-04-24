@@ -40,6 +40,11 @@ import {
   enqueueRefreshForSelf,
   processPendingForAccount,
 } from "@/services/autoRefreshRunner";
+import {
+  getLiveCockpitSnapshot,
+  type LiveCockpitSnapshot,
+} from "@/services/liveSessions";
+import LiveStatusCard from "@/components/LiveStatusCard";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
 
@@ -59,6 +64,7 @@ const DashboardPage = () => {
   const [history, setHistory] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncSnapshot, setSyncSnapshot] = useState<SyncSnapshot | null>(null);
+  const [liveSnapshot, setLiveSnapshot] = useState<LiveCockpitSnapshot | null>(null);
   const [manualRefreshing, setManualRefreshing] = useState(false);
 
   // Welcome banner: show only on first visit after Twitch connection.
