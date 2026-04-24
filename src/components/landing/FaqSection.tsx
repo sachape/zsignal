@@ -52,7 +52,7 @@ const FaqSection = () => {
 
       <div
         ref={ref}
-        className="mx-auto mt-12 max-w-3xl"
+        className="mx-auto mt-8 max-w-3xl md:mt-12"
         style={{
           opacity: inView ? 1 : 0,
           transform: inView ? "translateY(0)" : "translateY(16px)",

@@ -94,7 +94,7 @@ const AudienceValueSection = () => {
       {/* Personas — condensed intro row */}
       <div
         ref={personasRef}
-        className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-3"
+        className="mx-auto mt-8 grid max-w-4xl gap-3 sm:grid-cols-3 md:mt-10"
         style={{
           opacity: personasInView ? 1 : 0,
           transform: personasInView ? "translateY(0)" : "translateY(16px)",
@@ -129,7 +129,7 @@ const AudienceValueSection = () => {
       </div>
 
       {/* Features — value grid */}
-      <div className="mx-auto mt-10 max-w-6xl">
+      <div className="mx-auto mt-10 max-w-6xl md:mt-12">
         <p className="mb-5 text-center text-xs font-semibold uppercase tracking-wider text-foreground/60">
           Ce que tu débloques avec le suivi complet
         </p>

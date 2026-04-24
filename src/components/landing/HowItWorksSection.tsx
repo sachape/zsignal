@@ -35,7 +35,7 @@ const HowItWorksSection = () => {
 
       <div
         ref={ref}
-        className="relative mx-auto mt-14 grid max-w-5xl gap-5 md:grid-cols-3"
+        className="relative mx-auto mt-10 grid max-w-5xl gap-5 md:mt-14 md:grid-cols-3"
       >
         {/* Connecting line on desktop */}
         <div
