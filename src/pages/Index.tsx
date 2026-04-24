@@ -13,10 +13,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <LandingNav />
       <HeroSection />
+      <DemoPreviewSection />
       <PersonasSection />
       <FeaturesSection />
-      {/* SECTION APERÇU — ALREADY PERFECT, DO NOT MODIFY */}
-      <DemoPreviewSection />
       <SocialProofSection />
       <PricingSection />
       <FinalCtaSection />

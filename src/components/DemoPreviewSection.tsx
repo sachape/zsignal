@@ -1,24 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  TrendingUp,
+  Activity,
+  AlertTriangle,
   Target,
-  Calendar,
   Sparkles,
-  Radio,
-  ArrowUpRight,
+  ArrowRight,
 } from "lucide-react";
 
 const FINAL_SCORE = 62;
-const SIMILAR_CHANNELS = [
-  { name: "streamzilla_fr", followers: "2.4K", similarity: 87, live: true },
-  { name: "nightowl_ttv", followers: "1.8K", similarity: 74, live: false },
-];
+
 const PROGRESS_ITEMS = [
   { label: "Viewers moyens", value: "2.8 / 3", pct: 93 },
   { label: "Jours de stream", value: "6 / 7", pct: 86 },
   { label: "Chatteurs uniques", value: "42 / 50", pct: 84 },
 ];
-const SPARKLINE_POINTS = [12, 14, 13, 16, 15, 18, 17, 19, 22, 21, 24, 26];
 
 /** Hook: trigger once when element reaches `threshold` visibility. */
 const useInViewOnce = <T extends HTMLElement>(threshold = 0.3) => {
@@ -51,7 +46,6 @@ const useCountUp = (target: number, active: boolean, duration = 1600) => {
     const start = performance.now();
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / duration);
-      // easeOutCubic
       const eased = 1 - Math.pow(1 - t, 3);
       setValue(Math.round(eased * target));
       if (t < 1) raf = requestAnimationFrame(tick);
@@ -64,26 +58,18 @@ const useCountUp = (target: number, active: boolean, duration = 1600) => {
 
 const ScoreRing = ({ active }: { active: boolean }) => {
   const score = useCountUp(FINAL_SCORE, active, 1800);
-  const radius = 78;
+  const radius = 70;
   const circumference = 2 * Math.PI * radius;
   const progress = (score / 100) * circumference;
-  const grade = score >= 80 ? "Excellent" : score >= 60 ? "Bon" : score >= 40 ? "Moyen" : "À travailler";
 
   return (
-    <div className="relative flex h-44 w-44 items-center justify-center">
+    <div className="relative flex h-40 w-40 items-center justify-center">
       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 200 200" aria-hidden>
         <defs>
           <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="hsl(var(--primary))" />
-            <stop offset="100%" stopColor="#34d399" />
+            <stop offset="100%" stopColor="hsl(var(--primary) / 0.5)" />
           </linearGradient>
-          <filter id="scoreGlow">
-            <feGaussianBlur stdDeviation="3" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
         <circle
           cx="100"
@@ -91,7 +77,7 @@ const ScoreRing = ({ active }: { active: boolean }) => {
           r={radius}
           fill="none"
           stroke="hsl(var(--muted))"
-          strokeOpacity="0.35"
+          strokeOpacity="0.3"
           strokeWidth="10"
         />
         <circle
@@ -104,7 +90,6 @@ const ScoreRing = ({ active }: { active: boolean }) => {
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={circumference - progress}
-          filter={score === FINAL_SCORE ? "url(#scoreGlow)" : undefined}
           style={{ transition: "stroke-dashoffset 60ms linear" }}
         />
       </svg>
@@ -115,63 +100,11 @@ const ScoreRing = ({ active }: { active: boolean }) => {
         >
           {score}
         </span>
-        <span className="mt-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-          / 100 · {grade}
+        <span className="mt-0.5 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+          / 100
         </span>
       </div>
     </div>
-  );
-};
-
-const Sparkline = ({ active }: { active: boolean }) => {
-  const w = 120;
-  const h = 36;
-  const max = Math.max(...SPARKLINE_POINTS);
-  const min = Math.min(...SPARKLINE_POINTS);
-  const range = max - min || 1;
-  const step = w / (SPARKLINE_POINTS.length - 1);
-  const points = SPARKLINE_POINTS.map((v, i) => {
-    const x = i * step;
-    const y = h - ((v - min) / range) * h;
-    return `${x},${y}`;
-  }).join(" ");
-  const areaPoints = `0,${h} ${points} ${w},${h}`;
-
-  return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      className="h-9 w-full"
-      preserveAspectRatio="none"
-      aria-hidden
-    >
-      <defs>
-        <linearGradient id="sparkArea" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon
-        points={areaPoints}
-        fill="url(#sparkArea)"
-        style={{
-          opacity: active ? 1 : 0,
-          transition: "opacity 800ms ease-out 400ms",
-        }}
-      />
-      <polyline
-        points={points}
-        fill="none"
-        stroke="hsl(var(--primary))"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{
-          strokeDasharray: 300,
-          strokeDashoffset: active ? 0 : 300,
-          transition: "stroke-dashoffset 1200ms ease-out 200ms",
-        }}
-      />
-    </svg>
   );
 };
 
@@ -190,9 +123,9 @@ const ProgressBar = ({
 }) => (
   <div>
     <div className="flex items-baseline justify-between text-xs">
-      <span className="text-muted-foreground">{label}</span>
+      <span className="text-foreground/70">{label}</span>
       <span
-        className="font-medium text-foreground"
+        className="font-semibold text-foreground"
         style={{ fontVariantNumeric: "tabular-nums" }}
       >
         {value}
@@ -200,107 +133,66 @@ const ProgressBar = ({
     </div>
     <div className="relative mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted/60">
       <div
-        className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-emerald-400"
+        className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-primary/70"
         style={{
           width: active ? `${pct}%` : "0%",
           transition: `width 1100ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
         }}
       />
-      {active && (
-        <div
-          className="absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/35 to-transparent"
-          style={{
-            animation: `bento-shimmer 1.4s ease-out ${delay + 1100}ms 1 forwards`,
-          }}
-        />
-      )}
     </div>
   </div>
 );
 
-const ChannelRow = ({
-  channel,
-  active,
-  delay,
-}: {
-  channel: (typeof SIMILAR_CHANNELS)[number];
-  active: boolean;
-  delay: number;
-}) => (
-  <div
-    className="flex items-center gap-3 rounded-lg border border-white/5 bg-card/40 p-2.5 backdrop-blur-sm"
-    style={{
-      opacity: active ? 1 : 0,
-      transform: active ? "translateX(0)" : "translateX(24px)",
-      transition: `opacity 600ms ease-out ${delay}ms, transform 600ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
-    }}
-  >
-    <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-emerald-500/20 text-xs font-semibold text-foreground">
-      {channel.name[0].toUpperCase()}
-      {channel.live && (
-        <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5 items-center justify-center rounded-full border-2 border-background bg-destructive" />
-      )}
-    </div>
-    <div className="min-w-0 flex-1">
-      <div className="flex items-center gap-1.5">
-        <span className="truncate text-sm font-medium text-foreground">
-          {channel.name}
-        </span>
-        {channel.live && (
-          <span className="inline-flex items-center gap-0.5 rounded-sm bg-destructive/15 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-destructive">
-            <Radio className="h-2 w-2" />
-            Live
-          </span>
-        )}
-      </div>
-      <p
-        className="text-[10px] text-muted-foreground"
-        style={{ fontVariantNumeric: "tabular-nums" }}
-      >
-        {channel.followers} abonnés
-      </p>
-    </div>
-    <span
-      className="rounded-md bg-primary/15 px-2 py-1 text-[10px] font-semibold tabular-nums text-primary shadow-[0_0_12px_hsl(var(--primary)/0.35)]"
-      style={{ fontVariantNumeric: "tabular-nums" }}
-    >
-      {channel.similarity}%
-    </span>
-  </div>
-);
-
-const BentoCell = ({
+const Cell = ({
   className = "",
-  label,
-  children,
   hero = false,
+  children,
 }: {
   className?: string;
-  label?: string;
-  children: React.ReactNode;
   hero?: boolean;
+  children: React.ReactNode;
 }) => (
   <div
-    className={`group relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-card/80 to-card/40 p-5 backdrop-blur-xl ${className}`}
+    className={`group relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-card/80 to-card/40 p-6 backdrop-blur-xl ${className}`}
   >
     {hero && <div className="bento-hero-border" aria-hidden />}
     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.08),transparent_55%)]" />
-    <div className="relative flex h-full flex-col">
-      {label && (
-        <span className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80">
-          {label}
-        </span>
-      )}
-      {children}
-    </div>
+    <div className="relative flex h-full flex-col">{children}</div>
   </div>
 );
 
+const CellLabel = ({
+  icon: Icon,
+  children,
+  tone = "default",
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
+  tone?: "default" | "warning" | "primary";
+}) => {
+  const toneClasses =
+    tone === "warning"
+      ? "bg-warning/15 text-warning"
+      : tone === "primary"
+      ? "bg-primary/15 text-primary"
+      : "bg-muted/50 text-foreground/70";
+  return (
+    <div className="mb-3 flex items-center gap-2">
+      <span className={`flex h-6 w-6 items-center justify-center rounded-md ${toneClasses}`}>
+        <Icon className="h-3.5 w-3.5" />
+      </span>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground/60">
+        {children}
+      </span>
+    </div>
+  );
+};
+
 const DemoPreviewSection = () => {
-  const { ref, inView } = useInViewOnce<HTMLDivElement>(0.3);
+  const { ref, inView } = useInViewOnce<HTMLDivElement>(0.25);
 
   return (
-    <section className="relative overflow-hidden py-20">
+    <section className="relative overflow-hidden py-20 md:py-24">
       {/* Background spotlight */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.10),transparent_60%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.15)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.15)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-30" />
@@ -310,130 +202,125 @@ const DemoPreviewSection = () => {
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary shadow-[0_0_24px_hsl(var(--primary)/0.25)]">
             <Sparkles className="h-3 w-3" />
-            Aperçu
+            Aperçu du diagnostic
           </span>
-          <h2 className="mt-4 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
-            Ton dashboard en un coup d'œil
+          <h2 className="mt-4 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl md:text-5xl">
+            Voilà ce que tu vois dès la première analyse
           </h2>
-          <p className="mt-4 text-base text-muted-foreground">
-            Découvre ce que StreamPulse voit dès la première analyse.
+          <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground/90">
+            En moins d'une minute, StreamPulse te montre ton niveau, ce qui te
+            freine et les prochaines actions à tester.
           </p>
         </div>
 
-        {/* Bento grid */}
+        {/* Diagnostic grid — 4 product outputs */}
         <div
           ref={ref}
-          className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-6 md:auto-rows-[148px]"
+          className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-6"
         >
-          {/* StreamScore — hero cell */}
-          <BentoCell
-            hero
-            label="Score global"
-            className="md:col-span-3 md:row-span-2"
-          >
+          {/* 1 — Score global */}
+          <Cell className="md:col-span-2 md:row-span-2">
+            <CellLabel icon={Activity}>Score global</CellLabel>
             <div className="flex flex-1 flex-col items-center justify-center gap-4">
               <ScoreRing active={inView} />
-              <div className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-medium text-emerald-300">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                En progression · +4 pts cette semaine
-              </div>
-            </div>
-          </BentoCell>
-
-          {/* Tendance viewers (sparkline micro-widget) */}
-          <BentoCell label="Tendance viewers" className="md:col-span-3">
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <p
-                  className="text-2xl font-bold tracking-tight text-foreground"
-                  style={{ fontVariantNumeric: "tabular-nums" }}
-                >
-                  +12%
+              <div className="text-center">
+                <p className="text-base font-semibold text-foreground">
+                  Bon rythme
                 </p>
-                <p className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-300">
-                  <TrendingUp className="h-3 w-3" />
-                  cette semaine
+                <p className="mt-1 text-xs text-foreground/65">
+                  Base solide, marges de progression claires
                 </p>
               </div>
-              <div className="flex-1 max-w-[140px]">
-                <Sparkline active={inView} />
-              </div>
             </div>
-          </BentoCell>
+          </Cell>
 
-          {/* Similar channels */}
-          <BentoCell label="Chaînes similaires" className="md:col-span-3 md:row-span-2">
-            <div className="flex flex-1 flex-col gap-2">
-              {SIMILAR_CHANNELS.map((c, i) => (
-                <ChannelRow
-                  key={c.name}
-                  channel={c}
-                  active={inView}
-                  delay={300 + i * 150}
-                />
-              ))}
-              <div
-                className="mt-auto flex items-center justify-between rounded-lg border border-dashed border-border/60 bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground"
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transition: "opacity 700ms ease-out 700ms",
-                }}
-              >
-                <span>+ 8 autres chaînes pertinentes</span>
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-          </BentoCell>
-
-          {/* Affiliation progress */}
-          <BentoCell label="Progression affiliation" className="md:col-span-3 md:row-span-2">
-            <div className="flex flex-1 flex-col justify-between gap-3">
-              <div className="space-y-3">
-                {PROGRESS_ITEMS.map((item, i) => (
-                  <ProgressBar
-                    key={item.label}
-                    label={item.label}
-                    value={item.value}
-                    pct={item.pct}
-                    active={inView}
-                    delay={i * 200}
-                  />
+          {/* 2 — Blocage principal (hero cell) */}
+          <Cell hero className="md:col-span-4 md:row-span-2">
+            <CellLabel icon={AlertTriangle} tone="warning">
+              Blocage principal
+            </CellLabel>
+            <div className="flex flex-1 flex-col justify-center">
+              <p className="text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+                Régularité du planning trop instable
+              </p>
+              <p className="mt-3 max-w-md text-sm text-foreground/70">
+                Tes créneaux changent trop souvent d'un jour à l'autre. C'est le
+                facteur qui pèse le plus sur la rétention de tes viewers.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {[
+                  "Détecté sur 30 derniers jours",
+                  "Impact estimé : -18% de rétention",
+                ].map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-warning/20 bg-warning/10 px-2.5 py-1 text-[10.5px] font-medium text-warning"
+                  >
+                    <span className="h-1 w-1 rounded-full bg-warning" />
+                    {tag}
+                  </span>
                 ))}
               </div>
-              <div className="flex items-center gap-2 rounded-lg border border-primary/15 bg-primary/5 px-3 py-2 text-[11px]">
-                <Target className="h-3.5 w-3.5 text-primary" />
-                <span className="text-muted-foreground">
-                  Affiliation dans <span className="font-semibold text-foreground">~9 jours</span>
-                </span>
-              </div>
             </div>
-          </BentoCell>
+          </Cell>
 
-          {/* Best slot micro-widget */}
-          <BentoCell label="Meilleur créneau" className="md:col-span-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                <Calendar className="h-5 w-5" />
-              </div>
+          {/* 3 — Progression vers l'objectif */}
+          <Cell className="md:col-span-3">
+            <CellLabel icon={Target} tone="primary">
+              Progression vers l'affiliation
+            </CellLabel>
+            <div className="flex flex-1 flex-col gap-3">
+              {PROGRESS_ITEMS.map((item, i) => (
+                <ProgressBar
+                  key={item.label}
+                  label={item.label}
+                  value={item.value}
+                  pct={item.pct}
+                  active={inView}
+                  delay={i * 180}
+                />
+              ))}
+              <p className="mt-1 text-[11px] text-foreground/60">
+                Objectif atteint dans <span className="font-semibold text-foreground">~9 jours</span> au rythme actuel
+              </p>
+            </div>
+          </Cell>
+
+          {/* 4 — Action prioritaire */}
+          <Cell className="md:col-span-3">
+            <CellLabel icon={Sparkles} tone="primary">
+              Action prioritaire
+            </CellLabel>
+            <div className="flex flex-1 flex-col justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-foreground">
-                  Mardi · 21h00
+                <p className="text-lg font-semibold leading-snug text-foreground">
+                  Fixer 2 créneaux récurrents cette semaine
                 </p>
-                <p className="text-[11px] text-muted-foreground">
-                  +38% de viewers vs ta moyenne
+                <p className="mt-2 text-xs text-foreground/65">
+                  Un planning prévisible peut faire revenir +30% de tes viewers
+                  réguliers sur le mois.
                 </p>
+              </div>
+              <div className="flex items-center gap-2 rounded-lg border border-primary/15 bg-primary/5 px-3 py-2 text-[11px] text-foreground/75">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[9px] font-bold text-primary">
+                  1
+                </span>
+                <span>Étape 1 sur 3 du plan recommandé</span>
               </div>
             </div>
-          </BentoCell>
+          </Cell>
         </div>
+
+        {/* Transition vers la suite */}
+        <p className="mx-auto mt-10 flex max-w-2xl items-center justify-center gap-2 text-center text-sm text-muted-foreground/85">
+          <ArrowRight className="h-3.5 w-3.5 text-primary/70" />
+          Et ce n'est qu'un aperçu : la version complète ajoute l'historique, les
+          concurrents comparables et le plan détaillé.
+        </p>
       </div>
 
       {/* Section-scoped styles */}
       <style>{`
-        @keyframes bento-shimmer {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(450%); }
-        }
         @property --bento-angle {
           syntax: '<angle>';
           initial-value: 0deg;
@@ -451,7 +338,7 @@ const DemoPreviewSection = () => {
             from var(--bento-angle),
             transparent 0deg,
             hsl(var(--primary) / 0.7) 60deg,
-            #34d39988 90deg,
+            hsl(var(--primary) / 0.4) 90deg,
             transparent 180deg,
             transparent 360deg
           );
