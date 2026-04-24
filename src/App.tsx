@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -7,21 +8,29 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
-import AnalyzePage from "./pages/AnalyzePage.tsx";
-import ResultPage from "./pages/ResultPage.tsx";
-import ConnectTwitchPage from "./pages/ConnectTwitchPage.tsx";
-import TwitchCallbackPage from "./pages/TwitchCallbackPage.tsx";
-import AuthPage from "./pages/AuthPage.tsx";
-import DashboardPage from "./pages/DashboardPage.tsx";
-import WeeklyPlanPage from "./pages/WeeklyPlanPage.tsx";
-import CompetitorsPage from "./pages/CompetitorsPage.tsx";
-import PlaybooksPage from "./pages/PlaybooksPage.tsx";
-import PlaybookDetailPage from "./pages/PlaybookDetailPage.tsx";
-import StreamerProfilePage from "./pages/StreamerProfilePage.tsx";
-import LeadersPage from "./pages/LeadersPage.tsx";
-import NotFound from "./pages/NotFound.tsx";
+
+// Lazy-loaded routes: keep landing (Index) eager for fastest LCP, defer the rest.
+const AnalyzePage = lazy(() => import("./pages/AnalyzePage.tsx"));
+const ResultPage = lazy(() => import("./pages/ResultPage.tsx"));
+const ConnectTwitchPage = lazy(() => import("./pages/ConnectTwitchPage.tsx"));
+const TwitchCallbackPage = lazy(() => import("./pages/TwitchCallbackPage.tsx"));
+const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage.tsx"));
+const WeeklyPlanPage = lazy(() => import("./pages/WeeklyPlanPage.tsx"));
+const CompetitorsPage = lazy(() => import("./pages/CompetitorsPage.tsx"));
+const PlaybooksPage = lazy(() => import("./pages/PlaybooksPage.tsx"));
+const PlaybookDetailPage = lazy(() => import("./pages/PlaybookDetailPage.tsx"));
+const StreamerProfilePage = lazy(() => import("./pages/StreamerProfilePage.tsx"));
+const LeadersPage = lazy(() => import("./pages/LeadersPage.tsx"));
+const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
+
+const RouteFallback = () => (
+  <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -31,50 +40,52 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <AuthModalProvider>
-            <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/analyze" element={<AnalyzePage />} />
-            <Route path="/result" element={<ResultPage />} />
-            <Route path="/connect-twitch" element={<ConnectTwitchPage />} />
-            <Route path="/twitch/callback" element={<TwitchCallbackPage />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/plan"
-              element={
-                <ProtectedRoute>
-                  <WeeklyPlanPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/competitors"
-              element={
-                <ProtectedRoute>
-                  <CompetitorsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/playbooks" element={<PlaybooksPage />} />
-            <Route path="/playbooks/:slug" element={<PlaybookDetailPage />} />
-            <Route
-              path="/leaders"
-              element={
-                <ProtectedRoute>
-                  <LeadersPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/streamer/:login" element={<StreamerProfilePage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/analyze" element={<AnalyzePage />} />
+                <Route path="/result" element={<ResultPage />} />
+                <Route path="/connect-twitch" element={<ConnectTwitchPage />} />
+                <Route path="/twitch/callback" element={<TwitchCallbackPage />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/plan"
+                  element={
+                    <ProtectedRoute>
+                      <WeeklyPlanPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/competitors"
+                  element={
+                    <ProtectedRoute>
+                      <CompetitorsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/playbooks" element={<PlaybooksPage />} />
+                <Route path="/playbooks/:slug" element={<PlaybookDetailPage />} />
+                <Route
+                  path="/leaders"
+                  element={
+                    <ProtectedRoute>
+                      <LeadersPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/streamer/:login" element={<StreamerProfilePage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </AuthModalProvider>
         </AuthProvider>
       </BrowserRouter>
