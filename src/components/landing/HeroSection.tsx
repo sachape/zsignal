@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Activity, ShieldCheck, Eye, Timer, AlertTriangle, ListChecks } from "lucide-react";
+import { Activity, ShieldCheck, Eye, Timer, AlertTriangle, ListChecks } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
-import { useAuthModal } from "@/contexts/AuthModalContext";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 
 const HeroSection = () => {
