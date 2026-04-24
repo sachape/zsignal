@@ -397,7 +397,7 @@ const ResultPage = () => {
   // Teaser path: render the dedicated diagnostic-first view (no AppShell, no
   // debug panel, no dashboard chrome — pure conversion-oriented experience).
   if (isTeaser) {
-    return <TeaserResultView report={report} onUnlock={handleUnlock} />;
+    return <TeaserResultView report={report} onUnlock={handleUnlock} fromOnboarding={fromOnboarding} />;
   }
 
   const summary = report.channel_summary;
