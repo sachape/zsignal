@@ -595,8 +595,19 @@ const ResultPage = () => {
           </Card>
         )}
 
+        {(isReconstruction || isExploration) && (
+          <FoundationModeBanner reasons={displayMode.reasons} />
+        )}
+
         <div className="mb-8 grid gap-4 sm:grid-cols-4">
-          <ScoreCard score={score.overall} />
+          {isReconstruction ? (
+            <QualitativeScoreCard />
+          ) : (
+            <ScoreCard
+              score={score.overall}
+              label={isExploration ? "StreamScore · estimation" : "StreamScore"}
+            />
+          )}
           <div className="flex flex-col gap-3 sm:col-span-3">
             <div className="grid gap-3 sm:grid-cols-3">
               <StatBlock
