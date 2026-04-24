@@ -393,6 +393,16 @@ const DashboardPage = () => {
           />
         </div>
 
+        {/* Live status strip — surfaces "En live", last live with debrief CTA,
+            or honest empty state if no live has been detected yet. */}
+        <div className="mb-6">
+          <LiveStatusCard
+            current={liveSnapshot?.current ?? null}
+            last={liveSnapshot?.last ?? null}
+            lastDebrief={liveSnapshot?.lastDebrief ?? null}
+          />
+        </div>
+
         {/* Followers warning if applicable */}
         {!followersAvailable && !currentReport.is_demo && (
           <Card className="mb-6 border-warning/30 bg-warning/5">
