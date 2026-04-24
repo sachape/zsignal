@@ -74,15 +74,44 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
   }, [value]);
 
   useEffect(() => {
-    const onDoc = (e: MouseEvent) => {
+    const onDoc = (e: MouseEvent | TouchEvent) => {
       const t = e.target as Node;
       if (containerRef.current?.contains(t)) return;
       if (dropdownRef.current?.contains(t)) return;
       setOpen(false);
     };
     document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
+    document.addEventListener("touchstart", onDoc, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("touchstart", onDoc);
+    };
   }, []);
+
+  // Keep the portaled dropdown anchored to the input card on scroll/resize.
+  useLayoutEffect(() => {
+    if (!open) {
+      setDropdownRect(null);
+      return;
+    }
+    const update = () => {
+      const el = anchorRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setDropdownRect({
+        top: r.bottom + 8,
+        left: r.left,
+        width: r.width,
+      });
+    };
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [open, value]);
 
   const pickSuggestion = useCallback(
     (s: StreamerSuggestion) => {
