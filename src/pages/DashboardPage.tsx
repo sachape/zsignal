@@ -208,10 +208,10 @@ const DashboardPage = () => {
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-base font-semibold text-foreground">
-                  Première analyse en préparation
+                  On lit ta chaîne
                 </h2>
                 <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                  Ton cockpit s'active dès que la première synchronisation est terminée.
+                  Ton cockpit s'active dès la fin de la première synchronisation. Ça se passe tout seul, tu peux laisser la page ouverte.
                 </p>
               </div>
             </CardContent>
@@ -324,51 +324,31 @@ const DashboardPage = () => {
         />
 
         {/* Slim welcome banner — first cockpit visit only. Dismissable.
-            We deliberately keep this minimal: no walkthrough, no checklist,
-            no hotspots. The cockpit must remain a real product home. */}
+            Kept minimal on purpose: no walkthrough, no checklist, no hotspots.
+            The three shortcuts at the bottom of the cockpit already cover
+            navigation, so the welcome stays purely orientational. */}
         {showWelcome && (
-          <div className="mb-6 flex flex-col gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5">
-            <div className="flex flex-1 items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-semibold text-foreground sm:text-base">
-                  Ton cockpit est prêt.
-                </div>
-                <div className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
-                  Reviens ici pour piloter ta progression chaque semaine.
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Link
-                    to={`/result?report_id=${currentReport.id}`}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/60 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                  >
-                    <BarChart3 className="h-3 w-3" /> Diagnostic détaillé
-                  </Link>
-                  <Link
-                    to="/plan"
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/60 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                  >
-                    <CalendarCheck className="h-3 w-3" /> Plan de la semaine
-                  </Link>
-                  <Link
-                    to="/competitors"
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/60 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                  >
-                    <UsersIcon className="h-3 w-3" /> Benchmark
-                  </Link>
-                </div>
-              </div>
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-4 sm:items-center sm:p-5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <Sparkles className="h-4 w-4" />
             </div>
-            <button
-              type="button"
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground sm:text-[0.95rem]">
+                Ton premier diagnostic est prêt.
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+                Cette page devient ta home hebdo : un blocage à lever, un objectif à viser, rien de plus.
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={dismissWelcome}
-              aria-label="Fermer"
-              className="self-start rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:self-center"
+              aria-label="Fermer le message de bienvenue"
+              className="-mr-1 shrink-0 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         )}
 
@@ -404,8 +384,8 @@ const DashboardPage = () => {
               <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
               <p className="min-w-0 flex-1 text-xs text-foreground">
                 {followersMissingScope
-                  ? "La permission Twitch pour lire les followers est manquante. Reconnecte ton compte pour récupérer le vrai nombre."
-                  : "Followers temporairement indisponibles. Relance une analyse pour réessayer."}
+                  ? "Ton total de followers n'est pas encore lisible. Reconnecte Twitch pour l'afficher avec précision."
+                  : "Ton total de followers n'a pas pu être lu lors de cette analyse. Relance une analyse pour réessayer."}
               </p>
               {followersMissingScope && (
                 <Button asChild size="sm" variant="outline">
