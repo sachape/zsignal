@@ -82,7 +82,7 @@ const TwitchCallbackPage = () => {
 
       if (!oauthResult.success) {
         setState("error");
-        setErrorMsg(oauthResult.error);
+        setErrorMsg("error" in oauthResult ? oauthResult.error : "La connexion n’a pas pu être finalisée.");
         return;
       }
 
