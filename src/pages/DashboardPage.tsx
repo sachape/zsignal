@@ -60,11 +60,23 @@ const formatDate = (iso: string) =>
 const DashboardPage = () => {
   const { user } = useAuth();
   const { isConnected, account, loading: connectionLoading } = useTwitchConnection();
+  const [searchParams] = useSearchParams();
   const [currentReport, setCurrentReport] = useState<SavedReport | null>(null);
   const [history, setHistory] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncSnapshot, setSyncSnapshot] = useState<SyncSnapshot | null>(null);
   const [manualRefreshing, setManualRefreshing] = useState(false);
+
+  // Welcome banner: show only on first visit after Twitch connection.
+  // Robust to refreshes: relies on the durable cockpit_welcome_dismissed flag.
+  const welcomeRequested = searchParams.get("welcome") === "1";
+  const [showWelcome, setShowWelcome] = useState(
+    () => welcomeRequested && !onboardingFlags.isCockpitWelcomeDismissed(),
+  );
+  const dismissWelcome = useCallback(() => {
+    onboardingFlags.dismissCockpitWelcome();
+    setShowWelcome(false);
+  }, []);
   const autoTriggeredRef = useRef(false);
   const processingRef = useRef(false);
 
