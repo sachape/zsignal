@@ -829,19 +829,24 @@ const ResultPage = () => {
                   : "Tu veux l'analyse complète ?"}
               </h3>
               <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                {user
-                  ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
-                  : isTeaser
-                    ? "Crée un compte gratuit pour sauvegarder ton analyse, voir tous les concurrents, le plan d'action complet et suivre ta progression vers l'affiliation."
-                    : "Crée un compte pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
+                {isTeaser
+                  ? "Connecte Twitch pour sauvegarder ton analyse, débloquer les données enrichies et suivre ta progression."
+                  : user
+                    ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
+                    : "Connecte Twitch pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button onClick={handleUnlock} className="mt-2">
-                {user ? "Connecter Twitch" : "Créer un compte gratuit"}
+                Continuer avec Twitch
               </Button>
             </CardContent>
           </Card>
         )}
       </PageContainer>
+      <TwitchUnlockModal
+        open={unlockModalOpen}
+        onOpenChange={setUnlockModalOpen}
+        teaserId={teaserId}
+      />
     </AppShell>
   );
 };
