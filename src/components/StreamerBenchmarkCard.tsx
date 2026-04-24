@@ -3,6 +3,7 @@ import { ArrowRight, Radio } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatNumber } from "@/lib/format";
 import type { CompetitorMatch } from "@/types/analysis";
 
 interface Props {
@@ -60,7 +61,7 @@ const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel 
 
         {isLive && (
           <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
-            <Radio className="h-2.5 w-2.5" /> Live · {competitor.avg_viewers}
+            <Radio className="h-2.5 w-2.5" /> Live · {formatNumber(competitor.avg_viewers)}
           </div>
         )}
 

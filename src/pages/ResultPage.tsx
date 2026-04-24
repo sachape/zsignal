@@ -765,8 +765,8 @@ const ResultPage = () => {
                       label: "Followers",
                       value:
                         followersValue === null
-                          ? "Disponible avec Twitch"
-                          : `${followersValue} / ${ap.followers.target}`,
+                          ? "Visible une fois Twitch connecté"
+                          : `${formatNumber(followersValue)} / ${formatNumber(ap.followers.target)}`,
                       pct:
                         followersValue === null
                           ? 0
@@ -777,17 +777,17 @@ const ResultPage = () => {
                     },
                     {
                       label: "Viewers moyens",
-                      value: `${Math.min(ap.avg_viewers.current, ap.avg_viewers.target)} / ${ap.avg_viewers.target}`,
+                      value: `${formatNumber(Math.min(ap.avg_viewers.current, ap.avg_viewers.target))} / ${formatNumber(ap.avg_viewers.target)}`,
                       pct: Math.min(100, Math.round((ap.avg_viewers.current / ap.avg_viewers.target) * 100)),
                     },
                     {
                       label: "Jours de stream",
-                      value: `${Math.min(ap.stream_days.current, ap.stream_days.target)} / ${ap.stream_days.target}`,
+                      value: `${formatNumber(Math.min(ap.stream_days.current, ap.stream_days.target))} / ${formatNumber(ap.stream_days.target)}`,
                       pct: Math.min(100, Math.round((ap.stream_days.current / ap.stream_days.target) * 100)),
                     },
                     {
                       label: "Heures de stream",
-                      value: `${Math.min(ap.stream_hours.current, ap.stream_hours.target)} / ${ap.stream_hours.target}`,
+                      value: `${formatNumber(Math.min(ap.stream_hours.current, ap.stream_hours.target))} / ${formatNumber(ap.stream_hours.target)}`,
                       pct: Math.min(100, Math.round((ap.stream_hours.current / ap.stream_hours.target) * 100)),
                     },
                   ].map((item) => (
