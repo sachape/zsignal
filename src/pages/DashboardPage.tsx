@@ -106,6 +106,16 @@ const DashboardPage = () => {
     } else {
       setSyncSnapshot(null);
     }
+
+    // Live sessions snapshot is independent from analysis reports — it is
+    // populated by the live-detect cron and only depends on the connected
+    // Twitch account, so we always try to refresh it on dashboard loads.
+    try {
+      const live = await getLiveCockpitSnapshot(user.id);
+      setLiveSnapshot(live);
+    } catch {
+      setLiveSnapshot(null);
+    }
   }, [user, account]);
 
   useEffect(() => {
