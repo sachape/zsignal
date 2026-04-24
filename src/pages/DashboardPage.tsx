@@ -293,14 +293,9 @@ const DashboardPage = () => {
       .filter((m) => m.pct < 100)
       .sort((a, b) => b.pct - a.pct)[0] ?? milestones.map((m) => ({ ...m, pct: 100 }))[0];
 
-  
-  const oneCompetitor =
-    report.competitor_groups.find((g) => g.type === "direct")?.matches[0] ??
-    report.competitor_groups.flatMap((g) => g.matches)[0] ??
-    null;
-  const recommendedPlaybook = recommendPlaybookForReport(report);
   const foundation = diagnoseFoundationMode(report);
   const foundationActive = foundation.isActive && !currentReport.is_demo;
+
 
   return (
     <AppShell>
