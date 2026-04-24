@@ -1,39 +1,41 @@
-import { Quote } from "lucide-react";
+import { Zap, ShieldCheck, ArrowUpRight } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import {
   GlassCard,
-  MicroLabel,
   SectionHeading,
   SectionShell,
 } from "./primitives";
 
-const REASONS = [
+const PILLARS = [
   {
-    title: "Diagnostic clair, pas un dump de chiffres",
-    body: "On formule ce qui bloque vraiment, en français — pas en jargon analytics.",
+    icon: Zap,
+    title: "Diagnostic en moins d'une minute",
+    body: "Tu entres ton pseudo, tu obtiens un score lu humainement et un blocage principal nommé clairement.",
   },
   {
-    title: "Lecture seule, données publiques",
-    body: "Aucune publication, aucune action sur ta chaîne. Tu testes sans risque.",
+    icon: ShieldCheck,
+    title: "Aucune connexion Twitch requise pour commencer",
+    body: "Lecture seule, données publiques uniquement. Tu testes la valeur avant même de créer un compte.",
   },
   {
-    title: "Pensé pour les vraies tailles de chaîne",
-    body: "Du débutant à l'affilié — pas calibré pour les méga-streamers.",
+    icon: ArrowUpRight,
+    title: "Passage au suivi complet quand tu veux aller plus loin",
+    body: "L'aperçu reste honnête sur ses limites. Le suivi complet ouvre l'historique et le plan d'action enrichi.",
   },
 ];
 
-const TESTIMONIALS = [
+const NOTES = [
   {
     quote:
-      "J'ai compris en 2 minutes ce qui bloquait ma chaîne depuis des mois. Le diagnostic était direct, sans jargon.",
+      "J'ai enfin compris ce qui freinait mes lives. Je tournais autour du problème depuis des mois.",
     name: "Léa M.",
-    handle: "@leaplays_fr",
+    context: "Streameuse variety, ~15 viewers moy.",
   },
   {
     quote:
-      "Enfin un outil qui me dit quoi faire au lieu de me noyer dans les chiffres. J'applique le plan chaque semaine.",
+      "Le plus utile, c'est de voir quoi corriger en premier. Je perds moins de temps à tester au hasard.",
     name: "Maxime D.",
-    handle: "@maxstream",
+    context: "Stream FPS, vise l'affiliation",
   },
 ];
 
@@ -44,42 +46,45 @@ const SocialProofSection = () => {
     <SectionShell>
       <SectionHeading
         badge="Pourquoi StreamPulse"
-        title="Pourquoi les streamers reviennent"
-        subtitle="Trois choses que tu ne trouves pas dans les outils analytics classiques."
+        title="Pourquoi les streamers reviennent sur StreamPulse"
+        subtitle="Pas pour regarder un dashboard. Pour comprendre plus vite, corriger plus juste et suivre leur progression dans le temps."
       />
 
-      <div ref={ref} className="mx-auto mt-12 max-w-5xl space-y-8">
-        {/* Reasons row */}
+      <div ref={ref} className="mx-auto mt-12 max-w-5xl space-y-6">
+        {/* Pillars */}
         <div className="grid gap-4 md:grid-cols-3">
-          {REASONS.map((r, i) => (
-            <div
-              key={r.title}
-              style={{
-                opacity: inView ? 1 : 0,
-                transform: inView ? "translateY(0)" : "translateY(20px)",
-                transition: `opacity 700ms ease-out ${i * 110}ms, transform 700ms ease-out ${i * 110}ms`,
-              }}
-            >
-              <GlassCard className="h-full p-6">
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary/15 text-[11px] font-bold tabular-nums text-primary">
-                  {i + 1}
-                </span>
-                <h3 className="mt-4 text-base font-semibold leading-snug text-foreground">
-                  {r.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground/70">
-                  {r.body}
-                </p>
-              </GlassCard>
-            </div>
-          ))}
+          {PILLARS.map((p, i) => {
+            const Icon = p.icon;
+            return (
+              <div
+                key={p.title}
+                style={{
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? "translateY(0)" : "translateY(20px)",
+                  transition: `opacity 700ms ease-out ${i * 110}ms, transform 700ms ease-out ${i * 110}ms`,
+                }}
+              >
+                <GlassCard className="h-full p-6">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 shadow-[0_0_15px_hsl(var(--primary)/0.15)]">
+                    <Icon className="h-4 w-4 text-primary" />
+                  </div>
+                  <h3 className="mt-4 text-base font-semibold leading-snug text-foreground">
+                    {p.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground/70">
+                    {p.body}
+                  </p>
+                </GlassCard>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Testimonials — 2 sober quotes */}
+        {/* Sober notes — not over-styled, no fake star ratings */}
         <div className="grid gap-4 md:grid-cols-2">
-          {TESTIMONIALS.map((t, i) => (
+          {NOTES.map((t, i) => (
             <div
-              key={t.handle}
+              key={t.name}
               style={{
                 opacity: inView ? 1 : 0,
                 transform: inView ? "translateY(0)" : "translateY(20px)",
@@ -87,28 +92,23 @@ const SocialProofSection = () => {
               }}
             >
               <GlassCard className="h-full p-6">
-                <Quote className="h-5 w-5 text-primary/50" />
-                <p className="mt-3 text-sm leading-relaxed text-foreground/90">
-                  {t.quote}
+                <p className="text-sm leading-relaxed text-foreground/90">
+                  « {t.quote} »
                 </p>
-                <div className="mt-5 flex items-center gap-3 border-t border-white/[0.06] pt-4">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-xs font-semibold text-foreground">
-                    {t.name[0]}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-foreground">
-                      {t.name}
-                      <span className="ml-1.5 font-normal text-muted-foreground">
-                        {t.handle}
-                      </span>
-                    </p>
-                    <MicroLabel>Témoignage utilisateur</MicroLabel>
-                  </div>
+                <div className="mt-4 flex items-baseline gap-2 border-t border-white/[0.06] pt-3">
+                  <p className="text-xs font-semibold text-foreground">{t.name}</p>
+                  <span className="text-[11px] text-muted-foreground">
+                    — {t.context}
+                  </span>
                 </div>
               </GlassCard>
             </div>
           ))}
         </div>
+
+        <p className="pt-2 text-center text-xs text-muted-foreground">
+          Déjà utilisé pour analyser des chaînes Twitch à différents stades de progression.
+        </p>
       </div>
     </SectionShell>
   );
