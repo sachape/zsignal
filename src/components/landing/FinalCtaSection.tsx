@@ -54,14 +54,12 @@ const FinalCtaSection = () => {
               </span>
 
               <h2 className="mt-5 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl lg:text-[3.25rem] lg:leading-[1.05]">
-                Analyse ta chaîne.
-                <br />
-                Débloque ta progression.
+                Lance ton diagnostic Twitch
               </h2>
 
               <p className="mt-5 max-w-lg text-base text-muted-foreground md:text-lg">
-                StreamScore, concurrents pertinents et plan d'action clair.
-                Découvre ce qui freine ta croissance — en moins de 60 secondes.
+                Entre ton pseudo et vois en moins d'une minute ce qui bloque
+                vraiment ta chaîne.
               </p>
 
               <div className="mt-8 max-w-lg">
@@ -78,10 +76,9 @@ const FinalCtaSection = () => {
 
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
                 {[
-                  "Gratuit",
+                  "Aucune connexion Twitch requise",
+                  "Lecture seule",
                   "Sans compte",
-                  "Données publiques uniquement",
-                  "Résultat immédiat",
                 ].map((t) => (
                   <span key={t} className="inline-flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary/70 shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />

@@ -1,5 +1,4 @@
-import { Quote, Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Quote } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import {
   GlassCard,
@@ -8,82 +7,35 @@ import {
   SectionShell,
 } from "./primitives";
 
-const STATS = [
-  { value: 500, suffix: "+", label: "Streamers analysés" },
-  { value: 4.8, suffix: "/5", label: "Note moyenne", decimals: 1 },
-  { value: 60, suffix: "s", label: "Temps moyen d'analyse" },
-  { value: 92, suffix: "%", label: "Recommanderaient l'outil" },
+const REASONS = [
+  {
+    title: "Diagnostic clair, pas un dump de chiffres",
+    body: "On formule ce qui bloque vraiment, en français — pas en jargon analytics.",
+  },
+  {
+    title: "Lecture seule, données publiques",
+    body: "Aucune publication, aucune action sur ta chaîne. Tu testes sans risque.",
+  },
+  {
+    title: "Pensé pour les vraies tailles de chaîne",
+    body: "Du débutant à l'affilié — pas calibré pour les méga-streamers.",
+  },
 ];
 
 const TESTIMONIALS = [
   {
     quote:
-      "J'ai compris en 2 minutes ce qui bloquait ma chaîne depuis des mois. Le score et les concurrents proposés étaient ultra pertinents.",
+      "J'ai compris en 2 minutes ce qui bloquait ma chaîne depuis des mois. Le diagnostic était direct, sans jargon.",
     name: "Léa M.",
     handle: "@leaplays_fr",
-    size: "1.2K abonnés",
   },
   {
     quote:
-      "Enfin un outil qui me dit quoi faire au lieu de me noyer sous les chiffres. Mon plan d'action est clair, je l'applique chaque semaine.",
+      "Enfin un outil qui me dit quoi faire au lieu de me noyer dans les chiffres. J'applique le plan chaque semaine.",
     name: "Maxime D.",
     handle: "@maxstream",
-    size: "850 abonnés",
-  },
-  {
-    quote:
-      "La comparaison avec d'autres streamers de ma taille m'a donné des idées concrètes que j'ai pu tester dès le stream suivant.",
-    name: "Anaïs R.",
-    handle: "@nayrocosplay",
-    size: "3.4K abonnés",
   },
 ];
-
-const useCountUp = (target: number, active: boolean, decimals = 0) => {
-  const [v, setV] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let raf = 0;
-    const start = performance.now();
-    const duration = 1500;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setV(eased * target);
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [active, target]);
-  return decimals ? v.toFixed(decimals) : Math.round(v).toString();
-};
-
-const Stat = ({
-  value,
-  suffix,
-  label,
-  active,
-  decimals = 0,
-}: {
-  value: number;
-  suffix: string;
-  label: string;
-  active: boolean;
-  decimals?: number;
-}) => {
-  const display = useCountUp(value, active, decimals);
-  return (
-    <div className="text-center">
-      <p className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tabular-nums text-transparent md:text-4xl">
-        {display}
-        <span className="text-primary">{suffix}</span>
-      </p>
-      <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-        {label}
-      </p>
-    </div>
-  );
-};
 
 const SocialProofSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.25);
@@ -91,38 +43,40 @@ const SocialProofSection = () => {
   return (
     <SectionShell>
       <SectionHeading
-        badge="Ils nous font confiance"
-        title="Des streamers, des vrais résultats"
-        subtitle="Ce que disent ceux qui utilisent StreamPulse pour piloter leur croissance."
+        badge="Pourquoi StreamPulse"
+        title="Pourquoi les streamers reviennent"
+        subtitle="Trois choses que tu ne trouves pas dans les outils analytics classiques."
       />
 
-      <div ref={ref} className="mx-auto mt-14 max-w-5xl space-y-10">
-        {/* Stats */}
-        <GlassCard className="p-6 md:p-8">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-            {STATS.map((s, i) => (
-              <div
-                key={s.label}
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transform: inView ? "translateY(0)" : "translateY(20px)",
-                  transition: `opacity 700ms ease-out ${i * 100}ms, transform 700ms ease-out ${i * 100}ms`,
-                }}
-              >
-                <Stat
-                  value={s.value}
-                  suffix={s.suffix}
-                  label={s.label}
-                  active={inView}
-                  decimals={s.decimals}
-                />
-              </div>
-            ))}
-          </div>
-        </GlassCard>
-
-        {/* Testimonials */}
+      <div ref={ref} className="mx-auto mt-12 max-w-5xl space-y-8">
+        {/* Reasons row */}
         <div className="grid gap-4 md:grid-cols-3">
+          {REASONS.map((r, i) => (
+            <div
+              key={r.title}
+              style={{
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateY(0)" : "translateY(20px)",
+                transition: `opacity 700ms ease-out ${i * 110}ms, transform 700ms ease-out ${i * 110}ms`,
+              }}
+            >
+              <GlassCard className="h-full p-6">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary/15 text-[11px] font-bold tabular-nums text-primary">
+                  {i + 1}
+                </span>
+                <h3 className="mt-4 text-base font-semibold leading-snug text-foreground">
+                  {r.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/70">
+                  {r.body}
+                </p>
+              </GlassCard>
+            </div>
+          ))}
+        </div>
+
+        {/* Testimonials — 2 sober quotes */}
+        <div className="grid gap-4 md:grid-cols-2">
           {TESTIMONIALS.map((t, i) => (
             <div
               key={t.handle}
@@ -144,19 +98,13 @@ const SocialProofSection = () => {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-semibold text-foreground">
                       {t.name}
-                      <span className="ml-1.5 font-normal text-muted-foreground">{t.handle}</span>
+                      <span className="ml-1.5 font-normal text-muted-foreground">
+                        {t.handle}
+                      </span>
                     </p>
-                    <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground/80">
-                      {t.size}
-                    </p>
-                  </div>
-                  <div className="flex gap-0.5 text-primary">
-                    {Array.from({ length: 5 }).map((_, k) => (
-                      <Star key={k} className="h-3 w-3 fill-current" />
-                    ))}
+                    <MicroLabel>Témoignage utilisateur</MicroLabel>
                   </div>
                 </div>
-                <MicroLabel>Témoignage</MicroLabel>
               </GlassCard>
             </div>
           ))}
