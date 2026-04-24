@@ -49,6 +49,7 @@ import QualitativeScoreCard from "@/components/QualitativeScoreCard";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { onboardingFlags } from "@/services/onboardingFlags";
+import { formatNumber, formatCompact } from "@/lib/format";
 
 type SelectionSource =
   | "explicit_report_id"
@@ -491,18 +492,18 @@ const ResultPage = () => {
           description={
             summary.is_partial
               ? summary.followers_available === false
-                ? "Données publiques uniquement · followers totaux disponibles avec Twitch"
-                : "Données publiques uniquement"
+                ? "Diagnostic à partir de tes données publiques · total followers visible une fois Twitch connecté"
+                : "Diagnostic à partir de tes données publiques"
               : (() => {
                   const viewersPart =
                     summary.avg_viewers > 0
-                      ? `~${summary.avg_viewers} viewers moyens en live`
+                      ? `~${formatNumber(summary.avg_viewers)} viewers en moyenne`
                       : null;
                   const followersPart =
                     summary.followers_available === false
-                      ? "followers disponibles après reconnexion Twitch"
+                      ? "followers masqués en attendant la reconnexion Twitch"
                       : summary.follower_count > 0
-                        ? `${summary.follower_count} followers`
+                        ? `${formatNumber(summary.follower_count)} followers`
                         : null;
                   const parts = [viewersPart, followersPart].filter(Boolean);
                   return parts.length > 0 ? parts.join(" · ") : "Diagnostic de ta chaîne";
@@ -513,7 +514,7 @@ const ResultPage = () => {
         {summary.is_live && (summary.live_viewer_count ?? 0) > 0 && (
           <div className="-mt-3 mb-4 inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-            En live · {summary.live_viewer_count} viewers
+            En live · {formatNumber(summary.live_viewer_count)} viewers
             {summary.live_title ? ` · ${summary.live_title}` : ""}
           </div>
         )}
@@ -532,15 +533,15 @@ const ResultPage = () => {
               <Zap className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
               <div className="min-w-0 flex-1 space-y-1">
                 <p className="text-sm font-semibold text-foreground">
-                  Analyse basée sur les données publiques disponibles
+                  Aperçu à partir des données publiques de ta chaîne
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Followers exacts, chatters uniques et historique live nécessitent la
-                  connexion Twitch. Connecte ta chaîne pour débloquer le rapport complet.
+                  Le total de followers, les chatters uniques et l'historique live complet ne sont
+                  lisibles qu'une fois Twitch connecté. Connecte ta chaîne pour passer sur le diagnostic complet.
                 </p>
               </div>
               <Button size="sm" onClick={handleUnlock}>
-                Débloquer le rapport complet
+                Passer au diagnostic complet
               </Button>
             </CardContent>
           </Card>
@@ -552,12 +553,12 @@ const ResultPage = () => {
               <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
               <p className="min-w-0 flex-1 text-xs text-foreground">
                 {summary.followers_missing_scope
-                  ? "Permission Twitch manquante pour lire les followers. Reconnecte ton compte pour récupérer le vrai nombre."
-                  : "Le nombre de followers n'a pas pu être récupéré pour le moment. Relance une analyse pour réessayer."}
+                  ? "Ton total de followers n'est pas encore lisible. Reconnecte Twitch pour l'afficher avec précision."
+                  : "Ton total de followers n'a pas pu être lu lors de cette analyse. Relance une analyse pour réessayer."}
               </p>
               {summary.followers_missing_scope && (
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/connect-twitch">Reconnecter Twitch pour récupérer les followers</Link>
+                  <Link to="/connect-twitch">Reconnecter Twitch</Link>
                 </Button>
               )}
             </CardContent>
@@ -612,13 +613,13 @@ const ResultPage = () => {
             <div className="grid gap-3 sm:grid-cols-3">
               <StatBlock
                 label="Vues moyennes par VOD"
-                value={summary.avg_viewers > 0 ? String(summary.avg_viewers) : "—"}
+                value={summary.avg_viewers > 0 ? formatNumber(summary.avg_viewers) : "—"}
                 subtext={
                   summary.avg_viewers > 0
                     ? summary.is_partial
-                      ? "Données publiques · influencé par les rediffusions"
-                      : "30 derniers jours · pas un compteur live"
-                    : "Pas encore mesurable sur ces 30 jours"
+                      ? "Sur 30 jours · influencé par les rediffusions"
+                      : "Sur 30 jours · pas un compteur live"
+                    : "Pas assez de VOD récentes pour mesurer"
                 }
               />
               <StatBlock
@@ -626,7 +627,7 @@ const ResultPage = () => {
                 value={`${score.regularity}%`}
                 subtext={
                   ap.stream_days.current > 0
-                    ? `${ap.stream_days.current}/${ap.stream_days.target} jours`
+                    ? `${formatNumber(ap.stream_days.current)} jours streamés sur 30`
                     : "Aucun live détecté sur 30 jours"
                 }
               />
@@ -640,8 +641,8 @@ const ResultPage = () => {
                     value={`${score.content}%`}
                     subtext={
                       clipsCount > 0
-                        ? `${clipsCount} clips`
-                        : "Pas encore de clips récents"
+                        ? `${formatNumber(clipsCount)} clips récents`
+                        : "Aucun clip récent à exploiter"
                     }
                     accent
                   />
@@ -653,7 +654,7 @@ const ResultPage = () => {
                 <div className="flex items-center gap-2">
                   <TrendingDown className="h-4 w-4 text-warning" />
                   <p className="text-sm font-semibold text-foreground">
-                    Point faible clé : {report.weak_point.label}
+                    Ce qui freine le plus : {report.weak_point.label}
                   </p>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -714,7 +715,7 @@ const ResultPage = () => {
               <div key={c.id}>
                 <CompetitorCard
                   name={c.display_name}
-                  followers={`${(c.follower_count / 1000).toFixed(1)}K`}
+                  followers={formatCompact(c.follower_count)}
                   similarity={c.similarity_score}
                   reasons={c.match_reasons}
                 />
