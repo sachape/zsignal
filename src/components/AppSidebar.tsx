@@ -7,7 +7,6 @@ import {
   BookOpen,
   Trophy,
   LogOut,
-  Stethoscope,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -28,9 +27,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 
+// Cockpit is the single authenticated home. The detailed diagnosis is a
+// drill-down reachable from the cockpit itself, so it intentionally does
+// NOT appear as a top-level sidebar destination.
 const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
-  { title: "Diagnostic détaillé", url: "/result", icon: Stethoscope, end: false },
   { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
 ];
 
@@ -39,6 +40,7 @@ const benchmarkItems = [
   { title: "Classements", url: "/leaders", icon: Trophy, end: false },
   { title: "Playbooks", url: "/playbooks", icon: BookOpen, end: false },
 ];
+
 
 const AppSidebar = () => {
   const { state } = useSidebar();

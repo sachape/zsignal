@@ -472,23 +472,38 @@ const ResultPage = () => {
           ]}
           description={
             summary.is_partial
-              ? `Données publiques uniquement${
-                  summary.followers_available === false
-                    ? " · followers totaux disponibles après connexion Twitch"
-                    : ""
-                }`
-              : `~${summary.avg_viewers} viewers moyens en live · ${
-                  summary.followers_available === false
-                    ? "followers disponibles après reconnexion Twitch"
-                    : `${summary.follower_count} followers`
-                }`
+              ? summary.followers_available === false
+                ? "Données publiques uniquement · followers totaux disponibles avec Twitch"
+                : "Données publiques uniquement"
+              : (() => {
+                  const viewersPart =
+                    summary.avg_viewers > 0
+                      ? `~${summary.avg_viewers} viewers moyens en live`
+                      : null;
+                  const followersPart =
+                    summary.followers_available === false
+                      ? "followers disponibles après reconnexion Twitch"
+                      : summary.follower_count > 0
+                        ? `${summary.follower_count} followers`
+                        : null;
+                  const parts = [viewersPart, followersPart].filter(Boolean);
+                  return parts.length > 0 ? parts.join(" · ") : "Diagnostic de ta chaîne";
+                })()
           }
         />
 
-        {summary.is_live && (
+        {summary.is_live && (summary.live_viewer_count ?? 0) > 0 && (
           <div className="-mt-3 mb-4 inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-            En live · {summary.live_viewer_count ?? 0} viewers
+            En live · {summary.live_viewer_count} viewers
+            {summary.live_title ? ` · ${summary.live_title}` : ""}
+          </div>
+        )}
+
+        {summary.is_live && (summary.live_viewer_count ?? 0) === 0 && (
+          <div className="-mt-3 mb-4 inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+            En live
             {summary.live_title ? ` · ${summary.live_title}` : ""}
           </div>
         )}
@@ -568,24 +583,41 @@ const ResultPage = () => {
             <div className="grid gap-3 sm:grid-cols-3">
               <StatBlock
                 label="Vues moyennes par VOD"
-                value={String(summary.avg_viewers)}
+                value={summary.avg_viewers > 0 ? String(summary.avg_viewers) : "—"}
                 subtext={
-                  summary.is_partial
-                    ? "Données publiques · influencé par les rediffusions"
-                    : "30 derniers jours · pas un compteur live"
+                  summary.avg_viewers > 0
+                    ? summary.is_partial
+                      ? "Données publiques · influencé par les rediffusions"
+                      : "30 derniers jours · pas un compteur live"
+                    : "Pas encore mesurable sur ces 30 jours"
                 }
               />
               <StatBlock
                 label="Régularité"
                 value={`${score.regularity}%`}
-                subtext={`${ap.stream_days.current}/${ap.stream_days.target} jours`}
+                subtext={
+                  ap.stream_days.current > 0
+                    ? `${ap.stream_days.current}/${ap.stream_days.target} jours`
+                    : "Aucun live détecté sur 30 jours"
+                }
               />
-              <StatBlock
-                label="Contenu"
-                value={`${score.content}%`}
-                subtext={`${report.facts.find((f) => f.key === "clips_30d")?.value ?? 0} clips`}
-                accent
-              />
+              {(() => {
+                const clipsCount = Number(
+                  report.facts.find((f) => f.key === "clips_30d")?.value ?? 0,
+                );
+                return (
+                  <StatBlock
+                    label="Contenu"
+                    value={`${score.content}%`}
+                    subtext={
+                      clipsCount > 0
+                        ? `${clipsCount} clips`
+                        : "Pas encore de clips récents"
+                    }
+                    accent
+                  />
+                );
+              })()}
             </div>
             <Card>
               <CardContent className="p-4">
@@ -603,32 +635,10 @@ const ResultPage = () => {
           </div>
         </div>
 
-        {/* Bridge between diagnosis and execution: surface the same blocker as
-            the dashboard, and offer a direct link to the weekly plan so the
-            user always sees the loop diagnosis → blocker → plan. */}
-        {isPersisted && saved && !saved.is_demo && (() => {
-          const foundation = diagnoseFoundationMode(report);
-          if (!foundation.isActive) return null;
-          return (
-            <>
-              <MainBlockerCard blocker={foundation.blocker} />
-              <Card className="mb-8 border-primary/30 bg-primary/5">
-                <CardContent className="flex flex-wrap items-center gap-3 p-4">
-                  <CalendarCheck className="h-4 w-4 shrink-0 text-primary" />
-                  <p className="min-w-0 flex-1 text-xs text-foreground">
-                    Le diagnostic ci-dessous nourrit ton plan hebdomadaire. Passe à
-                    l'exécution dès que tu as compris pourquoi.
-                  </p>
-                  <Button asChild size="sm">
-                    <Link to="/plan">
-                      Voir le plan de la semaine <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </>
-          );
-        })()}
+        {/* No MainBlocker / plan bridge here: the cockpit is the single
+            home that surfaces the current blocker and the weekly plan link.
+            Result must stay focused on deep diagnosis. */}
+
 
         {!isTeaser && (
           <Card className="mb-8">

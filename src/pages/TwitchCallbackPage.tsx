@@ -164,7 +164,9 @@ const TwitchCallbackPage = () => {
       // teaser id — it has served its reconciliation purpose.
       consumePendingTeaserId();
 
-      const target = `/result?report_id=${encodeURIComponent(enrichedReportId)}&from=onboarding`;
+      // Cockpit is the canonical authenticated home. The enriched report is
+      // reachable one click away via the welcome banner / "Rapport complet".
+      const target = `/dashboard?welcome=1`;
       devLog("navigating to:", target);
       navigate(target, { replace: true });
     })();

@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
-  Zap,
   ArrowRight,
   FileText,
   AlertCircle,
@@ -14,16 +13,11 @@ import {
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import SectionHeader from "@/components/SectionHeader";
 import ScoreCard from "@/components/ScoreCard";
 
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
-import ProgressRow from "@/components/ProgressRow";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
-import WeeklyPlanCard from "@/components/WeeklyPlanCard";
-import StreamerBenchmarkCard from "@/components/StreamerBenchmarkCard";
-import PlaybookCard from "@/components/PlaybookCard";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import WeeklySequenceCard from "@/components/WeeklySequenceCard";
@@ -47,8 +41,8 @@ import {
   processPendingForAccount,
 } from "@/services/autoRefreshRunner";
 
-import { recommendPlaybookForReport } from "@/services/playbookLibrary";
 import { onboardingFlags } from "@/services/onboardingFlags";
+
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -299,14 +293,9 @@ const DashboardPage = () => {
       .filter((m) => m.pct < 100)
       .sort((a, b) => b.pct - a.pct)[0] ?? milestones.map((m) => ({ ...m, pct: 100 }))[0];
 
-  
-  const oneCompetitor =
-    report.competitor_groups.find((g) => g.type === "direct")?.matches[0] ??
-    report.competitor_groups.flatMap((g) => g.matches)[0] ??
-    null;
-  const recommendedPlaybook = recommendPlaybookForReport(report);
   const foundation = diagnoseFoundationMode(report);
   const foundationActive = foundation.isActive && !currentReport.is_demo;
+
 
   return (
     <AppShell>
@@ -447,102 +436,55 @@ const DashboardPage = () => {
           foundationActive={foundationActive}
         />
 
-        {/* Weekly plan — the single source of "what to do this week".
-            Progression signals card was removed from the dashboard to keep
-            the page focused on action, not on layered analytics. */}
-        {!foundationActive && (
-          <div className="mb-6">
-            <WeeklyPlanCard report={report} compact />
-          </div>
-        )}
-
-        {/* Action of the day — one signal to observe today */}
-        {report.next_best_action && (
-          <Card className="mb-6 border-accent/30 bg-accent/5">
-            <CardContent className="p-4">
-              <div className="mb-1 flex items-center gap-2">
-                <Zap className="h-4 w-4 text-accent" />
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
-                  À observer aujourd'hui
-                </h3>
+        {/* Three shortcuts to the rest of the product. The cockpit itself
+            stays decisional — detailed analytics, the full weekly plan and
+            the benchmark grid live on their own pages. */}
+        <div className="mb-8 grid gap-3 sm:grid-cols-3">
+          <Link
+            to={`/result?report_id=${currentReport.id}`}
+            className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <BarChart3 className="h-4 w-4 text-primary" />
+                Diagnostic détaillé
               </div>
-              <p className="text-sm font-semibold text-foreground">
-                {report.next_best_action.title}
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Pourquoi ton score est ce qu'il est.
               </p>
-              {report.next_best_action.action && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {report.next_best_action.action}
-                </p>
-              )}
-              <p className="mt-2 text-[11px] text-muted-foreground">
-                Pourquoi maintenant : c'est le signal le plus exploitable cette
-                semaine. Si tu l'ignores, tu perds une boucle de feedback courte
-                et la prochaine décision devient moins claire.
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* One thing to observe + one playbook — flat layout, no benchmark grid.
-            In foundation mode the observation is hidden to keep the page
-            focused strictly on the blocker and the sequence. */}
-        <div className="mb-8 grid gap-4 lg:grid-cols-2">
-          {!foundationActive && oneCompetitor && (
-            <div>
-              <SectionHeader
-                title="Une chaîne à observer"
-                description="Pourquoi ça compte : observer une chaîne proche te donne un point de comparaison concret. Sans ça, tu optimises à l'aveugle."
-                align="left"
-              />
-              <StreamerBenchmarkCard
-                competitor={oneCompetitor}
-                groupLabel={
-                  oneCompetitor.group === "direct"
-                    ? "Direct"
-                    : oneCompetitor.group === "catch-up"
-                      ? "À rattraper"
-                      : "Inspiration"
-                }
-                copyMechanic={
-                  oneCompetitor.content_format === "ranked"
-                    ? "Une session ranked dédiée par semaine, sans variety au milieu."
-                    : oneCompetitor.content_format === "casting"
-                      ? "Un format d'analyse court (10 min) en début ou fin de stream."
-                      : oneCompetitor.content_format === "chill"
-                        ? "Un créneau 'chill' identifiable dans le planning."
-                        : undefined
-                }
-              />
-              <Button asChild variant="ghost" size="sm" className="mt-2">
-                <Link to="/competitors">
-                  Tous les concurrents <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </Button>
             </div>
-          )}
-          <div className={foundationActive || !oneCompetitor ? "lg:col-span-2" : ""}>
-            <SectionHeader
-              title={
-                foundationActive
-                  ? "Ressource pour débloquer cette semaine"
-                  : "Ressource recommandée"
-              }
-              description={
-                foundationActive
-                  ? "Un playbook court, lié à ton blocage principal. Le signal que tu cherches à créer : une première semaine cohérente et lisible."
-                  : "Liée à ta faiblesse principale. Pourquoi : un playbook ciblé crée un changement mesurable en 7 jours, là où une recommandation isolée se perd."
-              }
-              align="left"
-            />
-            <PlaybookCard playbook={recommendedPlaybook} />
-            {!foundationActive && (
-              <Button asChild variant="ghost" size="sm" className="mt-2">
-                <Link to="/playbooks">
-                  Tous les playbooks <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </Button>
-            )}
-          </div>
+            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          </Link>
+          <Link
+            to="/plan"
+            className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <CalendarCheck className="h-4 w-4 text-primary" />
+                Plan de la semaine
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Ce que tu exécutes maintenant.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          </Link>
+          <Link
+            to="/competitors"
+            className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <UsersIcon className="h-4 w-4 text-primary" />
+                Benchmark
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Ce que tu observes chez les autres.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          </Link>
         </div>
       </PageContainer>
     </AppShell>
