@@ -45,6 +45,7 @@ import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import TeaserResultView from "@/components/result/TeaserResultView";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
+import { onboardingFlags } from "@/services/onboardingFlags";
 
 type SelectionSource =
   | "explicit_report_id"
@@ -372,10 +373,15 @@ const ResultPage = () => {
   }
 
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
-  const postAuthRedirect = `/dashboard${
-    teaserCtaChannel ? `?channel=${encodeURIComponent(teaserCtaChannel)}` : ""
-  }`;
+  const fromOnboarding = searchParams.get("from") === "onboarding";
+  const postAuthRedirect = `/connect-twitch`;
   const handleUnlock = () => {
+    // Persist teaser id across the OAuth round-trip so the callback can
+    // redirect the user back to /result?teaser=...&from=onboarding and
+    // present an enriched version of the same diagnostic.
+    if (teaserId) {
+      onboardingFlags.setPendingTeaserId(teaserId);
+    }
     if (user) {
       navigate("/connect-twitch");
     } else {
@@ -391,7 +397,7 @@ const ResultPage = () => {
   // Teaser path: render the dedicated diagnostic-first view (no AppShell, no
   // debug panel, no dashboard chrome — pure conversion-oriented experience).
   if (isTeaser) {
-    return <TeaserResultView report={report} onUnlock={handleUnlock} />;
+    return <TeaserResultView report={report} onUnlock={handleUnlock} fromOnboarding={fromOnboarding} />;
   }
 
   const summary = report.channel_summary;
