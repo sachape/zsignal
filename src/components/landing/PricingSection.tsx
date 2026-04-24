@@ -13,34 +13,35 @@ const PLANS = [
   {
     name: "Aperçu gratuit",
     price: "0€",
-    cadence: "sans compte",
-    description:
-      "Lance un premier diagnostic complet pour voir si StreamPulse t'apporte de la valeur.",
+    cadence: "",
+    description: "Pour voir rapidement où ta chaîne en est.",
     features: [
-      "1 analyse instantanée par chaîne",
-      "Score global et blocage principal",
-      "Progression vers l'affiliation",
-      "3 premières actions recommandées",
+      "1 diagnostic instantané",
+      "Score global + blocage principal",
+      "Progression vers l'objectif",
+      "Action prioritaire",
+      "Sans connexion Twitch pour commencer",
     ],
-    cta: "Lancer un diagnostic",
+    cta: "Analyser ma chaîne",
     recommended: false,
+    note: null,
   },
   {
     name: "Suivi complet",
     price: "9€",
-    cadence: "par mois · sans engagement",
+    cadence: "/ mois",
     description:
-      "Pour piloter ta croissance dans la durée, pas juste pour une analyse ponctuelle.",
+      "Pour suivre ta progression, retrouver ton historique et aller plus loin après le premier diagnostic.",
     features: [
-      "Analyses illimitées et historique",
-      "Plan d'action hebdomadaire",
-      "Comparaison étendue avec d'autres chaînes",
-      "Détection des meilleurs créneaux",
-      "Suggestions de contenu personnalisées",
-      "Suivi multi-chaînes (à venir)",
+      "Analyses illimitées",
+      "Historique des lives et progression",
+      "Suivi complet des objectifs",
+      "Plan d'action enrichi",
+      "Comparaisons plus avancées",
     ],
-    cta: "Passer en suivi complet",
+    cta: "Débloquer le suivi complet",
     recommended: true,
+    note: "Sans engagement · annulable à tout moment",
   },
 ];
 
@@ -52,8 +53,8 @@ const PricingSection = () => {
     <SectionShell id="pricing">
       <SectionHeading
         badge="Tarifs"
-        title="Gratuit pour comprendre, payant pour progresser"
-        subtitle="Commence sans compte. Passe au suivi complet uniquement si tu veux suivre ta progression dans la durée."
+        title="Commence gratuitement, passe au suivi quand tu veux"
+        subtitle="L'aperçu te montre déjà l'essentiel. Le suivi complet sert à piloter ta progression dans la durée."
       />
 
       <div
@@ -69,7 +70,7 @@ const PricingSection = () => {
               transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 150}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 150}ms`,
             }}
           >
-            <GlassCard hero={plan.recommended} className="h-full p-6 md:p-8">
+            <GlassCard hero={plan.recommended} className="flex h-full flex-col p-6 md:p-8">
               <div className="flex items-start justify-between">
                 <div>
                   <MicroLabel>Plan</MicroLabel>
@@ -89,7 +90,9 @@ const PricingSection = () => {
                 <span className="text-4xl font-bold tracking-tight text-foreground tabular-nums md:text-5xl">
                   {plan.price}
                 </span>
-                <span className="text-sm text-muted-foreground">{plan.cadence}</span>
+                {plan.cadence && (
+                  <span className="text-sm text-muted-foreground">{plan.cadence}</span>
+                )}
               </div>
               <p className="mt-3 text-sm text-muted-foreground">{plan.description}</p>
 
@@ -104,21 +107,28 @@ const PricingSection = () => {
                 ))}
               </ul>
 
-              <Button
-                size="lg"
-                variant={plan.recommended ? "default" : "outline"}
-                className="mt-7 w-full"
-                onClick={() => navigate("/")}
-              >
-                {plan.cta}
-              </Button>
+              <div className="mt-auto pt-7">
+                <Button
+                  size="lg"
+                  variant={plan.recommended ? "default" : "outline"}
+                  className="w-full"
+                  onClick={() => navigate("/")}
+                >
+                  {plan.cta}
+                </Button>
+                {plan.note && (
+                  <p className="mt-3 text-center text-[11px] text-muted-foreground">
+                    {plan.note}
+                  </p>
+                )}
+              </div>
             </GlassCard>
           </div>
         ))}
       </div>
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
-        Aperçu gratuit · pas de carte bancaire requise · résiliable en un clic
+        Tu peux commencer par l'aperçu gratuit, sans carte bancaire.
       </p>
     </SectionShell>
   );

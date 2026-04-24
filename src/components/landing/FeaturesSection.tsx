@@ -1,10 +1,9 @@
 import {
   Gauge,
   AlertTriangle,
-  Users,
-  CalendarCheck,
+  Target,
   Sparkles,
-  History,
+  Users,
 } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import {
@@ -17,52 +16,45 @@ import {
 const FEATURES = [
   {
     icon: Gauge,
-    label: "Diagnostic instantané",
+    label: "Lecture du niveau",
     title: "Vois immédiatement où ta chaîne en est",
     description:
-      "Un score lisible et une lecture humaine de tes signaux : qualité, régularité, engagement, croissance.",
+      "Un score lisible, interprété humainement, pour comprendre si ta chaîne progresse, stagne ou reste trop fragile.",
     hero: true,
     span: "md:col-span-3",
   },
   {
     icon: AlertTriangle,
-    label: "Lecture du blocage",
-    title: "Identifie ce qui freine vraiment ta croissance",
+    label: "Diagnostic",
+    title: "Identifie ce qui te freine vraiment",
     description:
-      "StreamPulse pointe le facteur n°1 qui pèse sur ta progression, sans se cacher derrière les chiffres.",
+      "StreamPulse fait remonter le blocage principal de ta chaîne pour éviter de corriger le mauvais problème.",
+    hero: true,
     span: "md:col-span-3",
   },
   {
-    icon: Users,
-    label: "Comparaison utile",
-    title: "Compare-toi à des chaînes pertinentes",
+    icon: Target,
+    label: "Objectif",
+    title: "Suis ta progression vers l'affiliation",
     description:
-      "Pas n'importe qui : des streamers de ta taille et de ton univers, pour voir ce qui marche autour de toi.",
-    span: "md:col-span-2",
-  },
-  {
-    icon: CalendarCheck,
-    label: "Planning",
-    title: "Choisis tes créneaux qui rapportent",
-    description:
-      "Repère les jours et horaires où ton audience est vraiment au rendez-vous.",
+      "Viewers, jours de stream, chatteurs uniques : vois précisément ce qu'il te manque et à quel rythme tu avances.",
     span: "md:col-span-2",
   },
   {
     icon: Sparkles,
-    label: "Plan d'action",
-    title: "Trouve quoi tester au prochain stream",
+    label: "Action",
+    title: "Décide quoi tester au prochain stream",
     description:
-      "Des idées concrètes, ordonnées par impact, prêtes à appliquer cette semaine.",
+      "Repars avec une action prioritaire claire au lieu de te perdre dans des statistiques brutes.",
     span: "md:col-span-2",
   },
   {
-    icon: History,
-    label: "Suivi continu",
-    title: "Suis ta progression dans le temps",
+    icon: Users,
+    label: "Comparaison",
+    title: "Compare-toi à des chaînes vraiment pertinentes",
     description:
-      "Compare tes analyses pour voir si tes décisions paient — ou s'il faut corriger le tir.",
-    span: "md:col-span-3",
+      "Pas un benchmark flou contre tout Twitch : des comparaisons utiles pour comprendre ce qui marche à ton niveau.",
+    span: "md:col-span-2",
   },
 ];
 
@@ -78,9 +70,9 @@ const FeaturesSection = () => {
   return (
     <SectionShell id="features">
       <SectionHeading
-        badge="Fonctionnalités"
-        title="Du signal au geste, sans détour"
-        subtitle="Chaque brique du produit répond à une question concrète : où j'en suis, ce qui bloque, et quoi faire ensuite."
+        badge="Bénéfices"
+        title="Ce que StreamPulse change concrètement pour toi"
+        subtitle="Pas une liste de features. Des réponses claires aux questions que tu te poses après chaque stream."
       />
 
       <div
@@ -89,10 +81,8 @@ const FeaturesSection = () => {
       >
         {FEATURES.map((feat, i) => {
           const { icon: Icon } = feat;
-          // Last row uses 3+3 to fill nicely
-          const className = i === FEATURES.length - 1 ? "md:col-span-3" : feat.span;
           return (
-            <div key={feat.title} style={stagger(i)} className={className}>
+            <div key={feat.title} style={stagger(i)} className={feat.span}>
               <GlassCard hero={feat.hero} className="flex h-full flex-col p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
