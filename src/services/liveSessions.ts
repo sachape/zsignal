@@ -100,6 +100,55 @@ export async function getLiveCockpitSnapshot(
   return { current, last, lastDebrief };
 }
 
+/** List the user's live sessions, most recent first. */
+export async function listLiveSessions(
+  userId: string,
+  limit = 50,
+): Promise<LiveSession[]> {
+  const { data } = await supabase
+    .from("live_sessions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("started_at", { ascending: false })
+    .limit(limit);
+  return (data as LiveSession[] | null) ?? [];
+}
+
+/** Fetch a single live session by id (RLS scoped to the current user). */
+export async function getLiveSessionById(
+  sessionId: string,
+): Promise<{ session: LiveSession | null; debrief: LiveDebrief | null }> {
+  const { data: sessionRow } = await supabase
+    .from("live_sessions")
+    .select("*")
+    .eq("id", sessionId)
+    .maybeSingle();
+  const session = (sessionRow as LiveSession | null) ?? null;
+  if (!session) return { session: null, debrief: null };
+  const { data: debriefRow } = await supabase
+    .from("live_debriefs")
+    .select("*")
+    .eq("live_session_id", sessionId)
+    .maybeSingle();
+  return { session, debrief: (debriefRow as LiveDebrief | null) ?? null };
+}
+
+/** Fetch debriefs for many sessions in one query, keyed by live_session_id. */
+export async function getDebriefsBySessionIds(
+  sessionIds: string[],
+): Promise<Map<string, LiveDebrief>> {
+  const map = new Map<string, LiveDebrief>();
+  if (sessionIds.length === 0) return map;
+  const { data } = await supabase
+    .from("live_debriefs")
+    .select("*")
+    .in("live_session_id", sessionIds);
+  for (const row of (data as LiveDebrief[] | null) ?? []) {
+    map.set(row.live_session_id, row);
+  }
+  return map;
+}
+
 /** Trigger a one-shot detect for the connected user (manual refresh). */
 export async function triggerLiveDetectForSelf(): Promise<void> {
   try {

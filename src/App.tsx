@@ -23,6 +23,8 @@ const PlaybookDetailPage = lazy(() => import("./pages/PlaybookDetailPage.tsx"));
 const StreamerProfilePage = lazy(() => import("./pages/StreamerProfilePage.tsx"));
 const LeadersPage = lazy(() => import("./pages/LeadersPage.tsx"));
 const LastLivePage = lazy(() => import("./pages/LastLivePage.tsx"));
+const LivesPage = lazy(() => import("./pages/LivesPage.tsx"));
+const LiveDetailPage = lazy(() => import("./pages/LiveDetailPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
@@ -85,10 +87,26 @@ const App = () => (
                 />
                 <Route path="/streamer/:login" element={<StreamerProfilePage />} />
                 <Route
+                  path="/lives"
+                  element={
+                    <ProtectedRoute>
+                      <LivesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/lives/last"
                   element={
                     <ProtectedRoute>
                       <LastLivePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/lives/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LiveDetailPage />
                     </ProtectedRoute>
                   }
                 />
