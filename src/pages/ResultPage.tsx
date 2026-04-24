@@ -374,7 +374,6 @@ const ResultPage = () => {
 
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
   const fromOnboarding = searchParams.get("from") === "onboarding";
-  const postAuthRedirect = `/connect-twitch`;
   const handleUnlock = () => {
     // Persist teaser id across the OAuth round-trip so the callback can
     // redirect the user back to /result?teaser=...&from=onboarding and
@@ -383,22 +382,16 @@ const ResultPage = () => {
       onboardingFlags.setPendingTeaserId(teaserId);
     }
     if (user) {
-      navigate("/connect-twitch");
-    } else {
-      openAuthModal({
-        redirectTo: postAuthRedirect,
-        pendingChannel: teaserCtaChannel || null,
-        contextText:
-          "Crée ton compte pour débloquer le rapport complet et sauvegarder ton analyse.",
-      });
+      // Authenticated: go straight to the Twitch connection surface (which
+      // kicks off OAuth). We do not show the generic auth modal here — this
+      // flow is Twitch-first.
+      navigate(`/connect-twitch${teaserId ? `?teaser=${teaserId}` : ""}`);
+      return;
     }
+    // Unauthenticated: open the Twitch-first unlock modal. No email / password
+    // / Google surface is shown on this path.
+    setUnlockModalOpen(true);
   };
-
-  // Teaser path: render the dedicated diagnostic-first view (no AppShell, no
-  // debug panel, no dashboard chrome — pure conversion-oriented experience).
-  if (isTeaser) {
-    return <TeaserResultView report={report} onUnlock={handleUnlock} fromOnboarding={fromOnboarding} />;
-  }
 
   const summary = report.channel_summary;
   const score = report.score;
