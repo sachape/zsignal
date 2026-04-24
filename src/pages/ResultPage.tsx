@@ -472,23 +472,38 @@ const ResultPage = () => {
           ]}
           description={
             summary.is_partial
-              ? `Données publiques uniquement${
-                  summary.followers_available === false
-                    ? " · followers totaux disponibles après connexion Twitch"
-                    : ""
-                }`
-              : `~${summary.avg_viewers} viewers moyens en live · ${
-                  summary.followers_available === false
-                    ? "followers disponibles après reconnexion Twitch"
-                    : `${summary.follower_count} followers`
-                }`
+              ? summary.followers_available === false
+                ? "Données publiques uniquement · followers totaux disponibles avec Twitch"
+                : "Données publiques uniquement"
+              : (() => {
+                  const viewersPart =
+                    summary.avg_viewers > 0
+                      ? `~${summary.avg_viewers} viewers moyens en live`
+                      : null;
+                  const followersPart =
+                    summary.followers_available === false
+                      ? "followers disponibles après reconnexion Twitch"
+                      : summary.follower_count > 0
+                        ? `${summary.follower_count} followers`
+                        : null;
+                  const parts = [viewersPart, followersPart].filter(Boolean);
+                  return parts.length > 0 ? parts.join(" · ") : "Diagnostic de ta chaîne";
+                })()
           }
         />
 
-        {summary.is_live && (
+        {summary.is_live && (summary.live_viewer_count ?? 0) > 0 && (
           <div className="-mt-3 mb-4 inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-            En live · {summary.live_viewer_count ?? 0} viewers
+            En live · {summary.live_viewer_count} viewers
+            {summary.live_title ? ` · ${summary.live_title}` : ""}
+          </div>
+        )}
+
+        {summary.is_live && (summary.live_viewer_count ?? 0) === 0 && (
+          <div className="-mt-3 mb-4 inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+            En live
             {summary.live_title ? ` · ${summary.live_title}` : ""}
           </div>
         )}
