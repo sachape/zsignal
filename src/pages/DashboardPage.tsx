@@ -208,10 +208,10 @@ const DashboardPage = () => {
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-base font-semibold text-foreground">
-                  Première analyse en préparation
+                  On lit ta chaîne
                 </h2>
                 <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                  Ton cockpit s'active dès que la première synchronisation est terminée.
+                  Ton cockpit s'active dès la fin de la première synchronisation. Ça se passe tout seul, tu peux laisser la page ouverte.
                 </p>
               </div>
             </CardContent>
@@ -384,8 +384,8 @@ const DashboardPage = () => {
               <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
               <p className="min-w-0 flex-1 text-xs text-foreground">
                 {followersMissingScope
-                  ? "La permission Twitch pour lire les followers est manquante. Reconnecte ton compte pour récupérer le vrai nombre."
-                  : "Followers temporairement indisponibles. Relance une analyse pour réessayer."}
+                  ? "Ton total de followers n'est pas encore lisible. Reconnecte Twitch pour l'afficher avec précision."
+                  : "Ton total de followers n'a pas pu être lu lors de cette analyse. Relance une analyse pour réessayer."}
               </p>
               {followersMissingScope && (
                 <Button asChild size="sm" variant="outline">
