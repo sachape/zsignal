@@ -43,6 +43,7 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
+import TeaserResultView from "@/components/result/TeaserResultView";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 
 type SelectionSource =
