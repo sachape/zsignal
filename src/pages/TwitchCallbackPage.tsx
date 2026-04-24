@@ -189,7 +189,7 @@ const TwitchCallbackPage = () => {
                     {PROGRESS_STEPS[stepIndex]}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    On finalise ton diagnostic enrichi.
+                    Tu arrives sur ton cockpit dans quelques secondes.
                   </p>
                   <div className="mt-3 flex items-center justify-center gap-1.5">
                     {PROGRESS_STEPS.map((_, i) => (
