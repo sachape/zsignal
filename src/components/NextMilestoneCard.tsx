@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ProgressRow from "@/components/ProgressRow";
+import { formatNumber } from "@/lib/format";
 
 interface Milestone {
   label: string;
@@ -30,7 +31,7 @@ const NextMilestoneCard = ({ milestone, reportId, foundationActive }: Props) => 
   const headline = foundationActive
     ? "Ton prochain objectif n'est pas la performance, c'est la stabilité"
     : remaining > 0
-      ? `Encore ${remaining} ${milestone.label.toLowerCase()} pour le prochain palier`
+      ? `Encore ${formatNumber(remaining)} ${milestone.label.toLowerCase()} pour le prochain palier`
       : `Palier ${milestone.label.toLowerCase()} atteint`;
 
   const rationale = foundationActive
@@ -62,7 +63,7 @@ const NextMilestoneCard = ({ milestone, reportId, foundationActive }: Props) => 
         </div>
         <ProgressRow
           label={milestone.label}
-          value={`${milestone.current} / ${milestone.target}`}
+          value={`${formatNumber(milestone.current)} / ${formatNumber(milestone.target)}`}
           pct={milestone.pct}
         />
       </CardContent>
