@@ -1,29 +1,23 @@
 import { Sprout, TrendingDown, LineChart } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
-import {
-  GlassCard,
-  MicroLabel,
-  SectionHeading,
-  SectionShell,
-} from "./primitives";
+import { SectionHeading, SectionShell } from "./primitives";
 
 const PERSONAS = [
   {
     icon: Sprout,
-    profile: "Débutant sérieux",
-    pitch: "Tu veux poser les bonnes bases dès le départ.",
+    profile: "Tu débutes",
+    pitch: "Pose les bonnes bases dès le départ.",
   },
   {
     icon: TrendingDown,
-    profile: "Streamer qui stagne",
-    pitch:
-      "Tu publies régulièrement mais ta croissance est bloquée. Tu veux comprendre pourquoi.",
-    badge: "Le plus fréquent",
+    profile: "Tu stagnes",
+    pitch: "Tu publies mais ta croissance est bloquée.",
+    highlighted: true,
   },
   {
     icon: LineChart,
-    profile: "Créateur structuré",
-    pitch: "Tu veux suivre ta progression et décider avec des données.",
+    profile: "Tu structures",
+    pitch: "Tu veux décider avec des données.",
   },
 ];
 
@@ -40,36 +34,36 @@ const PersonasSection = () => {
 
       <div
         ref={ref}
-        className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-3"
+        className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-3"
+        style={{
+          opacity: inView ? 1 : 0,
+          transform: inView ? "translateY(0)" : "translateY(16px)",
+          transition:
+            "opacity 700ms cubic-bezier(0.16,1,0.3,1), transform 700ms cubic-bezier(0.16,1,0.3,1)",
+        }}
       >
-        {PERSONAS.map(({ icon: Icon, profile, pitch, badge }, i) => (
+        {PERSONAS.map(({ icon: Icon, profile, pitch, highlighted }) => (
           <div
             key={profile}
-            style={{
-              opacity: inView ? 1 : 0,
-              transform: inView ? "translateY(0)" : "translateY(20px)",
-              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms`,
-            }}
+            className={`flex items-center gap-3 rounded-xl border px-4 py-3 backdrop-blur-xl transition-colors ${
+              highlighted
+                ? "border-primary/25 bg-primary/[0.06]"
+                : "border-white/[0.06] bg-card/40"
+            }`}
           >
-            <GlassCard hero={!!badge} className="h-full p-6">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 shadow-[0_0_15px_hsl(var(--primary)/0.15)]">
-                  <Icon className="h-5 w-5 text-primary" />
-                </div>
-                {badge && (
-                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary">
-                    {badge}
-                  </span>
-                )}
-              </div>
-              <MicroLabel>Profil</MicroLabel>
-              <h3 className="mt-1 text-lg font-semibold text-foreground md:text-xl">
-                {profile}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-foreground/70">
-                {pitch}
-              </p>
-            </GlassCard>
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                highlighted ? "bg-primary/15" : "bg-muted/40"
+              }`}
+            >
+              <Icon
+                className={`h-4 w-4 ${highlighted ? "text-primary" : "text-foreground/70"}`}
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">{profile}</p>
+              <p className="truncate text-[11.5px] text-foreground/65">{pitch}</p>
+            </div>
           </div>
         ))}
       </div>
