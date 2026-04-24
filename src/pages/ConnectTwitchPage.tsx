@@ -23,6 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { initiateTwitchOAuth } from "@/services/twitchOAuth";
+import { onboardingFlags } from "@/services/onboardingFlags";
 
 type PageState = "default" | "loading" | "success" | "already-connected";
 
@@ -192,7 +193,8 @@ const ConnectTwitchPage = () => {
             </div>
             <Button
               onClick={() => {
-                initiateTwitchOAuth().catch((err) => console.error(err));
+                const teaserId = onboardingFlags.getPendingTeaserId();
+                initiateTwitchOAuth({ teaserId }).catch((err) => console.error(err));
               }}
               variant="twitch"
               className="mt-2"
