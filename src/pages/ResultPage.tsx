@@ -739,6 +739,7 @@ const ResultPage = () => {
             </div>
           )}
         </section>
+        )}
 
         {/* Stage-aware progression module:
             - rookie    → progression vers l'affiliation
