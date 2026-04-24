@@ -259,6 +259,180 @@ export type Database = {
         }
         Relationships: []
       }
+      live_debriefs: {
+        Row: {
+          comparison_data: Json | null
+          created_at: string
+          has_enough_signal: boolean
+          id: string
+          live_session_id: string
+          overall_score: number | null
+          priority_action: string | null
+          score_hold: number | null
+          score_start: number | null
+          score_structure: number | null
+          strength: string | null
+          updated_at: string
+          user_id: string
+          verdict: string | null
+          weakness: string | null
+        }
+        Insert: {
+          comparison_data?: Json | null
+          created_at?: string
+          has_enough_signal?: boolean
+          id?: string
+          live_session_id: string
+          overall_score?: number | null
+          priority_action?: string | null
+          score_hold?: number | null
+          score_start?: number | null
+          score_structure?: number | null
+          strength?: string | null
+          updated_at?: string
+          user_id: string
+          verdict?: string | null
+          weakness?: string | null
+        }
+        Update: {
+          comparison_data?: Json | null
+          created_at?: string
+          has_enough_signal?: boolean
+          id?: string
+          live_session_id?: string
+          overall_score?: number | null
+          priority_action?: string | null
+          score_hold?: number | null
+          score_start?: number | null
+          score_structure?: number | null
+          strength?: string | null
+          updated_at?: string
+          user_id?: string
+          verdict?: string | null
+          weakness?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_debriefs_live_session_id_fkey"
+            columns: ["live_session_id"]
+            isOneToOne: true
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_sessions: {
+        Row: {
+          avg_viewers: number | null
+          category_name: string | null
+          connected_account_id: string
+          created_at: string
+          duration_minutes: number | null
+          ended_at: string | null
+          id: string
+          language: string | null
+          peak_viewers: number | null
+          platform: string
+          platform_display_name: string | null
+          platform_login: string | null
+          platform_user_id: string
+          snapshots_count: number
+          start_title: string | null
+          started_at: string
+          status: string
+          twitch_stream_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_viewers?: number | null
+          category_name?: string | null
+          connected_account_id: string
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          id?: string
+          language?: string | null
+          peak_viewers?: number | null
+          platform?: string
+          platform_display_name?: string | null
+          platform_login?: string | null
+          platform_user_id: string
+          snapshots_count?: number
+          start_title?: string | null
+          started_at: string
+          status?: string
+          twitch_stream_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_viewers?: number | null
+          category_name?: string | null
+          connected_account_id?: string
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          id?: string
+          language?: string | null
+          peak_viewers?: number | null
+          platform?: string
+          platform_display_name?: string | null
+          platform_login?: string | null
+          platform_user_id?: string
+          snapshots_count?: number
+          start_title?: string | null
+          started_at?: string
+          status?: string
+          twitch_stream_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_sessions_connected_account_id_fkey"
+            columns: ["connected_account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_snapshots: {
+        Row: {
+          captured_at: string
+          category_name: string | null
+          id: string
+          live_session_id: string
+          title: string | null
+          viewer_count: number
+        }
+        Insert: {
+          captured_at?: string
+          category_name?: string | null
+          id?: string
+          live_session_id: string
+          title?: string | null
+          viewer_count?: number
+        }
+        Update: {
+          captured_at?: string
+          category_name?: string | null
+          id?: string
+          live_session_id?: string
+          title?: string | null
+          viewer_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_snapshots_live_session_id_fkey"
+            columns: ["live_session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string

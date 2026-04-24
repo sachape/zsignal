@@ -40,6 +40,11 @@ import {
   enqueueRefreshForSelf,
   processPendingForAccount,
 } from "@/services/autoRefreshRunner";
+import {
+  getLiveCockpitSnapshot,
+  type LiveCockpitSnapshot,
+} from "@/services/liveSessions";
+import LiveStatusCard from "@/components/LiveStatusCard";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
 
@@ -59,6 +64,7 @@ const DashboardPage = () => {
   const [history, setHistory] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncSnapshot, setSyncSnapshot] = useState<SyncSnapshot | null>(null);
+  const [liveSnapshot, setLiveSnapshot] = useState<LiveCockpitSnapshot | null>(null);
   const [manualRefreshing, setManualRefreshing] = useState(false);
 
   // Welcome banner: show only on first visit after Twitch connection.
@@ -99,6 +105,16 @@ const DashboardPage = () => {
       setSyncSnapshot(snap);
     } else {
       setSyncSnapshot(null);
+    }
+
+    // Live sessions snapshot is independent from analysis reports — it is
+    // populated by the live-detect cron and only depends on the connected
+    // Twitch account, so we always try to refresh it on dashboard loads.
+    try {
+      const live = await getLiveCockpitSnapshot(user.id);
+      setLiveSnapshot(live);
+    } catch {
+      setLiveSnapshot(null);
     }
   }, [user, account]);
 
@@ -374,6 +390,16 @@ const DashboardPage = () => {
             }
             onManualRefresh={handleManualRefresh}
             manualBusy={manualRefreshing}
+          />
+        </div>
+
+        {/* Live status strip — surfaces "En live", last live with debrief CTA,
+            or honest empty state if no live has been detected yet. */}
+        <div className="mb-6">
+          <LiveStatusCard
+            current={liveSnapshot?.current ?? null}
+            last={liveSnapshot?.last ?? null}
+            lastDebrief={liveSnapshot?.lastDebrief ?? null}
           />
         </div>
 

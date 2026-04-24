@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Zap,
   LayoutDashboard,
+  Radio,
   CalendarCheck,
   Users,
   BookOpen,
@@ -32,6 +33,7 @@ import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 // NOT appear as a top-level sidebar destination.
 const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
+  { title: "Dernier live", url: "/lives/last", icon: Radio, end: false },
   { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
 ];
 

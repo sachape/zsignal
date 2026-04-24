@@ -38,8 +38,13 @@ interface Account {
   next_auto_refresh_at: string | null;
 }
 
+// Untyped admin client to avoid leaking new table generics into this file.
+// The schema is validated at runtime by the Supabase API; this signature is
+// intentionally permissive so adding tables doesn't break unrelated functions.
+type AdminClient = ReturnType<typeof createClient<any, any, any>>;
+
 async function enqueueForAccount(
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   account: Account,
   triggerSource: "auto_first" | "auto_scheduled" | "manual",
 ) {
@@ -97,7 +102,7 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const admin = createClient(supabaseUrl, serviceKey);
+    const admin: AdminClient = createClient(supabaseUrl, serviceKey);
 
     const body = await req.json().catch(() => ({}));
     const mode = (body as { mode?: string }).mode ?? "self";
