@@ -1,4 +1,4 @@
-import { TrendingUp, BarChart3, Target } from "lucide-react";
+import { Sprout, TrendingDown, LineChart } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import {
   GlassCard,
@@ -9,23 +9,21 @@ import {
 
 const PERSONAS = [
   {
-    icon: TrendingUp,
+    icon: Sprout,
     profile: "Débutant sérieux",
-    description:
-      "Tu streames depuis peu mais tu veux poser les bonnes bases dès le début, éviter les erreurs classiques et progresser plus vite.",
+    pitch: "Tu veux poser les bonnes bases dès le départ.",
   },
   {
-    icon: BarChart3,
+    icon: TrendingDown,
     profile: "Streamer qui stagne",
-    description:
-      "Tu publies régulièrement mais ta croissance est à l'arrêt. Tu veux comprendre ce qui bloque et identifier les leviers concrets.",
+    pitch:
+      "Tu publies régulièrement mais ta croissance est bloquée. Tu veux comprendre pourquoi.",
     badge: "Le plus fréquent",
   },
   {
-    icon: Target,
+    icon: LineChart,
     profile: "Créateur structuré",
-    description:
-      "Tu veux suivre ta progression dans le temps, valider tes décisions par des données et construire une stratégie de contenu cohérente.",
+    pitch: "Tu veux suivre ta progression et décider avec des données.",
   },
 ];
 
@@ -36,12 +34,15 @@ const PersonasSection = () => {
     <SectionShell>
       <SectionHeading
         badge="Pour qui"
-        title="Fait pour toi si…"
-        subtitle="StreamPulse s'adapte à ton stade — du premier stream à la stratégie long terme."
+        title="Tu te reconnais ?"
+        subtitle="StreamPulse s'adresse à trois profils — peu importe ton stade."
       />
 
-      <div ref={ref} className="mx-auto mt-14 grid max-w-5xl gap-5 md:grid-cols-3">
-        {PERSONAS.map(({ icon: Icon, profile, description, badge }, i) => (
+      <div
+        ref={ref}
+        className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-3"
+      >
+        {PERSONAS.map(({ icon: Icon, profile, pitch, badge }, i) => (
           <div
             key={profile}
             style={{
@@ -50,8 +51,8 @@ const PersonasSection = () => {
               transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms`,
             }}
           >
-            <GlassCard hero={!!badge} className="h-full p-6 md:p-7">
-              <div className="flex items-start justify-between">
+            <GlassCard hero={!!badge} className="h-full p-6">
+              <div className="flex items-start justify-between gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 shadow-[0_0_15px_hsl(var(--primary)/0.15)]">
                   <Icon className="h-5 w-5 text-primary" />
                 </div>
@@ -65,8 +66,8 @@ const PersonasSection = () => {
               <h3 className="mt-1 text-lg font-semibold text-foreground md:text-xl">
                 {profile}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {description}
+              <p className="mt-2 text-sm leading-relaxed text-foreground/70">
+                {pitch}
               </p>
             </GlassCard>
           </div>
