@@ -9,7 +9,6 @@ const HeroSection = () => {
   const [inputError, setInputError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
-  const { openAuthModal } = useAuthModal();
 
   useEffect(() => {
     const t = requestAnimationFrame(() => setMounted(true));
