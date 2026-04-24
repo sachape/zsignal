@@ -80,7 +80,10 @@ const TwitchCallbackPage = () => {
 
         // replace: true so the back button doesn't return to the callback URL.
         navigate(target, { replace: true });
-      } else {
+        return;
+      }
+
+      if ("error" in result) {
         setState("error");
         setErrorMsg(result.error);
       }
