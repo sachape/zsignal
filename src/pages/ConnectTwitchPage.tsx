@@ -200,8 +200,14 @@ const ConnectTwitchPage = () => {
             </div>
             <Button
               onClick={() => {
-                const teaserId = onboardingFlags.getPendingTeaserId();
-                initiateTwitchOAuth({ teaserId }).catch((err) => console.error(err));
+                const teaserId =
+                  teaserParam || onboardingFlags.getPendingTeaserId();
+                if (teaserId) {
+                  onboardingFlags.setPendingTeaserId(teaserId);
+                }
+                initiateTwitchOAuth({ teaserId }).catch((err) =>
+                  console.error(err),
+                );
               }}
               variant="twitch"
               className="mt-2"
