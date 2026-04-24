@@ -17,9 +17,9 @@ import { runAnalysis } from "@/services/analysisRunner";
 type CallbackState = "processing" | "error" | "cancelled" | "enrichment_failed";
 
 const PROGRESS_STEPS = [
-  "Connexion à Twitch…",
-  "Récupération de tes données récentes…",
-  "Enrichissement de ton diagnostic…",
+  "On vérifie ta chaîne Twitch…",
+  "On lit tes 30 derniers jours de stream…",
+  "On calcule ton StreamScore et ton plan…",
 ];
 
 const devLog = (...args: unknown[]) => {
@@ -91,7 +91,7 @@ const TwitchCallbackPage = () => {
       // The server-side edge function already bootstrapped a Supabase session
       // and wrote the connected_accounts row. Read back the authoritative
       // identity from the DB (source of truth) before running enrichment.
-      setStepIndex(2); // move the UI to "Enrichissement de ton diagnostic…"
+      setStepIndex(2); // move the UI to "On calcule ton StreamScore et ton plan…"
 
       const { data: sessionData } = await supabase.auth.getSession();
       if (cancelled) return;
@@ -189,7 +189,7 @@ const TwitchCallbackPage = () => {
                     {PROGRESS_STEPS[stepIndex]}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    On finalise ton diagnostic enrichi.
+                    Tu arrives sur ton cockpit dans quelques secondes.
                   </p>
                   <div className="mt-3 flex items-center justify-center gap-1.5">
                     {PROGRESS_STEPS.map((_, i) => (
