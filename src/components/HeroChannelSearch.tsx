@@ -149,7 +149,7 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
             />
           </div>
           <Button onClick={submitDirect} className="shrink-0">
-            Analyser
+            Analyser ma chaîne
             <ArrowRight className="h-4 w-4" />
           </Button>
         </CardContent>
