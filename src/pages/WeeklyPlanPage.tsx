@@ -5,13 +5,11 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import WeeklyPlanCard from "@/components/WeeklyPlanCard";
-import MainBlockerCard from "@/components/MainBlockerCard";
 import EmptyReportState from "@/components/EmptyReportState";
 import { LoadingState } from "@/components/StateView";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
-import { diagnoseFoundationMode } from "@/services/foundationMode";
 import {
   getLatestReport,
   getLatestReportForPlatformUser,
@@ -63,11 +61,9 @@ const WeeklyPlanPage = () => {
     );
   }
 
-  // Surface the foundation blocker at the top so the plan reads as the
-  // execution surface of the diagnosis, not a parallel module.
-  const foundation = diagnoseFoundationMode(report.report);
-  const foundationActive = foundation.isActive && !report.is_demo;
-
+  // The weekly plan page is pure execution. The main blocker lives in the
+  // cockpit and the deep rationale lives in the detailed diagnosis. Here we
+  // only surface the ordered steps of the week.
   return (
     <AppShell>
       <PageContainer size="sm">
@@ -88,9 +84,6 @@ const WeeklyPlanPage = () => {
             </Button>
           }
         />
-        {foundationActive && (
-          <MainBlockerCard blocker={foundation.blocker} reportId={report.id} />
-        )}
         <WeeklyPlanCard report={report.report} />
       </PageContainer>
     </AppShell>
@@ -98,3 +91,4 @@ const WeeklyPlanPage = () => {
 };
 
 export default WeeklyPlanPage;
+
