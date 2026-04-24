@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Activity, ShieldCheck, Eye, Timer, AlertTriangle, ListChecks } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
