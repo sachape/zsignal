@@ -28,6 +28,7 @@ import { ErrorState, LoadingState } from "@/components/StateView";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { formatNumber } from "@/lib/format";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { runTeaserAnalysis } from "@/services/teaserAnalysisRunner";
@@ -668,20 +669,20 @@ const StreamerProfilePage = () => {
           <ScoreCard score={score.overall} />
           <StatBlock
             label="Activité récente"
-            value={`${streams30d} streams`}
+            value={`${formatNumber(streams30d)} streams`}
             subtext="30 derniers jours"
           />
           <StatBlock
             label="Clips publiés"
-            value={`${clips30d}`}
+            value={formatNumber(clips30d)}
             subtext={clips30d > 0 ? "Loop de discovery actif" : "Peu ou pas de clips récents"}
           />
           <StatBlock
             label={summary.is_live ? "Live actuel" : "Audience VOD"}
             value={
               summary.is_live
-                ? `${summary.live_viewer_count ?? 0} viewers`
-                : String(summary.avg_viewers)
+                ? `${formatNumber(summary.live_viewer_count ?? 0)} viewers`
+                : formatNumber(summary.avg_viewers)
             }
             subtext={summary.is_live ? summary.live_title ?? "En direct" : "Vues moyennes par VOD"}
           />
