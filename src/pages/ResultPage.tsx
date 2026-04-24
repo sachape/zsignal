@@ -746,14 +746,7 @@ const ResultPage = () => {
             - affiliate → "Déjà affilié — bravo" with mature signals
             - partner   → "Statut partenaire confirmé" with finer signals  */}
         {(() => {
-          const stage =
-            summary.broadcaster_type === "partner"
-              ? "partner"
-              : summary.broadcaster_type === "affiliate"
-                ? "affiliate"
-                : "rookie";
-
-          if (stage === "rookie") {
+          if (showAffiliateProgression) {
             const followersValue =
               ap.followers.available === false
                 ? null
