@@ -706,6 +706,7 @@ const ResultPage = () => {
           </Card>
         )}
 
+        {showCompetitorsSection && (
         <section className="mb-8">
           <SectionHeader title="Concurrents similaires" align="left" />
           <div className="space-y-3">
