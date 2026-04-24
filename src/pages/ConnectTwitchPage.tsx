@@ -35,12 +35,19 @@ const ConnectTwitchPage = () => {
     useTwitchConnection();
 
   const justConnected = searchParams.get("connected") === "true";
+  const teaserParam = searchParams.get("teaser");
+  const hasTeaserContext =
+    Boolean(teaserParam) || Boolean(onboardingFlags.getPendingTeaserId());
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    // When the user comes from the free result → Twitch-first unlock flow,
+    // we must NEVER redirect to the generic /auth page. This path is
+    // Twitch-only: the page renders a Twitch-branded CTA that starts OAuth
+    // directly. For all other entry points, keep the standard auth gate.
+    if (!authLoading && !user && !hasTeaserContext) {
       navigate("/auth?redirect=/connect-twitch");
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, hasTeaserContext]);
 
   const getState = (): PageState => {
     if (connectionLoading) return "loading";
