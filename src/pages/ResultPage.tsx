@@ -400,14 +400,29 @@ const ResultPage = () => {
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
+  const displayMode = getAccountDisplayMode(report);
+  const isReconstruction = displayMode.mode === "reconstruction";
+  const isExploration = displayMode.mode === "exploration";
+  const stage =
+    summary.broadcaster_type === "partner"
+      ? "partner"
+      : summary.broadcaster_type === "affiliate"
+        ? "affiliate"
+        : "rookie";
+  // Affiliates / partners never show the "progression vers l'affiliation" tracker.
+  // For rookies, we also hide it in reconstruction mode (no meaningful progress yet).
+  const showAffiliateProgression = stage === "rookie" && !isReconstruction;
   const priorityRecs = report.recommendations
     .filter((r) => r.type === "priority")
     .slice(0, 3);
   const nextAction = report.next_best_action;
   const directCompetitors = report.competitor_groups.find((g) => g.type === "direct");
-  const visibleCompetitors = isTeaser
+  const rawVisibleCompetitors = isTeaser
     ? (directCompetitors?.matches ?? []).slice(0, 1)
     : (directCompetitors?.matches ?? []);
+  // Reconstruction: no reliable competitor fit possible → hide section entirely.
+  const visibleCompetitors = isReconstruction ? [] : rawVisibleCompetitors;
+  const showCompetitorsSection = !isReconstruction;
   const accountMismatch = Boolean(
     isPersisted &&
       saved &&
