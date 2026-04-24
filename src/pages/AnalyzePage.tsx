@@ -143,6 +143,40 @@ const AnalyzePage = () => {
     return "pending";
   };
 
+  // Monotone, credible progress bar.
+  // - Strictly increasing (never resets within a cycle).
+  // - Fast climb early, slows near the end, holds at ~92% until completion.
+  // - Snaps to 100% only when the async pipeline is actually done.
+  const isDone = currentStage === "completed" || notFound || error !== null;
+  const isFailed = notFound || error !== null;
+  const stageTarget = (() => {
+    if (isFailed) return 100;
+    if (currentStage === "completed") return 100;
+    const idx = Math.max(0, currentIndex);
+    // Map stage index to a ceiling: fast to 60%, then slow toward 92%.
+    const ratio = (idx + 1) / order.length;
+    if (ratio <= 0.5) return 10 + ratio * 100; // 10% -> 60%
+    return 60 + (ratio - 0.5) * 64; // 60% -> 92%
+  })();
+
+  const [progress, setProgress] = useState(6);
+  useEffect(() => {
+    if (isDone) {
+      setProgress(100);
+      return;
+    }
+    const id = window.setInterval(() => {
+      setProgress((prev) => {
+        const ceiling = Math.min(stageTarget, 92);
+        if (prev >= ceiling) return prev;
+        // Ease toward ceiling — never decreases.
+        const delta = Math.max(0.4, (ceiling - prev) * 0.08);
+        return Math.min(ceiling, prev + delta);
+      });
+    }, 180);
+    return () => window.clearInterval(id);
+  }, [stageTarget, isDone]);
+
   if (notFound) {
     return (
       <AppShell>
