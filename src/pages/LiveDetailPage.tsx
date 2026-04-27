@@ -153,6 +153,9 @@ const LiveDetailPage = () => {
               </div>
             </CardContent>
           </Card>
+          <div className="mt-4">
+            <LiveTimeline session={session} />
+          </div>
         </PageContainer>
       </AppShell>
     );
