@@ -205,12 +205,23 @@ const LiveDetailPage = () => {
           </CardContent>
         </Card>
 
-        {enough && (
+        {enough ? (
           <div className="mb-4 grid grid-cols-3 gap-2">
             <SubScore label="Démarrage" value={debrief?.score_start ?? null} />
             <SubScore label="Tenue" value={debrief?.score_hold ?? null} />
             <SubScore label="Structure" value={debrief?.score_structure ?? null} />
           </div>
+        ) : (
+          <Card className="mb-4 border-border/60 bg-card/60">
+            <CardContent className="p-4">
+              <p className="text-sm font-semibold text-foreground">
+                Pas encore assez de signal pour un débrief complet.
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Ce live était trop court ou trop peu documenté pour produire une lecture fiable.
+              </p>
+            </CardContent>
+          </Card>
         )}
 
         {(debrief?.strength || debrief?.weakness || debrief?.priority_action) && (
