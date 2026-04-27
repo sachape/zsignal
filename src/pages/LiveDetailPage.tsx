@@ -228,6 +228,8 @@ const LiveDetailPage = () => {
           </Card>
         )}
 
+        <LiveTimeline session={session} />
+
         {(debrief?.strength || debrief?.weakness || debrief?.priority_action) && (
           <div className="mb-4 space-y-3">
             {debrief?.strength && (
