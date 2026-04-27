@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/StateView";
+import LiveTimeline from "@/components/LiveTimeline";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   formatLiveDateTime,
@@ -152,6 +153,9 @@ const LiveDetailPage = () => {
               </div>
             </CardContent>
           </Card>
+          <div className="mt-4">
+            <LiveTimeline session={session} />
+          </div>
         </PageContainer>
       </AppShell>
     );
@@ -223,6 +227,8 @@ const LiveDetailPage = () => {
             </CardContent>
           </Card>
         )}
+
+        <LiveTimeline session={session} />
 
         {(debrief?.strength || debrief?.weakness || debrief?.priority_action) && (
           <div className="mb-4 space-y-3">
