@@ -60,10 +60,13 @@ const LastVsAverageCard = ({ current }: Props) => {
   }, [user, current]);
 
   if (!readout) return null;
-  if (readout.state === "no_data") return null;
+  // Stay silent in states that are already covered by other cards in the
+  // stack: in_live (LiveStatus owns it), no_data (LiveStatus empty state),
+  // low_signal (SmartAlerts owns the "pas assez de recul" message).
+  if (readout.state !== "ready") return null;
 
   return (
-    <Card className="border-border/60">
+    <Card className="border-border/40 bg-card/40">
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
@@ -73,11 +76,11 @@ const LastVsAverageCard = ({ current }: Props) => {
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               Dernier live vs base récente
             </p>
-            <p className="mt-1 text-sm font-semibold text-foreground">
+            <p className="mt-1 text-sm font-medium text-foreground">
               {readout.headline}
             </p>
 
-            {readout.state === "ready" && readout.micro.length > 0 && (
+            {readout.micro.length > 0 && (
               <ul className="mt-2 space-y-1">
                 {readout.micro.map((m) => {
                   const Icon = DIR_ICON[m.direction];
