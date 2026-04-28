@@ -46,6 +46,7 @@ import {
 } from "@/services/liveSessions";
 import LiveStatusCard from "@/components/LiveStatusCard";
 import PreLiveChecklistCard from "@/components/PreLiveChecklistCard";
+import SmartAlertsCard from "@/components/SmartAlertsCard";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
 
@@ -407,6 +408,7 @@ const DashboardPage = () => {
             last={liveSnapshot?.last ?? null}
             lastDebrief={liveSnapshot?.lastDebrief ?? null}
           />
+          <SmartAlertsCard current={liveSnapshot?.current ?? null} />
         </div>
 
         {/* Followers warning if applicable */}
