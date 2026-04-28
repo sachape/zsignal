@@ -46,9 +46,9 @@ function classifyWeakness(debrief: LiveDebrief): WeaknessKind {
   const hold = debrief.score_hold ?? null;
   const structure = debrief.score_structure ?? null;
   const subs: Array<{ kind: WeaknessKind; score: number }> = [
-    { kind: "start", score: start ?? -1 },
-    { kind: "hold", score: hold ?? -1 },
-    { kind: "structure", score: structure ?? -1 },
+    { kind: "start" as WeaknessKind, score: start ?? -1 },
+    { kind: "hold" as WeaknessKind, score: hold ?? -1 },
+    { kind: "structure" as WeaknessKind, score: structure ?? -1 },
   ].filter((s) => s.score >= 0);
 
   if (subs.length > 0) {
