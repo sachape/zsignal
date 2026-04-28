@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Target, CheckCircle2, Radio } from "lucide-react";
+import { Target, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,12 +20,12 @@ interface Props {
 
 const STATUS_BADGE: Record<
   MilestoneStatus,
-  { label: string; variant: "muted" | "secondary" | "default" }
+  { label: string; variant: "muted" | "secondary" | "default" } | null
 > = {
-  not_started: { label: "Non démarré", variant: "muted" },
+  not_started: null,
   in_progress: { label: "En cours", variant: "secondary" },
-  reached: { label: "Cap atteint", variant: "default" },
-  paused: { label: "En pause", variant: "muted" },
+  reached: { label: "Atteint", variant: "default" },
+  paused: null,
 };
 
 const WeeklyMilestoneCard = ({ current }: Props) => {
@@ -56,11 +56,13 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
   }, [user, current]);
 
   if (!loaded || !view) return null;
+  // Live in progress is owned by LiveStatusCard at the top of the stack —
+  // staying silent here removes the duplicated "Ton live est en cours."
+  if (view.effectiveStatus === "paused") return null;
 
   const { row, effectiveStatus, doneCount } = view;
   const reached = effectiveStatus === "reached";
-  const paused = effectiveStatus === "paused";
-  const Icon = paused ? Radio : reached ? CheckCircle2 : Target;
+  const Icon = reached ? CheckCircle2 : Target;
   const badge = STATUS_BADGE[effectiveStatus];
 
   return (
@@ -81,30 +83,25 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Cap des 7 prochains jours
+                Cap de la semaine
               </p>
-              <Badge variant={badge.variant} className="h-5 px-1.5 text-[10px]">
-                {badge.label}
-              </Badge>
+              {badge && (
+                <Badge variant={badge.variant} className="h-5 px-1.5 text-[10px]">
+                  {badge.label}
+                </Badge>
+              )}
             </div>
             <p className="mt-1 text-sm font-semibold text-foreground">
-              {paused
-                ? "Ton live est en cours."
-                : reached
-                  ? "Cap atteint cette semaine."
-                  : row.title}
+              {reached ? "Cap atteint." : row.title}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {paused
-                ? "La milestone reprendra à la fin de cette session."
-                : reached
-                  ? "StreamPulse préparera le prochain cap la semaine prochaine."
-                  : row.rationale}
+              {reached
+                ? "Le prochain cap sera prêt la semaine prochaine."
+                : row.rationale}
             </p>
-            {!paused && (
+            {row.target_count > 1 && !reached && (
               <p className="mt-2 text-[11px] font-medium text-muted-foreground/80">
-                {doneCount}/{row.target_count}{" "}
-                {row.target_count > 1 ? "lives" : "live"} cette semaine
+                {doneCount}/{row.target_count} lives cette semaine
               </p>
             )}
           </div>

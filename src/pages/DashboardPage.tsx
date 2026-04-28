@@ -408,16 +408,21 @@ const DashboardPage = () => {
           />
         </div>
 
-        {/* Live status strip — surfaces "En live", last live with debrief CTA,
-            or honest empty state if no live has been detected yet. */}
-        <div className="mb-6 space-y-3">
+        {/* Live stack — single continuous reading, top → bottom:
+            1. État actuel        (LiveStatusCard, primary)
+            2. Mise en contexte   (LastVsAverageCard, secondary, hidden if low signal)
+            3. Direction          (Milestone OR Inactivity, exclusive slot)
+            4. Exécution          (Pre-live checklist, hidden in live)
+            5. Vigilance          (Smart alerts, hidden in live / no recent live)
+            Cards self-suppress when their state is owned by a card above,
+            so the stack collapses to whatever is actually relevant. */}
+        <div className="mb-6 space-y-2.5">
           <LiveStatusCard
             current={liveSnapshot?.current ?? null}
             last={liveSnapshot?.last ?? null}
             lastDebrief={liveSnapshot?.lastDebrief ?? null}
           />
           <LastVsAverageCard current={liveSnapshot?.current ?? null} />
-          {/* Exclusive focus slot: milestone OR inactivity, never both. */}
           {focusSlot === "milestone" && (
             <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
           )}
