@@ -3,6 +3,7 @@ import HeroSection from "@/components/landing/HeroSection";
 import DemoPreviewSection from "@/components/DemoPreviewSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import AudienceValueSection from "@/components/landing/AudienceValueSection";
+import ValueAnchorSection from "@/components/landing/ValueAnchorSection";
 import PricingSection from "@/components/landing/PricingSection";
 import FaqSection from "@/components/landing/FaqSection";
 import FinalCtaSection from "@/components/landing/FinalCtaSection";
@@ -20,7 +21,9 @@ const Index = () => {
       <HowItWorksSection />
       {/* 4. Pour qui + bénéfices (fusion Personas + Features) */}
       <AudienceValueSection />
-      {/* 5. Prix */}
+      {/* 5. Ancrage de valeur */}
+      <ValueAnchorSection />
+      {/* 6. Prix */}
       <PricingSection />
       {/* 6. Objections */}
       <FaqSection />
