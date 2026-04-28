@@ -49,6 +49,10 @@ import PreLiveChecklistCard from "@/components/PreLiveChecklistCard";
 import SmartAlertsCard from "@/components/SmartAlertsCard";
 import WeeklyMilestoneCard from "@/components/WeeklyMilestoneCard";
 import InactivityRelanceCard from "@/components/InactivityRelanceCard";
+import {
+  listLiveSessions,
+} from "@/services/liveSessions";
+import { resolveCockpitFocusSlot, type CockpitFocusSlot } from "@/services/cockpitFocus";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
 
@@ -69,6 +73,7 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [syncSnapshot, setSyncSnapshot] = useState<SyncSnapshot | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<LiveCockpitSnapshot | null>(null);
+  const [focusSlot, setFocusSlot] = useState<CockpitFocusSlot>("none");
   const [manualRefreshing, setManualRefreshing] = useState(false);
 
   // Welcome banner: show only on first visit after Twitch connection.
@@ -117,8 +122,13 @@ const DashboardPage = () => {
     try {
       const live = await getLiveCockpitSnapshot(user.id);
       setLiveSnapshot(live);
+      // Resolve which block owns the "focus" slot. Exclusive by design:
+      // the milestone and the inactivity card never render together.
+      const ended = await listLiveSessions(user.id, 14);
+      setFocusSlot(resolveCockpitFocusSlot(live.current, ended));
     } catch {
       setLiveSnapshot(null);
+      setFocusSlot("none");
     }
   }, [user, account]);
 
@@ -405,8 +415,13 @@ const DashboardPage = () => {
             last={liveSnapshot?.last ?? null}
             lastDebrief={liveSnapshot?.lastDebrief ?? null}
           />
-          <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
-          <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
+          {/* Exclusive focus slot: milestone OR inactivity, never both. */}
+          {focusSlot === "milestone" && (
+            <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
+          )}
+          {focusSlot === "inactivity" && (
+            <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
+          )}
           <PreLiveChecklistCard
             current={liveSnapshot?.current ?? null}
             last={liveSnapshot?.last ?? null}
