@@ -20,12 +20,12 @@ interface Props {
 
 const STATUS_BADGE: Record<
   MilestoneStatus,
-  { label: string; variant: "muted" | "secondary" | "default" }
+  { label: string; variant: "muted" | "secondary" | "default" } | null
 > = {
-  not_started: { label: "Non démarré", variant: "muted" },
+  not_started: null,
   in_progress: { label: "En cours", variant: "secondary" },
-  reached: { label: "Cap atteint", variant: "default" },
-  paused: { label: "En pause", variant: "muted" },
+  reached: { label: "Atteint", variant: "default" },
+  paused: null,
 };
 
 const WeeklyMilestoneCard = ({ current }: Props) => {
