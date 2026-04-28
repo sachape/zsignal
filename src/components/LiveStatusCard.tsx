@@ -35,12 +35,7 @@ const LiveStatusCard = ({ current, last, lastDebrief }: Props) => {
               <span className="absolute right-1 top-1 h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
             </div>
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-semibold text-foreground">En live</span>
-                <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">
-                  Session suivie
-                </Badge>
-              </div>
+              <p className="text-sm font-semibold text-foreground">En live</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 Démarré {formatRelativeFrom(current.started_at)}
                 {current.category_name ? ` · ${current.category_name}` : ""}
@@ -48,7 +43,7 @@ const LiveStatusCard = ({ current, last, lastDebrief }: Props) => {
             </div>
           </div>
           <p className="text-xs text-muted-foreground sm:text-right">
-            Le débrief sera généré automatiquement dès la fin du stream.
+            Le débrief sera prêt à la fin du stream.
           </p>
         </CardContent>
       </Card>
