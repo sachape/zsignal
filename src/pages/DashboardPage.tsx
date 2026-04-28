@@ -49,6 +49,7 @@ import PreLiveChecklistCard from "@/components/PreLiveChecklistCard";
 import SmartAlertsCard from "@/components/SmartAlertsCard";
 import WeeklyMilestoneCard from "@/components/WeeklyMilestoneCard";
 import InactivityRelanceCard from "@/components/InactivityRelanceCard";
+import LastVsAverageCard from "@/components/LastVsAverageCard";
 import {
   listLiveSessions,
 } from "@/services/liveSessions";
@@ -415,6 +416,7 @@ const DashboardPage = () => {
             last={liveSnapshot?.last ?? null}
             lastDebrief={liveSnapshot?.lastDebrief ?? null}
           />
+          <LastVsAverageCard current={liveSnapshot?.current ?? null} />
           {/* Exclusive focus slot: milestone OR inactivity, never both. */}
           {focusSlot === "milestone" && (
             <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
