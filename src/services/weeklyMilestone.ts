@@ -1,209 +1,262 @@
-// Weekly milestone — deterministic 7-day cap derived from recent activity.
+// Weekly milestone — V2 simplified.
 //
-// V1 design rules:
-//  - One milestone at a time. No multi-goal, no gamification.
-//  - Built only from existing live_sessions / live_debriefs.
-//  - Hierarchy: low_signal → degradation → progression → continuity.
-//  - "Reached" only when we can prove it from data within the 7-day window.
-//  - Never invent. If we can't justify it, fall back to a rebuild milestone.
+// Design:
+//  - 3 families only: reconstruction / stabilization / confirmation.
+//  - Generated ONCE per ISO week and persisted in `weekly_milestones`.
+//  - Re-reads the row on every cockpit visit instead of recomputing the cap.
+//  - Status is the only mutable field after generation (in_progress → reached).
+//  - "No recent live" is NOT handled here (delegated to the inactivity
+//    relance block) — the milestone stays a forward-looking cap.
+//  - No score-delta heuristics. Family is picked from the dominant state:
+//    signal level → blocker presence → recent positive debrief.
 
+import { supabase } from "@/integrations/supabase/client";
 import type { LiveDebrief, LiveSession } from "@/services/liveSessions";
 
 export type MilestoneKind =
-  | "rebuild" // not enough signal / few sessions
-  | "stabilize" // degradation pattern
-  | "confirm" // progression detected
-  | "continuity"; // nothing remarkable, keep going
+  | "reconstruction"
+  | "stabilization"
+  | "confirmation";
 
 export type MilestoneStatus =
+  | "not_started"
   | "in_progress"
-  | "on_track"
   | "reached"
-  | "in_live"
-  | "no_recent_live";
+  | "paused"; // live currently in progress
 
-export interface WeeklyMilestone {
+export interface WeeklyMilestoneRow {
+  id: string;
+  user_id: string;
+  week_start: string; // YYYY-MM-DD
+  week_end: string;
   kind: MilestoneKind;
-  status: MilestoneStatus;
-  /** Main one-liner cap. */
   title: string;
-  /** Short justification (1 line max). */
   rationale: string;
-  /** Light progress label, e.g. "1/2 lives détectés". */
-  progressLabel: string;
+  target_count: number;
+  status: MilestoneStatus;
+  reached_at: string | null;
+  source_session_id: string | null;
+  source_debrief_id: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-interface BuildInput {
-  current: LiveSession | null;
-  /** Ended sessions in the last ~14 days, most recent first. */
-  recentSessions: LiveSession[];
+export interface MilestoneView {
+  row: WeeklyMilestoneRow;
+  /** Effective status displayed to the UI (paused if live in progress). */
+  effectiveStatus: MilestoneStatus;
+  /** Sessions ended within the milestone window. */
+  doneCount: number;
+}
+
+// --- Week boundaries (Monday → Sunday, FR convention) ---
+
+function startOfIsoWeek(d: Date): Date {
+  const day = d.getUTCDay(); // 0=Sun..6=Sat
+  const diff = (day + 6) % 7; // days since Monday
+  const monday = new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - diff),
+  );
+  return monday;
+}
+
+function toDateString(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+function currentWeekBounds(): { start: string; end: string } {
+  const now = new Date();
+  const start = startOfIsoWeek(now);
+  const end = new Date(start);
+  end.setUTCDate(start.getUTCDate() + 6);
+  return { start: toDateString(start), end: toDateString(end) };
+}
+
+// --- Family selection (no score deltas, dominant-state only) ---
+
+interface PickInput {
+  recentSessions: LiveSession[]; // ended, most recent first
   recentDebriefs: Map<string, LiveDebrief>;
 }
 
-const WINDOW_DAYS = 7;
-const MIN_SESSIONS_FOR_TREND = 3;
-const TREND_DELTA_POINTS = 8;
-const COMPLETE_SESSION_MIN = 25; // minutes — below = "trop court"
-const REBUILD_TARGET = 2; // 2 complete sessions to validate rebuild
-
-function avg(nums: number[]): number | null {
-  const filtered = nums.filter((n) => Number.isFinite(n));
-  if (filtered.length === 0) return null;
-  return filtered.reduce((a, b) => a + b, 0) / filtered.length;
+interface PickedTemplate {
+  kind: MilestoneKind;
+  title: string;
+  rationale: string;
+  target_count: number;
+  source_session_id: string | null;
+  source_debrief_id: string | null;
 }
 
-function withinDays(iso: string, days: number): boolean {
-  const t = new Date(iso).getTime();
-  return Date.now() - t <= days * 24 * 60 * 60 * 1000;
-}
+function pickTemplate(input: PickInput): PickedTemplate {
+  const sessions = input.recentSessions.slice(0, 5);
+  const debriefs = sessions
+    .map((s) => ({ s, d: input.recentDebriefs.get(s.id) ?? null }))
+    .filter((x): x is { s: LiveSession; d: LiveDebrief } => x.d !== null);
+  const lastDebrief = debriefs[0]?.d ?? null;
+  const lastSession = debriefs[0]?.s ?? null;
 
-function trendOn(
-  metric: "score_hold" | "score_start" | "overall_score",
-  debriefs: LiveDebrief[],
-): number | null {
-  const values = debriefs
-    .map((d) => d[metric])
-    .filter((v): v is number => typeof v === "number");
-  if (values.length < MIN_SESSIONS_FOR_TREND) return null;
-  const latest = values[0];
-  const baseline = avg(values.slice(1));
-  if (baseline === null) return null;
-  return latest - baseline;
-}
-
-export function buildWeeklyMilestone(input: BuildInput): WeeklyMilestone {
-  // CASE — live in progress (informational).
-  if (input.current) {
-    return {
-      kind: "continuity",
-      status: "in_live",
-      title: "Ton live est en cours.",
-      rationale:
-        "La milestone de la semaine sera réévaluée à la fin de cette session.",
-      progressLabel: "Évaluation en pause",
-    };
-  }
-
-  const sessions = input.recentSessions;
-  const sessionsThisWeek = sessions.filter((s) =>
-    withinDays(s.started_at, WINDOW_DAYS),
-  );
-  const completeThisWeek = sessionsThisWeek.filter(
-    (s) => (s.duration_minutes ?? 0) >= COMPLETE_SESSION_MIN,
-  );
-
-  // CASE — no recent live at all.
-  if (sessions.length === 0) {
-    return {
-      kind: "rebuild",
-      status: "no_recent_live",
-      title: "Lance un premier live cette semaine.",
-      rationale: "StreamPulse a besoin d'au moins une session pour t'orienter.",
-      progressLabel: "0/1 live détecté",
-    };
-  }
-
-  // Aligned debriefs (most recent first).
-  const debriefs: LiveDebrief[] = sessions
-    .map((s) => input.recentDebriefs.get(s.id))
-    .filter((d): d is LiveDebrief => Boolean(d));
-  const lastDebrief = debriefs[0] ?? null;
-
-  // CASE — low signal: rebuild milestone (2 complete sessions / 7 days).
+  // 1. Reconstruction — not enough signal to coach anything.
   const lowSignal =
-    sessions.length < MIN_SESSIONS_FOR_TREND ||
-    debriefs.length < MIN_SESSIONS_FOR_TREND ||
+    sessions.length < 2 ||
+    debriefs.length < 2 ||
     (lastDebrief && lastDebrief.has_enough_signal === false);
-
   if (lowSignal) {
-    const done = completeThisWeek.length;
-    const status: MilestoneStatus =
-      done >= REBUILD_TARGET
-        ? "reached"
-        : done >= 1
-          ? "on_track"
-          : "in_progress";
     return {
-      kind: "rebuild",
-      status,
-      title:
-        status === "reached"
-          ? "Cap atteint cette semaine."
-          : "Lance 2 sessions complètes pour produire une base exploitable.",
-      rationale:
-        status === "reached"
-          ? "StreamPulse préparera le prochain cap à partir de tes prochains lives."
-          : "Tes derniers lives manquent encore de signal stable.",
-      progressLabel: `${done}/${REBUILD_TARGET} lives complets cette semaine`,
+      kind: "reconstruction",
+      title: "Faire 2 sessions complètes cette semaine.",
+      rationale: "Recrée une base exploitable avant d'optimiser le reste.",
+      target_count: 2,
+      source_session_id: lastSession?.id ?? null,
+      source_debrief_id: lastDebrief?.id ?? null,
     };
   }
 
-  // From here we have enough signal to read trends.
-  const holdTrend = trendOn("score_hold", debriefs);
-  const startTrend = trendOn("score_start", debriefs);
-  const overallTrend = trendOn("overall_score", debriefs);
-
-  // CASE — degradation → stabilize.
-  if (
-    (holdTrend !== null && holdTrend <= -TREND_DELTA_POINTS) ||
-    (startTrend !== null && startTrend <= -TREND_DELTA_POINTS)
-  ) {
-    const focusStart =
-      startTrend !== null &&
-      startTrend <= -TREND_DELTA_POINTS &&
-      (holdTrend === null || startTrend <= holdTrend);
-
-    const done = sessionsThisWeek.length;
-    const status: MilestoneStatus = done >= 1 ? "on_track" : "in_progress";
+  // 2. Confirmation — last debrief explicitly highlights a strength.
+  if (lastDebrief && lastDebrief.strength && lastDebrief.strength.length > 0) {
     return {
-      kind: "stabilize",
-      status,
-      title: focusStart
-        ? "Stabilise le démarrage sur ton prochain live."
-        : "Confirme une meilleure tenue sur ta prochaine session.",
-      rationale: focusStart
-        ? "Les premières minutes pèsent lourd dans la lecture du live."
-        : "La tenue a baissé récemment, c'est le point à reverrouiller.",
-      progressLabel: `${done}/1 live cette semaine`,
+      kind: "confirmation",
+      title: "Confirmer cette amélioration sur un nouveau live cette semaine.",
+      rationale: "Une bonne dynamique récente, à valider sur la prochaine session.",
+      target_count: 1,
+      source_session_id: lastSession?.id ?? null,
+      source_debrief_id: lastDebrief?.id ?? null,
     };
   }
 
-  // CASE — progression → confirm.
-  if (
-    (holdTrend !== null && holdTrend >= TREND_DELTA_POINTS) ||
-    (startTrend !== null && startTrend >= TREND_DELTA_POINTS) ||
-    (overallTrend !== null && overallTrend >= TREND_DELTA_POINTS)
-  ) {
-    const done = sessionsThisWeek.length;
-    const status: MilestoneStatus = done >= 1 ? "on_track" : "in_progress";
-    return {
-      kind: "confirm",
-      status,
-      title: "Confirme cette amélioration sur ton prochain live.",
-      rationale: "Une bonne session récente, à valider sur la suivante.",
-      progressLabel: `${done}/1 live cette semaine`,
-    };
-  }
-
-  // CASE — continuity: keep cadence.
-  const done = completeThisWeek.length;
-  const status: MilestoneStatus =
-    done >= REBUILD_TARGET
-      ? "reached"
-      : done >= 1
-        ? "on_track"
-        : "in_progress";
+  // 3. Stabilization (default) — apply the priority action of the last debrief.
   return {
-    kind: "continuity",
-    status,
-    title:
-      status === "reached"
-        ? "Cadence tenue cette semaine."
-        : "Retrouve une cadence simple et lisible cette semaine.",
-    rationale:
-      status === "reached"
-        ? "Continue sur cette base, le prochain cap arrivera naturellement."
-        : "La régularité reste ton premier point d'appui.",
-    progressLabel: `${done}/${REBUILD_TARGET} lives complets cette semaine`,
+    kind: "stabilization",
+    title: "Valider 1 live propre en appliquant la priorité du dernier débrief.",
+    rationale: lastDebrief?.priority_action
+      ? `Cap à viser : ${truncate(lastDebrief.priority_action, 80)}`
+      : "Verrouille d'abord le point faible identifié au dernier débrief.",
+    target_count: 1,
+    source_session_id: lastSession?.id ?? null,
+    source_debrief_id: lastDebrief?.id ?? null,
   };
+}
+
+function truncate(s: string, max: number): string {
+  return s.length <= max ? s : `${s.slice(0, max - 1).trimEnd()}…`;
+}
+
+// --- Persistence ---
+
+async function fetchExisting(
+  userId: string,
+  weekStart: string,
+): Promise<WeeklyMilestoneRow | null> {
+  const { data } = await supabase
+    .from("weekly_milestones")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("week_start", weekStart)
+    .maybeSingle();
+  return (data as WeeklyMilestoneRow | null) ?? null;
+}
+
+async function insertNew(
+  userId: string,
+  weekStart: string,
+  weekEnd: string,
+  tpl: PickedTemplate,
+): Promise<WeeklyMilestoneRow | null> {
+  const { data } = await supabase
+    .from("weekly_milestones")
+    .insert({
+      user_id: userId,
+      week_start: weekStart,
+      week_end: weekEnd,
+      kind: tpl.kind,
+      title: tpl.title,
+      rationale: tpl.rationale,
+      target_count: tpl.target_count,
+      status: "not_started",
+      source_session_id: tpl.source_session_id,
+      source_debrief_id: tpl.source_debrief_id,
+    })
+    .select("*")
+    .maybeSingle();
+  return (data as WeeklyMilestoneRow | null) ?? null;
+}
+
+async function updateStatus(
+  rowId: string,
+  status: MilestoneStatus,
+  reachedAt: string | null,
+): Promise<void> {
+  await supabase
+    .from("weekly_milestones")
+    .update({ status, reached_at: reachedAt })
+    .eq("id", rowId);
+}
+
+// --- Public API ---
+
+/**
+ * Read the milestone for the current week, generating it on first visit.
+ * Stable for the whole week: only `status` updates afterwards.
+ *
+ * Special cases:
+ *  - Live in progress → effective status forced to "paused" (row untouched).
+ *  - No ended session at all in the recent window → returns null (the
+ *    inactivity relance block owns that surface, not the milestone).
+ */
+export async function getOrCreateCurrentWeekMilestone(
+  userId: string,
+  current: LiveSession | null,
+  recentSessions: LiveSession[],
+  recentDebriefs: Map<string, LiveDebrief>,
+): Promise<MilestoneView | null> {
+  const { start, end } = currentWeekBounds();
+
+  let row = await fetchExisting(userId, start);
+
+  if (!row) {
+    // Hand off to the inactivity relance block when there is literally no
+    // recent activity. The milestone is for users with at least some signal.
+    if (recentSessions.length === 0) return null;
+
+    const tpl = pickTemplate({ recentSessions, recentDebriefs });
+    row = await insertNew(userId, start, end, tpl);
+    if (!row) return null;
+  }
+
+  // Count ended sessions inside the milestone window.
+  const startMs = new Date(`${start}T00:00:00Z`).getTime();
+  const endMs = new Date(`${end}T23:59:59Z`).getTime();
+  const doneCount = recentSessions.filter((s) => {
+    if (s.status !== "ended") return false;
+    const t = new Date(s.ended_at ?? s.started_at).getTime();
+    return t >= startMs && t <= endMs;
+  }).length;
+
+  // Reconcile status from data, not from UI clicks.
+  let effectiveStatus: MilestoneStatus = row.status;
+  if (current) {
+    effectiveStatus = "paused";
+  } else if (doneCount >= row.target_count) {
+    effectiveStatus = "reached";
+  } else if (doneCount > 0) {
+    effectiveStatus = "in_progress";
+  } else {
+    effectiveStatus = "not_started";
+  }
+
+  // Persist the transition only when the row in DB is out of date and we are
+  // not in the transient "paused" state (paused must not overwrite real data).
+  if (
+    effectiveStatus !== "paused" &&
+    effectiveStatus !== row.status
+  ) {
+    const reachedAt =
+      effectiveStatus === "reached"
+        ? row.reached_at ?? new Date().toISOString()
+        : null;
+    await updateStatus(row.id, effectiveStatus, reachedAt);
+    row = { ...row, status: effectiveStatus, reached_at: reachedAt };
+  }
+
+  return { row, effectiveStatus, doneCount };
 }
