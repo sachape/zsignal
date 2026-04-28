@@ -9,9 +9,9 @@ import {
   type LiveSession,
 } from "@/services/liveSessions";
 import {
-  buildWeeklyMilestone,
+  getOrCreateCurrentWeekMilestone,
   type MilestoneStatus,
-  type WeeklyMilestone,
+  type MilestoneView,
 } from "@/services/weeklyMilestone";
 
 interface Props {
@@ -20,18 +20,18 @@ interface Props {
 
 const STATUS_BADGE: Record<
   MilestoneStatus,
-  { label: string; variant: "muted" | "secondary" | "default" } | null
+  { label: string; variant: "muted" | "secondary" | "default" }
 > = {
-  in_progress: { label: "Objectif non encore validé", variant: "muted" },
-  on_track: { label: "En bonne voie", variant: "secondary" },
+  not_started: { label: "Non démarré", variant: "muted" },
+  in_progress: { label: "En cours", variant: "secondary" },
   reached: { label: "Cap atteint", variant: "default" },
-  in_live: null,
-  no_recent_live: null,
+  paused: { label: "En pause", variant: "muted" },
 };
 
 const WeeklyMilestoneCard = ({ current }: Props) => {
   const { user } = useAuth();
-  const [milestone, setMilestone] = useState<WeeklyMilestone | null>(null);
+  const [view, setView] = useState<MilestoneView | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,33 +40,33 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
       const sessions = await listLiveSessions(user.id, 14);
       const ended = sessions.filter((s) => s.status === "ended");
       const debriefs = await getDebriefsBySessionIds(ended.map((s) => s.id));
-      if (cancelled) return;
-      setMilestone(
-        buildWeeklyMilestone({
-          current,
-          recentSessions: ended,
-          recentDebriefs: debriefs,
-        }),
+      const v = await getOrCreateCurrentWeekMilestone(
+        user.id,
+        current,
+        ended,
+        debriefs,
       );
+      if (cancelled) return;
+      setView(v);
+      setLoaded(true);
     })();
     return () => {
       cancelled = true;
     };
   }, [user, current]);
 
-  if (!milestone) return null;
+  if (!loaded || !view) return null;
 
-  const reached = milestone.status === "reached";
-  const inLive = milestone.status === "in_live";
-  const Icon = inLive ? Radio : reached ? CheckCircle2 : Target;
-  const badge = STATUS_BADGE[milestone.status];
+  const { row, effectiveStatus, doneCount } = view;
+  const reached = effectiveStatus === "reached";
+  const paused = effectiveStatus === "paused";
+  const Icon = paused ? Radio : reached ? CheckCircle2 : Target;
+  const badge = STATUS_BADGE[effectiveStatus];
 
   return (
     <Card
       className={
-        reached
-          ? "border-primary/30 bg-primary/[0.04]"
-          : "border-border/60"
+        reached ? "border-primary/30 bg-primary/[0.04]" : "border-border/60"
       }
     >
       <CardContent className="p-4">
@@ -83,21 +83,28 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Cap des 7 prochains jours
               </p>
-              {badge && (
-                <Badge variant={badge.variant} className="h-5 px-1.5 text-[10px]">
-                  {badge.label}
-                </Badge>
-              )}
+              <Badge variant={badge.variant} className="h-5 px-1.5 text-[10px]">
+                {badge.label}
+              </Badge>
             </div>
             <p className="mt-1 text-sm font-semibold text-foreground">
-              {milestone.title}
+              {paused
+                ? "Ton live est en cours."
+                : reached
+                  ? "Cap atteint cette semaine."
+                  : row.title}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {milestone.rationale}
+              {paused
+                ? "La milestone reprendra à la fin de cette session."
+                : reached
+                  ? "StreamPulse préparera le prochain cap la semaine prochaine."
+                  : row.rationale}
             </p>
-            {!inLive && (
+            {!paused && (
               <p className="mt-2 text-[11px] font-medium text-muted-foreground/80">
-                {milestone.progressLabel}
+                {doneCount}/{row.target_count}{" "}
+                {row.target_count > 1 ? "lives" : "live"} cette semaine
               </p>
             )}
           </div>
