@@ -42,6 +42,7 @@ import {
 } from "@/services/autoRefreshRunner";
 import {
   getLiveCockpitSnapshot,
+  listLiveSessions,
   type LiveCockpitSnapshot,
 } from "@/services/liveSessions";
 import LiveStatusCard from "@/components/LiveStatusCard";
@@ -50,9 +51,6 @@ import SmartAlertsCard from "@/components/SmartAlertsCard";
 import WeeklyMilestoneCard from "@/components/WeeklyMilestoneCard";
 import InactivityRelanceCard from "@/components/InactivityRelanceCard";
 import LastVsAverageCard from "@/components/LastVsAverageCard";
-import {
-  listLiveSessions,
-} from "@/services/liveSessions";
 import { resolveCockpitFocusSlot, type CockpitFocusSlot } from "@/services/cockpitFocus";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
