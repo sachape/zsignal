@@ -99,8 +99,7 @@ const LiveStatusCard = ({ current, last, lastDebrief }: Props) => {
             Aucun live détecté pour le moment
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Dès que tu lances un stream, StreamPulse créera automatiquement une
-            session et un débrief à la fin.
+            Ton prochain stream créera automatiquement une session et son débrief.
           </p>
         </div>
       </CardContent>
