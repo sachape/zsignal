@@ -57,7 +57,7 @@ const ValueAnchorSection = () => {
       <SectionHeading
         badge="Point de départ"
         title="Avant de payer un coach, sache déjà quoi améliorer."
-        subtitle="Un coach peut aider. Une formation aussi. Mais au début, ton besoin n'est pas forcément de payer cher pour des conseils génériques. C'est de comprendre clairement ce qui freine ta chaîne, quoi travailler cette semaine et comment progresser live après live."
+        subtitle="Un coach peut aider. Une formation aussi. Mais au départ, ton vrai besoin est de comprendre ce qui bloque ta chaîne et quoi améliorer maintenant."
       />
 
       <div
@@ -122,7 +122,7 @@ const ValueAnchorSection = () => {
 
       <div className="mx-auto mt-12 max-w-3xl text-center md:mt-16">
         <p className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-3xl md:text-4xl">
-          Moins cher qu'une heure de coaching. Utile après chaque live.
+          Moins cher qu'une heure de coaching. Un copilote pour progresser chaque semaine.
         </p>
 
         <div className="mt-7 flex flex-col items-center gap-3">
@@ -130,7 +130,7 @@ const ValueAnchorSection = () => {
             Analyser ma chaîne
           </Button>
           <p className="text-[11px] text-muted-foreground">
-            Commence par comprendre ton niveau avant d'investir davantage.
+            Comprends d'abord ta chaîne avant d'investir plus loin.
           </p>
         </div>
       </div>
