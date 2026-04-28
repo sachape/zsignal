@@ -49,6 +49,10 @@ import PreLiveChecklistCard from "@/components/PreLiveChecklistCard";
 import SmartAlertsCard from "@/components/SmartAlertsCard";
 import WeeklyMilestoneCard from "@/components/WeeklyMilestoneCard";
 import InactivityRelanceCard from "@/components/InactivityRelanceCard";
+import {
+  listLiveSessions,
+} from "@/services/liveSessions";
+import { resolveCockpitFocusSlot, type CockpitFocusSlot } from "@/services/cockpitFocus";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
 
