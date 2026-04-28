@@ -45,6 +45,7 @@ import {
   type LiveCockpitSnapshot,
 } from "@/services/liveSessions";
 import LiveStatusCard from "@/components/LiveStatusCard";
+import PreLiveChecklistCard from "@/components/PreLiveChecklistCard";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
 
@@ -395,8 +396,13 @@ const DashboardPage = () => {
 
         {/* Live status strip — surfaces "En live", last live with debrief CTA,
             or honest empty state if no live has been detected yet. */}
-        <div className="mb-6">
+        <div className="mb-6 space-y-3">
           <LiveStatusCard
+            current={liveSnapshot?.current ?? null}
+            last={liveSnapshot?.last ?? null}
+            lastDebrief={liveSnapshot?.lastDebrief ?? null}
+          />
+          <PreLiveChecklistCard
             current={liveSnapshot?.current ?? null}
             last={liveSnapshot?.last ?? null}
             lastDebrief={liveSnapshot?.lastDebrief ?? null}
