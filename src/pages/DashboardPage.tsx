@@ -48,6 +48,7 @@ import LiveStatusCard from "@/components/LiveStatusCard";
 import PreLiveChecklistCard from "@/components/PreLiveChecklistCard";
 import SmartAlertsCard from "@/components/SmartAlertsCard";
 import WeeklyMilestoneCard from "@/components/WeeklyMilestoneCard";
+import InactivityRelanceCard from "@/components/InactivityRelanceCard";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
 
@@ -405,6 +406,7 @@ const DashboardPage = () => {
             lastDebrief={liveSnapshot?.lastDebrief ?? null}
           />
           <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
+          <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
           <PreLiveChecklistCard
             current={liveSnapshot?.current ?? null}
             last={liveSnapshot?.last ?? null}
