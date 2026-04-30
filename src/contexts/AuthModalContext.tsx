@@ -48,10 +48,10 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
               </span>
             </div>
             <DialogTitle className="text-center text-base">
-              Bienvenue
+              Bienvenue sur Streamnco
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Connecte-toi ou crée un compte pour continuer.
+              Crée ton compte Streamnco ou connecte-toi pour continuer.
             </DialogDescription>
           </DialogHeader>
           <AuthForm
