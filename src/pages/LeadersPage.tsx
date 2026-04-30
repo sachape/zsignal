@@ -39,6 +39,20 @@ import {
 type ViewMode = "all" | "live";
 type SortKey = "viewers" | "score" | "name";
 
+/**
+ * Centralized sort map. The comparator selected here is the ONLY thing
+ * that decides row order — so the UI label and the displayed order can
+ * never drift apart again.
+ *  - score   → StreamScore desc
+ *  - viewers → live audience desc (null treated as 0)
+ *  - name    → display name asc (locale-aware)
+ */
+const SORT_COMPARATORS: Record<SortKey, (a: LeaderChannel, b: LeaderChannel) => number> = {
+  score: (a, b) => b.stream_score - a.stream_score,
+  viewers: (a, b) => (b.live_viewer_count ?? 0) - (a.live_viewer_count ?? 0),
+  name: (a, b) => a.display_name.localeCompare(b.display_name),
+};
+
 const formatViewers = (n: number | null): string => {
   if (n == null) return "—";
   if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k`;
