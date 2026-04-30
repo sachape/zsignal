@@ -42,7 +42,7 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
-import TwitchUnlockModal from "@/components/TwitchUnlockModal";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import QualitativeScoreCard from "@/components/QualitativeScoreCard";
 import ScoreInsightCard from "@/components/ScoreInsightCard";
@@ -73,7 +73,7 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const { openAuthModal } = useAuthModal();
   const { account: twitchAccount, loading: twitchLoading } = useTwitchConnection();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
@@ -890,11 +890,6 @@ const ResultPage = () => {
           </Card>
         )}
       </PageContainer>
-      <TwitchUnlockModal
-        open={unlockModalOpen}
-        onOpenChange={setUnlockModalOpen}
-        teaserId={teaserId}
-      />
     </AppShell>
   );
 };
