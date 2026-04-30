@@ -744,7 +744,13 @@ const ResultPage = () => {
                     ? "Connecte Twitch pour voir tous les concurrents pertinents"
                     : "Connecte Twitch pour voir plus de concurrents"
                 }
-                cta="Continuer avec Twitch"
+                cta={
+                  !user
+                    ? "Créer mon compte Streamnco"
+                    : !twitchAccount
+                      ? "Connecter Twitch"
+                      : "Voir mon dashboard"
+                }
                 onUnlock={handleUnlock}
               />
             </div>
