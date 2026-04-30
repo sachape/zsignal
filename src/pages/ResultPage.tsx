@@ -739,7 +739,7 @@ const ResultPage = () => {
                     ? "Connecte Twitch pour voir tous les concurrents pertinents"
                     : "Connecte Twitch pour voir plus de concurrents"
                 }
-                cta="Continuer avec Twitch"
+                cta={user ? "Continuer avec Twitch" : "Créer mon compte Streamnco"}
                 onUnlock={handleUnlock}
               />
             </div>
@@ -884,7 +884,7 @@ const ResultPage = () => {
                     : "Connecte Twitch pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button onClick={handleUnlock} className="mt-2">
-                Continuer avec Twitch
+                {user ? "Continuer avec Twitch" : "Créer mon compte Streamnco"}
               </Button>
             </CardContent>
           </Card>
