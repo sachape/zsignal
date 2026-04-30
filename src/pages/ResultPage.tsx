@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import {
-  TrendingDown,
   Clock,
   Target,
   Lightbulb,
@@ -46,6 +45,7 @@ import MainBlockerCard from "@/components/MainBlockerCard";
 import TwitchUnlockModal from "@/components/TwitchUnlockModal";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import QualitativeScoreCard from "@/components/QualitativeScoreCard";
+import ScoreInsightCard from "@/components/ScoreInsightCard";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { onboardingFlags } from "@/services/onboardingFlags";
@@ -649,21 +649,17 @@ const ResultPage = () => {
                 );
               })()}
             </div>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-warning" />
-                  <p className="text-sm font-semibold text-foreground">
-                    Ce qui freine le plus : {report.weak_point.label}
-                  </p>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {report.weak_point.description}
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
+
+        {/* "Pourquoi ce score" — product-grade reading.
+            Replaces the previous one-line weak point card with a structured
+            narrative: tier headline + drags/supports + priority action. */}
+        {!isReconstruction && (
+          <div className="mb-8">
+            <ScoreInsightCard score={score} />
+          </div>
+        )}
 
         {/* No MainBlocker / plan bridge here: the cockpit is the single
             home that surfaces the current blocker and the weekly plan link.
@@ -686,7 +682,7 @@ const ResultPage = () => {
                 { label: "Momentum", pct: score.momentum },
                 { label: "Monétisation", pct: score.monetization },
               ].map((s) => (
-                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} />
+                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} tinted />
               ))}
             </CardContent>
           </Card>

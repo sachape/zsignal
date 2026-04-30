@@ -14,6 +14,7 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import ScoreCard from "@/components/ScoreCard";
+import ScoreInsightCard from "@/components/ScoreInsightCard";
 
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
@@ -405,6 +406,14 @@ const DashboardPage = () => {
             manualBusy={manualRefreshing}
           />
         </div>
+
+        {/* "Pourquoi ce score" — compact reading on the cockpit so the
+            score never reads as a bare number. Hidden if no breakdown. */}
+        {score.breakdown.length > 0 && (
+          <div className="mb-6">
+            <ScoreInsightCard score={score} compact />
+          </div>
+        )}
 
         {/* Live stack — single continuous reading, top → bottom:
             1. État actuel        (LiveStatusCard, primary)
