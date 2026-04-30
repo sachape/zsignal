@@ -414,6 +414,35 @@ const DashboardPage = () => {
           }
         />
 
+        {/* Mismatch banner — teaser channel ≠ Twitch account finally connected.
+            Explicit, non-blocking, dismissable. Cleared once acknowledged. */}
+        {teaserMismatch && account?.platform_login && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/5 p-4 sm:items-center sm:p-5">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning sm:mt-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground">
+                Ta chaîne suivie est désormais{" "}
+                <span className="text-primary">@{account.platform_login}</span>
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+                Tu avais analysé{" "}
+                <span className="font-medium text-foreground">@{teaserMismatch}</span>{" "}
+                en aperçu, mais ton compte Streamnco est maintenant relié à la
+                chaîne Twitch ci-dessus. Tout le suivi se fera sur cette chaîne.
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTeaserMismatch(null)}
+              aria-label="Fermer le message"
+              className="-mr-1 shrink-0 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {/* Slim welcome banner — first cockpit visit only. Dismissable.
             Kept minimal on purpose: no walkthrough, no checklist, no hotspots.
             The three shortcuts at the bottom of the cockpit already cover
