@@ -55,8 +55,7 @@ import LastVsAverageCard from "@/components/LastVsAverageCard";
 import { resolveCockpitFocusSlot, type CockpitFocusSlot } from "@/services/cockpitFocus";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
-
-
+import ConnectTwitchPromptModal from "@/components/ConnectTwitchPromptModal";
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
     day: "2-digit",
@@ -79,6 +78,7 @@ const DashboardPage = () => {
   // Welcome banner: show only on first visit after Twitch connection.
   // Robust to refreshes: relies on the durable cockpit_welcome_dismissed flag.
   const welcomeRequested = searchParams.get("welcome") === "1";
+  const welcomeSignup = searchParams.get("welcome_signup") === "1";
   const [showWelcome, setShowWelcome] = useState(
     () => welcomeRequested && !onboardingFlags.isCockpitWelcomeDismissed(),
   );
@@ -86,6 +86,16 @@ const DashboardPage = () => {
     onboardingFlags.dismissCockpitWelcome();
     setShowWelcome(false);
   }, []);
+
+  // Twitch connect prompt: shown after Streamnco signup (or any cockpit
+  // visit where the SaaS account exists but Twitch is not yet connected).
+  // Honors the `connect_twitch_prompt_dismissed` durable flag.
+  const [showConnectTwitch, setShowConnectTwitch] = useState(false);
+
+  // Mismatch banner: teaser channel A vs Twitch account B finally connected.
+  // Read once at mount; cleared by the user via the banner CTA.
+  const [teaserMismatch, setTeaserMismatch] = useState<string | null>(null);
+
   const autoTriggeredRef = useRef(false);
   const processingRef = useRef(false);
 
