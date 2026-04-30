@@ -386,16 +386,25 @@ const ResultPage = () => {
     if (teaserId) {
       onboardingFlags.setPendingTeaserId(teaserId);
     }
+    // Persist the teaser channel name so we can detect a mismatch later
+    // (teaser channel A vs Twitch account B connected after signup).
+    if (teaserCtaChannel) {
+      onboardingFlags.setPendingTeaserChannel(teaserCtaChannel);
+    }
     if (user) {
-      // Authenticated: go straight to the Twitch connection surface (which
-      // kicks off OAuth). We do not show the generic auth modal here — this
-      // flow is Twitch-first.
+      // Already a Streamnco account: go straight to the Twitch connection
+      // surface (which kicks off OAuth).
       navigate(`/connect-twitch${teaserId ? `?teaser=${teaserId}` : ""}`);
       return;
     }
-    // Unauthenticated: open the Twitch-first unlock modal. No email / password
-    // / Google surface is shown on this path.
-    setUnlockModalOpen(true);
+    // No Streamnco account yet → open the Streamnco signup modal first.
+    // Twitch is connected later, from the cockpit, via the dedicated prompt.
+    openAuthModal({
+      redirectTo: "/dashboard?welcome_signup=1",
+      pendingChannel: teaserCtaChannel || null,
+      contextText:
+        "Crée ton compte Streamnco pour sauvegarder ce diagnostic. Tu connecteras Twitch juste après pour débloquer le suivi complet.",
+    });
   };
 
   const summary = report.channel_summary;
