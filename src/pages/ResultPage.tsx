@@ -380,22 +380,38 @@ const ResultPage = () => {
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
   const fromOnboarding = searchParams.get("from") === "onboarding";
   const handleUnlock = () => {
-    // Persist teaser id across the OAuth round-trip so the callback can
-    // redirect the user back to /result?teaser=...&from=onboarding and
-    // present an enriched version of the same diagnostic.
+    // Persist teaser id across the auth round-trip so the post-signup flow can
+    // redirect the user back to /result?teaser=...&from=onboarding and present
+    // an enriched version of the same diagnostic.
     if (teaserId) {
       onboardingFlags.setPendingTeaserId(teaserId);
     }
-    if (user) {
-      // Authenticated: go straight to the Twitch connection surface (which
-      // kicks off OAuth). We do not show the generic auth modal here — this
-      // flow is Twitch-first.
+    if (teaserCtaChannel) {
+      onboardingFlags.setPendingTeaserChannel(teaserCtaChannel);
+    }
+
+    // Case 3: fully connected — go to the deeper product surface directly.
+    if (user && twitchAccount) {
+      navigate("/dashboard");
+      return;
+    }
+
+    // Case 2: Streamnco account exists, Twitch not yet linked — open the
+    // Twitch connection page (which presents the dedicated Twitch CTA).
+    if (user && !twitchAccount) {
       navigate(`/connect-twitch${teaserId ? `?teaser=${teaserId}` : ""}`);
       return;
     }
-    // Unauthenticated: open the Twitch-first unlock modal. No email / password
-    // / Google surface is shown on this path.
-    setUnlockModalOpen(true);
+
+    // Case 1: not authenticated — open the Streamnco signup modal.
+    // Twitch will be proposed as a second step, after the session is created.
+    openAuthModal({
+      mode: "signup",
+      redirectTo: `/connect-twitch${teaserId ? `?teaser=${teaserId}` : ""}`,
+      pendingChannel: teaserCtaChannel || null,
+      contextText:
+        "Crée ton compte Streamnco pour sauvegarder ce diagnostic. Tu pourras connecter Twitch juste après.",
+    });
   };
 
   const summary = report.channel_summary;
