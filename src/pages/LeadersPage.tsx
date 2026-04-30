@@ -377,7 +377,7 @@ const LeadersPage = () => {
             </div>
             <div className="text-right">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Chaînes live
+                {view === "live" ? "Chaînes live" : "Chaînes classées"}
               </p>
               <p className="text-sm font-semibold text-foreground">
                 {filtered.length}
@@ -398,9 +398,14 @@ const LeadersPage = () => {
           </Card>
         ) : filtered.length === 0 ? (
           <Card>
-            <CardContent className="flex items-center gap-3 p-6 text-sm text-muted-foreground">
-              <Trophy className="h-4 w-4" />
-              Aucune chaîne live ne correspond à ces filtres.
+            <CardContent className="flex flex-col gap-1 p-6 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2 text-foreground">
+                <Trophy className="h-4 w-4" />
+                {view === "live"
+                  ? "Aucune chaîne live trouvée pour cette catégorie."
+                  : "Aucune chaîne trouvée pour cette catégorie."}
+              </p>
+              <p className="pl-6 text-xs">Essaie une autre langue ou une autre catégorie.</p>
             </CardContent>
           </Card>
         ) : (
