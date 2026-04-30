@@ -152,6 +152,36 @@ const AuthForm = ({
         ))}
       </div>
 
+      <Button
+        type="button"
+        variant="outline"
+        onClick={handleGoogle}
+        disabled={googleLoading || loading}
+        className="w-full"
+      >
+        {googleLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <>
+            <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="#EA4335"
+                d="M12 10.2v3.96h5.52c-.24 1.44-1.68 4.2-5.52 4.2-3.32 0-6.04-2.76-6.04-6.16s2.72-6.16 6.04-6.16c1.88 0 3.16.8 3.88 1.48l2.64-2.56C16.84 3.36 14.64 2.4 12 2.4 6.72 2.4 2.4 6.72 2.4 12s4.32 9.6 9.6 9.6c5.52 0 9.2-3.88 9.2-9.36 0-.64-.08-1.12-.16-1.64H12z"
+              />
+            </svg>
+            Continuer avec Google
+          </>
+        )}
+      </Button>
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs uppercase tracking-wider text-muted-foreground">
+          ou avec un email
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="auth-email">Email</Label>
@@ -193,7 +223,7 @@ const AuthForm = ({
           </div>
         )}
 
-        <Button type="submit" disabled={loading} className="w-full">
+        <Button type="submit" variant="outline" disabled={loading} className="w-full">
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
@@ -204,36 +234,6 @@ const AuthForm = ({
           )}
         </Button>
       </form>
-
-      <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">
-          ou
-        </span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
-
-      <Button
-        type="button"
-        variant="outline"
-        onClick={handleGoogle}
-        disabled={googleLoading || loading}
-        className="w-full"
-      >
-        {googleLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <>
-            <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="#EA4335"
-                d="M12 10.2v3.96h5.52c-.24 1.44-1.68 4.2-5.52 4.2-3.32 0-6.04-2.76-6.04-6.16s2.72-6.16 6.04-6.16c1.88 0 3.16.8 3.88 1.48l2.64-2.56C16.84 3.36 14.64 2.4 12 2.4 6.72 2.4 2.4 6.72 2.4 12s4.32 9.6 9.6 9.6c5.52 0 9.2-3.88 9.2-9.36 0-.64-.08-1.12-.16-1.64H12z"
-              />
-            </svg>
-            Continuer avec Google
-          </>
-        )}
-      </Button>
 
       <p className="text-center text-xs text-muted-foreground">
         {mode === "signup"
