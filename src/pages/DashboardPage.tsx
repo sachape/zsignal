@@ -264,6 +264,7 @@ const DashboardPage = () => {
     return (
       <AppShell>
         <LoadingState />
+      {connectPromptModal}
       </AppShell>
     );
   }
@@ -304,6 +305,7 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
         </PageContainer>
+      {connectPromptModal}
       </AppShell>
     );
   }
@@ -318,6 +320,7 @@ const DashboardPage = () => {
           />
           <EmptyReportState />
         </PageContainer>
+      {connectPromptModal}
       </AppShell>
     );
   }
@@ -343,6 +346,7 @@ const DashboardPage = () => {
             }
           />
         </PageContainer>
+      {connectPromptModal}
       </AppShell>
     );
   }
@@ -591,7 +595,8 @@ const DashboardPage = () => {
           </Link>
         </div>
       </PageContainer>
-    </AppShell>
+    {connectPromptModal}
+      </AppShell>
   );
 };
 
