@@ -19,6 +19,8 @@ export interface AuthFormProps {
   contextText?: string;
   /** Hide the success screen behavior — useful inside modal flows. */
   showInlineSuccess?: boolean;
+  /** Initial tab (defaults to "signup"). */
+  initialMode?: "login" | "signup";
 }
 
 const translateError = (msg: string): string => {
@@ -36,10 +38,11 @@ const AuthForm = ({
   redirectTo = "/dashboard",
   onSuccess,
   pendingChannel,
-  contextText = "Connecte-toi pour sauvegarder ta progression et débloquer l'analyse complète.",
+  contextText = "Crée ton compte Streamnco pour sauvegarder ton diagnostic. Tu pourras connecter Twitch juste après.",
   showInlineSuccess = true,
+  initialMode = "signup",
 }: AuthFormProps) => {
-  const [mode, setMode] = useState<"login" | "signup">("signup");
+  const [mode, setMode] = useState<"login" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
