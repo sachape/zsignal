@@ -84,8 +84,8 @@ const LeadersPage = () => {
   // Selected canonical category (name only — backend resolves to game_id).
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("all");
-  const [liveFilter, setLiveFilter] = useState<LiveFilter>("all");
-  const [sort, setSort] = useState<SortKey>("viewers");
+  const [view, setView] = useState<ViewMode>("all");
+  const [sort, setSort] = useState<SortKey>("score");
 
   // Category combobox state.
   const [catOpen, setCatOpen] = useState(false);
