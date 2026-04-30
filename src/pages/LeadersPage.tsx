@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import {
   fetchCategoryLeaders,
   searchCategories,
@@ -35,8 +36,8 @@ import {
   type LeaderCategory,
 } from "@/services/leadersService";
 
+type ViewMode = "all" | "live";
 type SortKey = "viewers" | "score" | "name";
-type LiveFilter = "all" | "live";
 
 const formatViewers = (n: number | null): string => {
   if (n == null) return "—";
@@ -44,11 +45,30 @@ const formatViewers = (n: number | null): string => {
   return String(n);
 };
 
-const scoreColor = (s: number): string => {
-  if (s >= 75) return "text-primary";
-  if (s >= 55) return "text-foreground";
-  if (s >= 35) return "text-muted-foreground";
-  return "text-muted-foreground/70";
+/** Single secondary signal per row, mode-aware. Returns null if nothing notable. */
+function getSecondarySignal(
+  c: LeaderChannel,
+  view: ViewMode,
+): { label: string; tone: "primary" | "warning" | "muted" | "destructive" } | null {
+  if (view === "live") {
+    const v = c.live_viewer_count ?? 0;
+    if (v >= 2000) return { label: "Très regardé", tone: "destructive" };
+    if (c.stream_score >= 80) return { label: "Bon score live", tone: "primary" };
+    if (v >= 300) return { label: "En direct", tone: "warning" };
+    return { label: "À inspecter", tone: "muted" };
+  }
+  // All channels view → benchmark framing
+  if (c.stream_score >= 80) return { label: "Base solide", tone: "primary" };
+  if ((c.live_viewer_count ?? 0) >= 1000) return { label: "Forte audience", tone: "warning" };
+  if (c.stream_score >= 55) return { label: "Bon score", tone: "muted" };
+  return { label: "À observer", tone: "muted" };
+}
+
+const SIGNAL_TONE_CLASS: Record<"primary" | "warning" | "muted" | "destructive", string> = {
+  primary: "border-primary/30 bg-primary/10 text-primary",
+  warning: "border-warning/30 bg-warning/10 text-warning",
+  destructive: "border-destructive/30 bg-destructive/10 text-destructive",
+  muted: "border-border bg-muted/40 text-muted-foreground",
 };
 
 /**
@@ -64,8 +84,8 @@ const LeadersPage = () => {
   // Selected canonical category (name only — backend resolves to game_id).
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("all");
-  const [liveFilter, setLiveFilter] = useState<LiveFilter>("all");
-  const [sort, setSort] = useState<SortKey>("viewers");
+  const [view, setView] = useState<ViewMode>("all");
+  const [sort, setSort] = useState<SortKey>("score");
 
   // Category combobox state.
   const [catOpen, setCatOpen] = useState(false);
@@ -121,9 +141,15 @@ const LeadersPage = () => {
 
   const filtered = useMemo(() => {
     let out = rows.slice();
-    if (liveFilter === "live") out = out.filter((r) => r.is_live);
+    if (view === "live") out = out.filter((r) => r.is_live);
 
-    switch (sort) {
+    // Coerce sort to a valid option for the current view.
+    const effectiveSort: SortKey =
+      view === "live" && sort === "score" ? "viewers"
+      : view === "all" && sort === "viewers" ? "score"
+      : sort;
+
+    switch (effectiveSort) {
       case "viewers":
         out.sort((a, b) => (b.live_viewer_count ?? 0) - (a.live_viewer_count ?? 0));
         break;
@@ -136,7 +162,7 @@ const LeadersPage = () => {
     }
     // Re-rank after sort for visual rank column.
     return out.map((r, i) => ({ ...r, rank: i + 1 }));
-  }, [rows, liveFilter, sort]);
+  }, [rows, view, sort]);
 
   const pickCategory = (name: string) => {
     setCategory(name);
@@ -161,12 +187,47 @@ const LeadersPage = () => {
         <PageHeader
           eyebrow="Benchmark"
           title="Classements"
-          description="Le vrai classement live d'une catégorie Twitch — qui domine, qui monte, qui mérite d'être inspecté."
+          description="Benchmark de catégorie Twitch, avec une vue live à la demande."
         />
 
-        {/* Filters */}
+        {/* View switcher — primary control: it changes the meaning of the page,
+            not just a secondary attribute. Sits above the standard filters. */}
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div
+            role="tablist"
+            aria-label="Vue"
+            className="inline-flex rounded-lg border border-border bg-card p-1"
+          >
+            {(["all", "live"] as const).map((v) => {
+              const active = view === v;
+              return (
+                <button
+                  key={v}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setView(v)}
+                  className={cn(
+                    "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {v === "all" ? "Toutes les chaînes" : "Live uniquement"}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {view === "all"
+              ? "Classe les chaînes d'une catégorie."
+              : "Ce qui mérite d'être observé maintenant."}
+          </p>
+        </div>
+
+        {/* Secondary filters */}
         <Card className="mb-6">
-          <CardContent className="grid gap-3 p-4 md:grid-cols-2 lg:grid-cols-5">
+          <CardContent className="grid gap-3 p-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">
               <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Catégorie Twitch
@@ -268,24 +329,6 @@ const LeadersPage = () => {
 
             <div>
               <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                État
-              </label>
-              <Select
-                value={liveFilter}
-                onValueChange={(v) => setLiveFilter(v as LiveFilter)}
-              >
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  <SelectItem value="live">Live uniquement</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Tri
               </label>
               <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
@@ -293,9 +336,19 @@ const LeadersPage = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="viewers">Audience live</SelectItem>
-                  <SelectItem value="score">StreamScore</SelectItem>
-                  <SelectItem value="name">Nom</SelectItem>
+                  {view === "live" ? (
+                    <>
+                      <SelectItem value="viewers">Audience live</SelectItem>
+                      <SelectItem value="score">StreamScore</SelectItem>
+                      <SelectItem value="name">Nom</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="score">StreamScore</SelectItem>
+                      <SelectItem value="viewers">Audience</SelectItem>
+                      <SelectItem value="name">Nom</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -324,7 +377,7 @@ const LeadersPage = () => {
             </div>
             <div className="text-right">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Chaînes live
+                {view === "live" ? "Chaînes live" : "Chaînes classées"}
               </p>
               <p className="text-sm font-semibold text-foreground">
                 {filtered.length}
@@ -345,95 +398,104 @@ const LeadersPage = () => {
           </Card>
         ) : filtered.length === 0 ? (
           <Card>
-            <CardContent className="flex items-center gap-3 p-6 text-sm text-muted-foreground">
-              <Trophy className="h-4 w-4" />
-              Aucune chaîne live ne correspond à ces filtres.
+            <CardContent className="flex flex-col gap-1 p-6 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2 text-foreground">
+                <Trophy className="h-4 w-4" />
+                {view === "live"
+                  ? "Aucune chaîne live trouvée pour cette catégorie."
+                  : "Aucune chaîne trouvée pour cette catégorie."}
+              </p>
+              <p className="pl-6 text-xs">Essaie une autre langue ou une autre catégorie.</p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-2">
-            {filtered.map((c) => (
-              <Link
-                key={c.id}
-                to={`/streamer/${c.login}`}
-                className="group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-card/80"
-              >
-                <span className="w-7 text-right text-xs font-semibold tabular-nums text-muted-foreground">
-                  #{c.rank}
-                </span>
-                <Avatar className="h-10 w-10 rounded-full border border-border/60">
-                  {c.profile_image_url && (
-                    <AvatarImage src={c.profile_image_url} alt={c.login} />
-                  )}
-                  <AvatarFallback className="rounded-full text-[10px]">
-                    {c.login.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+            {filtered.map((c) => {
+              const signal = getSecondarySignal(c, view);
+              const tier = getTierTheme(getScoreTier(c.stream_score));
+              return (
+                <Link
+                  key={c.id}
+                  to={`/streamer/${c.login}`}
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-card/80"
+                >
+                  <span className="w-7 text-right text-xs font-semibold tabular-nums text-muted-foreground">
+                    #{c.rank}
+                  </span>
+                  <Avatar className="h-10 w-10 rounded-full border border-border/60">
+                    {c.profile_image_url && (
+                      <AvatarImage src={c.profile_image_url} alt={c.login} />
+                    )}
+                    <AvatarFallback className="rounded-full text-[10px]">
+                      {c.login.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-semibold text-foreground">
-                      {c.display_name}
-                    </p>
-                    {c.is_live && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
-                        <Radio className="h-2 w-2" /> Live
-                      </span>
-                    )}
-                    {c.language && (
-                      <Badge variant="outline" className="text-[10px]">
-                        {c.language.toUpperCase()}
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="truncate">@{c.login}</span>
-                    {c.game_name && (
-                      <>
-                        <span>·</span>
-                        <span className="truncate">{c.game_name}</span>
-                      </>
-                    )}
-                  </div>
-                  {c.tags.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-1">
-                      {c.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
-                        >
-                          {t}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {c.display_name}
+                      </p>
+                      {c.is_live && view === "all" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                          <Radio className="h-2 w-2" /> Live
                         </span>
-                      ))}
+                      )}
+                      {c.language && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {c.language.toUpperCase()}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="truncate">@{c.login}</span>
+                      {c.game_name && (
+                        <>
+                          <span>·</span>
+                          <span className="truncate">{c.game_name}</span>
+                        </>
+                      )}
+                    </div>
+                    {signal && (
+                      <div className="mt-1.5">
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                            SIGNAL_TONE_CLASS[signal.tone],
+                          )}
+                        >
+                          {signal.label}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Live viewers — only meaningful in live view (or for live rows in all view) */}
+                  {(view === "live" || c.is_live) && (
+                    <div className="hidden text-right sm:block">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {view === "live" ? "Audience live" : "Live"}
+                      </p>
+                      <p className="text-sm font-semibold tabular-nums text-foreground">
+                        {formatViewers(c.live_viewer_count)}
+                      </p>
                     </div>
                   )}
-                </div>
 
-                {/* Live viewers */}
-                <div className="hidden text-right sm:block">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Live
-                  </p>
-                  <p className="text-sm font-semibold tabular-nums text-foreground">
-                    {formatViewers(c.live_viewer_count)}
-                  </p>
-                </div>
+                  {/* StreamScore — tinted by tier (red / orange / green) */}
+                  <div className="text-right">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Score
+                    </p>
+                    <p className={cn("text-sm font-semibold tabular-nums", tier.textClass)}>
+                      {c.stream_score}
+                    </p>
+                  </div>
 
-                {/* StreamScore */}
-                <div className="text-right">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Score
-                  </p>
-                  <p
-                    className={`text-sm font-semibold tabular-nums ${scoreColor(c.stream_score)}`}
-                  >
-                    {c.stream_score}
-                  </p>
-                </div>
-
-                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary" />
-              </Link>
-            ))}
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary" />
+                </Link>
+              );
+            })}
           </div>
         )}
 
