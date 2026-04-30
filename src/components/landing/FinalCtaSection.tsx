@@ -97,6 +97,7 @@ const FinalCtaSection = () => {
                 width={1024}
                 height={1280}
                 loading="lazy"
+              decoding="async"
                 className="absolute inset-0 h-full w-full object-cover"
                 style={{
                   opacity: inView ? 0.85 : 0,

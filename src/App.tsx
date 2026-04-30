@@ -26,6 +26,10 @@ const LastLivePage = lazy(() => import("./pages/LastLivePage.tsx"));
 const LivesPage = lazy(() => import("./pages/LivesPage.tsx"));
 const LiveDetailPage = lazy(() => import("./pages/LiveDetailPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const LegalTermsPage = lazy(() => import("./pages/LegalTermsPage.tsx"));
+const LegalPrivacyPage = lazy(() => import("./pages/LegalPrivacyPage.tsx"));
+const LegalMentionsPage = lazy(() => import("./pages/LegalMentionsPage.tsx"));
+const LegalCookiesPage = lazy(() => import("./pages/LegalCookiesPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -110,6 +114,10 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/legal/terms" element={<LegalTermsPage />} />
+                <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
+                <Route path="/legal/mentions" element={<LegalMentionsPage />} />
+                <Route path="/legal/cookies" element={<LegalCookiesPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

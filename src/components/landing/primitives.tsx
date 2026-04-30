@@ -21,7 +21,7 @@ export const SectionShell = ({
   glow?: boolean;
   grid?: boolean;
 }) => (
-  <section id={id} className={`relative overflow-hidden py-16 sm:py-20 md:py-28 lg:py-32 ${className}`}>
+  <section id={id} className={`relative overflow-hidden py-16 sm:py-20 md:py-28 lg:py-32 scroll-mt-24 md:scroll-mt-28 ${className}`}>
     {glow && (
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.06),transparent_60%)]" />
     )}

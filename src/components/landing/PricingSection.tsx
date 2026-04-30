@@ -22,13 +22,13 @@ const PLANS = [
       "Action prioritaire",
       "Sans connexion Twitch pour commencer",
     ],
-    cta: "Analyser ma chaîne",
+    cta: "Obtenir mon aperçu gratuit",
     recommended: false,
     note: null,
   },
   {
     name: "Suivi complet",
-    price: "9€",
+    price: "11,99 €",
     cadence: "/ mois",
     description:
       "Pour suivre ta progression, retrouver ton historique et aller plus loin après le premier diagnostic.",
@@ -54,14 +54,11 @@ const PricingSection = () => {
       openAuthModal({ redirectTo: "/dashboard" });
       return;
     }
-    // Free plan: scroll back to hero and focus the search input
-    const hero = document.querySelector<HTMLElement>("section");
-    hero?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
     setTimeout(() => {
-      const input = document.querySelector<HTMLInputElement>(
-        'input[type="text"], input[type="search"]',
-      );
-      input?.focus();
+      document
+        .querySelector<HTMLInputElement>('input[type="text"], input[type="search"]')
+        ?.focus();
     }, 600);
   };
 

@@ -173,8 +173,8 @@ const HeroSection = () => {
             Comprends ce qui bloque ta chaîne Twitch.
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground/90 md:text-lg">
-            Entre ton pseudo et découvre en moins d'une minute ton score, ton
-            principal frein de croissance et les premières actions à appliquer.
+            En moins d'une minute, sache exactement ce qui bloque ta chaîne —
+            et ce que tu dois corriger maintenant.
           </p>
         </div>
 

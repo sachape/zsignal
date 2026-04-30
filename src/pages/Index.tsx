@@ -1,10 +1,11 @@
 import LandingNav from "@/components/LandingNav";
 import HeroSection from "@/components/landing/HeroSection";
+import SocialProofSection from "@/components/landing/SocialProofSection";
 import DemoPreviewSection from "@/components/DemoPreviewSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import AudienceValueSection from "@/components/landing/AudienceValueSection";
-import ValueAnchorSection from "@/components/landing/ValueAnchorSection";
 import PricingSection from "@/components/landing/PricingSection";
+import ValueAnchorSection from "@/components/landing/ValueAnchorSection";
 import FaqSection from "@/components/landing/FaqSection";
 import FinalCtaSection from "@/components/landing/FinalCtaSection";
 import LandingFooter from "@/components/landing/LandingFooter";
@@ -15,21 +16,23 @@ const Index = () => {
       <LandingNav />
       {/* 1. Promesse */}
       <HeroSection />
-      {/* 2. Preuve produit */}
+      {/* 2. Preuve sociale */}
+      <SocialProofSection />
+      {/* 3. Aperçu du diagnostic */}
       <DemoPreviewSection />
-      {/* 3. Fonctionnement */}
+      {/* 4. Fonctionnement */}
       <HowItWorksSection />
-      {/* 4. Pour qui + bénéfices (fusion Personas + Features) */}
+      {/* 5. Fonctionnalités */}
       <AudienceValueSection />
-      {/* 5. Ancrage de valeur */}
-      <ValueAnchorSection />
       {/* 6. Prix */}
       <PricingSection />
-      {/* 6. Objections */}
+      {/* 7. Ancrage de valeur (après le prix pour réassurance) */}
+      <ValueAnchorSection />
+      {/* 8. Objections */}
       <FaqSection />
-      {/* 7. Action finale */}
+      {/* 9. Action finale */}
       <FinalCtaSection />
-      {/* 8. Footer */}
+      {/* 10. Footer */}
       <LandingFooter />
     </div>
   );

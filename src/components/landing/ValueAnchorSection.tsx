@@ -28,7 +28,7 @@ const OPTIONS = [
     highlight: false,
   },
   {
-    name: "StreamPulse",
+    name: "Streamnco",
     price: "11,99 €",
     cadence: "/ mois",
     note: "Sans engagement",
@@ -42,13 +42,11 @@ const ValueAnchorSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.2);
 
   const handleCta = () => {
-    const hero = document.querySelector<HTMLElement>("section");
-    hero?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
     setTimeout(() => {
-      const input = document.querySelector<HTMLInputElement>(
-        'input[type="text"], input[type="search"]',
-      );
-      input?.focus();
+      document
+        .querySelector<HTMLInputElement>('input[type="text"], input[type="search"]')
+        ?.focus();
     }, 600);
   };
 
@@ -89,7 +87,7 @@ const ValueAnchorSection = () => {
                 {opt.highlight && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary">
                     <Sparkles className="h-2.5 w-2.5" />
-                    Accessible
+                    Recommandé
                   </span>
                 )}
               </div>
@@ -127,7 +125,7 @@ const ValueAnchorSection = () => {
 
         <div className="mt-7 flex flex-col items-center gap-3">
           <Button size="lg" onClick={handleCta}>
-            Analyser ma chaîne
+            Voir mon diagnostic gratuit
           </Button>
           <p className="text-[11px] text-muted-foreground">
             Comprends d'abord ta chaîne avant d'investir plus loin.

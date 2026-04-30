@@ -42,7 +42,25 @@ const FEATURES = [
     description:
       "Score, viewers, régularité, objectifs : tout est suivi semaine après semaine pour repérer ce qui marche vraiment.",
     hero: true,
-    span: "md:col-span-3",
+    span: "md:col-span-4",
+  },
+  {
+    icon: Bell,
+    label: "Suivi",
+    title: "Sois alerté quand ton diagnostic évolue",
+    description:
+      "Score qui chute, blocage qui change, nouvel objectif débloqué : tu restes au courant sans avoir à relancer une analyse.",
+    hero: false,
+    span: "md:col-span-2",
+  },
+  {
+    icon: Map,
+    label: "Plan détaillé",
+    title: "Un plan d'action enrichi, pas une seule action",
+    description:
+      "Au-delà de la première action prioritaire, vois la séquence complète à exécuter pour passer le prochain cap.",
+    hero: false,
+    span: "md:col-span-2",
   },
   {
     icon: Users,
@@ -51,23 +69,7 @@ const FEATURES = [
     description:
       "Pas un benchmark flou contre tout Twitch : des comparaisons utiles à ton niveau, ta langue, ton format.",
     hero: true,
-    span: "md:col-span-3",
-  },
-  {
-    icon: Map,
-    label: "Plan détaillé",
-    title: "Un plan d'action enrichi, pas une seule action",
-    description:
-      "Au-delà de la première action prioritaire, vois la séquence complète à exécuter pour passer le prochain cap.",
-    span: "md:col-span-3",
-  },
-  {
-    icon: Bell,
-    label: "Suivi",
-    title: "Sois alerté quand ton diagnostic évolue",
-    description:
-      "Score qui chute, blocage qui change, nouvel objectif débloqué : tu restes au courant sans avoir à relancer une analyse.",
-    span: "md:col-span-3",
+    span: "md:col-span-4",
   },
 ];
 
@@ -86,20 +88,19 @@ const AudienceValueSection = () => {
   return (
     <SectionShell id="features">
       <SectionHeading
-        badge="Pour qui · pour quoi faire"
+        badge="Pour qui"
         title="Construit pour les streamers qui veulent vraiment progresser"
-        subtitle="Quel que soit ton stade, StreamPulse te montre où tu en es — et ce qui reste à débloquer avec le suivi complet."
+        subtitle="Quel que soit ton stade, Streamnco te montre où tu en es — et ce qui reste à débloquer avec le suivi complet."
       />
 
-      {/* Personas — condensed intro row */}
+      {/* Personas */}
       <div
         ref={personasRef}
         className="mx-auto mt-8 grid max-w-4xl gap-3 sm:grid-cols-3 md:mt-10"
         style={{
           opacity: personasInView ? 1 : 0,
           transform: personasInView ? "translateY(0)" : "translateY(16px)",
-          transition:
-            "opacity 700ms cubic-bezier(0.16,1,0.3,1), transform 700ms cubic-bezier(0.16,1,0.3,1)",
+          transition: "opacity 700ms cubic-bezier(0.16,1,0.3,1), transform 700ms cubic-bezier(0.16,1,0.3,1)",
         }}
       >
         {PERSONAS.map(({ icon: Icon, profile, pitch, highlighted }) => (
@@ -116,19 +117,17 @@ const AudienceValueSection = () => {
                 highlighted ? "bg-primary/15" : "bg-muted/40"
               }`}
             >
-              <Icon
-                className={`h-4 w-4 ${highlighted ? "text-primary" : "text-foreground/70"}`}
-              />
+              <Icon className={`h-4 w-4 ${highlighted ? "text-primary" : "text-foreground/70"}`} />
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">{profile}</p>
-              <p className="truncate text-[11.5px] text-foreground/65">{pitch}</p>
+              <p className="text-[11.5px] text-foreground/65 leading-snug">{pitch}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Features — value grid */}
+      {/* Features — bento grid */}
       <div className="mx-auto mt-10 max-w-6xl md:mt-12">
         <p className="mb-5 text-center text-xs font-semibold uppercase tracking-wider text-foreground/60">
           Ce que tu débloques avec le suivi complet
@@ -140,11 +139,7 @@ const AudienceValueSection = () => {
           {FEATURES.map((feat, i) => {
             const { icon: Icon } = feat;
             return (
-              <div
-                key={feat.title}
-                style={stagger(i, featuresInView)}
-                className={feat.span}
-              >
+              <div key={feat.title} style={stagger(i, featuresInView)} className={feat.span}>
                 <GlassCard hero={feat.hero} className="flex h-full flex-col p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>

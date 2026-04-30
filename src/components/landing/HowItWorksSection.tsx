@@ -10,7 +10,7 @@ const STEPS = [
   },
   {
     icon: Activity,
-    title: "StreamPulse analyse ta chaîne",
+    title: "Streamnco analyse ta chaîne",
     description:
       "Score, blocage principal, progression vers l'objectif et premières recommandations.",
   },
@@ -30,7 +30,7 @@ const HowItWorksSection = () => {
       <SectionHeading
         badge="Comment ça marche"
         title="Trois étapes, zéro friction"
-        subtitle="Tu lances l'analyse, StreamPulse lit les signaux utiles de ta chaîne et te montre où agir en priorité."
+        subtitle="Tu lances l'analyse, Streamnco lit les signaux utiles de ta chaîne et te montre où agir en priorité."
       />
 
       <div
