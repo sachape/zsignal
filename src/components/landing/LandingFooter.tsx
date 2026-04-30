@@ -28,7 +28,7 @@ const LandingFooter = () => (
             <Zap className="h-3.5 w-3.5 text-primary-foreground" />
           </div>
           <span className="text-sm font-semibold text-foreground">
-            StreamPulse
+            Streamnco
           </span>
         </Link>
 
@@ -50,7 +50,7 @@ const LandingFooter = () => (
       </div>
 
       <div className="mt-8 flex flex-col items-start justify-between gap-2 border-t border-white/[0.06] pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
-        <p>© 2026 StreamPulse</p>
+        <p>© 2026 Streamnco</p>
         <p className="inline-flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-primary/70 shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
           Lecture seule · aucune publication sur ta chaîne

@@ -58,7 +58,7 @@ export function buildInactivityRelance(
       daysSinceLast: null,
       title: "Lance un premier live pour activer ton suivi.",
       description:
-        "StreamPulse commencera à lire ta chaîne dès la première session.",
+        "Streamnco commencera à lire ta chaîne dès la première session.",
     };
   }
 

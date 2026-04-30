@@ -148,7 +148,7 @@ const LivesPage = () => {
                 Aucun live détecté pour le moment.
               </p>
               <p className="max-w-md text-sm text-muted-foreground">
-                Dès que tu lances un stream, StreamPulse créera automatiquement
+                Dès que tu lances un stream, Streamnco créera automatiquement
                 une session et un débrief.
               </p>
             </CardContent>

@@ -13,7 +13,7 @@ interface TwitchAccount {
 }
 
 /**
- * Module-level cache of the resolved Twitch identity per StreamPulse user.
+ * Module-level cache of the resolved Twitch identity per Streamnco user.
  *
  * Why a module cache: previously, every component using this hook owned its
  * own state and every route mount started at `loading=true, account=null`.

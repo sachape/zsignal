@@ -208,7 +208,7 @@ const DemoPreviewSection = () => {
             Voilà ce que tu vois dès la première analyse
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground/90">
-            En moins d'une minute, StreamPulse te montre ton niveau, ce qui te
+            En moins d'une minute, Streamnco te montre ton niveau, ce qui te
             freine et les prochaines actions à tester.
           </p>
         </div>
