@@ -895,11 +895,6 @@ const ResultPage = () => {
           </Card>
         )}
       </PageContainer>
-      <TwitchUnlockModal
-        open={unlockModalOpen}
-        onOpenChange={setUnlockModalOpen}
-        teaserId={teaserId}
-      />
     </AppShell>
   );
 };
