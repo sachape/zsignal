@@ -13,9 +13,7 @@ import {
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import ScoreCard from "@/components/ScoreCard";
 import ScoreInsightCard from "@/components/ScoreInsightCard";
-
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
@@ -53,9 +51,8 @@ import WeeklyMilestoneCard from "@/components/WeeklyMilestoneCard";
 import InactivityRelanceCard from "@/components/InactivityRelanceCard";
 import LastVsAverageCard from "@/components/LastVsAverageCard";
 import { resolveCockpitFocusSlot, type CockpitFocusSlot } from "@/services/cockpitFocus";
-
 import { onboardingFlags } from "@/services/onboardingFlags";
-
+import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -75,9 +72,8 @@ const DashboardPage = () => {
   const [liveSnapshot, setLiveSnapshot] = useState<LiveCockpitSnapshot | null>(null);
   const [focusSlot, setFocusSlot] = useState<CockpitFocusSlot>("none");
   const [manualRefreshing, setManualRefreshing] = useState(false);
+  const [ringMounted, setRingMounted] = useState(false);
 
-  // Welcome banner: show only on first visit after Twitch connection.
-  // Robust to refreshes: relies on the durable cockpit_welcome_dismissed flag.
   const welcomeRequested = searchParams.get("welcome") === "1";
   const [showWelcome, setShowWelcome] = useState(
     () => welcomeRequested && !onboardingFlags.isCockpitWelcomeDismissed(),
@@ -116,14 +112,9 @@ const DashboardPage = () => {
       setSyncSnapshot(null);
     }
 
-    // Live sessions snapshot is independent from analysis reports — it is
-    // populated by the live-detect cron and only depends on the connected
-    // Twitch account, so we always try to refresh it on dashboard loads.
     try {
       const live = await getLiveCockpitSnapshot(user.id);
       setLiveSnapshot(live);
-      // Resolve which block owns the "focus" slot. Exclusive by design:
-      // the milestone and the inactivity card never render together.
       const ended = await listLiveSessions(user.id, 14);
       setFocusSlot(resolveCockpitFocusSlot(live.current, ended));
     } catch {
@@ -195,6 +186,13 @@ const DashboardPage = () => {
     };
   }, [user, loadDashboardState]);
 
+  // Replay ring animation whenever a new report is loaded.
+  useEffect(() => {
+    setRingMounted(false);
+    const id = requestAnimationFrame(() => setRingMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, [currentReport?.id]);
+
   const handleManualRefresh = useCallback(async () => {
     if (manualRefreshing) return;
     setManualRefreshing(true);
@@ -211,7 +209,6 @@ const DashboardPage = () => {
     );
   }
 
-  // Connected, first analysis pending
   if (isConnected && account && !currentReport) {
     const displayName = account.platform_display_name || account.platform_login || "ta chaîne";
     return (
@@ -326,37 +323,26 @@ const DashboardPage = () => {
   const foundation = diagnoseFoundationMode(report);
   const foundationActive = foundation.isActive && !currentReport.is_demo;
 
+  // Premium design derived state
+  const tier = getScoreTier(score.overall);
+  const theme = getTierTheme(tier);
+  const narrative = buildScoreNarrative(score);
+  const ringRadius = 65;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringProgress = (score.overall / 100) * ringCircumference;
+  const avatarUrl = report.identity?.avatar_url ?? null;
+  const platformLogin = account?.platform_login ?? report.identity?.platform_login ?? null;
+  const categoryFact = Array.isArray(report.facts)
+    ? (report.facts.find((f) => f.key === "dominant_category")?.value as string | undefined)
+    : undefined;
+  const displayCategory = categoryFact?.trim() || null;
+
+  const strokeColor = `hsl(${theme.strokeVar})`;
 
   return (
     <AppShell>
       <PageContainer>
-        <PageHeader
-          eyebrow="Cockpit"
-          title={headerTitle}
-          avatarUrl={report.identity?.avatar_url ?? null}
-          avatarLogin={account?.platform_login ?? report.identity?.platform_login ?? null}
-          badges={[
-            ...(summary.broadcaster_type === "partner"
-              ? [{ label: "Partenaire", variant: "accent" as const }]
-              : summary.broadcaster_type === "affiliate"
-                ? [{ label: "Affilié", variant: "secondary" as const }]
-                : []),
-            ...(summary.is_live ? [{ label: "Live", variant: "destructive" as const }] : []),
-          ]}
-          description="Voici comment avancer cette semaine."
-          action={
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              <Link to={`/result?report_id=${currentReport.id}`}>
-                <FileText className="h-3.5 w-3.5" /> Rapport complet
-              </Link>
-            </Button>
-          }
-        />
-
-        {/* Slim welcome banner — first cockpit visit only. Dismissable.
-            Kept minimal on purpose: no walkthrough, no checklist, no hotspots.
-            The three shortcuts at the bottom of the cockpit already cover
-            navigation, so the welcome stays purely orientational. */}
+        {/* Welcome banner */}
         {showWelcome && (
           <div className="mb-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-4 sm:items-center sm:p-5">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -382,47 +368,259 @@ const DashboardPage = () => {
           </div>
         )}
 
-        {/* Top state strip — kept minimal: score + sync only.
-            Évolution is demoted into the Sync card subtext to reduce
-            analytical noise on the dashboard. */}
-        <div className="mb-6 grid gap-3 sm:grid-cols-2">
-          <ScoreCard score={score.overall} />
-          <SyncStatusCard
-            state={syncSnapshot?.state ?? ("synchronized" as SyncState)}
-            lastUpdatedLabel={
-              currentReport
-                ? `${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}${
-                    delta === null
-                      ? ""
-                      : delta === 0
-                        ? " · stable"
-                        : delta > 0
-                          ? ` · +${delta} pts`
-                          : ` · ${delta} pts`
-                  }`
-                : null
-            }
-            onManualRefresh={handleManualRefresh}
-            manualBusy={manualRefreshing}
-          />
+        {/* Identity strip */}
+        <div className="relative mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl sm:p-6">
+          <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-primary/[0.07] blur-3xl" aria-hidden />
+          <div className="pointer-events-none absolute bottom-0 right-0 h-32 w-64 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.06),transparent_60%)]" aria-hidden />
+
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* Avatar + name */}
+            <div className="flex items-center gap-4">
+              <div className="relative shrink-0">
+                <div className="h-14 w-14 overflow-hidden rounded-full bg-muted ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={headerTitle}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xl font-bold text-muted-foreground">
+                      {headerTitle.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                {summary.is_live && (
+                  <span
+                    className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive ring-2 ring-background"
+                    aria-hidden
+                  >
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                  </span>
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="truncate text-lg font-bold tracking-tight text-foreground">
+                    {headerTitle}
+                  </h1>
+                  {summary.broadcaster_type === "partner" && (
+                    <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                      Partenaire
+                    </span>
+                  )}
+                  {summary.broadcaster_type === "affiliate" && (
+                    <span className="shrink-0 rounded-full border border-border/50 bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Affilié
+                    </span>
+                  )}
+                  {summary.is_live && (
+                    <span className="shrink-0 rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+                      En live
+                    </span>
+                  )}
+                </div>
+                <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                  {platformLogin ? `@${platformLogin}` : "Twitch"}
+                  {displayCategory ? ` · ${displayCategory}` : ""}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground/60">
+                  Analysé {formatSyncRelative(currentReport.created_at)}
+                  {currentReport.is_demo && (
+                    <span className="ml-1.5 rounded-sm bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      démo
+                    </span>
+                  )}
+                  {delta !== null && delta !== 0 && (
+                    <span
+                      className={`ml-2 font-semibold ${delta > 0 ? "text-primary" : "text-destructive"}`}
+                    >
+                      {delta > 0 ? `+${delta}` : delta} pts
+                    </span>
+                  )}
+                  {delta === 0 && (
+                    <span className="ml-2 font-medium text-muted-foreground">Stable</span>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex shrink-0 items-center gap-2">
+              <Button asChild size="sm">
+                <Link to={`/result?report_id=${currentReport.id}`}>
+                  <FileText className="h-3.5 w-3.5" />
+                  Rapport complet
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* "Pourquoi ce score" — compact reading on the cockpit so the
-            score never reads as a bare number. Hidden if no breakdown. */}
-        {score.breakdown.length > 0 && (
+        {/* Score bento: large ring left, focus content right */}
+        <div className="mb-6 grid gap-4 md:grid-cols-[220px_1fr]">
+          {/* Score ring column */}
+          <div className="relative flex flex-col items-center overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl">
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background: `radial-gradient(circle at 50% 10%, hsl(${theme.strokeVar} / 0.08), transparent 65%)`,
+              }}
+              aria-hidden
+            />
+
+            {/* Ring */}
+            <div className="relative h-40 w-40">
+              <svg
+                viewBox="0 0 160 160"
+                className="h-full w-full -rotate-90"
+                aria-label={`StreamScore ${score.overall} sur 100`}
+              >
+                {/* Track */}
+                <circle
+                  cx="80"
+                  cy="80"
+                  r={ringRadius}
+                  fill="none"
+                  stroke="hsl(var(--muted))"
+                  strokeWidth="10"
+                />
+                {/* Progress */}
+                <circle
+                  cx="80"
+                  cy="80"
+                  r={ringRadius}
+                  fill="none"
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  strokeDasharray={ringCircumference}
+                  style={{
+                    stroke: strokeColor,
+                    strokeDashoffset: ringMounted
+                      ? ringCircumference - ringProgress
+                      : ringCircumference,
+                    transition: ringMounted
+                      ? "stroke-dashoffset 1.6s cubic-bezier(0.16,1,0.3,1)"
+                      : "none",
+                    filter: `drop-shadow(0 0 8px ${strokeColor})`,
+                  }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className={`text-4xl font-bold tracking-tight ${theme.textClass}`}>
+                  {score.overall}
+                </span>
+                <span className="mt-0.5 text-[11px] text-muted-foreground">/ 100</span>
+              </div>
+            </div>
+
+            {/* Tier badge */}
+            <div
+              className={`relative mt-3 rounded-full border px-3 py-1 text-[10.5px] font-semibold uppercase tracking-wider ${theme.surfaceClass}`}
+            >
+              {theme.label}
+            </div>
+
+            {/* Delta */}
+            {delta !== null && (
+              <p
+                className={`relative mt-2 text-xs font-semibold ${
+                  delta > 0
+                    ? "text-primary"
+                    : delta < 0
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                }`}
+              >
+                {delta > 0 ? `↑ +${delta} pts` : delta < 0 ? `↓ ${delta} pts` : "→ Stable"}
+              </p>
+            )}
+
+            {/* Mini dimension breakdown */}
+            {narrative.miniBreakdown.length > 0 && (
+              <div className="relative mt-5 w-full space-y-3">
+                {narrative.miniBreakdown.map((dim) => {
+                  const dimTheme = getTierTheme(dim.tier);
+                  return (
+                    <div key={dim.label}>
+                      <div className="mb-1.5 flex items-center justify-between text-[10px]">
+                        <span className="text-muted-foreground">{dim.label}</span>
+                        <span className={`font-semibold ${dimTheme.textClass}`}>{dim.score}</span>
+                      </div>
+                      <div className="h-1 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={`h-full rounded-full transition-all duration-700 ease-out ${dimTheme.progressClass}`}
+                          style={{ width: ringMounted ? `${dim.score}%` : "0%" }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Right column: sync status + insight or foundation content */}
+          <div className="space-y-3">
+            <SyncStatusCard
+              state={syncSnapshot?.state ?? ("synchronized" as SyncState)}
+              lastUpdatedLabel={
+                currentReport
+                  ? `${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}${
+                      delta === null
+                        ? ""
+                        : delta === 0
+                          ? " · stable"
+                          : delta > 0
+                            ? ` · +${delta} pts`
+                            : ` · ${delta} pts`
+                    }`
+                  : null
+              }
+              onManualRefresh={handleManualRefresh}
+              manualBusy={manualRefreshing}
+            />
+            {foundationActive ? (
+              <>
+                <FoundationModeBanner reasons={foundation.reasons} />
+                <MainBlockerCard blocker={foundation.blocker} reportId={currentReport.id} />
+              </>
+            ) : (
+              score.breakdown.length > 0 && <ScoreInsightCard score={score} compact />
+            )}
+          </div>
+        </div>
+
+        {/* Foundation weekly sequence — full width if active */}
+        {foundationActive && (
           <div className="mb-6">
-            <ScoreInsightCard score={score} compact />
+            <WeeklySequenceCard actions={foundation.sequence} showPlanLink />
           </div>
         )}
 
-        {/* Live stack — single continuous reading, top → bottom:
-            1. État actuel        (LiveStatusCard, primary)
-            2. Mise en contexte   (LastVsAverageCard, secondary, hidden if low signal)
-            3. Direction          (Milestone OR Inactivity, exclusive slot)
-            4. Exécution          (Pre-live checklist, hidden in live)
-            5. Vigilance          (Smart alerts, hidden in live / no recent live)
-            Cards self-suppress when their state is owned by a card above,
-            so the stack collapses to whatever is actually relevant. */}
+        {/* Followers scope warning */}
+        {!followersAvailable && !currentReport.is_demo && (
+          <Card className="mb-6 border-warning/30 bg-warning/5">
+            <CardContent className="flex flex-wrap items-center gap-3 p-3">
+              <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
+              <p className="min-w-0 flex-1 text-xs text-foreground">
+                {followersMissingScope
+                  ? "Ton total de followers n'est pas encore lisible. Reconnecte Twitch pour l'afficher avec précision."
+                  : "Ton total de followers n'a pas pu être lu lors de cette analyse. Relance une analyse pour réessayer."}
+              </p>
+              {followersMissingScope && (
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/connect-twitch">Reconnecter Twitch</Link>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Live stack */}
         <div className="mb-6 space-y-2.5">
           <LiveStatusCard
             current={liveSnapshot?.current ?? null}
@@ -444,94 +642,55 @@ const DashboardPage = () => {
           <SmartAlertsCard current={liveSnapshot?.current ?? null} />
         </div>
 
-        {/* Followers warning if applicable */}
-        {!followersAvailable && !currentReport.is_demo && (
-          <Card className="mb-6 border-warning/30 bg-warning/5">
-            <CardContent className="flex flex-wrap items-center gap-3 p-3">
-              <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
-              <p className="min-w-0 flex-1 text-xs text-foreground">
-                {followersMissingScope
-                  ? "Ton total de followers n'est pas encore lisible. Reconnecte Twitch pour l'afficher avec précision."
-                  : "Ton total de followers n'a pas pu être lu lors de cette analyse. Relance une analyse pour réessayer."}
-              </p>
-              {followersMissingScope && (
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/connect-twitch">Reconnecter Twitch</Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Foundation mode: structuring coach takes over the top of the page.
-            We surface the main blocker and a short ordered weekly sequence,
-            and we demote optimization analytics until the channel produces
-            enough signal to be worth optimizing. */}
-        {foundationActive && (
-          <>
-            <FoundationModeBanner reasons={foundation.reasons} />
-            <MainBlockerCard blocker={foundation.blocker} reportId={currentReport.id} />
-            <WeeklySequenceCard actions={foundation.sequence} showPlanLink />
-          </>
-        )}
-
-        {/* Next milestone — reframed as a near-term objective with rationale.
-            In foundation mode the copy explicitly says stability comes first. */}
+        {/* Next milestone */}
         <NextMilestoneCard
           milestone={nextMilestone}
           reportId={currentReport.id}
           foundationActive={foundationActive}
         />
 
-        {/* Three shortcuts to the rest of the product. The cockpit itself
-            stays decisional — detailed analytics, the full weekly plan and
-            the benchmark grid live on their own pages. */}
+        {/* Premium shortcut cards */}
         <div className="mb-8 grid gap-3 sm:grid-cols-3">
-          <Link
-            to={`/result?report_id=${currentReport.id}`}
-            className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
-          >
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <BarChart3 className="h-4 w-4 text-primary" />
-                Diagnostic détaillé
+          {(
+            [
+              {
+                to: `/result?report_id=${currentReport.id}`,
+                icon: BarChart3,
+                label: "Diagnostic détaillé",
+                desc: "Pourquoi ton score est ce qu'il est.",
+              },
+              {
+                to: "/plan",
+                icon: CalendarCheck,
+                label: "Plan de la semaine",
+                desc: "Ce que tu exécutes maintenant.",
+              },
+              {
+                to: "/competitors",
+                icon: UsersIcon,
+                label: "Benchmark",
+                desc: "Ce que tu observes chez les autres.",
+              },
+            ] as const
+          ).map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="group relative overflow-hidden rounded-xl border border-white/[0.06] bg-card/40 p-4 backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04] hover:shadow-[0_0_40px_-12px_hsl(var(--primary)/0.4)]"
+            >
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,hsl(var(--primary)/0.10),transparent_60%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="relative flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <item.icon className="h-4 w-4 shrink-0 text-primary" />
+                    {item.label}
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{item.desc}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
               </div>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Pourquoi ton score est ce qu'il est.
-              </p>
-            </div>
-            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-          </Link>
-          <Link
-            to="/plan"
-            className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
-          >
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <CalendarCheck className="h-4 w-4 text-primary" />
-                Plan de la semaine
-              </div>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Ce que tu exécutes maintenant.
-              </p>
-            </div>
-            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-          </Link>
-          <Link
-            to="/competitors"
-            className="group flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
-          >
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <UsersIcon className="h-4 w-4 text-primary" />
-                Benchmark
-              </div>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Ce que tu observes chez les autres.
-              </p>
-            </div>
-            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-          </Link>
+            </Link>
+          ))}
         </div>
       </PageContainer>
     </AppShell>
