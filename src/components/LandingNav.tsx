@@ -22,7 +22,7 @@ const LandingNav = () => {
             <Zap className="h-3.5 w-3.5 text-primary-foreground" />
           </div>
           <span className="text-sm font-semibold text-foreground">
-            StreamPulse
+            Streamnco
           </span>
         </Link>
         <div className="flex items-center gap-2">

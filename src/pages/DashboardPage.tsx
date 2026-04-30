@@ -55,8 +55,7 @@ import LastVsAverageCard from "@/components/LastVsAverageCard";
 import { resolveCockpitFocusSlot, type CockpitFocusSlot } from "@/services/cockpitFocus";
 
 import { onboardingFlags } from "@/services/onboardingFlags";
-
-
+import ConnectTwitchPromptModal from "@/components/ConnectTwitchPromptModal";
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
     day: "2-digit",
@@ -79,6 +78,7 @@ const DashboardPage = () => {
   // Welcome banner: show only on first visit after Twitch connection.
   // Robust to refreshes: relies on the durable cockpit_welcome_dismissed flag.
   const welcomeRequested = searchParams.get("welcome") === "1";
+  const welcomeSignup = searchParams.get("welcome_signup") === "1";
   const [showWelcome, setShowWelcome] = useState(
     () => welcomeRequested && !onboardingFlags.isCockpitWelcomeDismissed(),
   );
@@ -86,6 +86,16 @@ const DashboardPage = () => {
     onboardingFlags.dismissCockpitWelcome();
     setShowWelcome(false);
   }, []);
+
+  // Twitch connect prompt: shown after Streamnco signup (or any cockpit
+  // visit where the SaaS account exists but Twitch is not yet connected).
+  // Honors the `connect_twitch_prompt_dismissed` durable flag.
+  const [showConnectTwitch, setShowConnectTwitch] = useState(false);
+
+  // Mismatch banner: teaser channel A vs Twitch account B finally connected.
+  // Read once at mount; cleared by the user via the banner CTA.
+  const [teaserMismatch, setTeaserMismatch] = useState<string | null>(null);
+
   const autoTriggeredRef = useRef(false);
   const processingRef = useRef(false);
 
@@ -195,6 +205,37 @@ const DashboardPage = () => {
     };
   }, [user, loadDashboardState]);
 
+  // Auto-open the Twitch connect prompt when the Streamnco user lands on
+  // the cockpit without a Twitch connection. We honor the durable
+  // `connect_twitch_prompt_dismissed` flag so it never re-opens after
+  // explicit "Plus tard". Forced open when ?welcome_signup=1 (immediately
+  // after Streamnco signup, regardless of the dismissed flag).
+  useEffect(() => {
+    if (!user || connectionLoading) return;
+    if (isConnected) return;
+    const dismissed = onboardingFlags.isConnectTwitchPromptDismissed();
+    if (welcomeSignup) {
+      onboardingFlags.resetConnectTwitchPrompt();
+      setShowConnectTwitch(true);
+      return;
+    }
+    if (!dismissed) setShowConnectTwitch(true);
+  }, [user, connectionLoading, isConnected, welcomeSignup]);
+
+  // Detect mismatch: teaser channel persisted before signup vs the Twitch
+  // login finally connected to the Streamnco account.
+  useEffect(() => {
+    if (!isConnected || !account?.platform_login) return;
+    const teaserLogin = onboardingFlags.getPendingTeaserChannel();
+    if (!teaserLogin) return;
+    const a = teaserLogin.trim().toLowerCase();
+    const b = account.platform_login.trim().toLowerCase();
+    if (a && a !== b) {
+      setTeaserMismatch(teaserLogin);
+    }
+    onboardingFlags.clearPendingTeaserChannel();
+  }, [isConnected, account]);
+
   const handleManualRefresh = useCallback(async () => {
     if (manualRefreshing) return;
     setManualRefreshing(true);
@@ -203,10 +244,27 @@ const DashboardPage = () => {
     setManualRefreshing(false);
   }, [manualRefreshing, loadDashboardState]);
 
+  const handleDismissConnectTwitch = () => {
+    onboardingFlags.dismissConnectTwitchPrompt();
+    setShowConnectTwitch(false);
+  };
+
+  const connectPromptModal = (
+    <ConnectTwitchPromptModal
+      open={showConnectTwitch}
+      onOpenChange={(o) => {
+        if (!o) handleDismissConnectTwitch();
+        else setShowConnectTwitch(true);
+      }}
+      onLater={handleDismissConnectTwitch}
+    />
+  );
+
   if (loading) {
     return (
       <AppShell>
         <LoadingState />
+      {connectPromptModal}
       </AppShell>
     );
   }
@@ -247,6 +305,7 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
         </PageContainer>
+      {connectPromptModal}
       </AppShell>
     );
   }
@@ -261,6 +320,7 @@ const DashboardPage = () => {
           />
           <EmptyReportState />
         </PageContainer>
+      {connectPromptModal}
       </AppShell>
     );
   }
@@ -286,6 +346,7 @@ const DashboardPage = () => {
             }
           />
         </PageContainer>
+      {connectPromptModal}
       </AppShell>
     );
   }
@@ -352,6 +413,35 @@ const DashboardPage = () => {
             </Button>
           }
         />
+
+        {/* Mismatch banner — teaser channel ≠ Twitch account finally connected.
+            Explicit, non-blocking, dismissable. Cleared once acknowledged. */}
+        {teaserMismatch && account?.platform_login && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/5 p-4 sm:items-center sm:p-5">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning sm:mt-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground">
+                Ta chaîne suivie est désormais{" "}
+                <span className="text-primary">@{account.platform_login}</span>
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+                Tu avais analysé{" "}
+                <span className="font-medium text-foreground">@{teaserMismatch}</span>{" "}
+                en aperçu, mais ton compte Streamnco est maintenant relié à la
+                chaîne Twitch ci-dessus. Tout le suivi se fera sur cette chaîne.
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTeaserMismatch(null)}
+              aria-label="Fermer le message"
+              className="-mr-1 shrink-0 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
         {/* Slim welcome banner — first cockpit visit only. Dismissable.
             Kept minimal on purpose: no walkthrough, no checklist, no hotspots.
@@ -534,7 +624,8 @@ const DashboardPage = () => {
           </Link>
         </div>
       </PageContainer>
-    </AppShell>
+    {connectPromptModal}
+      </AppShell>
   );
 };
 

@@ -28,7 +28,7 @@ const OPTIONS = [
     highlight: false,
   },
   {
-    name: "StreamPulse",
+    name: "Streamnco",
     price: "11,99 €",
     cadence: "/ mois",
     note: "Sans engagement",

@@ -195,7 +195,7 @@ export function buildWeeklyPlan(input: BuildInput): WeeklyPlanView {
       priority: {
         title: "Lance un premier live pour activer ton plan.",
         detail:
-          "StreamPulse commencera à lire ta chaîne dès la première session complète.",
+          "Streamnco commencera à lire ta chaîne dès la première session complète.",
       },
       actions: [
         "Bloque un créneau réaliste cette semaine.",

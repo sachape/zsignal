@@ -18,6 +18,8 @@ const KEYS = {
   firstEnrichedSeen: "sp_first_enriched_result_seen",
   cockpitWelcomeDismissed: "sp_cockpit_welcome_dismissed",
   pendingTeaserId: "sp_pending_teaser_id",
+  pendingTeaserChannel: "sp_pending_teaser_channel",
+  connectTwitchPromptDismissed: "sp_connect_twitch_prompt_dismissed",
 } as const;
 
 const safeGet = (k: string): string | null => {
@@ -59,4 +61,16 @@ export const onboardingFlags = {
   setPendingTeaserId: (id: string) => safeSet(KEYS.pendingTeaserId, id),
   getPendingTeaserId: () => safeGet(KEYS.pendingTeaserId),
   clearPendingTeaserId: () => safeDel(KEYS.pendingTeaserId),
+
+  // pending teaser channel name (for mismatch detection after OAuth)
+  setPendingTeaserChannel: (login: string) => safeSet(KEYS.pendingTeaserChannel, login),
+  getPendingTeaserChannel: () => safeGet(KEYS.pendingTeaserChannel),
+  clearPendingTeaserChannel: () => safeDel(KEYS.pendingTeaserChannel),
+
+  // connect_twitch_prompt_dismissed (Streamnco signup → Twitch prompt)
+  isConnectTwitchPromptDismissed: () =>
+    safeGet(KEYS.connectTwitchPromptDismissed) === "1",
+  dismissConnectTwitchPrompt: () =>
+    safeSet(KEYS.connectTwitchPromptDismissed, "1"),
+  resetConnectTwitchPrompt: () => safeDel(KEYS.connectTwitchPromptDismissed),
 };

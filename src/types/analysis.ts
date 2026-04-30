@@ -1,4 +1,4 @@
-// Domain types for the StreamPulse analysis pipeline
+// Domain types for the Streamnco analysis pipeline
 
 export type JobStatus = 'queued' | 'processing' | 'done' | 'failed';
 

@@ -42,7 +42,7 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
-import TwitchUnlockModal from "@/components/TwitchUnlockModal";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import QualitativeScoreCard from "@/components/QualitativeScoreCard";
 import ScoreInsightCard from "@/components/ScoreInsightCard";
@@ -73,7 +73,7 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const { openAuthModal } = useAuthModal();
   const { account: twitchAccount, loading: twitchLoading } = useTwitchConnection();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
@@ -386,16 +386,25 @@ const ResultPage = () => {
     if (teaserId) {
       onboardingFlags.setPendingTeaserId(teaserId);
     }
+    // Persist the teaser channel name so we can detect a mismatch later
+    // (teaser channel A vs Twitch account B connected after signup).
+    if (teaserCtaChannel) {
+      onboardingFlags.setPendingTeaserChannel(teaserCtaChannel);
+    }
     if (user) {
-      // Authenticated: go straight to the Twitch connection surface (which
-      // kicks off OAuth). We do not show the generic auth modal here — this
-      // flow is Twitch-first.
+      // Already a Streamnco account: go straight to the Twitch connection
+      // surface (which kicks off OAuth).
       navigate(`/connect-twitch${teaserId ? `?teaser=${teaserId}` : ""}`);
       return;
     }
-    // Unauthenticated: open the Twitch-first unlock modal. No email / password
-    // / Google surface is shown on this path.
-    setUnlockModalOpen(true);
+    // No Streamnco account yet → open the Streamnco signup modal first.
+    // Twitch is connected later, from the cockpit, via the dedicated prompt.
+    openAuthModal({
+      redirectTo: "/dashboard?welcome_signup=1",
+      pendingChannel: teaserCtaChannel || null,
+      contextText:
+        "Crée ton compte Streamnco pour sauvegarder ce diagnostic. Tu connecteras Twitch juste après pour débloquer le suivi complet.",
+    });
   };
 
   const summary = report.channel_summary;
@@ -730,7 +739,7 @@ const ResultPage = () => {
                     ? "Connecte Twitch pour voir tous les concurrents pertinents"
                     : "Connecte Twitch pour voir plus de concurrents"
                 }
-                cta="Continuer avec Twitch"
+                cta={user ? "Continuer avec Twitch" : "Créer mon compte Streamnco"}
                 onUnlock={handleUnlock}
               />
             </div>
@@ -875,17 +884,12 @@ const ResultPage = () => {
                     : "Connecte Twitch pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button onClick={handleUnlock} className="mt-2">
-                Continuer avec Twitch
+                {user ? "Continuer avec Twitch" : "Créer mon compte Streamnco"}
               </Button>
             </CardContent>
           </Card>
         )}
       </PageContainer>
-      <TwitchUnlockModal
-        open={unlockModalOpen}
-        onOpenChange={setUnlockModalOpen}
-        teaserId={teaserId}
-      />
     </AppShell>
   );
 };

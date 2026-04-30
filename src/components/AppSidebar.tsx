@@ -84,7 +84,7 @@ const AppSidebar = () => {
           </div>
           {!collapsed && (
             <span className="text-sm font-semibold text-foreground">
-              StreamPulse
+              Streamnco
             </span>
           )}
         </NavLink>
@@ -131,7 +131,7 @@ const AppSidebar = () => {
             {!collapsed && (
               <div className="min-w-0 flex-1">
                 <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-                  Compte StreamPulse
+                  Compte Streamnco
                 </p>
                 <p className="truncate text-xs font-medium text-foreground">
                   {user.email}

@@ -44,14 +44,14 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
                 <Zap className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
               <span className="text-sm font-semibold text-foreground">
-                StreamPulse
+                Streamnco
               </span>
             </div>
             <DialogTitle className="text-center text-base">
-              Bienvenue
+              Bienvenue sur Streamnco
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Connecte-toi ou crée un compte pour continuer.
+              Crée ton compte Streamnco ou connecte-toi pour continuer.
             </DialogDescription>
           </DialogHeader>
           <AuthForm

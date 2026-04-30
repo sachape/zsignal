@@ -11,11 +11,11 @@ import { SectionHeading, SectionShell } from "./primitives";
 const FAQS = [
   {
     q: "Faut-il connecter Twitch pour commencer ?",
-    a: "Non. Entre simplement ton pseudo : StreamPulse lit les signaux publics de ta chaîne pour générer un premier diagnostic. La connexion Twitch arrive seulement si tu veux le suivi complet.",
+    a: "Non. Entre simplement ton pseudo : Streamnco lit les signaux publics de ta chaîne pour générer un premier diagnostic. La connexion Twitch arrive seulement si tu veux le suivi complet.",
   },
   {
     q: "Quelles données sont analysées ?",
-    a: "StreamPulse analyse les signaux utiles de ta chaîne : régularité, progression vers l'objectif, dynamiques visibles et premiers indicateurs de performance. Le niveau de détail augmente avec le suivi complet.",
+    a: "Streamnco analyse les signaux utiles de ta chaîne : régularité, progression vers l'objectif, dynamiques visibles et premiers indicateurs de performance. Le niveau de détail augmente avec le suivi complet.",
   },
   {
     q: "Puis-je essayer sans créer de compte ?",
@@ -27,11 +27,11 @@ const FAQS = [
   },
   {
     q: "Est-ce utile si je débute ?",
-    a: "Oui. StreamPulse n'est pas réservé aux grosses chaînes. L'outil est justement utile pour poser de bonnes bases, éviter les erreurs classiques et suivre une progression plus claire.",
+    a: "Oui. Streamnco n'est pas réservé aux grosses chaînes. L'outil est justement utile pour poser de bonnes bases, éviter les erreurs classiques et suivre une progression plus claire.",
   },
   {
-    q: "StreamPulse publie-t-il quoi que ce soit sur ma chaîne ?",
-    a: "Non. StreamPulse ne publie rien à ta place. Le diagnostic initial est en lecture seule.",
+    q: "Streamnco publie-t-il quoi que ce soit sur ma chaîne ?",
+    a: "Non. Streamnco ne publie rien à ta place. Le diagnostic initial est en lecture seule.",
   },
   {
     q: "Pourrai-je suivre plusieurs chaînes plus tard ?",

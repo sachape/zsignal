@@ -88,7 +88,7 @@ const AudienceValueSection = () => {
       <SectionHeading
         badge="Pour qui · pour quoi faire"
         title="Construit pour les streamers qui veulent vraiment progresser"
-        subtitle="Quel que soit ton stade, StreamPulse te montre où tu en es — et ce qui reste à débloquer avec le suivi complet."
+        subtitle="Quel que soit ton stade, Streamnco te montre où tu en es — et ce qui reste à débloquer avec le suivi complet."
       />
 
       {/* Personas — condensed intro row */}

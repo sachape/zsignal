@@ -15,7 +15,7 @@ import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 /**
  * Top-right header identity = CONNECTED PLATFORM (Twitch) only.
  *
- * Strictly separates the StreamPulse app account (which lives in the sidebar
+ * Strictly separates the Streamnco app account (which lives in the sidebar
  * footer) from the connected Twitch identity. The compact menu stays minimal:
  *   - connected   → Voir mon compte Twitch · Déconnecter Twitch
  *   - disconnected → Connecter Twitch
