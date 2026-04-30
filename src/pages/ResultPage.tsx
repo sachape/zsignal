@@ -46,6 +46,7 @@ import MainBlockerCard from "@/components/MainBlockerCard";
 import TwitchUnlockModal from "@/components/TwitchUnlockModal";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import QualitativeScoreCard from "@/components/QualitativeScoreCard";
+import ScoreInsightCard from "@/components/ScoreInsightCard";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { onboardingFlags } from "@/services/onboardingFlags";
