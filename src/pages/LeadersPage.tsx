@@ -140,28 +140,16 @@ const LeadersPage = () => {
   }, [category, language]);
 
   const filtered = useMemo(() => {
-    let out = rows.slice();
-    if (view === "live") out = out.filter((r) => r.is_live);
+    // 1. Start from raw data
+    // 2. Apply active view (filter)
+    // 3. Apply selected sort via the centralized comparator map
+    // 4. Re-rank for the visual rank column
+    const viewFiltered =
+      view === "live" ? rows.filter((r) => r.is_live) : rows.slice();
 
-    // Coerce sort to a valid option for the current view.
-    const effectiveSort: SortKey =
-      view === "live" && sort === "score" ? "viewers"
-      : view === "all" && sort === "viewers" ? "score"
-      : sort;
+    const sorted = viewFiltered.sort(SORT_COMPARATORS[sort]);
 
-    switch (effectiveSort) {
-      case "viewers":
-        out.sort((a, b) => (b.live_viewer_count ?? 0) - (a.live_viewer_count ?? 0));
-        break;
-      case "score":
-        out.sort((a, b) => b.stream_score - a.stream_score);
-        break;
-      case "name":
-        out.sort((a, b) => a.display_name.localeCompare(b.display_name));
-        break;
-    }
-    // Re-rank after sort for visual rank column.
-    return out.map((r, i) => ({ ...r, rank: i + 1 }));
+    return sorted.map((r, i) => ({ ...r, rank: i + 1 }));
   }, [rows, view, sort]);
 
   const pickCategory = (name: string) => {
