@@ -205,6 +205,37 @@ const DashboardPage = () => {
     };
   }, [user, loadDashboardState]);
 
+  // Auto-open the Twitch connect prompt when the Streamnco user lands on
+  // the cockpit without a Twitch connection. We honor the durable
+  // `connect_twitch_prompt_dismissed` flag so it never re-opens after
+  // explicit "Plus tard". Forced open when ?welcome_signup=1 (immediately
+  // after Streamnco signup, regardless of the dismissed flag).
+  useEffect(() => {
+    if (!user || connectionLoading) return;
+    if (isConnected) return;
+    const dismissed = onboardingFlags.isConnectTwitchPromptDismissed();
+    if (welcomeSignup) {
+      onboardingFlags.resetConnectTwitchPrompt();
+      setShowConnectTwitch(true);
+      return;
+    }
+    if (!dismissed) setShowConnectTwitch(true);
+  }, [user, connectionLoading, isConnected, welcomeSignup]);
+
+  // Detect mismatch: teaser channel persisted before signup vs the Twitch
+  // login finally connected to the Streamnco account.
+  useEffect(() => {
+    if (!isConnected || !account?.platform_login) return;
+    const teaserLogin = onboardingFlags.getPendingTeaserChannel();
+    if (!teaserLogin) return;
+    const a = teaserLogin.trim().toLowerCase();
+    const b = account.platform_login.trim().toLowerCase();
+    if (a && a !== b) {
+      setTeaserMismatch(teaserLogin);
+    }
+    onboardingFlags.clearPendingTeaserChannel();
+  }, [isConnected, account]);
+
   const handleManualRefresh = useCallback(async () => {
     if (manualRefreshing) return;
     setManualRefreshing(true);
