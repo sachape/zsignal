@@ -650,21 +650,17 @@ const ResultPage = () => {
                 );
               })()}
             </div>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-warning" />
-                  <p className="text-sm font-semibold text-foreground">
-                    Ce qui freine le plus : {report.weak_point.label}
-                  </p>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {report.weak_point.description}
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
+
+        {/* "Pourquoi ce score" — product-grade reading.
+            Replaces the previous one-line weak point card with a structured
+            narrative: tier headline + drags/supports + priority action. */}
+        {!isReconstruction && (
+          <div className="mb-8">
+            <ScoreInsightCard score={score} />
+          </div>
+        )}
 
         {/* No MainBlocker / plan bridge here: the cockpit is the single
             home that surfaces the current blocker and the weekly plan link.
