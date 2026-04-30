@@ -46,6 +46,7 @@ import { useAuthModal } from "@/contexts/AuthModalContext";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import QualitativeScoreCard from "@/components/QualitativeScoreCard";
 import ScoreInsightCard from "@/components/ScoreInsightCard";
+import TeaserResultLayout from "@/components/TeaserResultLayout";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { onboardingFlags } from "@/services/onboardingFlags";
@@ -448,6 +449,23 @@ const ResultPage = () => {
   const isMismatchedOrDemo = Boolean(
     isPersisted && saved && twitchAccount && (saved.is_demo || accountMismatch),
   );
+
+  // ── Premium teaser layout ────────────────────────────────────────────────
+  if (isTeaser) {
+    return (
+      <AppShell>
+        <PageContainer>
+          {renderDebugPanel()}
+          <TeaserResultLayout
+            report={report}
+            onUnlock={handleUnlock}
+            isAuthenticated={!!user}
+            hasTwitchConnected={!!twitchAccount}
+          />
+        </PageContainer>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
