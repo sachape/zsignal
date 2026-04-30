@@ -244,6 +244,22 @@ const DashboardPage = () => {
     setManualRefreshing(false);
   }, [manualRefreshing, loadDashboardState]);
 
+  const handleDismissConnectTwitch = () => {
+    onboardingFlags.dismissConnectTwitchPrompt();
+    setShowConnectTwitch(false);
+  };
+
+  const connectPromptModal = (
+    <ConnectTwitchPromptModal
+      open={showConnectTwitch}
+      onOpenChange={(o) => {
+        if (!o) handleDismissConnectTwitch();
+        else setShowConnectTwitch(true);
+      }}
+      onLater={handleDismissConnectTwitch}
+    />
+  );
+
   if (loading) {
     return (
       <AppShell>
