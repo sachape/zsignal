@@ -187,7 +187,7 @@ const LeadersPage = () => {
         <PageHeader
           eyebrow="Benchmark"
           title="Classements"
-          description="Le vrai classement live d'une catégorie Twitch — qui domine, qui monte, qui mérite d'être inspecté."
+          description="Benchmark de catégorie Twitch, avec une vue live à la demande."
         />
 
         {/* Filters */}
