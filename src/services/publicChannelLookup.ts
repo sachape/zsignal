@@ -265,7 +265,10 @@ export const PublicChannelLookupService = {
             started_at: data.live.started_at,
           }
         : null,
-      dominantCategory: data.dominant_category ?? null,
+      dominantCategory:
+        data.dominant_category && data.dominant_category !== "unknown"
+          ? data.dominant_category
+          : null,
       competitorGroups: buildTeaserCompetitors(
         ch,
         data.competitors ?? [],

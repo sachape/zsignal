@@ -67,11 +67,14 @@ export function assembleReport(
     teaserOverrides?.competitor_groups ?? findCompetitors(profile, facts);
 
   const getFact = (key: string) => facts.find((f) => f.key === key);
-  const dominantCat = String(
+  const rawCat =
     teaserOverrides?.dominant_category_override ??
-      getFact("dominant_category")?.value ??
-      "Variété",
-  );
+    (getFact("dominant_category")?.value as string | undefined) ??
+    null;
+  const dominantCat =
+    rawCat && typeof rawCat === "string" && rawCat !== "unknown" && rawCat.trim() !== ""
+      ? rawCat
+      : "";
   const avgViewers = Number(getFact("avg_viewers")?.value ?? 0);
 
   const followersAvailable = profile.followers_available ?? true;

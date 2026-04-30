@@ -12,7 +12,7 @@ const FinalCtaSection = () => {
   const [inputError, setInputError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleAnalyze = (explicitLogin?: string) => {
+  const handleAnalyze = (explicitLogin?: string, gameNameHint?: string | null) => {
     const login =
       explicitLogin?.trim().toLowerCase() || normalizeChannelInput(username);
     if (!login) {
@@ -22,7 +22,8 @@ const FinalCtaSection = () => {
       return;
     }
     setInputError(null);
-    navigate(`/analyze?channel=${encodeURIComponent(login)}&mode=teaser`);
+    const hint = gameNameHint ? `&hint_game=${encodeURIComponent(gameNameHint)}` : "";
+    navigate(`/analyze?channel=${encodeURIComponent(login)}&mode=teaser${hint}`);
   };
 
   return (
@@ -68,7 +69,7 @@ const FinalCtaSection = () => {
                     setUsername(next);
                     if (inputError) setInputError(null);
                   }}
-                  onSubmit={(login) => handleAnalyze(login)}
+                  onSubmit={(login, gameName) => handleAnalyze(login, gameName)}
                   inputError={inputError}
                 />
               </div>

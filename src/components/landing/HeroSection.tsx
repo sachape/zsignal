@@ -15,7 +15,7 @@ const HeroSection = () => {
     return () => cancelAnimationFrame(t);
   }, []);
 
-  const handleAnalyze = (explicitLogin?: string) => {
+  const handleAnalyze = (explicitLogin?: string, gameNameHint?: string | null) => {
     const login =
       explicitLogin?.trim().toLowerCase() || normalizeChannelInput(username);
     if (!login) {
@@ -25,7 +25,8 @@ const HeroSection = () => {
       return;
     }
     setInputError(null);
-    navigate(`/analyze?channel=${encodeURIComponent(login)}&mode=teaser`);
+    const hint = gameNameHint ? `&hint_game=${encodeURIComponent(gameNameHint)}` : "";
+    navigate(`/analyze?channel=${encodeURIComponent(login)}&mode=teaser${hint}`);
   };
 
   // Animated mini StreamScore ring (decorative)
@@ -192,7 +193,7 @@ const HeroSection = () => {
               setUsername(next);
               if (inputError) setInputError(null);
             }}
-            onSubmit={(login) => handleAnalyze(login)}
+            onSubmit={(login, gameName) => handleAnalyze(login, gameName)}
             inputError={inputError}
           />
 

@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 interface Props {
   value: string;
   onChange: (next: string) => void;
-  onSubmit: (login: string) => void;
+  onSubmit: (login: string, gameNameHint?: string | null) => void;
   inputError: string | null;
 }
 
@@ -119,7 +119,7 @@ const HeroChannelSearch = ({ value, onChange, onSubmit, inputError }: Props) => 
       setOpen(false);
       setSuggestions([]);
       // Defer submit to next tick so parent state propagates
-      setTimeout(() => onSubmit(s.login), 0);
+      setTimeout(() => onSubmit(s.login, s.game_name ?? null), 0);
     },
     [onChange, onSubmit],
   );

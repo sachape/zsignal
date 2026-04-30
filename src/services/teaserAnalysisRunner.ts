@@ -18,6 +18,9 @@ export type TeaserStage =
 
 export interface RunTeaserOptions {
   channelInput: string;
+  /** Game/category name from autocomplete selection — used as fallback when the
+   *  server-side dominant_category lookup returns null. */
+  gameNameHint?: string | null;
   onStage?: (stage: TeaserStage) => void;
   onLookupResolved?: (info: {
     login: string;
@@ -34,6 +37,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export async function runTeaserAnalysis({
   channelInput,
+  gameNameHint,
   onStage,
   onLookupResolved,
 }: RunTeaserOptions): Promise<RunTeaserResult> {
@@ -62,6 +66,11 @@ export async function runTeaserAnalysis({
     onStage?.("generating_recommendations");
     await sleep(200);
 
+    // Priority: server-resolved name > autocomplete hint > nothing
+    const hint = gameNameHint?.trim() || null;
+    const resolvedCategory =
+      match.dominantCategory ?? (hint && hint !== "unknown" ? hint : null);
+
     const report = assembleReport(
       match.data,
       `teaser-${match.login}`,
@@ -78,7 +87,7 @@ export async function runTeaserAnalysis({
         live: match.live,
         competitor_groups:
           match.competitorGroups.length > 0 ? match.competitorGroups : undefined,
-        dominant_category_override: match.dominantCategory,
+        dominant_category_override: resolvedCategory,
       },
     );
     const record = teaserStore.save(match.login, report);

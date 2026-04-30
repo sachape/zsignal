@@ -37,7 +37,7 @@ export function extractChannelFacts(
   const catCounts: Record<string, number> = {};
   categories.forEach((c) => { catCounts[c] = (catCounts[c] || 0) + 1; });
   const dominant = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0];
-  const dominantCategory = dominant ? dominant[0] : "unknown";
+  const dominantCategory = dominant ? dominant[0] : "";
   const uniqueCategories = uniqueValues(categories);
   const switchRate = uniqueCategories.length > 1 ? (uniqueCategories.length - 1) / Math.max(categories.length - 1, 1) : 0;
 

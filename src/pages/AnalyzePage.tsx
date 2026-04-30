@@ -56,6 +56,7 @@ const AnalyzePage = () => {
   const { account, loading: connectionLoading } = useTwitchConnection();
 
   const urlChannel = searchParams.get("channel") || "";
+  const hintGame = searchParams.get("hint_game") || null;
   const connectedLogin = account?.platform_login ?? "";
   const modeParam = searchParams.get("mode");
 
@@ -120,6 +121,7 @@ const AnalyzePage = () => {
       // Public teaser analysis (real Twitch public lookup, no mock fallback)
       const result = await runTeaserAnalysis({
         channelInput: channel,
+        gameNameHint: hintGame,
         onStage: (s) => setCurrentStage(s),
         onLookupResolved: (info) => setLookupInfo(info),
       });
