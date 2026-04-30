@@ -42,7 +42,7 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
-import TwitchUnlockModal from "@/components/TwitchUnlockModal";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import QualitativeScoreCard from "@/components/QualitativeScoreCard";
 import ScoreInsightCard from "@/components/ScoreInsightCard";
@@ -73,7 +73,7 @@ const ResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const { openAuthModal } = useAuthModal();
   const { account: twitchAccount, loading: twitchLoading } = useTwitchConnection();
   const reportId = searchParams.get("report_id");
   const legacyJobId = searchParams.get("jobId");
@@ -380,22 +380,36 @@ const ResultPage = () => {
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
   const fromOnboarding = searchParams.get("from") === "onboarding";
   const handleUnlock = () => {
-    // Persist teaser id across the OAuth round-trip so the callback can
-    // redirect the user back to /result?teaser=...&from=onboarding and
-    // present an enriched version of the same diagnostic.
+    // Persist teaser id across the auth round-trip so the post-signup flow can
+    // redirect the user back to /result?teaser=...&from=onboarding and present
+    // an enriched version of the same diagnostic.
     if (teaserId) {
       onboardingFlags.setPendingTeaserId(teaserId);
     }
-    if (user) {
-      // Authenticated: go straight to the Twitch connection surface (which
-      // kicks off OAuth). We do not show the generic auth modal here — this
-      // flow is Twitch-first.
+    // (channel hint is passed directly via openAuthModal below)
+
+    // Case 3: fully connected — go to the deeper product surface directly.
+    if (user && twitchAccount) {
+      navigate("/dashboard");
+      return;
+    }
+
+    // Case 2: Streamnco account exists, Twitch not yet linked — open the
+    // Twitch connection page (which presents the dedicated Twitch CTA).
+    if (user && !twitchAccount) {
       navigate(`/connect-twitch${teaserId ? `?teaser=${teaserId}` : ""}`);
       return;
     }
-    // Unauthenticated: open the Twitch-first unlock modal. No email / password
-    // / Google surface is shown on this path.
-    setUnlockModalOpen(true);
+
+    // Case 1: not authenticated — open the Streamnco signup modal.
+    // Twitch will be proposed as a second step, after the session is created.
+    openAuthModal({
+      mode: "signup",
+      redirectTo: `/connect-twitch${teaserId ? `?teaser=${teaserId}` : ""}`,
+      pendingChannel: teaserCtaChannel || null,
+      contextText:
+        "Crée ton compte Streamnco pour sauvegarder ce diagnostic. Tu pourras connecter Twitch juste après.",
+    });
   };
 
   const summary = report.channel_summary;
@@ -730,7 +744,13 @@ const ResultPage = () => {
                     ? "Connecte Twitch pour voir tous les concurrents pertinents"
                     : "Connecte Twitch pour voir plus de concurrents"
                 }
-                cta="Continuer avec Twitch"
+                cta={
+                  !user
+                    ? "Créer mon compte Streamnco"
+                    : !twitchAccount
+                      ? "Connecter Twitch"
+                      : "Voir mon dashboard"
+                }
                 onUnlock={handleUnlock}
               />
             </div>
@@ -875,17 +895,16 @@ const ResultPage = () => {
                     : "Connecte Twitch pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button onClick={handleUnlock} className="mt-2">
-                Continuer avec Twitch
+                {!user
+                  ? "Créer mon compte Streamnco"
+                  : !twitchAccount
+                    ? "Connecter Twitch"
+                    : "Voir mon dashboard"}
               </Button>
             </CardContent>
           </Card>
         )}
       </PageContainer>
-      <TwitchUnlockModal
-        open={unlockModalOpen}
-        onOpenChange={setUnlockModalOpen}
-        teaserId={teaserId}
-      />
     </AppShell>
   );
 };
