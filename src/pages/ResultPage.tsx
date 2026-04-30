@@ -386,9 +386,7 @@ const ResultPage = () => {
     if (teaserId) {
       onboardingFlags.setPendingTeaserId(teaserId);
     }
-    if (teaserCtaChannel) {
-      onboardingFlags.setPendingTeaserChannel(teaserCtaChannel);
-    }
+    // (channel hint is passed directly via openAuthModal below)
 
     // Case 3: fully connected — go to the deeper product surface directly.
     if (user && twitchAccount) {
