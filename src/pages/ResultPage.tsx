@@ -42,7 +42,7 @@ import {
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
-import TwitchUnlockModal from "@/components/TwitchUnlockModal";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import QualitativeScoreCard from "@/components/QualitativeScoreCard";
 import ScoreInsightCard from "@/components/ScoreInsightCard";
