@@ -895,7 +895,11 @@ const ResultPage = () => {
                     : "Connecte Twitch pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button onClick={handleUnlock} className="mt-2">
-                Continuer avec Twitch
+                {!user
+                  ? "Créer mon compte Streamnco"
+                  : !twitchAccount
+                    ? "Connecter Twitch"
+                    : "Voir mon dashboard"}
               </Button>
             </CardContent>
           </Card>
