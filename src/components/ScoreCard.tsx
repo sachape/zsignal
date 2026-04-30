@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 
 interface ScoreCardProps {
   score?: number;
@@ -10,6 +11,12 @@ const ScoreCard = ({ score = 62, label = "StreamScore", locked }: ScoreCardProps
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const progress = locked ? 0 : (score / 100) * circumference;
+
+  const tier = getScoreTier(score);
+  const theme = getTierTheme(tier);
+  // Locked → neutral (muted) so the unknown state never reads as a tier signal.
+  const strokeColor = locked ? "hsl(var(--muted-foreground))" : `hsl(${theme.strokeVar})`;
+  const numberClass = locked ? "text-foreground" : theme.textClass;
 
   return (
     <Card>
@@ -29,7 +36,7 @@ const ScoreCard = ({ score = 62, label = "StreamScore", locked }: ScoreCardProps
               cy="50"
               r={radius}
               fill="none"
-              stroke="hsl(var(--primary))"
+              stroke={strokeColor}
               strokeWidth="6"
               strokeLinecap="round"
               strokeDasharray={circumference}
@@ -38,13 +45,15 @@ const ScoreCard = ({ score = 62, label = "StreamScore", locked }: ScoreCardProps
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl font-semibold tracking-tight text-foreground">
+            <span className={`text-2xl font-semibold tracking-tight ${numberClass}`}>
               {locked ? "?" : score}
             </span>
           </div>
         </div>
         <p className="mt-3 text-sm font-medium text-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground">sur 100</p>
+        <p className="text-xs text-muted-foreground">
+          {locked ? "sur 100" : `${theme.label} · sur 100`}
+        </p>
       </CardContent>
     </Card>
   );
