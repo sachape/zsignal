@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import {
   fetchCategoryLeaders,
   searchCategories,
@@ -35,8 +36,8 @@ import {
   type LeaderCategory,
 } from "@/services/leadersService";
 
+type ViewMode = "all" | "live";
 type SortKey = "viewers" | "score" | "name";
-type LiveFilter = "all" | "live";
 
 const formatViewers = (n: number | null): string => {
   if (n == null) return "—";
@@ -44,11 +45,30 @@ const formatViewers = (n: number | null): string => {
   return String(n);
 };
 
-const scoreColor = (s: number): string => {
-  if (s >= 75) return "text-primary";
-  if (s >= 55) return "text-foreground";
-  if (s >= 35) return "text-muted-foreground";
-  return "text-muted-foreground/70";
+/** Single secondary signal per row, mode-aware. Returns null if nothing notable. */
+function getSecondarySignal(
+  c: LeaderChannel,
+  view: ViewMode,
+): { label: string; tone: "primary" | "warning" | "muted" | "destructive" } | null {
+  if (view === "live") {
+    const v = c.live_viewer_count ?? 0;
+    if (v >= 2000) return { label: "Très regardé", tone: "destructive" };
+    if (c.stream_score >= 80) return { label: "Bon score live", tone: "primary" };
+    if (v >= 300) return { label: "En direct", tone: "warning" };
+    return { label: "À inspecter", tone: "muted" };
+  }
+  // All channels view → benchmark framing
+  if (c.stream_score >= 80) return { label: "Base solide", tone: "primary" };
+  if ((c.live_viewer_count ?? 0) >= 1000) return { label: "Forte audience", tone: "warning" };
+  if (c.stream_score >= 55) return { label: "Bon score", tone: "muted" };
+  return { label: "À observer", tone: "muted" };
+}
+
+const SIGNAL_TONE_CLASS: Record<"primary" | "warning" | "muted" | "destructive", string> = {
+  primary: "border-primary/30 bg-primary/10 text-primary",
+  warning: "border-warning/30 bg-warning/10 text-warning",
+  destructive: "border-destructive/30 bg-destructive/10 text-destructive",
+  muted: "border-border bg-muted/40 text-muted-foreground",
 };
 
 /**
