@@ -683,7 +683,7 @@ const ResultPage = () => {
                 { label: "Momentum", pct: score.momentum },
                 { label: "Monétisation", pct: score.monetization },
               ].map((s) => (
-                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} />
+                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} tinted />
               ))}
             </CardContent>
           </Card>
