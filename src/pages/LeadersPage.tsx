@@ -410,88 +410,92 @@ const LeadersPage = () => {
           </Card>
         ) : (
           <div className="grid gap-2">
-            {filtered.map((c) => (
-              <Link
-                key={c.id}
-                to={`/streamer/${c.login}`}
-                className="group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-card/80"
-              >
-                <span className="w-7 text-right text-xs font-semibold tabular-nums text-muted-foreground">
-                  #{c.rank}
-                </span>
-                <Avatar className="h-10 w-10 rounded-full border border-border/60">
-                  {c.profile_image_url && (
-                    <AvatarImage src={c.profile_image_url} alt={c.login} />
-                  )}
-                  <AvatarFallback className="rounded-full text-[10px]">
-                    {c.login.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+            {filtered.map((c) => {
+              const signal = getSecondarySignal(c, view);
+              const tier = getTierTheme(getScoreTier(c.stream_score));
+              return (
+                <Link
+                  key={c.id}
+                  to={`/streamer/${c.login}`}
+                  className="group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-card/80"
+                >
+                  <span className="w-7 text-right text-xs font-semibold tabular-nums text-muted-foreground">
+                    #{c.rank}
+                  </span>
+                  <Avatar className="h-10 w-10 rounded-full border border-border/60">
+                    {c.profile_image_url && (
+                      <AvatarImage src={c.profile_image_url} alt={c.login} />
+                    )}
+                    <AvatarFallback className="rounded-full text-[10px]">
+                      {c.login.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-semibold text-foreground">
-                      {c.display_name}
-                    </p>
-                    {c.is_live && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
-                        <Radio className="h-2 w-2" /> Live
-                      </span>
-                    )}
-                    {c.language && (
-                      <Badge variant="outline" className="text-[10px]">
-                        {c.language.toUpperCase()}
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="truncate">@{c.login}</span>
-                    {c.game_name && (
-                      <>
-                        <span>·</span>
-                        <span className="truncate">{c.game_name}</span>
-                      </>
-                    )}
-                  </div>
-                  {c.tags.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-1">
-                      {c.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
-                        >
-                          {t}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {c.display_name}
+                      </p>
+                      {c.is_live && view === "all" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                          <Radio className="h-2 w-2" /> Live
                         </span>
-                      ))}
+                      )}
+                      {c.language && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {c.language.toUpperCase()}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="truncate">@{c.login}</span>
+                      {c.game_name && (
+                        <>
+                          <span>·</span>
+                          <span className="truncate">{c.game_name}</span>
+                        </>
+                      )}
+                    </div>
+                    {signal && (
+                      <div className="mt-1.5">
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                            SIGNAL_TONE_CLASS[signal.tone],
+                          )}
+                        >
+                          {signal.label}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Live viewers — only meaningful in live view (or for live rows in all view) */}
+                  {(view === "live" || c.is_live) && (
+                    <div className="hidden text-right sm:block">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {view === "live" ? "Audience live" : "Live"}
+                      </p>
+                      <p className="text-sm font-semibold tabular-nums text-foreground">
+                        {formatViewers(c.live_viewer_count)}
+                      </p>
                     </div>
                   )}
-                </div>
 
-                {/* Live viewers */}
-                <div className="hidden text-right sm:block">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Live
-                  </p>
-                  <p className="text-sm font-semibold tabular-nums text-foreground">
-                    {formatViewers(c.live_viewer_count)}
-                  </p>
-                </div>
+                  {/* StreamScore — tinted by tier (red / orange / green) */}
+                  <div className="text-right">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Score
+                    </p>
+                    <p className={cn("text-sm font-semibold tabular-nums", tier.textClass)}>
+                      {c.stream_score}
+                    </p>
+                  </div>
 
-                {/* StreamScore */}
-                <div className="text-right">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Score
-                  </p>
-                  <p
-                    className={`text-sm font-semibold tabular-nums ${scoreColor(c.stream_score)}`}
-                  >
-                    {c.stream_score}
-                  </p>
-                </div>
-
-                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary" />
-              </Link>
-            ))}
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary" />
+                </Link>
+              );
+            })}
           </div>
         )}
 
