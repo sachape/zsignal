@@ -13,6 +13,8 @@ interface OpenAuthModalOptions {
   redirectTo?: string;
   pendingChannel?: string | null;
   contextText?: string;
+  /** Force initial mode of the auth form (defaults to "signup"). */
+  mode?: "signup" | "login";
 }
 
 interface AuthModalContextValue {
