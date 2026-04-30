@@ -141,9 +141,15 @@ const LeadersPage = () => {
 
   const filtered = useMemo(() => {
     let out = rows.slice();
-    if (liveFilter === "live") out = out.filter((r) => r.is_live);
+    if (view === "live") out = out.filter((r) => r.is_live);
 
-    switch (sort) {
+    // Coerce sort to a valid option for the current view.
+    const effectiveSort: SortKey =
+      view === "live" && sort === "score" ? "viewers"
+      : view === "all" && sort === "viewers" ? "score"
+      : sort;
+
+    switch (effectiveSort) {
       case "viewers":
         out.sort((a, b) => (b.live_viewer_count ?? 0) - (a.live_viewer_count ?? 0));
         break;
@@ -156,7 +162,7 @@ const LeadersPage = () => {
     }
     // Re-rank after sort for visual rank column.
     return out.map((r, i) => ({ ...r, rank: i + 1 }));
-  }, [rows, liveFilter, sort]);
+  }, [rows, view, sort]);
 
   const pickCategory = (name: string) => {
     setCategory(name);
