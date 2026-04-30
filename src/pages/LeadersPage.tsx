@@ -190,9 +190,44 @@ const LeadersPage = () => {
           description="Benchmark de catégorie Twitch, avec une vue live à la demande."
         />
 
-        {/* Filters */}
+        {/* View switcher — primary control: it changes the meaning of the page,
+            not just a secondary attribute. Sits above the standard filters. */}
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div
+            role="tablist"
+            aria-label="Vue"
+            className="inline-flex rounded-lg border border-border bg-card p-1"
+          >
+            {(["all", "live"] as const).map((v) => {
+              const active = view === v;
+              return (
+                <button
+                  key={v}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setView(v)}
+                  className={cn(
+                    "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {v === "all" ? "Toutes les chaînes" : "Live uniquement"}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {view === "all"
+              ? "Classe les chaînes d'une catégorie."
+              : "Ce qui mérite d'être observé maintenant."}
+          </p>
+        </div>
+
+        {/* Secondary filters */}
         <Card className="mb-6">
-          <CardContent className="grid gap-3 p-4 md:grid-cols-2 lg:grid-cols-5">
+          <CardContent className="grid gap-3 p-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">
               <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Catégorie Twitch
@@ -294,24 +329,6 @@ const LeadersPage = () => {
 
             <div>
               <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                État
-              </label>
-              <Select
-                value={liveFilter}
-                onValueChange={(v) => setLiveFilter(v as LiveFilter)}
-              >
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  <SelectItem value="live">Live uniquement</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Tri
               </label>
               <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
@@ -319,9 +336,19 @@ const LeadersPage = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="viewers">Audience live</SelectItem>
-                  <SelectItem value="score">StreamScore</SelectItem>
-                  <SelectItem value="name">Nom</SelectItem>
+                  {view === "live" ? (
+                    <>
+                      <SelectItem value="viewers">Audience live</SelectItem>
+                      <SelectItem value="score">StreamScore</SelectItem>
+                      <SelectItem value="name">Nom</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="score">StreamScore</SelectItem>
+                      <SelectItem value="viewers">Audience</SelectItem>
+                      <SelectItem value="name">Nom</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
