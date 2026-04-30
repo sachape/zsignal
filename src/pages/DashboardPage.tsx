@@ -407,6 +407,14 @@ const DashboardPage = () => {
           />
         </div>
 
+        {/* "Pourquoi ce score" — compact reading on the cockpit so the
+            score never reads as a bare number. Hidden if no breakdown. */}
+        {score.breakdown.length > 0 && (
+          <div className="mb-6">
+            <ScoreInsightCard score={score} compact />
+          </div>
+        )}
+
         {/* Live stack — single continuous reading, top → bottom:
             1. État actuel        (LiveStatusCard, primary)
             2. Mise en contexte   (LastVsAverageCard, secondary, hidden if low signal)
