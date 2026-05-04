@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.twitch-refresh-enqueue]
 verify_jwt = false
+
+[functions.twitch-eventsub-webhook]
+verify_jwt = false
+
+[functions.twitch-eventsub-monitor]
+verify_jwt = false
