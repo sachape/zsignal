@@ -517,7 +517,7 @@ const ResultPage = () => {
             ...(summary.is_live
               ? [{ label: "Live", variant: "destructive" as const }]
               : []),
-            ...(summary.category
+            ...(summary.category && summary.category !== "unknown"
               ? [{ label: summary.category, variant: "outline" as const }]
               : []),
           ]}

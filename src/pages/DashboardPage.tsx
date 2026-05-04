@@ -335,7 +335,7 @@ const DashboardPage = () => {
   const categoryFact = Array.isArray(report.facts)
     ? (report.facts.find((f) => f.key === "dominant_category")?.value as string | undefined)
     : undefined;
-  const displayCategory = categoryFact?.trim() || null;
+  const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
 
   const strokeColor = `hsl(${theme.strokeVar})`;
 

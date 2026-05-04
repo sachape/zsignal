@@ -210,7 +210,7 @@ const TeaserResultLayout = ({
   const nextAction = report.next_best_action;
   const login = identity?.platform_login ?? summary.channel_name;
   const avatarUrl = identity?.avatar_url ?? null;
-  const category = summary.category;
+  const category = summary.category && summary.category !== "unknown" ? summary.category : null;
 
   const unlockLabel = !isAuthenticated
     ? "Créer mon compte Streamnco"

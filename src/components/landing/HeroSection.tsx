@@ -187,6 +187,28 @@ const HeroSection = () => {
             transition: "opacity 700ms cubic-bezier(0.16,1,0.3,1) 200ms, transform 700ms cubic-bezier(0.16,1,0.3,1) 200ms",
           }}
         >
+          {/* Platform selector */}
+          <div className="mb-4 flex justify-center">
+            <div className="inline-flex items-center gap-0.5 rounded-full border border-white/[0.08] bg-card/50 p-1 backdrop-blur-sm shadow-[0_2px_16px_hsl(var(--primary)/0.08)]">
+              {/* Twitch — active */}
+              <div className="flex cursor-default select-none items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]">
+                <span className="h-2 w-2 rounded-full bg-[#9146FF] shadow-[0_0_6px_#9146FF]" />
+                Twitch
+              </div>
+              {/* Kick — coming soon, non-interactive */}
+              <div
+                className="flex cursor-default select-none items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground/40"
+                aria-disabled="true"
+              >
+                <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
+                Kick
+                <span className="rounded-full border border-border/40 bg-muted/50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                  Bientôt
+                </span>
+              </div>
+            </div>
+          </div>
+
           <HeroChannelSearch
             value={username}
             onChange={(next) => {
