@@ -53,6 +53,8 @@ import LastVsAverageCard from "@/components/LastVsAverageCard";
 import { resolveCockpitFocusSlot, type CockpitFocusSlot } from "@/services/cockpitFocus";
 import { onboardingFlags } from "@/services/onboardingFlags";
 import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
+import { isSessionRecent } from "@/services/postGenerator";
+import LivePostGenerator from "@/components/LivePostGenerator";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -73,6 +75,7 @@ const DashboardPage = () => {
   const [focusSlot, setFocusSlot] = useState<CockpitFocusSlot>("none");
   const [manualRefreshing, setManualRefreshing] = useState(false);
   const [ringMounted, setRingMounted] = useState(false);
+  const [showPostGen, setShowPostGen] = useState(false);
 
   const welcomeRequested = searchParams.get("welcome") === "1";
   const [showWelcome, setShowWelcome] = useState(
@@ -620,6 +623,16 @@ const DashboardPage = () => {
           </Card>
         )}
 
+        {/* Post generator sheet */}
+        {liveSnapshot?.last && (
+          <LivePostGenerator
+            session={liveSnapshot.last}
+            debrief={liveSnapshot.lastDebrief}
+            open={showPostGen}
+            onClose={() => setShowPostGen(false)}
+          />
+        )}
+
         {/* Live stack */}
         <div className="mb-6 space-y-2.5">
           <LiveStatusCard
@@ -641,6 +654,40 @@ const DashboardPage = () => {
           />
           <SmartAlertsCard current={liveSnapshot?.current ?? null} />
         </div>
+
+        {/* Post generator trigger — visible 72h after a live with debrief */}
+        {liveSnapshot?.last &&
+          liveSnapshot.lastDebrief &&
+          !liveSnapshot.current &&
+          isSessionRecent(liveSnapshot.last.ended_at) && (
+            <div className="mb-6">
+              <button
+                onClick={() => setShowPostGen(true)}
+                className="group relative w-full overflow-hidden rounded-xl border border-white/[0.06] bg-card/40 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04] hover:shadow-[0_0_32px_-8px_hsl(var(--primary)/0.3)]"
+              >
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="relative flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base leading-none">✍️</span>
+                      <span className="text-sm font-semibold text-foreground">
+                        Contenu à publier
+                      </span>
+                      <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">
+                        Nouveau
+                      </span>
+                    </div>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {liveSnapshot.last.category_name
+                        ? `Posts prêts pour ton live ${liveSnapshot.last.category_name} — tweet, discord, caption, annonce`
+                        : "Posts prêts à partir de ton dernier live — tweet, discord, caption, annonce"}
+                    </p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
+                </div>
+              </button>
+            </div>
+          )}
 
         {/* Next milestone */}
         <NextMilestoneCard
