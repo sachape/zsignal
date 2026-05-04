@@ -13,27 +13,27 @@ const OPTIONS = [
     name: "Coaching",
     price: "~35 €",
     cadence: "/ heure",
-    note: "Estimation moyenne du marché",
+    note: "Coût moyen du marché",
     description:
-      "Utile pour aller plus loin, mais vite coûteux si tu veux un suivi régulier.",
+      "Efficace ponctuellement, mais sans suivi entre les sessions. Le tarif monte vite si tu veux vraiment progresser semaine après semaine.",
     highlight: false,
   },
   {
     name: "Formation",
     price: "1 000 €+",
     cadence: "",
-    note: "Investissement ponctuel",
+    note: "Investissement unique",
     description:
-      "Bonne pour apprendre des bases, mais rarement pensée pour ta chaîne en évolution live après live.",
+      "Apprend les bases du streaming. Ne suit pas ta chaîne en temps réel, ni ta progression live après live.",
     highlight: false,
   },
   {
     name: "Streamnco",
-    price: "11,99 €",
+    price: "14,99 €",
     cadence: "/ mois",
     note: "Sans engagement",
     description:
-      "Analyse ta chaîne, suit ta progression et te dit quoi travailler après chaque live.",
+      "Analyse chaque live. Identifie ton blocage #1. Te donne un plan d'action chaque semaine. Automatiquement.",
     highlight: true,
   },
 ];
@@ -53,9 +53,14 @@ const ValueAnchorSection = () => {
   return (
     <SectionShell id="value-anchor">
       <SectionHeading
-        badge="Point de départ"
-        title="Avant de payer un coach, sache déjà quoi améliorer."
-        subtitle="Un coach peut aider. Une formation aussi. Mais au départ, ton vrai besoin est de comprendre ce qui bloque ta chaîne et quoi améliorer maintenant."
+        badge="Vs. les alternatives"
+        title={
+          <>
+            Un coach coûte 35 € de l'heure.
+            <br className="hidden sm:block" /> Streamnco, c'est 14,99 € par mois.
+          </>
+        }
+        subtitle="Les deux peuvent t'aider à progresser. Mais au départ, tu as besoin de comprendre ce qui bloque ta chaîne — et Streamnco le fait automatiquement, après chaque live."
       />
 
       <div
@@ -74,7 +79,7 @@ const ValueAnchorSection = () => {
             <GlassCard
               hero={opt.highlight}
               className={`flex h-full flex-col p-6 md:p-7 ${
-                opt.highlight ? "" : "opacity-90"
+                opt.highlight ? "" : "opacity-80"
               }`}
             >
               <div className="flex items-start justify-between">
@@ -95,7 +100,7 @@ const ValueAnchorSection = () => {
               <div className="mt-5 flex items-baseline gap-1.5">
                 <span
                   className={`text-3xl font-bold tracking-tight tabular-nums md:text-4xl ${
-                    opt.highlight ? "text-foreground" : "text-foreground/80"
+                    opt.highlight ? "text-foreground" : "text-foreground/70"
                   }`}
                 >
                   {opt.price}
@@ -120,7 +125,7 @@ const ValueAnchorSection = () => {
 
       <div className="mx-auto mt-12 max-w-3xl text-center md:mt-16">
         <p className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-3xl md:text-4xl">
-          Moins cher qu'une heure de coaching. Un copilote pour progresser chaque semaine.
+          Pour moins d'un euro par jour, un copilote actif sur chaque live.
         </p>
 
         <div className="mt-7 flex flex-col items-center gap-3">
@@ -128,7 +133,7 @@ const ValueAnchorSection = () => {
             Voir mon diagnostic gratuit
           </Button>
           <p className="text-[11px] text-muted-foreground">
-            Comprends d'abord ta chaîne avant d'investir plus loin.
+            Comprends d'abord ce qui bloque ta chaîne — c'est gratuit.
           </p>
         </div>
       </div>
