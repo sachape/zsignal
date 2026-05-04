@@ -89,64 +89,55 @@ async function handleStreamOnline(admin: SupabaseClient, raw: RawEvent) {
   const broadcasterUserId = String(evt.broadcaster_user_id ?? raw.broadcaster_user_id ?? "");
   if (!broadcasterUserId) throw new Error("missing broadcaster_user_id");
 
-  const ctx = await findUserContext(admin, broadcasterUserId);
-  if (!ctx) {
-    // No connected account on our side — nothing to project.
+  const accounts = await findUserContexts(admin, broadcasterUserId);
+  if (accounts.length === 0) {
     return { skipped: "no_connected_account" };
   }
 
   const startedAt = evt.started_at ?? new Date().toISOString();
   const twitchStreamId: string | null = evt.id ?? null;
 
-  // Idempotency: re-use any active live session for this broadcaster.
-  const { data: existing } = await admin
-    .from("live_sessions")
-    .select("id, twitch_stream_id, status")
-    .eq("platform", "twitch")
-    .eq("platform_user_id", broadcasterUserId)
-    .eq("status", "live")
-    .order("started_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  let sessionId: string;
-  if (existing) {
-    sessionId = existing.id;
-    if (twitchStreamId && existing.twitch_stream_id !== twitchStreamId) {
-      await admin
-        .from("live_sessions")
-        .update({ twitch_stream_id: twitchStreamId, started_at: startedAt })
-        .eq("id", existing.id);
-    }
-  } else {
-    // Need a connected_account_id (NOT NULL on live_sessions).
-    const { data: account } = await admin
-      .from("connected_accounts")
-      .select("id")
+  const sessionIds: string[] = [];
+  for (const ctx of accounts) {
+    // Idempotency: re-use any active live session for this user+broadcaster.
+    const { data: existing } = await admin
+      .from("live_sessions")
+      .select("id, twitch_stream_id")
       .eq("platform", "twitch")
       .eq("platform_user_id", broadcasterUserId)
       .eq("user_id", ctx.user_id)
+      .eq("status", "live")
+      .order("started_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
 
-    if (!account) return { skipped: "no_account_row" };
-
-    const { data: inserted, error } = await admin
-      .from("live_sessions")
-      .insert({
-        user_id: ctx.user_id,
-        connected_account_id: account.id,
-        platform: "twitch",
-        platform_user_id: broadcasterUserId,
-        platform_login: ctx.platform_login,
-        platform_display_name: ctx.platform_display_name,
-        status: "live",
-        started_at: startedAt,
-        twitch_stream_id: twitchStreamId,
-      })
-      .select("id")
-      .single();
-    if (error) throw error;
-    sessionId = inserted.id;
+    if (existing) {
+      sessionIds.push(existing.id);
+      if (twitchStreamId && existing.twitch_stream_id !== twitchStreamId) {
+        await admin
+          .from("live_sessions")
+          .update({ twitch_stream_id: twitchStreamId, started_at: startedAt })
+          .eq("id", existing.id);
+      }
+    } else {
+      const { data: inserted, error } = await admin
+        .from("live_sessions")
+        .insert({
+          user_id: ctx.user_id,
+          connected_account_id: ctx.id,
+          platform: "twitch",
+          platform_user_id: broadcasterUserId,
+          platform_login: ctx.platform_login,
+          platform_display_name: ctx.platform_display_name,
+          status: "live",
+          started_at: startedAt,
+          twitch_stream_id: twitchStreamId,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      sessionIds.push(inserted.id);
+    }
   }
 
   await insertAlertIdempotent(admin, {
