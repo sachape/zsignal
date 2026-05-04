@@ -205,6 +205,33 @@ Deno.serve(async (req) => {
     await logEvent(admin, "info", "notification_stored", "Event stored", {
       messageId, subscriptionType, broadcasterUserId,
     });
+
+    // Fire-and-forget projection. We must ACK Twitch within ~10s; processing
+    // happens asynchronously. Auth uses the Vault-backed cron secret (same
+    // path as the hourly cron), retrieved server-side only.
+    try {
+      const { data: cronSecret } = await admin
+        .schema("vault")
+        .from("decrypted_secrets")
+        .select("decrypted_secret")
+        .eq("name", "eventsub_cron_secret")
+        .maybeSingle();
+      const token = (cronSecret as any)?.decrypted_secret as string | undefined;
+      if (token) {
+        // Don't await — Twitch must get its 204 fast.
+        fetch(`${supabaseUrl}/functions/v1/twitch-eventsub-processor`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message_id: messageId }),
+        }).catch((e) => console.error("[eventsub-webhook] processor kick failed", e));
+      }
+    } catch (e) {
+      console.error("[eventsub-webhook] processor secret lookup failed", e);
+    }
+
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
