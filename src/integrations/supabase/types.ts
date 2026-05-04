@@ -132,6 +132,84 @@ export type Database = {
           },
         ]
       }
+      channel_update_history: {
+        Row: {
+          broadcaster_user_id: string
+          category_id: string | null
+          category_name: string | null
+          changed_at: string
+          content_classification_labels: Json | null
+          created_at: string
+          id: string
+          language: string | null
+          source_message_id: string | null
+          title: string | null
+        }
+        Insert: {
+          broadcaster_user_id: string
+          category_id?: string | null
+          category_name?: string | null
+          changed_at?: string
+          content_classification_labels?: Json | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          source_message_id?: string | null
+          title?: string | null
+        }
+        Update: {
+          broadcaster_user_id?: string
+          category_id?: string | null
+          category_name?: string | null
+          changed_at?: string
+          content_classification_labels?: Json | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          source_message_id?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      community_events: {
+        Row: {
+          actor_hash: string | null
+          broadcaster_user_id: string
+          created_at: string
+          id: string
+          is_gift: boolean | null
+          kind: string
+          metadata: Json
+          occurred_at: string
+          source_message_id: string | null
+          tier: string | null
+        }
+        Insert: {
+          actor_hash?: string | null
+          broadcaster_user_id: string
+          created_at?: string
+          id?: string
+          is_gift?: boolean | null
+          kind: string
+          metadata?: Json
+          occurred_at?: string
+          source_message_id?: string | null
+          tier?: string | null
+        }
+        Update: {
+          actor_hash?: string | null
+          broadcaster_user_id?: string
+          created_at?: string
+          id?: string
+          is_gift?: boolean | null
+          kind?: string
+          metadata?: Json
+          occurred_at?: string
+          source_message_id?: string | null
+          tier?: string | null
+        }
+        Relationships: []
+      }
       competitor_feedback: {
         Row: {
           competitor_key: string
@@ -256,6 +334,48 @@ export type Database = {
           scope?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      creator_alerts: {
+        Row: {
+          body: string | null
+          broadcaster_user_id: string
+          created_at: string
+          id: string
+          kind: string
+          metadata: Json
+          read_at: string | null
+          severity: string
+          source_event_type: string | null
+          source_message_id: string | null
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          broadcaster_user_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          metadata?: Json
+          read_at?: string | null
+          severity?: string
+          source_event_type?: string | null
+          source_message_id?: string | null
+          title: string
+        }
+        Update: {
+          body?: string | null
+          broadcaster_user_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          metadata?: Json
+          read_at?: string | null
+          severity?: string
+          source_event_type?: string | null
+          source_message_id?: string | null
+          title?: string
         }
         Relationships: []
       }
@@ -598,6 +718,9 @@ export type Database = {
           message_type: string
           payload: Json
           processed_at: string | null
+          processing_attempts: number
+          processing_error: string | null
+          processing_status: string
           received_at: string
           subscription_type: string | null
           subscription_version: string | null
@@ -610,6 +733,9 @@ export type Database = {
           message_type: string
           payload?: Json
           processed_at?: string | null
+          processing_attempts?: number
+          processing_error?: string | null
+          processing_status?: string
           received_at?: string
           subscription_type?: string | null
           subscription_version?: string | null
@@ -622,6 +748,9 @@ export type Database = {
           message_type?: string
           payload?: Json
           processed_at?: string | null
+          processing_attempts?: number
+          processing_error?: string | null
+          processing_status?: string
           received_at?: string
           subscription_type?: string | null
           subscription_version?: string | null
