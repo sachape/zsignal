@@ -49,14 +49,15 @@ async function logEvent(
   }
 }
 
-async function findUserContext(admin: SupabaseClient, broadcasterUserId: string) {
+async function findUserContexts(admin: SupabaseClient, broadcasterUserId: string) {
+  // A single Twitch broadcaster could be connected to multiple Streamnco users
+  // (rare, but possible during testing/multi-account). Project to all of them.
   const { data } = await admin
     .from("connected_accounts")
-    .select("user_id, platform_login, platform_display_name")
+    .select("id, user_id, platform_login, platform_display_name")
     .eq("platform", "twitch")
-    .eq("platform_user_id", broadcasterUserId)
-    .maybeSingle();
-  return data ?? null;
+    .eq("platform_user_id", broadcasterUserId);
+  return data ?? [];
 }
 
 async function insertAlertIdempotent(
