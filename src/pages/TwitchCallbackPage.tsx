@@ -131,6 +131,10 @@ const TwitchCallbackPage = () => {
       // confirms — this drives the welcome UX down the line.
       onboardingFlags.markTwitchConnected();
 
+      // Fire-and-forget: create EventSub subscriptions for the connected
+      // Twitch account. The edge function is idempotent and never blocks.
+      void bootstrapTwitchEventSub();
+
       let enrichedReportId: string | null = null;
       try {
         devLog("starting enrichment run");
