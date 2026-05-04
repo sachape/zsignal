@@ -75,6 +75,18 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // Auth: this function is publicly reachable (verify_jwt = false) so that
+  // pg_cron + pg_net can call it without a Supabase user JWT. We protect it
+  // with a shared CRON_SECRET — Twitch never calls this endpoint directly.
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  const authHeader = req.headers.get("Authorization") ?? "";
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const clientId = Deno.env.get("TWITCH_CLIENT_ID")!;
     const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET")!;

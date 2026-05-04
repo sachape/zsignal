@@ -13,6 +13,7 @@ import {
 import { onboardingFlags } from "@/services/onboardingFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { runAnalysis } from "@/services/analysisRunner";
+import { bootstrapTwitchEventSub } from "@/services/twitchEventSubBootstrap";
 
 type CallbackState = "processing" | "error" | "cancelled" | "enrichment_failed";
 
@@ -129,6 +130,10 @@ const TwitchCallbackPage = () => {
       // Mark the durable flag now that we really have a connection the DB
       // confirms — this drives the welcome UX down the line.
       onboardingFlags.markTwitchConnected();
+
+      // Fire-and-forget: create EventSub subscriptions for the connected
+      // Twitch account. The edge function is idempotent and never blocks.
+      void bootstrapTwitchEventSub();
 
       let enrichedReportId: string | null = null;
       try {
