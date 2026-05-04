@@ -589,6 +589,123 @@ export type Database = {
           },
         ]
       }
+      twitch_eventsub_events: {
+        Row: {
+          broadcaster_user_id: string | null
+          created_at: string
+          id: string
+          message_id: string
+          message_type: string
+          payload: Json
+          processed_at: string | null
+          received_at: string
+          subscription_type: string | null
+          subscription_version: string | null
+        }
+        Insert: {
+          broadcaster_user_id?: string | null
+          created_at?: string
+          id?: string
+          message_id: string
+          message_type: string
+          payload?: Json
+          processed_at?: string | null
+          received_at?: string
+          subscription_type?: string | null
+          subscription_version?: string | null
+        }
+        Update: {
+          broadcaster_user_id?: string | null
+          created_at?: string
+          id?: string
+          message_id?: string
+          message_type?: string
+          payload?: Json
+          processed_at?: string | null
+          received_at?: string
+          subscription_type?: string | null
+          subscription_version?: string | null
+        }
+        Relationships: []
+      }
+      twitch_eventsub_processing_logs: {
+        Row: {
+          context: Json | null
+          created_at: string
+          event: string
+          id: string
+          level: string
+          message: string | null
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          event: string
+          id?: string
+          level?: string
+          message?: string | null
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          event?: string
+          id?: string
+          level?: string
+          message?: string | null
+        }
+        Relationships: []
+      }
+      twitch_eventsub_subscriptions: {
+        Row: {
+          broadcaster_user_id: string
+          callback_url: string | null
+          condition: Json
+          cost: number | null
+          created_at: string
+          id: string
+          revoked_at: string | null
+          revoked_reason: string | null
+          status: string
+          transport: Json
+          twitch_subscription_id: string | null
+          type: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          broadcaster_user_id: string
+          callback_url?: string | null
+          condition?: Json
+          cost?: number | null
+          created_at?: string
+          id?: string
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          status?: string
+          transport?: Json
+          twitch_subscription_id?: string | null
+          type: string
+          updated_at?: string
+          version: string
+        }
+        Update: {
+          broadcaster_user_id?: string
+          callback_url?: string | null
+          condition?: Json
+          cost?: number | null
+          created_at?: string
+          id?: string
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          status?: string
+          transport?: Json
+          twitch_subscription_id?: string | null
+          type?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       twitch_profiles: {
         Row: {
           broadcaster_type: string | null
