@@ -76,11 +76,31 @@ Deno.serve(async (req) => {
   }
 
   // Auth: this function is publicly reachable (verify_jwt = false) so that
-  // pg_cron + pg_net can call it without a Supabase user JWT. We protect it
-  // with a shared CRON_SECRET — Twitch never calls this endpoint directly.
-  const cronSecret = Deno.env.get("CRON_SECRET");
+  // pg_cron + pg_net can call it without a Supabase user JWT. Twitch never
+  // calls this endpoint. We protect it with a Vault-backed cron secret —
+  // the secret is generated and stored server-side in vault.secrets under
+  // the name `eventsub_cron_secret`. The verify_eventsub_cron_secret RPC
+  // (SECURITY DEFINER, service_role only) compares the bearer token to the
+  // decrypted vault value without ever returning the secret to the client.
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const adminAuth = createClient(supabaseUrl, supabaseServiceKey);
+
   const authHeader = req.headers.get("Authorization") ?? "";
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length)
+    : "";
+  if (!token) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  const { data: ok, error: rpcError } = await adminAuth.rpc(
+    "verify_eventsub_cron_secret",
+    { token },
+  );
+  if (rpcError || ok !== true) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
