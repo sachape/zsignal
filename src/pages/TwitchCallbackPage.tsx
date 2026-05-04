@@ -13,6 +13,7 @@ import {
 import { onboardingFlags } from "@/services/onboardingFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { runAnalysis } from "@/services/analysisRunner";
+import { bootstrapTwitchEventSub } from "@/services/twitchEventSubBootstrap";
 
 type CallbackState = "processing" | "error" | "cancelled" | "enrichment_failed";
 
