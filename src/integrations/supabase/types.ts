@@ -848,7 +848,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      verify_eventsub_cron_secret: { Args: { token: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
