@@ -147,10 +147,10 @@ async function handleStreamOnline(admin: SupabaseClient, raw: RawEvent) {
     body: "Ton live vient de démarrer. Streamnco suit la session.",
     source_message_id: raw.message_id,
     source_event_type: "stream.online",
-    metadata: { live_session_id: sessionId, started_at: startedAt },
+    metadata: { live_session_ids: sessionIds, started_at: startedAt },
   });
 
-  return { live_session_id: sessionId };
+  return { live_session_ids: sessionIds };
 }
 
 async function handleStreamOffline(admin: SupabaseClient, raw: RawEvent) {
@@ -160,30 +160,25 @@ async function handleStreamOffline(admin: SupabaseClient, raw: RawEvent) {
 
   const endedAt = new Date().toISOString();
 
-  const { data: session } = await admin
+  // Close every active session for this broadcaster (across all connected users).
+  const { data: sessions } = await admin
     .from("live_sessions")
     .select("id, started_at")
     .eq("platform", "twitch")
     .eq("platform_user_id", broadcasterUserId)
-    .eq("status", "live")
-    .order("started_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .eq("status", "live");
 
-  if (session) {
+  const closedIds: string[] = [];
+  for (const session of sessions ?? []) {
     const startedMs = Date.parse(session.started_at);
     const durationMin = Number.isFinite(startedMs)
       ? Math.max(0, Math.round((Date.parse(endedAt) - startedMs) / 60000))
       : null;
-
     await admin
       .from("live_sessions")
-      .update({
-        status: "ended",
-        ended_at: endedAt,
-        duration_minutes: durationMin,
-      })
+      .update({ status: "ended", ended_at: endedAt, duration_minutes: durationMin })
       .eq("id", session.id);
+    closedIds.push(session.id);
   }
 
   await insertAlertIdempotent(admin, {
@@ -193,10 +188,10 @@ async function handleStreamOffline(admin: SupabaseClient, raw: RawEvent) {
     body: "Streamnco prépare le débrief de ta session.",
     source_message_id: raw.message_id,
     source_event_type: "stream.offline",
-    metadata: { live_session_id: session?.id ?? null, ended_at: endedAt },
+    metadata: { live_session_ids: closedIds, ended_at: endedAt },
   });
 
-  return { live_session_id: session?.id ?? null };
+  return { live_session_ids: closedIds };
 }
 
 async function handleChannelUpdate(admin: SupabaseClient, raw: RawEvent) {
