@@ -11,6 +11,7 @@ type TwitchOAuthErrorCode =
   | "config_unavailable"
   | "invalid_state"
   | "session_bootstrap_failed"
+  | "twitch_account_already_linked"
   | "temporary_unavailable";
 
 type TwitchOAuthFailure = {
@@ -55,6 +56,14 @@ function mapCallbackError(code?: string, rawError?: string): TwitchOAuthFailure 
       success: false,
       code: "invalid_state",
       error: "La tentative de connexion a expiré. Réessaie pour relancer Twitch.",
+    };
+  }
+
+  if (normalizedCode === "twitch_account_already_linked") {
+    return {
+      success: false,
+      code: "twitch_account_already_linked",
+      error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
     };
   }
 

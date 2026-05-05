@@ -137,6 +137,34 @@ Deno.serve(async (req) => {
 
     let authUserId = existingProfile?.user_id ?? null;
 
+    // Ownership guard — refuse if this Twitch broadcaster is already linked to a
+    // different Streamnco user. One Twitch broadcaster_user_id = one Streamnco user.
+    const { data: existingConnection } = await adminClient
+      .from("connected_accounts")
+      .select("user_id")
+      .eq("platform", "twitch")
+      .eq("platform_user_id", tw.id)
+      .maybeSingle();
+
+    if (
+      existingConnection &&
+      authUserId &&
+      existingConnection.user_id !== authUserId
+    ) {
+      console.warn("[twitch-oauth] ownership conflict", {
+        twitch_user_id: tw.id,
+        owner: existingConnection.user_id,
+        attempted: authUserId,
+      });
+      return json(
+        {
+          code: "twitch_account_already_linked",
+          error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+        },
+        409,
+      );
+    }
+
     if (!authUserId) {
       const { data: createdUser, error: createUserError } = await adminClient.auth.admin.createUser({
         email: syntheticEmail,
@@ -155,6 +183,17 @@ Deno.serve(async (req) => {
       }
 
       authUserId = createdUser.user.id;
+    }
+
+    // Final guard once we know the resolved auth user id.
+    if (existingConnection && existingConnection.user_id !== authUserId) {
+      return json(
+        {
+          code: "twitch_account_already_linked",
+          error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+        },
+        409,
+      );
     }
 
     const authClient = createClient(supabaseUrl, supabaseAnonKey);
@@ -192,6 +231,18 @@ Deno.serve(async (req) => {
         expires_at: expiresAt,
       });
     if (insertError) {
+      // 23505 = unique_violation → another Streamnco user owns this Twitch account.
+      // deno-lint-ignore no-explicit-any
+      const code = (insertError as any).code as string | undefined;
+      if (code === "23505") {
+        return json(
+          {
+            code: "twitch_account_already_linked",
+            error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+          },
+          409,
+        );
+      }
       console.error("[twitch-oauth] insert failed", insertError);
       return json({ code: "connection_store_failed", error: "Failed to store connection." }, 500);
     }
