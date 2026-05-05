@@ -36,9 +36,9 @@ function b64encode(bytes: Uint8Array): string {
   return btoa(bin);
 }
 
-// Returns a Uint8Array backed by a fresh ArrayBuffer (not SharedArrayBuffer)
-// so the value is assignable to Web Crypto's BufferSource type.
-function b64decode(s: string): Uint8Array {
+// Returns a Uint8Array<ArrayBuffer> (not SharedArrayBuffer-backed) so the
+// value satisfies Web Crypto's BufferSource type without casts.
+function b64decode(s: string): Uint8Array<ArrayBuffer> {
   const bin = atob(s);
   const buf = new ArrayBuffer(bin.length);
   const out = new Uint8Array(buf);
@@ -68,10 +68,9 @@ export async function decryptToken(stored: string | null | undefined): Promise<s
   const [ivB64, ctB64] = rest.split(":");
   if (!ivB64 || !ctB64) throw new Error("malformed encrypted token");
   const key = await getKey();
-  const pt = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: b64decode(ivB64) },
-    key,
-    b64decode(ctB64),
-  );
+  const iv = b64decode(ivB64);
+  const ct = b64decode(ctB64);
+  // deno-lint-ignore no-explicit-any
+  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv } as any, key, ct as any);
   return new TextDecoder().decode(pt);
 }
