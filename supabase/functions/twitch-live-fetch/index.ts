@@ -332,13 +332,31 @@ Deno.serve(async (req) => {
       return json({ error: "No connected Twitch account." }, 404);
     }
 
-    // Decrypt tokens server-side. Legacy raw values pass through unchanged
-    // and get re-encrypted on the next refresh write.
-    const { encryptToken, decryptToken } = await import("../_shared/tokenCrypto.ts");
+    // Decrypt tokens server-side. Legacy raw values pass through unchanged.
+    // We then opportunistically re-encrypt them so the row is upgraded in place
+    // without requiring an explicit migration script.
+    const { encryptToken, decryptToken, isEncrypted } = await import(
+      "../_shared/tokenCrypto.ts"
+    );
     let accessToken = await decryptToken(account.access_token_encrypted as string | null);
     const refreshTokenPlain = await decryptToken(
       account.refresh_token_encrypted as string | null,
     );
+    const legacyAccess = !!account.access_token_encrypted &&
+      !isEncrypted(account.access_token_encrypted as string);
+    const legacyRefresh = !!account.refresh_token_encrypted &&
+      !isEncrypted(account.refresh_token_encrypted as string);
+    if (legacyAccess || legacyRefresh) {
+      await admin
+        .from("connected_accounts")
+        .update({
+          access_token_encrypted: accessToken ? await encryptToken(accessToken) : null,
+          refresh_token_encrypted: refreshTokenPlain
+            ? await encryptToken(refreshTokenPlain)
+            : null,
+        })
+        .eq("id", account.id);
+    }
     const scope = (account.scope as string) ?? "";
     const hasFollowersScope = scope
       .split(/\s+/)
