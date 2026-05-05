@@ -59,6 +59,14 @@ function mapCallbackError(code?: string, rawError?: string): TwitchOAuthFailure 
     };
   }
 
+  if (normalizedCode === "twitch_account_already_linked") {
+    return {
+      success: false,
+      code: "twitch_account_already_linked",
+      error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+    };
+  }
+
   if (
     normalizedCode === "token_exchange_failed" ||
     normalizedCode === "twitch_user_lookup_failed" ||
