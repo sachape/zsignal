@@ -656,6 +656,13 @@ const DashboardPage = () => {
           <SmartAlertsCard current={liveSnapshot?.current ?? null} />
         </div>
 
+        {/* EventSub product signals */}
+        <div className="mb-6">
+          <EventSubCockpitSection
+            broadcasterUserId={account?.platform_user_id ?? null}
+          />
+        </div>
+
         {/* Post generator trigger — visible 72h after a live with debrief */}
         {liveSnapshot?.last &&
           liveSnapshot.lastDebrief &&
