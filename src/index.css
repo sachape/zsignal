@@ -119,3 +119,40 @@
   animation: bento-rotate 6s linear infinite;
   pointer-events: none;
 }
+
+/* ── Print / PDF export ─────────────────────────────────────────── */
+@media print {
+  /* Hide chrome: sidebar, nav, action buttons */
+  [data-sidebar],
+  header,
+  nav,
+  .print\:hidden,
+  button:not(.print-show),
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  /* Cards: remove glass/backdrop, use white */
+  .bg-card\/40,
+  .backdrop-blur-xl,
+  [class*="bg-card"] {
+    background: #f8f9fa !important;
+    backdrop-filter: none !important;
+    border-color: #e0e0e0 !important;
+  }
+
+  /* Ensure text stays readable */
+  * {
+    color: inherit;
+  }
+
+  /* Page break hints */
+  section, .mb-6, .mb-8 {
+    page-break-inside: avoid;
+  }
+}

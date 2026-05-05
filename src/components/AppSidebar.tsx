@@ -8,6 +8,7 @@ import {
   BookOpen,
   Trophy,
   LogOut,
+  Star,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -35,6 +36,7 @@ const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
   { title: "Lives", url: "/lives", icon: Radio, end: false },
   { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
+  { title: "Parcours Affilié", url: "/affiliation", icon: Star, end: false },
 ];
 
 const benchmarkItems = [

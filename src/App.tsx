@@ -25,6 +25,7 @@ const LeadersPage = lazy(() => import("./pages/LeadersPage.tsx"));
 const LastLivePage = lazy(() => import("./pages/LastLivePage.tsx"));
 const LivesPage = lazy(() => import("./pages/LivesPage.tsx"));
 const LiveDetailPage = lazy(() => import("./pages/LiveDetailPage.tsx"));
+const AffiliationPage = lazy(() => import("./pages/AffiliationPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const LegalTermsPage = lazy(() => import("./pages/LegalTermsPage.tsx"));
 const LegalPrivacyPage = lazy(() => import("./pages/LegalPrivacyPage.tsx"));
@@ -111,6 +112,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <LiveDetailPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/affiliation"
+                  element={
+                    <ProtectedRoute>
+                      <AffiliationPage />
                     </ProtectedRoute>
                   }
                 />

@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Sparkles,
   CalendarCheck,
+  Printer,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -556,6 +557,21 @@ const ResultPage = () => {
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
             En live
             {summary.live_title ? ` · ${summary.live_title}` : ""}
+          </div>
+        )}
+
+        {/* PDF export — only for authenticated full reports */}
+        {!isTeaser && (
+          <div className="mb-4 flex justify-end print:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.print()}
+              className="gap-1.5 text-muted-foreground hover:text-foreground"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              Télécharger en PDF
+            </Button>
           </div>
         )}
 

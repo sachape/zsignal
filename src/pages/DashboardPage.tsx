@@ -69,6 +69,7 @@ import {
 import StreakBadge from "@/components/StreakBadge";
 import BadgeGrid from "@/components/BadgeGrid";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
+import ShareScoreButton from "@/components/ShareScoreButton";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -520,6 +521,13 @@ const DashboardPage = () => {
 
             {/* Actions */}
             <div className="flex shrink-0 items-center gap-2">
+              <ShareScoreButton
+                score={score}
+                displayName={headerTitle}
+                login={platformLogin}
+                date={formatDate(currentReport.created_at)}
+                variant="icon"
+              />
               <Button asChild size="sm">
                 <Link to={`/result?report_id=${currentReport.id}`}>
                   <FileText className="h-3.5 w-3.5" />
