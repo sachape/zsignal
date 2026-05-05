@@ -23,7 +23,7 @@ function getHeader(req: Request, name: string): string {
   return req.headers.get(name) ?? "";
 }
 
-async function verifySignature(
+export async function verifySignature(
   secret: string,
   messageId: string,
   timestamp: string,
