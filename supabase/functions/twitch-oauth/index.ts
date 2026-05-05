@@ -217,6 +217,11 @@ Deno.serve(async (req) => {
       .eq("user_id", authSession.user.id)
       .eq("platform", "twitch");
 
+    // Encrypt tokens before storing. See _shared/tokenCrypto.ts for the flow.
+    const { encryptToken } = await import("../_shared/tokenCrypto.ts");
+    const encAccess = await encryptToken(accessToken);
+    const encRefresh = refreshToken ? await encryptToken(refreshToken) : null;
+
     const { error: insertError } = await adminClient
       .from("connected_accounts")
       .insert({
@@ -225,8 +230,8 @@ Deno.serve(async (req) => {
         platform_user_id: tw.id,
         platform_login: tw.login,
         platform_display_name: tw.display_name,
-        access_token_encrypted: accessToken,
-        refresh_token_encrypted: refreshToken,
+        access_token_encrypted: encAccess,
+        refresh_token_encrypted: encRefresh,
         scope,
         expires_at: expiresAt,
       });

@@ -332,7 +332,13 @@ Deno.serve(async (req) => {
       return json({ error: "No connected Twitch account." }, 404);
     }
 
-    let accessToken = account.access_token_encrypted as string;
+    // Decrypt tokens server-side. Legacy raw values pass through unchanged
+    // and get re-encrypted on the next refresh write.
+    const { encryptToken, decryptToken } = await import("../_shared/tokenCrypto.ts");
+    let accessToken = await decryptToken(account.access_token_encrypted as string | null);
+    const refreshTokenPlain = await decryptToken(
+      account.refresh_token_encrypted as string | null,
+    );
     const scope = (account.scope as string) ?? "";
     const hasFollowersScope = scope
       .split(/\s+/)
@@ -344,7 +350,7 @@ Deno.serve(async (req) => {
     const needsRefresh =
       !accessToken || (expiresAt && expiresAt - Date.now() < 60_000);
 
-    if (needsRefresh && account.refresh_token_encrypted) {
+    if (needsRefresh && refreshTokenPlain) {
       const refreshRes = await fetch("https://id.twitch.tv/oauth2/token", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -352,7 +358,7 @@ Deno.serve(async (req) => {
           client_id: clientId,
           client_secret: clientSecret,
           grant_type: "refresh_token",
-          refresh_token: account.refresh_token_encrypted as string,
+          refresh_token: refreshTokenPlain,
         }),
       });
       const refreshData = await refreshRes.json();
@@ -364,18 +370,19 @@ Deno.serve(async (req) => {
         const newScope = Array.isArray(refreshData.scope)
           ? refreshData.scope.join(" ")
           : (refreshData.scope ?? scope);
+        const newRefresh = refreshData.refresh_token ?? refreshTokenPlain;
         await admin
           .from("connected_accounts")
           .update({
-            access_token_encrypted: accessToken,
-            refresh_token_encrypted:
-              refreshData.refresh_token ?? account.refresh_token_encrypted,
+            access_token_encrypted: await encryptToken(accessToken),
+            refresh_token_encrypted: await encryptToken(newRefresh),
             scope: newScope,
             expires_at: newExpires,
           })
           .eq("id", account.id);
       } else {
-        console.warn("[twitch-live-fetch] refresh failed", refreshData);
+        // Do not log refreshData — could leak token-bearing payloads.
+        console.warn("[twitch-live-fetch] refresh failed", { status: refreshRes.status });
       }
     }
 
