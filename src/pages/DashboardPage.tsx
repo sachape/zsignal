@@ -55,6 +55,7 @@ import { onboardingFlags } from "@/services/onboardingFlags";
 import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
 import { isSessionRecent } from "@/services/postGenerator";
 import LivePostGenerator from "@/components/LivePostGenerator";
+import EventSubCockpitSection from "@/components/EventSubCockpitSection";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
