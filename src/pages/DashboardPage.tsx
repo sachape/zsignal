@@ -56,6 +56,7 @@ import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/stre
 import { isSessionRecent } from "@/services/postGenerator";
 import LivePostGenerator from "@/components/LivePostGenerator";
 import EventSubCockpitSection from "@/components/EventSubCockpitSection";
+import ScopeDriftBanner from "@/components/ScopeDriftBanner";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -657,7 +658,10 @@ const DashboardPage = () => {
         </div>
 
         {/* EventSub product signals */}
-        <div className="mb-6">
+        <div className="mb-6 space-y-3">
+          <ScopeDriftBanner
+            broadcasterUserId={account?.platform_user_id ?? null}
+          />
           <EventSubCockpitSection
             broadcasterUserId={account?.platform_user_id ?? null}
           />

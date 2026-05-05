@@ -404,8 +404,16 @@ Deno.serve(async (req) => {
       }
     } catch (e) {
       failed++;
-      const message = e instanceof Error ? e.message : String(e);
+      // Stringify Supabase/PostgrestError properly so logs aren't `[object Object]`.
+      let message: string;
+      if (e instanceof Error) message = e.message;
+      else if (e && typeof e === "object") {
+        try { message = JSON.stringify(e); } catch { message = String(e); }
+      } else message = String(e);
       const attempts = raw.processing_attempts + 1;
+      // After MAX_ATTEMPTS the row is marked `failed` and the sweep query
+      // (processing_status='pending' AND processing_attempts<MAX) will skip it
+      // forever — so malformed events do NOT spam logs in a retry loop.
       await admin
         .from("twitch_eventsub_events")
         .update({
@@ -418,6 +426,7 @@ Deno.serve(async (req) => {
         messageId: raw.message_id,
         subscriptionType: raw.subscription_type,
         attempts,
+        terminal: attempts >= MAX_ATTEMPTS,
       });
     }
   }
