@@ -55,6 +55,7 @@ import { onboardingFlags } from "@/services/onboardingFlags";
 import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
 import { isSessionRecent } from "@/services/postGenerator";
 import LivePostGenerator from "@/components/LivePostGenerator";
+import EventSubCockpitSection from "@/components/EventSubCockpitSection";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -653,6 +654,13 @@ const DashboardPage = () => {
             lastDebrief={liveSnapshot?.lastDebrief ?? null}
           />
           <SmartAlertsCard current={liveSnapshot?.current ?? null} />
+        </div>
+
+        {/* EventSub product signals */}
+        <div className="mb-6">
+          <EventSubCockpitSection
+            broadcasterUserId={account?.platform_user_id ?? null}
+          />
         </div>
 
         {/* Post generator trigger — visible 72h after a live with debrief */}
