@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
@@ -42,6 +42,7 @@ import {
 import {
   getLiveCockpitSnapshot,
   listLiveSessions,
+  type LiveSession,
   type LiveCockpitSnapshot,
 } from "@/services/liveSessions";
 import LiveStatusCard from "@/components/LiveStatusCard";
@@ -57,6 +58,17 @@ import { isSessionRecent } from "@/services/postGenerator";
 import LivePostGenerator from "@/components/LivePostGenerator";
 import EventSubCockpitSection from "@/components/EventSubCockpitSection";
 import ScopeDriftBanner from "@/components/ScopeDriftBanner";
+import { computeStreak } from "@/services/streakEngine";
+import { computeMaturityLevel } from "@/services/maturityLevel";
+import { evaluateBadges, markBadgesSeen } from "@/services/badgeEngine";
+import {
+  generateWeeklyQuests,
+  toggleManualQuest,
+  type WeeklyQuests,
+} from "@/services/questEngine";
+import StreakBadge from "@/components/StreakBadge";
+import BadgeGrid from "@/components/BadgeGrid";
+import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -78,6 +90,8 @@ const DashboardPage = () => {
   const [manualRefreshing, setManualRefreshing] = useState(false);
   const [ringMounted, setRingMounted] = useState(false);
   const [showPostGen, setShowPostGen] = useState(false);
+  const [allSessions, setAllSessions] = useState<LiveSession[]>([]);
+  const [weeklyQuests, setWeeklyQuests] = useState<WeeklyQuests | null>(null);
 
   const welcomeRequested = searchParams.get("welcome") === "1";
   const [showWelcome, setShowWelcome] = useState(
@@ -120,10 +134,12 @@ const DashboardPage = () => {
     try {
       const live = await getLiveCockpitSnapshot(user.id);
       setLiveSnapshot(live);
-      const ended = await listLiveSessions(user.id, 14);
-      setFocusSlot(resolveCockpitFocusSlot(live.current, ended));
+      const sessions = await listLiveSessions(user.id, 60);
+      setAllSessions(sessions);
+      setFocusSlot(resolveCockpitFocusSlot(live.current, sessions.slice(0, 14)));
     } catch {
       setLiveSnapshot(null);
+      setAllSessions([]);
       setFocusSlot("none");
     }
   }, [user, account]);
@@ -197,6 +213,28 @@ const DashboardPage = () => {
     const id = requestAnimationFrame(() => setRingMounted(true));
     return () => cancelAnimationFrame(id);
   }, [currentReport?.id]);
+
+  // Sync weekly quests whenever sessions or report changes
+  useEffect(() => {
+    if (!user || !currentReport) return;
+    const quests = generateWeeklyQuests(
+      allSessions,
+      currentReport.report,
+      user.id,
+    );
+    setWeeklyQuests(quests);
+  }, [user, allSessions, currentReport]);
+
+  const handleQuestToggle = useCallback(
+    (questId: string) => {
+      if (!user || !weeklyQuests) return;
+      toggleManualQuest(user.id, weeklyQuests.weekKey, questId);
+      setWeeklyQuests(
+        generateWeeklyQuests(allSessions, currentReport?.report ?? null, user.id),
+      );
+    },
+    [user, weeklyQuests, allSessions, currentReport],
+  );
 
   const handleManualRefresh = useCallback(async () => {
     if (manualRefreshing) return;
@@ -328,6 +366,23 @@ const DashboardPage = () => {
   const foundation = diagnoseFoundationMode(report);
   const foundationActive = foundation.isActive && !currentReport.is_demo;
 
+  // Sprint 1 — gamification derived state
+  const streakData = useMemo(() => computeStreak(allSessions), [allSessions]);
+  const maturityData = useMemo(
+    () =>
+      computeMaturityLevel(
+        score.overall,
+        allSessions.filter((s) => s.status === "ended").length,
+      ),
+    [score.overall, allSessions],
+  );
+  const badges = useMemo(() => {
+    const b = evaluateBadges({ sessions: allSessions, report, userId: user!.id });
+    const newIds = b.filter((badge) => badge.isNew).map((badge) => badge.id);
+    if (newIds.length > 0) markBadgesSeen(user!.id, newIds);
+    return b;
+  }, [allSessions, report, user]);
+
   // Premium design derived state
   const tier = getScoreTier(score.overall);
   const theme = getTierTheme(tier);
@@ -427,11 +482,21 @@ const DashboardPage = () => {
                       En live
                     </span>
                   )}
+                  <StreakBadge streak={streakData} variant="compact" />
                 </div>
-                <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                  {platformLogin ? `@${platformLogin}` : "Twitch"}
-                  {displayCategory ? ` · ${displayCategory}` : ""}
-                </p>
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                  <p className="truncate text-sm text-muted-foreground">
+                    {platformLogin ? `@${platformLogin}` : "Twitch"}
+                    {displayCategory ? ` · ${displayCategory}` : ""}
+                  </p>
+                  <span
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border/40 bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                    title={maturityData.description}
+                  >
+                    <span aria-hidden>{maturityData.icon}</span>
+                    {maturityData.label}
+                  </span>
+                </div>
                 <p className="mt-1 text-xs text-muted-foreground/60">
                   Analysé {formatSyncRelative(currentReport.created_at)}
                   {currentReport.is_demo && (
@@ -544,6 +609,9 @@ const DashboardPage = () => {
               </p>
             )}
 
+            {/* Streak card */}
+            <StreakBadge streak={streakData} variant="card" />
+
             {/* Mini dimension breakdown */}
             {narrative.miniBreakdown.length > 0 && (
               <div className="relative mt-5 w-full space-y-3">
@@ -635,6 +703,11 @@ const DashboardPage = () => {
           />
         )}
 
+        {/* Weekly quests — only outside foundation mode */}
+        {!foundationActive && weeklyQuests && (
+          <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} />
+        )}
+
         {/* Live stack */}
         <div className="mb-6 space-y-2.5">
           <LiveStatusCard
@@ -707,6 +780,9 @@ const DashboardPage = () => {
           reportId={currentReport.id}
           foundationActive={foundationActive}
         />
+
+        {/* Badges */}
+        <BadgeGrid badges={badges} />
 
         {/* Premium shortcut cards */}
         <div className="mb-8 grid gap-3 sm:grid-cols-3">
