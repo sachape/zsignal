@@ -36,9 +36,9 @@ function b64encode(bytes: Uint8Array): string {
   return btoa(bin);
 }
 
-// Returns a Uint8Array backed by a fresh ArrayBuffer (not SharedArrayBuffer)
-// so the value is assignable to Web Crypto's BufferSource type.
-function b64decode(s: string): Uint8Array {
+// Returns a Uint8Array<ArrayBuffer> (not SharedArrayBuffer-backed) so the
+// value satisfies Web Crypto's BufferSource type without casts.
+function b64decode(s: string): Uint8Array<ArrayBuffer> {
   const bin = atob(s);
   const buf = new ArrayBuffer(bin.length);
   const out = new Uint8Array(buf);
