@@ -11,6 +11,7 @@ type TwitchOAuthErrorCode =
   | "config_unavailable"
   | "invalid_state"
   | "session_bootstrap_failed"
+  | "twitch_account_already_linked"
   | "temporary_unavailable";
 
 type TwitchOAuthFailure = {
