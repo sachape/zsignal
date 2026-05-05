@@ -68,10 +68,9 @@ export async function decryptToken(stored: string | null | undefined): Promise<s
   const [ivB64, ctB64] = rest.split(":");
   if (!ivB64 || !ctB64) throw new Error("malformed encrypted token");
   const key = await getKey();
-  const pt = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: b64decode(ivB64) },
-    key,
-    b64decode(ctB64),
-  );
+  const iv = b64decode(ivB64);
+  const ct = b64decode(ctB64);
+  // deno-lint-ignore no-explicit-any
+  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv } as any, key, ct as any);
   return new TextDecoder().decode(pt);
 }
