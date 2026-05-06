@@ -11,9 +11,10 @@ import {
   AlertCircle,
   RefreshCw,
   Sparkles,
-  CalendarCheck,
   Printer,
+  Compass,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 
 import AppShell from "@/components/AppShell";
@@ -54,6 +55,50 @@ import { onboardingFlags } from "@/services/onboardingFlags";
 import { formatNumber, formatCompact } from "@/lib/format";
 import DimensionResources from "@/components/DimensionResources";
 
+// ── Animated score ring (same as TeaserResultLayout) ─────────────────────────
+
+const AnimatedScoreRing = ({ score }: { score: number }) => {
+  const radius = 78;
+  const sw = 7;
+  const circumference = 2 * Math.PI * radius;
+  const [offset, setOffset] = useState(circumference);
+
+  useEffect(() => {
+    const t = setTimeout(
+      () => setOffset(circumference - (score / 100) * circumference),
+      350,
+    );
+    return () => clearTimeout(t);
+  }, [score, circumference]);
+
+  return (
+    <div className="relative h-52 w-52 shrink-0">
+      <div className="pointer-events-none absolute inset-6 rounded-full bg-primary/20 blur-2xl" />
+      <svg viewBox="0 0 200 200" className="relative h-full w-full -rotate-90">
+        <defs>
+          <linearGradient id="rrRingGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="hsl(var(--primary))" />
+            <stop offset="100%" stopColor="hsl(var(--primary)/0.4)" />
+          </linearGradient>
+          <filter id="rrGlow">
+            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+        <circle cx="100" cy="100" r={radius} fill="none" stroke="hsl(var(--border))" strokeOpacity="0.3" strokeWidth={sw} />
+        <circle cx="100" cy="100" r={radius} fill="none" stroke="url(#rrRingGrad)" strokeWidth={sw + 0.5} strokeLinecap="round"
+          strokeDasharray={circumference} strokeDashoffset={offset} filter="url(#rrGlow)"
+          style={{ transition: "stroke-dashoffset 1.6s cubic-bezier(0.16,1,0.3,1)" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-[3.25rem] font-bold leading-none tabular-nums tracking-tight text-foreground">{score}</span>
+        <span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">StreamScore</span>
+      </div>
+    </div>
+  );
+};
+
 type SelectionSource =
   | "explicit_report_id"
   | "job_id"
@@ -91,6 +136,7 @@ const ResultPage = () => {
   const [notFound, setNotFound] = useState(false);
   const [noLiveReport, setNoLiveReport] = useState(false);
   const [selectionSource, setSelectionSource] = useState<SelectionSource>(null);
+  const [mounted, setMounted] = useState(false);
 
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   // Debug panel is opt-in via ?debug=1 so it never leaks into the real user UX.
@@ -201,6 +247,11 @@ const ResultPage = () => {
       cancelled = true;
     };
   }, [reportId, legacyJobId, teaserId, channel, user, authLoading, twitchAccount, twitchLoading, navigate]);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const renderDebugPanel = () => {
     if (!showDebugPanel) return null;
@@ -469,6 +520,12 @@ const ResultPage = () => {
     );
   }
 
+  const anim = (delay = 0) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? "translateY(0)" : "translateY(20px)",
+    transition: `opacity 650ms cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 650ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+  });
+
   return (
     <AppShell>
       <PageContainer>
@@ -485,85 +542,22 @@ const ResultPage = () => {
           </Card>
         )}
 
-        {user && (
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
-          >
-            <Link to="/dashboard">
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Tableau de bord
-            </Link>
-          </Button>
-        )}
-
-        <PageHeader
-          eyebrow={
-            isTeaser
-              ? summary.is_partial
-                ? "Aperçu public · données Twitch publiques"
-                : "Aperçu gratuit"
-              : "Diagnostic détaillé"
-          }
-          title={summary.display_name}
-          avatarUrl={report.identity?.avatar_url ?? null}
-          avatarLogin={report.identity?.platform_login ?? summary.channel_name}
-          badges={[
-            ...(summary.broadcaster_type === "partner"
-              ? [{ label: "Partenaire", variant: "accent" as const }]
-              : summary.broadcaster_type === "affiliate"
-                ? [{ label: "Affilié", variant: "secondary" as const }]
-                : []),
-            ...(summary.is_live
-              ? [{ label: "Live", variant: "destructive" as const }]
-              : []),
-            ...(summary.category && summary.category !== "unknown"
-              ? [{ label: summary.category, variant: "outline" as const }]
-              : []),
-          ]}
-          description={
-            summary.is_partial
-              ? summary.followers_available === false
-                ? "Diagnostic à partir de tes données publiques · total followers visible une fois Twitch connecté"
-                : "Diagnostic à partir de tes données publiques"
-              : (() => {
-                  const viewersPart =
-                    summary.avg_viewers > 0
-                      ? `~${formatNumber(summary.avg_viewers)} viewers en moyenne`
-                      : null;
-                  const followersPart =
-                    summary.followers_available === false
-                      ? "followers masqués en attendant la reconnexion Twitch"
-                      : summary.follower_count > 0
-                        ? `${formatNumber(summary.follower_count)} followers`
-                        : null;
-                  const parts = [viewersPart, followersPart].filter(Boolean);
-                  return parts.length > 0 ? parts.join(" · ") : "Diagnostic de ta chaîne";
-                })()
-          }
-        />
-
-        {summary.is_live && (summary.live_viewer_count ?? 0) > 0 && (
-          <div className="-mt-3 mb-4 inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-            En live · {formatNumber(summary.live_viewer_count)} viewers
-            {summary.live_title ? ` · ${summary.live_title}` : ""}
-          </div>
-        )}
-
-        {summary.is_live && (summary.live_viewer_count ?? 0) === 0 && (
-          <div className="-mt-3 mb-4 inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-            En live
-            {summary.live_title ? ` · ${summary.live_title}` : ""}
-          </div>
-        )}
-
-        {/* PDF export — only for authenticated full reports */}
-        {!isTeaser && (
-          <div className="mb-4 flex justify-end print:hidden">
+        {/* Top bar: back + PDF */}
+        <div className="mb-4 flex items-center justify-between print:hidden" style={anim(0)}>
+          {user && (
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="-ml-2 text-muted-foreground hover:text-foreground"
+            >
+              <Link to="/dashboard">
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Tableau de bord
+              </Link>
+            </Button>
+          )}
+          <div className="ml-auto">
             <Button
               variant="ghost"
               size="sm"
@@ -574,8 +568,121 @@ const ResultPage = () => {
               Télécharger en PDF
             </Button>
           </div>
-        )}
+        </div>
 
+        {/* Hero card */}
+        <div
+          style={anim(80)}
+          className="relative mb-4 overflow-hidden rounded-3xl border border-white/[0.08] bg-card/40 backdrop-blur-xl shadow-[0_32px_100px_-32px_hsl(var(--primary)/0.35)]"
+        >
+          <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/12 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 right-0 h-64 w-64 rounded-full bg-primary/8 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_55%)]" />
+
+          <div className="relative flex flex-col items-center gap-6 px-6 py-12 text-center md:py-16">
+
+            {/* Avatar */}
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-full bg-primary/12 blur-2xl" />
+              <Avatar className="relative h-24 w-24 border-2 border-primary/25 shadow-[0_0_56px_hsl(var(--primary)/0.3)] ring-[3px] ring-primary/10">
+                {report.identity?.avatar_url && (
+                  <AvatarImage src={report.identity.avatar_url} alt={`Avatar ${summary.display_name}`} />
+                )}
+                <AvatarFallback className="bg-muted text-xl font-bold text-muted-foreground">
+                  {(summary.display_name || "?").slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {summary.is_live && (
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-destructive">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+                </span>
+              )}
+            </div>
+
+            {/* Identity */}
+            <div className="flex flex-col items-center gap-2">
+              <h1 className="bg-gradient-to-b from-foreground to-foreground/80 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl">
+                {summary.display_name}
+              </h1>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  @{report.identity?.platform_login ?? summary.channel_name}
+                </span>
+                {summary.category && summary.category !== "unknown" && (
+                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                    {summary.category}
+                  </span>
+                )}
+                {summary.broadcaster_type === "affiliate" && (
+                  <span className="rounded-full border border-white/10 bg-card/60 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    Affilié
+                  </span>
+                )}
+                {summary.broadcaster_type === "partner" && (
+                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                    Partenaire
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Score ring or foundation mode */}
+            {isReconstruction ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 shadow-[0_0_32px_hsl(var(--primary)/0.25)]">
+                  <Compass className="h-8 w-8 text-primary" />
+                </div>
+                <div className="max-w-sm">
+                  <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+                    Mode Structuration
+                  </p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    Pas encore assez de signal pour un score fiable. L'objectif : créer une régularité de stream.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <AnimatedScoreRing score={score.overall} />
+            )}
+
+            {/* Dimension chips */}
+            {!isReconstruction && (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {[
+                  { label: "Régularité", value: score.regularity },
+                  { label: "Contenu", value: score.content },
+                  { label: "Structure", value: score.structure },
+                  { label: "Momentum", value: score.momentum },
+                ].map(({ label, value }, i) => (
+                  <div
+                    key={label}
+                    className="rounded-xl border border-white/[0.07] bg-card/50 px-3.5 py-2 backdrop-blur-sm"
+                    style={{
+                      opacity: mounted ? 1 : 0,
+                      transform: mounted ? "translateY(0)" : "translateY(10px)",
+                      transition: `opacity 500ms ease-out ${650 + i * 80}ms, transform 500ms ease-out ${650 + i * 80}ms`,
+                    }}
+                  >
+                    <span className="block text-[10px] text-muted-foreground">{label}</span>
+                    <span className="text-sm font-bold tabular-nums text-foreground">{value}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Live indicator */}
+            {summary.is_live && (
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+                En live
+                {(summary.live_viewer_count ?? 0) > 0 && ` · ${formatNumber(summary.live_viewer_count!)} viewers`}
+                {summary.live_title ? ` · ${summary.live_title}` : ""}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Banners & warnings */}
         {summary.is_partial && (
           <Card className="mb-4 border-accent/30 bg-accent/5">
             <CardContent className="flex flex-wrap items-start gap-3 p-4">
@@ -649,78 +756,86 @@ const ResultPage = () => {
           <FoundationModeBanner reasons={displayMode.reasons} />
         )}
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-4">
-          {isReconstruction ? (
-            <QualitativeScoreCard />
-          ) : (
-            <ScoreCard
-              score={score.overall}
-              label={isExploration ? "StreamScore · estimation" : "StreamScore"}
-            />
+        {/* Signal bento */}
+        <div style={anim(280)} className="mb-4 grid gap-3 md:grid-cols-6">
+
+          {nextAction && (
+            <div className="col-span-full md:col-span-4">
+              <div className="h-full rounded-2xl border border-primary/20 bg-primary/[0.06] p-6 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)] backdrop-blur-xl">
+                <div className="mb-3 flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
+                    <Zap className="h-4 w-4 text-primary" />
+                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                    Action prioritaire
+                  </span>
+                </div>
+                <p className="text-lg font-semibold leading-snug text-foreground md:text-xl">
+                  {nextAction.title}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {nextAction.reason}
+                </p>
+              </div>
+            </div>
           )}
-          <div className="flex flex-col gap-3 sm:col-span-3">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <StatBlock
-                label="Vues moyennes par VOD"
-                value={summary.avg_viewers > 0 ? formatNumber(summary.avg_viewers) : "—"}
-                subtext={
-                  summary.avg_viewers > 0
-                    ? summary.is_partial
-                      ? "Sur 30 jours · influencé par les rediffusions"
-                      : "Sur 30 jours · pas un compteur live"
-                    : "Pas assez de VOD récentes pour mesurer"
-                }
-              />
-              <StatBlock
-                label="Régularité"
-                value={`${score.regularity}%`}
-                subtext={
-                  ap.stream_days.current > 0
-                    ? `${formatNumber(ap.stream_days.current)} jours streamés sur 30`
-                    : "Aucun live détecté sur 30 jours"
-                }
-              />
-              {(() => {
-                const clipsCount = Number(
-                  report.facts.find((f) => f.key === "clips_30d")?.value ?? 0,
-                );
-                return (
-                  <StatBlock
-                    label="Contenu"
-                    value={`${score.content}%`}
-                    subtext={
-                      clipsCount > 0
-                        ? `${formatNumber(clipsCount)} clips récents`
-                        : "Aucun clip récent à exploiter"
-                    }
-                    accent
-                  />
-                );
-              })()}
+
+          <div className={`col-span-full ${nextAction ? "md:col-span-2" : "md:col-span-6"}`}>
+            <div className="h-full rounded-2xl border border-white/[0.07] bg-card/40 p-5 backdrop-blur-xl">
+              <span className="mb-4 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Métriques clés
+              </span>
+              <div className="space-y-3.5">
+                {[
+                  {
+                    label: "Viewers moyens",
+                    display: summary.avg_viewers > 0 ? `~${formatNumber(summary.avg_viewers)}` : "—",
+                    pct: summary.avg_viewers > 0 ? Math.min(100, (summary.avg_viewers / 100) * 100) : 0,
+                    delay: 0.8,
+                  },
+                  {
+                    label: "Régularité",
+                    display: `${score.regularity}%`,
+                    pct: score.regularity,
+                    delay: 0.9,
+                  },
+                  {
+                    label: "Contenu",
+                    display: `${score.content}%`,
+                    pct: score.content,
+                    delay: 1.0,
+                  },
+                ].map(({ label, display, pct, delay }) => (
+                  <div key={label}>
+                    <div className="mb-1.5 flex items-baseline justify-between">
+                      <span className="text-[11px] text-muted-foreground">{label}</span>
+                      <span className="text-[11px] font-semibold tabular-nums text-foreground">{display}</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted/30">
+                      <div
+                        className="h-full rounded-full bg-primary/70"
+                        style={{ width: `${pct}%`, transition: `width 1.2s ease-out ${delay}s` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+
+          {!isReconstruction && (
+            <div className="col-span-full">
+              <ScoreInsightCard score={score} />
+            </div>
+          )}
         </div>
 
-        {/* "Pourquoi ce score" — product-grade reading.
-            Replaces the previous one-line weak point card with a structured
-            narrative: tier headline + drags/supports + priority action. */}
-        {!isReconstruction && (
-          <div className="mb-8">
-            <ScoreInsightCard score={score} />
-          </div>
-        )}
-
-        {/* Learning resources targeting weak dimensions — authenticated only */}
-        {!isTeaser && !isReconstruction && score.breakdown.length > 0 && (
+        {/* Learning resources targeting weak dimensions */}
+        {!isReconstruction && score.breakdown.length > 0 && (
           <DimensionResources breakdown={score.breakdown} maxDimensions={2} />
         )}
 
-        {/* No MainBlocker / plan bridge here: the cockpit is the single
-            home that surfaces the current blocker and the weekly plan link.
-            Result must stay focused on deep diagnosis. */}
-
-
-        {!isTeaser && !isReconstruction && (
+        {!isReconstruction && (
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -742,66 +857,44 @@ const ResultPage = () => {
           </Card>
         )}
 
-        {nextAction && (
-          <Card className="mb-8 border-accent/30 bg-accent/5">
-            <CardContent className="p-5">
-              <div className="mb-1.5 flex items-center gap-2">
-                <Zap className="h-4 w-4 text-accent" />
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
-                  Action suivante
-                </h3>
-              </div>
-              <p className="text-sm font-semibold text-foreground">{nextAction.title}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{nextAction.reason}</p>
-            </CardContent>
-          </Card>
-        )}
-
         {showCompetitorsSection && (
-        <section className="mb-8">
-          <SectionHeader title="Concurrents similaires" align="left" />
-          <div className="space-y-3">
-            {visibleCompetitors.map((c) => (
-              <div key={c.id}>
-                <CompetitorCard
-                  name={c.display_name}
-                  followers={formatCompact(c.follower_count)}
-                  similarity={c.similarity_score}
-                  reasons={c.match_reasons}
-                />
-                {isPersisted && saved && (
-                  <CompetitorFeedbackBar reportId={saved.id} competitorKey={c.competitor_login} />
-                )}
-              </div>
-            ))}
-          </div>
-          {!isPersisted && (
-            <div className="relative mt-3">
-              <CompetitorCard name="" followers="" similarity={0} locked />
-              <LockedOverlay
-                message={
-                  isTeaser
-                    ? "Connecte Twitch pour voir tous les concurrents pertinents"
-                    : "Connecte Twitch pour voir plus de concurrents"
-                }
-                cta={
-                  !user
-                    ? "Créer mon compte Streamnco"
-                    : !twitchAccount
-                      ? "Connecter Twitch"
-                      : "Voir mon dashboard"
-                }
-                onUnlock={handleUnlock}
-              />
+          <section className="mb-8">
+            <SectionHeader title="Concurrents similaires" align="left" />
+            <div className="space-y-3">
+              {visibleCompetitors.map((c) => (
+                <div key={c.id}>
+                  <CompetitorCard
+                    name={c.display_name}
+                    followers={formatCompact(c.follower_count)}
+                    similarity={c.similarity_score}
+                    reasons={c.match_reasons}
+                  />
+                  {isPersisted && saved && (
+                    <CompetitorFeedbackBar reportId={saved.id} competitorKey={c.competitor_login} />
+                  )}
+                </div>
+              ))}
             </div>
-          )}
-        </section>
+            {!isPersisted && (
+              <div className="relative mt-3">
+                <CompetitorCard name="" followers="" similarity={0} locked />
+                <LockedOverlay
+                  message="Connecte Twitch pour voir tous les concurrents pertinents"
+                  cta={
+                    !user
+                      ? "Créer mon compte Streamnco"
+                      : !twitchAccount
+                        ? "Connecter Twitch"
+                        : "Voir mon dashboard"
+                  }
+                  onUnlock={handleUnlock}
+                />
+              </div>
+            )}
+          </section>
         )}
 
-        {/* Stage-aware progression module:
-            - rookie    → progression vers l'affiliation
-            - affiliate → "Déjà affilié — bravo" with mature signals
-            - partner   → "Statut partenaire confirmé" with finer signals  */}
+        {/* Stage-aware progression module */}
         {(() => {
           if (showAffiliateProgression) {
             const followersValue =
@@ -826,10 +919,7 @@ const ResultPage = () => {
                       pct:
                         followersValue === null
                           ? 0
-                          : Math.min(
-                              100,
-                              Math.round((followersValue / ap.followers.target) * 100),
-                            ),
+                          : Math.min(100, Math.round((followersValue / ap.followers.target) * 100)),
                     },
                     {
                       label: "Viewers moyens",
@@ -854,13 +944,8 @@ const ResultPage = () => {
             );
           }
 
-          // Rookie in reconstruction mode: no progression tracker shown —
-          // the FoundationModeBanner already framed the context.
-          if (stage === "rookie") {
-            return null;
-          }
+          if (stage === "rookie") return null;
 
-          // Affiliate or partner: replace affiliate tracker with stage-grade signals.
           const isPartner = stage === "partner";
           const signals = [
             { label: "Régularité", value: Math.round(score.regularity) },
@@ -883,10 +968,7 @@ const ResultPage = () => {
               <CardContent>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {signals.map((s) => (
-                    <div
-                      key={s.label}
-                      className="rounded-lg border border-border/60 bg-muted/20 p-4"
-                    >
+                    <div key={s.label} className="rounded-lg border border-border/60 bg-muted/20 p-4">
                       <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         {s.label}
                       </div>
@@ -902,19 +984,61 @@ const ResultPage = () => {
           );
         })()}
 
-        <section className="mb-8">
-          <SectionHeader title="Actions recommandées" align="left" />
-          <div className="grid gap-4 sm:grid-cols-3">
-            {priorityRecs.map((rec, i) => (
-              <RecommendationCard
-                key={rec.id}
-                icon={categoryIcons[rec.category] || Lightbulb}
-                title={rec.title}
-                reason={rec.reason}
-                action={rec.action}
-                locked={!isPersisted && i >= 2}
-              />
-            ))}
+        {/* Recommendations — glassmorphism */}
+        <section className="mb-8" style={anim(400)}>
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Actions recommandées
+          </p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {priorityRecs.map((rec, i) => {
+              const locked = !isPersisted && i >= 2;
+              const Icon = categoryIcons[rec.category] || Lightbulb;
+              return (
+                <div
+                  key={rec.id}
+                  className={`group relative overflow-hidden rounded-2xl border p-5 backdrop-blur-xl transition-all duration-300 ${
+                    locked
+                      ? "border-white/[0.04] bg-card/15"
+                      : "border-white/[0.08] bg-card/40 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)]"
+                  }`}
+                >
+                  {locked && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-background/55 backdrop-blur-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-card/70">
+                        <Lock className="h-3.5 w-3.5 text-muted-foreground/60" />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground/60">
+                        Connecte Twitch pour débloquer
+                      </p>
+                    </div>
+                  )}
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                      locked ? "bg-muted/20" : "bg-primary/15 group-hover:bg-primary/25"
+                    }`}
+                  >
+                    <Icon className={`h-4 w-4 ${locked ? "text-muted-foreground/25" : "text-primary"}`} />
+                  </div>
+                  <h3
+                    className={`mt-3 text-sm font-semibold leading-snug ${
+                      locked ? "text-foreground/25" : "text-foreground"
+                    }`}
+                  >
+                    {rec.title}
+                  </h3>
+                  <p
+                    className={`mt-1.5 text-xs leading-relaxed ${
+                      locked ? "text-muted-foreground/15" : "text-muted-foreground"
+                    }`}
+                  >
+                    {rec.reason}
+                  </p>
+                  {!locked && rec.action && (
+                    <p className="mt-3 text-xs font-medium text-primary">{rec.action}</p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -923,16 +1047,12 @@ const ResultPage = () => {
             <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
               <Lock className="h-5 w-5 text-primary" />
               <h3 className="text-base font-semibold text-foreground">
-                {isTeaser
-                  ? "Débloque l'analyse complète de ta chaîne"
-                  : "Tu veux l'analyse complète ?"}
+                Tu veux l'analyse complète ?
               </h3>
               <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                {isTeaser
-                  ? "Connecte Twitch pour sauvegarder ton analyse, débloquer les données enrichies et suivre ta progression."
-                  : user
-                    ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
-                    : "Connecte Twitch pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
+                {user
+                  ? "Connecte ton compte Twitch pour débloquer tous les concurrents, des recommandations personnalisées et un suivi hebdomadaire."
+                  : "Connecte Twitch pour sauvegarder tes analyses et débloquer tous les concurrents et recommandations."}
               </p>
               <Button onClick={handleUnlock} className="mt-2">
                 {!user
