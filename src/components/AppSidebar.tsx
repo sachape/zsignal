@@ -84,15 +84,13 @@ const AppSidebar = () => {
       <SidebarHeader className="pb-3">
         <NavLink
           to={user ? "/dashboard" : "/"}
-          className="flex h-10 items-center gap-2 px-2"
+          className="flex h-10 items-center px-2"
+          aria-label="Streamnco"
         >
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary">
-            <Zap className="h-3.5 w-3.5 text-primary-foreground" />
-          </div>
-          {!collapsed && (
-            <span className="text-sm font-semibold text-foreground">
-              StreamPulse
-            </span>
+          {collapsed ? (
+            <img src={logoMark} alt="Streamnco" className="h-7 w-7" />
+          ) : (
+            <img src={logo} alt="Streamnco" className="h-6 w-auto" />
           )}
         </NavLink>
       </SidebarHeader>
