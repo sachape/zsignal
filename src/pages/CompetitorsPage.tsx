@@ -415,10 +415,15 @@ const CompetitorsPage = () => {
   // Niche leaders fallback: always useful in exploration; thin-fill in personal.
   useEffect(() => {
     const cat =
-      benchmarkReport?.channel_summary.category ||
-      seed?.category ||
-      getPreferredNiche(user?.id)?.category ||
-      null;
+      mode === "exploration"
+        ? (getPreferredNiche(user?.id)?.category ||
+           benchmarkReport?.channel_summary.category ||
+           seed?.category ||
+           null)
+        : (benchmarkReport?.channel_summary.category ||
+           seed?.category ||
+           getPreferredNiche(user?.id)?.category ||
+           null);
     if (!cat) {
       setNicheLeaders([]);
       setNicheLeadersLoading(false);
@@ -464,11 +469,18 @@ const CompetitorsPage = () => {
     );
   }
 
+  // In exploration mode the user's explicitly chosen niche takes priority.
+  // In personal mode the live/report category drives the section context.
   const category =
-    benchmarkReport?.channel_summary.category ??
-    seed?.category ??
-    getPreferredNiche(user?.id)?.category ??
-    null;
+    mode === "exploration"
+      ? (getPreferredNiche(user?.id)?.category ??
+         benchmarkReport?.channel_summary.category ??
+         seed?.category ??
+         null)
+      : (benchmarkReport?.channel_summary.category ??
+         seed?.category ??
+         getPreferredNiche(user?.id)?.category ??
+         null);
   const hasRenderableBenchmark = renderSections.length > 0;
   const copyMechanicsCount = opportunities.length;
 
@@ -665,7 +677,7 @@ const CompetitorsPage = () => {
           </section>
         ) : null}
 
-        {(nicheLeaders.length > 0 || nicheLeadersLoading) && (
+        {(nicheLeaders.length > 0 || nicheLeadersLoading || (mode === "exploration" && !!category)) && (
           <section className="mb-8">
             <div className="mb-3 flex items-center gap-2">
               <Badge variant="outline" className="text-[10px] text-primary">
@@ -696,6 +708,12 @@ const CompetitorsPage = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : nicheLeaders.length === 0 ? (
+              <div className="rounded-xl border border-border/60 bg-card/30 p-5 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Aucun leader trouvé dans cette catégorie en ce moment.
+                </p>
               </div>
             ) : (
               <div className="grid gap-3">

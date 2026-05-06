@@ -35,7 +35,7 @@ const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
         const { channels } = await fetchCategoryLeaders({
           category: n.category,
           limit: COUNT_LIMIT,
-          language: defaultLanguage,
+          language: "all",
         });
         if (!cancelled) {
           setCounts((prev) => ({ ...prev, [n.category]: channels.length }));
