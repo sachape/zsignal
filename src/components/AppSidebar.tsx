@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Zap,
   LayoutDashboard,
   Radio,
   CalendarCheck,
@@ -14,6 +13,8 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
+import logo from "@/assets/logo.svg";
+import logoMark from "@/assets/logo-mark.svg";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
