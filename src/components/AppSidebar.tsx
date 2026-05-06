@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Zap,
   LayoutDashboard,
   Radio,
   CalendarCheck,
@@ -14,6 +13,7 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
+import logo from "@/assets/logo.svg";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -83,16 +83,14 @@ const AppSidebar = () => {
       <SidebarHeader className="pb-3">
         <NavLink
           to={user ? "/dashboard" : "/"}
-          className="flex h-10 items-center gap-2 px-2"
+          className="flex h-10 items-center px-2"
+          aria-label="Streamnco"
         >
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary">
-            <Zap className="h-3.5 w-3.5 text-primary-foreground" />
-          </div>
-          {!collapsed && (
-            <span className="text-sm font-semibold text-foreground">
-              StreamPulse
-            </span>
-          )}
+          <img
+            src={logo}
+            alt="Streamnco"
+            className={collapsed ? "h-6 w-6 object-cover object-left" : "h-6 w-auto"}
+          />
         </NavLink>
       </SidebarHeader>
 
