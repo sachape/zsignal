@@ -514,24 +514,11 @@ const DashboardPage = () => {
                     {maturityData.label}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground/60">
-                  Analysé {formatSyncRelative(currentReport.created_at)}
-                  {currentReport.is_demo && (
-                    <span className="ml-1.5 rounded-sm bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">
-                      démo
-                    </span>
-                  )}
-                  {delta !== null && delta !== 0 && (
-                    <span
-                      className={`ml-2 font-semibold ${delta > 0 ? "text-primary" : "text-destructive"}`}
-                    >
-                      {delta > 0 ? `+${delta}` : delta} pts
-                    </span>
-                  )}
-                  {delta === 0 && (
-                    <span className="ml-2 font-medium text-muted-foreground">Stable</span>
-                  )}
-                </p>
+                {currentReport.is_demo && (
+                  <span className="mt-1 inline-flex rounded-sm bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    démo
+                  </span>
+                )}
               </div>
             </div>
 
