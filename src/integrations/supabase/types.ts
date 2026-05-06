@@ -923,57 +923,84 @@ export type Database = {
       }
       weekly_action_items: {
         Row: {
+          action_key: string | null
+          auto_verifiable: boolean
           category: string
           completed_at: string | null
+          confidence: string | null
           created_at: string
           description: string | null
+          difficulty: string | null
+          evidence: Json | null
           expected_impact: string | null
           id: string
           position: number
+          priority_score: number | null
           reason: string | null
           skipped_at: string | null
           skipped_reason: string | null
           source: string | null
+          source_ref_id: string | null
+          source_type: string | null
           status: string
           title: string
           updated_at: string
           user_id: string
+          verification_signal: string | null
           weekly_milestone_id: string
         }
         Insert: {
+          action_key?: string | null
+          auto_verifiable?: boolean
           category: string
           completed_at?: string | null
+          confidence?: string | null
           created_at?: string
           description?: string | null
+          difficulty?: string | null
+          evidence?: Json | null
           expected_impact?: string | null
           id?: string
           position: number
+          priority_score?: number | null
           reason?: string | null
           skipped_at?: string | null
           skipped_reason?: string | null
           source?: string | null
+          source_ref_id?: string | null
+          source_type?: string | null
           status?: string
           title: string
           updated_at?: string
           user_id: string
+          verification_signal?: string | null
           weekly_milestone_id: string
         }
         Update: {
+          action_key?: string | null
+          auto_verifiable?: boolean
           category?: string
           completed_at?: string | null
+          confidence?: string | null
           created_at?: string
           description?: string | null
+          difficulty?: string | null
+          evidence?: Json | null
           expected_impact?: string | null
           id?: string
           position?: number
+          priority_score?: number | null
           reason?: string | null
           skipped_at?: string | null
           skipped_reason?: string | null
           source?: string | null
+          source_ref_id?: string | null
+          source_type?: string | null
           status?: string
           title?: string
           updated_at?: string
           user_id?: string
+          verification_signal?: string | null
           weekly_milestone_id?: string
         }
         Relationships: [
