@@ -178,14 +178,14 @@ const AppSidebar = () => {
               {/* Navigation */}
               <Link
                 to="/settings"
-                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-accent"
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-muted/50"
               >
                 <Settings className="h-3.5 w-3.5 text-muted-foreground" />
                 Mon compte
               </Link>
               <Link
                 to="/billing"
-                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-accent"
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-muted/50"
               >
                 <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
                 Facturation
@@ -205,7 +205,7 @@ const AppSidebar = () => {
               {/* Sign out */}
               <button
                 onClick={handleSignOut}
-                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-destructive transition-colors hover:bg-destructive/10"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 Se déconnecter
