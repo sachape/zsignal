@@ -450,22 +450,22 @@ const LeadersPage = () => {
                   </Avatar>
 
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
                       <p className="truncate text-sm font-semibold text-foreground">
                         {c.display_name}
                       </p>
                       {c.is_live && view === "all" && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
                           <Radio className="h-2 w-2" /> Live
                         </span>
                       )}
                       {c.language && (
-                        <Badge variant="outline" className="text-[10px]">
+                        <Badge variant="outline" className="shrink-0 text-[10px]">
                           {c.language.toUpperCase()}
                         </Badge>
                       )}
                     </div>
-                    <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
                       <span className="truncate">@{c.login}</span>
                       {c.game_name && (
                         <>
