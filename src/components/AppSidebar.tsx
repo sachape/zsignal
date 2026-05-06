@@ -41,7 +41,7 @@ const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
   { title: "Lives", url: "/lives", icon: Radio, end: false },
   { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
-  { title: "Parcours Affilié", url: "/affiliation", icon: Star, end: false },
+  { title: "Progression", url: "/affiliation", icon: Star, end: false },
 ];
 
 const benchmarkItems = [
