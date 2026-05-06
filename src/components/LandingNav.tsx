@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Zap, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthModal } from "@/contexts/AuthModalContext";
+import logo from "@/assets/logo.svg";
 
 const NAV_LINKS = [
   { label: "Aperçu", anchor: "preview" },
@@ -57,11 +58,8 @@ const LandingNav = () => {
     >
       <div className="container mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link to="/" className="flex shrink-0 items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-            <Zap className="h-3.5 w-3.5 text-primary-foreground" />
-          </div>
-          <span className="text-sm font-semibold text-foreground">Streamnco</span>
+        <Link to="/" className="flex shrink-0 items-center" aria-label="Streamnco">
+          <img src={logo} alt="Streamnco" className="h-6 w-auto" />
         </Link>
 
         {/* Desktop nav links */}
