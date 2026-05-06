@@ -26,6 +26,9 @@ const LastLivePage = lazy(() => import("./pages/LastLivePage.tsx"));
 const LivesPage = lazy(() => import("./pages/LivesPage.tsx"));
 const LiveDetailPage = lazy(() => import("./pages/LiveDetailPage.tsx"));
 const AffiliationPage = lazy(() => import("./pages/AffiliationPage.tsx"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
+const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
+const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const LegalTermsPage = lazy(() => import("./pages/LegalTermsPage.tsx"));
 const LegalPrivacyPage = lazy(() => import("./pages/LegalPrivacyPage.tsx"));
@@ -123,6 +126,23 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <SettingsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/billing"
+                  element={
+                    <ProtectedRoute>
+                      <BillingPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/legal/terms" element={<LegalTermsPage />} />
                 <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
                 <Route path="/legal/mentions" element={<LegalMentionsPage />} />
