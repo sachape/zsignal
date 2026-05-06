@@ -253,6 +253,11 @@ const WeeklyPlanPage = () => {
                               >
                                 {action.title}
                               </p>
+                              {action.description && !skipped && !done && (
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  {action.description}
+                                </p>
+                              )}
                               {action.reason && !skipped && (
                                 <p className="mt-1 text-xs text-muted-foreground">
                                   {action.reason}
@@ -262,6 +267,17 @@ const WeeklyPlanPage = () => {
                                 <p className="mt-0.5 text-xs text-muted-foreground/80">
                                   Impact attendu : {action.expected_impact}
                                 </p>
+                              )}
+                              {action.difficulty && !skipped && !done && (
+                                <div className="mt-1.5">
+                                  <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                                    {action.difficulty === "easy"
+                                      ? "Facile"
+                                      : action.difficulty === "medium"
+                                      ? "Moyen"
+                                      : "Avancé"}
+                                  </Badge>
+                                </div>
                               )}
                               <div className="mt-2 flex flex-wrap gap-1.5">
                                 {action.status === "todo" ? (
