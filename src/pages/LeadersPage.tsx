@@ -449,7 +449,7 @@ const LeadersPage = () => {
                     </AvatarFallback>
                   </Avatar>
 
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 overflow-hidden">
                     <div className="flex min-w-0 items-center gap-2">
                       <p className="truncate text-sm font-semibold text-foreground">
                         {c.display_name}
@@ -488,11 +488,11 @@ const LeadersPage = () => {
                     )}
                   </div>
 
-                  {/* Right columns — live viewers + score, always visible */}
-                  <div className="flex shrink-0 items-center gap-3">
+                  {/* Right stats — labels hidden on mobile, numbers always visible */}
+                  <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                     {(view === "live" || c.is_live) && (
                       <div className="text-right">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <p className="hidden text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:block">
                           Live
                         </p>
                         <p className="text-sm font-semibold tabular-nums text-foreground">
@@ -501,7 +501,7 @@ const LeadersPage = () => {
                       </div>
                     )}
                     <div className="text-right">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <p className="hidden text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:block">
                         Score
                       </p>
                       <p className={cn("text-sm font-semibold tabular-nums", tier.textClass)}>
