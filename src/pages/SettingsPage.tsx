@@ -18,17 +18,6 @@ const SettingsPage = () => {
   return (
     <AppShell>
       <PageContainer size="sm">
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="-ml-1 mb-4 gap-1.5 text-muted-foreground"
-        >
-          <Link to="/dashboard">
-            <ArrowLeft className="h-3.5 w-3.5" /> Tableau de bord
-          </Link>
-        </Button>
-
         <div className="mb-8">
           <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Paramètres

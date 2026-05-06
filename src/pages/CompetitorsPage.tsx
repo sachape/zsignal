@@ -468,16 +468,6 @@ const CompetitorsPage = () => {
   return (
     <AppShell>
       <PageContainer>
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
-        >
-          <Link to="/dashboard">
-            <ArrowLeft className="h-3.5 w-3.5" /> Tableau de bord
-          </Link>
-        </Button>
         <PageHeader
           eyebrow={mode === "personal" ? "Benchmark" : "Exploration de niche"}
           title={

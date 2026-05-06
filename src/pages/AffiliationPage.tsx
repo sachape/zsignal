@@ -168,13 +168,6 @@ const AffiliationPage = () => {
   return (
     <AppShell>
       <PageContainer>
-        {/* Back */}
-        <Button asChild variant="ghost" size="sm" className="-ml-1 mb-4 gap-1.5 text-muted-foreground">
-          <Link to="/dashboard">
-            <ArrowLeft className="h-3.5 w-3.5" /> Tableau de bord
-          </Link>
-        </Button>
-
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-wrap items-start justify-between gap-4">

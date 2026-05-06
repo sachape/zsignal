@@ -284,14 +284,6 @@ const DashboardPage = () => {
             avatarLogin={account.platform_login}
             description="Compte Twitch connecté"
           />
-          <div className="mb-6">
-            <SyncStatusCard
-              state={syncSnapshot?.state ?? "no_analysis"}
-              lastUpdatedLabel={null}
-              onManualRefresh={handleManualRefresh}
-              manualBusy={manualRefreshing}
-            />
-          </div>
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
@@ -651,24 +643,6 @@ const DashboardPage = () => {
 
           {/* Right column: sync status + insight or foundation content */}
           <div className="space-y-3">
-            <SyncStatusCard
-              state={syncSnapshot?.state ?? ("synchronized" as SyncState)}
-              lastUpdatedLabel={
-                currentReport
-                  ? `${formatDate(currentReport.created_at)} · ${formatSyncRelative(currentReport.created_at)}${currentReport.is_demo ? " · démo" : ""}${
-                      delta === null
-                        ? ""
-                        : delta === 0
-                          ? " · stable"
-                          : delta > 0
-                            ? ` · +${delta} pts`
-                            : ` · ${delta} pts`
-                    }`
-                  : null
-              }
-              onManualRefresh={handleManualRefresh}
-              manualBusy={manualRefreshing}
-            />
             {foundationActive ? (
               <>
                 <FoundationModeBanner reasons={foundation.reasons} />

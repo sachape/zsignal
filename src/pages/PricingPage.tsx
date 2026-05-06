@@ -239,18 +239,6 @@ const PricingPage = () => {
   return (
     <AppShell>
       <PageContainer>
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="-ml-1 mb-4 gap-1.5 text-muted-foreground"
-        >
-          <Link to={user ? "/dashboard" : "/"}>
-            <ArrowLeft className="h-3.5 w-3.5" />{" "}
-            {user ? "Tableau de bord" : "Accueil"}
-          </Link>
-        </Button>
-
         {/* Header */}
         <div className="mb-10 text-center">
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
@@ -279,7 +267,7 @@ const PricingPage = () => {
               )}
             >
               {tier.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-background px-1.5">
                   <Badge className="gap-1 border-primary/40 bg-primary/10 text-primary shadow-none">
                     <Sparkles className="h-3 w-3" />
                     {tier.badge}
