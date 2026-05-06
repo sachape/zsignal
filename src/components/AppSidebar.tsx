@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Zap,
   LayoutDashboard,
   Radio,
   CalendarCheck,
