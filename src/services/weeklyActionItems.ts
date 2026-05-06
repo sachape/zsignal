@@ -143,7 +143,8 @@ async function updateMilestoneDiagnosis(
     .from("weekly_milestones")
     .update({
       diagnosis,
-      generated_signals: signals,
+      // Cast: jsonb in DB; Supabase types want Json shape.
+      generated_signals: signals as unknown as never,
       generated_at: new Date().toISOString(),
     })
     .eq("id", milestoneId);

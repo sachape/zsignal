@@ -37,6 +37,9 @@ export interface WeeklyMilestoneRow {
   reached_at: string | null;
   source_session_id: string | null;
   source_debrief_id: string | null;
+  diagnosis: string | null;
+  generated_signals: Record<string, unknown> | null;
+  generated_at: string | null;
   created_at: string;
   updated_at: string;
 }
