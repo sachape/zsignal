@@ -1,7 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
   ListChecks,
   Target,
   Eye,
@@ -9,6 +7,8 @@ import {
   CheckCircle2,
   Circle,
   Sparkles,
+  XCircle,
+  RotateCcw,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -26,99 +26,92 @@ import {
   type LiveSession,
 } from "@/services/liveSessions";
 import { getOrCreateCurrentWeekMilestone } from "@/services/weeklyMilestone";
-import { buildWeeklyPlan, type WeeklyPlanView } from "@/services/weeklyPlan";
-import { getWeekKey } from "@/services/questEngine";
-
-// ── Checkbox persistence ───────────────────────────────────────────────────
-
-function getPlanChecksKey(userId: string, weekKey: string) {
-  return `plan_checks_${userId}_${weekKey}`;
-}
-
-function loadChecked(userId: string, weekKey: string): Set<string> {
-  try {
-    const raw = localStorage.getItem(getPlanChecksKey(userId, weekKey));
-    return raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set();
-  } catch {
-    return new Set();
-  }
-}
-
-function saveChecked(userId: string, weekKey: string, checked: Set<string>): void {
-  try {
-    localStorage.setItem(
-      getPlanChecksKey(userId, weekKey),
-      JSON.stringify([...checked]),
-    );
-  } catch {}
-}
-
-// Stable action ID — first 32 chars of text (actions shouldn't change mid-week)
-function actionId(text: string) {
-  return text.slice(0, 32);
-}
-
-// ── Component ──────────────────────────────────────────────────────────────
+import {
+  ensureWeeklyActionItems,
+  setActionStatus,
+  type WeeklyActionItem,
+} from "@/services/weeklyActionItems";
 
 const WeeklyPlanPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const [view, setView] = useState<WeeklyPlanView | null>(null);
+  const [milestoneTitle, setMilestoneTitle] = useState<string>("");
+  const [milestoneDiagnosis, setMilestoneDiagnosis] = useState<string | null>(null);
+  const [items, setItems] = useState<WeeklyActionItem[]>([]);
+  const [inLive, setInLive] = useState(false);
+  const [noPlan, setNoPlan] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [checked, setChecked] = useState<Set<string>>(new Set());
-  const weekKey = getWeekKey();
+
+  const refresh = useCallback(async () => {
+    if (!user) return;
+    const snap = await getLiveCockpitSnapshot(user.id);
+    setInLive(Boolean(snap.current));
+    const sessions: LiveSession[] = await listLiveSessions(user.id, 14);
+    const ended = sessions.filter((s) => s.status === "ended");
+    const debriefs: Map<string, LiveDebrief> = await getDebriefsBySessionIds(
+      ended.map((s) => s.id),
+    );
+    const milestoneView = await getOrCreateCurrentWeekMilestone(
+      user.id,
+      snap.current,
+      ended,
+      debriefs,
+    );
+    if (!milestoneView) {
+      setNoPlan(true);
+      setItems([]);
+      setMilestoneTitle("");
+      setMilestoneDiagnosis(null);
+      return;
+    }
+    setNoPlan(false);
+    const { milestone, items: persisted } = await ensureWeeklyActionItems(
+      user.id,
+      milestoneView,
+      snap.current,
+      ended,
+      debriefs,
+    );
+    setMilestoneTitle(milestone.title);
+    setMilestoneDiagnosis(milestone.diagnosis);
+    setItems(persisted);
+  }, [user]);
 
   useEffect(() => {
     if (authLoading || !user) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const snap = await getLiveCockpitSnapshot(user.id);
-      const sessions: LiveSession[] = await listLiveSessions(user.id, 14);
-      const ended = sessions.filter((s) => s.status === "ended");
-      const debriefs: Map<string, LiveDebrief> = await getDebriefsBySessionIds(
-        ended.map((s) => s.id),
-      );
-      const milestone = await getOrCreateCurrentWeekMilestone(
-        user.id,
-        snap.current,
-        ended,
-        debriefs,
-      );
-      const built = buildWeeklyPlan({
-        current: snap.current,
-        recentSessions: ended,
-        recentDebriefs: debriefs,
-        milestone,
-      });
-      if (!cancelled) {
-        setView(built);
-        setChecked(loadChecked(user.id, weekKey));
-        setLoading(false);
-      }
+      await refresh();
+      if (!cancelled) setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, authLoading, weekKey]);
+  }, [authLoading, user, refresh]);
 
-  const toggle = useCallback(
-    (id: string) => {
-      if (!user) return;
-      setChecked((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) {
-          next.delete(id);
-        } else {
-          next.add(id);
-        }
-        saveChecked(user.id, weekKey, next);
-        return next;
-      });
+  const handleStatus = useCallback(
+    async (id: string, status: "todo" | "done" | "skipped") => {
+      // Optimistic update
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === id
+            ? {
+                ...it,
+                status,
+                completed_at:
+                  status === "done" ? new Date().toISOString() : null,
+                skipped_at:
+                  status === "skipped" ? new Date().toISOString() : null,
+              }
+            : it,
+        ),
+      );
+      await setActionStatus(id, status);
     },
-    [user, weekKey],
+    [],
   );
 
-  if (loading || !view) {
+  if (loading) {
     return (
       <AppShell>
         <LoadingState />
@@ -126,21 +119,22 @@ const WeeklyPlanPage = () => {
     );
   }
 
-  const totalActions = view.actions.length;
-  const completedCount = view.actions.filter((a) => checked.has(actionId(a))).length;
+  const totalActions = items.length;
+  const completedCount = items.filter((a) => a.status === "done").length;
   const allDone = totalActions > 0 && completedCount === totalActions;
-  const progressPct = totalActions > 0 ? Math.round((completedCount / totalActions) * 100) : 0;
+  const progressPct =
+    totalActions > 0 ? Math.round((completedCount / totalActions) * 100) : 0;
 
   return (
     <AppShell>
       <PageContainer size="sm">
         <PageHeader
-          eyebrow={view.contextLabel}
+          eyebrow={inLive ? "Live en cours" : "Plan de la semaine"}
           title="Plan de la semaine"
           description="Une feuille de route simple basée sur tes derniers lives."
         />
 
-        {view.state === "in_live" ? (
+        {inLive ? (
           <Card>
             <CardContent className="flex items-start gap-4 p-6">
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
@@ -151,42 +145,48 @@ const WeeklyPlanPage = () => {
                   Ton live est en cours.
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {view.watch?.text}
+                  Le plan de la semaine sera mis à jour à la fin de cette session.
                 </p>
               </div>
             </CardContent>
           </Card>
+        ) : noPlan ? (
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-sm text-muted-foreground">
+                Pas encore assez de signaux. Connecte Twitch et lance un premier
+                live pour générer un plan plus précis.
+              </p>
+            </CardContent>
+          </Card>
         ) : (
           <div className="space-y-4">
-            {/* Block 1 — Priority */}
-            {view.priority && (
-              <Card>
-                <CardContent className="space-y-4 p-6">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-                      <Target className="h-4 w-4 text-primary" />
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      Priorité de la semaine
-                    </Badge>
+            {/* Goal + diagnosis */}
+            <Card>
+              <CardContent className="space-y-3 p-6">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                    <Target className="h-4 w-4 text-primary" />
                   </div>
-                  <h2 className="text-lg font-medium leading-snug text-foreground">
-                    {view.priority.title}
-                  </h2>
-                  {view.priority.detail && (
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {view.priority.detail}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                  <Badge variant="secondary" className="text-xs">
+                    Cap de la semaine
+                  </Badge>
+                </div>
+                <h2 className="text-lg font-medium leading-snug text-foreground">
+                  {milestoneTitle}
+                </h2>
+                {milestoneDiagnosis && (
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {milestoneDiagnosis}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
 
-            {/* Block 2 — Checklist */}
+            {/* Action items */}
             {totalActions > 0 && (
               <Card>
                 <CardContent className="space-y-4 p-6">
-                  {/* Header + progress */}
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
@@ -201,17 +201,13 @@ const WeeklyPlanPage = () => {
                     </span>
                   </div>
 
-                  {/* Progress bar */}
-                  {totalActions > 0 && (
-                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all duration-500"
-                        style={{ width: `${progressPct}%` }}
-                      />
-                    </div>
-                  )}
+                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-500"
+                      style={{ width: `${progressPct}%` }}
+                    />
+                  </div>
 
-                  {/* All done state */}
                   {allDone ? (
                     <div className="rounded-xl border border-primary/25 bg-primary/[0.06] p-4 text-center">
                       <Sparkles className="mx-auto mb-2 h-5 w-5 text-primary" />
@@ -224,37 +220,81 @@ const WeeklyPlanPage = () => {
                     </div>
                   ) : (
                     <ul className="space-y-2">
-                      {view.actions.map((action, idx) => {
-                        const id = actionId(action);
-                        const done = checked.has(id);
+                      {items.map((action) => {
+                        const done = action.status === "done";
+                        const skipped = action.status === "skipped";
                         return (
-                          <li key={`${idx}-${id}`}>
-                            <button
-                              onClick={() => toggle(id)}
-                              aria-pressed={done}
-                              className={`group flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all duration-150 ${
-                                done
-                                  ? "border-primary/20 bg-primary/[0.04]"
-                                  : "border-border/30 hover:border-border/60 hover:bg-muted/20"
-                              }`}
-                            >
-                              <div className="mt-0.5 shrink-0">
-                                {done ? (
-                                  <CheckCircle2 className="h-4 w-4 text-primary" />
-                                ) : (
-                                  <Circle className="h-4 w-4 text-muted-foreground/40 group-hover:text-muted-foreground/70" />
-                                )}
-                              </div>
-                              <span
-                                className={`text-sm leading-relaxed transition-colors ${
+                          <li
+                            key={action.id}
+                            className={`flex items-start gap-3 rounded-lg border p-3 transition-all ${
+                              done
+                                ? "border-primary/20 bg-primary/[0.04]"
+                                : skipped
+                                ? "border-border/30 bg-muted/20 opacity-60"
+                                : "border-border/30 hover:border-border/60"
+                            }`}
+                          >
+                            <div className="mt-0.5 shrink-0">
+                              {done ? (
+                                <CheckCircle2 className="h-4 w-4 text-primary" />
+                              ) : skipped ? (
+                                <XCircle className="h-4 w-4 text-muted-foreground/60" />
+                              ) : (
+                                <Circle className="h-4 w-4 text-muted-foreground/50" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p
+                                className={`text-sm leading-relaxed ${
                                   done
                                     ? "text-muted-foreground line-through"
                                     : "text-foreground"
                                 }`}
                               >
-                                {action}
-                              </span>
-                            </button>
+                                {action.title}
+                              </p>
+                              {action.reason && !skipped && (
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  {action.reason}
+                                </p>
+                              )}
+                              {action.expected_impact && !skipped && (
+                                <p className="mt-0.5 text-xs text-muted-foreground/80">
+                                  Impact attendu : {action.expected_impact}
+                                </p>
+                              )}
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                {action.status === "todo" ? (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-7 text-xs"
+                                      onClick={() => handleStatus(action.id, "done")}
+                                    >
+                                      <CheckCircle2 className="h-3 w-3" /> Fait
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 text-xs"
+                                      onClick={() => handleStatus(action.id, "skipped")}
+                                    >
+                                      <XCircle className="h-3 w-3" /> Passer
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 text-xs"
+                                    onClick={() => handleStatus(action.id, "todo")}
+                                  >
+                                    <RotateCcw className="h-3 w-3" /> Annuler
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
                           </li>
                         );
                       })}
@@ -264,24 +304,17 @@ const WeeklyPlanPage = () => {
               </Card>
             )}
 
-            {/* Block 3 — Watch point */}
-            {view.watch && (
-              <Card>
-                <CardContent className="flex items-start gap-3 p-5">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted">
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                      Point à surveiller
-                    </p>
-                    <p className="text-sm leading-relaxed text-foreground">
-                      {view.watch.text}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardContent className="flex items-start gap-3 p-5">
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted">
+                  <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Ce plan reste stable toute la semaine. Tes statuts sont
+                  enregistrés et synchronisés sur tous tes appareils.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         )}
       </PageContainer>
