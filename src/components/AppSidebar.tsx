@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Zap,
   LayoutDashboard,
@@ -9,6 +9,10 @@ import {
   Trophy,
   LogOut,
   Star,
+  ChevronUp,
+  CreditCard,
+  Settings,
+  Sparkles,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -24,7 +28,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
@@ -121,37 +125,93 @@ const AppSidebar = () => {
 
       <SidebarFooter>
         {user && (
-          <div
-            className={cn(
-              "flex items-center gap-2 rounded-md p-2",
-              collapsed && "justify-center p-1",
-            )}
-          >
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold text-foreground">
-              {user.email?.[0]?.toUpperCase() ?? "?"}
-            </div>
-            {!collapsed && (
-              <div className="min-w-0 flex-1">
-                <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-                  Compte StreamPulse
-                </p>
-                <p className="truncate text-xs font-medium text-foreground">
-                  {user.email}
-                </p>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-md p-2 transition-colors hover:bg-sidebar-accent",
+                  collapsed && "justify-center p-1",
+                )}
+              >
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
+                  {user.email?.[0]?.toUpperCase() ?? "?"}
+                </div>
+                {!collapsed && (
+                  <>
+                    <div className="min-w-0 flex-1 text-left">
+                      <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                        Compte
+                      </p>
+                      <p className="truncate text-xs font-medium text-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                    <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />
+                  </>
+                )}
+              </button>
+            </PopoverTrigger>
+
+            <PopoverContent
+              side="top"
+              align="start"
+              sideOffset={8}
+              className="w-64 p-1.5"
+            >
+              {/* Identity — non-cliquable */}
+              <div className="flex items-center gap-3 px-2 py-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
+                  {user.email?.[0]?.toUpperCase() ?? "?"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-medium text-foreground">
+                    {user.email}
+                  </p>
+                  <span className="mt-0.5 inline-flex items-center rounded-full border border-border/60 bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    Plan Gratuit
+                  </span>
+                </div>
               </div>
-            )}
-            {!collapsed && (
-              <Button
-                variant="ghost"
-                size="icon"
+
+              <div className="my-1 h-px bg-border/60" />
+
+              {/* Navigation */}
+              <Link
+                to="/settings"
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-accent"
+              >
+                <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                Mon compte
+              </Link>
+              <Link
+                to="/billing"
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-accent"
+              >
+                <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
+                Facturation
+              </Link>
+
+              {/* Upgrade CTA */}
+              <Link
+                to="/pricing"
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Passer au Pro
+              </Link>
+
+              <div className="my-1 h-px bg-border/60" />
+
+              {/* Sign out */}
+              <button
                 onClick={handleSignOut}
-                className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                aria-label="Déconnexion"
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <LogOut className="h-3.5 w-3.5" />
-              </Button>
-            )}
-          </div>
+                Se déconnecter
+              </button>
+            </PopoverContent>
+          </Popover>
         )}
       </SidebarFooter>
     </Sidebar>
