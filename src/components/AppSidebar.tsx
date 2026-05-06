@@ -89,8 +89,7 @@ const AppSidebar = () => {
           <img
             src={logo}
             alt="Streamnco"
-            className={collapsed ? "h-6 w-6 object-contain object-left" : "h-6 w-auto"}
-            style={collapsed ? { objectPosition: "right" } : undefined}
+            className={collapsed ? "h-6 w-6 object-cover object-left" : "h-6 w-auto"}
           />
         </NavLink>
       </SidebarHeader>
