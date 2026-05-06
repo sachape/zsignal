@@ -78,8 +78,8 @@ const ScoreInsightCard = ({ score, compact = false }: Props) => {
             {narrative.miniBreakdown.map((d) => {
               const dTheme = getTierTheme(d.tier);
               return (
-                <div key={d.label} className="flex items-center gap-3">
-                  <span className="w-28 text-xs text-muted-foreground">{d.label}</span>
+                <div key={d.label} className="flex items-center gap-2 sm:gap-3">
+                  <span className="w-20 shrink-0 text-xs text-muted-foreground sm:w-28">{d.label}</span>
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                     <div
                       className={`h-full ${dTheme.progressClass} transition-all`}

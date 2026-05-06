@@ -169,7 +169,7 @@ const PlaybookDetailPage = () => {
                     {i + 1}
                   </div>
                   {i < playbook.steps.length - 1 && (
-                    <div className="my-1 w-px flex-1 bg-gradient-to-b from-primary/30 to-transparent" style={{ minHeight: "20px" }} />
+                    <div className="my-1 min-h-5 w-px flex-1 bg-gradient-to-b from-primary/30 to-transparent" />
                   )}
                 </div>
 

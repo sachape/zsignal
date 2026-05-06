@@ -262,7 +262,7 @@ const TeaserResultLayout = ({
         <div className="pointer-events-none absolute -bottom-20 right-0 h-64 w-64 rounded-full bg-primary/8 blur-3xl" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_55%)]" />
 
-        <div className="relative flex flex-col items-center gap-6 px-6 py-12 text-center md:py-16">
+        <div className="relative flex flex-col items-center gap-5 px-4 py-8 text-center sm:px-6 sm:py-12 md:py-16">
 
           {/* Avatar */}
           <div className="relative">
@@ -383,11 +383,11 @@ const TeaserResultLayout = ({
       )}
 
       {/* ── 4. SIGNAL BENTO ──────────────────────────────────────── */}
-      <div style={anim(280)} className="grid gap-3 md:grid-cols-6">
+      <div style={anim(280)} className="grid gap-3 lg:grid-cols-6">
 
         {/* Next action — large */}
         {nextAction && (
-          <div className="col-span-full md:col-span-4">
+          <div className="col-span-full lg:col-span-4">
             <div className="h-full rounded-2xl border border-primary/20 bg-primary/[0.06] p-6 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)] backdrop-blur-xl">
               <div className="mb-3 flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
@@ -408,7 +408,7 @@ const TeaserResultLayout = ({
         )}
 
         {/* Affiliate progression mini */}
-        <div className="col-span-full md:col-span-2">
+        <div className="col-span-full lg:col-span-2">
           <div className="h-full rounded-2xl border border-white/[0.07] bg-card/40 p-5 backdrop-blur-xl">
             <span className="mb-4 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Vers l'affiliation
@@ -479,7 +479,7 @@ const TeaserResultLayout = ({
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Actions recommandées
           </p>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {priorityRecs.map((rec, i) => {
               const locked = i >= 2;
               const Icon = categoryIcons[rec.category] ?? Lightbulb;
@@ -543,7 +543,7 @@ const TeaserResultLayout = ({
         className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-card/20 backdrop-blur-xl"
       >
         {/* Blurred decorative UI */}
-        <div className="pointer-events-none select-none p-6 blur-[3.5px]" aria-hidden>
+        <div className="pointer-events-none select-none p-4 blur-[3.5px] sm:p-6" aria-hidden>
           <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Analyse complète
           </p>
@@ -661,7 +661,7 @@ const TeaserResultLayout = ({
           </div>
 
           {/* Benefits grid */}
-          <div className="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-2 md:grid-cols-3">
+          <div className="mx-auto mt-6 grid max-w-3xl gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: TrendingUp,

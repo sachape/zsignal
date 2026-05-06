@@ -18,7 +18,7 @@ const sizeMap = {
  */
 const PageContainer = ({ children, className, size = "md" }: Props) => {
   return (
-    <div className={cn("container mx-auto px-4 py-8 md:px-6 md:py-10", sizeMap[size], className)}>
+    <div className={cn("container mx-auto px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10", sizeMap[size], className)}>
       {children}
     </div>
   );

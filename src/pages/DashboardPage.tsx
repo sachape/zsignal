@@ -740,12 +740,12 @@ const DashboardPage = () => {
         )}
 
         {/* Navigation hub — all cockpit surfaces at a glance */}
-        <div className="animate-fade-up mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3" style={{ animationDelay: "120ms" }}>
+        <div className="animate-fade-up mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3" style={{ animationDelay: "120ms" }}>
           {navHub.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-card/40 p-5 backdrop-blur-xl transition-all duration-300 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)]"
+              className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-card/40 p-4 backdrop-blur-xl transition-all duration-300 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)] sm:p-5"
             >
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative">

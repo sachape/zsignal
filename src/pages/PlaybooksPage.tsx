@@ -37,8 +37,9 @@ const PlaybooksPage = () => {
           description="Des guides courts et concrets pour appliquer les recommandations de ton plan."
         />
 
-        {/* Filters */}
-        <div className="mb-6 flex flex-wrap gap-2">
+        {/* Filters — scrollable on mobile, wrapped on desktop */}
+        <div className="-mx-4 mb-6 overflow-x-auto px-4 pb-1 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0">
+          <div className="flex gap-2 sm:flex-wrap">
           {ALL_TAGS.map((t) => {
             const count =
               t.tag === "all"
@@ -69,6 +70,7 @@ const PlaybooksPage = () => {
               </button>
             );
           })}
+          </div>
         </div>
 
         {/* Grid */}

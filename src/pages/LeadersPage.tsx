@@ -245,7 +245,7 @@ const LeadersPage = () => {
 
         {/* Secondary filters */}
         <Card className="mb-6">
-          <CardContent className="grid gap-3 p-4 md:grid-cols-2 lg:grid-cols-4">
+          <CardContent className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">
               <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Catégorie Twitch
