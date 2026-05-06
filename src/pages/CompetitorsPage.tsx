@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Trophy, Users, Info, Bug, Compass } from "lucide-react";
+import { ArrowLeft, Trophy, Users, Info, Bug, Compass, Lock } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -716,56 +716,86 @@ const CompetitorsPage = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-3">
-                {nicheLeaders.map((c, i) => (
-                  <Link
-                    key={c.id}
-                    to={`/streamer/${c.login}`}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40"
-                  >
-                    <span className="w-5 shrink-0 text-right text-xs font-semibold text-muted-foreground">
-                      {i + 1}
-                    </span>
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted text-[10px] font-semibold">
-                      {c.profile_image_url ? (
-                        <img
-                          src={c.profile_image_url}
-                          alt={c.login}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        c.login.slice(0, 2).toUpperCase()
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex min-w-0 items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                          {c.display_name}
-                        </p>
-                        {c.is_live && (
-                          <span className="shrink-0 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
-                            Live
+              <>
+                <div className="grid gap-3">
+                  {nicheLeaders.map((c, i) => {
+                    const locked = i >= 3;
+                    return (
+                      <div key={c.id} className="relative">
+                        <Link
+                          to={locked ? "#" : `/streamer/${c.login}`}
+                          onClick={locked ? (e) => e.preventDefault() : undefined}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors",
+                            locked
+                              ? "pointer-events-none select-none border-border/40 blur-[2px]"
+                              : "border-border hover:border-primary/40",
+                          )}
+                        >
+                          <span className="w-5 shrink-0 text-right text-xs font-semibold text-muted-foreground">
+                            {i + 1}
                           </span>
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted text-[10px] font-semibold">
+                            {c.profile_image_url ? (
+                              <img
+                                src={c.profile_image_url}
+                                alt={c.login}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              c.login.slice(0, 2).toUpperCase()
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <p className="truncate text-sm font-semibold text-foreground">
+                                {c.display_name}
+                              </p>
+                              {c.is_live && (
+                                <span className="shrink-0 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                                  Live
+                                </span>
+                              )}
+                            </div>
+                            <p className="truncate text-xs text-muted-foreground">
+                              @{c.login}
+                              {c.is_live && c.live_viewer_count
+                                ? ` · ${c.live_viewer_count.toLocaleString("fr-FR")} viewers`
+                                : c.game_name
+                                  ? ` · ${c.game_name}`
+                                  : ""}
+                            </p>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <p className="text-sm font-bold tabular-nums text-primary">
+                              {c.stream_score}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">score</p>
+                          </div>
+                        </Link>
+                        {locked && (
+                          <div className="absolute inset-0 flex items-center justify-between gap-3 rounded-lg bg-background/70 px-4 backdrop-blur-[2px]">
+                            <div className="flex items-center gap-2">
+                              <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                              <span className="text-xs font-medium text-muted-foreground">
+                                Profil Pro
+                              </span>
+                            </div>
+                            <Button asChild size="sm" variant="outline" className="h-7 text-[10px]">
+                              <Link to="/pricing">Débloquer</Link>
+                            </Button>
+                          </div>
                         )}
                       </div>
-                      <p className="truncate text-xs text-muted-foreground">
-                        @{c.login}
-                        {c.is_live && c.live_viewer_count
-                          ? ` · ${c.live_viewer_count.toLocaleString("fr-FR")} viewers`
-                          : c.game_name
-                            ? ` · ${c.game_name}`
-                            : ""}
-                      </p>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-sm font-bold tabular-nums text-primary">
-                        {c.stream_score}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">score</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+                {nicheLeaders.length > 3 && (
+                  <p className="mt-3 text-center text-[10px] text-muted-foreground">
+                    {nicheLeaders.length - 3} leader{nicheLeaders.length - 3 > 1 ? "s" : ""} supplémentaire{nicheLeaders.length - 3 > 1 ? "s" : ""} disponible{nicheLeaders.length - 3 > 1 ? "s" : ""} en Pro
+                  </p>
+                )}
+              </>
             )}
           </section>
         )}
