@@ -90,6 +90,7 @@ const DashboardPage = () => {
   const [focusSlot, setFocusSlot] = useState<CockpitFocusSlot>("none");
   const [manualRefreshing, setManualRefreshing] = useState(false);
   const [ringMounted, setRingMounted] = useState(false);
+  const [displayScore, setDisplayScore] = useState(0);
   const [showPostGen, setShowPostGen] = useState(false);
   const [allSessions, setAllSessions] = useState<LiveSession[]>([]);
   const [weeklyQuests, setWeeklyQuests] = useState<WeeklyQuests | null>(null);
@@ -211,9 +212,27 @@ const DashboardPage = () => {
   // Replay ring animation whenever a new report is loaded.
   useEffect(() => {
     setRingMounted(false);
+    setDisplayScore(0);
     const id = requestAnimationFrame(() => setRingMounted(true));
     return () => cancelAnimationFrame(id);
   }, [currentReport?.id]);
+
+  // Count-up: animates score number in sync with the ring.
+  useEffect(() => {
+    if (!ringMounted) return;
+    const target = currentReport?.report?.score?.overall ?? 0;
+    if (target === 0) return;
+    const duration = 1400;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplayScore(Math.round(eased * target));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    const rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [ringMounted, currentReport?.report?.score?.overall]);
 
   // Sync weekly quests whenever sessions or report changes
   useEffect(() => {
@@ -427,7 +446,7 @@ const DashboardPage = () => {
         )}
 
         {/* Identity strip */}
-        <div className="relative mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl sm:p-6">
+        <div className="animate-fade-up relative mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl sm:p-6">
           <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-primary/[0.07] blur-3xl" aria-hidden />
           <div className="pointer-events-none absolute bottom-0 right-0 h-32 w-64 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.06),transparent_60%)]" aria-hidden />
 
@@ -536,13 +555,14 @@ const DashboardPage = () => {
         </div>
 
         {/* Score bento: large ring left, focus content right */}
-        <div className="mb-6 grid gap-4 md:grid-cols-[220px_1fr]">
+        <div className="animate-fade-up mb-6 grid gap-4 md:grid-cols-[220px_1fr]" style={{ animationDelay: '80ms' }}>
           {/* Score ring column */}
           <div className="relative flex flex-col items-center overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl">
             <div
-              className="pointer-events-none absolute inset-0"
+              className="pointer-events-none absolute inset-0 transition-opacity duration-[1400ms] ease-out"
               style={{
-                background: `radial-gradient(circle at 50% 10%, hsl(${theme.strokeVar} / 0.08), transparent 65%)`,
+                background: `radial-gradient(circle at 50% 20%, hsl(${theme.strokeVar} / 0.30), transparent 68%)`,
+                opacity: ringMounted ? 1 : 0,
               }}
               aria-hidden
             />
@@ -585,8 +605,8 @@ const DashboardPage = () => {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-4xl font-bold tracking-tight ${theme.textClass}`}>
-                  {score.overall}
+                <span className={`text-4xl font-bold tabular-nums tracking-tight ${theme.textClass}`}>
+                  {displayScore}
                 </span>
                 <span className="mt-0.5 text-[11px] text-muted-foreground">/ 100</span>
               </div>
@@ -692,11 +712,13 @@ const DashboardPage = () => {
 
         {/* Weekly quests — only outside foundation mode */}
         {!foundationActive && weeklyQuests && (
-          <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} />
+          <div className="animate-fade-up" style={{ animationDelay: '160ms' }}>
+            <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} />
+          </div>
         )}
 
         {/* Live stack */}
-        <div className="mb-6 space-y-2.5">
+        <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '220ms' }}>
           <LiveStatusCard
             current={liveSnapshot?.current ?? null}
             last={liveSnapshot?.last ?? null}
