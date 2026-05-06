@@ -367,22 +367,7 @@ const DashboardPage = () => {
   const foundation = diagnoseFoundationMode(report);
   const foundationActive = foundation.isActive && !currentReport.is_demo;
 
-  // Sprint 1 — gamification derived state
-  const streakData = useMemo(() => computeStreak(allSessions), [allSessions]);
-  const maturityData = useMemo(
-    () =>
-      computeMaturityLevel(
-        score.overall,
-        allSessions.filter((s) => s.status === "ended").length,
-      ),
-    [score.overall, allSessions],
-  );
-  const badges = useMemo(() => {
-    const b = evaluateBadges({ sessions: allSessions, report, userId: user!.id });
-    const newIds = b.filter((badge) => badge.isNew).map((badge) => badge.id);
-    if (newIds.length > 0) markBadgesSeen(user!.id, newIds);
-    return b;
-  }, [allSessions, report, user]);
+  // Sprint 1 — gamification derived state (already hoisted above early returns)
 
   // Premium design derived state
   const tier = getScoreTier(score.overall);
