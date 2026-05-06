@@ -1,122 +1,178 @@
-# Audit — Weekly action plan / progression / recommendation system
 
-Scope: read-only audit. No tables, edge functions, or UI changes proposed for execution yet.
+# Smarter Weekly Action Items
 
----
+Make `weekly_action_items` contextual, less repetitive, and signal-driven — without breaking the current "stable for the week" guarantee.
 
-## A. Already exists
+## 1. Database migration
 
-### Database (Supabase)
+Add nullable metadata columns to `weekly_action_items`:
 
-| Table | Role | RLS |
-|---|---|---|
-| `weekly_milestones` | One row per `(user_id, week_start)`. Holds `kind` (reconstruction/stabilization/confirmation), `title`, `rationale`, `target_count`, `status` (not_started / in_progress / reached / paused), `reached_at`, source links. | Per `user_id` (full CRUD). |
-| `live_debriefs` | Per-session debrief: `verdict`, `strength`, `weakness`, `priority_action`, sub-scores, `has_enough_signal`. Source of "what to fix next". | Per `user_id`. |
-| `creator_alerts` | EventSub-derived alerts (raids, follow spikes, etc.) with `kind`, `title`, `body`, `severity`, `read_at`. | SELECT/UPDATE via `connected_accounts`. |
-| `recommendations` | Per `analysis_job_id`, with `title`, `category`, `priority`, `is_locked`. | Via job ownership. |
-| `stream_scores` | History of `overall_score` + 8 dimension scores per analysis job. | Via job ownership. |
-| `live_sessions` + `live_snapshots` | Live history feeding all of the above. | Per user / via session. |
+- `action_key text`
+- `priority_score integer`
+- `confidence text` — CHECK in (`low`,`medium`,`high`)
+- `difficulty text` — CHECK in (`easy`,`medium`,`hard`)
+- `verification_signal text`
+- `auto_verifiable boolean default false`
+- `source_type text`
+- `source_ref_id text`
+- `evidence jsonb`
 
-### Backend / edge functions
+Index: `(user_id, action_key, created_at desc)` to support cross-week dedup lookups.
 
-- `twitch-analyze` — runs `generateRecommendations` (in `recommendationEngine.ts`) and persists into `recommendations` table at analysis time.
-- `live-detect` — generates a `live_debriefs` row when a session ends (writes `verdict`, `strength`, `priority_action`, `has_enough_signal`).
-- `twitch-eventsub-processor` — writes `creator_alerts`.
-- No edge function generates `weekly_milestones` — that is done client-side in `weeklyMilestone.ts` (`getOrCreateCurrentWeekMilestone`, upsert on first cockpit visit of the week).
+No changes to: `recommendations`, `weekly_quests`, EventSub tables, `weekly_milestones` columns.
 
-### Frontend services
+## 2. New service modules
 
-- `services/weeklyMilestone.ts` — picks one of 3 templates based on debrief signal, persists in `weekly_milestones`, reconciles status from `ended` session count vs `target_count`.
-- `services/weeklyPlan.ts` — pure aggregator returning a `WeeklyPlanView` with: `priority` (1 main goal), `actions` (≤3 imperatives), `watch` (1 secondary line). 5 states: `in_live | no_history | inactivity | low_signal | ready`.
-- `services/recommendationEngine.ts` — generates priority recs + `next-action` + `short-term-goal` from `StreamScore` + facts (used at analysis time, not weekly).
-- `services/cockpitFocus.ts` — arbitrates which card owns the cockpit "focus" slot (milestone vs inactivity).
-- `services/questEngine.ts` — weekly quests (verifiable + manual), checked state in `localStorage`.
-- `services/prelive.ts`, `services/smartAlerts.ts`, `services/lastVsAverage.ts`, `services/inactivityRelance.ts`, `services/foundationMode.ts` — all feed cockpit blocks.
+```text
+src/services/weeklyActions/
+├── catalog.ts          # Static catalog of ActionCandidate definitions
+├── signals.ts          # Extract signals from DB into a typed bundle
+├── maturity.ts         # Deterministic classifier → 'setup'|'inactive'|'active'|'growth'
+├── ranking.ts          # Score + diversify + dedup against last 2 weeks
+├── diagnosis.ts        # Richer buildDiagnosis using full signal bundle
+└── generate.ts         # Orchestrates: signals → maturity → eligible → rank → top 3
+```
 
-### Frontend components (cockpit)
+`weeklyActionItems.ts` keeps `ensureWeeklyActionItems` / `setActionStatus` / `listForMilestone` and delegates generation to `generate.ts`. Existing `categorize()` regex stays only as a legacy fallback if a candidate ever omits a category.
 
-- `WeeklyMilestoneCard` — current week cap, status badge.
-- `WeeklySequenceCard` — short ordered list "what you do this week" (from `foundationMode`); links to `/plan`.
-- `WeeklyQuestCard` — 3 weekly quests with progress.
-- `NextMilestoneCard`, `MainBlockerCard`, `RecommendationCard`, `SmartAlertsCard`, `LiveStatusCard`, `PreLiveChecklistCard`, `LastVsAverageCard`, `InactivityRelanceCard`, `EventSubCockpitSection`, `ScoreInsightCard`, `ProgressionSignalsCard`, `FoundationModeBanner`.
-- `pages/WeeklyPlanPage.tsx` (`/plan`) — full page using `buildWeeklyPlan` with localStorage-backed checkboxes for actions.
+## 3. Action catalog (`catalog.ts`)
 
----
+Each entry:
 
-## B. Partially exists
+```ts
+interface ActionCandidate {
+  action_key: string;
+  category: ActionCategory;
+  title: string;
+  description?: string;
+  reason: (s: SignalBundle) => string;
+  expected_impact: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  confidence: 'low' | 'medium' | 'high';
+  verification_signal?: string;   // stored, not used yet
+  auto_verifiable?: boolean;
+  source_type?: string;
+  source_ref: (s: SignalBundle) => string | null;
+  evidence: (s: SignalBundle) => Record<string, unknown>;
+  eligible: (s: SignalBundle) => boolean;
+  score: (s: SignalBundle) => { urgency: number; impact: number; novelty: number };
+}
+```
 
-1. **Action items with status (todo / done / skipped)**
-   - Today: actions are plain strings rendered by `WeeklyPlanPage`, with checked state stored only in `localStorage` (`plan_checks_<user>_<week>`). Same pattern for quests (`quests_checks_…`).
-   - Missing: per-action persistence in DB, `skipped` status, server-side completion signal.
+Initial catalog covers the 6 examples in the request:
+`setup_complete_twitch_foundation`, `consistency_schedule_next_live`, `content_create_clips_from_last_live`, `positioning_stabilize_title_category`, `community_reinforce_momentum`, `debrief_fix_priority_weakness` — plus 3–4 supporting variants per maturity tier so `growth` and `active` users get more than just one option (e.g. `consistency_protect_streak`, `discovery_review_tags_category`, `monetization_review_affiliate_path`).
 
-2. **One plan per user per week**
-   - `weekly_milestones` enforces this for the **goal** (one row per week_start). `weekly_plan` itself is **rebuilt on the fly** client-side from milestone + debriefs + signals — not persisted.
+## 4. Signal extraction (`signals.ts`)
 
-3. **Recommendations**
-   - DB table exists and is populated at analysis time (linked to `analysis_job_id`), not refreshed weekly. Two parallel "reco" concepts coexist: snapshot recs (`recommendations` table) and weekly action lines (computed in `weeklyPlan.ts`). They are not unified.
+Single `loadSignalBundle(userId)` returning:
 
-4. **Diagnosis**
-   - Exists implicitly as `milestone.rationale` and `debrief.priority_action` / `weakness`. There is no single "diagnosis" field on a weekly plan.
+```ts
+{
+  sessions_count, recent_sessions_count, last_session,
+  debriefs_count, latest_debrief, latest_weakness, latest_priority_action,
+  inactivity_tier,
+  channel_updates_count_14d,
+  community_events_count_14d, community_event_kinds,
+  stream_score_latest,                       // null if absent
+  facts: { broadcaster_type, follower_count, avg_viewers, ... } | null,
+  facts_available: boolean,
+  prior_action_keys_2w: string[],            // for novelty/repetition
+  prior_skipped_keys_2w: string[],
+}
+```
 
----
+Reads (RLS-scoped, user-side queries):
+- `live_sessions` last 30d
+- `live_debriefs` for those sessions
+- `creator_alerts` last 14d (via broadcaster_user_id from `connected_accounts`)
+- `channel_update_history` last 14d
+- `community_events` last 14d
+- `stream_scores` latest (joined via `analysis_jobs`)
+- `analysis_reports` latest `report_data.facts`
+- `weekly_action_items` user_id, last 2 weeks (action_key, status)
 
-## C. Missing
+Missing signals are recorded as nulls + `availability` flags inside `generated_signals`.
 
-- No `weekly_action_plans` table (header per week with diagnosis, generated_at, source signals, etc.).
-- No `weekly_action_items` table (per-action rows with `status: todo|done|skipped`, `completed_at`, server-side check).
-- No `creator_goals` / `next_actions` / `tasks` tables.
-- No edge function that **regenerates** the weekly plan on a schedule (today: lazy generation client-side on first visit, only the milestone row is persisted).
-- No history of past weekly plans (only past milestones).
-- No "skipped" state anywhere.
+## 5. Maturity classifier (`maturity.ts`)
 
----
+Deterministic rules, in order:
+1. **setup** — `sessions_count < 2` OR `debriefs_count === 0` OR all recent debriefs `has_enough_signal === false`
+2. **inactive** — inactivity_tier in (`soft`,`paused`,`rebuild`)
+3. **growth** — recent sessions ≥ 2 AND (`community_events_count_14d ≥ 3` OR `stream_score_latest.overall_score ≥ 60` OR latest debrief `strength` present)
+4. **active** — fallback when sessions exist but signals are weak
 
-## D. What the user sees today in the cockpit
+State stored in `weekly_milestones.generated_signals.maturity_state`.
 
-`DashboardPage` composes, in order: scope drift banner → foundation banner → live status → pre-live checklist → smart alerts → weekly milestone → inactivity relance → last-vs-average → score insight → next milestone → main blocker → weekly sequence (links to `/plan`) → weekly quests → EventSub section → community/recommendations cards → recent reports.
+## 6. Ranking (`ranking.ts`)
 
-So the user already sees: live status, alerts, channel updates, community counters, weekly milestone, top recommendations (from last analysis), debrief signals (via comparison cards), StreamScore + tier narrative, weekly quests, and a "Plan détaillé" entry to `/plan`.
+```text
+priority_score =
+  urgency + impact + confidenceWeight - repetition_penalty + novelty_bonus
+```
 
----
+- `confidenceWeight`: low=0, medium=2, high=4
+- `repetition_penalty`: +6 if action_key seen in last 2 weeks AND not skipped/critical
+- `novelty_bonus`: +2 if action_key never used by this user
+- Pick top by score, then enforce diversification: max 1 per category among the final 3 (relax to 2 only if no other eligible candidate exists)
+- Always cap at 3
+- If no candidate is eligible → fall back to `setup_complete_twitch_foundation`
 
-## E. Gap vs target
+## 7. Diagnosis (`diagnosis.ts`)
 
-| Target requirement | Status |
-|---|---|
-| One main goal for the week | ✅ `weekly_milestones.title` |
-| Short diagnosis | 🟡 Implicit in `milestone.rationale` + last `debrief.priority_action`; no dedicated field |
-| Up to 3 concrete action items | ✅ `weeklyPlan.actions` (computed, not persisted) |
-| Status: todo / done / skipped | 🟡 todo/done in `localStorage` only; no `skipped`; no DB |
-| Generated from real Twitch / EventSub / product signals | ✅ Already pulls from `live_sessions`, `live_debriefs`, `creator_alerts`, `prelive`, `lastVsAverage` |
-| One plan per user per week | 🟡 True for milestone row; plan body itself not persisted |
-| No fake data | ✅ All sources are real DB rows |
-| RLS scoped by `user_id` | ✅ On every relevant table |
+Layered, picks the most specific applicable line:
+- setup → "Pas encore assez de signaux…"
+- inactive → "Ton enjeu principal est de reprendre une régularité minimale…"
+- positioning instability (`channel_updates_count_14d ≥ 3`) → "Tes changements récents de titre ou de catégorie…"
+- community momentum (`community_events_count_14d ≥ 3`) → "Tu as eu des signaux communautaires récents…"
+- debrief weakness present → "Ton dernier débrief montre que le principal levier est : [priority_action]"
+- otherwise → existing milestone rationale
 
----
+## 8. Generation flow (`generate.ts`)
 
-## F. Recommendation
+```text
+ensureWeeklyActionItems(milestone)
+  → if items already exist for milestone → return as-is (no overwrite)
+  → loadSignalBundle()
+  → maturity = classify(bundle)
+  → eligibleCandidates = catalog.filter(c.eligible(bundle))
+  → ranked = rank(eligibleCandidates, bundle)
+  → top3 = pick(ranked)
+  → write generated_signals (full bundle summary + maturity + selected/rejected keys)
+  → write diagnosis
+  → INSERT 3 action items with all metadata fields
+  → on unique violation (parallel tab) → re-read and return
+```
 
-**Reuse + extend, do not create parallel tables.**
+Status updates (`setActionStatus`) unchanged.
 
-Preferred path (smallest, most coherent change — to validate before building):
+## 9. UI updates (presentation only)
 
-1. **Keep `weekly_milestones` as the weekly header** (one row per user/week). Add 2 nullable columns to carry the diagnosis explicitly: `diagnosis text`, `generated_signals jsonb`. No new "plan" table.
-2. **Create one new table `weekly_action_items`** keyed on `weekly_milestone_id` + `position`, with `text`, `status (todo|done|skipped)`, `source` (debrief/prelive/alert/manual), `completed_at`, `skipped_reason`. RLS via `weekly_milestones.user_id`. This replaces the localStorage checkbox hack and unlocks the `skipped` state required by the target.
-3. **Keep `recommendations` (analysis-job-scoped) untouched** — it is a different concept (snapshot at analysis time, surfaced on the report). Do not merge with weekly actions.
-4. **Move plan generation to a small edge function** (or a server-trusted RPC) that materializes the 3 actions when the milestone is created, so the plan body is stable for the whole week instead of being recomputed on each visit.
-5. **Cockpit UI**: `WeeklyMilestoneCard` + `WeeklySequenceCard` already render this — they would just bind to persisted action items instead of derived strings + `localStorage`.
+- `WeeklyMilestoneCard` and `WeeklyPlanPage` already render title + reason + expected_impact. Add `description` line (small muted) and an optional difficulty chip (`Facile` / `Moyen` / `Avancé`) — only when value present.
+- Hide internal fields: `action_key`, `priority_score`, `evidence`, `source_ref_id`, `verification_signal`, `auto_verifiable`.
+- Keep existing status controls and shadcn cockpit styling.
 
-Alternative "no new table" path: store `diagnosis` + `actions[]` (with status) as a `jsonb` column on `weekly_milestones`. Faster to ship, but loses per-item history, indexing, and clean RLS on individual checks. Recommended only if we explicitly want to avoid schema growth.
+## 10. Out of scope (explicitly NOT done)
 
----
+- No new tables (`weekly_action_plans`, `next_actions`, `creator_goals`).
+- No auto-completion logic — `verification_signal` and `auto_verifiable` are stored only.
+- No EventSub changes, no `weekly_quests` changes, no `recommendations` merge.
+- No regeneration for the current week if items already exist.
 
-## G. Risks of duplication
+## 11. QA scenarios to validate manually after build
 
-- **Two "recommendation" concepts** already coexist (`recommendations` table at analysis time vs `weeklyPlan.actions` at week time). Adding a third surface (e.g. `next_actions`) would make things worse — must be avoided.
-- **Quests vs actions overlap**: `WeeklyQuestCard` (3 quests with manual check) and `WeeklyPlanPage` actions both ask the user to check things off weekly. If we persist action items, we should decide whether quests stay (different intent: gamified streak) or are merged.
-- **Two checkbox stores in `localStorage`** (`plan_checks_…` and `quests_checks_…`) will become stale once we move to DB; need a migration or a clean cutover.
-- **Client-side milestone generation** is racy across tabs (no `unique(user_id, week_start)` mentioned in the schema dump); recommend adding that constraint before persisting more weekly data.
+A. New streamer → maturity=setup, action=`setup_complete_twitch_foundation`, diagnosis honest.
+B. Inactive → maturity=inactive, action=`consistency_schedule_next_live`, no monetization advice.
+C. Active + recent live, no clips → `content_create_clips_from_last_live` with reason citing missing reuse signal.
+D. Repeated title/category changes → `positioning_stabilize_title_category` with channel_update evidence.
+E. Recent follows/subs → `community_reinforce_momentum` with community_events evidence.
+F. Same weakness as last week → `debrief_fix_priority_weakness` deprioritized via repetition_penalty unless skipped.
 
----
+## Acceptance checklist
 
-No code changes proposed in this plan — it is an audit. Next step is to choose between the **extend (new `weekly_action_items` table)** path and the **jsonb-on-milestone** path before writing any migration or component change.
+- migration applied, no destructive changes
+- `weekly_action_items` gains 9 nullable columns
+- candidates emit category directly; regex only as fallback
+- max 3 actions, stable for the week, no overwrite
+- generated_signals contains full bundle + maturity + selected/rejected action_keys
+- diagnosis is signal-specific
+- no fake data, no tokens, RLS preserved
