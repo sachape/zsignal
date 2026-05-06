@@ -488,29 +488,28 @@ const LeadersPage = () => {
                     )}
                   </div>
 
-                  {/* Live viewers — only meaningful in live view (or for live rows in all view) */}
-                  {(view === "live" || c.is_live) && (
-                    <div className="hidden text-right sm:block">
+                  {/* Right columns — live viewers + score, always visible */}
+                  <div className="flex shrink-0 items-center gap-3">
+                    {(view === "live" || c.is_live) && (
+                      <div className="text-right">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          Live
+                        </p>
+                        <p className="text-sm font-semibold tabular-nums text-foreground">
+                          {formatViewers(c.live_viewer_count)}
+                        </p>
+                      </div>
+                    )}
+                    <div className="text-right">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        {view === "live" ? "Audience live" : "Live"}
+                        Score
                       </p>
-                      <p className="text-sm font-semibold tabular-nums text-foreground">
-                        {formatViewers(c.live_viewer_count)}
+                      <p className={cn("text-sm font-semibold tabular-nums", tier.textClass)}>
+                        {c.stream_score}
                       </p>
                     </div>
-                  )}
-
-                  {/* StreamScore — tinted by tier (red / orange / green) */}
-                  <div className="text-right">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Score
-                    </p>
-                    <p className={cn("text-sm font-semibold tabular-nums", tier.textClass)}>
-                      {c.stream_score}
-                    </p>
+                    <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
                   </div>
-
-                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary" />
                 </Link>
               );
             })}
