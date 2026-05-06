@@ -435,7 +435,7 @@ const LeadersPage = () => {
                 <Link
                   key={c.id}
                   to={`/streamer/${c.login}`}
-                  className="group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-card/80"
+                  className="group flex items-center gap-2 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-card/80 sm:gap-3"
                 >
                   <span className="w-7 text-right text-xs font-semibold tabular-nums text-muted-foreground">
                     #{c.rank}
@@ -488,28 +488,18 @@ const LeadersPage = () => {
                     )}
                   </div>
 
-                  {/* Right stats — labels hidden on mobile, numbers always visible */}
-                  <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                  {/* Right stats — stacked single column, always visible */}
+                  <div className="shrink-0 text-right">
                     {(view === "live" || c.is_live) && (
-                      <div className="text-right">
-                        <p className="hidden text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:block">
-                          Live
-                        </p>
-                        <p className="text-sm font-semibold tabular-nums text-foreground">
-                          {formatViewers(c.live_viewer_count)}
-                        </p>
-                      </div>
+                      <p className="text-xs font-semibold tabular-nums text-muted-foreground">
+                        {formatViewers(c.live_viewer_count)}
+                      </p>
                     )}
-                    <div className="text-right">
-                      <p className="hidden text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:block">
-                        Score
-                      </p>
-                      <p className={cn("text-sm font-semibold tabular-nums", tier.textClass)}>
-                        {c.stream_score}
-                      </p>
-                    </div>
-                    <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
+                    <p className={cn("text-sm font-bold tabular-nums", tier.textClass)}>
+                      {c.stream_score}
+                    </p>
                   </div>
+                  <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
                 </Link>
               );
             })}
