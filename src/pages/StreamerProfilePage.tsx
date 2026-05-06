@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -44,6 +44,7 @@ import {
   removeFromWatchlist,
 } from "@/services/benchmarkWatchlist";
 import { toast } from "@/hooks/use-toast";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { evaluatePairwiseFit, type CandidateChannel, type TargetSignal } from "@/services/competitorEngine";
 
 type Relation = "direct" | "catch-up" | "inspiration" | "self" | "none" | "unknown";
@@ -539,6 +540,23 @@ const StreamerProfilePage = () => {
     };
   }, [user, account?.platform_user_id]);
 
+  const pageMeta = useMemo(() => {
+    if (!report) return null;
+    const streams30d = Number(report.facts.find((f) => f.key === "streams_30d")?.value ?? 0);
+    const name = report.channel_summary.display_name;
+    const cat = report.channel_summary.category;
+    return {
+      title: `${name} — Profil Twitch`,
+      description: `Analyse publique de ${name} : StreamScore ${report.score.overall}/100${streams30d > 0 ? `, ${streams30d} streams/30j` : ""}${cat ? `, catégorie ${cat}` : ""}.`,
+      ogTitle: `${name} — Profil Twitch`,
+      ogDescription: `StreamScore ${report.score.overall}/100 · ${cat ?? "Twitch"} · Découvrez les mécaniques de cette chaîne.`,
+      ogImage: report.identity?.avatar_url ?? undefined,
+      ogType: "profile" as const,
+      canonical: `https://streamnco.com/streamer/${login}`,
+    };
+  }, [report, login]);
+  usePageMeta(pageMeta);
+
   if (loading) {
     return (
       <AppShell>
@@ -641,8 +659,22 @@ const StreamerProfilePage = () => {
           description={`@${report.identity?.platform_login ?? summary.channel_name} · profil à inspecter pour comparer, apprendre et extraire des mécaniques utiles.`}
         />
 
-
-
+        {/* Acquisition CTA — only for anonymous visitors */}
+        {!user && (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/[0.04] p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Tu streames toi aussi ?
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Analyse ta chaîne Twitch gratuitement — StreamScore, progression affilié, benchmarks concurrents.
+              </p>
+            </div>
+            <Button asChild size="sm" className="shrink-0">
+              <Link to="/">Analyser ma chaîne →</Link>
+            </Button>
+          </div>
+        )}
 
         <Card className={`mb-6 ${toneStyles[framing.tone]}`}>
           <CardContent className="p-5">
@@ -990,11 +1022,23 @@ const StreamerProfilePage = () => {
                   </>
                 )}
               </Button>
-              <Button asChild size="sm" variant="ghost">
-                <Link to="/competitors">
-                  <Users className="h-3.5 w-3.5" /> Retour aux Concurrents
-                </Link>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast({ title: "Lien copié !" });
+                }}
+              >
+                <Copy className="h-3.5 w-3.5" /> Partager ce profil
               </Button>
+              {user && (
+                <Button asChild size="sm" variant="ghost">
+                  <Link to="/competitors">
+                    <Users className="h-3.5 w-3.5" /> Retour aux Concurrents
+                  </Link>
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

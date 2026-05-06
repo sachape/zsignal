@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Check, ChevronRight, ChevronsUpDown, Loader2, Radio, Trophy } from "lucide-react";
 import AppShell from "@/components/AppShell";
@@ -95,6 +97,8 @@ const SIGNAL_TONE_CLASS: Record<"primary" | "warning" | "muted" | "destructive",
  * Each row enriched client-side with a teaser StreamScore + benchmark tags.
  */
 const LeadersPage = () => {
+  const { user } = useAuth();
+
   // Selected canonical category (name only — backend resolves to game_id).
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("all");
@@ -166,6 +170,12 @@ const LeadersPage = () => {
     return sorted.map((r, i) => ({ ...r, rank: i + 1 }));
   }, [rows, view, sort]);
 
+  const pageMeta = useMemo(() => ({
+    title: `Classement ${category} — Benchmark Twitch`,
+    description: `Découvre les meilleures chaînes Twitch de la catégorie ${category}. StreamScore, audience, clips — classés automatiquement par Streamnco.`,
+  }), [category]);
+  usePageMeta(pageMeta);
+
   const pickCategory = (name: string) => {
     setCategory(name);
     setCatQuery("");
@@ -191,6 +201,23 @@ const LeadersPage = () => {
           title="Classements"
           description="Benchmark de catégorie Twitch, avec une vue live à la demande."
         />
+
+        {/* Acquisition CTA — visitors without an account */}
+        {!user && (
+          <div className="mb-6 flex flex-col gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Tu streames dans cette catégorie ?
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Analyse ta chaîne gratuitement et compare-toi à ces streamers.
+              </p>
+            </div>
+            <Button asChild size="sm" className="shrink-0">
+              <Link to="/">Analyser ma chaîne →</Link>
+            </Button>
+          </div>
+        )}
 
         {/* View switcher — primary control: it changes the meaning of the page,
             not just a secondary attribute. Sits above the standard filters. */}
