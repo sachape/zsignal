@@ -783,33 +783,25 @@ const DashboardPage = () => {
         )}
 
         {/* Live stack */}
-        <div className="animate-fade-up mb-6" style={{ animationDelay: '220ms' }}>
+        <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '220ms' }}>
           <LiveStatusCard
             current={liveSnapshot?.current ?? null}
             last={liveSnapshot?.last ?? null}
             lastDebrief={liveSnapshot?.lastDebrief ?? null}
           />
-          <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2">
-            <LastVsAverageCard current={liveSnapshot?.current ?? null} />
-            <PreLiveChecklistCard
-              current={liveSnapshot?.current ?? null}
-              last={liveSnapshot?.last ?? null}
-              lastDebrief={liveSnapshot?.lastDebrief ?? null}
-            />
-          </div>
-          {(focusSlot === "milestone" || focusSlot === "inactivity") && (
-            <div className="mt-2.5">
-              {focusSlot === "milestone" && (
-                <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
-              )}
-              {focusSlot === "inactivity" && (
-                <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
-              )}
-            </div>
+          <LastVsAverageCard current={liveSnapshot?.current ?? null} />
+          {focusSlot === "milestone" && (
+            <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
           )}
-          <div className="mt-2.5">
-            <SmartAlertsCard current={liveSnapshot?.current ?? null} />
-          </div>
+          {focusSlot === "inactivity" && (
+            <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
+          )}
+          <PreLiveChecklistCard
+            current={liveSnapshot?.current ?? null}
+            last={liveSnapshot?.last ?? null}
+            lastDebrief={liveSnapshot?.lastDebrief ?? null}
+          />
+          <SmartAlertsCard current={liveSnapshot?.current ?? null} />
         </div>
 
         {/* EventSub product signals */}

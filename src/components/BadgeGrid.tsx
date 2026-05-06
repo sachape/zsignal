@@ -9,7 +9,7 @@ interface Props {
 const BadgeCell = ({ badge }: { badge: Badge }) => {
   return (
     <div
-      className={`relative flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all duration-200 ${
+      className={`relative flex flex-col items-center gap-2.5 rounded-xl border p-4 text-center transition-all duration-200 ${
         badge.unlocked
           ? "border-primary/20 bg-primary/[0.04] hover:border-primary/35 hover:bg-primary/[0.07]"
           : "border-border/30 bg-muted/20 opacity-50"
@@ -104,24 +104,23 @@ const BadgeGrid = ({ badges }: Props) => {
 
       {/* Unlocked badges */}
       {unlocked.length > 0 ? (
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-7">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {unlocked.map((b) => (
             <BadgeCell key={b.id} badge={b} />
           ))}
-          {/* Locked badges inline when "see all" is toggled */}
           {showLocked &&
             locked.map((b) => <BadgeCell key={b.id} badge={b} />)}
         </div>
       ) : (
-        <div className="rounded-xl border border-border/30 bg-muted/20 py-8 text-center">
+        <div className="rounded-xl border border-border/30 bg-muted/20 py-6 text-center">
           <p className="text-sm text-muted-foreground">
             Aucun badge débloqué pour l'instant.
           </p>
-          <p className="mt-1 text-xs text-muted-foreground/60">
+          <p className="mt-0.5 text-xs text-muted-foreground/60">
             Continue à streamer régulièrement pour les débloquer.
           </p>
           {showLocked && locked.length > 0 && (
-            <div className="mt-4 grid grid-cols-3 gap-2 px-4 sm:grid-cols-4 md:grid-cols-7">
+            <div className="mt-4 grid grid-cols-2 gap-3 px-4 sm:grid-cols-3">
               {locked.map((b) => (
                 <BadgeCell key={b.id} badge={b} />
               ))}
