@@ -921,9 +921,77 @@ export type Database = {
           },
         ]
       }
+      weekly_action_items: {
+        Row: {
+          category: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          expected_impact: string | null
+          id: string
+          position: number
+          reason: string | null
+          skipped_at: string | null
+          skipped_reason: string | null
+          source: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          weekly_milestone_id: string
+        }
+        Insert: {
+          category: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          expected_impact?: string | null
+          id?: string
+          position: number
+          reason?: string | null
+          skipped_at?: string | null
+          skipped_reason?: string | null
+          source?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          weekly_milestone_id: string
+        }
+        Update: {
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          expected_impact?: string | null
+          id?: string
+          position?: number
+          reason?: string | null
+          skipped_at?: string | null
+          skipped_reason?: string | null
+          source?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          weekly_milestone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_action_items_weekly_milestone_id_fkey"
+            columns: ["weekly_milestone_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_milestones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       weekly_milestones: {
         Row: {
           created_at: string
+          diagnosis: string | null
+          generated_at: string | null
+          generated_signals: Json | null
           id: string
           kind: string
           rationale: string
@@ -940,6 +1008,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          diagnosis?: string | null
+          generated_at?: string | null
+          generated_signals?: Json | null
           id?: string
           kind: string
           rationale: string
@@ -956,6 +1027,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          diagnosis?: string | null
+          generated_at?: string | null
+          generated_signals?: Json | null
           id?: string
           kind?: string
           rationale?: string
