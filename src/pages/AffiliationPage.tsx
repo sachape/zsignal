@@ -36,6 +36,17 @@ interface Criterion {
   tip: string;
 }
 
+function projectWeeks(current: number, target: number): string | null {
+  if (current <= 0) return null;
+  if (current >= target) return null;
+  const pacePerWeek = current / 4.3;
+  const needed = target - current;
+  const weeks = Math.ceil(needed / pacePerWeek);
+  if (weeks > 52) return "plus d'un an";
+  if (weeks === 1) return "~1 semaine";
+  return `~${weeks} semaines`;
+}
+
 function buildCriteria(ap: AffiliateProgress): Criterion[] {
   return [
     {
@@ -293,9 +304,26 @@ const AffiliationPage = () => {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <p className={`mt-2 text-[10px] font-semibold tabular-nums ${colors.text}`}>
-                        {done ? "Atteint ✓" : `${pct}% — encore ${formatNumber(c.target - c.current)} ${c.id === "stream_days" ? "jour(s)" : c.id === "stream_hours" ? "heure(s)" : ""}`}
-                      </p>
+                      {done ? (
+                        <p className="mt-2 text-[10px] font-semibold text-primary">Atteint ✓</p>
+                      ) : (
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3">
+                          <p className={`text-[10px] font-semibold tabular-nums ${colors.text}`}>
+                            {pct}% — encore {formatNumber(c.target - c.current)}{" "}
+                            {c.id === "stream_days" ? "jour(s)" : c.id === "stream_hours" ? "heure(s)" : ""}
+                          </p>
+                          {(c.id === "stream_days" || c.id === "stream_hours") && (
+                            (() => {
+                              const proj = projectWeeks(c.current, c.target);
+                              return proj ? (
+                                <p className="text-[10px] text-muted-foreground/60">
+                                  {proj} à ce rythme
+                                </p>
+                              ) : null;
+                            })()
+                          )}
+                        </div>
+                      )}
                     </>
                   ) : (
                     <p className="text-xs text-muted-foreground/60">

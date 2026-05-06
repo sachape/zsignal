@@ -52,6 +52,7 @@ import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { onboardingFlags } from "@/services/onboardingFlags";
 import { formatNumber, formatCompact } from "@/lib/format";
+import DimensionResources from "@/components/DimensionResources";
 
 type SelectionSource =
   | "explicit_report_id"
@@ -707,6 +708,11 @@ const ResultPage = () => {
           <div className="mb-8">
             <ScoreInsightCard score={score} />
           </div>
+        )}
+
+        {/* Learning resources targeting weak dimensions — authenticated only */}
+        {!isTeaser && !isReconstruction && score.breakdown.length > 0 && (
+          <DimensionResources breakdown={score.breakdown} maxDimensions={2} />
         )}
 
         {/* No MainBlocker / plan bridge here: the cockpit is the single

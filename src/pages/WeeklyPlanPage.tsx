@@ -1,6 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ListChecks, Target, Eye, Radio } from "lucide-react";
+import {
+  ArrowLeft,
+  ListChecks,
+  Target,
+  Eye,
+  Radio,
+  CheckCircle2,
+  Circle,
+  Sparkles,
+} from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -18,33 +27,63 @@ import {
 } from "@/services/liveSessions";
 import { getOrCreateCurrentWeekMilestone } from "@/services/weeklyMilestone";
 import { buildWeeklyPlan, type WeeklyPlanView } from "@/services/weeklyPlan";
+import { getWeekKey } from "@/services/questEngine";
+
+// ── Checkbox persistence ───────────────────────────────────────────────────
+
+function getPlanChecksKey(userId: string, weekKey: string) {
+  return `plan_checks_${userId}_${weekKey}`;
+}
+
+function loadChecked(userId: string, weekKey: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(getPlanChecksKey(userId, weekKey));
+    return raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function saveChecked(userId: string, weekKey: string, checked: Set<string>): void {
+  try {
+    localStorage.setItem(
+      getPlanChecksKey(userId, weekKey),
+      JSON.stringify([...checked]),
+    );
+  } catch {}
+}
+
+// Stable action ID — first 32 chars of text (actions shouldn't change mid-week)
+function actionId(text: string) {
+  return text.slice(0, 32);
+}
+
+// ── Component ──────────────────────────────────────────────────────────────
 
 const WeeklyPlanPage = () => {
   const { user, loading: authLoading } = useAuth();
   const [view, setView] = useState<WeeklyPlanView | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const weekKey = getWeekKey();
 
   useEffect(() => {
     if (authLoading || !user) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
-      // 1. Live snapshot (current + last + last debrief).
       const snap = await getLiveCockpitSnapshot(user.id);
-      // 2. Recent sessions + their debriefs (same window the cockpit uses).
       const sessions: LiveSession[] = await listLiveSessions(user.id, 14);
       const ended = sessions.filter((s) => s.status === "ended");
       const debriefs: Map<string, LiveDebrief> = await getDebriefsBySessionIds(
         ended.map((s) => s.id),
       );
-      // 3. Current-week milestone (read-or-create, stable for the week).
       const milestone = await getOrCreateCurrentWeekMilestone(
         user.id,
         snap.current,
         ended,
         debriefs,
       );
-      // 4. Aggregate.
       const built = buildWeeklyPlan({
         current: snap.current,
         recentSessions: ended,
@@ -53,13 +92,31 @@ const WeeklyPlanPage = () => {
       });
       if (!cancelled) {
         setView(built);
+        setChecked(loadChecked(user.id, weekKey));
         setLoading(false);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, authLoading]);
+  }, [user, authLoading, weekKey]);
+
+  const toggle = useCallback(
+    (id: string) => {
+      if (!user) return;
+      setChecked((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+        saveChecked(user.id, weekKey, next);
+        return next;
+      });
+    },
+    [user, weekKey],
+  );
 
   if (loading || !view) {
     return (
@@ -68,6 +125,11 @@ const WeeklyPlanPage = () => {
       </AppShell>
     );
   }
+
+  const totalActions = view.actions.length;
+  const completedCount = view.actions.filter((a) => checked.has(actionId(a))).length;
+  const allDone = totalActions > 0 && completedCount === totalActions;
+  const progressPct = totalActions > 0 ? Math.round((completedCount / totalActions) * 100) : 0;
 
   return (
     <AppShell>
@@ -91,8 +153,8 @@ const WeeklyPlanPage = () => {
 
         {view.state === "in_live" ? (
           <Card>
-            <CardContent className="p-6 flex items-start gap-4">
-              <div className="h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center">
+            <CardContent className="flex items-start gap-4 p-6">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
                 <Radio className="h-4 w-4 text-primary" />
               </div>
               <div className="space-y-1">
@@ -107,23 +169,23 @@ const WeeklyPlanPage = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {/* Block 1 — Priority of the week */}
+            {/* Block 1 — Priority */}
             {view.priority && (
               <Card>
-                <CardContent className="p-6 space-y-4">
+                <CardContent className="space-y-4 p-6">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
                       <Target className="h-4 w-4 text-primary" />
                     </div>
                     <Badge variant="secondary" className="text-xs">
                       Priorité de la semaine
                     </Badge>
                   </div>
-                  <h2 className="text-lg font-medium text-foreground leading-snug">
+                  <h2 className="text-lg font-medium leading-snug text-foreground">
                     {view.priority.title}
                   </h2>
                   {view.priority.detail && (
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm leading-relaxed text-muted-foreground">
                       {view.priority.detail}
                     </p>
                   )}
@@ -131,49 +193,100 @@ const WeeklyPlanPage = () => {
               </Card>
             )}
 
-            {/* Block 2 — Sequence of actions */}
-            {view.actions.length > 0 && (
+            {/* Block 2 — Checklist */}
+            {totalActions > 0 && (
               <Card>
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center">
-                      <ListChecks className="h-4 w-4 text-muted-foreground" />
+                <CardContent className="space-y-4 p-6">
+                  {/* Header + progress */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
+                        <ListChecks className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        À faire cette semaine
+                      </Badge>
                     </div>
-                    <Badge variant="secondary" className="text-xs">
-                      À faire cette semaine
-                    </Badge>
+                    <span className="text-xs tabular-nums text-muted-foreground">
+                      {completedCount}/{totalActions}
+                    </span>
                   </div>
-                  <ol className="space-y-3">
-                    {view.actions.map((action, idx) => (
-                      <li
-                        key={`${idx}-${action.slice(0, 24)}`}
-                        className="flex items-start gap-3"
-                      >
-                        <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-muted text-[11px] font-medium text-muted-foreground flex items-center justify-center">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm text-foreground leading-relaxed">
-                          {action}
-                        </span>
-                      </li>
-                    ))}
-                  </ol>
+
+                  {/* Progress bar */}
+                  {totalActions > 0 && (
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all duration-500"
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                  )}
+
+                  {/* All done state */}
+                  {allDone ? (
+                    <div className="rounded-xl border border-primary/25 bg-primary/[0.06] p-4 text-center">
+                      <Sparkles className="mx-auto mb-2 h-5 w-5 text-primary" />
+                      <p className="text-sm font-semibold text-foreground">
+                        Semaine complète !
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Toutes les actions cochées — reviens lundi pour la suite.
+                      </p>
+                    </div>
+                  ) : (
+                    <ul className="space-y-2">
+                      {view.actions.map((action, idx) => {
+                        const id = actionId(action);
+                        const done = checked.has(id);
+                        return (
+                          <li key={`${idx}-${id}`}>
+                            <button
+                              onClick={() => toggle(id)}
+                              aria-pressed={done}
+                              className={`group flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all duration-150 ${
+                                done
+                                  ? "border-primary/20 bg-primary/[0.04]"
+                                  : "border-border/30 hover:border-border/60 hover:bg-muted/20"
+                              }`}
+                            >
+                              <div className="mt-0.5 shrink-0">
+                                {done ? (
+                                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                                ) : (
+                                  <Circle className="h-4 w-4 text-muted-foreground/40 group-hover:text-muted-foreground/70" />
+                                )}
+                              </div>
+                              <span
+                                className={`text-sm leading-relaxed transition-colors ${
+                                  done
+                                    ? "text-muted-foreground line-through"
+                                    : "text-foreground"
+                                }`}
+                              >
+                                {action}
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </CardContent>
               </Card>
             )}
 
-            {/* Block 3 — Point to watch */}
+            {/* Block 3 — Watch point */}
             {view.watch && (
               <Card>
-                <CardContent className="p-5 flex items-start gap-3">
-                  <div className="mt-0.5 h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0">
+                <CardContent className="flex items-start gap-3 p-5">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted">
                     <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">
                       Point à surveiller
                     </p>
-                    <p className="text-sm text-foreground leading-relaxed">
+                    <p className="text-sm leading-relaxed text-foreground">
                       {view.watch.text}
                     </p>
                   </div>
