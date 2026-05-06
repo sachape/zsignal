@@ -88,9 +88,9 @@ const AppSidebar = () => {
           aria-label="Streamnco"
         >
           <img
-            src={logo}
+            src={collapsed ? logoMark : logo}
             alt="Streamnco"
-            className={collapsed ? "h-6 w-6 object-cover object-left" : "h-6 w-auto"}
+            className={collapsed ? "h-6 w-6" : "h-6 w-auto"}
           />
         </NavLink>
       </SidebarHeader>
