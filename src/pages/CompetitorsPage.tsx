@@ -777,10 +777,28 @@ const CompetitorsPage = () => {
             align="left"
           />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {opportunities.map((op) => (
-              <OpportunityCard key={op.id} opportunity={op} />
+            {opportunities.map((op, i) => (
+              <OpportunityCard
+                key={op.id}
+                opportunity={op}
+                index={i}
+                locked={i >= 3}
+              />
             ))}
           </div>
+          {opportunities.length > 3 && (
+            <div className="mt-6 flex flex-col items-center gap-2 rounded-2xl border border-primary/20 bg-primary/[0.04] px-6 py-5 text-center">
+              <p className="text-sm font-semibold text-foreground">
+                {opportunities.length - 3} opportunité{opportunities.length - 3 > 1 ? "s" : ""} supplémentaire{opportunities.length - 3 > 1 ? "s" : ""} disponible{opportunities.length - 3 > 1 ? "s" : ""}
+              </p>
+              <p className="max-w-sm text-xs text-muted-foreground">
+                Passe au plan Pro pour voir toutes tes opportunités de croissance et les mettre en place cette semaine.
+              </p>
+              <Button asChild size="sm" className="mt-1 h-8 text-xs">
+                <Link to="/pricing">Voir le plan Pro</Link>
+              </Button>
+            </div>
+          )}
         </section>
       </PageContainer>
     </AppShell>
