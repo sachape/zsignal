@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sparkles, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   NICHE_SUGGESTIONS,
   setPreferredNiche,
   getPreferredNiche,
 } from "@/services/preferredNiche";
+import { fetchCategoryLeaders } from "@/services/leadersService";
 
 interface Props {
   userId: string | null | undefined;
@@ -16,12 +18,37 @@ interface Props {
   onChange?: (category: string) => void;
 }
 
+const COUNT_LIMIT = 50;
+
 const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
   const initial = getPreferredNiche(userId);
   const [selected, setSelected] = useState<string | null>(
     initial?.category ?? null,
   );
   const [custom, setCustom] = useState("");
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCount = async (n: (typeof NICHE_SUGGESTIONS)[0]) => {
+      try {
+        const { channels } = await fetchCategoryLeaders({
+          category: n.category,
+          limit: COUNT_LIMIT,
+          language: defaultLanguage,
+        });
+        if (!cancelled) {
+          setCounts((prev) => ({ ...prev, [n.category]: channels.length }));
+        }
+      } catch {
+        // ignore failed count fetches
+      }
+    };
+    NICHE_SUGGESTIONS.forEach((n) => fetchCount(n));
+    return () => {
+      cancelled = true;
+    };
+  }, [defaultLanguage]);
 
   const apply = (cat: string) => {
     if (!cat.trim()) return;
@@ -51,6 +78,7 @@ const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
         <div className="flex flex-wrap gap-2">
           {NICHE_SUGGESTIONS.map((n) => {
             const active = selected === n.category;
+            const count = counts[n.category];
             return (
               <Button
                 key={n.category}
@@ -61,6 +89,16 @@ const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
               >
                 {active && <Check className="mr-1 h-3 w-3" />}
                 {n.label}
+                {count !== undefined && (
+                  <span
+                    className={cn(
+                      "ml-1.5 tabular-nums text-[10px]",
+                      active ? "opacity-75" : "opacity-50",
+                    )}
+                  >
+                    {count >= COUNT_LIMIT ? `${COUNT_LIMIT}+` : count}
+                  </span>
+                )}
               </Button>
             );
           })}

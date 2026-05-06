@@ -97,6 +97,7 @@ const CompetitorsPage = () => {
   const [report, setReport] = useState<SavedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [nicheLeaders, setNicheLeaders] = useState<LeaderChannel[]>([]);
+  const [nicheLeadersLoading, setNicheLeadersLoading] = useState(false);
   const [liveGroups, setLiveGroups] = useState<CompetitorGroup[] | null>(null);
   const [debug, setDebug] = useState<CompetitorPoolDebug | null>(null);
   const [seed, setSeed] = useState<BenchmarkSeed | null>(null);
@@ -420,16 +421,22 @@ const CompetitorsPage = () => {
       null;
     if (!cat) {
       setNicheLeaders([]);
+      setNicheLeadersLoading(false);
       return;
     }
     if (mode === "personal" && allMatches.length >= 6) {
       setNicheLeaders([]);
+      setNicheLeadersLoading(false);
       return;
     }
     let cancelled = false;
+    setNicheLeadersLoading(true);
     (async () => {
       const data = await fetchLeaders({ category: cat });
-      if (!cancelled) setNicheLeaders(data.slice(0, 8));
+      if (!cancelled) {
+        setNicheLeaders(data.slice(0, 8));
+        setNicheLeadersLoading(false);
+      }
     })();
     return () => {
       cancelled = true;
@@ -577,6 +584,18 @@ const CompetitorsPage = () => {
           <NicheChooser userId={user?.id} defaultLanguage="fr" />
         )}
 
+        {mode === "exploration" && !category && !nicheLeadersLoading && (
+          <div className="mb-8 flex flex-col items-center rounded-2xl border border-border/60 bg-card/30 p-8 text-center">
+            <Trophy className="mb-3 h-10 w-10 text-muted-foreground/30" />
+            <p className="text-sm font-semibold text-foreground">
+              Sélectionne une niche pour explorer ses leaders
+            </p>
+            <p className="mt-1.5 max-w-sm text-xs text-muted-foreground">
+              Choisis une catégorie ci-dessus pour voir en temps réel les streamers qui la dominent et comprendre ce qui fonctionne.
+            </p>
+          </div>
+        )}
+
         {mode === "personal" && seed?.trust === "medium" && (
           <Card className="mb-6 border-border/70 bg-card/40">
             <CardContent className="flex items-start gap-3 p-4">
@@ -646,14 +665,14 @@ const CompetitorsPage = () => {
           </section>
         ) : null}
 
-        {nicheLeaders.length > 0 && (
+        {(nicheLeaders.length > 0 || nicheLeadersLoading) && (
           <section className="mb-8">
             <div className="mb-3 flex items-center gap-2">
               <Badge variant="outline" className="text-[10px] text-primary">
                 Leader de niche
               </Badge>
               <SectionHeader
-                title="Leaders de niche"
+                title={category ? `Leaders · ${category}` : "Leaders de niche"}
                 description={
                   category
                     ? `Chaînes qui pèsent dans ${category}. À regarder pour comprendre ce qui fonctionne en haut de la catégorie.`
@@ -662,52 +681,74 @@ const CompetitorsPage = () => {
                 align="left"
               />
             </div>
-            <div className="grid gap-3">
-              {nicheLeaders.map((c, i) => (
-                <Link
-                  key={c.id}
-                  to={`/streamer/${c.login}`}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40"
-                >
-                  <span className="w-5 text-right text-xs font-semibold text-muted-foreground">
-                    {i + 1}
-                  </span>
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted text-[10px] font-semibold">
-                    {c.profile_image_url ? (
-                      <img
-                        src={c.profile_image_url}
-                        alt={c.login}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      c.login.slice(0, 2).toUpperCase()
-                    )}
+            {nicheLeadersLoading ? (
+              <div className="grid gap-3">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="flex h-[60px] items-center gap-3 rounded-lg border border-border bg-card p-3"
+                  >
+                    <div className="h-4 w-4 animate-pulse rounded bg-muted/60" />
+                    <div className="h-9 w-9 animate-pulse rounded-md bg-muted/60" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-2/5 animate-pulse rounded bg-muted/60" />
+                      <div className="h-2 w-1/3 animate-pulse rounded bg-muted/60" />
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {c.display_name}
-                      </p>
-                      <Badge
-                        variant="outline"
-                        className="shrink-0 text-[9px] text-primary"
-                      >
-                        Leader de niche
-                      </Badge>
-                      {c.is_live && (
-                        <span className="rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
-                          Live
-                        </span>
+                ))}
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {nicheLeaders.map((c, i) => (
+                  <Link
+                    key={c.id}
+                    to={`/streamer/${c.login}`}
+                    className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/40"
+                  >
+                    <span className="w-5 shrink-0 text-right text-xs font-semibold text-muted-foreground">
+                      {i + 1}
+                    </span>
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted text-[10px] font-semibold">
+                      {c.profile_image_url ? (
+                        <img
+                          src={c.profile_image_url}
+                          alt={c.login}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        c.login.slice(0, 2).toUpperCase()
                       )}
                     </div>
-                    <p className="truncate text-xs text-muted-foreground">
-                      @{c.login}
-                      {c.game_name ? ` · ${c.game_name}` : ""}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-foreground">
+                          {c.display_name}
+                        </p>
+                        {c.is_live && (
+                          <span className="shrink-0 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                            Live
+                          </span>
+                        )}
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">
+                        @{c.login}
+                        {c.is_live && c.live_viewer_count
+                          ? ` · ${c.live_viewer_count.toLocaleString("fr-FR")} viewers`
+                          : c.game_name
+                            ? ` · ${c.game_name}`
+                            : ""}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-bold tabular-nums text-primary">
+                        {c.stream_score}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">score</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </section>
         )}
 
