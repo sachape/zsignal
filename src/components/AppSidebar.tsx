@@ -13,6 +13,7 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
+import logo from "@/assets/logo.svg";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
