@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { Zap } from "lucide-react";
+import logo from "@/assets/logo.svg";
 import { Card, CardContent } from "@/components/ui/card";
 import AuthForm from "@/components/auth/AuthForm";
 
