@@ -181,5 +181,8 @@ export async function setActionStatus(
     patch.skipped_at = null;
     patch.skipped_reason = null;
   }
-  await supabase.from("weekly_action_items").update(patch).eq("id", itemId);
+  await supabase
+    .from("weekly_action_items")
+    .update(patch as never)
+    .eq("id", itemId);
 }
