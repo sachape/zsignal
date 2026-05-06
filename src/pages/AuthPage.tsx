@@ -12,14 +12,10 @@ const AuthPage = () => {
       <div className="w-full max-w-sm">
         <Link
           to="/"
-          className="mx-auto mb-6 flex items-center justify-center gap-2"
+          className="mx-auto mb-6 flex items-center justify-center"
+          aria-label="Streamnco"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-            <Zap className="h-3.5 w-3.5 text-primary-foreground" />
-          </div>
-          <span className="text-sm font-semibold text-foreground">
-            StreamPulse
-          </span>
+          <img src={logo} alt="Streamnco" className="h-6 w-auto" />
         </Link>
 
         <Card>
