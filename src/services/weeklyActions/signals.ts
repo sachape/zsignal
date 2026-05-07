@@ -66,20 +66,29 @@ async function fetchAlertsCount(broadcasterId: string | null): Promise<number> {
   return count ?? 0;
 }
 
-async function fetchLatestStreamScore(
+async function fetchStreamScoreContext(
   userId: string,
-): Promise<{ overall_score: number | null } | null> {
-  // Read from the new history table (StreamScore v2). Falls back to null
-  // when no snapshot has been persisted yet — preserves prior safe behavior.
-  const { data } = await supabase
-    .from("stream_score_snapshots")
-    .select("overall, created_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (!data) return null;
-  return { overall_score: (data.overall as number | null) ?? null };
+): Promise<{
+  latest: import("./types").StreamScoreLatestSummary | null;
+  movement: import("@/services/streamScoreMovement").StreamScoreMovement;
+}> {
+  const movement = await getStreamScoreMovement(userId);
+  const s = movement.latest_snapshot;
+  const latest = s
+    ? {
+        overall_score: s.overall,
+        confidence: s.confidence,
+        signal_quality: s.signal_quality,
+        priority_dimension: s.priority_dimension,
+        regularity: s.regularity,
+        structure: s.structure,
+        content: s.content,
+        positioning: s.positioning,
+        momentum: s.momentum,
+        monetization: s.monetization,
+      }
+    : null;
+  return { latest, movement };
 }
 
 async function fetchLatestFacts(
