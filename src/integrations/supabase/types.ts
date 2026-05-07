@@ -1304,6 +1304,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      score_level_from_pct: { Args: { pct: number }; Returns: string }
       verify_eventsub_cron_secret: { Args: { token: string }; Returns: boolean }
     }
     Enums: {
