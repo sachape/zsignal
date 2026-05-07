@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Info, Minus, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { Minus, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getWeekOverWeekDelta,
@@ -108,22 +108,12 @@ const StreamScoreEvolutionCard = ({ userId }: Props) => {
 
   const latest = data?.latest ?? null;
 
-  // ── A: no snapshot ────────────────────────────────────────────────────────
-  if (!latest) {
-    return (
-      <div className="mb-6 rounded-xl border border-border/60 bg-card/40 p-5">
-        <div className="flex items-start gap-2.5 text-sm text-muted-foreground">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary/50" />
-          <p>
-            StreamScore pas encore disponible.{" "}
-            <span className="font-medium text-foreground">
-              Lance une première analyse Twitch pour créer ton historique.
-            </span>
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // ── A: no snapshot — render nothing.
+  // The score ring above already shows the current score from analysis_reports.
+  // Showing "StreamScore pas encore disponible" here while the ring shows a score
+  // creates a direct contradiction that destroys user trust.
+  // The evolution card only appears when there is actual snapshot data to show.
+  if (!latest) return null;
 
   const hasDelta = data!.previous !== null && data!.overall_delta !== null;
   const isLowConfidence = latest.confidence === "low";
