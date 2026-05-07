@@ -133,5 +133,6 @@ export function assembleReport(
     recommendations,
     weak_point,
     next_best_action: nextAction,
+    videos,
   };
 }
