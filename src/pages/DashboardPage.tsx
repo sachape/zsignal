@@ -461,11 +461,11 @@ const DashboardPage = () => {
         )}
 
         {/* Identity strip */}
-        <div className="animate-fade-up relative mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl sm:p-6">
-          <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-primary/[0.07] blur-3xl" aria-hidden />
-          <div className="pointer-events-none absolute bottom-0 right-0 h-32 w-64 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.06),transparent_60%)]" aria-hidden />
-
-          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="animate-fade-up mb-6">
+          <p className="mb-3 text-sm font-medium text-muted-foreground">
+            {new Date().getHours() >= 19 ? "Bonsoir," : "Bonjour,"}
+          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* Avatar + name */}
             <div className="flex items-center gap-4">
               <div className="relative shrink-0">
