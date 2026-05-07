@@ -59,7 +59,8 @@ export interface SignalBundle {
   creator_alerts_count_14d: number;
 
   // Maturity supporting
-  stream_score_latest: { overall_score: number | null } | null;
+  stream_score_latest: StreamScoreLatestSummary | null;
+  stream_score_movement: StreamScoreMovement;
   facts: Record<string, unknown> | null;
   facts_available: boolean;
 
