@@ -169,18 +169,18 @@ export async function loadSignalBundle(
   const inactivity = buildInactivityRelance(current, recentSessions);
 
   const broadcasterId = await fetchBroadcasterId(userId);
-  const [updates, community, alertsCount, streamScore, factsRes, priors] =
+  const [updates, community, alertsCount, scoreCtx, factsRes, priors] =
     await Promise.all([
       fetchChannelUpdatesCount(broadcasterId),
       fetchCommunityEvents(broadcasterId),
       fetchAlertsCount(broadcasterId),
-      fetchLatestStreamScore(userId),
+      fetchStreamScoreContext(userId),
       fetchLatestFacts(userId),
       fetchPriorActions(userId),
     ]);
 
   const twoWeeksAgo = Date.now() - 14 * 86400_000;
-  const priors2w = priors.filter(() => true); // already filtered to 21d above
+  const priors2w = priors.filter(() => true);
   const skipped2w = priors2w
     .filter((p) => p.status === "skipped")
     .map((p) => p.action_key);
@@ -201,7 +201,8 @@ export async function loadSignalBundle(
     community_events_count_14d: community.count,
     community_event_kinds: community.kinds,
     creator_alerts_count_14d: alertsCount,
-    stream_score_latest: streamScore,
+    stream_score_latest: scoreCtx.latest,
+    stream_score_movement: scoreCtx.movement,
     facts: factsRes.facts,
     facts_available: factsRes.available,
     prior_action_keys_2w: keys2w,
