@@ -354,7 +354,7 @@ const AffiliationPage = () => {
   const [displayName, setDisplayName] = useState("");
 
   usePageMeta({
-    title: "Parcours Affilié",
+    title: "Progression",
     description: "Suis ta progression vers l'affiliation et au-delà.",
   });
 
@@ -423,10 +423,10 @@ const AffiliationPage = () => {
         <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Parcours
+              Progression
             </p>
             <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              {isPartner ? "Partenaire Twitch ✓" : isAffiliate ? "Affilié Twitch ✓" : "Parcours Affilié"}
+              {isPartner ? "Partenaire Twitch ✓" : isAffiliate ? "Affilié Twitch ✓" : "Progression"}
             </h1>
             {displayName && (
               <p className="mt-1 text-sm text-muted-foreground">Progression de {displayName}</p>
