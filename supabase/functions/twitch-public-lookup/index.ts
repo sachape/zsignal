@@ -539,6 +539,12 @@ Deno.serve(async (req) => {
         language: v.language,
         type: v.type,
         stream_id: v.stream_id,
+        thumbnail_url: v.thumbnail_url
+          ? v.thumbnail_url
+              .replace(/%\{width\}x%\{height\}/g, "440x248")
+              .replace(/\{width\}x\{height\}/g, "440x248")
+          : null,
+        url: v.url ?? null,
       })),
       clips: clips.map((c) => ({
         id: c.id,
