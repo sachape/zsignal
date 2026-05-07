@@ -13,6 +13,7 @@ import {
   Settings,
   Sparkles,
   Bookmark,
+  TrendingUp,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -43,6 +44,7 @@ const cockpitItems = [
   { title: "Lives", url: "/lives", icon: Radio, end: false },
   { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
   { title: "Progression", url: "/affiliation", icon: Star, end: false },
+  { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false },
 ];
 
 const benchmarkItems = [

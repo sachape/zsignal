@@ -27,6 +27,7 @@ const LivesPage = lazy(() => import("./pages/LivesPage.tsx"));
 const LiveDetailPage = lazy(() => import("./pages/LiveDetailPage.tsx"));
 const AffiliationPage = lazy(() => import("./pages/AffiliationPage.tsx"));
 const WatchlistPage = lazy(() => import("./pages/WatchlistPage.tsx"));
+const SimulatorPage = lazy(() => import("./pages/SimulatorPage.tsx"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
 const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
 const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
@@ -132,6 +133,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <AffiliationPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/simulator"
+                  element={
+                    <ProtectedRoute>
+                      <SimulatorPage />
                     </ProtectedRoute>
                   }
                 />

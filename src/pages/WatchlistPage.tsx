@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, BookmarkX, Trophy, ArrowRight, ChevronRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Bookmark, BookmarkX, Trophy, ArrowRight, ChevronRight, TrendingUp, TrendingDown, Minus, Bell, X, TrendingUp as TrendUp, Zap, Star } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,62 @@ import {
 } from "@/services/benchmarkWatchlist";
 import { PublicChannelLookupService } from "@/services/publicChannelLookup";
 import { getSnapshots, viewersTrend } from "@/services/competitorSnapshots";
+import {
+  computeAlerts,
+  dismissAlerts,
+  areAlertsDismissed,
+  type CompetitorAlert,
+  type AlertType,
+} from "@/services/competitorAlerts";
 import { SparkLine } from "@/components/CompetitorTrendChart";
 import { cn } from "@/lib/utils";
+
+const ALERT_META: Record<AlertType, { label: (a: CompetitorAlert) => string; color: string; icon: React.ElementType }> = {
+  viewers_surge: {
+    label: (a) => `+${a.pct}% viewers`,
+    color: "text-success",
+    icon: TrendUp,
+  },
+  viewers_drop: {
+    label: (a) => `-${a.pct}% viewers`,
+    color: "text-destructive",
+    icon: TrendingDown,
+  },
+  score_up: {
+    label: (a) => `Score +${a.delta} pts`,
+    color: "text-success",
+    icon: Star,
+  },
+  score_down: {
+    label: (a) => `Score -${Math.abs(a.delta)} pts`,
+    color: "text-destructive",
+    icon: TrendingDown,
+  },
+  clips_spike: {
+    label: (a) => `+${a.delta} clips`,
+    color: "text-primary",
+    icon: Zap,
+  },
+};
+
+const AlertAvatar = ({ alert }: { alert: CompetitorAlert }) => {
+  const [imgFailed, setImgFailed] = useState(false);
+  if (alert.avatar_url && !imgFailed) {
+    return (
+      <img
+        src={alert.avatar_url}
+        alt={alert.display_name}
+        className="h-7 w-7 rounded-full object-cover ring-1 ring-border/40"
+        onError={() => setImgFailed(true)}
+      />
+    );
+  }
+  return (
+    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted ring-1 ring-border/40 text-xs font-bold text-foreground">
+      {alert.display_name[0]?.toUpperCase() ?? "?"}
+    </div>
+  );
+};
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -52,12 +106,28 @@ const Avatar = ({ entry }: { entry: WatchlistEntry }) => {
 const WatchlistPage = () => {
   const { user } = useAuth();
   const [entries, setEntries] = useState<WatchlistEntry[]>([]);
+  const [alerts, setAlerts] = useState<CompetitorAlert[]>([]);
+  const [alertsDismissed, setAlertsDismissed] = useState(() => areAlertsDismissed(null));
 
   useEffect(() => {
-    setEntries(getWatchlist(user?.id ?? null));
-    const sync = () => setEntries(getWatchlist(user?.id ?? null));
+    const uid = user?.id ?? null;
+    const list = getWatchlist(uid);
+    setEntries(list);
+    setAlerts(computeAlerts(uid, list));
+    setAlertsDismissed(areAlertsDismissed(uid));
+
+    const sync = () => {
+      const updated = getWatchlist(uid);
+      setEntries(updated);
+      setAlerts(computeAlerts(uid, updated));
+    };
+    const onDismiss = () => setAlertsDismissed(true);
     window.addEventListener("streampulse:watchlist-changed", sync);
-    return () => window.removeEventListener("streampulse:watchlist-changed", sync);
+    window.addEventListener("streampulse:alerts-dismissed", onDismiss);
+    return () => {
+      window.removeEventListener("streampulse:watchlist-changed", sync);
+      window.removeEventListener("streampulse:alerts-dismissed", onDismiss);
+    };
   }, [user?.id]);
 
   // Backfill missing avatars for entries bookmarked before avatar storage was added
@@ -86,6 +156,13 @@ const WatchlistPage = () => {
     removeFromWatchlist(user?.id ?? null, login);
   };
 
+  const handleDismissAlerts = () => {
+    dismissAlerts(user?.id ?? null);
+    setAlertsDismissed(true);
+  };
+
+  const showAlerts = alerts.length > 0 && !alertsDismissed && entries.length > 0;
+
   return (
     <AppShell>
       <PageContainer>
@@ -113,6 +190,55 @@ const WatchlistPage = () => {
             </Button>
           )}
         </div>
+
+        {/* Alerts digest */}
+        {showAlerts && (
+          <div className="mb-6 overflow-hidden rounded-xl border border-primary/20 bg-primary/[0.04]">
+            <div className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Bell className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-semibold text-foreground">
+                  Cette semaine dans ta watchlist
+                </span>
+                <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary tabular-nums">
+                  {alerts.length}
+                </span>
+              </div>
+              <button
+                onClick={handleDismissAlerts}
+                className="text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+                title="Masquer pour 7 jours"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            <div className="divide-y divide-border/40 border-t border-border/40">
+              {alerts.map((alert) => {
+                const meta = ALERT_META[alert.type];
+                const Icon = meta.icon;
+                return (
+                  <Link
+                    key={alert.login}
+                    to={`/streamer/${alert.login}`}
+                    className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/20"
+                  >
+                    <AlertAvatar alert={alert} />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-semibold text-foreground">
+                        {alert.display_name}
+                      </span>
+                    </div>
+                    <div className={cn("flex items-center gap-1 text-xs font-semibold tabular-nums", meta.color)}>
+                      <Icon className="h-3.5 w-3.5 shrink-0" />
+                      {meta.label(alert)}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Empty state */}
         {entries.length === 0 ? (

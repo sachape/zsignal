@@ -74,6 +74,7 @@ import StreakBadge from "@/components/StreakBadge";
 import BadgeGrid from "@/components/BadgeGrid";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 import ShareScoreButton from "@/components/ShareScoreButton";
+import WeeklyDigestCard from "@/components/WeeklyDigestCard";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -496,6 +497,13 @@ const DashboardPage = () => {
             </Button>
           </div>
         )}
+
+        {/* Weekly digest */}
+        <WeeklyDigestCard
+          report={currentReport}
+          userId={user.id}
+          previousScore={previous?.report?.score?.overall ?? null}
+        />
 
         {/* Identity strip */}
         <div className="animate-fade-up relative mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl sm:p-6">
