@@ -9,8 +9,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   getWatchlist,
   removeFromWatchlist,
+  patchWatchlistEntry,
   type WatchlistEntry,
 } from "@/services/benchmarkWatchlist";
+import { PublicChannelLookupService } from "@/services/publicChannelLookup";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -54,6 +56,28 @@ const WatchlistPage = () => {
     window.addEventListener("streampulse:watchlist-changed", sync);
     return () => window.removeEventListener("streampulse:watchlist-changed", sync);
   }, [user?.id]);
+
+  // Backfill missing avatars for entries bookmarked before avatar storage was added
+  useEffect(() => {
+    const missing = entries.filter((e) => !e.avatar_url);
+    if (missing.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      for (const entry of missing) {
+        if (cancelled) break;
+        try {
+          const result = await PublicChannelLookupService.findByInput(entry.login);
+          const avatar = result?.data?.profile?.profile_image_url;
+          if (avatar && !cancelled) {
+            patchWatchlistEntry(user?.id ?? null, entry.login, { avatar_url: avatar });
+          }
+        } catch {
+          // best-effort
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [entries, user?.id]);
 
   const remove = (login: string) => {
     removeFromWatchlist(user?.id ?? null, login);

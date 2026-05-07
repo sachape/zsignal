@@ -65,6 +65,18 @@ export function addToWatchlist(
   return next;
 }
 
+export function patchWatchlistEntry(
+  userId: string | null | undefined,
+  login: string,
+  patch: Partial<WatchlistEntry>,
+): void {
+  const lower = login.toLowerCase();
+  const current = read(userId).map((e) =>
+    e.login.toLowerCase() === lower ? { ...e, ...patch } : e,
+  );
+  write(userId, current);
+}
+
 export function removeFromWatchlist(
   userId: string | null | undefined,
   login: string,
