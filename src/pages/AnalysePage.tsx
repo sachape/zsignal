@@ -6,10 +6,7 @@ import {
   Zap,
   Trophy,
   AlertCircle,
-  RefreshCw,
-  Sparkles,
   Printer,
-  Compass,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
@@ -19,7 +16,6 @@ import PageHeader from "@/components/PageHeader";
 import SectionHeader from "@/components/SectionHeader";
 import CompetitorCard from "@/components/CompetitorCard";
 import CompetitorFeedbackBar from "@/components/CompetitorFeedbackBar";
-import StatBlock from "@/components/StatBlock";
 import EmptyReportState from "@/components/EmptyReportState";
 import { LoadingState } from "@/components/StateView";
 import ProgressRow from "@/components/ProgressRow";
@@ -35,7 +31,6 @@ import {
 import type { AnalysisReport } from "@/types/analysis";
 import FoundationModeBanner from "@/components/FoundationModeBanner";
 import ScoreInsightCard from "@/components/ScoreInsightCard";
-import { diagnoseFoundationMode } from "@/services/foundationMode";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { formatNumber, formatCompact } from "@/lib/format";
 import DimensionResources from "@/components/DimensionResources";
@@ -256,27 +251,11 @@ const AnalysePage = () => {
               </div>
             </div>
 
-            {/* Score ring or foundation mode */}
-            {isReconstruction ? (
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 shadow-[0_0_32px_hsl(var(--primary)/0.25)]">
-                  <Compass className="h-8 w-8 text-primary" />
-                </div>
-                <div className="max-w-sm">
-                  <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                    Mode Structuration
-                  </p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                    Pas encore assez de signal pour un score fiable. L'objectif : créer une régularité de stream.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <AnimatedScoreRing score={score.overall} />
-            )}
+            {/* Score ring */}
+            <AnimatedScoreRing score={score.overall} />
 
             {/* Dimension chips */}
-            {!isReconstruction && (
+            {(
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {[
                   { label: "Régularité", value: score.regularity },
@@ -408,21 +387,18 @@ const AnalysePage = () => {
             </div>
           </div>
 
-          {!isReconstruction && (
-            <div className="col-span-full">
-              <ScoreInsightCard score={score} />
-            </div>
-          )}
+          <div className="col-span-full">
+            <ScoreInsightCard score={score} />
+          </div>
         </div>
 
         {/* Learning resources */}
-        {!isReconstruction && score.breakdown.length > 0 && (
+        {score.breakdown.length > 0 && (
           <DimensionResources breakdown={score.breakdown} maxDimensions={2} />
         )}
 
         {/* Score decomposition */}
-        {!isReconstruction && (
-          <Card className="mb-8">
+        <Card className="mb-8">
             <CardHeader>
               <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 Décomposition du StreamScore
@@ -441,7 +417,6 @@ const AnalysePage = () => {
               ))}
             </CardContent>
           </Card>
-        )}
 
         {/* Competitors */}
         {showCompetitorsSection && (
