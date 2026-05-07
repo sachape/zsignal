@@ -733,7 +733,7 @@ const DashboardPage = () => {
         {/* Foundation weekly sequence — full width if active */}
         {foundationActive && (
           <div className="mb-6">
-            <WeeklySequenceCard actions={foundation.sequence} showPlanLink />
+            <WeeklySequenceCard actions={foundation.sequence} showPlanLink={endedSessions > 0} />
           </div>
         )}
 
