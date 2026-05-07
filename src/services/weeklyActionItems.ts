@@ -68,15 +68,18 @@ async function updateMilestoneDiagnosis(
   milestoneId: string,
   diagnosis: string,
   signals: Record<string, unknown>,
-): Promise<void> {
-  await supabase
+): Promise<WeeklyMilestoneRow | null> {
+  const { data } = await supabase
     .from("weekly_milestones")
     .update({
       diagnosis,
       generated_signals: signals as unknown as never,
       generated_at: new Date().toISOString(),
     })
-    .eq("id", milestoneId);
+    .eq("id", milestoneId)
+    .select("*")
+    .maybeSingle();
+  return (data as WeeklyMilestoneRow | null) ?? null;
 }
 
 /**
@@ -102,8 +105,12 @@ export async function ensureWeeklyActionItems(
         recentDebriefs,
       });
       const diagnosis = buildDiagnosisFromBundle(bundle, row.rationale);
-      await updateMilestoneDiagnosis(row.id, diagnosis, summarizeBundle(bundle));
-      row = { ...row, diagnosis } as WeeklyMilestoneRow;
+      const updated = await updateMilestoneDiagnosis(
+        row.id,
+        diagnosis,
+        summarizeBundle(bundle),
+      );
+      row = updated ?? ({ ...row, diagnosis } as WeeklyMilestoneRow);
     }
     return { milestone: row, items: existing };
   }
@@ -123,8 +130,8 @@ export async function ensureWeeklyActionItems(
     rejected_action_keys: result.rejected,
   };
 
-  await updateMilestoneDiagnosis(row.id, diagnosis, signalsForRow);
-  row = { ...row, diagnosis } as WeeklyMilestoneRow;
+  const updated = await updateMilestoneDiagnosis(row.id, diagnosis, signalsForRow);
+  row = updated ?? ({ ...row, diagnosis } as WeeklyMilestoneRow);
 
   if (result.actions.length === 0) {
     return { milestone: row, items: [] };
