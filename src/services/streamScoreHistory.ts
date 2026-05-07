@@ -156,15 +156,6 @@ export async function getWeekOverWeekDelta(
   const latest = rows[0] ?? null;
   const previous = rows[1] ?? null;
 
-  const emptyDeltas: Record<DimKey, number | null> = {
-    regularity: null,
-    structure: null,
-    content: null,
-    positioning: null,
-    momentum: null,
-    monetization: null,
-  };
-
   if (!latest || !previous) {
     return {
       latest,
