@@ -317,22 +317,34 @@ const AnalysePage = () => {
                   <div key={key}>
                     <button
                       onClick={() => setOpenDim(isOpen ? null : key)}
-                      className="w-full flex items-center gap-3 px-3 py-3 text-left hover:bg-muted/30 transition-colors rounded-lg group"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/20 transition-colors rounded-xl group"
                     >
-                      <span className="w-28 shrink-0 text-xs font-medium text-foreground">{label}</span>
-                      <div className="flex-1 h-1.5 overflow-hidden rounded-full bg-muted/40">
+                      {/* Score bubble */}
+                      <div
+                        className={cn(
+                          "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-shadow duration-300",
+                          dimTheme.surfaceClass,
+                          "group-hover:shadow-[0_0_16px_hsl(var(--primary)/0.2)]",
+                        )}
+                      >
+                        <span className={cn("text-xs font-bold tabular-nums leading-none", dimTheme.textClass)}>
+                          {pct}
+                        </span>
+                      </div>
+                      {/* Label */}
+                      <span className="w-28 shrink-0 text-sm font-medium text-foreground">{label}</span>
+                      {/* Bar */}
+                      <div className="flex-1 h-1.5 overflow-hidden rounded-full bg-muted/30">
                         <div
                           className={cn("h-full rounded-full transition-all duration-700", dimTheme.progressClass)}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className={cn("w-10 shrink-0 text-right text-xs font-bold tabular-nums", dimTheme.textClass)}>
-                        {pct}%
-                      </span>
+                      {/* Chevron */}
                       <ChevronDown
                         className={cn(
-                          "h-3.5 w-3.5 shrink-0 text-muted-foreground/40 transition-transform duration-200 group-hover:text-muted-foreground/70",
-                          isOpen && "rotate-180 text-muted-foreground/70",
+                          "h-4 w-4 shrink-0 text-muted-foreground/30 transition-transform duration-200 group-hover:text-muted-foreground/60",
+                          isOpen && "rotate-180 text-muted-foreground/60",
                         )}
                       />
                     </button>
