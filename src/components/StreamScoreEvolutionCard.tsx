@@ -88,9 +88,10 @@ const Skeleton = () => (
 
 interface Props {
   userId: string;
+  platformUserId?: string | null;
 }
 
-const StreamScoreEvolutionCard = ({ userId }: Props) => {
+const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
   const [data, setData] = useState<WeekOverWeekDelta | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -98,10 +99,10 @@ const StreamScoreEvolutionCard = ({ userId }: Props) => {
   useEffect(() => {
     setLoading(true);
     setFetchError(false);
-    getWeekOverWeekDelta(userId)
+    getWeekOverWeekDelta(userId, platformUserId ?? null)
       .then((d) => { setData(d); setLoading(false); })
       .catch(() => { setFetchError(true); setLoading(false); });
-  }, [userId]);
+  }, [userId, platformUserId]);
 
   if (loading) return <Skeleton />;
   if (fetchError) return null; // graceful — don't crash dashboard on network error
