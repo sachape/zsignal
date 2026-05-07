@@ -59,6 +59,8 @@ interface EdgeVideo {
   language: string;
   type: string;
   stream_id: string | null;
+  thumbnail_url?: string | null;
+  url?: string | null;
 }
 
 interface EdgeClip {
