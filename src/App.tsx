@@ -138,7 +138,7 @@ const App = () => (
                   }
                 />
                 <Route
-                  path="/affiliation"
+                  path="/progression"
                   element={
                     <ProtectedRoute>
                       <AffiliationPage />

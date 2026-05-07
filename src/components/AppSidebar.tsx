@@ -42,7 +42,7 @@ const cockpitItems = [
   { title: "Analyse", url: "/analyse", icon: Activity, end: false },
   { title: "Lives", url: "/lives", icon: Radio, end: false },
   { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
-  { title: "Progression", url: "/affiliation", icon: Star, end: false },
+  { title: "Progression", url: "/progression", icon: Star, end: false },
   { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false },
 ];
 

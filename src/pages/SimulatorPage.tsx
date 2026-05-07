@@ -524,7 +524,7 @@ const SimulatorPage = () => {
                 </Button>
               )}
               <Button asChild variant="outline" className="w-full" size="sm">
-                <Link to="/affiliation">
+                <Link to="/progression">
                   Voir ma progression complète
                   <ArrowRight className="h-3.5 w-3.5 opacity-60" />
                 </Link>

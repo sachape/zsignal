@@ -402,7 +402,7 @@ const DashboardPage = () => {
         : null,
     },
     {
-      to: "/affiliation",
+      to: "/progression",
       icon: Star,
       label: "Progression",
       desc: "Tes paliers et objectifs.",
