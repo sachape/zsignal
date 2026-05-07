@@ -256,6 +256,149 @@ const monetization_review_affiliate_path: ActionCandidate = {
   score: () => ({ urgency: 1, impact: 3 }),
 };
 
+function scoreEvidence(s: SignalBundle): Record<string, unknown> {
+  const m = s.stream_score_movement;
+  return {
+    overall_delta: m.overall_delta,
+    movement_status: m.movement_status,
+    priority_dimension: m.priority_dimension,
+    top_positive_dimension: m.top_positive_dimension,
+    top_negative_dimension: m.top_negative_dimension,
+    confidence: m.confidence,
+  };
+}
+
+function priorityIs(s: SignalBundle, dim: string): boolean {
+  const m = s.stream_score_movement;
+  const norm = (x: string | null): string | null => {
+    if (!x) return null;
+    const map: Record<string, string> = {
+      Régularité: "regularity",
+      Structure: "structure",
+      Contenu: "content",
+      Positionnement: "positioning",
+      Momentum: "momentum",
+      Monétisation: "monetization",
+    };
+    return map[x] ?? x;
+  };
+  return norm(m.priority_dimension) === dim || m.top_negative_dimension === dim;
+}
+
+const score_refresh_analysis: ActionCandidate = {
+  action_key: "score_refresh_analysis",
+  category: "setup",
+  title: "Relance une analyse pour mettre ton StreamScore à jour",
+  description:
+    "Ton dernier StreamScore date de plus de 7 jours — relance une analyse pour repartir d'un diagnostic fiable.",
+  reason: () =>
+    "Le dernier StreamScore a plus de 7 jours et n'est plus représentatif.",
+  expected_impact:
+    "Obtenir un diagnostic à jour avant d'optimiser quoi que ce soit.",
+  difficulty: "easy",
+  confidence: "high",
+  verification_signal: "stream_score_snapshots.recent",
+  auto_verifiable: true,
+  source_type: "stream_score",
+  source_ref: () => null,
+  evidence: scoreEvidence,
+  eligible: (s) => s.stream_score_movement.is_stale === true,
+  score: () => ({ urgency: 6, impact: 4 }),
+  critical: (s) => s.stream_score_movement.is_stale === true,
+};
+
+const score_focus_content: ActionCandidate = {
+  action_key: "score_focus_content",
+  category: "content",
+  title: "Priorise le contenu réutilisable cette semaine",
+  description:
+    "Investis ta semaine sur clips, shorts ou rediffusions pour renforcer la dimension Contenu.",
+  reason: () =>
+    "Ton StreamScore identifie le Contenu comme principal frein à la progression.",
+  expected_impact:
+    "Améliorer la découverte hors live et compenser un point faible identifié.",
+  difficulty: "medium",
+  confidence: "medium",
+  verification_signal: "stream_score_snapshots.content_increase",
+  auto_verifiable: false,
+  source_type: "stream_score",
+  source_ref: () => null,
+  evidence: scoreEvidence,
+  eligible: (s) =>
+    s.stream_score_movement.has_enough_history === true ||
+    s.stream_score_latest !== null
+      ? priorityIs(s, "content")
+      : false,
+  score: () => ({ urgency: 4, impact: 4 }),
+};
+
+const score_focus_regularite: ActionCandidate = {
+  action_key: "score_focus_regularite",
+  category: "consistency",
+  title: "Stabilise ta régularité cette semaine",
+  description:
+    "Programme tes prochains lives à horaires stables pour renforcer la dimension Régularité.",
+  reason: () =>
+    "Ton StreamScore identifie la Régularité comme dimension la plus faible.",
+  expected_impact:
+    "Construire une base de progression solide pour les semaines suivantes.",
+  difficulty: "easy",
+  confidence: "high",
+  verification_signal: "stream_score_snapshots.regularity_increase",
+  auto_verifiable: false,
+  source_type: "stream_score",
+  source_ref: () => null,
+  evidence: scoreEvidence,
+  eligible: (s) =>
+    s.stream_score_latest !== null && priorityIs(s, "regularity"),
+  score: () => ({ urgency: 5, impact: 4 }),
+};
+
+const score_focus_positioning: ActionCandidate = {
+  action_key: "score_focus_positioning",
+  category: "positioning",
+  title: "Clarifie ton positionnement de chaîne",
+  description:
+    "Affine titre, catégorie principale et tagline pour renforcer la dimension Positionnement.",
+  reason: () =>
+    "Ton StreamScore identifie le Positionnement comme dimension faible.",
+  expected_impact:
+    "Aider les viewers à comprendre rapidement pourquoi te suivre.",
+  difficulty: "medium",
+  confidence: "medium",
+  verification_signal: "stream_score_snapshots.positioning_increase",
+  auto_verifiable: false,
+  source_type: "stream_score",
+  source_ref: () => null,
+  evidence: scoreEvidence,
+  eligible: (s) =>
+    s.stream_score_latest !== null && priorityIs(s, "positioning"),
+  score: () => ({ urgency: 4, impact: 4 }),
+};
+
+const score_focus_momentum: ActionCandidate = {
+  action_key: "score_focus_momentum",
+  category: "community",
+  title: "Capitalise sur ton momentum",
+  description:
+    "Profite de la dynamique positive sur le Momentum pour transformer l'engagement récent en habitude.",
+  reason: () =>
+    "Ton StreamScore montre une progression positive sur la dimension Momentum.",
+  expected_impact:
+    "Convertir des signaux récents en viewers récurrents.",
+  difficulty: "easy",
+  confidence: "medium",
+  verification_signal: "stream_score_snapshots.momentum_sustained",
+  auto_verifiable: false,
+  source_type: "stream_score",
+  source_ref: () => null,
+  evidence: scoreEvidence,
+  eligible: (s) =>
+    s.stream_score_movement.movement_status === "improved" &&
+    s.stream_score_movement.top_positive_dimension === "momentum",
+  score: () => ({ urgency: 3, impact: 4 }),
+};
+
 export const ACTION_CATALOG: ActionCandidate[] = [
   setup_complete_twitch_foundation,
   consistency_schedule_next_live,
@@ -266,6 +409,11 @@ export const ACTION_CATALOG: ActionCandidate[] = [
   debrief_fix_priority_weakness,
   discovery_review_tags_category,
   monetization_review_affiliate_path,
+  score_refresh_analysis,
+  score_focus_content,
+  score_focus_regularite,
+  score_focus_positioning,
+  score_focus_momentum,
 ];
 
 export const FALLBACK_ACTION_KEY = "setup_complete_twitch_foundation";

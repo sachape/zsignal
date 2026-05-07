@@ -9,6 +9,7 @@ import {
   type LiveSession,
 } from "@/services/liveSessions";
 import { buildInactivityRelance } from "@/services/inactivityRelance";
+import { getStreamScoreMovement } from "@/services/streamScoreMovement";
 import { classifyMaturity } from "./maturity";
 import type { PriorActionRef, SignalBundle } from "./types";
 
@@ -66,20 +67,29 @@ async function fetchAlertsCount(broadcasterId: string | null): Promise<number> {
   return count ?? 0;
 }
 
-async function fetchLatestStreamScore(
+async function fetchStreamScoreContext(
   userId: string,
-): Promise<{ overall_score: number | null } | null> {
-  // Read from the new history table (StreamScore v2). Falls back to null
-  // when no snapshot has been persisted yet — preserves prior safe behavior.
-  const { data } = await supabase
-    .from("stream_score_snapshots")
-    .select("overall, created_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (!data) return null;
-  return { overall_score: (data.overall as number | null) ?? null };
+): Promise<{
+  latest: import("./types").StreamScoreLatestSummary | null;
+  movement: import("@/services/streamScoreMovement").StreamScoreMovement;
+}> {
+  const movement = await getStreamScoreMovement(userId);
+  const s = movement.latest_snapshot;
+  const latest = s
+    ? {
+        overall_score: s.overall,
+        confidence: s.confidence,
+        signal_quality: s.signal_quality,
+        priority_dimension: s.priority_dimension,
+        regularity: s.regularity,
+        structure: s.structure,
+        content: s.content,
+        positioning: s.positioning,
+        momentum: s.momentum,
+        monetization: s.monetization,
+      }
+    : null;
+  return { latest, movement };
 }
 
 async function fetchLatestFacts(
@@ -159,18 +169,18 @@ export async function loadSignalBundle(
   const inactivity = buildInactivityRelance(current, recentSessions);
 
   const broadcasterId = await fetchBroadcasterId(userId);
-  const [updates, community, alertsCount, streamScore, factsRes, priors] =
+  const [updates, community, alertsCount, scoreCtx, factsRes, priors] =
     await Promise.all([
       fetchChannelUpdatesCount(broadcasterId),
       fetchCommunityEvents(broadcasterId),
       fetchAlertsCount(broadcasterId),
-      fetchLatestStreamScore(userId),
+      fetchStreamScoreContext(userId),
       fetchLatestFacts(userId),
       fetchPriorActions(userId),
     ]);
 
   const twoWeeksAgo = Date.now() - 14 * 86400_000;
-  const priors2w = priors.filter(() => true); // already filtered to 21d above
+  const priors2w = priors.filter(() => true);
   const skipped2w = priors2w
     .filter((p) => p.status === "skipped")
     .map((p) => p.action_key);
@@ -191,7 +201,8 @@ export async function loadSignalBundle(
     community_events_count_14d: community.count,
     community_event_kinds: community.kinds,
     creator_alerts_count_14d: alertsCount,
-    stream_score_latest: streamScore,
+    stream_score_latest: scoreCtx.latest,
+    stream_score_movement: scoreCtx.movement,
     facts: factsRes.facts,
     facts_available: factsRes.available,
     prior_action_keys_2w: keys2w,
@@ -221,7 +232,16 @@ export function summarizeBundle(s: SignalBundle): Record<string, unknown> {
     community_events_count_14d: s.community_events_count_14d,
     community_event_kinds: s.community_event_kinds,
     creator_alerts_count_14d: s.creator_alerts_count_14d,
-    stream_score_latest: s.stream_score_latest?.overall_score ?? null,
+    stream_score_latest_overall: s.stream_score_latest?.overall_score ?? null,
+    stream_score_confidence: s.stream_score_latest?.confidence ?? null,
+    stream_score_signal_quality: s.stream_score_latest?.signal_quality ?? null,
+    stream_score_movement_status: s.stream_score_movement.movement_status,
+    stream_score_overall_delta: s.stream_score_movement.overall_delta,
+    stream_score_priority_dimension: s.stream_score_movement.priority_dimension,
+    stream_score_top_positive_dimension: s.stream_score_movement.top_positive_dimension,
+    stream_score_top_negative_dimension: s.stream_score_movement.top_negative_dimension,
+    stream_score_is_stale: s.stream_score_movement.is_stale,
+    stream_score_has_enough_history: s.stream_score_movement.has_enough_history,
     facts_available: s.facts_available,
     maturity_state: s.maturity_state,
     availability: {
