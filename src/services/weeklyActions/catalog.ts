@@ -48,7 +48,7 @@ const consistency_schedule_next_live: ActionCandidate = {
   difficulty: "easy",
   confidence: "high",
   verification_signal: "live_sessions.next_started",
-  auto_verifiable: false,
+  auto_verifiable: true,
   source_type: "inactivity",
   source_ref: (s) => s.last_session?.id ?? null,
   evidence: (s) => ({
@@ -98,20 +98,23 @@ const consistency_protect_streak: ActionCandidate = {
 const content_create_clips_from_last_live: ActionCandidate = {
   action_key: "content_create_clips_from_last_live",
   category: "content",
-  title: "Crée 2 clips à partir de ton dernier live",
-  description: "Les clips prolongent la vie du live et nourrissent la découverte.",
+  title: "Sélectionne 2 nouveaux clips à réutiliser cette semaine",
+  description:
+    "Choisis ou crée 2 nouveaux clips à partir de tes lives récents pour nourrir la découverte hors live.",
   reason: () =>
     "Une session récente existe mais aucun signal de réutilisation de contenu n'est détecté.",
   expected_impact: "Augmenter la découverte hors live.",
   difficulty: "easy",
-  confidence: "medium",
+  confidence: "high",
   verification_signal: "twitch_clips.count_increase",
-  auto_verifiable: false,
+  auto_verifiable: true,
   source_type: "content",
   source_ref: (s) => s.last_session?.id ?? null,
   evidence: (s) => ({
     last_session_id: s.last_session?.id ?? null,
     last_session_ended_at: s.last_session?.ended_at ?? null,
+    baseline_clip_count: 0,
+    baseline_clip_ids: [],
   }),
   eligible: (s) =>
     (s.maturity_state === "active" || s.maturity_state === "growth") &&
@@ -131,7 +134,7 @@ const positioning_stabilize_title_category: ActionCandidate = {
   difficulty: "easy",
   confidence: "high",
   verification_signal: "channel_update_history.count_decrease",
-  auto_verifiable: false,
+  auto_verifiable: true,
   source_type: "channel_update_history",
   source_ref: () => null,
   evidence: (s) => ({
@@ -242,7 +245,7 @@ const monetization_review_affiliate_path: ActionCandidate = {
   difficulty: "easy",
   confidence: "low",
   verification_signal: "twitch_profile.broadcaster_type_change",
-  auto_verifiable: false,
+  auto_verifiable: true,
   source_type: "monetization",
   source_ref: () => null,
   evidence: (s) => ({
