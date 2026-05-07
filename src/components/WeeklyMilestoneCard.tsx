@@ -165,6 +165,16 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
                       }`}
                     >
                       {item.title}
+                      {done &&
+                        (item.evidence as { verified_by?: string } | null)
+                          ?.verified_by === "auto" && (
+                          <Badge
+                            variant="outline"
+                            className="ml-2 h-4 px-1.5 text-[9px] align-middle"
+                          >
+                            Vérifié automatiquement
+                          </Badge>
+                        )}
                     </p>
                   </div>
                   {item.status === "todo" ? (

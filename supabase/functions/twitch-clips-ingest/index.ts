@@ -58,11 +58,37 @@ Deno.serve(async (req) => {
         },
       );
     }
-    if (!isCron && callerUserId !== body.user_id) {
-      return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (!isCron) {
+      if (callerUserId !== body.user_id) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Derive/verify broadcaster_id from connected Twitch account.
+      // A JWT user can only ingest clips for their own connected broadcaster.
+      const { data: account } = await admin
+        .from("connected_accounts")
+        .select("platform_user_id")
+        .eq("user_id", callerUserId)
+        .eq("platform", "twitch")
+        .maybeSingle();
+      const ownedBroadcasterId = account?.platform_user_id ?? null;
+      if (!ownedBroadcasterId) {
+        return new Response(
+          JSON.stringify({ error: "No connected Twitch account" }),
+          {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      if (body.broadcaster_id !== ownedBroadcasterId) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     const result = await ingestClipsFor(admin, body as IngestParams);
