@@ -68,15 +68,18 @@ async function updateMilestoneDiagnosis(
   milestoneId: string,
   diagnosis: string,
   signals: Record<string, unknown>,
-): Promise<void> {
-  await supabase
+): Promise<WeeklyMilestoneRow | null> {
+  const { data } = await supabase
     .from("weekly_milestones")
     .update({
       diagnosis,
       generated_signals: signals as unknown as never,
       generated_at: new Date().toISOString(),
     })
-    .eq("id", milestoneId);
+    .eq("id", milestoneId)
+    .select("*")
+    .maybeSingle();
+  return (data as WeeklyMilestoneRow | null) ?? null;
 }
 
 /**
