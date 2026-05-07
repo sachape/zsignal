@@ -443,7 +443,7 @@ const AnalysePage = () => {
         )}
 
         {/* 3 stat cards — unique metrics not in score decomposition */}
-        <div style={anim(320)} className="mb-10 grid grid-cols-3 gap-3">
+        <div style={anim(320)} className="mb-14 grid grid-cols-3 gap-3">
           {[
             {
               icon: Radio,
