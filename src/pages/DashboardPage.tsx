@@ -717,7 +717,10 @@ const DashboardPage = () => {
 
         {/* StreamScore evolution — dimension deltas from stream_score_snapshots */}
         {!currentReport.is_demo && (
-          <StreamScoreEvolutionCard userId={user!.id} />
+          <StreamScoreEvolutionCard
+            userId={user!.id}
+            platformUserId={account?.platform_user_id ?? null}
+          />
         )}
 
         {/* Weekly digest — after score context, before actions */}
