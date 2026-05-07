@@ -255,6 +255,29 @@ const LastLivePage = () => {
               </p>
             </CardContent>
           </Card>
+
+          {debrief?.next_live_focus && (
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                  Focus pour ton prochain live
+                </p>
+                <p className="mt-1 text-sm text-foreground">
+                  {debrief.next_live_focus}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {(debrief?.confidence || debrief?.signal_quality) && (
+            <p className="text-[11px] text-muted-foreground/80">
+              {debrief?.confidence === "high"
+                ? "Analyse fiable, basée sur plusieurs signaux."
+                : debrief?.confidence === "medium"
+                ? "Analyse correcte, mais à confirmer sur les prochains lives."
+                : "Analyse limitée — lance un live plus long pour obtenir une lecture plus fiable."}
+            </p>
+          )}
         </div>
 
         {/* Comparison vs previous */}
