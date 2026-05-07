@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.twitch-eventsub-monitor]
 verify_jwt = false
+
+[functions.twitch-clips-ingest]
+verify_jwt = false
+
+[functions.weekly-actions-verify]
+verify_jwt = false
