@@ -84,7 +84,7 @@ const LeadersPage = () => {
   const { user } = useAuth();
 
   const [category, setCategory] = useState<string>("Just Chatting");
-  const [language, setLanguage] = useState<string>("all");
+  const [language, setLanguage] = useState<string>("fr");
   const [view, setView] = useState<ViewMode>("all");
   const [sort, setSort] = useState<SortKey>("score");
 
