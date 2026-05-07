@@ -148,6 +148,13 @@ export async function processQueuedJob(
       .eq("user_id", userId)
       .eq("platform", "twitch");
 
+    // StreamScore history snapshot (idempotent on analysis_job_id).
+    await persistStreamScoreSnapshot({
+      userId,
+      analysisJobId: jobId,
+      report,
+    });
+
     return { ok: true, reportId: saved.id };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

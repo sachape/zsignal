@@ -69,23 +69,17 @@ async function fetchAlertsCount(broadcasterId: string | null): Promise<number> {
 async function fetchLatestStreamScore(
   userId: string,
 ): Promise<{ overall_score: number | null } | null> {
-  const { data: jobs } = await supabase
-    .from("analysis_jobs")
-    .select("id")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(5);
-  const jobIds = (jobs ?? []).map((j) => j.id as string);
-  if (jobIds.length === 0) return null;
+  // Read from the new history table (StreamScore v2). Falls back to null
+  // when no snapshot has been persisted yet — preserves prior safe behavior.
   const { data } = await supabase
-    .from("stream_scores")
-    .select("overall_score, created_at")
-    .in("analysis_job_id", jobIds)
+    .from("stream_score_snapshots")
+    .select("overall, created_at")
+    .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
   if (!data) return null;
-  return { overall_score: (data.overall_score as number | null) ?? null };
+  return { overall_score: (data.overall as number | null) ?? null };
 }
 
 async function fetchLatestFacts(
