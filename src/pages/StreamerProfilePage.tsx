@@ -724,6 +724,7 @@ const StreamerProfilePage = () => {
                       login: loginKey,
                       display_name: summary.display_name,
                       category: summary.category ?? null,
+                      avatar_url: report.identity?.avatar_url ?? null,
                     });
                     setInWatchlist(true);
                     toast({ title: "Ajouté à la watchlist" });

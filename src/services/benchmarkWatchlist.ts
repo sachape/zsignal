@@ -8,6 +8,7 @@ export interface WatchlistEntry {
   login: string;
   display_name: string;
   category?: string | null;
+  avatar_url?: string | null;
   added_at: string;
 }
 
