@@ -44,13 +44,39 @@ const DIM_LABEL_FR: Record<DimKey, string> = {
   monetization: "la monétisation",
 };
 
+/**
+ * Resolve analysis_job ids for the user that match a given connected
+ * platform_user_id. Used to scope snapshot reads to the user's OWN
+ * connected channel — never to other channels they manually analyzed.
+ * Returns null when no platformUserId is provided (caller should treat
+ * as "no scoping" and skip snapshot reads to avoid leaking unrelated
+ * channels into the evolution card).
+ */
+async function getJobIdsForPlatformUser(
+  userId: string,
+  platformUserId: string,
+): Promise<string[]> {
+  const { data } = await supabase
+    .from("analysis_jobs")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("platform", "twitch")
+    .eq("platform_user_id", platformUserId);
+  return (data ?? []).map((r) => r.id as string);
+}
+
 export async function getLatestSnapshot(
   userId: string,
+  platformUserId?: string | null,
 ): Promise<StreamScoreSnapshot | null> {
+  if (!platformUserId) return null;
+  const jobIds = await getJobIdsForPlatformUser(userId, platformUserId);
+  if (jobIds.length === 0) return null;
   const { data } = await supabase
     .from("stream_score_snapshots")
     .select("*")
     .eq("user_id", userId)
+    .in("analysis_job_id", jobIds)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -60,11 +86,16 @@ export async function getLatestSnapshot(
 export async function getSnapshotsSince(
   userId: string,
   sinceISO: string,
+  platformUserId?: string | null,
 ): Promise<StreamScoreSnapshot[]> {
+  if (!platformUserId) return [];
+  const jobIds = await getJobIdsForPlatformUser(userId, platformUserId);
+  if (jobIds.length === 0) return [];
   const { data } = await supabase
     .from("stream_score_snapshots")
     .select("*")
     .eq("user_id", userId)
+    .in("analysis_job_id", jobIds)
     .gte("created_at", sinceISO)
     .order("created_at", { ascending: true });
   return (data as StreamScoreSnapshot[] | null) ?? [];
@@ -81,18 +112,8 @@ export interface WeekOverWeekDelta {
 
 export async function getWeekOverWeekDelta(
   userId: string,
+  platformUserId?: string | null,
 ): Promise<WeekOverWeekDelta> {
-  const { data } = await supabase
-    .from("stream_score_snapshots")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(2);
-
-  const rows = (data as StreamScoreSnapshot[] | null) ?? [];
-  const latest = rows[0] ?? null;
-  const previous = rows[1] ?? null;
-
   const emptyDeltas: Record<DimKey, number | null> = {
     regularity: null,
     structure: null,
@@ -101,6 +122,39 @@ export async function getWeekOverWeekDelta(
     momentum: null,
     monetization: null,
   };
+  if (!platformUserId) {
+    return {
+      latest: null,
+      previous: null,
+      overall_delta: null,
+      dimension_deltas: emptyDeltas,
+      top_moving_dimension: null,
+      explanation: "Pas encore assez d'historique pour expliquer l'évolution.",
+    };
+  }
+  const jobIds = await getJobIdsForPlatformUser(userId, platformUserId);
+  if (jobIds.length === 0) {
+    return {
+      latest: null,
+      previous: null,
+      overall_delta: null,
+      dimension_deltas: emptyDeltas,
+      top_moving_dimension: null,
+      explanation: "Pas encore assez d'historique pour expliquer l'évolution.",
+    };
+  }
+
+  const { data } = await supabase
+    .from("stream_score_snapshots")
+    .select("*")
+    .eq("user_id", userId)
+    .in("analysis_job_id", jobIds)
+    .order("created_at", { ascending: false })
+    .limit(2);
+
+  const rows = (data as StreamScoreSnapshot[] | null) ?? [];
+  const latest = rows[0] ?? null;
+  const previous = rows[1] ?? null;
 
   if (!latest || !previous) {
     return {
