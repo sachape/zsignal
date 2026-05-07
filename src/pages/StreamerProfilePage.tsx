@@ -2,22 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
-  Radio,
   Sparkles,
   Lightbulb,
   Target,
   Compass,
   TrendingUp,
   Copy,
-  Activity,
-  Film,
-  CalendarRange,
   Scale,
   ArrowRight,
   Bookmark,
   BookmarkCheck,
-  Trophy,
-  Users,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -70,6 +64,10 @@ function factNum(report: AnalysisReport, key: string): number {
 
 function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[] {
   const rows: CompRow[] = [];
+  const fmtScore = (v: number) => (v === 0 ? "—" : `${v}/100`);
+  const fmtPct = (v: number) => (v === 0 ? "—" : `${v}%`);
+  const fmtClips = (v: number) => (v === 0 ? "—" : `${v} clips/30j`);
+  const noData = (a: number, b: number) => a === 0 && b === 0;
 
   // Regularity (consistency)
   const tCons = factNum(target, "posting_consistency_score");
@@ -77,10 +75,11 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
   rows.push({
     key: "regularity",
     label: "Régularité",
-    status:
-      tCons - mCons >= 15 ? "ahead" : mCons - tCons >= 15 ? "behind" : "similar",
-    theirs: `${tCons}/100`,
-    yours: `${mCons}/100`,
+    status: noData(tCons, mCons)
+      ? "unknown"
+      : tCons - mCons >= 15 ? "ahead" : mCons - tCons >= 15 ? "behind" : "similar",
+    theirs: fmtScore(tCons),
+    yours: fmtScore(mCons),
     gapWeight: Math.max(0, tCons - mCons) * 1.2,
     mechanic: "Fixer 3 créneaux fixes par semaine et les tenir 4 semaines de suite.",
   });
@@ -91,10 +90,11 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
   rows.push({
     key: "clips",
     label: "Loop discovery (clips)",
-    status:
-      tClips - mClips >= 3 ? "ahead" : mClips - tClips >= 3 ? "behind" : "similar",
-    theirs: `${tClips} clips/30j`,
-    yours: `${mClips} clips/30j`,
+    status: noData(tClips, mClips)
+      ? "unknown"
+      : tClips - mClips >= 3 ? "ahead" : mClips - tClips >= 3 ? "behind" : "similar",
+    theirs: fmtClips(tClips),
+    yours: fmtClips(mClips),
     gapWeight: Math.max(0, tClips - mClips) * 2,
     mechanic: "Publier 2-3 clips après chaque stream pour activer la discovery.",
   });
@@ -105,10 +105,11 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
   rows.push({
     key: "category",
     label: "Stabilité catégorie",
-    status:
-      mSwitch - tSwitch >= 15 ? "ahead" : tSwitch - mSwitch >= 15 ? "behind" : "similar",
-    theirs: `${tSwitch}% changement`,
-    yours: `${mSwitch}% changement`,
+    status: noData(tSwitch, mSwitch)
+      ? "unknown"
+      : mSwitch - tSwitch >= 15 ? "ahead" : tSwitch - mSwitch >= 15 ? "behind" : "similar",
+    theirs: fmtPct(tSwitch),
+    yours: fmtPct(mSwitch),
     gapWeight: Math.max(0, mSwitch - tSwitch) * 0.8,
     mechanic: "Garder une catégorie principale claire pendant 3-4 streams d'affilée.",
   });
@@ -125,10 +126,11 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
     rows.push({
       key: "positioning",
       label: "Clarté du positionnement",
-      status:
-        tPos - mPos >= 10 ? "ahead" : mPos - tPos >= 10 ? "behind" : "similar",
-      theirs: `${tPos}/100`,
-      yours: `${mPos}/100`,
+      status: noData(tPos, mPos)
+        ? "unknown"
+        : tPos - mPos >= 10 ? "ahead" : mPos - tPos >= 10 ? "behind" : "similar",
+      theirs: fmtScore(tPos),
+      yours: fmtScore(mPos),
       gapWeight: Math.max(0, tPos - mPos),
       mechanic: "Clarifier la bio et un titre récurrent qui dit ce que tu fais.",
     });
@@ -141,10 +143,11 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
     rows.push({
       key: "structure",
       label: "Structure du contenu",
-      status:
-        tStr - mStr >= 10 ? "ahead" : mStr - tStr >= 10 ? "behind" : "similar",
-      theirs: `${tStr}/100`,
-      yours: `${mStr}/100`,
+      status: noData(tStr, mStr)
+        ? "unknown"
+        : tStr - mStr >= 10 ? "ahead" : mStr - tStr >= 10 ? "behind" : "similar",
+      theirs: fmtScore(tStr),
+      yours: fmtScore(mStr),
       gapWeight: Math.max(0, tStr - mStr) * 0.9,
       mechanic: "Standardiser une structure de titre récurrente sur tes lives.",
     });
@@ -172,7 +175,7 @@ const usefulnessMeta: Record<MechanicUsefulness, { label: string; tone: string }
   copy: { label: "Utile à copier", tone: "border-primary/40 bg-primary/10 text-primary" },
   observe: { label: "À observer", tone: "border-border bg-muted/30 text-muted-foreground" },
   inspiring: {
-    label: "Inspirant mais pas directement comparable",
+    label: "Inspiration",
     tone: "border-secondary/40 bg-secondary/20 text-foreground",
   },
   "too-advanced": {
@@ -617,14 +620,6 @@ const StreamerProfilePage = () => {
     copyableMechanics.push(`Reproduire ce qui fonctionne sur ${strongest.dimension.toLowerCase()}.`);
   }
 
-  // Tone classes for the "why this matters" card
-  const toneStyles: Record<RelationFraming["tone"], string> = {
-    primary: "border-primary/30 bg-primary/5",
-    accent: "border-accent/30 bg-accent/5",
-    secondary: "border-secondary/40 bg-secondary/10",
-    muted: "border-border bg-muted/10",
-  };
-
   return (
     <AppShell>
       <PageContainer>
@@ -634,8 +629,8 @@ const StreamerProfilePage = () => {
           size="sm"
           className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
         >
-          <Link to={user ? "/competitors" : "/"}>
-            <ArrowLeft className="h-3.5 w-3.5" /> Retour
+          <Link to={user ? "/leaders" : "/"}>
+            <ArrowLeft className="h-3.5 w-3.5" /> Classements
           </Link>
         </Button>
 
@@ -656,7 +651,7 @@ const StreamerProfilePage = () => {
             ...(summary.category ? [{ label: summary.category, variant: "outline" as const }] : []),
             { label: framing.label, variant: "secondary" as const },
           ]}
-          description={`@${report.identity?.platform_login ?? summary.channel_name} · profil à inspecter pour comparer, apprendre et extraire des mécaniques utiles.`}
+          description={null}
         />
 
         {/* Acquisition CTA — only for anonymous visitors */}
@@ -676,25 +671,10 @@ const StreamerProfilePage = () => {
           </div>
         )}
 
-        <Card className={`mb-6 ${toneStyles[framing.tone]}`}>
-          <CardContent className="p-5">
-            <div className="mb-2 flex items-center gap-2">
-              <Compass className="h-4 w-4 text-foreground" />
-              <h3 className="text-sm font-semibold text-foreground">{framing.headline}</h3>
-              <Badge variant="outline" className="ml-auto text-[10px]">
-                {framing.label}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground">{framing.why}</p>
-          </CardContent>
-        </Card>
-
-
-
         {/* Key public benchmark signals */}
         <div className="mb-3">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Signaux benchmark publics
+            Signaux publics
           </h2>
         </div>
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -727,7 +707,7 @@ const StreamerProfilePage = () => {
               <div className="mb-2 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-success" />
                 <h3 className="text-sm font-semibold text-foreground">
-                  Ce qu'iel fait mieux
+                  Ce que {summary.display_name} fait mieux
                 </h3>
               </div>
               <p className="text-xs text-muted-foreground mb-3">
@@ -815,7 +795,7 @@ const StreamerProfilePage = () => {
             unknown: "text-muted-foreground",
           };
           const statusLabel: Record<CompStatus, string> = {
-            ahead: "Iel devant",
+            ahead: `${summary.display_name} devant`,
             behind: "Toi devant",
             similar: "Similaire",
             unknown: "Indispo.",
@@ -847,7 +827,7 @@ const StreamerProfilePage = () => {
                         >
                           <span className="text-sm text-foreground">{r.label}</span>
                           <span className="text-xs text-muted-foreground tabular-nums">
-                            Iel {r.theirs}
+                            {summary.display_name} {r.theirs}
                           </span>
                           <span className="text-xs text-muted-foreground tabular-nums">
                             Toi {r.yours}
@@ -980,8 +960,8 @@ const StreamerProfilePage = () => {
                     ? "Inspirant : observe la mécanique, garde-le pour plus tard."
                     : "Profil utile à observer pour repérer une mécanique précise."}
             </p>
-            <div className="flex flex-wrap gap-2">
-              {user && !isSelf && (
+            <div className="flex items-center gap-2">
+              {user && !isSelf ? (
                 <Button
                   size="sm"
                   variant="default"
@@ -992,10 +972,15 @@ const StreamerProfilePage = () => {
                 >
                   <Scale className="h-3.5 w-3.5" /> Comparer maintenant
                 </Button>
-              )}
+              ) : !user ? (
+                <Button asChild size="sm" variant="default">
+                  <Link to="/">Analyser ma chaîne</Link>
+                </Button>
+              ) : null}
               <Button
                 size="sm"
                 variant={inWatchlist ? "secondary" : "outline"}
+                className="px-2.5"
                 onClick={() => {
                   const loginKey = report.identity?.platform_login ?? summary.channel_name;
                   if (inWatchlist) {
@@ -1013,32 +998,11 @@ const StreamerProfilePage = () => {
                 }}
               >
                 {inWatchlist ? (
-                  <>
-                    <BookmarkCheck className="h-3.5 w-3.5" /> Gardé pour plus tard
-                  </>
+                  <BookmarkCheck className="h-4 w-4" />
                 ) : (
-                  <>
-                    <Bookmark className="h-3.5 w-3.5" /> Garder pour plus tard
-                  </>
+                  <Bookmark className="h-4 w-4" />
                 )}
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast({ title: "Lien copié !" });
-                }}
-              >
-                <Copy className="h-3.5 w-3.5" /> Partager ce profil
-              </Button>
-              {user && (
-                <Button asChild size="sm" variant="ghost">
-                  <Link to="/competitors">
-                    <Users className="h-3.5 w-3.5" /> Retour aux Concurrents
-                  </Link>
-                </Button>
-              )}
             </div>
           </CardContent>
         </Card>
