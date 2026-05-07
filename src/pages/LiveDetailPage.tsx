@@ -230,25 +230,35 @@ const LiveDetailPage = () => {
 
         <LiveTimeline session={session} />
 
-        {(debrief?.strength || debrief?.weakness || debrief?.priority_action) && (
+        {(debrief?.summary || debrief?.main_strength || debrief?.strength || debrief?.main_weakness || debrief?.weakness || debrief?.priority_action) && (
           <div className="mb-4 space-y-3">
-            {debrief?.strength && (
+            {debrief?.summary && (
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                    Résumé du live
+                  </p>
+                  <p className="mt-1 text-sm text-foreground">{debrief.summary}</p>
+                </CardContent>
+              </Card>
+            )}
+            {(debrief?.main_strength ?? debrief?.strength) && (
               <Card>
                 <CardContent className="p-4">
                   <p className="text-[10px] font-medium uppercase tracking-wider text-success">
                     Ton point fort sur ce live
                   </p>
-                  <p className="mt-1 text-sm text-foreground">{debrief.strength}</p>
+                  <p className="mt-1 text-sm text-foreground">{debrief.main_strength ?? debrief.strength}</p>
                 </CardContent>
               </Card>
             )}
-            {debrief?.weakness && (
+            {(debrief?.main_weakness ?? debrief?.weakness) && (
               <Card>
                 <CardContent className="p-4">
                   <p className="text-[10px] font-medium uppercase tracking-wider text-warning">
                     Ton principal point faible
                   </p>
-                  <p className="mt-1 text-sm text-foreground">{debrief.weakness}</p>
+                  <p className="mt-1 text-sm text-foreground">{debrief.main_weakness ?? debrief.weakness}</p>
                 </CardContent>
               </Card>
             )}

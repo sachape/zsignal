@@ -221,15 +221,26 @@ const LastLivePage = () => {
           </div>
         )}
 
-        {/* Strength / weakness / action */}
+        {/* Summary / strength / weakness / action */}
         <div className="mb-4 space-y-3">
+          {debrief?.summary && (
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                  Résumé du live
+                </p>
+                <p className="mt-1 text-sm text-foreground">{debrief.summary}</p>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardContent className="p-4">
               <p className="text-[10px] font-medium uppercase tracking-wider text-success">
                 Ton point fort sur ce live
               </p>
               <p className="mt-1 text-sm text-foreground">
-                {debrief?.strength ?? "—"}
+                {debrief?.main_strength ?? debrief?.strength ?? "—"}
               </p>
             </CardContent>
           </Card>
@@ -240,7 +251,7 @@ const LastLivePage = () => {
                 Ton principal point faible
               </p>
               <p className="mt-1 text-sm text-foreground">
-                {debrief?.weakness ?? "—"}
+                {debrief?.main_weakness ?? debrief?.weakness ?? "—"}
               </p>
             </CardContent>
           </Card>
