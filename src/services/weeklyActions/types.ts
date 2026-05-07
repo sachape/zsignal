@@ -2,6 +2,21 @@
 
 import type { LiveDebrief, LiveSession } from "@/services/liveSessions";
 import type { InactivityTier } from "@/services/inactivityRelance";
+import type { StreamScoreMovement } from "@/services/streamScoreMovement";
+import type { ScoreLevel } from "@/services/streamScoreHistory";
+
+export interface StreamScoreLatestSummary {
+  overall_score: number | null;
+  confidence: ScoreLevel | null;
+  signal_quality: ScoreLevel | null;
+  priority_dimension: string | null;
+  regularity: number | null;
+  structure: number | null;
+  content: number | null;
+  positioning: number | null;
+  momentum: number | null;
+  monetization: number | null;
+}
 
 export type ActionCategory =
   | "consistency"
