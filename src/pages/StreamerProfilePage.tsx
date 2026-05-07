@@ -70,6 +70,11 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
   const fmtPct = (v: number) => (v === 0 ? "—" : `${v}%`);
   const fmtClips = (v: number) => (v === 0 ? "—" : `${v} clips/30j`);
   const noData = (a: number, b: number) => a === 0 && b === 0;
+  // Dimensions computed from activity data are only meaningful when the user
+  // has streamed recently. Below this threshold, 0 streams can paradoxically
+  // produce perfect scores (e.g. positionnement = 100 because 0 category changes).
+  const myStreams30d = factNum(mine, "streams_30d");
+  const myHasActivity = myStreams30d >= 2;
 
   // Regularity (consistency)
   const tCons = factNum(target, "posting_consistency_score");
@@ -128,12 +133,14 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
     rows.push({
       key: "positioning",
       label: "Clarté du positionnement",
-      status: noData(tPos, mPos)
+      // If user has no activity, positionnement = 100 is a false positive (0 streams = 0 changes).
+      // Show "—" instead of a misleading perfect score.
+      status: !myHasActivity || noData(tPos, mPos)
         ? "unknown"
         : tPos - mPos >= 10 ? "ahead" : mPos - tPos >= 10 ? "behind" : "similar",
       theirs: fmtScore(tPos),
-      yours: fmtScore(mPos),
-      gapWeight: Math.max(0, tPos - mPos),
+      yours: !myHasActivity ? "—" : fmtScore(mPos),
+      gapWeight: !myHasActivity ? tPos * 0.5 : Math.max(0, tPos - mPos),
       mechanic: "Clarifier la bio et un titre récurrent qui dit ce que tu fais.",
     });
   }
@@ -145,12 +152,12 @@ function buildComparison(target: AnalysisReport, mine: AnalysisReport): CompRow[
     rows.push({
       key: "structure",
       label: "Structure du contenu",
-      status: noData(tStr, mStr)
+      status: !myHasActivity || noData(tStr, mStr)
         ? "unknown"
         : tStr - mStr >= 10 ? "ahead" : mStr - tStr >= 10 ? "behind" : "similar",
       theirs: fmtScore(tStr),
-      yours: fmtScore(mStr),
-      gapWeight: Math.max(0, tStr - mStr) * 0.9,
+      yours: !myHasActivity ? "—" : fmtScore(mStr),
+      gapWeight: !myHasActivity ? tStr * 0.4 : Math.max(0, tStr - mStr) * 0.9,
       mechanic: "Standardiser une structure de titre récurrente sur tes lives.",
     });
   }
