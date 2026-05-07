@@ -9,6 +9,7 @@ import {
   type LiveSession,
 } from "@/services/liveSessions";
 import { buildInactivityRelance } from "@/services/inactivityRelance";
+import { getStreamScoreMovement } from "@/services/streamScoreMovement";
 import { classifyMaturity } from "./maturity";
 import type { PriorActionRef, SignalBundle } from "./types";
 
