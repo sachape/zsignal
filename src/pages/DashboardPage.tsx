@@ -68,7 +68,7 @@ import {
   type WeeklyQuests,
 } from "@/services/questEngine";
 import StreakBadge from "@/components/StreakBadge";
-import BadgeGrid from "@/components/BadgeGrid";
+import BadgeStrip from "@/components/BadgeStrip";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 import ShareScoreButton from "@/components/ShareScoreButton";
 import WeeklyDigestCard from "@/components/WeeklyDigestCard";
@@ -534,6 +534,10 @@ const DashboardPage = () => {
                     démo
                   </span>
                 )}
+                {/* Badge strip */}
+                <div className="mt-2">
+                  <BadgeStrip badges={badges} />
+                </div>
               </div>
             </div>
 
@@ -727,14 +731,13 @@ const DashboardPage = () => {
             </div>
           )}
 
-        {/* Next milestone + Badges — side by side */}
-        <div className="mb-4 grid gap-3 sm:grid-cols-2 items-start">
+        {/* Next milestone */}
+        <div className="mb-4">
           <NextMilestoneCard
             milestone={nextMilestone}
             reportId={currentReport.id}
             foundationActive={foundationActive}
           />
-          <BadgeGrid badges={badges} />
         </div>
       </PageContainer>
     </AppShell>
