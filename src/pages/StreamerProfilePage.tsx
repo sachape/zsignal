@@ -37,6 +37,8 @@ import {
   isInWatchlist,
   removeFromWatchlist,
 } from "@/services/benchmarkWatchlist";
+import { recordSnapshot, getSnapshots } from "@/services/competitorSnapshots";
+import CompetitorTrendChart from "@/components/CompetitorTrendChart";
 import { toast } from "@/hooks/use-toast";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { evaluatePairwiseFit, type CandidateChannel, type TargetSignal } from "@/services/competitorEngine";
@@ -474,6 +476,9 @@ const StreamerProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [inWatchlist, setInWatchlist] = useState(false);
+  const [snapshots, setSnapshots] = useState(() =>
+    login ? getSnapshots(user?.id ?? null, login) : [],
+  );
 
   useEffect(() => {
     if (!login) {
@@ -502,18 +507,35 @@ const StreamerProfilePage = () => {
         setLoading(false);
         return;
       }
-      setReport(result.record.report);
+      const r = result.record.report;
+      setReport(r);
+
+      // Record a snapshot for competitor trend tracking (watchlisted profiles only)
+      try {
+        const loginKey = r.identity?.platform_login ?? r.channel_summary.channel_name ?? login;
+        const clips30d = Number(r.facts.find((f) => f.key === "clips_30d")?.value ?? 0) || null;
+        const streams30d = Number(r.facts.find((f) => f.key === "streams_30d")?.value ?? 0) || null;
+        recordSnapshot(user?.id ?? null, loginKey, {
+          stream_score: r.score.overall ?? null,
+          avg_viewers: r.channel_summary.avg_viewers || null,
+          clips_30d: clips30d,
+          streams_30d: streams30d,
+          is_live: !!r.channel_summary.is_live,
+        });
+        if (!cancelled) setSnapshots(getSnapshots(user?.id ?? null, loginKey));
+      } catch {
+        /* snapshot recording is best-effort */
+      }
+
       // Track this opened benchmark profile so the global Competitors page
       // can use it as a seed when the connected account itself lacks signal.
       try {
         const { trackOpenedProfile } = await import("@/services/recentlyOpenedProfiles");
         trackOpenedProfile(user?.id ?? null, {
-          login: result.record.report.channel_summary.channel_name?.toLowerCase() || login,
+          login: r.channel_summary.channel_name?.toLowerCase() || login,
           display_name:
-            result.record.report.identity?.display_name ??
-            result.record.report.channel_summary.channel_name ??
-            login,
-          category: result.record.report.channel_summary.category ?? null,
+            r.identity?.display_name ?? r.channel_summary.channel_name ?? login,
+          category: r.channel_summary.category ?? null,
           language: null,
         });
       } catch {
@@ -1011,6 +1033,22 @@ const StreamerProfilePage = () => {
         })()}
 
 
+
+        {/* Competitor trend — only shown when in watchlist */}
+        {inWatchlist && !isSelf && (
+          <Card className="mb-6">
+            <CardContent className="p-5">
+              <div className="mb-3 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-foreground" />
+                <h3 className="text-sm font-semibold text-foreground">Évolution dans le temps</h3>
+                <Badge variant="outline" className="ml-auto text-[10px]">
+                  {snapshots.length} snapshot{snapshots.length > 1 ? "s" : ""}
+                </Badge>
+              </div>
+              <CompetitorTrendChart snapshots={snapshots} login={login ?? ""} />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Page role footer */}
         <p className="mt-6 text-xs text-muted-foreground">

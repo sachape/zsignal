@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, BookmarkX, Trophy, ArrowRight, ChevronRight } from "lucide-react";
+import { Bookmark, BookmarkX, Trophy, ArrowRight, ChevronRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,9 @@ import {
   type WatchlistEntry,
 } from "@/services/benchmarkWatchlist";
 import { PublicChannelLookupService } from "@/services/publicChannelLookup";
+import { getSnapshots, viewersTrend } from "@/services/competitorSnapshots";
+import { SparkLine } from "@/components/CompetitorTrendChart";
+import { cn } from "@/lib/utils";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -171,52 +174,75 @@ const WatchlistPage = () => {
         ) : (
           /* Filled list */
           <div className="divide-y divide-border/40 rounded-xl border border-border/60 bg-card/40 overflow-hidden">
-            {entries.map((entry) => (
-              <div
-                key={entry.login}
-                className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/20"
-              >
-                {/* Avatar */}
-                <Avatar entry={entry} />
+            {entries.map((entry) => {
+              const snaps = getSnapshots(user?.id ?? null, entry.login);
+              const { direction, pct } = viewersTrend(snaps);
+              const hasTrend = snaps.length >= 2;
+              const TrendIcon = direction === "up" ? TrendingUp : direction === "down" ? TrendingDown : Minus;
+              const trendColor = direction === "up" ? "text-success" : direction === "down" ? "text-destructive" : "text-muted-foreground";
 
-                {/* Info */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-semibold text-foreground">
-                      {entry.display_name}
-                    </span>
-                    {entry.category && (
-                      <Badge
-                        variant="outline"
-                        className="h-5 rounded-full px-2 text-[10px] font-medium"
-                      >
-                        {entry.category}
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    @{entry.login} · {timeAgo(entry.added_at)}
-                  </p>
-                </div>
-
-                {/* Actions */}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 w-8 shrink-0 p-0 text-muted-foreground hover:text-destructive"
-                  title="Retirer de la watchlist"
-                  onClick={() => remove(entry.login)}
+              return (
+                <div
+                  key={entry.login}
+                  className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/20"
                 >
-                  <BookmarkX className="h-4 w-4" />
-                </Button>
-                <Button asChild size="sm" variant="outline" className="h-8 shrink-0 gap-1.5 text-xs">
-                  <Link to={`/streamer/${entry.login}`}>
-                    Voir le profil
-                    <ArrowRight className="h-3 w-3 opacity-50" />
-                  </Link>
-                </Button>
-              </div>
-            ))}
+                  {/* Avatar */}
+                  <Avatar entry={entry} />
+
+                  {/* Info */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold text-foreground">
+                        {entry.display_name}
+                      </span>
+                      {entry.category && (
+                        <Badge
+                          variant="outline"
+                          className="h-5 rounded-full px-2 text-[10px] font-medium"
+                        >
+                          {entry.category}
+                        </Badge>
+                      )}
+                      {hasTrend && direction !== "unknown" && (
+                        <span className={cn("flex items-center gap-0.5 text-[10px] font-semibold tabular-nums", trendColor)}>
+                          <TrendIcon className="h-3 w-3" />
+                          {pct !== null ? `${pct > 0 ? "+" : ""}${pct}%` : ""}
+                        </span>
+                      )}
+                      {snaps.length === 1 && (
+                        <span className="text-[10px] text-muted-foreground">1er snapshot</span>
+                      )}
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      @{entry.login} · {timeAgo(entry.added_at)}
+                      {snaps.length > 0 && ` · ${snaps.length} snapshot${snaps.length > 1 ? "s" : ""}`}
+                    </p>
+                  </div>
+
+                  {/* Sparkline */}
+                  {hasTrend && (
+                    <SparkLine snapshots={snaps} />
+                  )}
+
+                  {/* Actions */}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 shrink-0 p-0 text-muted-foreground hover:text-destructive"
+                    title="Retirer de la watchlist"
+                    onClick={() => remove(entry.login)}
+                  >
+                    <BookmarkX className="h-4 w-4" />
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="h-8 shrink-0 gap-1.5 text-xs">
+                    <Link to={`/streamer/${entry.login}`}>
+                      Voir le profil
+                      <ArrowRight className="h-3 w-3 opacity-50" />
+                    </Link>
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         )}
 

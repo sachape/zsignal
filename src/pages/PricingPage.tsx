@@ -6,7 +6,13 @@ import {
   Sparkles,
   Zap,
   Mail,
+  Clock,
 } from "lucide-react";
+
+const FOUNDING_MEMBER = true;
+const FOUNDING_SPOTS = 150;
+const PRO_FUTURE = 12.99;
+const GROWTH_FUTURE = 24.99;
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -261,6 +267,17 @@ const PricingPage = () => {
           </p>
         </div>
 
+        {/* Founding member banner */}
+        {FOUNDING_MEMBER && (
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-primary/25 bg-primary/[0.06] px-4 py-3">
+            <Clock className="h-4 w-4 shrink-0 text-primary" />
+            <p className="text-xs text-foreground">
+              <span className="font-semibold text-primary">Offre Fondateur · {FOUNDING_SPOTS} places au tarif de lancement.</span>
+              {" "}Prix locké à vie pour les premiers abonnés — le Pro passera à {PRO_FUTURE} € et le Growth à {GROWTH_FUTURE} € ensuite.
+            </p>
+          </div>
+        )}
+
         {/* Billing toggle */}
         <div className="mb-8 flex justify-center">
           <div className="inline-flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 p-1">
@@ -312,9 +329,23 @@ const PricingPage = () => {
               )}
 
               <div className="mb-4">
-                <p className="text-sm font-semibold text-muted-foreground">
-                  {tier.name}
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-muted-foreground">
+                    {tier.name}
+                  </p>
+                  {FOUNDING_MEMBER && tier.id !== "free" && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary">
+                      Fondateur
+                    </span>
+                  )}
+                </div>
+                {FOUNDING_MEMBER && tier.id !== "free" && (
+                  <p className="mt-1 text-xs text-muted-foreground line-through">
+                    {tier.id === "pro"
+                      ? `${billing === "annual" ? `${(PRO_FUTURE * 0.75).toFixed(2).replace(".", ",")} €` : `${PRO_FUTURE.toFixed(2).replace(".", ",")} €`} / mois`
+                      : `${billing === "annual" ? `${(GROWTH_FUTURE * 0.75).toFixed(2).replace(".", ",")} €` : `${GROWTH_FUTURE.toFixed(2).replace(".", ",")} €`} / mois`}
+                  </p>
+                )}
                 <div className="mt-1 flex items-end gap-1">
                   <span className="text-3xl font-bold tracking-tight text-foreground">
                     {billing === "annual" && tier.annual ? tier.annual : tier.price}

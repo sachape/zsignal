@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuthModal } from "@/contexts/AuthModalContext";
@@ -11,17 +11,31 @@ import {
   SectionShell,
 } from "./primitives";
 
+// ── Founding member offer ────────────────────────────────────────────────────
+// Set to false once the launch offer ends. Future prices shown as strikethrough.
+
+const FOUNDING_MEMBER = true;
+const FOUNDING_SPOTS = 150;
+
 // ── Pricing constants ────────────────────────────────────────────────────────
 
+// Founding member prices (current)
 const PRO_MONTHLY = 7.99;
-const PRO_ANNUAL = 59; // per year
-const PRO_ANNUAL_MONTHLY = PRO_ANNUAL / 12; // ≈ 4.92
-const PRO_SAVINGS_PCT = Math.round((1 - PRO_ANNUAL / (PRO_MONTHLY * 12)) * 100); // ≈ 38
+const PRO_ANNUAL = 59;
+const PRO_ANNUAL_MONTHLY = PRO_ANNUAL / 12;
+const PRO_SAVINGS_PCT = Math.round((1 - PRO_ANNUAL / (PRO_MONTHLY * 12)) * 100);
+
+// Future prices (shown as strikethrough during founding offer)
+const PRO_FUTURE = 12.99;
+const PRO_FUTURE_ANNUAL = 99;
 
 const GROWTH_MONTHLY = 14.99;
-const GROWTH_ANNUAL = 110; // per year
-const GROWTH_ANNUAL_MONTHLY = GROWTH_ANNUAL / 12; // ≈ 9.17
-const GROWTH_SAVINGS_PCT = Math.round((1 - GROWTH_ANNUAL / (GROWTH_MONTHLY * 12)) * 100); // ≈ 39
+const GROWTH_ANNUAL = 110;
+const GROWTH_ANNUAL_MONTHLY = GROWTH_ANNUAL / 12;
+const GROWTH_SAVINGS_PCT = Math.round((1 - GROWTH_ANNUAL / (GROWTH_MONTHLY * 12)) * 100);
+
+const GROWTH_FUTURE = 24.99;
+const GROWTH_FUTURE_ANNUAL = 179;
 
 // ── Feature lists ────────────────────────────────────────────────────────────
 
@@ -139,6 +153,17 @@ const PricingSection = () => {
           </button>
         </div>
 
+        {/* Founding member banner */}
+        {FOUNDING_MEMBER && (
+          <div className="flex w-full max-w-5xl items-center gap-3 rounded-xl border border-primary/25 bg-primary/[0.06] px-4 py-3">
+            <Clock className="h-4 w-4 shrink-0 text-primary" />
+            <p className="text-xs text-foreground">
+              <span className="font-semibold text-primary">Offre Fondateur · {FOUNDING_SPOTS} places au tarif de lancement.</span>
+              {" "}Prix locké à vie pour les premiers abonnés — augmentation à {PRO_FUTURE} € / {GROWTH_FUTURE} € ensuite.
+            </p>
+          </div>
+        )}
+
         {/* Cards */}
         <div className="grid w-full max-w-5xl gap-5 md:grid-cols-3">
           {/* Free */}
@@ -176,12 +201,26 @@ const PricingSection = () => {
                   <MicroLabel>Croissance</MicroLabel>
                   <h3 className="mt-1 text-xl font-semibold text-foreground">Pro</h3>
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary">
-                  <Sparkles className="h-2.5 w-2.5" />
-                  Recommandé
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary">
+                    <Sparkles className="h-2.5 w-2.5" />
+                    Recommandé
+                  </span>
+                  {FOUNDING_MEMBER && (
+                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-bold text-primary">
+                      Fondateur
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="mt-5">
+                {FOUNDING_MEMBER && (
+                  <p className="mb-1 text-xs text-muted-foreground line-through">
+                    {billing === "annual"
+                      ? `${(PRO_FUTURE_ANNUAL / 12).toFixed(2).replace(".", ",")} €/mois`
+                      : `${PRO_FUTURE.toFixed(2).replace(".", ",")} €/mois`}
+                  </p>
+                )}
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-4xl font-bold tracking-tight text-foreground tabular-nums md:text-5xl">
                     {proPrice}
@@ -216,7 +255,7 @@ const PricingSection = () => {
                   Activer le plan Pro
                 </Button>
                 <p className="mt-3 text-center text-[11px] text-muted-foreground">
-                  Sans engagement · résiliable à tout moment
+                  {FOUNDING_MEMBER ? "Prix locké à vie · sans engagement" : "Sans engagement · résiliable à tout moment"}
                 </p>
               </div>
             </GlassCard>
@@ -225,11 +264,25 @@ const PricingSection = () => {
           {/* Growth */}
           <div style={{ opacity: inView ? 1 : 0, transform: inView ? "translateY(0)" : "translateY(20px)", transition: delay(200) }}>
             <GlassCard className="flex h-full flex-col p-6 md:p-8">
-              <div>
-                <MicroLabel>Avancé</MicroLabel>
-                <h3 className="mt-1 text-xl font-semibold text-foreground">Growth</h3>
+              <div className="flex items-start justify-between">
+                <div>
+                  <MicroLabel>Avancé</MicroLabel>
+                  <h3 className="mt-1 text-xl font-semibold text-foreground">Growth</h3>
+                </div>
+                {FOUNDING_MEMBER && (
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary">
+                    Fondateur
+                  </span>
+                )}
               </div>
               <div className="mt-5">
+                {FOUNDING_MEMBER && (
+                  <p className="mb-1 text-xs text-muted-foreground line-through">
+                    {billing === "annual"
+                      ? `${(GROWTH_FUTURE_ANNUAL / 12).toFixed(2).replace(".", ",")} €/mois`
+                      : `${GROWTH_FUTURE.toFixed(2).replace(".", ",")} €/mois`}
+                  </p>
+                )}
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-4xl font-bold tracking-tight text-foreground tabular-nums md:text-5xl">
                     {growthPrice}
@@ -263,6 +316,11 @@ const PricingSection = () => {
                 <Button size="lg" variant="outline" className="w-full" onClick={handlePaidCta}>
                   Activer le plan Growth
                 </Button>
+                {FOUNDING_MEMBER && (
+                  <p className="mt-3 text-center text-[11px] text-muted-foreground">
+                    Prix locké à vie · sans engagement
+                  </p>
+                )}
               </div>
             </GlassCard>
           </div>
