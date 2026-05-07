@@ -642,6 +642,74 @@ export type Database = {
           },
         ]
       }
+      stream_score_snapshots: {
+        Row: {
+          analysis_job_id: string | null
+          confidence: string
+          content: number | null
+          created_at: string
+          evidence: Json | null
+          id: string
+          momentum: number | null
+          monetization: number | null
+          overall: number
+          positioning: number | null
+          priority_dimension: string | null
+          regularity: number | null
+          signal_quality: string
+          structure: number | null
+          top_drag: string | null
+          top_support: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_job_id?: string | null
+          confidence: string
+          content?: number | null
+          created_at?: string
+          evidence?: Json | null
+          id?: string
+          momentum?: number | null
+          monetization?: number | null
+          overall: number
+          positioning?: number | null
+          priority_dimension?: string | null
+          regularity?: number | null
+          signal_quality: string
+          structure?: number | null
+          top_drag?: string | null
+          top_support?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_job_id?: string | null
+          confidence?: string
+          content?: number | null
+          created_at?: string
+          evidence?: Json | null
+          id?: string
+          momentum?: number | null
+          monetization?: number | null
+          overall?: number
+          positioning?: number | null
+          priority_dimension?: string | null
+          regularity?: number | null
+          signal_quality?: string
+          structure?: number | null
+          top_drag?: string | null
+          top_support?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stream_score_snapshots_analysis_job_id_fkey"
+            columns: ["analysis_job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stream_scores: {
         Row: {
           affiliate_progress: number | null
