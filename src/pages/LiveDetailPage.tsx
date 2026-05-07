@@ -285,6 +285,8 @@ const LiveDetailPage = () => {
             )}
           </div>
         )}
+
+        {cmp?.has_previous && (
           <Card>
             <CardContent className="p-4">
               <p className="mb-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
