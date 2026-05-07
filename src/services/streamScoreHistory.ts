@@ -112,11 +112,43 @@ export interface WeekOverWeekDelta {
 
 export async function getWeekOverWeekDelta(
   userId: string,
+  platformUserId?: string | null,
 ): Promise<WeekOverWeekDelta> {
+  const emptyDeltas: Record<DimKey, number | null> = {
+    regularity: null,
+    structure: null,
+    content: null,
+    positioning: null,
+    momentum: null,
+    monetization: null,
+  };
+  if (!platformUserId) {
+    return {
+      latest: null,
+      previous: null,
+      overall_delta: null,
+      dimension_deltas: emptyDeltas,
+      top_moving_dimension: null,
+      explanation: "Pas encore assez d'historique pour expliquer l'évolution.",
+    };
+  }
+  const jobIds = await getJobIdsForPlatformUser(userId, platformUserId);
+  if (jobIds.length === 0) {
+    return {
+      latest: null,
+      previous: null,
+      overall_delta: null,
+      dimension_deltas: emptyDeltas,
+      top_moving_dimension: null,
+      explanation: "Pas encore assez d'historique pour expliquer l'évolution.",
+    };
+  }
+
   const { data } = await supabase
     .from("stream_score_snapshots")
     .select("*")
     .eq("user_id", userId)
+    .in("analysis_job_id", jobIds)
     .order("created_at", { ascending: false })
     .limit(2);
 
