@@ -374,9 +374,9 @@ const SimulatorPage = () => {
               {/* Summary */}
               <div className="mt-5 flex flex-wrap gap-3">
                 {[
-                  { label: "Sessions / mois", value: `~${Math.round(sessionsPerWeek * 4.3)}` },
+                  { label: "Sessions / semaine", value: `${sessionsPerWeek}×` },
                   { label: "Heures / mois", value: `~${Math.round(sessionsPerWeek * durationHours * 4.3)}h` },
-                  { label: "Jours de stream / 30j", value: `~${Math.round(sessionsPerWeek * 4.3)}` },
+                  { label: "Jours de stream / 30j", value: `~${Math.round(sessionsPerWeek * 4.3)}j` },
                 ].map(({ label, value }) => (
                   <div key={label} className="rounded-lg border border-border/40 bg-muted/20 px-3 py-2">
                     <p className="text-[10px] text-muted-foreground">{label}</p>
@@ -425,7 +425,11 @@ const SimulatorPage = () => {
                       tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       tickLine={false}
                       axisLine={false}
-                      tickFormatter={(v: number) => (v % 13 === 0 ? `S${v}` : "")}
+                      tickFormatter={(v: number) => {
+                        if (v === 0) return "Départ";
+                        if (v % 13 === 0) return `S${v}`;
+                        return "";
+                      }}
                       interval={0}
                     />
                     <YAxis

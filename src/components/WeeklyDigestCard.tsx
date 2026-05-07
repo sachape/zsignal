@@ -10,12 +10,12 @@ import {
 } from "@/services/benchmarkWatchlist";
 import { computeAlerts } from "@/services/competitorAlerts";
 
-const DISMISS_KEY = "streampulse:weekly-digest:dismissed";
+const DISMISS_KEY_PREFIX = "streampulse:weekly-digest:dismissed:";
 const DISMISS_DAYS = 7;
 
-function isDismissed(): boolean {
+function isDismissed(userId: string): boolean {
   try {
-    const until = localStorage.getItem(DISMISS_KEY);
+    const until = localStorage.getItem(`${DISMISS_KEY_PREFIX}${userId}`);
     if (!until) return false;
     return new Date().toISOString().slice(0, 10) <= until;
   } catch {
@@ -23,9 +23,9 @@ function isDismissed(): boolean {
   }
 }
 
-function dismiss(): void {
+function dismiss(userId: string): void {
   const until = new Date(Date.now() + DISMISS_DAYS * 86_400_000).toISOString().slice(0, 10);
-  try { localStorage.setItem(DISMISS_KEY, until); } catch {}
+  try { localStorage.setItem(`${DISMISS_KEY_PREFIX}${userId}`, until); } catch {}
 }
 
 function getWeekRange(): string {
@@ -47,7 +47,7 @@ interface Props {
 }
 
 const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
-  const [dismissed, setDismissed] = useState(isDismissed);
+  const [dismissed, setDismissed] = useState(() => isDismissed(userId));
   const [alertCount, setAlertCount] = useState(0);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
   const avgViewers = r.affiliate_progress.avg_viewers.current;
   const nextAction = r.next_best_action;
 
-  const items: { icon: React.ElementType; label: string; value: string; color?: string; href?: string }[] = [
+  const items: { icon: React.ElementType; label: string; value: string; color?: string }[] = [
     {
       icon: scoreDelta !== null && scoreDelta >= 0 ? TrendingUp : scoreDelta !== null ? TrendingDown : Zap,
       label: "StreamScore",
@@ -101,7 +101,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
             </span>
           </div>
           <button
-            onClick={() => { dismiss(); setDismissed(true); }}
+            onClick={() => { dismiss(userId); setDismissed(true); }}
             className="text-muted-foreground/40 transition-colors hover:text-muted-foreground"
             title="Masquer"
           >

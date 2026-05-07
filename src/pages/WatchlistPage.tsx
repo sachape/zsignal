@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, BookmarkX, Trophy, ArrowRight, ChevronRight, TrendingUp, TrendingDown, Minus, Bell, X, TrendingUp as TrendUp, Zap, Star } from "lucide-react";
+import { Bookmark, BookmarkX, Trophy, ArrowRight, ChevronRight, TrendingUp, TrendingDown, Minus, Bell, X, Zap, Star } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ const ALERT_META: Record<AlertType, { label: (a: CompetitorAlert) => string; col
   viewers_surge: {
     label: (a) => `+${a.pct}% viewers`,
     color: "text-success",
-    icon: TrendUp,
+    icon: TrendingUp,
   },
   viewers_drop: {
     label: (a) => `-${a.pct}% viewers`,
@@ -107,7 +107,7 @@ const WatchlistPage = () => {
   const { user } = useAuth();
   const [entries, setEntries] = useState<WatchlistEntry[]>([]);
   const [alerts, setAlerts] = useState<CompetitorAlert[]>([]);
-  const [alertsDismissed, setAlertsDismissed] = useState(() => areAlertsDismissed(null));
+  const [alertsDismissed, setAlertsDismissed] = useState(false);
 
   useEffect(() => {
     const uid = user?.id ?? null;
@@ -158,7 +158,6 @@ const WatchlistPage = () => {
 
   const handleDismissAlerts = () => {
     dismissAlerts(user?.id ?? null);
-    setAlertsDismissed(true);
   };
 
   const showAlerts = alerts.length > 0 && !alertsDismissed && entries.length > 0;
