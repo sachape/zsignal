@@ -7,6 +7,12 @@ import {
   Trophy,
   AlertCircle,
   Printer,
+  ChevronDown,
+  TrendingDown,
+  ArrowRight,
+  Users,
+  Radio,
+  Calendar,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
@@ -29,13 +35,12 @@ import {
   type SavedReport,
 } from "@/services/reportRepository";
 import type { AnalysisReport } from "@/types/analysis";
-import FoundationModeBanner from "@/components/FoundationModeBanner";
-import ScoreInsightCard from "@/components/ScoreInsightCard";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { formatNumber, formatCompact } from "@/lib/format";
 import DimensionResources from "@/components/DimensionResources";
 import StreamScoreEvolutionCard from "@/components/StreamScoreEvolutionCard";
-import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
+import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
+import { cn } from "@/lib/utils";
 
 const AnimatedScoreRing = ({ score, strokeVar }: { score: number; strokeVar: string }) => {
   const radius = 78;
@@ -97,6 +102,7 @@ const AnalysePage = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [openDim, setOpenDim] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading || twitchLoading || !user) return;
@@ -169,6 +175,8 @@ const AnalysePage = () => {
     .filter((r) => r.type === "priority")
     .slice(0, 3);
   const nextAction = report.next_best_action;
+  const narrative = buildScoreNarrative(score);
+  const streams30d = Number(report.facts?.find((f) => f.key === "streams_30d")?.value ?? 0);
   const directCompetitors = report.competitor_groups.find((g) => g.type === "direct");
   const visibleCompetitors = isReconstruction
     ? []
@@ -257,30 +265,13 @@ const AnalysePage = () => {
             {/* Score ring */}
             <AnimatedScoreRing score={score.overall} strokeVar={theme.strokeVar} />
 
-            {/* Dimension chips */}
-            {(
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {[
-                  { label: "Régularité", value: score.regularity },
-                  { label: "Contenu", value: score.content },
-                  { label: "Structure", value: score.structure },
-                  { label: "Momentum", value: score.momentum },
-                ].map(({ label, value }, i) => (
-                  <div
-                    key={label}
-                    className="rounded-xl border border-white/[0.07] bg-card/50 px-3.5 py-2 backdrop-blur-sm"
-                    style={{
-                      opacity: mounted ? 1 : 0,
-                      transform: mounted ? "translateY(0)" : "translateY(10px)",
-                      transition: `opacity 500ms ease-out ${650 + i * 80}ms, transform 500ms ease-out ${650 + i * 80}ms`,
-                    }}
-                  >
-                    <span className="block text-[10px] text-muted-foreground">{label}</span>
-                    <span className="text-sm font-bold tabular-nums text-foreground">{value}%</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Tier label */}
+            <span
+              className={cn("rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider", theme.surfaceClass, theme.textClass)}
+              style={{ opacity: mounted ? 1 : 0, transition: "opacity 500ms ease-out 700ms" }}
+            >
+              {theme.label}
+            </span>
 
             {/* Live indicator */}
             {summary.is_live && (
@@ -294,25 +285,82 @@ const AnalysePage = () => {
           </div>
         </div>
 
-        {/* Score decomposition — right below the ring for immediate context */}
+        {/* Score decomposition accordion */}
         <div style={anim(160)} className="mb-4">
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 Décomposition du StreamScore
               </CardTitle>
+              {narrative.headline && (
+                <p className="text-xs text-muted-foreground leading-relaxed">{narrative.headline}</p>
+              )}
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-1 pt-0">
               {[
-                { label: "Régularité", pct: score.regularity },
-                { label: "Contenu", pct: score.content },
-                { label: "Structure", pct: score.structure },
-                { label: "Positionnement", pct: score.positioning },
-                { label: "Momentum", pct: score.momentum },
-                { label: "Monétisation", pct: score.monetization },
-              ].map((s) => (
-                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} tinted />
-              ))}
+                { key: "regularity", label: "Régularité", pct: score.regularity },
+                { key: "content", label: "Contenu", pct: score.content },
+                { key: "structure", label: "Structure", pct: score.structure },
+                { key: "positioning", label: "Positionnement", pct: score.positioning },
+                { key: "momentum", label: "Momentum", pct: score.momentum },
+                { key: "monetization", label: "Monétisation", pct: score.monetization },
+              ].map(({ key, label, pct }) => {
+                const bdItem = score.breakdown.find((b) => b.dimension === key);
+                const isOpen = openDim === key;
+                const dimTier = getScoreTier(pct);
+                const dimTheme = getTierTheme(dimTier);
+                const hasDetail = bdItem && (bdItem.reasons.length > 0 || bdItem.levers.length > 0);
+                return (
+                  <div key={key} className="rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => setOpenDim(isOpen ? null : key)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/30 transition-colors rounded-lg"
+                    >
+                      <span className="w-28 shrink-0 text-xs font-medium text-foreground">{label}</span>
+                      <div className="flex-1 h-1.5 overflow-hidden rounded-full bg-muted/40">
+                        <div
+                          className={cn("h-full rounded-full transition-all duration-700", dimTheme.progressClass)}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className={cn("w-10 text-right text-xs font-bold tabular-nums", dimTheme.textClass)}>
+                        {pct}%
+                      </span>
+                      {hasDetail && (
+                        <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-muted-foreground/50 transition-transform duration-200", isOpen && "rotate-180")} />
+                      )}
+                    </button>
+                    {isOpen && hasDetail && (
+                      <div className="px-3 pb-3 pt-0.5 grid gap-3 sm:grid-cols-2">
+                        {bdItem.reasons.length > 0 && (
+                          <div className="rounded-lg border border-border/40 bg-muted/20 p-3">
+                            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                              <TrendingDown className="h-3 w-3" /> Ce qui freine
+                            </p>
+                            <ul className="space-y-1">
+                              {bdItem.reasons.map((r) => (
+                                <li key={r} className="text-xs text-foreground leading-snug">• {r}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {bdItem.levers.length > 0 && (
+                          <div className="rounded-lg border border-primary/15 bg-primary/[0.04] p-3">
+                            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary/70 mb-2">
+                              <ArrowRight className="h-3 w-3" /> Pour progresser
+                            </p>
+                            <ul className="space-y-1">
+                              {bdItem.levers.map((l) => (
+                                <li key={l} className="text-xs text-foreground leading-snug">• {l}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </CardContent>
           </Card>
         </div>
@@ -321,11 +369,6 @@ const AnalysePage = () => {
         <div style={anim(200)} className="mb-4">
           <StreamScoreEvolutionCard userId={user!.id} />
         </div>
-
-        {/* Foundation mode banner */}
-        {(isReconstruction || isExploration) && (
-          <FoundationModeBanner reasons={displayMode.reasons} />
-        )}
 
         {/* Followers unavailable warning */}
         {summary.followers_available === false && !saved.is_demo && !summary.is_partial && (
@@ -346,75 +389,85 @@ const AnalysePage = () => {
           </Card>
         )}
 
-        {/* Action prioritaire */}
-        {nextAction && (
+        {/* Focus card — merges Foundation mode + Action prioritaire */}
+        {((isReconstruction || isExploration) || nextAction) && (
           <div style={anim(280)} className="mb-4">
-            <div className="rounded-2xl border border-primary/20 bg-primary/[0.06] p-6 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)] backdrop-blur-xl">
-              <div className="mb-3 flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
-                  <Zap className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-                  Action prioritaire
-                </span>
+            <div className="rounded-2xl border border-primary/20 bg-primary/[0.04] p-5 shadow-[inset_0_1px_0_hsl(var(--primary)/0.10)]">
+              {/* Header row: mode chip + signals */}
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                {(isReconstruction || isExploration) && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    <Zap className="h-2.5 w-2.5" />
+                    {isReconstruction ? "Mode structuration" : "Mode exploration"}
+                  </span>
+                )}
+                {displayMode.reasons.slice(0, 2).map((r) => (
+                  <span key={r} className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 text-[10px] text-muted-foreground">
+                    {r}
+                  </span>
+                ))}
               </div>
-              <p className="text-lg font-semibold leading-snug text-foreground md:text-xl">
-                {nextAction.title}
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {nextAction.reason}
-              </p>
+              {/* Priority action */}
+              {nextAction && (
+                <>
+                  <p className="text-base font-semibold leading-snug text-foreground">
+                    {nextAction.title}
+                  </p>
+                  {nextAction.reason && (
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                      {nextAction.reason}
+                    </p>
+                  )}
+                </>
+              )}
+              {/* CTA */}
+              <div className="mt-3 flex items-center justify-end">
+                <Button asChild size="sm" variant="ghost" className="h-7 gap-1 text-xs text-primary hover:bg-primary/10">
+                  <Link to="/plan">
+                    Voir le plan <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         )}
 
-        {/* 3 stat cards */}
-        <div style={anim(320)} className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {/* 3 stat cards — unique metrics not in score decomposition */}
+        <div style={anim(320)} className="mb-4 grid grid-cols-3 gap-3">
           {[
             {
+              icon: Radio,
               label: "Viewers moyens",
               value: summary.avg_viewers > 0 ? `~${formatNumber(summary.avg_viewers)}` : "—",
               sub: "Derniers 30 jours",
-              pct: summary.avg_viewers > 0 ? Math.min(100, (summary.avg_viewers / 100) * 100) : 0,
-              delay: "0.8s",
             },
             {
-              label: "Régularité",
-              value: `${score.regularity}%`,
-              sub: "Score de présence",
-              pct: score.regularity,
-              delay: "0.9s",
+              icon: Calendar,
+              label: "Sessions",
+              value: `${streams30d}`,
+              sub: "Lives en 30 jours",
             },
             {
-              label: "Contenu",
-              value: `${score.content}%`,
-              sub: "Score de contenu",
-              pct: score.content,
-              delay: "1.0s",
+              icon: Users,
+              label: "Followers",
+              value: summary.follower_count != null && summary.follower_count > 0
+                ? formatNumber(summary.follower_count)
+                : "—",
+              sub: "Total Twitch",
             },
-          ].map(({ label, value, sub, pct, delay }) => (
+          ].map(({ icon: Icon, label, value, sub }) => (
             <div
               key={label}
-              className="group rounded-2xl border border-white/[0.07] bg-card/40 p-5 backdrop-blur-xl transition-all hover:border-white/[0.14] hover:shadow-[0_0_30px_hsl(var(--primary)/0.07)]"
+              className="flex flex-col gap-1.5 rounded-2xl border border-white/[0.07] bg-card/40 p-4 backdrop-blur-xl"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                {label}
-              </p>
-              <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">{value}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground/50">{sub}</p>
-              <div className="mt-4 h-1 overflow-hidden rounded-full bg-muted/30">
-                <div
-                  className="h-full rounded-full bg-primary/60 transition-all"
-                  style={{ width: `${pct}%`, transitionDuration: "1.2s", transitionDelay: delay }}
-                />
+              <div className="flex items-center gap-1.5">
+                <Icon className="h-3.5 w-3.5 text-muted-foreground/50" />
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{label}</p>
               </div>
+              <p className="text-2xl font-bold tabular-nums text-foreground">{value}</p>
+              <p className="text-[10px] text-muted-foreground/40">{sub}</p>
             </div>
           ))}
-        </div>
-
-        {/* Score insight */}
-        <div style={anim(360)} className="mb-4">
-          <ScoreInsightCard score={score} />
         </div>
 
         {/* Learning resources */}
