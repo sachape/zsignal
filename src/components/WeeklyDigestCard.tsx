@@ -109,28 +109,35 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
           </button>
         </div>
 
-        {/* Stats row */}
-        <div className="mb-4 flex flex-wrap gap-4">
+        {/* Stats cards */}
+        <div className="mb-4 grid grid-cols-3 gap-2">
           {items.map(({ icon: Icon, label, value, color }) => (
-            <div key={label} className="flex items-center gap-2">
-              <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
-              <span className="text-xs text-muted-foreground">{label}</span>
-              <span className={cn("text-xs font-semibold tabular-nums text-foreground", color)}>
+            <div
+              key={label}
+              className="flex flex-col gap-1 rounded-xl border border-white/[0.07] bg-muted/20 px-3 py-2.5"
+            >
+              <div className="flex items-center gap-1.5">
+                <Icon className="h-3 w-3 shrink-0 text-muted-foreground/50" />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                  {label}
+                </span>
+              </div>
+              <span className={cn("text-sm font-bold tabular-nums text-foreground", color)}>
                 {value}
               </span>
             </div>
           ))}
-          {alertCount > 0 && (
-            <Link
-              to="/watchlist"
-              className="flex items-center gap-2 text-xs text-primary hover:underline"
-            >
-              <Zap className="h-3.5 w-3.5" />
-              {alertCount} alerte{alertCount > 1 ? "s" : ""} concurrents
-              <ChevronRight className="h-3 w-3 opacity-60" />
-            </Link>
-          )}
         </div>
+        {alertCount > 0 && (
+          <Link
+            to="/watchlist"
+            className="mb-3 flex items-center gap-2 text-xs text-primary hover:underline"
+          >
+            <Zap className="h-3.5 w-3.5" />
+            {alertCount} alerte{alertCount > 1 ? "s" : ""} concurrents
+            <ChevronRight className="h-3 w-3 opacity-60" />
+          </Link>
+        )}
 
         {/* Next action */}
         {nextAction && (

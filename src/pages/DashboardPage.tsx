@@ -573,9 +573,8 @@ const DashboardPage = () => {
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">StreamScore</p>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-foreground">{score.overall} / 100</span>
                 <span className={`text-[10px] font-semibold uppercase tracking-wider ${theme.textClass}`}>{theme.label}</span>
-                {delta !== null && (
+                {delta !== null && (delta !== 0 || score.overall >= 40) && (
                   <span className={`text-[10px] font-semibold tabular-nums ${delta > 0 ? "text-primary" : delta < 0 ? "text-destructive" : "text-muted-foreground/50"}`}>
                     {delta > 0 ? `+${delta} pts` : delta < 0 ? `${delta} pts` : "stable"}
                   </span>
