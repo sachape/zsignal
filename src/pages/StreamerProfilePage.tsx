@@ -12,6 +12,10 @@ import {
   ArrowRight,
   Bookmark,
   BookmarkCheck,
+  Radio,
+  Video,
+  Eye,
+  Clock,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -798,6 +802,108 @@ const StreamerProfilePage = () => {
             subtext={summary.is_live ? summary.live_title ?? "En direct" : "Vues moyennes par VOD"}
           />
         </div>
+
+        {/* Live preview or recent VODs */}
+        {(() => {
+          const channelLogin = (report.identity?.platform_login ?? summary.channel_name ?? login ?? "").toLowerCase();
+          const videos = report.videos ?? [];
+
+          if (summary.is_live) {
+            const thumbUrl = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${channelLogin}-880x495.jpg`;
+            return (
+              <div className="mb-6">
+                <div className="mb-3 flex items-center gap-2">
+                  <Radio className="h-3.5 w-3.5 text-destructive" />
+                  <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Live en cours
+                  </h2>
+                </div>
+                <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-card/40 backdrop-blur-xl">
+                  <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+                    <img
+                      src={thumbUrl}
+                      alt={summary.live_title ?? "Live en cours"}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                          Live
+                        </span>
+                        {(summary.live_viewer_count ?? 0) > 0 && (
+                          <span className="flex items-center gap-1 text-[11px] font-semibold text-white/90">
+                            <Eye className="h-3 w-3" />
+                            {formatNumber(summary.live_viewer_count!)} viewers
+                          </span>
+                        )}
+                      </div>
+                      {summary.live_title && (
+                        <p className="text-sm font-medium leading-snug text-white line-clamp-2">
+                          {summary.live_title}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          if (videos.length === 0) return null;
+
+          return (
+            <div className="mb-6">
+              <div className="mb-3 flex items-center gap-2">
+                <Video className="h-3.5 w-3.5 text-muted-foreground" />
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Derniers streams
+                </h2>
+              </div>
+              <div className="space-y-2">
+                {videos.slice(0, 5).map((v) => {
+                  const daysAgo = v.created_at
+                    ? Math.round((Date.now() - new Date(v.created_at).getTime()) / 86_400_000)
+                    : null;
+                  return (
+                    <div
+                      key={v.id}
+                      className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-card/40 px-4 py-3 backdrop-blur-xl"
+                    >
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/40 bg-muted/30">
+                        <Video className="h-3.5 w-3.5 text-muted-foreground/60" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-foreground">
+                          {v.title || "Sans titre"}
+                        </p>
+                        <div className="mt-0.5 flex items-center gap-2.5 text-[10px] text-muted-foreground/60">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-2.5 w-2.5" />
+                            {v.duration}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Eye className="h-2.5 w-2.5" />
+                            {formatNumber(v.view_count)} vues
+                          </span>
+                          {daysAgo !== null && (
+                            <span>
+                              {daysAgo === 0 ? "Aujourd'hui" : daysAgo === 1 ? "Hier" : `il y a ${daysAgo}j`}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* What they seem to do better */}
         <div className="mb-6 grid gap-4 lg:grid-cols-2">
