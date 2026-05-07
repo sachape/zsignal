@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import logo from "@/assets/logo.svg";
 
+
 const NAV_LINKS = [
   { label: "Aperçu", anchor: "preview" },
   { label: "Comment ça marche", anchor: "how-it-works" },
@@ -15,16 +16,11 @@ const NAV_LINKS = [
 ] as const;
 
 const LandingNav = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
 
   const scrollToHero = () => {
     if (location.pathname === "/") {
@@ -79,22 +75,9 @@ const LandingNav = () => {
         {/* Desktop CTAs */}
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
-            <>
-              <span className="hidden text-xs text-muted-foreground sm:inline">
-                {user.email}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSignOut}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Déconnexion
-              </Button>
-              <Button asChild size="sm">
-                <Link to="/dashboard">Tableau de bord</Link>
-              </Button>
-            </>
+            <Button asChild size="sm">
+              <Link to="/dashboard">Tableau de bord</Link>
+            </Button>
           ) : (
             <>
               <Button
@@ -157,22 +140,7 @@ const LandingNav = () => {
               </a>
             ))}
             <div className="mt-2 border-t border-border pt-3">
-              {user ? (
-                <>
-                  <p className="px-3 pb-1 text-xs text-muted-foreground">
-                    {user.email}
-                  </p>
-                  <button
-                    onClick={() => {
-                      handleSignOut();
-                      setMobileOpen(false);
-                    }}
-                    className="block w-full rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
-                  >
-                    Déconnexion
-                  </button>
-                </>
-              ) : (
+              {!user && (
                 <button
                   onClick={() => {
                     openAuthModal({ redirectTo: "/dashboard" });
