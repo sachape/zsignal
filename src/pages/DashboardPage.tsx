@@ -18,6 +18,7 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import ScoreInsightCard from "@/components/ScoreInsightCard";
+import StreamScoreEvolutionCard from "@/components/StreamScoreEvolutionCard";
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
@@ -720,6 +721,11 @@ const DashboardPage = () => {
             )}
           </div>
         </div>
+
+        {/* StreamScore evolution — dimension deltas from stream_score_snapshots */}
+        {!currentReport.is_demo && (
+          <StreamScoreEvolutionCard userId={user!.id} />
+        )}
 
         {/* Foundation weekly sequence — full width if active */}
         {foundationActive && (
