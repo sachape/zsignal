@@ -41,6 +41,8 @@ export interface TwitchVideo {
   stream_id: string;
   language: string;
   type: string; // "archive" | "highlight" | "upload"
+  thumbnail_url?: string | null;
+  url?: string | null;
 }
 
 export interface TwitchClip {
