@@ -294,8 +294,31 @@ const AnalysePage = () => {
           </div>
         </div>
 
-        {/* Score evolution */}
+        {/* Score decomposition — right below the ring for immediate context */}
         <div style={anim(160)} className="mb-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Décomposition du StreamScore
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { label: "Régularité", pct: score.regularity },
+                { label: "Contenu", pct: score.content },
+                { label: "Structure", pct: score.structure },
+                { label: "Positionnement", pct: score.positioning },
+                { label: "Momentum", pct: score.momentum },
+                { label: "Monétisation", pct: score.monetization },
+              ].map((s) => (
+                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} tinted />
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Score evolution */}
+        <div style={anim(200)} className="mb-4">
           <StreamScoreEvolutionCard userId={user!.id} />
         </div>
 
@@ -323,103 +346,81 @@ const AnalysePage = () => {
           </Card>
         )}
 
-        {/* Signal bento */}
-        <div style={anim(280)} className="mb-4 grid gap-3 lg:grid-cols-6">
-
-          {nextAction && (
-            <div className="col-span-full lg:col-span-4">
-              <div className="h-full rounded-2xl border border-primary/20 bg-primary/[0.06] p-6 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)] backdrop-blur-xl">
-                <div className="mb-3 flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
-                    <Zap className="h-4 w-4 text-primary" />
-                  </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-                    Action prioritaire
-                  </span>
+        {/* Action prioritaire */}
+        {nextAction && (
+          <div style={anim(280)} className="mb-4">
+            <div className="rounded-2xl border border-primary/20 bg-primary/[0.06] p-6 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)] backdrop-blur-xl">
+              <div className="mb-3 flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
+                  <Zap className="h-4 w-4 text-primary" />
                 </div>
-                <p className="text-lg font-semibold leading-snug text-foreground md:text-xl">
-                  {nextAction.title}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {nextAction.reason}
-                </p>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                  Action prioritaire
+                </span>
               </div>
-            </div>
-          )}
-
-          <div className={`col-span-full ${nextAction ? "lg:col-span-2" : "lg:col-span-6"}`}>
-            <div className="h-full rounded-2xl border border-white/[0.07] bg-card/40 p-5 backdrop-blur-xl">
-              <span className="mb-4 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Métriques clés
-              </span>
-              <div className="space-y-3.5">
-                {[
-                  {
-                    label: "Viewers moyens",
-                    display: summary.avg_viewers > 0 ? `~${formatNumber(summary.avg_viewers)}` : "—",
-                    pct: summary.avg_viewers > 0 ? Math.min(100, (summary.avg_viewers / 100) * 100) : 0,
-                    delay: 0.8,
-                  },
-                  {
-                    label: "Régularité",
-                    display: `${score.regularity}%`,
-                    pct: score.regularity,
-                    delay: 0.9,
-                  },
-                  {
-                    label: "Contenu",
-                    display: `${score.content}%`,
-                    pct: score.content,
-                    delay: 1.0,
-                  },
-                ].map(({ label, display, pct, delay }) => (
-                  <div key={label}>
-                    <div className="mb-1.5 flex items-baseline justify-between">
-                      <span className="text-[11px] text-muted-foreground">{label}</span>
-                      <span className="text-[11px] font-semibold tabular-nums text-foreground">{display}</span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-muted/30">
-                      <div
-                        className="h-full rounded-full bg-primary/70"
-                        style={{ width: `${pct}%`, transition: `width 1.2s ease-out ${delay}s` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <p className="text-lg font-semibold leading-snug text-foreground md:text-xl">
+                {nextAction.title}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {nextAction.reason}
+              </p>
             </div>
           </div>
+        )}
 
-          <div className="col-span-full">
-            <ScoreInsightCard score={score} />
-          </div>
+        {/* 3 stat cards */}
+        <div style={anim(320)} className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[
+            {
+              label: "Viewers moyens",
+              value: summary.avg_viewers > 0 ? `~${formatNumber(summary.avg_viewers)}` : "—",
+              sub: "Derniers 30 jours",
+              pct: summary.avg_viewers > 0 ? Math.min(100, (summary.avg_viewers / 100) * 100) : 0,
+              delay: "0.8s",
+            },
+            {
+              label: "Régularité",
+              value: `${score.regularity}%`,
+              sub: "Score de présence",
+              pct: score.regularity,
+              delay: "0.9s",
+            },
+            {
+              label: "Contenu",
+              value: `${score.content}%`,
+              sub: "Score de contenu",
+              pct: score.content,
+              delay: "1.0s",
+            },
+          ].map(({ label, value, sub, pct, delay }) => (
+            <div
+              key={label}
+              className="group rounded-2xl border border-white/[0.07] bg-card/40 p-5 backdrop-blur-xl transition-all hover:border-white/[0.14] hover:shadow-[0_0_30px_hsl(var(--primary)/0.07)]"
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {label}
+              </p>
+              <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">{value}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground/50">{sub}</p>
+              <div className="mt-4 h-1 overflow-hidden rounded-full bg-muted/30">
+                <div
+                  className="h-full rounded-full bg-primary/60 transition-all"
+                  style={{ width: `${pct}%`, transitionDuration: "1.2s", transitionDelay: delay }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Score insight */}
+        <div style={anim(360)} className="mb-4">
+          <ScoreInsightCard score={score} />
         </div>
 
         {/* Learning resources */}
         {score.breakdown.length > 0 && (
           <DimensionResources breakdown={score.breakdown} maxDimensions={2} />
         )}
-
-        {/* Score decomposition */}
-        <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Décomposition du StreamScore
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                { label: "Régularité", pct: score.regularity },
-                { label: "Contenu", pct: score.content },
-                { label: "Structure", pct: score.structure },
-                { label: "Positionnement", pct: score.positioning },
-                { label: "Momentum", pct: score.momentum },
-                { label: "Monétisation", pct: score.monetization },
-              ].map((s) => (
-                <ProgressRow key={s.label} label={s.label} value={`${s.pct}%`} pct={s.pct} tinted />
-              ))}
-            </CardContent>
-          </Card>
 
         {/* Competitors */}
         {showCompetitorsSection && (
