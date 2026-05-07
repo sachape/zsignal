@@ -16,9 +16,9 @@ export interface LeaderChannel {
   language: string | null;
   started_at: string | null;
   /**
-   * Teaser StreamScore (0-100) computed from public live data only.
-   * Honest by design: based on live audience, broadcaster status, lifetime
-   * views and recent stream momentum. Marked as estimate in the UI.
+   * Score Live (0-100) computed from public live data only.
+   * Distinct from StreamScore (full analysis). Based on live audience,
+   * broadcaster status, lifetime views and recent stream momentum.
    */
   stream_score: number;
   /** Up to 2 short benchmark tags (e.g. "Affilié", "Top live", "Solo"). */

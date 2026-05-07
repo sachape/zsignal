@@ -39,7 +39,6 @@ import {
 } from "@/services/leadersService";
 import { getLatestReport, type SavedReport } from "@/services/reportRepository";
 
-type ViewMode = "all" | "live";
 type SortKey = "viewers" | "score" | "name";
 
 const SORT_COMPARATORS: Record<SortKey, (a: LeaderChannel, b: LeaderChannel) => number> = {
@@ -85,7 +84,6 @@ const LeadersPage = () => {
 
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("fr");
-  const [view, setView] = useState<ViewMode>("all");
   const [sort, setSort] = useState<SortKey>("score");
 
   const [catOpen, setCatOpen] = useState(false);
@@ -148,10 +146,9 @@ const LeadersPage = () => {
   }, [category, language]);
 
   const filtered = useMemo(() => {
-    const viewFiltered = view === "live" ? rows.filter((r) => r.is_live) : rows.slice();
-    const sorted = viewFiltered.sort(SORT_COMPARATORS[sort]);
+    const sorted = rows.slice().sort(SORT_COMPARATORS[sort]);
     return sorted.map((r, i) => ({ ...r, rank: i + 1 }));
-  }, [rows, view, sort]);
+  }, [rows, sort]);
 
   // Category-level stats computed from current filtered list
   const categoryStats = useMemo(() => {
@@ -187,7 +184,7 @@ const LeadersPage = () => {
   const pageMeta = useMemo(
     () => ({
       title: `Classement ${category} — Benchmark Twitch`,
-      description: `Découvre les meilleures chaînes Twitch de la catégorie ${category}. StreamScore, audience, clips — classés automatiquement.`,
+      description: `Découvre les meilleures chaînes Twitch de la catégorie ${category}. Score Live, audience — classés automatiquement.`,
     }),
     [category],
   );
@@ -197,12 +194,6 @@ const LeadersPage = () => {
     setCategory(name);
     setCatQuery("");
     setCatOpen(false);
-  };
-
-  // Switching views auto-sets the most relevant default sort
-  const handleViewChange = (v: ViewMode) => {
-    setView(v);
-    setSort(v === "live" ? "viewers" : "score");
   };
 
   return (
@@ -231,37 +222,14 @@ const LeadersPage = () => {
           </div>
         )}
 
-        {/* View toggle — changes both display and default sort */}
+        {/* Sort bar */}
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <div
-            role="tablist"
-            aria-label="Vue"
-            className="inline-flex rounded-lg border border-border bg-card p-1"
-          >
-            {(["all", "live"] as const).map((v) => {
-              const active = view === v;
-              return (
-                <button
-                  key={v}
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => handleViewChange(v)}
-                  className={cn(
-                    "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                    active
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {v === "all" ? "Classement" : "Live en ce moment"}
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-1.5 rounded-full border border-destructive/25 bg-destructive/10 px-2.5 py-1">
+            <Radio className="h-2.5 w-2.5 text-destructive" />
+            <span className="text-[11px] font-semibold text-destructive">Snapshot live</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            {view === "all"
-              ? "Benchmark de catégorie par StreamScore."
-              : "Audience en direct, classée par viewers."}
+            Score Live calculé sur les données publiques Twitch en direct.
           </p>
         </div>
 
@@ -376,19 +344,9 @@ const LeadersPage = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {view === "live" ? (
-                    <>
-                      <SelectItem value="viewers">Audience live</SelectItem>
-                      <SelectItem value="score">StreamScore</SelectItem>
-                      <SelectItem value="name">Nom</SelectItem>
-                    </>
-                  ) : (
-                    <>
-                      <SelectItem value="score">StreamScore</SelectItem>
-                      <SelectItem value="viewers">Audience</SelectItem>
-                      <SelectItem value="name">Nom</SelectItem>
-                    </>
-                  )}
+                  <SelectItem value="score">Score Live</SelectItem>
+                  <SelectItem value="viewers">Audience live</SelectItem>
+                  <SelectItem value="name">Nom</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -439,7 +397,7 @@ const LeadersPage = () => {
             )}
             <div className="text-right">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                {view === "live" ? "Live" : "Classées"}
+                Live
               </p>
               <p className="text-sm font-semibold text-foreground">{filtered.length}</p>
             </div>
@@ -486,9 +444,7 @@ const LeadersPage = () => {
             <CardContent className="flex flex-col gap-1 p-6 text-sm text-muted-foreground">
               <p className="flex items-center gap-2 text-foreground">
                 <Trophy className="h-4 w-4" />
-                {view === "live"
-                  ? "Aucune chaîne live trouvée pour cette catégorie."
-                  : "Aucune chaîne trouvée pour cette catégorie."}
+                Aucune chaîne live trouvée pour cette catégorie.
               </p>
               <p className="pl-6 text-xs">Essaie une autre langue ou une autre catégorie.</p>
             </CardContent>
@@ -548,7 +504,7 @@ const LeadersPage = () => {
                         <p className="truncate text-sm font-semibold text-foreground">
                           {c.display_name}
                         </p>
-                        {c.is_live && view === "all" && (
+                        {c.is_live && (
                           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
                             <Radio className="h-2 w-2" /> Live
                           </span>
@@ -583,22 +539,18 @@ const LeadersPage = () => {
 
                       {/* Stats — mobile only, below info */}
                       <div className="mt-2.5 flex items-center gap-2 sm:hidden">
-                        {(view === "live" || c.is_live) && (
-                          <>
-                            <div>
-                              <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
-                              <div className="flex items-center gap-1">
-                                <Eye className="h-3 w-3 text-muted-foreground/40" />
-                                <span className="text-sm font-semibold tabular-nums text-foreground">
-                                  {formatViewers(c.live_viewer_count)}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="h-7 w-px bg-border/40" />
-                          </>
-                        )}
+                        <div>
+                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
+                          <div className="flex items-center gap-1">
+                            <Eye className="h-3 w-3 text-muted-foreground/40" />
+                            <span className="text-sm font-semibold tabular-nums text-foreground">
+                              {formatViewers(c.live_viewer_count)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="h-7 w-px bg-border/40" />
                         <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score</span>
+                          <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
                           <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
                         </div>
                       </div>
@@ -606,22 +558,18 @@ const LeadersPage = () => {
 
                     {/* Stats — desktop only, right side */}
                     <div className="hidden shrink-0 items-center gap-2 sm:flex sm:gap-3">
-                      {(view === "live" || c.is_live) && (
-                        <>
-                          <div className="text-right">
-                            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
-                            <div className="flex items-center justify-end gap-1">
-                              <Eye className="h-3 w-3 text-muted-foreground/40" />
-                              <span className="text-sm font-semibold tabular-nums text-foreground">
-                                {formatViewers(c.live_viewer_count)}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="h-7 w-px bg-border/40" />
-                        </>
-                      )}
+                      <div className="text-right">
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
+                        <div className="flex items-center justify-end gap-1">
+                          <Eye className="h-3 w-3 text-muted-foreground/40" />
+                          <span className="text-sm font-semibold tabular-nums text-foreground">
+                            {formatViewers(c.live_viewer_count)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="h-7 w-px bg-border/40" />
                       <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
-                        <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score</span>
+                        <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
                         <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
                       </div>
                     </div>
@@ -635,8 +583,9 @@ const LeadersPage = () => {
         )}
 
         <p className="mt-6 text-[11px] text-muted-foreground">
-          Source : Twitch /games + /streams (données publiques live). StreamScore = estimation
-          basée sur audience live, statut, portée et momentum.
+          Source : Twitch /streams (données publiques, snapshot live). Score Live ≠ StreamScore — le
+          Score Live est estimé à partir de l'audience, du statut et de la portée en direct uniquement.
+          Le StreamScore complet nécessite une analyse approfondie de ta chaîne.
         </p>
       </PageContainer>
     </AppShell>
