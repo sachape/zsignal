@@ -13,7 +13,7 @@
 //  - idempotent
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { ingestClipsFor } from "../twitch-clips-ingest/index.ts";
+import { ingestClipsFor } from "../_shared/clipIngest.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
