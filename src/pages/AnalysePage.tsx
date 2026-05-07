@@ -35,8 +35,9 @@ import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { formatNumber, formatCompact } from "@/lib/format";
 import DimensionResources from "@/components/DimensionResources";
 import StreamScoreEvolutionCard from "@/components/StreamScoreEvolutionCard";
+import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 
-const AnimatedScoreRing = ({ score }: { score: number }) => {
+const AnimatedScoreRing = ({ score, strokeVar }: { score: number; strokeVar: string }) => {
   const radius = 78;
   const sw = 7;
   const circumference = 2 * Math.PI * radius;
@@ -52,12 +53,12 @@ const AnimatedScoreRing = ({ score }: { score: number }) => {
 
   return (
     <div className="relative h-52 w-52 shrink-0">
-      <div className="pointer-events-none absolute inset-6 rounded-full bg-primary/20 blur-2xl" />
+      <div className="pointer-events-none absolute inset-6 rounded-full blur-2xl" style={{ background: `hsl(${strokeVar} / 0.2)` }} />
       <svg viewBox="0 0 200 200" className="relative h-full w-full -rotate-90">
         <defs>
           <linearGradient id="anRingGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="hsl(var(--primary))" />
-            <stop offset="100%" stopColor="hsl(var(--primary)/0.4)" />
+            <stop offset="0%" stopColor={`hsl(${strokeVar})`} />
+            <stop offset="100%" stopColor={`hsl(${strokeVar} / 0.4)`} />
           </linearGradient>
           <filter id="anGlow">
             <feGaussianBlur stdDeviation="2.5" result="blur" />
@@ -152,6 +153,8 @@ const AnalysePage = () => {
   const summary = report.channel_summary;
   const score = report.score;
   const ap = report.affiliate_progress;
+  const tier = getScoreTier(score.overall);
+  const theme = getTierTheme(tier);
   const displayMode = getAccountDisplayMode(report);
   const isReconstruction = displayMode.mode === "reconstruction";
   const isExploration = displayMode.mode === "exploration";
@@ -252,7 +255,7 @@ const AnalysePage = () => {
             </div>
 
             {/* Score ring */}
-            <AnimatedScoreRing score={score.overall} />
+            <AnimatedScoreRing score={score.overall} strokeVar={theme.strokeVar} />
 
             {/* Dimension chips */}
             {(
