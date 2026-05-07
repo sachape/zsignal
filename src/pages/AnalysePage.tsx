@@ -324,7 +324,7 @@ const AnalysePage = () => {
                         className={cn(
                           "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-shadow duration-300",
                           dimTheme.surfaceClass,
-                          "group-hover:shadow-[0_0_16px_hsl(var(--primary)/0.2)]",
+                          dimTheme.glowClass,
                         )}
                       >
                         <span className={cn("text-xs font-bold tabular-nums leading-none", dimTheme.textClass)}>

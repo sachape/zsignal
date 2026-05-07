@@ -29,6 +29,8 @@ export interface TierTheme {
   surfaceClass: string;
   /** Tailwind background class for progress bar fill. */
   progressClass: string;
+  /** Tailwind group-hover shadow class in the tier color. */
+  glowClass: string;
   /** Short label for the tier (sentence case). */
   label: string;
 }
@@ -41,6 +43,7 @@ export function getTierTheme(tier: ScoreTier): TierTheme {
         textClass: "text-destructive",
         surfaceClass: "border-destructive/30 bg-destructive/5",
         progressClass: "bg-destructive",
+        glowClass: "group-hover:shadow-[0_0_18px_hsl(var(--destructive)/0.4)]",
         label: "Base fragile",
       };
     case "mid":
@@ -49,6 +52,7 @@ export function getTierTheme(tier: ScoreTier): TierTheme {
         textClass: "text-warning",
         surfaceClass: "border-warning/30 bg-warning/5",
         progressClass: "bg-warning",
+        glowClass: "group-hover:shadow-[0_0_18px_hsl(var(--warning)/0.4)]",
         label: "En construction",
       };
     case "high":
@@ -58,6 +62,7 @@ export function getTierTheme(tier: ScoreTier): TierTheme {
         textClass: "text-foreground",
         surfaceClass: "border-primary/30 bg-primary/5",
         progressClass: "bg-primary",
+        glowClass: "group-hover:shadow-[0_0_18px_hsl(var(--primary)/0.4)]",
         label: "Base solide",
       };
   }
