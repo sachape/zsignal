@@ -12,6 +12,7 @@ import {
   CreditCard,
   Settings,
   Sparkles,
+  Bookmark,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -47,6 +48,7 @@ const cockpitItems = [
 const benchmarkItems = [
   { title: "Concurrents", url: "/competitors", icon: Users, end: false },
   { title: "Classements", url: "/leaders", icon: Trophy, end: false },
+  { title: "Watchlist", url: "/watchlist", icon: Bookmark, end: false },
   { title: "Playbooks", url: "/playbooks", icon: BookOpen, end: false },
 ];
 

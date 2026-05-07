@@ -671,6 +671,75 @@ const StreamerProfilePage = () => {
           </div>
         )}
 
+        {/* Quick actions — why inspect + compare CTA */}
+        <Card className="mb-6 border-primary/20 bg-primary/5">
+          <CardContent className="p-5">
+            <div className="mb-2 flex items-center gap-2">
+              <Compass className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">
+                Pourquoi inspecter ce profil
+              </h3>
+              <Badge variant="outline" className="ml-auto text-[10px]">
+                {framing.label}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              {framing.tone === "primary"
+                ? "C'est un concurrent direct — chaque mécanique copiée peut basculer un viewer hésitant."
+                : framing.tone === "accent"
+                  ? "Profil à rattraper — un cran d'exécution à aller chercher avant d'optimiser ailleurs."
+                  : framing.tone === "secondary"
+                    ? "Inspirant : observe la mécanique, garde-le pour plus tard."
+                    : "Profil utile à observer pour repérer une mécanique précise."}
+            </p>
+            <div className="flex items-center gap-2">
+              {user && !isSelf ? (
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => {
+                    const el = document.getElementById("comparison-vs-you");
+                    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  <Scale className="h-3.5 w-3.5" /> Comparer maintenant
+                </Button>
+              ) : !user ? (
+                <Button asChild size="sm" variant="default">
+                  <Link to="/">Analyser ma chaîne</Link>
+                </Button>
+              ) : null}
+              <Button
+                size="sm"
+                variant={inWatchlist ? "secondary" : "outline"}
+                className="px-2.5"
+                title={inWatchlist ? "Retirer de la watchlist" : "Ajouter à la watchlist"}
+                onClick={() => {
+                  const loginKey = report.identity?.platform_login ?? summary.channel_name;
+                  if (inWatchlist) {
+                    removeFromWatchlist(user?.id ?? null, loginKey);
+                    setInWatchlist(false);
+                  } else {
+                    addToWatchlist(user?.id ?? null, {
+                      login: loginKey,
+                      display_name: summary.display_name,
+                      category: summary.category ?? null,
+                    });
+                    setInWatchlist(true);
+                    toast({ title: "Ajouté à la watchlist" });
+                  }
+                }}
+              >
+                {inWatchlist ? (
+                  <BookmarkCheck className="h-4 w-4" />
+                ) : (
+                  <Bookmark className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Key public benchmark signals */}
         <div className="mb-3">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -941,71 +1010,6 @@ const StreamerProfilePage = () => {
         })()}
 
 
-
-        {/* Why inspect this profile now — closing CTA */}
-        <Card className="mt-6 border-primary/20 bg-primary/5">
-          <CardContent className="p-5">
-            <div className="mb-2 flex items-center gap-2">
-              <Compass className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">
-                Pourquoi inspecter ce profil maintenant
-              </h3>
-            </div>
-            <p className="text-sm text-muted-foreground mb-3">
-              {framing.tone === "primary"
-                ? "C'est un concurrent direct — chaque mécanique copiée peut basculer un viewer hésitant."
-                : framing.tone === "accent"
-                  ? "Profil à rattraper — un cran d'exécution à aller chercher avant d'optimiser ailleurs."
-                  : framing.tone === "secondary"
-                    ? "Inspirant : observe la mécanique, garde-le pour plus tard."
-                    : "Profil utile à observer pour repérer une mécanique précise."}
-            </p>
-            <div className="flex items-center gap-2">
-              {user && !isSelf ? (
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={() => {
-                    const el = document.getElementById("comparison-vs-you");
-                    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                >
-                  <Scale className="h-3.5 w-3.5" /> Comparer maintenant
-                </Button>
-              ) : !user ? (
-                <Button asChild size="sm" variant="default">
-                  <Link to="/">Analyser ma chaîne</Link>
-                </Button>
-              ) : null}
-              <Button
-                size="sm"
-                variant={inWatchlist ? "secondary" : "outline"}
-                className="px-2.5"
-                onClick={() => {
-                  const loginKey = report.identity?.platform_login ?? summary.channel_name;
-                  if (inWatchlist) {
-                    removeFromWatchlist(user?.id ?? null, loginKey);
-                    setInWatchlist(false);
-                  } else {
-                    addToWatchlist(user?.id ?? null, {
-                      login: loginKey,
-                      display_name: summary.display_name,
-                      category: summary.category ?? null,
-                    });
-                    setInWatchlist(true);
-                    toast({ title: "Ajouté à la watchlist" });
-                  }
-                }}
-              >
-                {inWatchlist ? (
-                  <BookmarkCheck className="h-4 w-4" />
-                ) : (
-                  <Bookmark className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Page role footer */}
         <p className="mt-6 text-xs text-muted-foreground">

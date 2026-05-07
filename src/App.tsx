@@ -26,6 +26,7 @@ const LastLivePage = lazy(() => import("./pages/LastLivePage.tsx"));
 const LivesPage = lazy(() => import("./pages/LivesPage.tsx"));
 const LiveDetailPage = lazy(() => import("./pages/LiveDetailPage.tsx"));
 const AffiliationPage = lazy(() => import("./pages/AffiliationPage.tsx"));
+const WatchlistPage = lazy(() => import("./pages/WatchlistPage.tsx"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
 const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
 const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
@@ -94,6 +95,14 @@ const App = () => (
                   }
                 />
                 <Route path="/streamer/:login" element={<StreamerProfilePage />} />
+                <Route
+                  path="/watchlist"
+                  element={
+                    <ProtectedRoute>
+                      <WatchlistPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/lives"
                   element={
