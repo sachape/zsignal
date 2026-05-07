@@ -41,6 +41,8 @@ export interface TwitchVideo {
   stream_id: string;
   language: string;
   type: string; // "archive" | "highlight" | "upload"
+  thumbnail_url?: string | null;
+  url?: string | null;
 }
 
 export interface TwitchClip {
@@ -192,6 +194,8 @@ export interface AnalysisReport {
     description: string;
   };
   next_best_action: Recommendation;
+  /** Recent VODs surfaced to the UI (teaser + connected). Optional for back-compat. */
+  videos?: TwitchVideo[];
 }
 
 // Raw mock input shape

@@ -59,6 +59,8 @@ interface EdgeVideo {
   language: string;
   type: string;
   stream_id: string | null;
+  thumbnail_url?: string | null;
+  url?: string | null;
 }
 
 interface EdgeClip {
@@ -121,6 +123,8 @@ function toAppVideos(edgeVideos: EdgeVideo[]): TwitchVideo[] {
     stream_id: v.stream_id ?? "",
     language: v.language ?? "",
     type: v.type ?? "archive",
+    thumbnail_url: v.thumbnail_url ?? null,
+    url: v.url ?? null,
   }));
 }
 
