@@ -123,6 +123,8 @@ function toAppVideos(edgeVideos: EdgeVideo[]): TwitchVideo[] {
     stream_id: v.stream_id ?? "",
     language: v.language ?? "",
     type: v.type ?? "archive",
+    thumbnail_url: v.thumbnail_url ?? null,
+    url: v.url ?? null,
   }));
 }
 
