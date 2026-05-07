@@ -1168,6 +1168,77 @@ export type Database = {
           },
         ]
       }
+      weekly_action_outcomes: {
+        Row: {
+          action_key: string
+          after_value: number | null
+          before_value: number | null
+          confidence: string
+          created_at: string
+          delta: number | null
+          dimension: string | null
+          evaluated_at: string
+          evidence: Json | null
+          id: string
+          note: string | null
+          outcome_status: string
+          signal_kind: string
+          updated_at: string
+          user_id: string
+          weekly_action_item_id: string
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          action_key: string
+          after_value?: number | null
+          before_value?: number | null
+          confidence: string
+          created_at?: string
+          delta?: number | null
+          dimension?: string | null
+          evaluated_at?: string
+          evidence?: Json | null
+          id?: string
+          note?: string | null
+          outcome_status: string
+          signal_kind: string
+          updated_at?: string
+          user_id: string
+          weekly_action_item_id: string
+          window_end: string
+          window_start: string
+        }
+        Update: {
+          action_key?: string
+          after_value?: number | null
+          before_value?: number | null
+          confidence?: string
+          created_at?: string
+          delta?: number | null
+          dimension?: string | null
+          evaluated_at?: string
+          evidence?: Json | null
+          id?: string
+          note?: string | null
+          outcome_status?: string
+          signal_kind?: string
+          updated_at?: string
+          user_id?: string
+          weekly_action_item_id?: string
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_action_outcomes_weekly_action_item_id_fkey"
+            columns: ["weekly_action_item_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_action_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       weekly_milestones: {
         Row: {
           created_at: string
