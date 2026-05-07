@@ -50,6 +50,13 @@ export interface LiveDebrief {
     avg_delta?: number;
   } | null;
   has_enough_signal: boolean;
+  summary: string | null;
+  main_strength: string | null;
+  main_weakness: string | null;
+  next_live_focus: string | null;
+  confidence: "low" | "medium" | "high" | null;
+  signal_quality: "low" | "medium" | "high" | null;
+  generated_at: string | null;
   created_at: string;
   updated_at: string;
 }
