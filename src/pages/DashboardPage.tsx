@@ -499,13 +499,6 @@ const DashboardPage = () => {
           </div>
         )}
 
-        {/* Weekly digest */}
-        <WeeklyDigestCard
-          report={currentReport}
-          userId={user.id}
-          previousScore={previous?.report?.score?.overall ?? null}
-        />
-
         {/* Identity strip */}
         <div className="animate-fade-up relative mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl sm:p-6">
           <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-primary/[0.07] blur-3xl" aria-hidden />
@@ -726,6 +719,13 @@ const DashboardPage = () => {
         {!currentReport.is_demo && (
           <StreamScoreEvolutionCard userId={user!.id} />
         )}
+
+        {/* Weekly digest — after score context, before actions */}
+        <WeeklyDigestCard
+          report={currentReport}
+          userId={user.id}
+          previousScore={previous?.report?.score?.overall ?? null}
+        />
 
         {/* Foundation weekly sequence — full width if active */}
         {foundationActive && (
