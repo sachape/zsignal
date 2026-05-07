@@ -176,8 +176,8 @@ const ValueAnchorSection = () => {
         </p>
 
         <p className="mt-3 text-sm text-muted-foreground">
-          Pour {(PRO_MONTHLY / 30).toFixed(2).replace(".", ",")} € par jour — soit moins qu'un café —
-          un système qui analyse, compare et te dit exactement quoi corriger.
+          Pour le prix d'un skin Epic par mois — un système qui analyse,
+          compare et te dit exactement quoi corriger. Chaque semaine.
         </p>
 
         <div className="mt-7 flex flex-col items-center gap-3">
