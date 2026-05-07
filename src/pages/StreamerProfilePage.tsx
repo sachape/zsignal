@@ -803,115 +803,135 @@ const StreamerProfilePage = () => {
           />
         </div>
 
-        {/* Live preview or recent VODs */}
+        {/* Live preview + VODs */}
         {(() => {
           const channelLogin = (report.identity?.platform_login ?? summary.channel_name ?? login ?? "").toLowerCase();
-          const videos = report.videos ?? [];
+          const videos = (report.videos ?? []).filter((v) => v.type === "archive" || v.type === "highlight");
+          const hasLive = summary.is_live;
+          const hasVideos = videos.length > 0;
 
-          if (summary.is_live) {
-            const thumbUrl = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${channelLogin}-880x495.jpg`;
-            return (
-              <div className="mb-6">
-                <div className="mb-3 flex items-center gap-2">
-                  <Radio className="h-3.5 w-3.5 text-destructive" />
-                  <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Live en cours
-                  </h2>
-                </div>
-                <a
-                  href={`https://www.twitch.tv/${channelLogin}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block overflow-hidden rounded-2xl border border-white/[0.07] bg-card/40 backdrop-blur-xl transition-all hover:border-white/[0.18] hover:shadow-[0_0_40px_hsl(var(--destructive)/0.15)]"
-                >
-                  <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
-                    <img
-                      src={thumbUrl}
-                      alt={summary.live_title ?? "Live en cours"}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                      <div className="rounded-full border border-white/20 bg-black/50 px-4 py-2 text-xs font-semibold text-white backdrop-blur-sm">
-                        Regarder sur Twitch →
-                      </div>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-                          Live
-                        </span>
-                        {(summary.live_viewer_count ?? 0) > 0 && (
-                          <span className="flex items-center gap-1 text-[11px] font-semibold text-white/90">
-                            <Eye className="h-3 w-3" />
-                            {formatNumber(summary.live_viewer_count!)} viewers
-                          </span>
-                        )}
-                      </div>
-                      {summary.live_title && (
-                        <p className="text-sm font-medium leading-snug text-white line-clamp-2">
-                          {summary.live_title}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </a>
-              </div>
-            );
-          }
-
-          if (videos.length === 0) return null;
+          if (!hasLive && !hasVideos) return null;
 
           return (
-            <div className="mb-6">
-              <div className="mb-3 flex items-center gap-2">
-                <Video className="h-3.5 w-3.5 text-muted-foreground" />
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Derniers streams
-                </h2>
-              </div>
-              <div className="space-y-2">
-                {videos.slice(0, 5).map((v) => {
-                  const daysAgo = v.created_at
-                    ? Math.round((Date.now() - new Date(v.created_at).getTime()) / 86_400_000)
-                    : null;
-                  return (
-                    <div
-                      key={v.id}
-                      className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-card/40 px-4 py-3 backdrop-blur-xl"
-                    >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/40 bg-muted/30">
-                        <Video className="h-3.5 w-3.5 text-muted-foreground/60" />
+            <div className="mb-6 space-y-4">
+
+              {/* Live thumbnail */}
+              {hasLive && (
+                <div>
+                  <div className="mb-3 flex items-center gap-2">
+                    <Radio className="h-3.5 w-3.5 text-destructive" />
+                    <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Live en cours
+                    </h2>
+                  </div>
+                  <a
+                    href={`https://www.twitch.tv/${channelLogin}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block overflow-hidden rounded-2xl border border-white/[0.07] bg-card/40 backdrop-blur-xl transition-all hover:border-white/[0.18] hover:shadow-[0_0_40px_hsl(var(--destructive)/0.15)]"
+                  >
+                    <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+                      <img
+                        src={`https://static-cdn.jtvnw.net/previews-ttv/live_user_${channelLogin}-880x495.jpg`}
+                        alt={summary.live_title ?? "Live en cours"}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                        <div className="rounded-full border border-white/20 bg-black/50 px-4 py-2 text-xs font-semibold text-white backdrop-blur-sm">
+                          Regarder sur Twitch →
+                        </div>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-foreground">
-                          {v.title || "Sans titre"}
-                        </p>
-                        <div className="mt-0.5 flex items-center gap-2.5 text-[10px] text-muted-foreground/60">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-2.5 w-2.5" />
-                            {v.duration}
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                            Live
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Eye className="h-2.5 w-2.5" />
-                            {formatNumber(v.view_count)} vues
-                          </span>
-                          {daysAgo !== null && (
-                            <span>
-                              {daysAgo === 0 ? "Aujourd'hui" : daysAgo === 1 ? "Hier" : `il y a ${daysAgo}j`}
+                          {(summary.live_viewer_count ?? 0) > 0 && (
+                            <span className="flex items-center gap-1 text-[11px] font-semibold text-white/90">
+                              <Eye className="h-3 w-3" />
+                              {formatNumber(summary.live_viewer_count!)} viewers
                             </span>
                           )}
                         </div>
+                        {summary.live_title && (
+                          <p className="text-sm font-medium leading-snug text-white line-clamp-2">
+                            {summary.live_title}
+                          </p>
+                        )}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                  </a>
+                </div>
+              )}
+
+              {/* VOD grid */}
+              {hasVideos && (
+                <div>
+                  <div className="mb-3 flex items-center gap-2">
+                    <Video className="h-3.5 w-3.5 text-muted-foreground" />
+                    <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Derniers VODs
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {videos.slice(0, 6).map((v) => {
+                      const daysAgo = v.created_at
+                        ? Math.round((Date.now() - new Date(v.created_at).getTime()) / 86_400_000)
+                        : null;
+                      const dateLabel = daysAgo === null ? "" : daysAgo === 0 ? "Aujourd'hui" : daysAgo === 1 ? "Hier" : `il y a ${daysAgo}j`;
+                      const Wrapper = v.url ? "a" : "div";
+                      const wrapperProps = v.url
+                        ? { href: v.url, target: "_blank", rel: "noopener noreferrer" }
+                        : {};
+                      return (
+                        <Wrapper
+                          key={v.id}
+                          {...wrapperProps}
+                          className="group overflow-hidden rounded-xl border border-white/[0.07] bg-card/40 backdrop-blur-xl transition-all hover:border-white/[0.14] hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)]"
+                        >
+                          {/* Thumbnail */}
+                          <div className="relative w-full bg-muted/40" style={{ aspectRatio: "16/9" }}>
+                            {v.thumbnail_url ? (
+                              <img
+                                src={v.thumbnail_url}
+                                alt={v.title}
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                                loading="lazy"
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <Video className="h-6 w-6 text-muted-foreground/30" />
+                              </div>
+                            )}
+                            {/* Duration badge */}
+                            <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-white backdrop-blur-sm">
+                              {v.duration}
+                            </span>
+                          </div>
+                          {/* Meta */}
+                          <div className="p-3">
+                            <p className="line-clamp-2 text-xs font-medium leading-snug text-foreground">
+                              {v.title || "Sans titre"}
+                            </p>
+                            <div className="mt-1.5 flex items-center gap-2 text-[10px] text-muted-foreground/60">
+                              <span className="flex items-center gap-1">
+                                <Eye className="h-2.5 w-2.5" />
+                                {formatNumber(v.view_count)}
+                              </span>
+                              {dateLabel && <span>· {dateLabel}</span>}
+                            </div>
+                          </div>
+                        </Wrapper>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
             </div>
           );
         })()}
