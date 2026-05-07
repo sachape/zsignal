@@ -11,6 +11,7 @@ import Index from "./pages/Index.tsx";
 
 // Lazy-loaded routes: keep landing (Index) eager for fastest LCP, defer the rest.
 const AnalyzePage = lazy(() => import("./pages/AnalyzePage.tsx"));
+const AnalysePage = lazy(() => import("./pages/AnalysePage.tsx"));
 const ResultPage = lazy(() => import("./pages/ResultPage.tsx"));
 const ConnectTwitchPage = lazy(() => import("./pages/ConnectTwitchPage.tsx"));
 const TwitchCallbackPage = lazy(() => import("./pages/TwitchCallbackPage.tsx"));
@@ -66,6 +67,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/analyse"
+                  element={
+                    <ProtectedRoute>
+                      <AnalysePage />
                     </ProtectedRoute>
                   }
                 />

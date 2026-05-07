@@ -17,13 +17,9 @@ import {
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
-import ScoreInsightCard from "@/components/ScoreInsightCard";
-import StreamScoreEvolutionCard from "@/components/StreamScoreEvolutionCard";
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
-import FoundationModeBanner from "@/components/FoundationModeBanner";
-import MainBlockerCard from "@/components/MainBlockerCard";
 import WeeklySequenceCard from "@/components/WeeklySequenceCard";
 import NextMilestoneCard from "@/components/NextMilestoneCard";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
@@ -58,7 +54,7 @@ import InactivityRelanceCard from "@/components/InactivityRelanceCard";
 import LastVsAverageCard from "@/components/LastVsAverageCard";
 import { resolveCockpitFocusSlot, type CockpitFocusSlot } from "@/services/cockpitFocus";
 import { onboardingFlags } from "@/services/onboardingFlags";
-import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
+import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import { isSessionRecent } from "@/services/postGenerator";
 import LivePostGenerator from "@/components/LivePostGenerator";
 import EventSubCockpitSection from "@/components/EventSubCockpitSection";
@@ -95,8 +91,6 @@ const DashboardPage = () => {
   const [liveSnapshot, setLiveSnapshot] = useState<LiveCockpitSnapshot | null>(null);
   const [focusSlot, setFocusSlot] = useState<CockpitFocusSlot>("none");
   const [manualRefreshing, setManualRefreshing] = useState(false);
-  const [ringMounted, setRingMounted] = useState(false);
-  const [displayScore, setDisplayScore] = useState(0);
   const [showPostGen, setShowPostGen] = useState(false);
   const [allSessions, setAllSessions] = useState<LiveSession[]>([]);
   const [weeklyQuests, setWeeklyQuests] = useState<WeeklyQuests | null>(null);
@@ -215,30 +209,6 @@ const DashboardPage = () => {
     };
   }, [user, loadDashboardState]);
 
-  // Replay ring animation whenever a new report is loaded.
-  useEffect(() => {
-    setRingMounted(false);
-    setDisplayScore(0);
-    const id = requestAnimationFrame(() => setRingMounted(true));
-    return () => cancelAnimationFrame(id);
-  }, [currentReport?.id]);
-
-  // Count-up: animates score number in sync with the ring.
-  useEffect(() => {
-    if (!ringMounted) return;
-    const target = currentReport?.report?.score?.overall ?? 0;
-    if (target === 0) return;
-    const duration = 1400;
-    const startTime = performance.now();
-    const tick = (now: number) => {
-      const t = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setDisplayScore(Math.round(eased * target));
-      if (t < 1) requestAnimationFrame(tick);
-    };
-    const rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [ringMounted, currentReport?.report?.score?.overall]);
 
   // Sync weekly quests whenever sessions or report changes
   useEffect(() => {
@@ -404,15 +374,8 @@ const DashboardPage = () => {
   const foundation = diagnoseFoundationMode(report);
   const foundationActive = foundation.isActive && !currentReport.is_demo;
 
-  // Sprint 1 — gamification derived state (already hoisted above early returns)
-
-  // Premium design derived state
   const tier = getScoreTier(score.overall);
   const theme = getTierTheme(tier);
-  const narrative = buildScoreNarrative(score);
-  const ringRadius = 65;
-  const ringCircumference = 2 * Math.PI * ringRadius;
-  const ringProgress = (score.overall / 100) * ringCircumference;
   const avatarUrl = report.identity?.avatar_url ?? null;
   const platformLogin = account?.platform_login ?? report.identity?.platform_login ?? null;
   const categoryFact = Array.isArray(report.facts)
@@ -420,15 +383,13 @@ const DashboardPage = () => {
     : undefined;
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
 
-  const strokeColor = `hsl(${theme.strokeVar})`;
-
   const endedSessions = allSessions.filter((s) => s.status === "ended").length;
   const navHub = [
     {
-      to: `/result?report_id=${currentReport.id}`,
+      to: "/analyse",
       icon: BarChart3,
-      label: "Diagnostic détaillé",
-      desc: "Pourquoi ton score est ce qu'il est.",
+      label: "Analyse",
+      desc: "Diagnostic complet et évolution du score.",
       stat: `${score.overall} pts`,
     },
     {
@@ -585,143 +546,44 @@ const DashboardPage = () => {
                 date={formatDate(currentReport.created_at)}
                 variant="icon"
               />
-              <Button asChild size="sm">
-                <Link to={`/result?report_id=${currentReport.id}`}>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/analyse">
                   <FileText className="h-3.5 w-3.5" />
-                  Rapport complet
+                  Voir l'analyse
                 </Link>
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Score bento: large ring left, focus content right */}
-        <div className="animate-fade-up mb-6 grid gap-4 md:grid-cols-[220px_1fr]" style={{ animationDelay: '80ms' }}>
-          {/* Score ring column */}
-          <div className="relative flex flex-col items-center overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl">
-            <div
-              className="pointer-events-none absolute inset-0 transition-opacity duration-[1400ms] ease-out"
-              style={{
-                background: `radial-gradient(circle at 50% 20%, hsl(${theme.strokeVar} / 0.30), transparent 68%)`,
-                opacity: ringMounted ? 1 : 0,
-              }}
-              aria-hidden
-            />
-
-            {/* Ring */}
-            <div className="relative h-40 w-40">
-              <svg
-                viewBox="0 0 160 160"
-                className="h-full w-full -rotate-90"
-                aria-label={`StreamScore ${score.overall} sur 100`}
-              >
-                {/* Track */}
-                <circle
-                  cx="80"
-                  cy="80"
-                  r={ringRadius}
-                  fill="none"
-                  stroke="hsl(var(--muted))"
-                  strokeWidth="10"
-                />
-                {/* Progress */}
-                <circle
-                  cx="80"
-                  cy="80"
-                  r={ringRadius}
-                  fill="none"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray={ringCircumference}
-                  style={{
-                    stroke: strokeColor,
-                    strokeDashoffset: ringMounted
-                      ? ringCircumference - ringProgress
-                      : ringCircumference,
-                    transition: ringMounted
-                      ? "stroke-dashoffset 1.6s cubic-bezier(0.16,1,0.3,1)"
-                      : "none",
-                    filter: `drop-shadow(0 0 8px ${strokeColor})`,
-                  }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-4xl font-bold tabular-nums tracking-tight ${theme.textClass}`}>
-                  {displayScore}
-                </span>
-                <span className="mt-0.5 text-[11px] text-muted-foreground">/ 100</span>
+        {/* StreamScore compact status */}
+        <Link
+          to="/analyse"
+          className="animate-fade-up mb-6 flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-white/[0.07] bg-card/40 px-4 py-3 backdrop-blur-xl transition-all hover:border-primary/25 hover:shadow-[0_0_30px_hsl(var(--primary)/0.08)]"
+          style={{ animationDelay: "80ms" }}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${theme.surfaceClass}`}>
+              <span className={`text-base font-bold tabular-nums ${theme.textClass}`}>{score.overall}</span>
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">StreamScore</p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground">{score.overall} / 100</span>
+                <span className={`text-[10px] font-semibold uppercase tracking-wider ${theme.textClass}`}>{theme.label}</span>
+                {delta !== null && (
+                  <span className={`text-[10px] font-semibold tabular-nums ${delta > 0 ? "text-primary" : delta < 0 ? "text-destructive" : "text-muted-foreground/50"}`}>
+                    {delta > 0 ? `+${delta} pts` : delta < 0 ? `${delta} pts` : "stable"}
+                  </span>
+                )}
               </div>
             </div>
-
-            {/* Tier badge */}
-            <div
-              className={`relative mt-3 rounded-full border px-3 py-1 text-[10.5px] font-semibold uppercase tracking-wider ${theme.surfaceClass}`}
-            >
-              {theme.label}
-            </div>
-
-            {/* Delta */}
-            {delta !== null && (
-              <p
-                className={`relative mt-2 text-xs font-semibold ${
-                  delta > 0
-                    ? "text-primary"
-                    : delta < 0
-                      ? "text-destructive"
-                      : "text-muted-foreground"
-                }`}
-              >
-                {delta > 0 ? `↑ +${delta} pts` : delta < 0 ? `↓ ${delta} pts` : "→ Stable"}
-              </p>
-            )}
-
-            {/* Streak card */}
-            <StreakBadge streak={streakData} variant="card" />
-
-            {/* Mini dimension breakdown */}
-            {narrative.miniBreakdown.length > 0 && (
-              <div className="relative mt-5 w-full space-y-3">
-                {narrative.miniBreakdown.map((dim) => {
-                  const dimTheme = getTierTheme(dim.tier);
-                  return (
-                    <div key={dim.label}>
-                      <div className="mb-1.5 flex items-center justify-between text-[10px]">
-                        <span className="text-muted-foreground">{dim.label}</span>
-                        <span className={`font-semibold ${dimTheme.textClass}`}>{dim.score}</span>
-                      </div>
-                      <div className="h-1 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ease-out ${dimTheme.progressClass}`}
-                          style={{ width: ringMounted ? `${dim.score}%` : "0%" }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
-
-          {/* Right column: sync status + insight or foundation content */}
-          <div className="space-y-3">
-            {foundationActive ? (
-              <>
-                <FoundationModeBanner reasons={foundation.reasons} />
-                <MainBlockerCard blocker={foundation.blocker} reportId={currentReport.id} />
-              </>
-            ) : (
-              score.breakdown.length > 0 && <ScoreInsightCard score={score} compact />
-            )}
+          <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground/50">
+            Voir l'analyse
+            <ArrowRight className="h-3.5 w-3.5" />
           </div>
-        </div>
-
-        {/* StreamScore evolution — dimension deltas from stream_score_snapshots */}
-        {!currentReport.is_demo && (
-          <StreamScoreEvolutionCard
-            userId={user!.id}
-            platformUserId={account?.platform_user_id ?? null}
-          />
-        )}
+        </Link>
 
         {/* Weekly digest — after score context, before actions */}
         <WeeklyDigestCard
