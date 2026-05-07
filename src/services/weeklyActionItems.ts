@@ -105,8 +105,12 @@ export async function ensureWeeklyActionItems(
         recentDebriefs,
       });
       const diagnosis = buildDiagnosisFromBundle(bundle, row.rationale);
-      await updateMilestoneDiagnosis(row.id, diagnosis, summarizeBundle(bundle));
-      row = { ...row, diagnosis } as WeeklyMilestoneRow;
+      const updated = await updateMilestoneDiagnosis(
+        row.id,
+        diagnosis,
+        summarizeBundle(bundle),
+      );
+      row = updated ?? ({ ...row, diagnosis } as WeeklyMilestoneRow);
     }
     return { milestone: row, items: existing };
   }
