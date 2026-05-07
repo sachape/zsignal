@@ -31,6 +31,8 @@ import {
   setActionStatus,
   type WeeklyActionItem,
 } from "@/services/weeklyActionItems";
+import { getLatestReport } from "@/services/reportRepository";
+import type { Recommendation } from "@/types/analysis";
 
 const WeeklyPlanPage = () => {
   const { user, loading: authLoading } = useAuth();
@@ -40,6 +42,7 @@ const WeeklyPlanPage = () => {
   const [inLive, setInLive] = useState(false);
   const [noPlan, setNoPlan] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [reportFallbackAction, setReportFallbackAction] = useState<Recommendation | null>(null);
 
   const refresh = useCallback(async () => {
     if (!user) return;
@@ -61,6 +64,10 @@ const WeeklyPlanPage = () => {
       setItems([]);
       setMilestoneTitle("");
       setMilestoneDiagnosis(null);
+      // Fallback: show the priority action from the latest analysis report
+      // so the page is never empty for users who have analysed but not streamed yet.
+      const saved = await getLatestReport(user.id);
+      setReportFallbackAction(saved?.report?.next_best_action ?? null);
       return;
     }
     setNoPlan(false);
@@ -152,11 +159,31 @@ const WeeklyPlanPage = () => {
           </Card>
         ) : noPlan ? (
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="space-y-4 p-6">
               <p className="text-sm text-muted-foreground">
-                Pas encore assez de signaux. Connecte Twitch et lance un premier
-                live pour générer un plan plus précis.
+                Ton plan complet sera disponible après ton premier live.{" "}
+                {!reportFallbackAction && "Lance une session pour le générer."}
               </p>
+              {reportFallbackAction && (
+                <div className="flex items-start gap-3 rounded-lg border border-primary/15 bg-primary/[0.04] p-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                    <Target className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-primary/60">
+                      Action prioritaire maintenant
+                    </p>
+                    <p className="mt-0.5 text-sm font-medium leading-snug text-foreground">
+                      {reportFallbackAction.title}
+                    </p>
+                    {reportFallbackAction.action && (
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {reportFallbackAction.action}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         ) : (
