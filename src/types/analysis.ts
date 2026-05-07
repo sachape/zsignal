@@ -194,6 +194,8 @@ export interface AnalysisReport {
     description: string;
   };
   next_best_action: Recommendation;
+  /** Recent VODs surfaced to the UI (teaser + connected). Optional for back-compat. */
+  videos?: TwitchVideo[];
 }
 
 // Raw mock input shape
