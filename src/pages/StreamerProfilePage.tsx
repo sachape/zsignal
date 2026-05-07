@@ -818,17 +818,28 @@ const StreamerProfilePage = () => {
                     Live en cours
                   </h2>
                 </div>
-                <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-card/40 backdrop-blur-xl">
+                <a
+                  href={`https://www.twitch.tv/${channelLogin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block overflow-hidden rounded-2xl border border-white/[0.07] bg-card/40 backdrop-blur-xl transition-all hover:border-white/[0.18] hover:shadow-[0_0_40px_hsl(var(--destructive)/0.15)]"
+                >
                   <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
                     <img
                       src={thumbUrl}
                       alt={summary.live_title ?? "Live en cours"}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).style.display = "none";
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      <div className="rounded-full border border-white/20 bg-black/50 px-4 py-2 text-xs font-semibold text-white backdrop-blur-sm">
+                        Regarder sur Twitch →
+                      </div>
+                    </div>
                     <div className="absolute bottom-0 left-0 right-0 p-4">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
@@ -849,7 +860,7 @@ const StreamerProfilePage = () => {
                       )}
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             );
           }
