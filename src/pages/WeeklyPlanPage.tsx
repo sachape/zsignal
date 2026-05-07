@@ -252,6 +252,16 @@ const WeeklyPlanPage = () => {
                                 }`}
                               >
                                 {action.title}
+                                {done &&
+                                  (action.evidence as { verified_by?: string } | null)
+                                    ?.verified_by === "auto" && (
+                                    <Badge
+                                      variant="outline"
+                                      className="ml-2 h-5 px-1.5 text-[10px] align-middle"
+                                    >
+                                      Vérifié automatiquement
+                                    </Badge>
+                                  )}
                               </p>
                               {action.description && !skipped && !done && (
                                 <p className="mt-1 text-xs text-muted-foreground">
