@@ -416,7 +416,7 @@ const DashboardPage = () => {
       stat: endedSessions > 0 ? `${endedSessions} session${endedSessions > 1 ? "s" : ""}` : null,
     },
     {
-      to: "/leaders",
+      to: "/classements",
       icon: Trophy,
       label: "Classements",
       desc: "Ta position parmi les streamers.",

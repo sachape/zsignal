@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Link } from "react-router-dom";
-import { Check, ChevronRight, ChevronsUpDown, Eye, Loader2, Radio, Trophy } from "lucide-react";
+import { Check, ChevronRight, ChevronsUpDown, Eye, Loader2, Radio, Trophy, Zap } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -39,6 +39,7 @@ import {
 } from "@/services/leadersService";
 import { getLatestReport, type SavedReport } from "@/services/reportRepository";
 
+type TabMode = "live" | "streamscore";
 type SortKey = "viewers" | "score" | "name";
 
 const SORT_COMPARATORS: Record<SortKey, (a: LeaderChannel, b: LeaderChannel) => number> = {
@@ -82,6 +83,7 @@ const TIER_SEPARATORS: Record<number, string> = {
 const LeadersPage = () => {
   const { user } = useAuth();
 
+  const [tab, setTab] = useState<TabMode>("live");
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("fr");
   const [sort, setSort] = useState<SortKey>("score");
@@ -145,6 +147,7 @@ const LeadersPage = () => {
     };
   }, [category, language]);
 
+  // Score Live tab: all rows are live channels (API constraint)
   const filtered = useMemo(() => {
     const sorted = rows.slice().sort(SORT_COMPARATORS[sort]);
     return sorted.map((r, i) => ({ ...r, rank: i + 1 }));
@@ -222,371 +225,413 @@ const LeadersPage = () => {
           </div>
         )}
 
-        {/* Sort bar */}
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 rounded-full border border-destructive/25 bg-destructive/10 px-2.5 py-1">
-            <Radio className="h-2.5 w-2.5 text-destructive" />
-            <span className="text-[11px] font-semibold text-destructive">Snapshot live</span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Score Live calculé sur les données publiques Twitch en direct.
-          </p>
+        {/* Tab toggle */}
+        <div className="mb-4 inline-flex rounded-lg border border-border bg-card p-1">
+          {([
+            { id: "live", label: "Score Live", icon: Radio },
+            { id: "streamscore", label: "StreamScore", icon: Zap },
+          ] as const).map(({ id, label, icon: Icon }) => {
+            const active = tab === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                  active
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Icon className="h-3 w-3" />
+                {label}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardContent className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
-            <div className="col-span-2 lg:col-span-2">
-              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Catégorie Twitch
-              </label>
-              <Popover open={catOpen} onOpenChange={setCatOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={catOpen}
-                    className="h-9 w-full justify-between px-3 text-sm font-normal"
-                  >
-                    <span className="truncate">{category}</span>
-                    <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="start"
-                  sideOffset={4}
-                  className="w-[var(--radix-popover-trigger-width)] p-0"
-                >
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      value={catQuery}
-                      onValueChange={setCatQuery}
-                      placeholder="Rechercher une catégorie Twitch…"
-                      className="h-9"
-                    />
-                    <CommandList>
-                      {catSearching && (
-                        <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          Recherche en cours…
-                        </div>
-                      )}
-                      {!catSearching && catSuggestions.length === 0 && (
-                        <CommandEmpty>Aucune catégorie trouvée</CommandEmpty>
-                      )}
-                      {!catSearching && catSuggestions.length > 0 && (
-                        <CommandGroup
-                          heading={catQuery.trim().length < 2 ? "Suggestions" : "Résultats"}
-                        >
-                          {catSuggestions.map((c) => {
-                            const selected = c.name === category;
-                            return (
-                              <CommandItem
-                                key={c.id}
-                                value={c.name}
-                                onSelect={() => pickCategory(c.name)}
-                                className="gap-2.5"
-                              >
-                                {c.box_art_url ? (
-                                  <img
-                                    src={c.box_art_url
-                                      .replace("{width}", "40")
-                                      .replace("{height}", "54")}
-                                    alt=""
-                                    className="h-7 w-5 shrink-0 rounded-sm border border-border/60 object-cover"
-                                  />
-                                ) : (
-                                  <div className="h-7 w-5 shrink-0 rounded-sm border border-border/60 bg-muted" />
-                                )}
-                                <span className="truncate font-medium">{c.name}</span>
-                                <Check
-                                  className={cn(
-                                    "ml-auto h-3.5 w-3.5 shrink-0 text-primary",
-                                    selected ? "opacity-100" : "opacity-0",
-                                  )}
-                                />
-                              </CommandItem>
-                            );
-                          })}
-                        </CommandGroup>
-                      )}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+        {tab === "streamscore" ? (
+          /* ── StreamScore tab: requires backend aggregation ── */
+          <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card/40 px-6 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Zap className="h-6 w-6 text-primary" />
             </div>
-
             <div>
-              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Langue
-              </label>
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes</SelectItem>
-                  {LEADER_LANGUAGE_PRESETS.map((l) => (
-                    <SelectItem key={l} value={l}>
-                      {l.toUpperCase()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Tri
-              </label>
-              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="score">Score Live</SelectItem>
-                  <SelectItem value="viewers">Audience live</SelectItem>
-                  <SelectItem value="name">Nom</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Category header — enriched with median stats */}
-        {resolvedCategory && !loading && (
-          <div className="mb-4 flex items-center gap-3 rounded-lg border border-border bg-card/40 p-3">
-            {resolvedCategory.box_art_url && (
-              <img
-                src={resolvedCategory.box_art_url
-                  .replace("{width}", "60")
-                  .replace("{height}", "80")}
-                alt={resolvedCategory.name}
-                className="h-12 w-9 rounded-sm border border-border/60 object-cover"
-              />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Catégorie
+              <p className="text-base font-semibold text-foreground">
+                Classement StreamScore — En développement
               </p>
-              <p className="truncate text-sm font-semibold text-foreground">
-                {resolvedCategory.name}
+              <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+                Ce classement affichera tous les streamers de la catégorie, live ou non, du
+                meilleur au plus faible StreamScore. Il nécessite que le backend stocke les scores
+                analysés publiquement par chaîne.
               </p>
             </div>
-            {categoryStats && (
-              <div className="hidden items-center gap-5 sm:flex">
-                <div className="text-right">
-                  <p className="text-[10px] text-muted-foreground">Score médian</p>
-                  <p className="text-sm font-bold text-foreground">{categoryStats.medianScore}</p>
+            <div className="w-full max-w-sm rounded-lg border border-border/60 bg-muted/20 p-4 text-left">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Ce qu'il faut demander au backend
+              </p>
+              <ul className="space-y-1.5 text-xs text-muted-foreground">
+                <li>• Endpoint <code className="text-foreground">twitch-public-lookup</code> mode <code className="text-foreground">"category_all"</code> — top streamers par catégorie via <code className="text-foreground">/helix/channels</code> (pas seulement les lives)</li>
+                <li>• Table Supabase publique <code className="text-foreground">channel_stream_scores</code> — stocker le StreamScore calculé par chaîne, mis à jour périodiquement</li>
+                <li>• Accès public en lecture seule (pas de RLS user_id) pour permettre le classement cross-utilisateurs</li>
+              </ul>
+            </div>
+          </div>
+        ) : (
+          /* ── Score Live tab: live-only snapshot from /helix/streams ── */
+          <>
+            {/* Filters */}
+            <Card className="mb-4">
+              <CardContent className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
+                <div className="col-span-2 lg:col-span-2">
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Catégorie Twitch
+                  </label>
+                  <Popover open={catOpen} onOpenChange={setCatOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={catOpen}
+                        className="h-9 w-full justify-between px-3 text-sm font-normal"
+                      >
+                        <span className="truncate">{category}</span>
+                        <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="start"
+                      sideOffset={4}
+                      className="w-[var(--radix-popover-trigger-width)] p-0"
+                    >
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          value={catQuery}
+                          onValueChange={setCatQuery}
+                          placeholder="Rechercher une catégorie Twitch…"
+                          className="h-9"
+                        />
+                        <CommandList>
+                          {catSearching && (
+                            <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              Recherche en cours…
+                            </div>
+                          )}
+                          {!catSearching && catSuggestions.length === 0 && (
+                            <CommandEmpty>Aucune catégorie trouvée</CommandEmpty>
+                          )}
+                          {!catSearching && catSuggestions.length > 0 && (
+                            <CommandGroup
+                              heading={catQuery.trim().length < 2 ? "Suggestions" : "Résultats"}
+                            >
+                              {catSuggestions.map((c) => {
+                                const selected = c.name === category;
+                                return (
+                                  <CommandItem
+                                    key={c.id}
+                                    value={c.name}
+                                    onSelect={() => pickCategory(c.name)}
+                                    className="gap-2.5"
+                                  >
+                                    {c.box_art_url ? (
+                                      <img
+                                        src={c.box_art_url
+                                          .replace("{width}", "40")
+                                          .replace("{height}", "54")}
+                                        alt=""
+                                        className="h-7 w-5 shrink-0 rounded-sm border border-border/60 object-cover"
+                                      />
+                                    ) : (
+                                      <div className="h-7 w-5 shrink-0 rounded-sm border border-border/60 bg-muted" />
+                                    )}
+                                    <span className="truncate font-medium">{c.name}</span>
+                                    <Check
+                                      className={cn(
+                                        "ml-auto h-3.5 w-3.5 shrink-0 text-primary",
+                                        selected ? "opacity-100" : "opacity-0",
+                                      )}
+                                    />
+                                  </CommandItem>
+                                );
+                              })}
+                            </CommandGroup>
+                          )}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-muted-foreground">Viewers médian</p>
-                  <p className="text-sm font-bold text-foreground">
-                    {formatViewers(categoryStats.medianViewers)}
+
+                <div>
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Langue
+                  </label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes</SelectItem>
+                      {LEADER_LANGUAGE_PRESETS.map((l) => (
+                        <SelectItem key={l} value={l}>
+                          {l.toUpperCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Tri
+                  </label>
+                  <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="score">Score Live</SelectItem>
+                      <SelectItem value="viewers">Audience live</SelectItem>
+                      <SelectItem value="name">Nom</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Category header */}
+            {resolvedCategory && !loading && (
+              <div className="mb-4 flex items-center gap-3 rounded-lg border border-border bg-card/40 p-3">
+                {resolvedCategory.box_art_url && (
+                  <img
+                    src={resolvedCategory.box_art_url
+                      .replace("{width}", "60")
+                      .replace("{height}", "80")}
+                    alt={resolvedCategory.name}
+                    className="h-12 w-9 rounded-sm border border-border/60 object-cover"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Catégorie
+                  </p>
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {resolvedCategory.name}
                   </p>
                 </div>
-                {categoryStats.dominantLang && (
-                  <div className="text-right">
-                    <p className="text-[10px] text-muted-foreground">Langue top</p>
-                    <p className="text-sm font-bold text-foreground">
-                      {categoryStats.dominantLang.toUpperCase()}
-                    </p>
+                {categoryStats && (
+                  <div className="hidden items-center gap-5 sm:flex">
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground">Score médian</p>
+                      <p className="text-sm font-bold text-foreground">{categoryStats.medianScore}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground">Viewers médian</p>
+                      <p className="text-sm font-bold text-foreground">
+                        {formatViewers(categoryStats.medianViewers)}
+                      </p>
+                    </div>
+                    {categoryStats.dominantLang && (
+                      <div className="text-right">
+                        <p className="text-[10px] text-muted-foreground">Langue top</p>
+                        <p className="text-sm font-bold text-foreground">
+                          {categoryStats.dominantLang.toUpperCase()}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
+                <div className="text-right">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Live
+                  </p>
+                  <p className="text-sm font-semibold text-foreground">{filtered.length}</p>
+                </div>
               </div>
             )}
-            <div className="text-right">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Live
-              </p>
-              <p className="text-sm font-semibold text-foreground">{filtered.length}</p>
-            </div>
-          </div>
-        )}
 
-        {/* Personal position banner */}
-        {user && userAvgViewers && estimatedRank && !loading && filtered.length > 0 && (
-          <div className="mb-4 flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
-              #{estimatedRank}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground">
-                Ta position estimée dans {category}
-              </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Avec {formatViewers(userAvgViewers)} viewers moyens, tu te situerais autour du{" "}
-                <span className="font-semibold text-foreground">#{estimatedRank}</span> sur{" "}
-                {filtered.length} chaînes.{" "}
-                {estimatedRank <= 3
-                  ? "Tu es dans le podium de cette catégorie."
-                  : estimatedRank <= 10
-                    ? `${estimatedRank - 1} chaîne${estimatedRank - 1 > 1 ? "s" : ""} devant toi.`
-                    : `${estimatedRank - 1} chaînes devant toi.`}
-              </p>
-            </div>
-          </div>
-        )}
+            {/* Personal position banner */}
+            {user && userAvgViewers && estimatedRank && !loading && filtered.length > 0 && (
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
+                  #{estimatedRank}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground">
+                    Ta position estimée dans {category}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Avec {formatViewers(userAvgViewers)} viewers moyens, tu te situerais autour du{" "}
+                    <span className="font-semibold text-foreground">#{estimatedRank}</span> sur{" "}
+                    {filtered.length} chaînes.{" "}
+                    {estimatedRank <= 3
+                      ? "Tu es dans le podium de cette catégorie."
+                      : estimatedRank <= 10
+                        ? `${estimatedRank - 1} chaîne${estimatedRank - 1 > 1 ? "s" : ""} devant toi.`
+                        : `${estimatedRank - 1} chaînes devant toi.`}
+                  </p>
+                </div>
+              </div>
+            )}
 
-        {/* Results */}
-        {loading ? (
-          <LoadingState />
-        ) : notFound ? (
-          <Card>
-            <CardContent className="flex items-center gap-3 p-6 text-sm text-muted-foreground">
-              <Trophy className="h-4 w-4" />
-              Catégorie introuvable sur Twitch. Essaie un autre nom exact (ex: "Grand Theft Auto
-              V").
-            </CardContent>
-          </Card>
-        ) : filtered.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col gap-1 p-6 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2 text-foreground">
-                <Trophy className="h-4 w-4" />
-                Aucune chaîne live trouvée pour cette catégorie.
-              </p>
-              <p className="pl-6 text-xs">Essaie une autre langue ou une autre catégorie.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-2">
-            {filtered.map((c, idx) => {
-              const separatorLabel = TIER_SEPARATORS[idx];
-              const signal = getSecondarySignal(c);
-              const tier = getTierTheme(getScoreTier(c.stream_score));
-              const isPodium = c.rank <= 3;
+            {/* Results */}
+            {loading ? (
+              <LoadingState />
+            ) : notFound ? (
+              <Card>
+                <CardContent className="flex items-center gap-3 p-6 text-sm text-muted-foreground">
+                  <Trophy className="h-4 w-4" />
+                  Catégorie introuvable sur Twitch. Essaie un autre nom exact (ex: "Grand Theft Auto V").
+                </CardContent>
+              </Card>
+            ) : filtered.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col gap-1 p-6 text-sm text-muted-foreground">
+                  <p className="flex items-center gap-2 text-foreground">
+                    <Trophy className="h-4 w-4" />
+                    Aucune chaîne live trouvée pour cette catégorie.
+                  </p>
+                  <p className="pl-6 text-xs">Essaie une autre langue ou une autre catégorie.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-2">
+                {filtered.map((c, idx) => {
+                  const separatorLabel = TIER_SEPARATORS[idx];
+                  const signal = getSecondarySignal(c);
+                  const tier = getTierTheme(getScoreTier(c.stream_score));
+                  const isPodium = c.rank <= 3;
 
-              return (
-                <React.Fragment key={c.id}>
-                  {separatorLabel && (
-                    <div className="flex items-center gap-3 py-1">
-                      <div className="h-px flex-1 bg-border/40" />
-                      <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-                        {separatorLabel}
-                      </span>
-                      <div className="h-px flex-1 bg-border/40" />
-                    </div>
-                  )}
-                  <Link
-                    to={`/streamer/${c.login}`}
-                    className={cn(
-                      "group flex items-start gap-2 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-card/80 sm:items-center sm:gap-3",
-                      c.rank === 1
-                        ? "border-primary/25 bg-primary/[0.03]"
-                        : "border-border bg-card",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "w-7 shrink-0 text-right text-xs font-bold tabular-nums",
-                        c.rank === 1
-                          ? "text-primary"
-                          : isPodium
-                            ? "text-foreground/80"
-                            : "text-muted-foreground",
-                      )}
-                    >
-                      #{c.rank}
-                    </span>
-                    <Avatar className="h-10 w-10 shrink-0 rounded-full border border-border/60">
-                      {c.profile_image_url && (
-                        <AvatarImage src={c.profile_image_url} alt={c.login} />
-                      )}
-                      <AvatarFallback className="rounded-full text-[10px]">
-                        {c.login.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="min-w-0 flex-1 overflow-hidden">
-                      {/* Streamer info */}
-                      <div className="flex min-w-0 items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                          {c.display_name}
-                        </p>
-                        {c.is_live && (
-                          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
-                            <Radio className="h-2 w-2" /> Live
+                  return (
+                    <React.Fragment key={c.id}>
+                      {separatorLabel && (
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="h-px flex-1 bg-border/40" />
+                          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                            {separatorLabel}
                           </span>
-                        )}
-                        {c.language && (
-                          <Badge variant="outline" className="shrink-0 text-[10px]">
-                            {c.language.toUpperCase()}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-                        <span className="truncate">@{c.login}</span>
-                        {c.game_name && (
-                          <>
-                            <span>·</span>
-                            <span className="truncate">{c.game_name}</span>
-                          </>
-                        )}
-                      </div>
-                      {signal && (
-                        <div className="mt-1.5">
-                          <span
-                            className={cn(
-                              "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
-                              SIGNAL_TONE_CLASS[signal.tone],
-                            )}
-                          >
-                            {signal.label}
-                          </span>
+                          <div className="h-px flex-1 bg-border/40" />
                         </div>
                       )}
+                      <Link
+                        to={`/streamer/${c.login}`}
+                        className={cn(
+                          "group flex items-start gap-2 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-card/80 sm:items-center sm:gap-3",
+                          c.rank === 1
+                            ? "border-primary/25 bg-primary/[0.03]"
+                            : "border-border bg-card",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-7 shrink-0 text-right text-xs font-bold tabular-nums",
+                            c.rank === 1
+                              ? "text-primary"
+                              : isPodium
+                                ? "text-foreground/80"
+                                : "text-muted-foreground",
+                          )}
+                        >
+                          #{c.rank}
+                        </span>
+                        <Avatar className="h-10 w-10 shrink-0 rounded-full border border-border/60">
+                          {c.profile_image_url && (
+                            <AvatarImage src={c.profile_image_url} alt={c.login} />
+                          )}
+                          <AvatarFallback className="rounded-full text-[10px]">
+                            {c.login.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
 
-                      {/* Stats — mobile only, below info */}
-                      <div className="mt-2.5 flex items-center gap-2 sm:hidden">
-                        <div>
-                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
-                          <div className="flex items-center gap-1">
-                            <Eye className="h-3 w-3 text-muted-foreground/40" />
-                            <span className="text-sm font-semibold tabular-nums text-foreground">
-                              {formatViewers(c.live_viewer_count)}
-                            </span>
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <p className="truncate text-sm font-semibold text-foreground">
+                              {c.display_name}
+                            </p>
+                            {c.is_live && (
+                              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                                <Radio className="h-2 w-2" /> Live
+                              </span>
+                            )}
+                            {c.language && (
+                              <Badge variant="outline" className="shrink-0 text-[10px]">
+                                {c.language.toUpperCase()}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+                            <span className="truncate">@{c.login}</span>
+                            {c.game_name && (
+                              <>
+                                <span>·</span>
+                                <span className="truncate">{c.game_name}</span>
+                              </>
+                            )}
+                          </div>
+                          {signal && (
+                            <div className="mt-1.5">
+                              <span
+                                className={cn(
+                                  "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                                  SIGNAL_TONE_CLASS[signal.tone],
+                                )}
+                              >
+                                {signal.label}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Stats — mobile */}
+                          <div className="mt-2.5 flex items-center gap-2 sm:hidden">
+                            <div>
+                              <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
+                              <div className="flex items-center gap-1">
+                                <Eye className="h-3 w-3 text-muted-foreground/40" />
+                                <span className="text-sm font-semibold tabular-nums text-foreground">
+                                  {formatViewers(c.live_viewer_count)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="h-7 w-px bg-border/40" />
+                            <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
+                              <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
+                              <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
+                            </div>
                           </div>
                         </div>
-                        <div className="h-7 w-px bg-border/40" />
-                        <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
-                          <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Stats — desktop only, right side */}
-                    <div className="hidden shrink-0 items-center gap-2 sm:flex sm:gap-3">
-                      <div className="text-right">
-                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
-                        <div className="flex items-center justify-end gap-1">
-                          <Eye className="h-3 w-3 text-muted-foreground/40" />
-                          <span className="text-sm font-semibold tabular-nums text-foreground">
-                            {formatViewers(c.live_viewer_count)}
-                          </span>
+                        {/* Stats — desktop */}
+                        <div className="hidden shrink-0 items-center gap-2 sm:flex sm:gap-3">
+                          <div className="text-right">
+                            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
+                            <div className="flex items-center justify-end gap-1">
+                              <Eye className="h-3 w-3 text-muted-foreground/40" />
+                              <span className="text-sm font-semibold tabular-nums text-foreground">
+                                {formatViewers(c.live_viewer_count)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="h-7 w-px bg-border/40" />
+                          <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
+                            <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
+                            <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="h-7 w-px bg-border/40" />
-                      <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
-                        <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
-                        <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
-                      </div>
-                    </div>
 
-                    <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
-                  </Link>
-                </React.Fragment>
-              );
-            })}
-          </div>
+                        <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
+                      </Link>
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            )}
+
+            <p className="mt-6 text-[11px] text-muted-foreground">
+              Source : Twitch /streams (snapshot live). Score Live ≠ StreamScore — calculé sur l'audience, le statut et la portée en direct uniquement.
+            </p>
+          </>
         )}
-
-        <p className="mt-6 text-[11px] text-muted-foreground">
-          Source : Twitch /streams (données publiques, snapshot live). Score Live ≠ StreamScore — le
-          Score Live est estimé à partir de l'audience, du statut et de la portée en direct uniquement.
-          Le StreamScore complet nécessite une analyse approfondie de ta chaîne.
-        </p>
       </PageContainer>
     </AppShell>
   );

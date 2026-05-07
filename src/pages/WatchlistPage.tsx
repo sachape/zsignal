@@ -182,7 +182,7 @@ const WatchlistPage = () => {
           </div>
           {entries.length > 0 && (
             <Button asChild size="sm" variant="outline" className="shrink-0">
-              <Link to="/leaders">
+              <Link to="/classements">
                 <Trophy className="h-3.5 w-3.5" />
                 Explorer les classements
               </Link>
@@ -266,7 +266,7 @@ const WatchlistPage = () => {
 
               <div className="flex flex-col items-center gap-2 sm:flex-row">
                 <Button asChild size="sm">
-                  <Link to="/leaders">
+                  <Link to="/classements">
                     <Trophy className="h-3.5 w-3.5" />
                     Explorer les classements
                     <ChevronRight className="h-3.5 w-3.5 opacity-60" />

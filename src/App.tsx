@@ -97,7 +97,7 @@ const App = () => (
                 <Route path="/playbooks" element={<PlaybooksPage />} />
                 <Route path="/playbooks/:slug" element={<PlaybookDetailPage />} />
                 <Route
-                  path="/leaders"
+                  path="/classements"
                   element={
                     <ProtectedRoute>
                       <LeadersPage />

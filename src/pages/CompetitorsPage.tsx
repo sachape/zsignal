@@ -502,7 +502,7 @@ const CompetitorsPage = () => {
           }
           action={
             <Button asChild variant="outline" size="sm">
-              <Link to="/leaders">
+              <Link to="/classements">
                 <Trophy className="h-3.5 w-3.5" /> Voir les classements
               </Link>
             </Button>

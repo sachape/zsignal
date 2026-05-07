@@ -662,7 +662,7 @@ const StreamerProfilePage = () => {
           size="sm"
           className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
         >
-          <Link to={user ? "/leaders" : "/"}>
+          <Link to={user ? "/classements" : "/"}>
             <ArrowLeft className="h-3.5 w-3.5" /> Classements
           </Link>
         </Button>
