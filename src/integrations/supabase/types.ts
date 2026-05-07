@@ -671,6 +671,69 @@ export type Database = {
           },
         ]
       }
+      twitch_clip_snapshots: {
+        Row: {
+          broadcaster_id: string
+          clip_created_at: string
+          created_at: string
+          creator_id: string | null
+          duration: number | null
+          fetched_at: string
+          game_id: string | null
+          id: string
+          is_featured: boolean | null
+          thumbnail_url: string | null
+          title: string | null
+          twitch_clip_id: string
+          updated_at: string
+          url: string | null
+          user_id: string
+          video_id: string | null
+          view_count: number | null
+          vod_offset: number | null
+        }
+        Insert: {
+          broadcaster_id: string
+          clip_created_at: string
+          created_at?: string
+          creator_id?: string | null
+          duration?: number | null
+          fetched_at?: string
+          game_id?: string | null
+          id?: string
+          is_featured?: boolean | null
+          thumbnail_url?: string | null
+          title?: string | null
+          twitch_clip_id: string
+          updated_at?: string
+          url?: string | null
+          user_id: string
+          video_id?: string | null
+          view_count?: number | null
+          vod_offset?: number | null
+        }
+        Update: {
+          broadcaster_id?: string
+          clip_created_at?: string
+          created_at?: string
+          creator_id?: string | null
+          duration?: number | null
+          fetched_at?: string
+          game_id?: string | null
+          id?: string
+          is_featured?: boolean | null
+          thumbnail_url?: string | null
+          title?: string | null
+          twitch_clip_id?: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+          video_id?: string | null
+          view_count?: number | null
+          vod_offset?: number | null
+        }
+        Relationships: []
+      }
       twitch_clips: {
         Row: {
           analysis_job_id: string
