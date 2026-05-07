@@ -462,7 +462,7 @@ const DashboardPage = () => {
 
         {/* Identity strip */}
         <div className="animate-fade-up mb-6">
-          <p className="mb-6 sm:mb-8 text-[32px] font-medium text-muted-foreground">
+          <p className="mb-5 sm:mb-7 text-[32px] font-medium text-foreground">
             {new Date().getHours() >= 19 ? "Bonsoir," : "Bonjour,"}
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
