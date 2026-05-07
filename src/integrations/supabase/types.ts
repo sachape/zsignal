@@ -382,16 +382,24 @@ export type Database = {
       live_debriefs: {
         Row: {
           comparison_data: Json | null
+          confidence: string | null
           created_at: string
+          evidence: Json | null
+          generated_at: string | null
           has_enough_signal: boolean
           id: string
           live_session_id: string
+          main_strength: string | null
+          main_weakness: string | null
+          next_live_focus: string | null
           overall_score: number | null
           priority_action: string | null
           score_hold: number | null
           score_start: number | null
           score_structure: number | null
+          signal_quality: string | null
           strength: string | null
+          summary: string | null
           updated_at: string
           user_id: string
           verdict: string | null
@@ -399,16 +407,24 @@ export type Database = {
         }
         Insert: {
           comparison_data?: Json | null
+          confidence?: string | null
           created_at?: string
+          evidence?: Json | null
+          generated_at?: string | null
           has_enough_signal?: boolean
           id?: string
           live_session_id: string
+          main_strength?: string | null
+          main_weakness?: string | null
+          next_live_focus?: string | null
           overall_score?: number | null
           priority_action?: string | null
           score_hold?: number | null
           score_start?: number | null
           score_structure?: number | null
+          signal_quality?: string | null
           strength?: string | null
+          summary?: string | null
           updated_at?: string
           user_id: string
           verdict?: string | null
@@ -416,16 +432,24 @@ export type Database = {
         }
         Update: {
           comparison_data?: Json | null
+          confidence?: string | null
           created_at?: string
+          evidence?: Json | null
+          generated_at?: string | null
           has_enough_signal?: boolean
           id?: string
           live_session_id?: string
+          main_strength?: string | null
+          main_weakness?: string | null
+          next_live_focus?: string | null
           overall_score?: number | null
           priority_action?: string | null
           score_hold?: number | null
           score_start?: number | null
           score_structure?: number | null
+          signal_quality?: string | null
           strength?: string | null
+          summary?: string | null
           updated_at?: string
           user_id?: string
           verdict?: string | null
