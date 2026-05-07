@@ -135,6 +135,41 @@ const ConnectTwitchPage = () => {
           description="Débloque une analyse approfondie, des recommandations personnalisées et un suivi de progression hebdomadaire en connectant ton compte Twitch."
         />
 
+        <Card className="mb-10">
+          <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+              <Zap className="h-4 w-4 text-primary" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-base font-semibold text-foreground">
+                Prêt à débloquer ta croissance ?
+              </h3>
+              <p className="mx-auto max-w-md text-sm text-muted-foreground">
+                Ça prend 10 secondes. Tu peux te déconnecter à tout moment.
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                const teaserId =
+                  teaserParam || onboardingFlags.getPendingTeaserId();
+                if (teaserId) {
+                  onboardingFlags.setPendingTeaserId(teaserId);
+                }
+                initiateTwitchOAuth({ teaserId }).catch((err) =>
+                  console.error(err),
+                );
+              }}
+              variant="twitch"
+              className="mt-2"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
+              </svg>
+              Se connecter avec Twitch
+            </Button>
+          </CardContent>
+        </Card>
+
         <section className="mb-10">
           <SectionHeader
             label="Ce que tu débloques"
@@ -184,41 +219,6 @@ const ConnectTwitchPage = () => {
             />
           </div>
         </section>
-
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-              <Zap className="h-4 w-4 text-primary" />
-            </div>
-            <div className="space-y-1.5">
-              <h3 className="text-base font-semibold text-foreground">
-                Prêt à débloquer ta croissance ?
-              </h3>
-              <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                Ça prend 10 secondes. Tu peux te déconnecter à tout moment.
-              </p>
-            </div>
-            <Button
-              onClick={() => {
-                const teaserId =
-                  teaserParam || onboardingFlags.getPendingTeaserId();
-                if (teaserId) {
-                  onboardingFlags.setPendingTeaserId(teaserId);
-                }
-                initiateTwitchOAuth({ teaserId }).catch((err) =>
-                  console.error(err),
-                );
-              }}
-              variant="twitch"
-              className="mt-2"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
-              </svg>
-              Se connecter avec Twitch
-            </Button>
-          </CardContent>
-        </Card>
       </PageContainer>
     </AppShell>
   );
