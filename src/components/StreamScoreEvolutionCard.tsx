@@ -93,16 +93,18 @@ interface Props {
 const StreamScoreEvolutionCard = ({ userId }: Props) => {
   const [data, setData] = useState<WeekOverWeekDelta | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    getWeekOverWeekDelta(userId).then((d) => {
-      setData(d);
-      setLoading(false);
-    });
+    setFetchError(false);
+    getWeekOverWeekDelta(userId)
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setFetchError(true); setLoading(false); });
   }, [userId]);
 
   if (loading) return <Skeleton />;
+  if (fetchError) return null; // graceful — don't crash dashboard on network error
 
   const latest = data?.latest ?? null;
 
@@ -133,13 +135,6 @@ const StreamScoreEvolutionCard = ({ userId }: Props) => {
       : (overallDelta ?? 0) > 0
         ? TrendingUp
         : TrendingDown;
-
-  const deltaColor =
-    !hasDelta || overallDelta === 0
-      ? "text-muted-foreground"
-      : (overallDelta ?? 0) > 0
-        ? "text-primary"
-        : "text-destructive";
 
   return (
     <div className="mb-6 overflow-hidden rounded-xl border border-border/60 bg-card/40">
@@ -180,10 +175,10 @@ const StreamScoreEvolutionCard = ({ userId }: Props) => {
             isLowConfidence ? "text-muted-foreground" : "text-foreground",
           )}
         >
-          {isLowConfidence
-            ? "Score encore peu fiable : Streamnco manque de signaux récents."
-            : !hasDelta
-              ? "Premier score enregistré. L'évolution sera visible après la prochaine analyse."
+          {!hasDelta
+            ? "Premier score enregistré. L'évolution sera visible après la prochaine analyse."
+            : isLowConfidence
+              ? "Score encore peu fiable : Streamnco manque de signaux récents."
               : buildNarrativeSentence(data!)}
         </p>
 
