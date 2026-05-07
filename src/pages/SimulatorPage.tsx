@@ -251,11 +251,6 @@ const SimulatorPage = () => {
 
   const cv = s.avg_viewers.current;
 
-  const points = useMemo(
-    () => buildPoints(cv, sessionsPerWeek, durationHours, 52),
-    [cv, sessionsPerWeek, durationHours],
-  );
-
   // ETAs — base (sans outil) vs boosted (avec Streamnco)
   const etaViewersBase = useMemo(() => weeksToTarget(cv, 3, sessionsPerWeek, durationHours, 1), [cv, sessionsPerWeek, durationHours]);
   const etaViewersBoosted = useMemo(() => weeksToTarget(cv, 3, sessionsPerWeek, durationHours, STREAMNCO_BOOST), [cv, sessionsPerWeek, durationHours]);
@@ -274,6 +269,17 @@ const SimulatorPage = () => {
   const allBaseEtas = [etaViewersBase, etaStreamDaysBase, etaStreamHoursBase, etaFollowersBase]
     .filter((e): e is number => e !== null);
   const overallBaseEta = allBaseEtas.length > 0 ? Math.max(...allBaseEtas) : null;
+
+  // Dynamic chart window: cover the base ETA + 30% buffer, min 8 weeks, cap 104
+  const projectionWeeks = Math.min(Math.max(Math.ceil((overallBaseEta ?? 52) * 1.3), 8), 104);
+  // Tick interval adapts so XAxis stays readable at any window size
+  const tickInterval = projectionWeeks <= 8 ? 2 : projectionWeeks <= 20 ? 4 : projectionWeeks <= 40 ? 8 : projectionWeeks <= 60 ? 13 : 20;
+
+  const points = useMemo(
+    () => buildPoints(cv, sessionsPerWeek, durationHours, projectionWeeks),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [cv, sessionsPerWeek, durationHours, projectionWeeks],
+  );
 
   const chartMax = Math.max(...points.map((p) => p.viewersBoosted), 3 * 1.5);
   const projectedStreamDays = Math.round(sessionsPerWeek * 4.3);
@@ -354,7 +360,7 @@ const SimulatorPage = () => {
               <div className="mb-1 flex items-start justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  <h2 className="text-sm font-semibold text-foreground">Projection viewers (52 semaines)</h2>
+                  <h2 className="text-sm font-semibold text-foreground">Projection viewers ({projectionWeeks} sem.)</h2>
                 </div>
                 {overallBoostedEta !== null && (
                   <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary text-[10px]">
@@ -397,7 +403,7 @@ const SimulatorPage = () => {
                       axisLine={false}
                       tickFormatter={(v: number) => {
                         if (v === 0) return "Départ";
-                        if (v % 13 === 0) return `S${v}`;
+                        if (v % tickInterval === 0) return `S${v}`;
                         return "";
                       }}
                       interval={0}
