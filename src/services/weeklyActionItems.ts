@@ -130,8 +130,8 @@ export async function ensureWeeklyActionItems(
     rejected_action_keys: result.rejected,
   };
 
-  await updateMilestoneDiagnosis(row.id, diagnosis, signalsForRow);
-  row = { ...row, diagnosis } as WeeklyMilestoneRow;
+  const updated = await updateMilestoneDiagnosis(row.id, diagnosis, signalsForRow);
+  row = updated ?? ({ ...row, diagnosis } as WeeklyMilestoneRow);
 
   if (result.actions.length === 0) {
     return { milestone: row, items: [] };
