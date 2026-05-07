@@ -1,6 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
   Check,
   Minus,
   Sparkles,
@@ -171,6 +171,8 @@ interface Tier {
   id: string;
   name: string;
   price: string;
+  annual?: string;
+  annualTotal?: string;
   period: string;
   description: string;
   cta: string;
@@ -194,6 +196,8 @@ const TIERS: Tier[] = [
     id: "pro",
     name: "Pro",
     price: "7,99€",
+    annual: "4,92€",
+    annualTotal: "59€",
     period: "par mois",
     description: "Tout ce qu'il faut pour progresser semaine après semaine.",
     cta: "Passer au Pro",
@@ -205,8 +209,10 @@ const TIERS: Tier[] = [
     id: "growth",
     name: "Growth",
     price: "14,99€",
+    annual: "9,17€",
+    annualTotal: "110€",
     period: "par mois",
-    description: "Pour les streamers sérieux qui gèrent plusieurs chaînes.",
+    description: "Pour les streamers sérieux qui pilotent plusieurs chaînes.",
     cta: "Passer au Growth",
     ctaTo: "/billing",
     highlighted: false,
@@ -229,18 +235,19 @@ function CellValue({ value }: { value: string | boolean }) {
 
 const PricingPage = () => {
   const { user } = useAuth();
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
 
   usePageMeta({
     title: "Tarifs",
     description:
-      "Streamnco — Gratuit, Pro à 7,99€, Growth à 14,99€. Analyse ta chaîne Twitch et progresse vers l'affiliation.",
+      "Streamnco — Gratuit, Pro à 7,99€/mois, Growth à 14,99€/mois. Analyse ta chaîne Twitch et progresse vers l'affiliation.",
   });
 
   return (
     <AppShell>
       <PageContainer>
         {/* Header */}
-        <div className="mb-10 text-center">
+        <div className="mb-8 text-center">
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             <Zap className="h-3 w-3" /> Tarifs simples et transparents
           </div>
@@ -252,6 +259,35 @@ const PricingPage = () => {
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
             Aucune carte bancaire requise pour démarrer. Passe au niveau supérieur quand tu es prêt.
           </p>
+        </div>
+
+        {/* Billing toggle */}
+        <div className="mb-8 flex justify-center">
+          <div className="inline-flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 p-1">
+            <button
+              onClick={() => setBilling("monthly")}
+              className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
+                billing === "monthly"
+                  ? "bg-primary/10 border border-primary/25 text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Mensuel
+            </button>
+            <button
+              onClick={() => setBilling("annual")}
+              className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
+                billing === "annual"
+                  ? "bg-primary/10 border border-primary/25 text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Annuel
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums ${billing === "annual" ? "bg-primary text-background" : "bg-primary/20 text-primary"}`}>
+                -38%
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Tier cards */}
@@ -281,12 +317,17 @@ const PricingPage = () => {
                 </p>
                 <div className="mt-1 flex items-end gap-1">
                   <span className="text-3xl font-bold tracking-tight text-foreground">
-                    {tier.price}
+                    {billing === "annual" && tier.annual ? tier.annual : tier.price}
                   </span>
                   <span className="mb-0.5 text-xs text-muted-foreground">
                     {tier.period}
                   </span>
                 </div>
+                {billing === "annual" && tier.annualTotal && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Facturé <span className="font-semibold text-foreground">{tier.annualTotal}</span> / an · au lieu de <span className="line-through">{tier.price.replace(",", ".").replace("€", "")}€ × 12</span>
+                  </p>
+                )}
                 <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                   {tier.description}
                 </p>
