@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, Trophy, X, ArrowRight, ChevronRight } from "lucide-react";
+import { Bookmark, BookmarkX, Trophy, ArrowRight, ChevronRight } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -176,17 +176,15 @@ const WatchlistPage = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-                    title="Retirer de la watchlist"
-                    onClick={() => remove(entry.login)}
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 shrink-0 p-0 text-muted-foreground hover:text-destructive"
+                  title="Retirer de la watchlist"
+                  onClick={() => remove(entry.login)}
+                >
+                  <BookmarkX className="h-4 w-4" />
+                </Button>
                 <Button asChild size="sm" variant="outline" className="h-8 shrink-0 gap-1.5 text-xs">
                   <Link to={`/streamer/${entry.login}`}>
                     Voir le profil
