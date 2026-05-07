@@ -515,7 +515,7 @@ const LeadersPage = () => {
                   <Link
                     to={`/streamer/${c.login}`}
                     className={cn(
-                      "group flex items-center gap-2 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-card/80 sm:gap-3",
+                      "group flex items-start gap-2 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-card/80 sm:items-center sm:gap-3",
                       c.rank === 1
                         ? "border-primary/25 bg-primary/[0.03]"
                         : "border-border bg-card",
@@ -523,7 +523,7 @@ const LeadersPage = () => {
                   >
                     <span
                       className={cn(
-                        "w-7 text-right text-xs font-bold tabular-nums",
+                        "w-7 shrink-0 text-right text-xs font-bold tabular-nums",
                         c.rank === 1
                           ? "text-primary"
                           : isPodium
@@ -533,7 +533,7 @@ const LeadersPage = () => {
                     >
                       #{c.rank}
                     </span>
-                    <Avatar className="h-10 w-10 rounded-full border border-border/60">
+                    <Avatar className="h-10 w-10 shrink-0 rounded-full border border-border/60">
                       {c.profile_image_url && (
                         <AvatarImage src={c.profile_image_url} alt={c.login} />
                       )}
@@ -543,6 +543,7 @@ const LeadersPage = () => {
                     </Avatar>
 
                     <div className="min-w-0 flex-1 overflow-hidden">
+                      {/* Streamer info */}
                       <div className="flex min-w-0 items-center gap-2">
                         <p className="truncate text-sm font-semibold text-foreground">
                           {c.display_name}
@@ -579,16 +580,36 @@ const LeadersPage = () => {
                           </span>
                         </div>
                       )}
+
+                      {/* Stats — mobile only, below info */}
+                      <div className="mt-2.5 flex items-center gap-2 sm:hidden">
+                        {(view === "live" || c.is_live) && (
+                          <>
+                            <div>
+                              <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
+                              <div className="flex items-center gap-1">
+                                <Eye className="h-3 w-3 text-muted-foreground/40" />
+                                <span className="text-sm font-semibold tabular-nums text-foreground">
+                                  {formatViewers(c.live_viewer_count)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="h-7 w-px bg-border/40" />
+                          </>
+                        )}
+                        <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
+                          <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score</span>
+                          <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                      {/* Viewers — only when live */}
+                    {/* Stats — desktop only, right side */}
+                    <div className="hidden shrink-0 items-center gap-2 sm:flex sm:gap-3">
                       {(view === "live" || c.is_live) && (
                         <>
                           <div className="text-right">
-                            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">
-                              viewers
-                            </p>
+                            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
                             <div className="flex items-center justify-end gap-1">
                               <Eye className="h-3 w-3 text-muted-foreground/40" />
                               <span className="text-sm font-semibold tabular-nums text-foreground">
@@ -599,22 +620,12 @@ const LeadersPage = () => {
                           <div className="h-7 w-px bg-border/40" />
                         </>
                       )}
-
-                      {/* Score pill */}
-                      <div
-                        className={cn(
-                          "flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5",
-                          tier.surfaceClass,
-                        )}
-                      >
-                        <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">
-                          score
-                        </span>
-                        <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>
-                          {c.stream_score}
-                        </span>
+                      <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
+                        <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score</span>
+                        <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
                       </div>
                     </div>
+
                     <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
                   </Link>
                 </React.Fragment>
