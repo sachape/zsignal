@@ -3,6 +3,7 @@ import { assembleReport } from "./reportAssembler";
 import { resolveAnalysisDataset } from "./liveReportSource";
 import { fetchLiveTwitchProfile } from "./twitchLiveProfile";
 import { buildCompetitorGroups, type CandidateChannel, type TargetSignal } from "./competitorEngine";
+import { persistStreamScoreSnapshot } from "./streamScoreSnapshot";
 
 /**
  * Hybrid auto-refresh: the backend (or callsite) creates a `queued`

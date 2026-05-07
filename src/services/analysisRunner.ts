@@ -3,6 +3,7 @@ import { assembleReport } from "./reportAssembler";
 import { resolveAnalysisDataset } from "./liveReportSource";
 import { fetchLiveTwitchProfile } from "./twitchLiveProfile";
 import { buildCompetitorGroups, type CandidateChannel, type TargetSignal } from "./competitorEngine";
+import { persistStreamScoreSnapshot } from "./streamScoreSnapshot";
 import type { AnalysisReport } from "@/types/analysis";
 
 export type JobStage =
@@ -182,6 +183,13 @@ export async function runAnalysis({
       .from("analysis_jobs")
       .update({ status: "completed", completed_at: new Date().toISOString() })
       .eq("id", job.id);
+
+    // StreamScore history snapshot (idempotent on analysis_job_id).
+    await persistStreamScoreSnapshot({
+      userId,
+      analysisJobId: job.id,
+      report,
+    });
 
     onStage?.("completed");
 
