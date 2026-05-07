@@ -559,7 +559,7 @@ const DashboardPage = () => {
         {/* StreamScore compact status */}
         <Link
           to="/analyse"
-          className="animate-fade-up mb-6 flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-white/[0.07] bg-card/40 px-4 py-3 backdrop-blur-xl transition-all hover:border-primary/25 hover:shadow-[0_0_30px_hsl(var(--primary)/0.08)]"
+          className="group animate-fade-up mb-6 flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-white/[0.07] bg-card/40 px-4 py-3 backdrop-blur-xl transition-all hover:border-primary/25 hover:shadow-[0_0_30px_hsl(var(--primary)/0.08)]"
           style={{ animationDelay: "80ms" }}
         >
           <div className="flex items-center gap-3">
@@ -579,9 +579,9 @@ const DashboardPage = () => {
               </div>
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground/50">
+          <div className="flex shrink-0 items-center gap-1.5 rounded-md border border-border/40 bg-muted/30 px-2.5 py-1 text-xs font-medium text-foreground transition-colors group-hover:bg-muted/60">
             Voir l'analyse
-            <ArrowRight className="h-3.5 w-3.5" />
+            <ArrowRight className="h-3 w-3" />
           </div>
         </Link>
 
