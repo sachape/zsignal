@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Link } from "react-router-dom";
-import { Check, ChevronRight, ChevronsUpDown, Loader2, Radio, Trophy } from "lucide-react";
+import { Check, ChevronRight, ChevronsUpDown, Eye, Loader2, Radio, Trophy } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -581,15 +581,39 @@ const LeadersPage = () => {
                       )}
                     </div>
 
-                    <div className="shrink-0 text-right">
+                    <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                      {/* Viewers — only when live */}
                       {(view === "live" || c.is_live) && (
-                        <p className="text-xs font-semibold tabular-nums text-muted-foreground">
-                          {formatViewers(c.live_viewer_count)}
-                        </p>
+                        <>
+                          <div className="text-right">
+                            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                              viewers
+                            </p>
+                            <div className="flex items-center justify-end gap-1">
+                              <Eye className="h-3 w-3 text-muted-foreground/40" />
+                              <span className="text-sm font-semibold tabular-nums text-foreground">
+                                {formatViewers(c.live_viewer_count)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="h-7 w-px bg-border/40" />
+                        </>
                       )}
-                      <p className={cn("text-sm font-bold tabular-nums", tier.textClass)}>
-                        {c.stream_score}
-                      </p>
+
+                      {/* Score pill */}
+                      <div
+                        className={cn(
+                          "flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5",
+                          tier.surfaceClass,
+                        )}
+                      >
+                        <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">
+                          score
+                        </span>
+                        <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>
+                          {c.stream_score}
+                        </span>
+                      </div>
                     </div>
                     <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
                   </Link>
