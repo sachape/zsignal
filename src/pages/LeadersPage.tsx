@@ -126,27 +126,26 @@ const LeadersPage = () => {
     return () => clearTimeout(t);
   }, [catQuery]);
 
-  // Load ranking when category or language changes
+  // Load ranking when category, language, or tab changes
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setNotFound(false);
     (async () => {
-      const { category: resolved, channels } = await fetchCategoryLeaders({
-        category,
-        language,
-        limit: 40,
-      });
+      const result =
+        tab === "streamscore"
+          ? await fetchCategoryStreamScoreLeaders({ category, language, limit: 50 })
+          : await fetchCategoryLeaders({ category, language, limit: 40 });
       if (cancelled) return;
-      setResolvedCategory(resolved);
-      setRows(channels);
-      setNotFound(!resolved);
+      setResolvedCategory(result.category);
+      setRows(result.channels);
+      setNotFound(!result.category);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [category, language]);
+  }, [category, language, tab]);
 
   // Score Live tab: all rows are live channels (API constraint)
   const filtered = useMemo(() => {
