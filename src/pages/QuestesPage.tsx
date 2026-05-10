@@ -220,7 +220,8 @@ const QuestesPage = () => {
       ]);
       if (cancelled) return;
 
-      const latestReport = reports?.[0] ?? null;
+      const latestSaved = reports?.[0] ?? null;
+      const latestReport = latestSaved?.report ?? null;
       setSessions(sess);
       setReport(latestReport);
       setManualChecks(checks);
