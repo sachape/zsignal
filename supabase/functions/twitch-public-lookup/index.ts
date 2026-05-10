@@ -525,7 +525,7 @@ Deno.serve(async (req) => {
             live_updated_at: nowIso,
             updated_at: nowIso,
           }));
-          await fetch(
+          const upsertRes = await fetch(
             `${supabaseUrl}/rest/v1/channel_stream_scores?on_conflict=platform,platform_user_id,game_name,language`,
             {
               method: "POST",
@@ -538,7 +538,11 @@ Deno.serve(async (req) => {
               body: JSON.stringify(rows),
             },
           );
-          cacheUsed = "fresh";
+          if (!upsertRes.ok) {
+            console.warn("channel_stream_scores upsert", upsertRes.status, await upsertRes.text());
+          } else {
+            cacheUsed = "fresh";
+          }
         } catch (err) {
           console.warn("channel_stream_scores upsert failed", err);
         }
