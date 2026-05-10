@@ -1,0 +1,1 @@
+DELETE FROM public.channel_stream_scores WHERE platform_user_id LIKE 'qa-%';
