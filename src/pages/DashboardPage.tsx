@@ -482,7 +482,7 @@ const DashboardPage = () => {
     },
   ];
 
-  if (showGuide) {
+  if (showGuide === true) {
     const guideDisplayName =
       account?.platform_display_name || account?.platform_login || summary?.display_name || "toi";
     return (
