@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { markOnboardingStepVisited } from "@/components/OnboardingGuide";
 import {
   ListChecks,
   Target,
@@ -85,6 +86,7 @@ const WeeklyPlanPage = () => {
 
   useEffect(() => {
     if (authLoading || !user) return;
+    markOnboardingStepVisited(user.id, "plan");
     let cancelled = false;
     (async () => {
       setLoading(true);

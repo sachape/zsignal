@@ -72,6 +72,7 @@ import BadgeStrip from "@/components/BadgeStrip";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 import ShareScoreButton from "@/components/ShareScoreButton";
 import WeeklyDigestCard from "@/components/WeeklyDigestCard";
+import OnboardingGuide, { isOnboardingDone } from "@/components/OnboardingGuide";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -103,6 +104,9 @@ const DashboardPage = () => {
     onboardingFlags.dismissCockpitWelcome();
     setShowWelcome(false);
   }, []);
+  const [showGuide, setShowGuide] = useState(
+    () => user ? !isOnboardingDone(user.id) : false,
+  );
   const autoTriggeredRef = useRef(false);
   const processingRef = useRef(false);
 
@@ -430,6 +434,24 @@ const DashboardPage = () => {
       stat: "16 guides",
     },
   ];
+
+  if (showGuide) {
+    const guideDisplayName =
+      account?.platform_display_name || account?.platform_login || summary?.display_name || "toi";
+    return (
+      <AppShell>
+        <PageContainer size="sm">
+          <OnboardingGuide
+            userId={user!.id}
+            displayName={guideDisplayName}
+            isConnected={isConnected}
+            hasReport={!!currentReport}
+            onComplete={() => setShowGuide(false)}
+          />
+        </PageContainer>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { markOnboardingStepVisited } from "@/components/OnboardingGuide";
 import {
   Clock,
   Target,
@@ -106,6 +107,7 @@ const AnalysePage = () => {
 
   useEffect(() => {
     if (authLoading || twitchLoading || !user) return;
+    markOnboardingStepVisited(user.id, "analyse");
     let cancelled = false;
     (async () => {
       setLoading(true);
