@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { CalendarCheck, TrendingUp, TrendingDown, Zap, ArrowRight, X, ChevronRight } from "lucide-react";
+import { CalendarCheck, TrendingUp, TrendingDown, Zap, ArrowRight, X, ChevronRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/lib/format";
@@ -65,6 +65,9 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
   const avgViewers = r.affiliate_progress.avg_viewers.current;
   const nextAction = r.next_best_action;
 
+  const followerCount = r.affiliate_progress?.followers?.current ?? 0;
+  const followersAvailable = r.affiliate_progress?.followers?.available !== false && followerCount > 0;
+
   const items: { icon: React.ElementType; label: string; value: string; color?: string }[] = [
     {
       icon: scoreDelta !== null && scoreDelta >= 0 ? TrendingUp : scoreDelta !== null ? TrendingDown : Zap,
@@ -82,6 +85,9 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
       label: "Viewers moy.",
       value: formatNumber(avgViewers),
     },
+    ...(followersAvailable
+      ? [{ icon: Users, label: "Abonnés", value: formatNumber(followerCount) }]
+      : []),
   ];
 
   return (
@@ -110,7 +116,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
         </div>
 
         {/* Stats cards */}
-        <div className="mb-4 grid grid-cols-3 gap-2">
+        <div className={cn("mb-4 grid gap-2", items.length === 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3")}>
           {items.map(({ icon: Icon, label, value, color }) => (
             <div
               key={label}
