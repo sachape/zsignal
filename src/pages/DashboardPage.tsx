@@ -74,7 +74,8 @@ import BadgeStrip from "@/components/BadgeStrip";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 import ShareScoreButton from "@/components/ShareScoreButton";
 import WeeklyDigestCard from "@/components/WeeklyDigestCard";
-import OnboardingGuide, { isOnboardingDone } from "@/components/OnboardingGuide";
+import OnboardingGuide from "@/components/OnboardingGuide";
+import { getOnboardingState } from "@/services/onboardingState";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
