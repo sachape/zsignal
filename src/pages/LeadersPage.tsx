@@ -31,11 +31,13 @@ import { cn } from "@/lib/utils";
 import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import {
   fetchCategoryLeaders,
+  fetchCategoryStreamScoreLeaders,
   searchCategories,
   LEADER_CATEGORY_PRESETS,
   LEADER_LANGUAGE_PRESETS,
   type LeaderChannel,
   type LeaderCategory,
+  type StreamScoreLeaderChannel,
 } from "@/services/leadersService";
 import { getLatestReport, type SavedReport } from "@/services/reportRepository";
 
