@@ -347,7 +347,7 @@ const LeadersPage = () => {
                               )}
                             </p>
                           </div>
-                          <div className={cn("rounded-md border px-2 py-1 text-right", theme.cardClass)}>
+                          <div className={cn("rounded-md border px-2 py-1 text-right", theme.surfaceClass)}>
                             <div className={cn("text-sm font-bold tabular-nums", theme.textClass)}>
                               {c.stream_score}
                             </div>
