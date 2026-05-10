@@ -3,38 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { Check, ArrowRight, Tv, Sparkles, FileText, CalendarCheck, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  getOnboardingState,
+  markOnboardingStepVisited as dbMarkStepVisited,
+  completeOnboarding as dbCompleteOnboarding,
+  type OnboardingStep,
+} from "@/services/onboardingState";
 
-const LS_KEY_VISITED = (userId: string) => `sp_onboarding_visited_${userId}`;
-const LS_KEY_DONE = (userId: string) => `sp_onboarding_done_${userId}`;
-
-export function markOnboardingStepVisited(userId: string, step: "analyse" | "plan") {
-  try {
-    const raw = localStorage.getItem(LS_KEY_VISITED(userId));
-    const visited: string[] = raw ? JSON.parse(raw) : [];
-    if (!visited.includes(step)) {
-      visited.push(step);
-      localStorage.setItem(LS_KEY_VISITED(userId), JSON.stringify(visited));
-    }
-  } catch { /* noop */ }
+// Re-exports for legacy call sites (now async, DB-backed).
+export async function markOnboardingStepVisited(_userId: string, step: OnboardingStep) {
+  await dbMarkStepVisited(step);
 }
 
-export function isOnboardingDone(userId: string): boolean {
-  try {
-    return localStorage.getItem(LS_KEY_DONE(userId)) === "1";
-  } catch { return false; }
-}
-
-function markDone(userId: string) {
-  try {
-    localStorage.setItem(LS_KEY_DONE(userId), "1");
-  } catch { /* noop */ }
-}
-
-function getVisited(userId: string): Set<string> {
-  try {
-    const raw = localStorage.getItem(LS_KEY_VISITED(userId));
-    return raw ? new Set(JSON.parse(raw)) : new Set();
-  } catch { return new Set(); }
+export async function isOnboardingDone(_userId: string): Promise<boolean> {
+  const state = await getOnboardingState();
+  return state.is_completed;
 }
 
 interface Step {
@@ -57,11 +40,17 @@ interface Props {
 
 const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComplete }: Props) => {
   const navigate = useNavigate();
-  const [visited, setVisited] = useState<Set<string>>(() => getVisited(userId));
+  const [visited, setVisited] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const refreshed = getVisited(userId);
-    setVisited(refreshed);
+    let active = true;
+    getOnboardingState().then((state) => {
+      if (!active) return;
+      setVisited(new Set(state.steps_visited));
+    });
+    return () => {
+      active = false;
+    };
   }, [userId]);
 
   const steps: Step[] = [
@@ -110,13 +99,18 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
 
   const handleStepClick = (step: Step) => {
     if (!step.href || step.autoChecked !== undefined) return;
-    markOnboardingStepVisited(userId, step.id as "analyse" | "plan");
-    setVisited(getVisited(userId));
+    const stepId = step.id as OnboardingStep;
+    setVisited((prev) => {
+      const next = new Set(prev);
+      next.add(stepId);
+      return next;
+    });
+    void dbMarkStepVisited(stepId);
     navigate(step.href);
   };
 
   const handleComplete = () => {
-    markDone(userId);
+    void dbCompleteOnboarding();
     onComplete();
   };
 
