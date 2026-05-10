@@ -508,14 +508,19 @@ Deno.serve(async (req) => {
       const langFilter =
         body.language && body.language !== "all" ? body.language : null;
 
+      // Primary candidate source = indexed Streamnco scores. We never fall
+      // back to /helix/streams here — that is the Score Live tab's job.
       let q = db
         .from("channel_stream_scores")
         .select(
-          "platform_user_id, login, display_name, profile_image_url, broadcaster_type, stream_score, language, game_name, score_updated_at, updated_at",
+          "platform_user_id, login, display_name, profile_image_url, broadcaster_type, stream_score, language, game_name, game_id, score_updated_at, updated_at",
         )
         .eq("platform", "twitch")
-        .eq("game_name", category.name)
+        .not("stream_score", "is", null)
+        .or(`game_id.eq.${category.id},game_name.eq.${category.name.replace(/,/g, "")}`)
         .order("stream_score", { ascending: false })
+        .order("live_viewer_count", { ascending: false, nullsFirst: false })
+        .order("updated_at", { ascending: false })
         .limit(limit);
 
       if (langFilter) q = q.eq("language", langFilter);
