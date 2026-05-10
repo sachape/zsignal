@@ -63,11 +63,6 @@ const PageHeader = ({
           </Avatar>
         )}
         <div className="min-w-0">
-          {eyebrow && (
-            <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {eyebrow}
-            </p>
-          )}
           <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
             {title}
           </h1>
