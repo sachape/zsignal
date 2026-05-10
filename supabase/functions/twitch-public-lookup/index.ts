@@ -578,7 +578,14 @@ Deno.serve(async (req) => {
         success: true,
         category,
         channels,
-        meta: { scope: "indexed", is_exhaustive: false },
+        meta: {
+          scope: "streamnco_indexed_category",
+          is_exhaustive: false,
+          source: "channel_stream_scores",
+          live_enriched: true,
+          indexed_count: channels.length,
+          cache_ttl_minutes: 60,
+        },
       });
     }
 
