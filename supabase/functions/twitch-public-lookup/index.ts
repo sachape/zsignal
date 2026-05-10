@@ -467,6 +467,116 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Indexed Streamnco leaderboard for a given Twitch category, enriched with
+    // current live data when possible. Reads channel_stream_scores (public-read
+    // RLS) — never exhaustive across Twitch.
+    if (mode === "category_all") {
+      if (!rawInput) {
+        return json({ success: false, reason: "missing_category" });
+      }
+
+      const gameRes = await fetch(
+        `https://api.twitch.tv/helix/games?name=${encodeURIComponent(rawInput)}`,
+        { headers: helixHeaders },
+      );
+      let category: { id: string; name: string; box_art_url: string | null } | null = null;
+      if (gameRes.ok) {
+        const gj = await gameRes.json();
+        const g = gj?.data?.[0] as
+          | { id: string; name: string; box_art_url?: string }
+          | undefined;
+        if (g) {
+          category = { id: g.id, name: g.name, box_art_url: g.box_art_url ?? null };
+        }
+      }
+      if (!category) {
+        return json({
+          success: false,
+          reason: "category_not_found",
+          input: rawInput,
+        });
+      }
+
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY");
+      if (!supabaseUrl || !supabaseAnon) {
+        return json({ success: false, reason: "db_unavailable" }, 500);
+      }
+      const db = createClient(supabaseUrl, supabaseAnon);
+
+      const limit = Math.min(Math.max(body.limit ?? 50, 1), 100);
+      const langFilter =
+        body.language && body.language !== "all" ? body.language : null;
+
+      let q = db
+        .from("channel_stream_scores")
+        .select(
+          "platform_user_id, login, display_name, profile_image_url, broadcaster_type, stream_score, language, game_name, score_updated_at, updated_at",
+        )
+        .eq("platform", "twitch")
+        .eq("game_name", category.name)
+        .order("stream_score", { ascending: false })
+        .limit(limit);
+
+      if (langFilter) q = q.eq("language", langFilter);
+
+      const { data: rows, error: dbErr } = await q;
+      if (dbErr) {
+        return json({ success: false, reason: "db_error" }, 500);
+      }
+
+      const liveByPid = new Map<string, HelixStream>();
+      const ids = (rows ?? [])
+        .map((r: { platform_user_id: string }) => r.platform_user_id)
+        .filter(Boolean);
+      if (ids.length > 0) {
+        try {
+          const live = await batchStreams(ids, helixHeaders);
+          live.forEach((s, pid) => liveByPid.set(pid, s));
+        } catch {
+          // swallow — return cached rows without live enrichment
+        }
+      }
+
+      const nowIso = new Date().toISOString();
+      const channels = (rows ?? []).map(
+        (r: {
+          platform_user_id: string;
+          login: string;
+          display_name: string;
+          profile_image_url: string | null;
+          broadcaster_type: string | null;
+          stream_score: number;
+          language: string | null;
+          game_name: string;
+          score_updated_at: string;
+          updated_at: string | null;
+        }) => {
+          const live = liveByPid.get(r.platform_user_id);
+          return {
+            login: r.login,
+            display_name: r.display_name,
+            profile_image_url: r.profile_image_url ?? null,
+            broadcaster_type: r.broadcaster_type ?? null,
+            stream_score: r.stream_score,
+            is_live: !!live,
+            live_viewer_count: live?.viewer_count ?? null,
+            language: r.language ?? null,
+            game_name: r.game_name,
+            updated_at: r.updated_at ?? r.score_updated_at,
+            live_updated_at: live ? nowIso : null,
+          };
+        },
+      );
+
+      return json({
+        success: true,
+        category,
+        channels,
+        meta: { scope: "indexed", is_exhaustive: false },
+      });
+    }
+
     const login = normalizeLogin(rawInput);
     if (!login) {
       return json({
