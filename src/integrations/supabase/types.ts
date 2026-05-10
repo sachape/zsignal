@@ -142,7 +142,7 @@ export type Database = {
           game_name: string
           id: string
           is_live: boolean
-          language: string | null
+          language: string
           live_updated_at: string | null
           live_viewer_count: number | null
           login: string
@@ -163,7 +163,7 @@ export type Database = {
           game_name: string
           id?: string
           is_live?: boolean
-          language?: string | null
+          language?: string
           live_updated_at?: string | null
           live_viewer_count?: number | null
           login: string
@@ -184,7 +184,7 @@ export type Database = {
           game_name?: string
           id?: string
           is_live?: boolean
-          language?: string | null
+          language?: string
           live_updated_at?: string | null
           live_viewer_count?: number | null
           login?: string
