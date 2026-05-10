@@ -274,31 +274,94 @@ const LeadersPage = () => {
         </div>
 
         {tab === "streamscore" ? (
-          /* ── StreamScore tab: requires backend aggregation ── */
-          <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card/40 px-6 py-12 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <Zap className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-base font-semibold text-foreground">
-                Classement StreamScore — En développement
-              </p>
-              <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-                Ce classement affichera tous les streamers de la catégorie, live ou non, du
-                meilleur au plus faible StreamScore. Il nécessite que le backend stocke les scores
-                analysés publiquement par chaîne.
-              </p>
-            </div>
-            <div className="w-full max-w-sm rounded-lg border border-border/60 bg-muted/20 p-4 text-left">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Ce qu'il faut demander au backend
-              </p>
-              <ul className="space-y-1.5 text-xs text-muted-foreground">
-                <li>• Endpoint <code className="text-foreground">twitch-public-lookup</code> mode <code className="text-foreground">"category_all"</code> — top streamers par catégorie via <code className="text-foreground">/helix/channels</code> (pas seulement les lives)</li>
-                <li>• Table Supabase publique <code className="text-foreground">channel_stream_scores</code> — stocker le StreamScore calculé par chaîne, mis à jour périodiquement</li>
-                <li>• Accès public en lecture seule (pas de RLS user_id) pour permettre le classement cross-utilisateurs</li>
-              </ul>
-            </div>
+          /* ── StreamScore tab: indexed Streamnco leaderboard ── */
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-muted-foreground">
+              Classement Streamnco — chaînes scorées sur la plateforme,
+              enrichies en temps réel quand elles sont en live. Non exhaustif.
+            </p>
+
+            {scoreLoading ? (
+              <LoadingState label="Chargement du classement…" />
+            ) : scoreRows.length === 0 ? (
+              <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card/40 px-6 py-12 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                  <Zap className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-foreground">
+                  Aucune chaîne scorée pour cette catégorie pour le moment.
+                </p>
+                <p className="max-w-sm text-xs text-muted-foreground">
+                  Le classement se remplit au fil des analyses publiques de
+                  chaînes dans cette catégorie.
+                </p>
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="p-0">
+                  <ul className="divide-y divide-border">
+                    {scoreRows.map((c) => {
+                      const tier = getScoreTier(c.stream_score);
+                      const theme = getTierTheme(tier);
+                      return (
+                        <li
+                          key={`${c.login}-${c.rank}`}
+                          className="flex items-center gap-3 px-3 py-2.5 sm:px-4"
+                        >
+                          <span className="w-6 text-center text-xs font-semibold tabular-nums text-muted-foreground">
+                            {c.rank}
+                          </span>
+                          <Avatar className="h-9 w-9 shrink-0">
+                            {c.profile_image_url && (
+                              <AvatarImage src={c.profile_image_url} alt={c.display_name} />
+                            )}
+                            <AvatarFallback className="text-[10px]">
+                              {c.display_name.slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <Link
+                                to={`/streamer/${c.login}`}
+                                className="truncate text-sm font-medium text-foreground hover:text-primary"
+                              >
+                                {c.display_name}
+                              </Link>
+                              {c.broadcaster_type === "partner" && (
+                                <Badge variant="outline" className="h-4 border-primary/30 bg-primary/10 px-1 text-[9px] text-primary">
+                                  Partenaire
+                                </Badge>
+                              )}
+                              {c.is_live && (
+                                <Badge variant="outline" className="h-4 border-destructive/30 bg-destructive/10 px-1 text-[9px] text-destructive">
+                                  <Radio className="mr-0.5 h-2 w-2" /> LIVE
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="truncate text-[11px] text-muted-foreground">
+                              @{c.login}
+                              {c.language && ` · ${c.language.toUpperCase()}`}
+                              {c.is_live && c.live_viewer_count != null && (
+                                <> · <Eye className="inline h-2.5 w-2.5" />{" "}
+                                {formatViewers(c.live_viewer_count)}</>
+                              )}
+                            </p>
+                          </div>
+                          <div className={cn("rounded-md border px-2 py-1 text-right", theme.cardClass)}>
+                            <div className={cn("text-sm font-bold tabular-nums", theme.textClass)}>
+                              {c.stream_score}
+                            </div>
+                            <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                              StreamScore
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
           </div>
         ) : (
           /* ── Score Live tab: live-only snapshot from /helix/streams ── */
