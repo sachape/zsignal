@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import {
   fetchCategoryLeaders,
+  fetchCategoryStreamScoreLeaders,
   searchCategories,
   LEADER_CATEGORY_PRESETS,
   LEADER_LANGUAGE_PRESETS,
