@@ -1,6 +1,7 @@
 import type { LiveSession } from "./liveSessions";
 import type { AnalysisReport } from "@/types/analysis";
 import { computeStreak } from "./streakEngine";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Quest {
   id: string;
@@ -30,33 +31,64 @@ export function getWeekKey(): string {
   return monday.toISOString().slice(0, 10);
 }
 
-function getManualCompleted(userId: string, weekKey: string): Set<string> {
+/**
+ * Load checked quest ids for the current authenticated user and given week.
+ * Returns an empty Set if the read fails (e.g. offline) so the UI never crashes.
+ */
+export async function loadQuestChecks(weekKey: string): Promise<Set<string>> {
   try {
-    const raw = localStorage.getItem(`quests_checks_${userId}_${weekKey}`);
-    return raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set();
-  } catch {
+    const { data, error } = await supabase
+      .from("user_quest_checks")
+      .select("quest_id")
+      .eq("week_key", weekKey);
+    if (error) {
+      console.warn("[questEngine] loadQuestChecks failed", error.message);
+      return new Set();
+    }
+    return new Set((data ?? []).map((r) => r.quest_id as string));
+  } catch (e) {
+    console.warn("[questEngine] loadQuestChecks exception", e);
     return new Set();
   }
 }
 
-export function toggleManualQuest(
+/**
+ * Toggle a manual quest check in the database. Returns the new checked state.
+ */
+export async function toggleManualQuest(
   userId: string,
   weekKey: string,
   questId: string,
-): void {
+  currentlyChecked: boolean,
+): Promise<boolean> {
   try {
-    const completed = getManualCompleted(userId, weekKey);
-    if (completed.has(questId)) {
-      completed.delete(questId);
-    } else {
-      completed.add(questId);
+    if (currentlyChecked) {
+      const { error } = await supabase
+        .from("user_quest_checks")
+        .delete()
+        .eq("user_id", userId)
+        .eq("week_key", weekKey)
+        .eq("quest_id", questId);
+      if (error) {
+        console.warn("[questEngine] uncheck failed", error.message);
+        return true;
+      }
+      return false;
     }
-    localStorage.setItem(
-      `quests_checks_${userId}_${weekKey}`,
-      JSON.stringify([...completed]),
-    );
-  } catch {
-    // localStorage unavailable
+    const { error } = await supabase
+      .from("user_quest_checks")
+      .upsert(
+        { user_id: userId, week_key: weekKey, quest_id: questId },
+        { onConflict: "user_id,week_key,quest_id", ignoreDuplicates: true },
+      );
+    if (error) {
+      console.warn("[questEngine] check failed", error.message);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn("[questEngine] toggleManualQuest exception", e);
+    return currentlyChecked;
   }
 }
 
@@ -106,10 +138,9 @@ const DEFAULT_QUEST = {
 export function generateWeeklyQuests(
   sessions: LiveSession[],
   report: AnalysisReport | null,
-  userId: string,
+  manualCompleted: Set<string>,
 ): WeeklyQuests {
   const weekKey = getWeekKey();
-  const manualCompleted = getManualCompleted(userId, weekKey);
   const streak = computeStreak(sessions);
 
   // Quest 1 (verifiable): stream N times this week

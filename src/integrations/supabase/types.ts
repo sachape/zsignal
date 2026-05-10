@@ -1076,6 +1076,30 @@ export type Database = {
           },
         ]
       }
+      user_quest_checks: {
+        Row: {
+          checked_at: string
+          id: string
+          quest_id: string
+          user_id: string
+          week_key: string
+        }
+        Insert: {
+          checked_at?: string
+          id?: string
+          quest_id: string
+          user_id: string
+          week_key: string
+        }
+        Update: {
+          checked_at?: string
+          id?: string
+          quest_id?: string
+          user_id?: string
+          week_key?: string
+        }
+        Relationships: []
+      }
       weekly_action_items: {
         Row: {
           action_key: string | null
