@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import logo from "@/assets/logo.svg";
+import FounderBanner from "@/components/landing/FounderBanner";
 
 
 const NAV_LINKS = [
@@ -52,6 +53,7 @@ const LandingNav = () => {
       className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md"
       aria-label="Navigation principale"
     >
+      <FounderBanner />
       <div className="container mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center" aria-label="Streamnco">
