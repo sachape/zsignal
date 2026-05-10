@@ -601,10 +601,11 @@ const LeadersPage = () => {
             )}
 
             <p className="mt-6 text-[11px] text-muted-foreground">
-              Source : Twitch /streams (snapshot live). Score Live ≠ StreamScore — calculé sur l'audience, le statut et la portée en direct uniquement.
+              {tab === "streamscore"
+                ? "Classement basé sur les streamers Twitch actuellement détectés dans cette catégorie et scorés par Streamnco avec des données publiques. Non exhaustif."
+                : "Source : Twitch /streams (snapshot live). Score Live ≠ StreamScore — calculé sur l'audience, le statut et la portée en direct uniquement."}
             </p>
           </>
-        )}
       </PageContainer>
     </AppShell>
   );
