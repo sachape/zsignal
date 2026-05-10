@@ -422,10 +422,7 @@ const AffiliationPage = () => {
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Progression
-            </p>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
               {isPartner ? "Partenaire Twitch ✓" : isAffiliate ? "Affilié Twitch ✓" : "Progression"}
             </h1>
             {displayName && (

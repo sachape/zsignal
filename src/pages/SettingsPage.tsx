@@ -19,10 +19,7 @@ const SettingsPage = () => {
     <AppShell>
       <PageContainer size="sm">
         <div className="mb-8">
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Paramètres
-          </p>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
             Mon compte
           </h1>
         </div>
