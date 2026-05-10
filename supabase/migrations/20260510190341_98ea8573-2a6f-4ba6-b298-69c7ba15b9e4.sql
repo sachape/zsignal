@@ -1,0 +1,1 @@
+DELETE FROM public.channel_stream_scores WHERE created_at < now() - interval '5 minutes';
