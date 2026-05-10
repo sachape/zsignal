@@ -306,7 +306,12 @@ Deno.serve(async (req) => {
 
     let body: {
       input?: string;
-      mode?: "lookup" | "search" | "category" | "category_search";
+      mode?:
+        | "lookup"
+        | "search"
+        | "category"
+        | "category_search"
+        | "category_all";
       limit?: number;
       language?: string;
     } = {};
