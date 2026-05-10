@@ -1,4 +1,6 @@
+import { useRef, useEffect } from "react";
 import { CheckCircle2, Circle, Sparkles, Zap } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
 import type { WeeklyQuests, Quest } from "@/services/questEngine";
 
 interface Props {
@@ -13,6 +15,16 @@ const QuestRow = ({
   quest: Quest;
   onToggle: (id: string) => void;
 }) => {
+  const handleManualClick = () => {
+    if (!quest.completed) {
+      toast.success(`+${quest.xp} XP`, {
+        description: quest.title,
+        duration: 2500,
+      });
+    }
+    onToggle(quest.id);
+  };
+
   return (
     <div
       className={`flex items-start gap-3 rounded-lg border p-3 transition-all duration-200 ${
@@ -24,7 +36,7 @@ const QuestRow = ({
       {/* Icon / checkbox */}
       {quest.type === "manual" ? (
         <button
-          onClick={() => onToggle(quest.id)}
+          onClick={handleManualClick}
           aria-pressed={quest.completed}
           aria-label={`Marquer "${quest.title}" comme ${quest.completed ? "non fait" : "fait"}`}
           className="mt-0.5 shrink-0 transition-opacity hover:opacity-80"
@@ -85,8 +97,38 @@ const QuestRow = ({
   );
 };
 
+const NOTIF_KEY = (userId?: string) => userId ? `quetes_new_${userId}` : null;
+const NOTIF_EVENT = "quetes-notif-update";
+
+export function setQuestesNotification(userId: string): void {
+  try { localStorage.setItem(`quetes_new_${userId}`, "1"); } catch { /* noop */ }
+  window.dispatchEvent(new CustomEvent(NOTIF_EVENT));
+}
+
+export function clearQuestesNotification(userId: string): void {
+  try { localStorage.removeItem(`quetes_new_${userId}`); } catch { /* noop */ }
+  window.dispatchEvent(new CustomEvent(NOTIF_EVENT));
+}
+
+export function hasQuestesNotification(userId: string): boolean {
+  try { return localStorage.getItem(`quetes_new_${userId}`) === "1"; } catch { return false; }
+}
+
+void NOTIF_KEY; // suppress unused warning
+
 const WeeklyQuestCard = ({ weeklyQuests, onToggle }: Props) => {
   const { quests, allCompleted, weekKey } = weeklyQuests;
+  const prevAllCompleted = useRef(allCompleted);
+
+  useEffect(() => {
+    if (allCompleted && !prevAllCompleted.current) {
+      toast.success("Semaine parfaite ! 🔥", {
+        description: "Toutes tes quêtes complétées — reviens lundi pour la suite.",
+        duration: 4000,
+      });
+    }
+    prevAllCompleted.current = allCompleted;
+  }, [allCompleted]);
 
   // Format weekKey "2026-04-27" → "Semaine du 27 avr."
   const weekLabel = (() => {

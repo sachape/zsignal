@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -56,11 +57,27 @@ const benchmarkItems = [
 ];
 
 
+const NOTIF_EVENT = "quetes-notif-update";
+
 const AppSidebar = () => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  const [hasNewBadge, setHasNewBadge] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const check = () => {
+      try {
+        setHasNewBadge(localStorage.getItem(`quetes_new_${user.id}`) === "1");
+      } catch { /* noop */ }
+    };
+    check();
+    window.addEventListener(NOTIF_EVENT, check);
+    return () => window.removeEventListener(NOTIF_EVENT, check);
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -77,7 +94,15 @@ const AppSidebar = () => {
             className="flex w-full items-center gap-2"
             activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
           >
-            <item.icon className="h-4 w-4 shrink-0" />
+            <span className="relative shrink-0">
+              <item.icon className="h-4 w-4" />
+              {item.url === "/quetes" && hasNewBadge && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                </span>
+              )}
+            </span>
             {!collapsed && <span>{item.title}</span>}
           </NavLink>
         </SidebarMenuButton>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Zap, Trophy, Clock } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
 import AppShell from "@/components/AppShell";
 import PageHeader from "@/components/PageHeader";
 import PageContainer from "@/components/PageContainer";
@@ -198,6 +199,13 @@ const QuestesPage = () => {
   const [season] = useState<SeasonData>(getCurrentSeason);
   const [loading, setLoading] = useState(true);
 
+  // Clear sidebar notification dot as soon as the user lands on this page
+  useEffect(() => {
+    if (!user) return;
+    try { localStorage.removeItem(`quetes_new_${user.id}`); } catch { /* noop */ }
+    window.dispatchEvent(new CustomEvent("quetes-notif-update"));
+  }, [user]);
+
   // Load all data on mount
   useEffect(() => {
     if (!user) return;
@@ -224,11 +232,25 @@ const QuestesPage = () => {
       const tiered = evaluateTieredBadges({ sessions: sess, report: latestReport, userId: user.id });
       setBadges(tiered);
 
-      // Mark newly unlocked tier badges as seen
-      const newIds = tiered.flatMap((b) =>
-        b.tiers.filter((t) => t.isNew).map((t) => `${b.id}_${t.tier}`),
+      // Toast each newly unlocked badge tier, then mark as seen
+      const newTiers = tiered.flatMap((b) =>
+        b.tiers.filter((t) => t.isNew).map((t) => ({ badge: b, tier: t })),
       );
-      if (newIds.length > 0) markTierBadgesSeen(user.id, newIds);
+      newTiers.forEach(({ badge, tier }, i) => {
+        setTimeout(() => {
+          toast(`${badge.icon} Badge débloqué — ${tier.label} !`, {
+            description: `${badge.label} · ${tier.description}`,
+            duration: 4000,
+          });
+        }, i * 600);
+      });
+      const newIds = newTiers.map(({ badge, tier }) => `${badge.id}_${tier.tier}`);
+      if (newIds.length > 0) {
+        markTierBadgesSeen(user.id, newIds);
+        // Clear sidebar notification dot
+        try { localStorage.removeItem(`quetes_new_${user.id}`); } catch { /* noop */ }
+        window.dispatchEvent(new CustomEvent("quetes-notif-update"));
+      }
 
       setLoading(false);
     };
