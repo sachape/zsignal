@@ -364,7 +364,7 @@ const LeadersPage = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="score">Score Live</SelectItem>
+                      <SelectItem value="score">{tab === "streamscore" ? "StreamScore" : "Score Live"}</SelectItem>
                       <SelectItem value="viewers">Audience live</SelectItem>
                       <SelectItem value="name">Nom</SelectItem>
                     </SelectContent>
