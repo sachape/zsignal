@@ -12,8 +12,6 @@
 // We never fabricate followers — that requires moderator:read:followers scope
 // on a connected user account.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -308,12 +306,8 @@ Deno.serve(async (req) => {
 
     let body: {
       input?: string;
-      mode?:
-        | "lookup"
-        | "search"
-        | "category"
-        | "category_search"
-        | "category_all";
+      category?: string;
+      mode?: "lookup" | "search" | "category" | "category_search" | "category_all";
       limit?: number;
       language?: string;
     } = {};
@@ -391,7 +385,247 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ────────────────────────────────────────────────────────────────────
+    // category_all: Global Twitch category leaderboard scored by Streamnco
+    // from public Twitch data. NOT a Streamnco-user leaderboard.
+    // ────────────────────────────────────────────────────────────────────
+    if (mode === "category_all") {
+      const categoryInput = (body.category ?? body.input ?? "").toString().trim();
+      if (!categoryInput) {
+        return json({ success: false, reason: "missing_category" });
+      }
+
+      const limit = Math.min(Math.max(body.limit ?? 50, 5), 100);
+      const langFilter = body.language && body.language !== "all" ? body.language : null;
+
+      // 1) Resolve category
+      const gameRes = await fetch(
+        `https://api.twitch.tv/helix/games?name=${encodeURIComponent(categoryInput)}`,
+        { headers: helixHeaders },
+      );
+      if (!gameRes.ok) {
+        return json({ success: false, reason: "game_lookup_failed" });
+      }
+      const gameJson = await gameRes.json();
+      const game = gameJson?.data?.[0] as
+        | { id: string; name: string; box_art_url?: string }
+        | undefined;
+      if (!game) {
+        return json({ success: false, reason: "category_not_found", input: categoryInput });
+      }
+
+      // 2) Fetch live streams in category (with optional language filter)
+      const langParam = langFilter ? `&language=${encodeURIComponent(langFilter)}` : "";
+      let streams: HelixStream[] = [];
+      let twitchOk = true;
+      try {
+        const sRes = await fetch(
+          `https://api.twitch.tv/helix/streams?game_id=${encodeURIComponent(game.id)}&first=${limit}${langParam}`,
+          { headers: helixHeaders },
+        );
+        if (sRes.ok) {
+          const sJson = await sRes.json();
+          streams = (sJson?.data ?? []) as HelixStream[];
+        } else {
+          twitchOk = false;
+        }
+      } catch {
+        twitchOk = false;
+      }
+
+      // 3) Batch /helix/users
+      const userIds = streams.map((s) => s.user_id);
+      const users = userIds.length > 0
+        ? await batchUsers(userIds, helixHeaders)
+        : new Map<string, HelixUser>();
+
+      // 4) Compute public StreamScore per channel
+      const scoreFor = (s: HelixStream, u: HelixUser | undefined) => {
+        const v = s.viewer_count ?? 0;
+        const liveScore = Math.min(60, Math.log10(v + 1) * 18);
+        const bt = u?.broadcaster_type ?? "";
+        const statusScore = bt === "partner" ? 20 : bt === "affiliate" ? 12 : 0;
+        const reachScore = Math.min(15, Math.log10((u?.view_count ?? 0) + 1) * 2.5);
+        let uptimeScore = 0;
+        if (s.started_at) {
+          const hours = (Date.now() - new Date(s.started_at).getTime()) / 3_600_000;
+          uptimeScore = Math.min(5, Math.max(0, hours));
+        }
+        const total = Math.max(0, Math.min(100, Math.round(liveScore + statusScore + reachScore + uptimeScore)));
+        let signals = 0;
+        if (v > 0) signals++;
+        if (bt) signals++;
+        if ((u?.view_count ?? 0) > 0) signals++;
+        if (s.started_at) signals++;
+        const confidence: "low" | "medium" | "high" =
+          signals >= 4 ? "high" : signals >= 2 ? "medium" : "low";
+        return { score: total, confidence };
+      };
+
+      type ScoredRow = {
+        rank: number;
+        login: string;
+        display_name: string;
+        profile_image_url: string | null;
+        broadcaster_type: string;
+        stream_score: number;
+        score_confidence: "low" | "medium" | "high";
+        is_live: boolean;
+        live_viewer_count: number | null;
+        language: string | null;
+        game_name: string;
+        game_id: string;
+        platform_user_id: string;
+      };
+
+      let scored: ScoredRow[] = streams.map((s) => {
+        const u = users.get(s.user_id);
+        const { score, confidence } = scoreFor(s, u);
+        return {
+          rank: 0,
+          login: s.user_login,
+          display_name: u?.display_name ?? s.user_login,
+          profile_image_url: u?.profile_image_url ?? null,
+          broadcaster_type: u?.broadcaster_type ?? "",
+          stream_score: score,
+          score_confidence: confidence,
+          is_live: true,
+          live_viewer_count: s.viewer_count,
+          language: s.language ?? null,
+          game_name: game.name,
+          game_id: game.id,
+          platform_user_id: s.user_id,
+        };
+      });
+
+      // 5) Cache: upsert into channel_stream_scores (best-effort, service-role)
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      let cacheUsed: "fresh" | "stale_fallback" | "skipped" = "skipped";
+
+      if (supabaseUrl && serviceKey && scored.length > 0) {
+        try {
+          const nowIso = new Date().toISOString();
+          const rows = scored.map((r) => ({
+            platform: "twitch",
+            platform_user_id: r.platform_user_id,
+            login: r.login,
+            display_name: r.display_name,
+            profile_image_url: r.profile_image_url,
+            broadcaster_type: r.broadcaster_type || null,
+            game_id: r.game_id,
+            game_name: r.game_name,
+            language: r.language ?? "",
+            stream_score: r.stream_score,
+            confidence: r.score_confidence,
+            signal_quality: r.score_confidence,
+            is_live: true,
+            live_viewer_count: r.live_viewer_count,
+            score_updated_at: nowIso,
+            live_updated_at: nowIso,
+            updated_at: nowIso,
+          }));
+          const upsertRes = await fetch(
+            `${supabaseUrl}/rest/v1/channel_stream_scores?on_conflict=platform,platform_user_id,game_name,language`,
+            {
+              method: "POST",
+              headers: {
+                apikey: serviceKey,
+                Authorization: `Bearer ${serviceKey}`,
+                "Content-Type": "application/json",
+                Prefer: "resolution=merge-duplicates,return=minimal",
+              },
+              body: JSON.stringify(rows),
+            },
+          );
+          if (!upsertRes.ok) {
+            console.warn("channel_stream_scores upsert", upsertRes.status, await upsertRes.text());
+          } else {
+            cacheUsed = "fresh";
+          }
+        } catch (err) {
+          console.warn("channel_stream_scores upsert failed", err);
+        }
+      }
+
+      // 5b) Stale fallback if Twitch failed
+      if (!twitchOk && scored.length === 0 && supabaseUrl && serviceKey) {
+        try {
+          const params = new URLSearchParams({
+            select: "platform_user_id,login,display_name,profile_image_url,broadcaster_type,game_id,game_name,language,stream_score,confidence,is_live,live_viewer_count",
+            game_id: `eq.${game.id}`,
+            order: "stream_score.desc",
+            limit: String(limit),
+          });
+          if (langFilter) params.set("language", `eq.${langFilter}`);
+          const cacheRes = await fetch(
+            `${supabaseUrl}/rest/v1/channel_stream_scores?${params.toString()}`,
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          );
+          if (cacheRes.ok) {
+            const cacheRows = await cacheRes.json() as Array<Record<string, unknown>>;
+            scored = cacheRows.map((r) => ({
+              rank: 0,
+              login: String(r.login),
+              display_name: String(r.display_name),
+              profile_image_url: (r.profile_image_url as string) ?? null,
+              broadcaster_type: (r.broadcaster_type as string) ?? "",
+              stream_score: Number(r.stream_score) || 0,
+              score_confidence: ((r.confidence as string) ?? "low") as "low" | "medium" | "high",
+              is_live: Boolean(r.is_live),
+              live_viewer_count: (r.live_viewer_count as number | null) ?? null,
+              language: (r.language as string) || null,
+              game_name: String(r.game_name),
+              game_id: String(r.game_id),
+              platform_user_id: String(r.platform_user_id),
+            }));
+            cacheUsed = "stale_fallback";
+          }
+        } catch (err) {
+          console.warn("channel_stream_scores cache read failed", err);
+        }
+      }
+
+      // 6) Sort and rank
+      scored.sort((a, b) => {
+        if (b.stream_score !== a.stream_score) return b.stream_score - a.stream_score;
+        return (b.live_viewer_count ?? 0) - (a.live_viewer_count ?? 0);
+      });
+      scored = scored.map((r, i) => ({ ...r, rank: i + 1 }));
+
+      return json({
+        success: true,
+        mode: "category_all",
+        category: {
+          id: game.id,
+          name: game.name,
+          box_art_url: game.box_art_url ?? null,
+        },
+        channels: scored.map((r) => ({
+          rank: r.rank,
+          login: r.login,
+          display_name: r.display_name,
+          profile_image_url: r.profile_image_url,
+          broadcaster_type: r.broadcaster_type,
+          stream_score: r.stream_score,
+          score_confidence: r.score_confidence,
+          is_live: r.is_live,
+          live_viewer_count: r.live_viewer_count,
+          language: r.language,
+          game_name: r.game_name,
+        })),
+        meta: {
+          scope: "global_twitch_public_live",
+          is_exhaustive: false,
+          source: cacheUsed === "stale_fallback" ? "channel_stream_scores_cache" : "twitch_public_api",
+          cache_ttl_minutes: 60,
+          cache: cacheUsed,
+        },
+      });
+    }
+
     // Real category-based leaderboard:
+
     //   1. Resolve category name → canonical game_id via /helix/games?name=
     //   2. /helix/streams?game_id=...   (real live ranking, viewer_count desc)
     //   3. Batch /helix/users for avatars + broadcaster_type
@@ -464,116 +698,6 @@ Deno.serve(async (req) => {
             started_at: s.started_at,
           };
         }),
-      });
-    }
-
-    // Indexed Streamnco leaderboard for a given Twitch category, enriched with
-    // current live data when possible. Reads channel_stream_scores (public-read
-    // RLS) — never exhaustive across Twitch.
-    if (mode === "category_all") {
-      if (!rawInput) {
-        return json({ success: false, reason: "missing_category" });
-      }
-
-      const gameRes = await fetch(
-        `https://api.twitch.tv/helix/games?name=${encodeURIComponent(rawInput)}`,
-        { headers: helixHeaders },
-      );
-      let category: { id: string; name: string; box_art_url: string | null } | null = null;
-      if (gameRes.ok) {
-        const gj = await gameRes.json();
-        const g = gj?.data?.[0] as
-          | { id: string; name: string; box_art_url?: string }
-          | undefined;
-        if (g) {
-          category = { id: g.id, name: g.name, box_art_url: g.box_art_url ?? null };
-        }
-      }
-      if (!category) {
-        return json({
-          success: false,
-          reason: "category_not_found",
-          input: rawInput,
-        });
-      }
-
-      const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY");
-      if (!supabaseUrl || !supabaseAnon) {
-        return json({ success: false, reason: "db_unavailable" }, 500);
-      }
-      const db = createClient(supabaseUrl, supabaseAnon);
-
-      const limit = Math.min(Math.max(body.limit ?? 50, 1), 100);
-      const langFilter =
-        body.language && body.language !== "all" ? body.language : null;
-
-      let q = db
-        .from("channel_stream_scores")
-        .select(
-          "platform_user_id, login, display_name, profile_image_url, broadcaster_type, stream_score, language, game_name, score_updated_at, updated_at",
-        )
-        .eq("platform", "twitch")
-        .eq("game_name", category.name)
-        .order("stream_score", { ascending: false })
-        .limit(limit);
-
-      if (langFilter) q = q.eq("language", langFilter);
-
-      const { data: rows, error: dbErr } = await q;
-      if (dbErr) {
-        return json({ success: false, reason: "db_error" }, 500);
-      }
-
-      const liveByPid = new Map<string, HelixStream>();
-      const ids = (rows ?? [])
-        .map((r: { platform_user_id: string }) => r.platform_user_id)
-        .filter(Boolean);
-      if (ids.length > 0) {
-        try {
-          const live = await batchStreams(ids, helixHeaders);
-          live.forEach((s, pid) => liveByPid.set(pid, s));
-        } catch {
-          // swallow — return cached rows without live enrichment
-        }
-      }
-
-      const nowIso = new Date().toISOString();
-      const channels = (rows ?? []).map(
-        (r: {
-          platform_user_id: string;
-          login: string;
-          display_name: string;
-          profile_image_url: string | null;
-          broadcaster_type: string | null;
-          stream_score: number;
-          language: string | null;
-          game_name: string;
-          score_updated_at: string;
-          updated_at: string | null;
-        }) => {
-          const live = liveByPid.get(r.platform_user_id);
-          return {
-            login: r.login,
-            display_name: r.display_name,
-            profile_image_url: r.profile_image_url ?? null,
-            broadcaster_type: r.broadcaster_type ?? null,
-            stream_score: r.stream_score,
-            is_live: !!live,
-            live_viewer_count: live?.viewer_count ?? null,
-            language: r.language ?? null,
-            game_name: r.game_name,
-            updated_at: r.updated_at ?? r.score_updated_at,
-            live_updated_at: live ? nowIso : null,
-          };
-        },
-      );
-
-      return json({
-        success: true,
-        category,
-        channels,
-        meta: { scope: "indexed", is_exhaustive: false },
       });
     }
 

@@ -37,7 +37,6 @@ import {
   LEADER_LANGUAGE_PRESETS,
   type LeaderChannel,
   type LeaderCategory,
-  type StreamScoreLeaderChannel,
 } from "@/services/leadersService";
 import { getLatestReport, type SavedReport } from "@/services/reportRepository";
 
@@ -100,9 +99,6 @@ const LeadersPage = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  const [scoreRows, setScoreRows] = useState<StreamScoreLeaderChannel[]>([]);
-  const [scoreLoading, setScoreLoading] = useState(false);
-
   const [userReport, setUserReport] = useState<SavedReport | null>(null);
 
   // Fetch user report once for personal position banner
@@ -130,45 +126,26 @@ const LeadersPage = () => {
     return () => clearTimeout(t);
   }, [catQuery]);
 
-  // Load ranking when category or language changes
+  // Load ranking when category, language, or tab changes
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setNotFound(false);
     (async () => {
-      const { category: resolved, channels } = await fetchCategoryLeaders({
-        category,
-        language,
-        limit: 40,
-      });
+      const result =
+        tab === "streamscore"
+          ? await fetchCategoryStreamScoreLeaders({ category, language, limit: 50 })
+          : await fetchCategoryLeaders({ category, language, limit: 40 });
       if (cancelled) return;
-      setResolvedCategory(resolved);
-      setRows(channels);
-      setNotFound(!resolved);
+      setResolvedCategory(result.category);
+      setRows(result.channels);
+      setNotFound(!result.category);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [category, language]);
-
-  // StreamScore tab: indexed Streamnco leaderboard (cached cross-user scores).
-  useEffect(() => {
-    if (tab !== "streamscore") return;
-    let cancelled = false;
-    setScoreLoading(true);
-    (async () => {
-      const { category: resolved, channels } =
-        await fetchCategoryStreamScoreLeaders({ category, language, limit: 50 });
-      if (cancelled) return;
-      if (resolved) setResolvedCategory(resolved);
-      setScoreRows(channels);
-      setScoreLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [tab, category, language]);
+  }, [category, language, tab]);
 
   // Score Live tab: all rows are live channels (API constraint)
   const filtered = useMemo(() => {
@@ -273,99 +250,9 @@ const LeadersPage = () => {
           })}
         </div>
 
-        {tab === "streamscore" ? (
-          /* ── StreamScore tab: indexed Streamnco leaderboard ── */
-          <div className="flex flex-col gap-3">
-            <p className="text-xs text-muted-foreground">
-              Classement Streamnco — chaînes scorées sur la plateforme,
-              enrichies en temps réel quand elles sont en live. Non exhaustif.
-            </p>
+        {/* ── Filters + listing — shared between Score Live and StreamScore ── */}
+        <>
 
-            {scoreLoading ? (
-              <LoadingState label="Chargement du classement…" />
-            ) : scoreRows.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card/40 px-6 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <Zap className="h-6 w-6 text-primary" />
-                </div>
-                <p className="text-sm font-medium text-foreground">
-                  Aucune chaîne scorée pour cette catégorie pour le moment.
-                </p>
-                <p className="max-w-sm text-xs text-muted-foreground">
-                  Le classement se remplit au fil des analyses publiques de
-                  chaînes dans cette catégorie.
-                </p>
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="p-0">
-                  <ul className="divide-y divide-border">
-                    {scoreRows.map((c) => {
-                      const tier = getScoreTier(c.stream_score);
-                      const theme = getTierTheme(tier);
-                      return (
-                        <li
-                          key={`${c.login}-${c.rank}`}
-                          className="flex items-center gap-3 px-3 py-2.5 sm:px-4"
-                        >
-                          <span className="w-6 text-center text-xs font-semibold tabular-nums text-muted-foreground">
-                            {c.rank}
-                          </span>
-                          <Avatar className="h-9 w-9 shrink-0">
-                            {c.profile_image_url && (
-                              <AvatarImage src={c.profile_image_url} alt={c.display_name} />
-                            )}
-                            <AvatarFallback className="text-[10px]">
-                              {c.display_name.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5">
-                              <Link
-                                to={`/streamer/${c.login}`}
-                                className="truncate text-sm font-medium text-foreground hover:text-primary"
-                              >
-                                {c.display_name}
-                              </Link>
-                              {c.broadcaster_type === "partner" && (
-                                <Badge variant="outline" className="h-4 border-primary/30 bg-primary/10 px-1 text-[9px] text-primary">
-                                  Partenaire
-                                </Badge>
-                              )}
-                              {c.is_live && (
-                                <Badge variant="outline" className="h-4 border-destructive/30 bg-destructive/10 px-1 text-[9px] text-destructive">
-                                  <Radio className="mr-0.5 h-2 w-2" /> LIVE
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="truncate text-[11px] text-muted-foreground">
-                              @{c.login}
-                              {c.language && ` · ${c.language.toUpperCase()}`}
-                              {c.is_live && c.live_viewer_count != null && (
-                                <> · <Eye className="inline h-2.5 w-2.5" />{" "}
-                                {formatViewers(c.live_viewer_count)}</>
-                              )}
-                            </p>
-                          </div>
-                          <div className={cn("rounded-md border px-2 py-1 text-right", theme.surfaceClass)}>
-                            <div className={cn("text-sm font-bold tabular-nums", theme.textClass)}>
-                              {c.stream_score}
-                            </div>
-                            <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
-                              StreamScore
-                            </div>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        ) : (
-          /* ── Score Live tab: live-only snapshot from /helix/streams ── */
-          <>
             {/* Filters */}
             <Card className="mb-4">
               <CardContent className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
@@ -477,7 +364,7 @@ const LeadersPage = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="score">Score Live</SelectItem>
+                      <SelectItem value="score">{tab === "streamscore" ? "StreamScore" : "Score Live"}</SelectItem>
                       <SelectItem value="viewers">Audience live</SelectItem>
                       <SelectItem value="name">Nom</SelectItem>
                     </SelectContent>
@@ -714,10 +601,11 @@ const LeadersPage = () => {
             )}
 
             <p className="mt-6 text-[11px] text-muted-foreground">
-              Source : Twitch /streams (snapshot live). Score Live ≠ StreamScore — calculé sur l'audience, le statut et la portée en direct uniquement.
+              {tab === "streamscore"
+                ? "Classement basé sur les streamers Twitch actuellement détectés dans cette catégorie et scorés par Streamnco avec des données publiques. Non exhaustif."
+                : "Source : Twitch /streams (snapshot live). Score Live ≠ StreamScore — calculé sur l'audience, le statut et la portée en direct uniquement."}
             </p>
           </>
-        )}
       </PageContainer>
     </AppShell>
   );

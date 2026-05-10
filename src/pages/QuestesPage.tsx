@@ -6,7 +6,7 @@ import PageContainer from "@/components/PageContainer";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { listLiveSessions } from "@/services/liveSessions";
-import { getRecentReports } from "@/services/analysisReports";
+import { getRecentReports } from "@/services/reportRepository";
 import {
   generateWeeklyQuests,
   getWeekKey,
@@ -212,7 +212,7 @@ const QuestesPage = () => {
       ]);
       if (cancelled) return;
 
-      const latestReport = reports?.[0] ?? null;
+      const latestReport = reports?.[0]?.report ?? null;
       setSessions(sess);
       setReport(latestReport);
       setManualChecks(checks);
