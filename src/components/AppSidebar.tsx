@@ -15,6 +15,7 @@ import {
   Bookmark,
   TrendingUp,
   Activity,
+  Zap,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -44,6 +45,7 @@ const cockpitItems = [
   { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false },
   { title: "Progression", url: "/progression", icon: Star, end: false },
   { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false },
+  { title: "Quêtes", url: "/quetes", icon: Zap, end: false },
 ];
 
 const benchmarkItems = [

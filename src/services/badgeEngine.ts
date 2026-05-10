@@ -140,3 +140,161 @@ export function evaluateBadges({ sessions, report, userId }: BadgeInput): Badge[
     isNew: def.unlocked && !seen.has(def.id),
   }));
 }
+
+// ─── Tiered badge system (used by QuestesPage) ──────────────────────────────
+
+export interface BadgeTier {
+  tier: "bronze" | "silver" | "gold";
+  label: string;
+  description: string;
+  unlocked: boolean;
+  isNew: boolean;
+  progress: number;
+  progressLabel: string;
+}
+
+export interface TieredBadge {
+  id: string;
+  icon: string;
+  label: string;
+  tiers: BadgeTier[];
+  currentTier: "bronze" | "silver" | "gold" | null;
+  nextTier: BadgeTier | null;
+}
+
+const TIER_SEEN_KEY = (userId: string) => `seen_badge_tiers_${userId}`;
+
+function getTierSeenIds(userId: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(TIER_SEEN_KEY(userId));
+    return raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+export function markTierBadgesSeen(userId: string, ids: string[]): void {
+  if (ids.length === 0) return;
+  try {
+    const seen = getTierSeenIds(userId);
+    ids.forEach((id) => seen.add(id));
+    localStorage.setItem(TIER_SEEN_KEY(userId), JSON.stringify([...seen]));
+  } catch { /* localStorage unavailable */ }
+}
+
+function makeTier(
+  badgeId: string,
+  tier: BadgeTier["tier"],
+  label: string,
+  description: string,
+  unlocked: boolean,
+  isNew: boolean,
+  progress: number,
+  progressLabel: string,
+): BadgeTier {
+  return { tier, label, description, unlocked, isNew, progress: Math.min(100, progress), progressLabel };
+  void badgeId;
+}
+
+export function evaluateTieredBadges({ sessions, report, userId }: BadgeInput): TieredBadge[] {
+  const ended = sessions.filter((s) => s.status === "ended");
+  const seen = getTierSeenIds(userId);
+
+  const now = Date.now();
+  const ms30d = 30 * 86400000;
+  const recent30d = ended.filter((s) => now - new Date(s.started_at).getTime() < ms30d);
+
+  const maxPeak = ended.reduce((max, s) => Math.max(max, s.peak_viewers ?? 0), 0);
+  const maxDuration = ended.reduce((max, s) => Math.max(max, s.duration_minutes ?? 0), 0);
+  const longStreams3h = ended.filter((s) => (s.duration_minutes ?? 0) >= 180).length;
+  const streak = computeStreak(sessions);
+  const overall = report?.score.overall ?? 0;
+
+  const build = (
+    id: string,
+    icon: string,
+    label: string,
+    tiers: BadgeTier[],
+  ): TieredBadge => {
+    const currentTier =
+      ([...tiers].reverse().find((t) => t.unlocked)?.tier) ?? null;
+    const nextTier = tiers.find((t) => !t.unlocked) ?? null;
+    return { id, icon, label, tiers, currentTier, nextTier };
+  };
+
+  const isNew = (key: string) => !seen.has(key);
+
+  return [
+    build("regular", "📅", "Régulier", [
+      makeTier("regular", "bronze", "Bronze", "3 streams en 30 jours",
+        recent30d.length >= 3, recent30d.length >= 3 && isNew("regular_bronze"),
+        (recent30d.length / 3) * 100, `${Math.min(recent30d.length, 3)}/3`),
+      makeTier("regular", "silver", "Argent", "8 streams en 30 jours",
+        recent30d.length >= 8, recent30d.length >= 8 && isNew("regular_silver"),
+        (recent30d.length / 8) * 100, `${Math.min(recent30d.length, 8)}/8`),
+      makeTier("regular", "gold", "Or", "12 streams en 30 jours",
+        recent30d.length >= 12, recent30d.length >= 12 && isNew("regular_gold"),
+        (recent30d.length / 12) * 100, `${Math.min(recent30d.length, 12)}/12`),
+    ]),
+
+    build("marathoner", "⏱️", "Marathoner", [
+      makeTier("marathoner", "bronze", "Bronze", "1 live ≥ 2h",
+        maxDuration >= 120, maxDuration >= 120 && isNew("marathoner_bronze"),
+        (maxDuration / 120) * 100, `${(maxDuration / 60).toFixed(1)}h / 2h`),
+      makeTier("marathoner", "silver", "Argent", "1 live ≥ 3h",
+        maxDuration >= 180, maxDuration >= 180 && isNew("marathoner_silver"),
+        (maxDuration / 180) * 100, `${(maxDuration / 60).toFixed(1)}h / 3h`),
+      makeTier("marathoner", "gold", "Or", "3 lives ≥ 3h",
+        longStreams3h >= 3, longStreams3h >= 3 && isNew("marathoner_gold"),
+        (longStreams3h / 3) * 100, `${Math.min(longStreams3h, 3)}/3 lives`),
+    ]),
+
+    build("streak", "🔥", "Sur la lancée", [
+      makeTier("streak", "bronze", "Bronze", "2 semaines consécutives",
+        streak.longestStreak >= 2, streak.longestStreak >= 2 && isNew("streak_bronze"),
+        (streak.longestStreak / 2) * 100, `${streak.longestStreak}/2 sem.`),
+      makeTier("streak", "silver", "Argent", "4 semaines consécutives",
+        streak.longestStreak >= 4, streak.longestStreak >= 4 && isNew("streak_silver"),
+        (streak.longestStreak / 4) * 100, `${streak.longestStreak}/4 sem.`),
+      makeTier("streak", "gold", "Or", "8 semaines consécutives",
+        streak.longestStreak >= 8, streak.longestStreak >= 8 && isNew("streak_gold"),
+        (streak.longestStreak / 8) * 100, `${streak.longestStreak}/8 sem.`),
+    ]),
+
+    build("popular", "👥", "Populaire", [
+      makeTier("popular", "bronze", "Bronze", "20 viewers en peak",
+        maxPeak >= 20, maxPeak >= 20 && isNew("popular_bronze"),
+        (maxPeak / 20) * 100, `${maxPeak}/20`),
+      makeTier("popular", "silver", "Argent", "50 viewers en peak",
+        maxPeak >= 50, maxPeak >= 50 && isNew("popular_silver"),
+        (maxPeak / 50) * 100, `${maxPeak}/50`),
+      makeTier("popular", "gold", "Or", "100 viewers en peak",
+        maxPeak >= 100, maxPeak >= 100 && isNew("popular_gold"),
+        (maxPeak / 100) * 100, `${maxPeak}/100`),
+    ]),
+
+    build("veteran", "💪", "Vétéran", [
+      makeTier("veteran", "bronze", "Bronze", "10 lives terminés",
+        ended.length >= 10, ended.length >= 10 && isNew("veteran_bronze"),
+        (ended.length / 10) * 100, `${Math.min(ended.length, 10)}/10`),
+      makeTier("veteran", "silver", "Argent", "30 lives terminés",
+        ended.length >= 30, ended.length >= 30 && isNew("veteran_silver"),
+        (ended.length / 30) * 100, `${Math.min(ended.length, 30)}/30`),
+      makeTier("veteran", "gold", "Or", "60 lives terminés",
+        ended.length >= 60, ended.length >= 60 && isNew("veteran_gold"),
+        (ended.length / 60) * 100, `${Math.min(ended.length, 60)}/60`),
+    ]),
+
+    build("score", "🎯", "StreamScore", [
+      makeTier("score", "bronze", "Bronze", "StreamScore ≥ 40",
+        overall >= 40, overall >= 40 && isNew("score_bronze"),
+        (overall / 40) * 100, `${overall}/40`),
+      makeTier("score", "silver", "Argent", "StreamScore ≥ 60",
+        overall >= 60, overall >= 60 && isNew("score_silver"),
+        (overall / 60) * 100, `${overall}/60`),
+      makeTier("score", "gold", "Or", "StreamScore ≥ 80",
+        overall >= 80, overall >= 80 && isNew("score_gold"),
+        (overall / 80) * 100, `${overall}/80`),
+    ]),
+  ];
+}
