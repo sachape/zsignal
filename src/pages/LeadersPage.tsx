@@ -250,36 +250,9 @@ const LeadersPage = () => {
           })}
         </div>
 
-        {tab === "streamscore" ? (
-          /* ── StreamScore tab: requires backend aggregation ── */
-          <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card/40 px-6 py-12 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <Zap className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-base font-semibold text-foreground">
-                Classement StreamScore — En développement
-              </p>
-              <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-                Ce classement affichera tous les streamers de la catégorie, live ou non, du
-                meilleur au plus faible StreamScore. Il nécessite que le backend stocke les scores
-                analysés publiquement par chaîne.
-              </p>
-            </div>
-            <div className="w-full max-w-sm rounded-lg border border-border/60 bg-muted/20 p-4 text-left">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Ce qu'il faut demander au backend
-              </p>
-              <ul className="space-y-1.5 text-xs text-muted-foreground">
-                <li>• Endpoint <code className="text-foreground">twitch-public-lookup</code> mode <code className="text-foreground">"category_all"</code> — top streamers par catégorie via <code className="text-foreground">/helix/channels</code> (pas seulement les lives)</li>
-                <li>• Table Supabase publique <code className="text-foreground">channel_stream_scores</code> — stocker le StreamScore calculé par chaîne, mis à jour périodiquement</li>
-                <li>• Accès public en lecture seule (pas de RLS user_id) pour permettre le classement cross-utilisateurs</li>
-              </ul>
-            </div>
-          </div>
-        ) : (
-          /* ── Score Live tab: live-only snapshot from /helix/streams ── */
-          <>
+        {/* ── Filters + listing — shared between Score Live and StreamScore ── */}
+        <>
+
             {/* Filters */}
             <Card className="mb-4">
               <CardContent className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
