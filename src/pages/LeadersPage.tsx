@@ -152,6 +152,24 @@ const LeadersPage = () => {
     };
   }, [category, language]);
 
+  // StreamScore tab: indexed Streamnco leaderboard (cached cross-user scores).
+  useEffect(() => {
+    if (tab !== "streamscore") return;
+    let cancelled = false;
+    setScoreLoading(true);
+    (async () => {
+      const { category: resolved, channels } =
+        await fetchCategoryStreamScoreLeaders({ category, language, limit: 50 });
+      if (cancelled) return;
+      if (resolved) setResolvedCategory(resolved);
+      setScoreRows(channels);
+      setScoreLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, category, language]);
+
   // Score Live tab: all rows are live channels (API constraint)
   const filtered = useMemo(() => {
     const sorted = rows.slice().sort(SORT_COMPARATORS[sort]);
