@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.upsert_channel_stream_score_from_report() FROM PUBLIC, anon, authenticated;
