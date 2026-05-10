@@ -138,10 +138,9 @@ const DEFAULT_QUEST = {
 export function generateWeeklyQuests(
   sessions: LiveSession[],
   report: AnalysisReport | null,
-  userId: string,
+  manualCompleted: Set<string>,
 ): WeeklyQuests {
   const weekKey = getWeekKey();
-  const manualCompleted = getManualCompleted(userId, weekKey);
   const streak = computeStreak(sessions);
 
   // Quest 1 (verifiable): stream N times this week
