@@ -277,8 +277,9 @@ const LeadersPage = () => {
           /* ── StreamScore tab: indexed Streamnco leaderboard ── */
           <div className="flex flex-col gap-3">
             <p className="text-xs text-muted-foreground">
-              Classement Streamnco — chaînes scorées sur la plateforme,
-              enrichies en temps réel quand elles sont en live. Non exhaustif.
+              Classement Streamnco basé sur les chaînes déjà indexées dans
+              cette catégorie. Les chaînes live sont enrichies en temps réel,
+              mais le classement reste trié par StreamScore.
             </p>
 
             {scoreLoading ? (
@@ -289,11 +290,11 @@ const LeadersPage = () => {
                   <Zap className="h-6 w-6 text-primary" />
                 </div>
                 <p className="text-sm font-medium text-foreground">
-                  Aucune chaîne scorée pour cette catégorie pour le moment.
+                  Aucune chaîne encore indexée pour cette catégorie.
                 </p>
                 <p className="max-w-sm text-xs text-muted-foreground">
-                  Le classement se remplit au fil des analyses publiques de
-                  chaînes dans cette catégorie.
+                  Le classement se remplira au fil des analyses et des
+                  découvertes Streamnco.
                 </p>
               </div>
             ) : (
