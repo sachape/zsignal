@@ -132,6 +132,72 @@ export type Database = {
           },
         ]
       }
+      channel_stream_scores: {
+        Row: {
+          broadcaster_type: string | null
+          confidence: string | null
+          created_at: string
+          display_name: string
+          game_id: string | null
+          game_name: string
+          id: string
+          is_live: boolean
+          language: string | null
+          live_updated_at: string | null
+          live_viewer_count: number | null
+          login: string
+          platform: string
+          platform_user_id: string
+          profile_image_url: string | null
+          score_updated_at: string
+          signal_quality: string | null
+          stream_score: number
+          updated_at: string
+        }
+        Insert: {
+          broadcaster_type?: string | null
+          confidence?: string | null
+          created_at?: string
+          display_name: string
+          game_id?: string | null
+          game_name: string
+          id?: string
+          is_live?: boolean
+          language?: string | null
+          live_updated_at?: string | null
+          live_viewer_count?: number | null
+          login: string
+          platform?: string
+          platform_user_id: string
+          profile_image_url?: string | null
+          score_updated_at?: string
+          signal_quality?: string | null
+          stream_score: number
+          updated_at?: string
+        }
+        Update: {
+          broadcaster_type?: string | null
+          confidence?: string | null
+          created_at?: string
+          display_name?: string
+          game_id?: string | null
+          game_name?: string
+          id?: string
+          is_live?: boolean
+          language?: string | null
+          live_updated_at?: string | null
+          live_viewer_count?: number | null
+          login?: string
+          platform?: string
+          platform_user_id?: string
+          profile_image_url?: string | null
+          score_updated_at?: string
+          signal_quality?: string | null
+          stream_score?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       channel_update_history: {
         Row: {
           broadcaster_user_id: string
