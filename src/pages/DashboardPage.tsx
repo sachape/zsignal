@@ -216,26 +216,56 @@ const DashboardPage = () => {
   }, [user, loadDashboardState]);
 
 
-  // Sync weekly quests whenever sessions or report changes
+  // Manual quest checks loaded from Lovable Cloud (source of truth)
+  const [manualChecks, setManualChecks] = useState<Set<string>>(new Set());
+
+  // Load persisted quest checks for the current week
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    loadQuestChecks(getWeekKey()).then((checks) => {
+      if (!cancelled) setManualChecks(checks);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  // Sync weekly quests whenever sessions, report or checks change
   useEffect(() => {
     if (!user || !currentReport) return;
     const quests = generateWeeklyQuests(
       allSessions,
       currentReport.report,
-      user.id,
+      manualChecks,
     );
     setWeeklyQuests(quests);
-  }, [user, allSessions, currentReport]);
+  }, [user, allSessions, currentReport, manualChecks]);
 
   const handleQuestToggle = useCallback(
-    (questId: string) => {
+    async (questId: string) => {
       if (!user || !weeklyQuests) return;
-      toggleManualQuest(user.id, weeklyQuests.weekKey, questId);
-      setWeeklyQuests(
-        generateWeeklyQuests(allSessions, currentReport?.report ?? null, user.id),
+      const wasChecked = manualChecks.has(questId);
+      // Optimistic update
+      const next = new Set(manualChecks);
+      if (wasChecked) next.delete(questId);
+      else next.add(questId);
+      setManualChecks(next);
+      const newState = await toggleManualQuest(
+        user.id,
+        weeklyQuests.weekKey,
+        questId,
+        wasChecked,
       );
+      // Reconcile with server result
+      setManualChecks((prev) => {
+        const reconciled = new Set(prev);
+        if (newState) reconciled.add(questId);
+        else reconciled.delete(questId);
+        return reconciled;
+      });
     },
-    [user, weeklyQuests, allSessions, currentReport],
+    [user, weeklyQuests, manualChecks],
   );
 
   const handleManualRefresh = useCallback(async () => {
