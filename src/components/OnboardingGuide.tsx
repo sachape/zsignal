@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ArrowRight, Twitch, Sparkles, FileText, CalendarCheck, ChevronRight } from "lucide-react";
+import { Check, ArrowRight, Tv, Sparkles, FileText, CalendarCheck, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +67,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
   const steps: Step[] = [
     {
       id: "twitch",
-      icon: Twitch,
+      icon: Tv,
       label: "Twitch connecté",
       description: "Ton compte Twitch est lié — Streamnco lit tes données en temps réel.",
       cta: "",
