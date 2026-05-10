@@ -503,7 +503,6 @@ Deno.serve(async (req) => {
       const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
       let cacheUsed: "fresh" | "stale_fallback" | "skipped" = "skipped";
 
-      console.log("category_all cache check", { hasUrl: !!supabaseUrl, hasKey: !!serviceKey, scoredLen: scored.length });
       if (supabaseUrl && serviceKey && scored.length > 0) {
         try {
           const nowIso = new Date().toISOString();
