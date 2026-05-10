@@ -65,6 +65,8 @@ import { evaluateBadges, markBadgesSeen } from "@/services/badgeEngine";
 import {
   generateWeeklyQuests,
   toggleManualQuest,
+  loadQuestChecks,
+  getWeekKey,
   type WeeklyQuests,
 } from "@/services/questEngine";
 import StreakBadge from "@/components/StreakBadge";
