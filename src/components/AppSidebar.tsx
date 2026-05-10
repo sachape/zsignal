@@ -41,7 +41,7 @@ const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
   { title: "Analyse", url: "/analyse", icon: Activity, end: false },
   { title: "Lives", url: "/lives", icon: Radio, end: false },
-  { title: "Plan de la semaine", url: "/plan", icon: CalendarCheck, end: false },
+  { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false },
   { title: "Progression", url: "/progression", icon: Star, end: false },
   { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false },
 ];
