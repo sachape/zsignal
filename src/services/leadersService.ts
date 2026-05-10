@@ -152,6 +152,84 @@ export async function fetchCategoryLeaders(opts: {
   };
 }
 
+interface CategoryAllResponse {
+  success: boolean;
+  reason?: string;
+  category?: LeaderCategory;
+  channels?: Array<{
+    rank: number;
+    login: string;
+    display_name: string;
+    profile_image_url: string | null;
+    broadcaster_type: string;
+    stream_score: number;
+    score_confidence: "low" | "medium" | "high";
+    is_live: boolean;
+    live_viewer_count: number | null;
+    language: string | null;
+    game_name: string;
+  }>;
+  meta?: {
+    scope: string;
+    is_exhaustive: boolean;
+    source: string;
+    cache_ttl_minutes: number;
+  };
+}
+
+/**
+ * Global Twitch category leaderboard scored by Streamnco from public Twitch
+ * data. Not limited to Streamnco users — every currently-live Twitch streamer
+ * in the chosen category is scored and ranked.
+ */
+export async function fetchCategoryStreamScoreLeaders(opts: {
+  category: string;
+  language?: string;
+  limit?: number;
+}): Promise<{ category: LeaderCategory | null; channels: LeaderChannel[]; meta: CategoryAllResponse["meta"] | null }> {
+  const { data, error } = await supabase.functions.invoke<CategoryAllResponse>(
+    "twitch-public-lookup",
+    {
+      body: {
+        category: opts.category,
+        mode: "category_all",
+        limit: opts.limit ?? 50,
+        language: opts.language ?? "all",
+      },
+    },
+  );
+  if (error || !data?.success || !data.channels) {
+    return { category: data?.category ?? null, channels: [], meta: data?.meta ?? null };
+  }
+  return {
+    category: data.category ?? null,
+    meta: data.meta ?? null,
+    channels: data.channels.map((c) => ({
+      rank: c.rank,
+      id: c.login,
+      login: c.login,
+      display_name: c.display_name,
+      profile_image_url: c.profile_image_url,
+      broadcaster_type: c.broadcaster_type,
+      description: "",
+      view_count: 0,
+      is_live: c.is_live,
+      live_viewer_count: c.live_viewer_count,
+      title: null,
+      game_name: c.game_name,
+      language: c.language,
+      started_at: null,
+      stream_score: c.stream_score,
+      tags: buildTags({
+        live_viewer_count: c.live_viewer_count,
+        broadcaster_type: c.broadcaster_type,
+        started_at: null,
+        title: null,
+      }),
+    })),
+  };
+}
+
 /** Real category autocomplete using /helix/search/categories. */
 export async function searchCategories(query: string): Promise<LeaderCategory[]> {
   if (query.trim().length < 2) return [];
