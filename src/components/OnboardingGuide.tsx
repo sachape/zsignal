@@ -67,7 +67,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
   const steps: Step[] = [
     {
       id: "twitch",
-      icon: Twitch,
+      icon: Tv,
       label: "Twitch connecté",
       description: "Ton compte Twitch est lié — Streamnco lit tes données en temps réel.",
       cta: "",
