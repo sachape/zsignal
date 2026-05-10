@@ -100,6 +100,9 @@ const LeadersPage = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
+  const [scoreRows, setScoreRows] = useState<StreamScoreLeaderChannel[]>([]);
+  const [scoreLoading, setScoreLoading] = useState(false);
+
   const [userReport, setUserReport] = useState<SavedReport | null>(null);
 
   // Fetch user report once for personal position banner
