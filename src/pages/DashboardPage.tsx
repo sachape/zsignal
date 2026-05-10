@@ -74,7 +74,8 @@ import BadgeStrip from "@/components/BadgeStrip";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 import ShareScoreButton from "@/components/ShareScoreButton";
 import WeeklyDigestCard from "@/components/WeeklyDigestCard";
-import OnboardingGuide, { isOnboardingDone } from "@/components/OnboardingGuide";
+import OnboardingGuide from "@/components/OnboardingGuide";
+import { getOnboardingState } from "@/services/onboardingState";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -106,9 +107,23 @@ const DashboardPage = () => {
     onboardingFlags.dismissCockpitWelcome();
     setShowWelcome(false);
   }, []);
-  const [showGuide, setShowGuide] = useState(
-    () => user ? !isOnboardingDone(user.id) : false,
-  );
+  // null = still loading from DB; true/false = resolved. Avoids flicker for completed users.
+  const [showGuide, setShowGuide] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setShowGuide(false);
+      return;
+    }
+    let active = true;
+    getOnboardingState().then((state) => {
+      if (!active) return;
+      setShowGuide(!state.is_completed);
+    });
+    return () => {
+      active = false;
+    };
+  }, [user]);
   const autoTriggeredRef = useRef(false);
   const processingRef = useRef(false);
 
@@ -467,7 +482,7 @@ const DashboardPage = () => {
     },
   ];
 
-  if (showGuide) {
+  if (showGuide === true) {
     const guideDisplayName =
       account?.platform_display_name || account?.platform_login || summary?.display_name || "toi";
     return (
