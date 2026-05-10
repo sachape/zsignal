@@ -176,6 +176,67 @@ export const LEADER_CATEGORY_PRESETS = [
 
 export const LEADER_LANGUAGE_PRESETS = ["fr", "en", "es", "de", "pt", "it"];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// StreamScore tab — indexed Streamnco leaderboard (cross-user, public read).
+// Backed by channel_stream_scores via twitch-public-lookup mode "category_all".
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface StreamScoreLeaderChannel {
+  rank: number;
+  login: string;
+  display_name: string;
+  profile_image_url: string | null;
+  broadcaster_type: string | null;
+  stream_score: number;
+  is_live: boolean;
+  live_viewer_count: number | null;
+  language: string | null;
+  game_name: string;
+  updated_at: string;
+}
+
+interface CategoryAllResponse {
+  success: boolean;
+  reason?: string;
+  category?: LeaderCategory;
+  channels?: Array<Omit<StreamScoreLeaderChannel, "rank">>;
+  meta?: { scope: "indexed"; is_exhaustive: boolean };
+}
+
+export async function fetchCategoryStreamScoreLeaders(opts: {
+  category: string;
+  language?: string;
+  limit?: number;
+}): Promise<{
+  category: LeaderCategory | null;
+  channels: StreamScoreLeaderChannel[];
+  isExhaustive: boolean;
+}> {
+  const { data, error } = await supabase.functions.invoke<CategoryAllResponse>(
+    "twitch-public-lookup",
+    {
+      body: {
+        input: opts.category,
+        mode: "category_all",
+        limit: opts.limit ?? 50,
+        language: opts.language ?? "all",
+      },
+    },
+  );
+  if (error || !data?.success || !data.channels) {
+    return {
+      category: data?.category ?? null,
+      channels: [],
+      isExhaustive: false,
+    };
+  }
+  return {
+    category: data.category ?? null,
+    channels: data.channels.map((c, i) => ({ ...c, rank: i + 1 })),
+    isExhaustive: data.meta?.is_exhaustive ?? false,
+  };
+}
+
 // Back-compat shim — old callers used fetchLeaders({ category }).
 export async function fetchLeaders(opts: {
   category?: string | null;
