@@ -1,6 +1,7 @@
 import type { LiveSession } from "./liveSessions";
 import type { AnalysisReport } from "@/types/analysis";
 import { computeStreak } from "./streakEngine";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Quest {
   id: string;
