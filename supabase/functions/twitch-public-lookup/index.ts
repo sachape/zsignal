@@ -12,6 +12,8 @@
 // We never fabricate followers — that requires moderator:read:followers scope
 // on a connected user account.
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
