@@ -6,7 +6,7 @@ import PageContainer from "@/components/PageContainer";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { listLiveSessions } from "@/services/liveSessions";
-import { getRecentReports } from "@/services/analysisReports";
+import { getRecentReports } from "@/services/reportRepository";
 import {
   generateWeeklyQuests,
   getWeekKey,
