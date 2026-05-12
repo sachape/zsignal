@@ -50,6 +50,13 @@ const getStr = (facts: ChannelFact[], key: string): string => {
  * if any 2 of the weak signals are true, we consider the channel low-data.
  */
 export function diagnoseFoundationMode(report: AnalysisReport): FoundationDiagnosis {
+  // Partners and large channels skip foundation mode — same reasoning as
+  // diagnoseLowSignal: public lookups lack stream history.
+  const summary = report.channel_summary;
+  if (summary.broadcaster_type === "partner" || summary.follower_count >= 50_000) {
+    return { isActive: false, reasons: [], blocker: {} as MainBlocker, sequence: [] };
+  }
+
   const facts = report.facts;
   const streams30d = getNum(facts, "streams_30d");
   const clips30d = getNum(facts, "clips_30d");

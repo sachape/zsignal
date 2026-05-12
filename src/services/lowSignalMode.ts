@@ -32,6 +32,16 @@ export function diagnoseLowSignal(report: AnalysisReport): LowSignalDiagnosis {
   const totalHours = num(facts, "total_hours_30d");
   const avgViewers = num(facts, "avg_viewers");
 
+  // Partners and large channels are never in low-signal mode.
+  // Public lookups don't return stream history, which would produce false
+  // positives for well-established channels like Inoxtag.
+  const summary = report.channel_summary;
+  const isEstablished =
+    summary.broadcaster_type === "partner" || summary.follower_count >= 50_000;
+  if (isEstablished) {
+    return { isActive: false, streams30d, uniqueDays30d, avgViewers, viewersUnmeasurable: false };
+  }
+
   const noStreams = streams30d === 0;
   const almostNoStreams = streams30d < 2 && avgViewers < 1;
   const noActivity = uniqueDays30d === 0 && totalHours === 0;
