@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Minus, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { cn } from "@/lib/utils";
 import {
-  getWeekOverWeekDelta,
+  getSnapshotsSince,
+  type StreamScoreSnapshot,
   type ScoreLevel,
-  type WeekOverWeekDelta,
 } from "@/services/streamScoreHistory";
 import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 
@@ -30,6 +31,15 @@ const DIM_LABEL: Record<DimKey, string> = {
   monetization: "Monétisation",
 };
 
+const DIM_LABEL_FR: Record<DimKey, string> = {
+  regularity: "la régularité",
+  structure: "la structure des sessions",
+  content: "le contenu réutilisable",
+  positioning: "le positionnement",
+  momentum: "le momentum",
+  monetization: "la monétisation",
+};
+
 const CONFIDENCE_COPY: Record<ScoreLevel, string> = {
   low: "Fiabilité faible : il manque encore des données.",
   medium: "Fiabilité correcte : assez de signaux pour une première lecture.",
@@ -44,6 +54,10 @@ const SIGNAL_COPY: Record<ScoreLevel, string> = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function fmtDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+}
+
 function fmtDelta(d: number | null): string | null {
   if (d === null) return null;
   const abs = Math.abs(d);
@@ -52,25 +66,62 @@ function fmtDelta(d: number | null): string | null {
   return "0 pt";
 }
 
-function buildNarrativeSentence(d: WeekOverWeekDelta): string {
-  const { overall_delta, explanation } = d;
-  if (overall_delta === null) return explanation;
-  const abs = Math.abs(overall_delta);
-  const sign = overall_delta > 0 ? `+${overall_delta}` : `${overall_delta}`;
-  const ptLabel = `pt${abs > 1 ? "s" : ""}`;
-  if (overall_delta > 0)
-    return `Ton StreamScore progresse de ${sign} ${ptLabel}. ${explanation}`;
-  if (overall_delta < 0)
-    return `Ton StreamScore baisse de ${sign} ${ptLabel}. ${explanation}`;
-  return `Ton StreamScore est stable. ${explanation}`;
+function buildExplanation(latest: StreamScoreSnapshot, previous: StreamScoreSnapshot | null): string {
+  if (!previous) return "Premier score enregistré. L'évolution sera visible après la prochaine analyse.";
+  const overall_delta = latest.overall - previous.overall;
+
+  let topDim: DimKey | null = null;
+  let topAbs = -1;
+  for (const k of DIM_KEYS) {
+    const a = latest[k];
+    const b = previous[k];
+    if (a == null || b == null) continue;
+    const d = Math.abs(a - b);
+    if (d > topAbs) { topAbs = d; topDim = k; }
+  }
+
+  if (overall_delta === 0 && topAbs <= 0) return "Ton score est stable depuis la dernière analyse.";
+  if (topDim && topAbs > 0) {
+    const dimDelta = (latest[topDim] ?? 0) - (previous[topDim] ?? 0);
+    const dir = dimDelta > 0 ? "progresse" : "baisse";
+    const cause = dir === "progresse" ? "grâce à" : "à cause de";
+    const abs = Math.abs(overall_delta);
+    const sign = overall_delta > 0 ? `+${overall_delta}` : `${overall_delta}`;
+    const ptLabel = `pt${abs > 1 ? "s" : ""}`;
+    if (overall_delta !== 0)
+      return `Ton StreamScore ${overall_delta > 0 ? "progresse" : "baisse"} de ${sign} ${ptLabel} ${cause} ${DIM_LABEL_FR[topDim]}.`;
+    return `Ton score est stable. La variation notable est sur ${DIM_LABEL_FR[topDim]}.`;
+  }
+  if (overall_delta > 0) return "Ton score progresse légèrement depuis la dernière analyse.";
+  if (overall_delta < 0) return "Ton score baisse légèrement depuis la dernière analyse.";
+  return "Ton score est stable depuis la dernière analyse.";
 }
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+
+const ChartTooltip = ({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: { label: string; overall: number } }>;
+}) => {
+  if (!active || !payload?.length) return null;
+  const p = payload[0].payload;
+  return (
+    <div className="rounded-md border border-border/60 bg-popover/95 px-2.5 py-1.5 text-xs shadow-md backdrop-blur">
+      <p className="font-bold tabular-nums text-foreground">{p.overall} / 100</p>
+      <p className="mt-0.5 text-muted-foreground">{p.label}</p>
+    </div>
+  );
+};
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
 const Skeleton = () => (
   <div className="mb-6 animate-pulse rounded-xl border border-border/60 bg-card/40 p-5">
     <div className="mb-4 h-4 w-48 rounded bg-muted/60" />
-    <div className="mb-4 h-3 w-3/4 rounded bg-muted/40" />
+    <div className="mb-4 h-24 rounded bg-muted/30" />
     <div className="space-y-3">
       {DIM_KEYS.map((k) => (
         <div key={k} className="flex items-center gap-3">
@@ -92,33 +143,46 @@ interface Props {
 }
 
 const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
-  const [data, setData] = useState<WeekOverWeekDelta | null>(null);
+  const [snapshots, setSnapshots] = useState<StreamScoreSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     setFetchError(false);
-    getWeekOverWeekDelta(userId, platformUserId ?? null)
-      .then((d) => { setData(d); setLoading(false); })
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    getSnapshotsSince(userId, since, platformUserId ?? null)
+      .then((rows) => { setSnapshots(rows); setLoading(false); })
       .catch(() => { setFetchError(true); setLoading(false); });
   }, [userId, platformUserId]);
 
   if (loading) return <Skeleton />;
-  if (fetchError) return null; // graceful — don't crash dashboard on network error
+  if (fetchError) return null;
 
-  const latest = data?.latest ?? null;
+  const latest = snapshots.length > 0 ? snapshots[snapshots.length - 1] : null;
 
-  // ── A: no snapshot — render nothing.
-  // The score ring above already shows the current score from analysis_reports.
-  // Showing "StreamScore pas encore disponible" here while the ring shows a score
-  // creates a direct contradiction that destroys user trust.
-  // The evolution card only appears when there is actual snapshot data to show.
+  // No snapshot yet — card stays hidden (score ring above already shows current score)
   if (!latest) return null;
 
-  const hasDelta = data!.previous !== null && data!.overall_delta !== null;
+  const previous = snapshots.length >= 2 ? snapshots[snapshots.length - 2] : null;
+  const hasDelta = previous !== null;
+  const overallDelta = hasDelta ? latest.overall - previous!.overall : null;
+
+  const dimension_deltas: Record<DimKey, number | null> = {
+    regularity: null, structure: null, content: null,
+    positioning: null, momentum: null, monetization: null,
+  };
+  if (hasDelta) {
+    for (const k of DIM_KEYS) {
+      const a = latest[k];
+      const b = previous![k];
+      if (a != null && b != null) dimension_deltas[k] = a - b;
+    }
+  }
+
   const isLowConfidence = latest.confidence === "low";
-  const overallDelta = data!.overall_delta;
+  const chartPoints = snapshots.map((s) => ({ label: fmtDate(s.created_at), overall: s.overall }));
+  const showChart = snapshots.length >= 2;
 
   const DeltaIcon =
     !hasDelta || overallDelta === 0
@@ -141,7 +205,6 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
             </h3>
           </div>
 
-          {/* Overall delta badge */}
           {hasDelta && overallDelta !== null && (
             <div
               className={cn(
@@ -159,6 +222,39 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
           )}
         </div>
 
+        {/* ── Time-series chart ───────────────────────────────────────────── */}
+        {showChart && (
+          <div className="mb-4 h-28">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartPoints} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="ssEvolutionGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground) / 0.6)" }}
+                  tickLine={false}
+                  axisLine={false}
+                  interval="preserveStartEnd"
+                />
+                <Tooltip content={<ChartTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="overall"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={1.5}
+                  fill="url(#ssEvolutionGrad)"
+                  dot={false}
+                  activeDot={{ r: 3, fill: "hsl(var(--primary))", strokeWidth: 0 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
         {/* ── Narrative sentence ─────────────────────────────────────────── */}
         <p
           className={cn(
@@ -166,14 +262,9 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
             isLowConfidence ? "text-muted-foreground" : "text-foreground",
           )}
         >
-          {!hasDelta
-            ? "Premier score enregistré. L'évolution sera visible après la prochaine analyse."
-            : isLowConfidence
-              ? "Score encore peu fiable : Streamnco manque de signaux récents."
-              : buildNarrativeSentence(data!)}
+          {buildExplanation(latest, previous)}
         </p>
 
-        {/* Confidence + signal fine print */}
         <p className="mb-4 text-[11px] text-muted-foreground/60">
           {CONFIDENCE_COPY[latest.confidence]} · {SIGNAL_COPY[latest.signal_quality]}
         </p>
@@ -183,7 +274,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
           {DIM_KEYS.map((key) => {
             const score = latest[key];
             if (score == null) return null;
-            const dimDelta = hasDelta ? (data!.dimension_deltas[key] ?? null) : null;
+            const dimDelta = hasDelta ? (dimension_deltas[key] ?? null) : null;
             const tier = getScoreTier(score);
             const theme = getTierTheme(tier);
             const isPriority = latest.priority_dimension === key;
@@ -193,7 +284,6 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
 
             return (
               <div key={key} className="flex items-center gap-3">
-                {/* Label */}
                 <div className="flex w-28 shrink-0 items-center gap-1">
                   {isPriority && (
                     <Zap className="h-2.5 w-2.5 shrink-0 text-primary" />
@@ -208,7 +298,6 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
                   </span>
                 </div>
 
-                {/* Progress bar */}
                 <div className="flex-1">
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/50">
                     <div
@@ -218,7 +307,6 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
                   </div>
                 </div>
 
-                {/* Score value */}
                 <span
                   className={cn(
                     "w-6 text-right text-[11px] font-bold tabular-nums",
@@ -228,7 +316,6 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
                   {score}
                 </span>
 
-                {/* Delta */}
                 <span
                   className={cn(
                     "w-14 text-right text-[10px] tabular-nums",
@@ -257,8 +344,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
                   Priorité
                 </p>
                 <p className="text-[11px] font-semibold text-foreground">
-                  {DIM_LABEL[latest.priority_dimension as DimKey] ??
-                    latest.priority_dimension}
+                  {DIM_LABEL[latest.priority_dimension as DimKey] ?? latest.priority_dimension}
                 </p>
               </div>
             )}

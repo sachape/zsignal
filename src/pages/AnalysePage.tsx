@@ -391,7 +391,7 @@ const AnalysePage = () => {
 
         {/* Score evolution */}
         <div style={anim(200)} className="mb-4">
-          <StreamScoreEvolutionCard userId={user!.id} />
+          <StreamScoreEvolutionCard userId={user!.id} platformUserId={account?.platform_user_id ?? null} />
         </div>
 
         {/* Followers unavailable warning */}
