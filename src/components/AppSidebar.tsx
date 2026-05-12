@@ -41,13 +41,13 @@ import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
 
 const cockpitItems = [
-  { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
-  { title: "Analyse", url: "/analyse", icon: Activity, end: false },
-  { title: "Lives", url: "/lives", icon: Radio, end: false },
-  { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false },
-  { title: "Progression", url: "/progression", icon: Star, end: false },
-  { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false },
-  { title: "Quêtes", url: "/quetes", icon: Zap, end: false },
+  { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true, secondary: false },
+  { title: "Analyse", url: "/analyse", icon: Activity, end: false, secondary: false },
+  { title: "Lives", url: "/lives", icon: Radio, end: false, secondary: false },
+  { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false, secondary: true },
+  { title: "Progression", url: "/progression", icon: Star, end: false, secondary: true },
+  { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false, secondary: true },
+  { title: "Quêtes", url: "/quetes", icon: Zap, end: false, secondary: true },
 ];
 
 const benchmarkItems = [
@@ -98,30 +98,52 @@ const AppSidebar = () => {
     navigate("/");
   };
 
-  const renderItems = (items: typeof cockpitItems) =>
-    items.map((item) => (
-      <SidebarMenuItem key={item.url}>
-        <SidebarMenuButton asChild tooltip={item.title}>
-          <NavLink
-            to={item.url}
-            end={item.end}
-            className="flex w-full items-center gap-2"
-            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-          >
-            <span className="relative shrink-0">
-              <item.icon className="h-4 w-4" />
-              {item.url === "/quetes" && hasNewBadge && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+  const renderItems = (items: typeof cockpitItems, withDivider = false) => {
+    const nodes: React.ReactNode[] = [];
+    let dividerInserted = false;
+
+    items.forEach((item, idx) => {
+      if (withDivider && !dividerInserted && item.secondary) {
+        dividerInserted = true;
+        nodes.push(
+          <li key="__divider" className="mx-2 my-1 h-px bg-border/40" role="separator" />,
+        );
+      }
+
+      nodes.push(
+        <SidebarMenuItem key={item.url}>
+          <SidebarMenuButton asChild tooltip={item.title}>
+            <NavLink
+              to={item.url}
+              end={item.end}
+              className={cn(
+                "flex w-full items-center gap-2",
+                item.secondary && "text-muted-foreground/70",
+              )}
+              activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+            >
+              <span className="relative shrink-0">
+                <item.icon className={item.secondary ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                {item.url === "/quetes" && hasNewBadge && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                  </span>
+                )}
+              </span>
+              {!collapsed && (
+                <span className={item.secondary ? "text-[13px]" : undefined}>
+                  {item.title}
                 </span>
               )}
-            </span>
-            {!collapsed && <span>{item.title}</span>}
-          </NavLink>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    ));
+            </NavLink>
+          </SidebarMenuButton>
+        </SidebarMenuItem>,
+      );
+    });
+
+    return nodes;
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -153,7 +175,7 @@ const AppSidebar = () => {
         <SidebarGroup>
           {!collapsed && <SidebarGroupLabel>Cockpit</SidebarGroupLabel>}
           <SidebarGroupContent>
-            <SidebarMenu>{renderItems(cockpitItems)}</SidebarMenu>
+            <SidebarMenu>{renderItems(cockpitItems, true)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
