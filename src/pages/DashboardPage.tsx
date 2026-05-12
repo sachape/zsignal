@@ -62,6 +62,7 @@ import ScopeDriftBanner from "@/components/ScopeDriftBanner";
 import { computeStreak } from "@/services/streakEngine";
 import { computeMaturityLevel } from "@/services/maturityLevel";
 import { evaluateBadges, markBadgesSeen, evaluateTieredBadges } from "@/services/badgeEngine";
+import { loadTotalXp, cacheXpData } from "@/services/xpEngine";
 import {
   generateWeeklyQuests,
   toggleManualQuest,
@@ -155,8 +156,12 @@ const DashboardPage = () => {
     }
 
     try {
-      const live = await getLiveCockpitSnapshot(user.id);
+      const [live, totalXp] = await Promise.all([
+        getLiveCockpitSnapshot(user.id),
+        loadTotalXp(),
+      ]);
       setLiveSnapshot(live);
+      cacheXpData(user.id, totalXp);
       const sessions = await listLiveSessions(user.id, 60);
       setAllSessions(sessions);
       setFocusSlot(resolveCockpitFocusSlot(live.current, sessions.slice(0, 14)));

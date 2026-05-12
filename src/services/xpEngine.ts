@@ -70,6 +70,20 @@ export function getXpLevel(totalXp: number): XpLevelData {
   };
 }
 
+export const XP_CACHE_EVENT = "xp-cache-updated";
+
+export function cacheXpData(userId: string, totalXp: number): void {
+  try { localStorage.setItem(`xp_cache_${userId}`, String(totalXp)); } catch { /* noop */ }
+  window.dispatchEvent(new CustomEvent(XP_CACHE_EVENT));
+}
+
+export function getCachedXpData(userId: string): number | null {
+  try {
+    const v = localStorage.getItem(`xp_cache_${userId}`);
+    return v !== null ? Number(v) : null;
+  } catch { return null; }
+}
+
 export async function loadTotalXp(): Promise<number> {
   try {
     const { data, error } = await supabase

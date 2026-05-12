@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -38,6 +38,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
+import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
 
 const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
@@ -66,6 +67,7 @@ const AppSidebar = () => {
   const navigate = useNavigate();
 
   const [hasNewBadge, setHasNewBadge] = useState(false);
+  const [cachedTotalXp, setCachedTotalXp] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -78,6 +80,18 @@ const AppSidebar = () => {
     window.addEventListener(NOTIF_EVENT, check);
     return () => window.removeEventListener(NOTIF_EVENT, check);
   }, [user]);
+
+  const refreshXp = useCallback(() => {
+    if (!user) return;
+    const xp = getCachedXpData(user.id);
+    setCachedTotalXp(xp);
+  }, [user]);
+
+  useEffect(() => {
+    refreshXp();
+    window.addEventListener(XP_CACHE_EVENT, refreshXp);
+    return () => window.removeEventListener(XP_CACHE_EVENT, refreshXp);
+  }, [refreshXp]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -153,6 +167,40 @@ const AppSidebar = () => {
       </SidebarContent>
 
       <SidebarFooter>
+        {/* XP micro-widget */}
+        {user && cachedTotalXp !== null && (() => {
+          const xp = getXpLevel(cachedTotalXp);
+          const progress = xp.progressToNext ?? 100;
+          return (
+            <Link
+              to="/quetes"
+              className={cn(
+                "mb-1 flex items-center gap-2 rounded-md p-2 transition-colors hover:bg-sidebar-accent",
+                collapsed && "justify-center p-1",
+              )}
+              title={`Niveau ${xp.level} · ${xp.label} · ${xp.totalXp} XP`}
+            >
+              <span className="shrink-0 text-base leading-none">{xp.icon}</span>
+              {!collapsed && (
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-semibold text-foreground leading-none">
+                    Niv. {xp.level} · {xp.label}
+                  </p>
+                  <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-muted/60">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-500"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="mt-0.5 text-[9px] tabular-nums text-muted-foreground/60">
+                    {xp.totalXp} XP
+                  </p>
+                </div>
+              )}
+            </Link>
+          );
+        })()}
+
         {user && (
           <Popover>
             <PopoverTrigger asChild>

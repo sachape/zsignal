@@ -21,7 +21,7 @@ import {
   type TieredBadge,
   type BadgeTier,
 } from "@/services/badgeEngine";
-import { loadTotalXp, getXpLevel, getCurrentSeason, type XpLevelData, type SeasonData } from "@/services/xpEngine";
+import { loadTotalXp, getXpLevel, getCurrentSeason, cacheXpData, type XpLevelData, type SeasonData } from "@/services/xpEngine";
 import type { LiveSession } from "@/services/liveSessions";
 import type { AnalysisReport } from "@/types/analysis";
 
@@ -226,6 +226,7 @@ const QuestesPage = () => {
       setReport(latestReport);
       setManualChecks(checks);
       setXpLevel(getXpLevel(totalXp));
+      cacheXpData(user.id, totalXp);
 
       const quests = generateWeeklyQuests(sess, latestReport, checks);
       setWeeklyQuests(quests);
