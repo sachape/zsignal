@@ -287,8 +287,13 @@ const AnalysePage = () => {
           </div>
         </div>
 
-        {/* Score decomposition accordion */}
+        {/* Score evolution */}
         <div style={anim(160)} className="mb-4">
+          <StreamScoreEvolutionCard userId={user!.id} platformUserId={account?.platform_user_id ?? null} />
+        </div>
+
+        {/* Score decomposition accordion */}
+        <div style={anim(200)} className="mb-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -387,11 +392,6 @@ const AnalysePage = () => {
               })}
             </CardContent>
           </Card>
-        </div>
-
-        {/* Score evolution */}
-        <div style={anim(200)} className="mb-4">
-          <StreamScoreEvolutionCard userId={user!.id} platformUserId={account?.platform_user_id ?? null} />
         </div>
 
         {/* Followers unavailable warning */}
