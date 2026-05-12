@@ -206,14 +206,14 @@ const AppSidebar = () => {
           <Link
             to="/pricing"
             className={cn(
-              "mb-1 flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-primary-foreground transition-opacity hover:opacity-90",
-              collapsed ? "justify-center px-2" : "",
+              "mb-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-primary-foreground transition-opacity hover:opacity-90",
+              collapsed ? "px-2" : "px-4",
             )}
             title="Passer au Pro"
           >
-            <Sparkles className="h-3.5 w-3.5 shrink-0" />
+            <Sparkles className="h-4 w-4 shrink-0" />
             {!collapsed && (
-              <span className="text-xs font-semibold">Passer au Pro</span>
+              <span className="text-sm font-semibold">Passer au Pro</span>
             )}
           </Link>
         )}
