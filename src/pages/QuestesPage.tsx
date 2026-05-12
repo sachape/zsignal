@@ -21,7 +21,7 @@ import {
   type TieredBadge,
   type BadgeTier,
 } from "@/services/badgeEngine";
-import { loadTotalXp, getXpLevel, getCurrentSeason, cacheXpData, type XpLevelData, type SeasonData } from "@/services/xpEngine";
+import { loadTotalXp, getXpLevel, getCurrentSeason, cacheXpData, QUEST_XP_MAP, type XpLevelData, type SeasonData } from "@/services/xpEngine";
 import type { LiveSession } from "@/services/liveSessions";
 import type { AnalysisReport } from "@/types/analysis";
 
@@ -116,7 +116,7 @@ const TieredBadgeCard = ({ badge }: { badge: TieredBadge }) => {
           {/* All tiers unlocked */}
           {!badge.nextTier && badge.currentTier && (
             <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-primary">
-              ✓ Toutes tiers débloquées
+              ✓ Tous les tiers débloqués
             </p>
           )}
         </div>
@@ -272,8 +272,9 @@ const QuestesPage = () => {
       if (!user) return;
       const weekKey = getWeekKey();
       const currentlyChecked = manualChecks.has(questId);
+      const xpDelta = QUEST_XP_MAP[questId] ?? 0;
 
-      // Optimistic update
+      // Optimistic update — checks
       setManualChecks((prev) => {
         const next = new Set(prev);
         if (currentlyChecked) next.delete(questId);
@@ -281,15 +282,37 @@ const QuestesPage = () => {
         return next;
       });
 
+      // Optimistic update — XP level + sidebar cache
+      if (xpDelta > 0) {
+        setXpLevel((prev) => {
+          if (!prev) return prev;
+          const newTotal = Math.max(0, prev.totalXp + (currentlyChecked ? -xpDelta : xpDelta));
+          cacheXpData(user.id, newTotal);
+          return getXpLevel(newTotal);
+        });
+      }
+
       const confirmed = await toggleManualQuest(user.id, weekKey, questId, currentlyChecked);
+
       if (confirmed !== !currentlyChecked) {
-        // Reconcile if server differs
+        // Reconcile checks with server
         setManualChecks((prev) => {
           const next = new Set(prev);
           if (confirmed) next.add(questId);
           else next.delete(questId);
           return next;
         });
+        // Revert XP optimistic update
+        if (xpDelta > 0) {
+          setXpLevel((prev) => {
+            if (!prev) return prev;
+            // Undo the optimistic delta, apply the confirmed state instead
+            const revertDelta = currentlyChecked ? xpDelta : -xpDelta;
+            const newTotal = Math.max(0, prev.totalXp + revertDelta);
+            cacheXpData(user.id, newTotal);
+            return getXpLevel(newTotal);
+          });
+        }
       }
     },
     [user, manualChecks],
@@ -309,7 +332,11 @@ const QuestesPage = () => {
         />
 
         {/* XP Level card */}
-        {xpLevel && <XpCard xpLevel={xpLevel} season={season} />}
+        {loading ? (
+          <div className="mb-6 h-32 animate-pulse rounded-2xl bg-muted/30" />
+        ) : xpLevel ? (
+          <XpCard xpLevel={xpLevel} season={season} />
+        ) : null}
 
         {/* Weekly quests */}
         <div className="mb-6">

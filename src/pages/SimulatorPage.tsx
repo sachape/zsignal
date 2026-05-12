@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
+import PageHeader from "@/components/PageHeader";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -271,12 +272,16 @@ const SimulatorPage = () => {
   const etaFollowersBase = useMemo(() => weeksToFollowers(s.followers.current, 50, sessionsPerWeek, cv, durationHours, 1), [s.followers.current, sessionsPerWeek, cv, durationHours]);
   const etaFollowersBoosted = useMemo(() => weeksToFollowers(s.followers.current, 50, sessionsPerWeek, cv, durationHours, STREAMNCO_BOOST), [s.followers.current, sessionsPerWeek, cv, durationHours]);
 
-  const allBoostedEtas = [etaViewersBoosted, etaStreamDays, etaStreamHours, etaFollowersBoosted].filter((e): e is number => e !== null);
-  const overallBoostedEta = allBoostedEtas.length > 0 ? Math.max(...allBoostedEtas) : null;
-  const allBaseEtas = [etaViewersBase, etaStreamDays, etaStreamHours, etaFollowersBase].filter((e): e is number => e !== null);
-  const overallBaseEta = allBaseEtas.length > 0 ? Math.max(...allBaseEtas) : null;
+  // null = impossible at current pace — propagate as Infinity so the max captures it
+  const toW = (v: number | null) => (v === null ? Infinity : v);
+  const maxBoosted = Math.max(toW(etaViewersBoosted), toW(etaStreamDays), toW(etaStreamHours), toW(etaFollowersBoosted));
+  const overallBoostedEta = isFinite(maxBoosted) ? maxBoosted : null;
+  const maxBase = Math.max(toW(etaViewersBase), toW(etaStreamDays), toW(etaStreamHours), toW(etaFollowersBase));
+  const overallBaseEta = isFinite(maxBase) ? maxBase : null;
 
-  const savings = overallBaseEta !== null && overallBoostedEta !== null ? overallBaseEta - overallBoostedEta : 0;
+  const savings = overallBaseEta !== null && overallBoostedEta !== null
+    ? Math.max(0, overallBaseEta - overallBoostedEta)
+    : 0;
 
   const projectionWeeks = Math.min(Math.max(Math.ceil((overallBaseEta ?? 52) * 1.3), 8), 104);
   const tickInterval = projectionWeeks <= 8 ? 2 : projectionWeeks <= 20 ? 4 : projectionWeeks <= 40 ? 8 : 13;
@@ -292,15 +297,10 @@ const SimulatorPage = () => {
     <AppShell>
       <PageContainer size="sm">
 
-        {/* ── Header ── */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
-            Simulateur d'affiliation
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Configure ton rythme et vois combien de temps il te reste — avec et sans Streamnco.
-          </p>
-        </div>
+        <PageHeader
+          title="Simulateur d'affiliation"
+          description="Configure ton rythme et vois combien de temps il te reste — avec et sans Streamnco."
+        />
 
         {/* ── Demo banner ── */}
         {isDemo && !loading && (
@@ -330,6 +330,16 @@ const SimulatorPage = () => {
                 </div>
                 <p className="text-xl font-bold text-foreground">Critères remplis ✓</p>
                 <p className="mt-1 text-sm text-muted-foreground">À ce rythme, tu as tous les critères d'affiliation.</p>
+              </div>
+            ) : overallBoostedEta === null ? (
+              <div className="text-center">
+                <div className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/10">
+                  <Lock className="h-5 w-5 text-destructive/70" />
+                </div>
+                <p className="text-xl font-bold text-foreground">Rythme insuffisant</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Certains critères ne peuvent pas être atteints à ce rythme — augmente le nombre de sessions ou la durée.
+                </p>
               </div>
             ) : (
               <>
@@ -503,6 +513,7 @@ const SimulatorPage = () => {
               icon={CRITERIA_META[1].icon}
               current={projectedStreamDays} target={7} unit="j"
               etaBase={etaStreamDays} etaBoosted={etaStreamDays}
+              note={etaStreamDays === null ? "Augmente le rythme" : undefined}
             />
             <CriterionRow
               label={CRITERIA_META[2].label}
@@ -510,6 +521,7 @@ const SimulatorPage = () => {
               icon={CRITERIA_META[2].icon}
               current={projectedStreamHours} target={8} unit="h"
               etaBase={etaStreamHours} etaBoosted={etaStreamHours}
+              note={etaStreamHours === null ? "Durée insuffisante" : undefined}
             />
             <CriterionRow
               label={CRITERIA_META[3].label}
