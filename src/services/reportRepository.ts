@@ -154,3 +154,31 @@ export async function getRecentReports(
   if (error || !data) return [];
   return (data as unknown as JoinedRow[]).map(map);
 }
+
+export async function getRecentReportsForPlatformUser(
+  userId: string,
+  platformUserId: string,
+  limit = 30,
+): Promise<SavedReport[]> {
+  const { data: jobs } = await supabase
+    .from("analysis_jobs")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("platform", "twitch")
+    .eq("platform_user_id", platformUserId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (!jobs || jobs.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from("analysis_reports")
+    .select(SELECT_WITH_JOB)
+    .eq("user_id", userId)
+    .in("analysis_job_id", jobs.map((j) => j.id as string))
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+  return (data as unknown as JoinedRow[]).map(map);
+}
