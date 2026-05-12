@@ -758,6 +758,7 @@ Deno.serve(async (req) => {
           }
         : null,
       dominant_category: topGameName ?? null,
+      vod_facts: derivePublicVodFacts(videos),
       competitors: competitors.map((c) => {
         const userInfo = candUsers.get(c.id);
         const streamInfo = candStreams.get(c.id);
