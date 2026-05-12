@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Link } from "react-router-dom";
-import { Check, ChevronRight, ChevronsUpDown, Eye, Loader2, Radio, Trophy, Zap } from "lucide-react";
+import { Check, ChevronRight, ChevronsUpDown, Eye, Loader2, Radio, Trophy } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -31,17 +31,14 @@ import { cn } from "@/lib/utils";
 import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import {
   fetchCategoryLeaders,
-  fetchCategoryStreamScoreLeaders,
   searchCategories,
   LEADER_CATEGORY_PRESETS,
   LEADER_LANGUAGE_PRESETS,
   type LeaderChannel,
   type LeaderCategory,
-  type StreamScoreLeaderChannel,
 } from "@/services/leadersService";
 import { getLatestReport, type SavedReport } from "@/services/reportRepository";
 
-type TabMode = "live" | "streamscore";
 type SortKey = "viewers" | "score" | "name";
 
 const SORT_COMPARATORS: Record<SortKey, (a: LeaderChannel, b: LeaderChannel) => number> = {
@@ -85,7 +82,6 @@ const TIER_SEPARATORS: Record<number, string> = {
 const LeadersPage = () => {
   const { user } = useAuth();
 
-  const [tab, setTab] = useState<TabMode>("live");
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("fr");
   const [sort, setSort] = useState<SortKey>("score");
@@ -99,9 +95,6 @@ const LeadersPage = () => {
   const [resolvedCategory, setResolvedCategory] = useState<LeaderCategory | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-
-  const [scoreRows, setScoreRows] = useState<StreamScoreLeaderChannel[]>([]);
-  const [scoreLoading, setScoreLoading] = useState(false);
 
   const [userReport, setUserReport] = useState<SavedReport | null>(null);
 
@@ -151,24 +144,6 @@ const LeadersPage = () => {
       cancelled = true;
     };
   }, [category, language]);
-
-  // StreamScore tab: indexed Streamnco leaderboard (cached cross-user scores).
-  useEffect(() => {
-    if (tab !== "streamscore") return;
-    let cancelled = false;
-    setScoreLoading(true);
-    (async () => {
-      const { category: resolved, channels } =
-        await fetchCategoryStreamScoreLeaders({ category, language, limit: 50 });
-      if (cancelled) return;
-      if (resolved) setResolvedCategory(resolved);
-      setScoreRows(channels);
-      setScoreLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [tab, category, language]);
 
   // Score Live tab: all rows are live channels (API constraint)
   const filtered = useMemo(() => {
@@ -248,125 +223,8 @@ const LeadersPage = () => {
           </div>
         )}
 
-        {/* Tab toggle */}
-        <div className="mb-4 inline-flex rounded-lg border border-border bg-card p-1">
-          {([
-            { id: "live", label: "Score Live", icon: Radio },
-            { id: "streamscore", label: "StreamScore", icon: Zap },
-          ] as const).map(({ id, label, icon: Icon }) => {
-            const active = tab === id;
-            return (
-              <button
-                key={id}
-                onClick={() => setTab(id)}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                  active
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Icon className="h-3 w-3" />
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
-        {tab === "streamscore" ? (
-          /* ── StreamScore tab: indexed Streamnco leaderboard ── */
-          <div className="flex flex-col gap-3">
-            <p className="text-xs text-muted-foreground">
-              Classement Streamnco basé sur les chaînes déjà indexées dans
-              cette catégorie. Les chaînes live sont enrichies en temps réel,
-              mais le classement reste trié par StreamScore.
-            </p>
-
-            {scoreLoading ? (
-              <LoadingState label="Chargement du classement…" />
-            ) : scoreRows.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card/40 px-6 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <Zap className="h-6 w-6 text-primary" />
-                </div>
-                <p className="text-sm font-medium text-foreground">
-                  Aucune chaîne encore indexée pour cette catégorie.
-                </p>
-                <p className="max-w-sm text-xs text-muted-foreground">
-                  Le classement se remplira au fil des analyses et des
-                  découvertes Streamnco.
-                </p>
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="p-0">
-                  <ul className="divide-y divide-border">
-                    {scoreRows.map((c) => {
-                      const tier = getScoreTier(c.stream_score);
-                      const theme = getTierTheme(tier);
-                      return (
-                        <li
-                          key={`${c.login}-${c.rank}`}
-                          className="flex items-center gap-3 px-3 py-2.5 sm:px-4"
-                        >
-                          <span className="w-6 text-center text-xs font-semibold tabular-nums text-muted-foreground">
-                            {c.rank}
-                          </span>
-                          <Avatar className="h-9 w-9 shrink-0">
-                            {c.profile_image_url && (
-                              <AvatarImage src={c.profile_image_url} alt={c.display_name} />
-                            )}
-                            <AvatarFallback className="text-[10px]">
-                              {c.display_name.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5">
-                              <Link
-                                to={`/streamer/${c.login}`}
-                                className="truncate text-sm font-medium text-foreground hover:text-primary"
-                              >
-                                {c.display_name}
-                              </Link>
-                              {c.broadcaster_type === "partner" && (
-                                <Badge variant="outline" className="h-4 border-primary/30 bg-primary/10 px-1 text-[9px] text-primary">
-                                  Partenaire
-                                </Badge>
-                              )}
-                              {c.is_live && (
-                                <Badge variant="outline" className="h-4 border-destructive/30 bg-destructive/10 px-1 text-[9px] text-destructive">
-                                  <Radio className="mr-0.5 h-2 w-2" /> LIVE
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="truncate text-[11px] text-muted-foreground">
-                              @{c.login}
-                              {c.language && ` · ${c.language.toUpperCase()}`}
-                              {c.is_live && c.live_viewer_count != null && (
-                                <> · <Eye className="inline h-2.5 w-2.5" />{" "}
-                                {formatViewers(c.live_viewer_count)}</>
-                              )}
-                            </p>
-                          </div>
-                          <div className={cn("rounded-md border px-2 py-1 text-right", theme.surfaceClass)}>
-                            <div className={cn("text-sm font-bold tabular-nums", theme.textClass)}>
-                              {c.stream_score}
-                            </div>
-                            <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
-                              StreamScore
-                            </div>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        ) : (
-          /* ── Score Live tab: live-only snapshot from /helix/streams ── */
-          <>
+        {/* ── Score Live: live-only snapshot from /helix/streams ── */}
+        <>
             {/* Filters */}
             <Card className="mb-4">
               <CardContent className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
@@ -715,10 +573,9 @@ const LeadersPage = () => {
             )}
 
             <p className="mt-6 text-[11px] text-muted-foreground">
-              Source : Twitch /streams (snapshot live). Score Live ≠ StreamScore — calculé sur l'audience, le statut et la portée en direct uniquement.
+              Source : Twitch /streams (snapshot live). Score calculé sur l'audience, le statut broadcaster et la portée en direct.
             </p>
           </>
-        )}
       </PageContainer>
     </AppShell>
   );
