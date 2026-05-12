@@ -1,10 +1,16 @@
 import type { TwitchProfile, TwitchVideo, TwitchClip, ChannelFact } from "@/types/analysis";
 
-/** Parse "3h15m" → minutes */
+/** Parse Twitch duration ("2h13m4s", "45m12s", "1h", "30s") → minutes. */
 function parseDuration(d: string): number {
+  if (!d) return 0;
   const h = d.match(/(\d+)h/);
   const m = d.match(/(\d+)m/);
-  return (h ? parseInt(h[1]) * 60 : 0) + (m ? parseInt(m[1]) : 0);
+  const s = d.match(/(\d+)s/);
+  return (
+    (h ? parseInt(h[1], 10) * 60 : 0) +
+    (m ? parseInt(m[1], 10) : 0) +
+    (s ? parseInt(s[1], 10) / 60 : 0)
+  );
 }
 
 function daysBetween(a: string, b: string): number {

@@ -184,17 +184,79 @@ async function lookupChannel(
 async function fetchRecentVideos(
   userId: string,
   helixHeaders: Record<string, string>,
+  first = 100,
 ): Promise<HelixVideo[]> {
+  const capped = Math.min(Math.max(first, 1), 100);
   const res = await fetch(
-    `https://api.twitch.tv/helix/videos?user_id=${encodeURIComponent(userId)}&first=20&type=archive&sort=time`,
+    `https://api.twitch.tv/helix/videos?user_id=${encodeURIComponent(userId)}&first=${capped}&type=archive&sort=time`,
     { headers: helixHeaders },
   );
   if (!res.ok) {
-    console.warn("get_videos failed", res.status, await res.text());
+    console.warn("get_videos failed", res.status);
     return [];
   }
   const j = await res.json();
   return (j?.data ?? []) as HelixVideo[];
+}
+
+/**
+ * Parse a Twitch duration string ("2h13m4s", "45m12s", "1h", "30s") to seconds.
+ * Returns 0 for unparseable input.
+ */
+function parseTwitchDurationSeconds(d: string | null | undefined): number {
+  if (!d) return 0;
+  const m = d.match(/(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/);
+  if (!m) return 0;
+  const h = m[1] ? parseInt(m[1], 10) : 0;
+  const mn = m[2] ? parseInt(m[2], 10) : 0;
+  const s = m[3] ? parseInt(m[3], 10) : 0;
+  return h * 3600 + mn * 60 + s;
+}
+
+/**
+ * Derive aggregate public VOD activity facts from /helix/videos archives.
+ * Server-side only. Returns aggregates only — never raw payloads or tokens.
+ * `avg_viewers` is intentionally NOT derived here: Twitch does not expose
+ * public concurrent average live viewers via this endpoint.
+ */
+export interface PublicVodFacts {
+  vod_count_total: number;
+  streams_30d: number;
+  unique_stream_days_30d: number;
+  total_hours_30d: number;
+  avg_vod_views_30d: number | null;
+  latest_vod_at: string | null;
+}
+
+function derivePublicVodFacts(videos: HelixVideo[]): PublicVodFacts {
+  const cutoff = Date.now() - 30 * 86400000;
+  const recent = videos.filter((v) => {
+    const t = v.created_at ? new Date(v.created_at).getTime() : NaN;
+    return Number.isFinite(t) && t >= cutoff;
+  });
+  const days = new Set<string>();
+  let totalSeconds = 0;
+  let viewSum = 0;
+  for (const v of recent) {
+    days.add(new Date(v.created_at).toISOString().slice(0, 10));
+    totalSeconds += parseTwitchDurationSeconds(v.duration);
+    viewSum += Number(v.view_count) || 0;
+  }
+  const latest = videos
+    .map((v) => v.created_at)
+    .filter(Boolean)
+    .sort()
+    .at(-1) ?? null;
+  return {
+    vod_count_total: videos.length,
+    streams_30d: recent.length,
+    unique_stream_days_30d: days.size,
+    total_hours_30d: Math.round((totalSeconds / 3600) * 10) / 10,
+    avg_vod_views_30d: recent.length
+      ? Math.round(viewSum / recent.length)
+      : null,
+    latest_vod_at: latest,
+  };
 }
 
 async function fetchRecentClips(
@@ -696,6 +758,7 @@ Deno.serve(async (req) => {
           }
         : null,
       dominant_category: topGameName ?? null,
+      vod_facts: derivePublicVodFacts(videos),
       competitors: competitors.map((c) => {
         const userInfo = candUsers.get(c.id);
         const streamInfo = candStreams.get(c.id);
