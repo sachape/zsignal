@@ -201,6 +201,23 @@ const AppSidebar = () => {
           );
         })()}
 
+        {/* Upgrade CTA */}
+        {user && (
+          <Link
+            to="/pricing"
+            className={cn(
+              "mb-1 flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-primary-foreground transition-opacity hover:opacity-90",
+              collapsed ? "justify-center px-2" : "",
+            )}
+            title="Passer au Pro"
+          >
+            <Sparkles className="h-3.5 w-3.5 shrink-0" />
+            {!collapsed && (
+              <span className="text-xs font-semibold">Passer au Pro</span>
+            )}
+          </Link>
+        )}
+
         {user && (
           <Popover>
             <PopoverTrigger asChild>
@@ -266,15 +283,6 @@ const AppSidebar = () => {
               >
                 <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
                 Facturation
-              </Link>
-
-              {/* Upgrade CTA */}
-              <Link
-                to="/pricing"
-                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                Passer au Pro
               </Link>
 
               <div className="my-1 h-px bg-border/60" />
