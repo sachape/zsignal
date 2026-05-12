@@ -296,11 +296,14 @@ const AnalysePage = () => {
         <div style={anim(200)} className="mb-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Décomposition du StreamScore
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                <CardTitle className="text-sm font-semibold text-foreground">
+                  Décomposition du StreamScore
+                </CardTitle>
+              </div>
               {narrative.headline && (
-                <p className="text-xs text-muted-foreground leading-relaxed">{narrative.headline}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed mt-1">{narrative.headline}</p>
               )}
             </CardHeader>
             <CardContent className="space-y-0.5 pt-0">
