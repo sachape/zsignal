@@ -44,17 +44,17 @@ const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true, secondary: false },
   { title: "Analyse", url: "/analyse", icon: Activity, end: false, secondary: false },
   { title: "Lives", url: "/lives", icon: Radio, end: false, secondary: false },
-  { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false, secondary: true },
-  { title: "Progression", url: "/progression", icon: Star, end: false, secondary: true },
+  { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false, secondary: false },
+  { title: "Progression", url: "/progression", icon: Star, end: false, secondary: false },
   { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false, secondary: true },
   { title: "Quêtes", url: "/quetes", icon: Zap, end: false, secondary: true },
 ];
 
 const benchmarkItems = [
-  { title: "Concurrents", url: "/competitors", icon: Users, end: false },
-  { title: "Classements", url: "/classements", icon: Trophy, end: false },
-  { title: "Watchlist", url: "/watchlist", icon: Bookmark, end: false },
-  { title: "Playbooks", url: "/playbooks", icon: BookOpen, end: false },
+  { title: "Concurrents", url: "/competitors", icon: Users, end: false, secondary: false },
+  { title: "Classements", url: "/classements", icon: Trophy, end: false, secondary: false },
+  { title: "Watchlist", url: "/watchlist", icon: Bookmark, end: false, secondary: true },
+  { title: "Playbooks", url: "/playbooks", icon: BookOpen, end: false, secondary: true },
 ];
 
 
@@ -182,7 +182,7 @@ const AppSidebar = () => {
         <SidebarGroup>
           {!collapsed && <SidebarGroupLabel>Benchmark</SidebarGroupLabel>}
           <SidebarGroupContent>
-            <SidebarMenu>{renderItems(benchmarkItems)}</SidebarMenu>
+            <SidebarMenu>{renderItems(benchmarkItems, true)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
