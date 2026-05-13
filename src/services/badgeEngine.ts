@@ -179,24 +179,19 @@ export interface TieredBadge {
   nextTier: BadgeTier | null;
 }
 
-const TIER_SEEN_KEY = (userId: string) => `seen_badge_tiers_${userId}`;
-
 function getTierSeenIds(userId: string): Set<string> {
-  try {
-    const raw = localStorage.getItem(TIER_SEEN_KEY(userId));
-    return raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set();
-  } catch {
-    return new Set();
-  }
+  return seenTierCache.get(userId) ?? new Set();
 }
 
-export function markTierBadgesSeen(userId: string, ids: string[]): void {
-  if (ids.length === 0) return;
-  try {
-    const seen = getTierSeenIds(userId);
-    ids.forEach((id) => seen.add(id));
-    localStorage.setItem(TIER_SEEN_KEY(userId), JSON.stringify([...seen]));
-  } catch { /* localStorage unavailable */ }
+export async function markTierBadgesSeen(userId: string, ids: string[]): Promise<void> {
+  if (ids.length === 0 || !userId) return;
+  const seen = getTierSeenIds(userId);
+  ids.forEach((id) => seen.add(id));
+  seenTierCache.set(userId, seen);
+  await supabase.from("user_badge_state").upsert(
+    ids.map((id) => ({ user_id: userId, badge_key: id, badge_type: "tier" })),
+    { onConflict: "user_id,badge_key,badge_type", ignoreDuplicates: true },
+  );
 }
 
 function makeTier(
