@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ArrowRight, Tv, Sparkles, FileText, CalendarCheck, ChevronRight } from "lucide-react";
+import { Check, ArrowRight, Tv, Sparkles, FileText, CalendarCheck, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -59,7 +59,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
       icon: Tv,
       label: "Twitch connecté",
       description: "Ton compte Twitch est lié — Streamnco lit tes données en temps réel.",
-      cta: "",
+      cta: "Connecter Twitch",
       href: "/connect-twitch",
       autoChecked: isConnected,
     },
@@ -77,7 +77,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
       icon: FileText,
       label: "Comprends ce qui te freine",
       description: "Ton analyse complète détaille chaque dimension de ta chaîne et les leviers pour progresser.",
-      cta: "Voir mon analyse →",
+      cta: "Voir mon analyse",
       href: "/analyse",
     },
     {
@@ -85,22 +85,37 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
       icon: CalendarCheck,
       label: "Prépare ta semaine",
       description: "Ton plan personnalisé te donne 3 actions concrètes pour cette semaine, basées sur tes données.",
-      cta: "Voir mon plan →",
+      cta: "Voir mon plan",
       href: "/plan",
     },
   ];
 
   const isStepDone = (step: Step) => {
     if (step.autoChecked !== undefined) return step.autoChecked;
-    // Steps 3 & 4 require Twitch connected + report to be meaningful
+    // Steps 3 & 4 require Twitch connected + report as prerequisites
     if (!isConnected || !hasReport) return false;
     return visited.has(step.id);
   };
 
   const allDone = steps.every(isStepDone);
 
+  // Determine the next actionable step based on where the user actually is.
+  // Step 1 (Twitch) → navigate without DB write (auto-checked by connection state)
+  // Step 2 (Score) → passive wait, no action possible
+  // Steps 3 & 4 → navigable + DB-marked when clicked
+  const getNextActionableStep = (): Step | "waiting" | null => {
+    if (!isConnected) return steps[0];
+    if (!hasReport) return "waiting";
+    return steps.find((s) => !isStepDone(s) && !!s.href && s.autoChecked === undefined) ?? null;
+  };
+
   const handleStepClick = (step: Step) => {
-    if (!step.href || step.autoChecked !== undefined) return;
+    if (!step.href) return;
+    if (step.autoChecked !== undefined) {
+      // Auto-checked steps navigate but don't write to DB
+      navigate(step.href);
+      return;
+    }
     const stepId = step.id as OnboardingStep;
     setVisited((prev) => {
       const next = new Set(prev);
@@ -115,6 +130,8 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
     void dbCompleteOnboarding();
     onComplete();
   };
+
+  const nextActionable = getNextActionableStep();
 
   return (
     <div className="mx-auto max-w-xl py-8 sm:py-14">
@@ -136,7 +153,8 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
         {steps.map((step, i) => {
           const done = isStepDone(step);
           const Icon = step.icon;
-          const isClickable = !done && step.autoChecked === undefined;
+          // A step is clickable if it's not done and has a destination
+          const isClickable = !done && !!step.href;
 
           return (
             <div
@@ -151,14 +169,20 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
               onClick={isClickable ? () => handleStepClick(step) : undefined}
             >
               <div className="flex items-start gap-4 p-4">
-                {/* Step number / check */}
+                {/* Step number / check / spinner */}
                 <div className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-all",
                   done
                     ? "border-primary/30 bg-primary/15 text-primary"
                     : "border-border/60 bg-muted/40 text-muted-foreground",
                 )}>
-                  {done ? <Check className="h-4 w-4" /> : <span className="text-xs">{i + 1}</span>}
+                  {done ? (
+                    <Check className="h-4 w-4" />
+                  ) : step.id === "score" && isConnected ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <span className="text-xs">{i + 1}</span>
+                  )}
                 </div>
 
                 {/* Content */}
@@ -178,7 +202,9 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                     )}
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {step.description}
+                    {step.id === "score" && isConnected && !hasReport
+                      ? "Ton analyse tourne en ce moment, ça prend une minute…"
+                      : step.description}
                   </p>
                 </div>
 
@@ -202,17 +228,17 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
           </Button>
         ) : (
           <>
-            {/* Next uncompleted step CTA */}
-            {(() => {
-              const next = steps.find((s) => !isStepDone(s) && s.autoChecked === undefined);
-              if (!next) return null;
-              return (
-                <Button className="w-full sm:w-auto" onClick={() => handleStepClick(next)}>
-                  {next.cta}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              );
-            })()}
+            {nextActionable === "waiting" ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Analyse en cours, laisse cette page ouverte…
+              </div>
+            ) : nextActionable ? (
+              <Button className="w-full sm:w-auto" onClick={() => handleStepClick(nextActionable)}>
+                {nextActionable.cta}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : null}
             <button
               onClick={handleComplete}
               className="text-xs text-muted-foreground/60 underline-offset-2 transition-colors hover:text-muted-foreground hover:underline"
