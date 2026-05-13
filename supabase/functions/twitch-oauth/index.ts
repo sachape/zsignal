@@ -252,6 +252,44 @@ Deno.serve(async (req) => {
       return json({ code: "connection_store_failed", error: "Failed to store connection." }, 500);
     }
 
+    // Auto-enqueue a first-analysis job if this user/platform_user_id
+    // has never been analyzed yet. Edge function ENQUEUES only — the
+    // dashboard frontend (autoRefreshRunner) executes the pipeline.
+    try {
+      const { enqueueAnalysisJobForConnectedAccount } = await import(
+        "../_shared/enqueueAnalysisJob.ts"
+      );
+      const { data: prior } = await adminClient
+        .from("analysis_jobs")
+        .select("id")
+        .eq("user_id", authSession.user.id)
+        .eq("platform", "twitch")
+        .eq("platform_user_id", tw.id)
+        .limit(1)
+        .maybeSingle();
+      if (!prior) {
+        const result = await enqueueAnalysisJobForConnectedAccount(
+          adminClient,
+          {
+            user_id: authSession.user.id,
+            platform_user_id: tw.id,
+            platform_login: tw.login,
+            platform_display_name: tw.display_name,
+          },
+          "auto_first",
+          { uniquePerTriggerSource: true, bumpLastAutoRefresh: true },
+        );
+        console.log("[twitch-oauth] auto_first enqueue", {
+          user_id: authSession.user.id,
+          platform_user_id: tw.id,
+          enqueued: result.enqueued,
+          reason: result.reason,
+        });
+      }
+    } catch (e) {
+      console.error("[twitch-oauth] auto_first enqueue failed", String(e));
+    }
+
     return json({
       success: true,
       platform_login: tw.login,
