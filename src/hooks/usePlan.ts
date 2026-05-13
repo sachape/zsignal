@@ -46,27 +46,19 @@ export function usePlan(): PlanInfo {
       return;
     }
 
-    // When real billing is live: query user_subscriptions or profiles.plan_tier here.
-    // For now every authenticated user is on the free plan.
-    const resolved: PlanTier = "free";
-    PLAN_CACHE.set(user.id, resolved);
-    setPlan(resolved);
-    setLoading(false);
-
-    // Future: uncomment and adapt when subscription column is available
-    // supabase
-    //   .from("profiles")
-    //   .select("plan_tier")
-    //   .eq("user_id", user.id)
-    //   .single()
-    //   .then(({ data }) => {
-    //     const t = (data?.plan_tier ?? "free") as PlanTier;
-    //     PLAN_CACHE.set(user.id, t);
-    //     setPlan(t);
-    //     setLoading(false);
-    //   });
-
-    void supabase; // keep import alive
+    supabase
+      .from("subscriptions")
+      .select("plan_name, status")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const status = data?.status ?? null;
+        const isActive = status === "active" || status === "trialing";
+        const t = (isActive ? (data?.plan_name ?? "free") : "free") as PlanTier;
+        PLAN_CACHE.set(user.id, t);
+        setPlan(t);
+        setLoading(false);
+      });
   }, [user]);
 
   return { plan, isPro: plan !== "free", loading };
