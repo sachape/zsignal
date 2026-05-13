@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Check, Sparkles, Clock } from "lucide-react";
+import { Check, Sparkles, Clock, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuthModal } from "@/contexts/AuthModalContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
+import { startCheckout, type PlanName, type BillingCycle } from "@/services/billingService";
+import { toast } from "sonner";
 import {
   GlassCard,
   MicroLabel,
