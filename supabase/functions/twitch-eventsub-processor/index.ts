@@ -13,6 +13,7 @@
 //  - manual operator runs
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enqueueAnalysisJobForConnectedAccount } from "../_shared/enqueueAnalysisJob.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
