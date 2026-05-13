@@ -7,6 +7,7 @@ import AudienceValueSection from "@/components/landing/AudienceValueSection";
 import PricingSection from "@/components/landing/PricingSection";
 import ValueAnchorSection from "@/components/landing/ValueAnchorSection";
 import FaqSection from "@/components/landing/FaqSection";
+import ArticlesSection from "@/components/landing/ArticlesSection";
 import FinalCtaSection from "@/components/landing/FinalCtaSection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
@@ -30,9 +31,11 @@ const Index = () => {
       <FaqSection />
       {/* 8. Ancrage de valeur (dernière validation avant le CTA final) */}
       <ValueAnchorSection />
-      {/* 9. Action finale */}
+      {/* 9. Articles */}
+      <ArticlesSection />
+      {/* 10. Action finale */}
       <FinalCtaSection />
-      {/* 10. Footer */}
+      {/* 11. Footer */}
       <LandingFooter />
     </div>
   );

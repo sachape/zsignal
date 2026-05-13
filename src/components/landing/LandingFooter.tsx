@@ -133,9 +133,9 @@ const LandingFooter = () => {
             </ul>
           </div>
 
-          {/* Blog */}
+          {/* Articles */}
           <div>
-            <p className={colTitleCls}>Blog</p>
+            <p className={colTitleCls}>Articles</p>
             <ul className="space-y-2.5">
               <li>
                 <Link to="/blog" className={linkCls}>

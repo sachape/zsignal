@@ -16,7 +16,7 @@ const NAV_LINKS = [
   { label: "FAQ", anchor: "faq" },
 ] as const;
 
-const BLOG_LINK = { label: "Blog", href: "/blog" };
+const BLOG_LINK = { label: "Articles", href: "/blog" };
 
 const LandingNav = () => {
   const { user } = useAuth();
