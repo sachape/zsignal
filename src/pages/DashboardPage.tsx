@@ -113,14 +113,18 @@ const DashboardPage = () => {
   useEffect(() => {
     if (!user?.email) return;
     analytics.identify(user.email);
-    // Detect new signup regardless of method (email or Google OAuth)
+    // Email signups: already tracked in AuthForm, skip here to avoid double-fire.
+    // Google OAuth: no AuthForm involved, detect via created_at < 2 min.
     const trackKey = `streamnco:signup_tracked:${user.id}`;
+    const emailKey = `streamnco:signup_tracked:email:${user.email}`;
     if (!localStorage.getItem(trackKey)) {
-      const ageMs = Date.now() - new Date(user.created_at).getTime();
-      if (ageMs < 120_000) {
-        analytics.signupCompleted(user.email);
-        localStorage.setItem(trackKey, "1");
+      if (!localStorage.getItem(emailKey)) {
+        const ageMs = Date.now() - new Date(user.created_at).getTime();
+        if (ageMs < 120_000) {
+          analytics.signupCompleted(user.email);
+        }
       }
+      localStorage.setItem(trackKey, "1");
     }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 

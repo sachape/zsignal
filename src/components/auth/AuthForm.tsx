@@ -60,8 +60,13 @@ const AuthForm = ({
     try {
       if (mode === "signup") {
         const { error } = await signUp(email, password);
-        if (error) setError(translateError(error.message));
-        else setSuccess(true);
+        if (error) {
+          setError(translateError(error.message));
+        } else {
+          analytics.signupCompleted(email);
+          localStorage.setItem(`streamnco:signup_tracked:email:${email}`, "1");
+          setSuccess(true);
+        }
       } else {
         const { error } = await signIn(email, password);
         if (error) {
