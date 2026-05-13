@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { usePlan, invalidatePlanCache } from "@/hooks/usePlan";
 import { toast } from "sonner";
+import { analytics } from "@/services/analytics";
 import { InlineLock } from "@/components/PaywallGate";
 import {
   ArrowRight,
@@ -82,7 +83,7 @@ const formatDate = (iso: string) =>
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { isPro } = usePlan();
+  const { isPro, plan, loading: planLoading } = usePlan();
   const { isConnected, account, loading: connectionLoading } = useTwitchConnection();
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentReport, setCurrentReport] = useState<SavedReport | null>(null);
@@ -108,6 +109,13 @@ const DashboardPage = () => {
     setShowWelcome(false);
   }, []);
 
+  // Identify user for Brevo on every session
+  useEffect(() => {
+    if (user?.email) analytics.identify(user.email);
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Checkout success: clear cache, toast, clean URL
+  const checkoutSuccessOnMount = useRef(searchParams.get("checkout") === "success");
   useEffect(() => {
     if (searchParams.get("checkout") !== "success" || !user) return;
     invalidatePlanCache(user.id);
@@ -118,6 +126,13 @@ const DashboardPage = () => {
     setSearchParams((p) => { p.delete("checkout"); return p; }, { replace: true });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  // Fire checkout_completed once plan confirmed from DB
+  useEffect(() => {
+    if (!checkoutSuccessOnMount.current || planLoading || !isPro) return;
+    analytics.checkoutCompleted(plan);
+    checkoutSuccessOnMount.current = false;
+  }, [plan, planLoading, isPro]); // eslint-disable-line react-hooks/exhaustive-deps
   // null = still loading from DB; true/false = resolved. Avoids flicker for completed users.
   const [showGuide, setShowGuide] = useState<boolean | null>(null);
 

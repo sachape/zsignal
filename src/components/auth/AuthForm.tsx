@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { analytics } from "@/services/analytics";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,12 +61,16 @@ const AuthForm = ({
       if (mode === "signup") {
         const { error } = await signUp(email, password);
         if (error) setError(translateError(error.message));
-        else setSuccess(true);
+        else {
+          analytics.signupCompleted(email);
+          setSuccess(true);
+        }
       } else {
         const { error } = await signIn(email, password);
         if (error) {
           setError(translateError(error.message));
         } else {
+          analytics.signinCompleted(email);
           onSuccess?.();
           navigate(redirectTo);
         }
@@ -88,6 +93,7 @@ const AuthForm = ({
         setGoogleLoading(false);
         return;
       }
+      analytics.googleSignin();
       onSuccess?.();
       navigate(redirectTo);
     } catch {

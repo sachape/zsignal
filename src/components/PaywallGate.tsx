@@ -1,7 +1,8 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Lock, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { analytics } from "@/services/analytics";
 
 // ─── Full-page lock (replaces content entirely) ───────────────────────────────
 
@@ -12,7 +13,9 @@ interface FullLockProps {
   bullets?: string[];
 }
 
-export const FullPageLock = ({ icon, feature, description, bullets }: FullLockProps) => (
+export const FullPageLock = ({ icon, feature, description, bullets }: FullLockProps) => {
+  useEffect(() => { analytics.paywallHit(feature, "full_page"); }, [feature]);
+  return (
   <div className="flex min-h-[60vh] items-center justify-center px-4 py-16">
     <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-card/80 to-card/40 p-8 text-center backdrop-blur-xl">
       {/* Glow */}
@@ -44,7 +47,7 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
 
       {/* CTA */}
       <Button asChild className="relative mt-6 w-full" size="sm">
-        <Link to="/pricing">
+        <Link to="/pricing" onClick={() => analytics.upgradeClicked(feature, "full_page")}>
           Passer au Pro
           <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
         </Link>
@@ -54,7 +57,8 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
       </p>
     </div>
   </div>
-);
+  );
+};
 
 // ─── Inline blur gate (wraps and blurs locked content) ────────────────────────
 
@@ -71,7 +75,9 @@ export const InlineLock = ({
   feature,
   description,
   blurHeight = "180px",
-}: InlineLockProps) => (
+}: InlineLockProps) => {
+  useEffect(() => { analytics.paywallHit(feature, "inline"); }, [feature]);
+  return (
   <div className="relative">
     {/* Blurred content */}
     <div
@@ -97,14 +103,15 @@ export const InlineLock = ({
         )}
       </div>
       <Button asChild size="sm" variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
-        <Link to="/pricing">
+        <Link to="/pricing" onClick={() => analytics.upgradeClicked(feature, "inline")}>
           <Sparkles className="mr-1.5 h-3 w-3" />
           Passer au Pro
         </Link>
       </Button>
     </div>
   </div>
-);
+  );
+};
 
 // ─── Limit banner (shown when free user hits a cap) ───────────────────────────
 
@@ -114,7 +121,9 @@ interface LimitBannerProps {
   label: string;
 }
 
-export const LimitBanner = ({ current, max, label }: LimitBannerProps) => (
+export const LimitBanner = ({ current, max, label }: LimitBannerProps) => {
+  useEffect(() => { analytics.paywallHit(label, "limit_banner"); }, [label]);
+  return (
   <div className="flex items-center justify-between gap-4 rounded-xl border border-warning/20 bg-warning/[0.04] px-4 py-3">
     <div className="flex items-center gap-2.5">
       <Lock className="h-3.5 w-3.5 shrink-0 text-warning/70" />
@@ -124,10 +133,11 @@ export const LimitBanner = ({ current, max, label }: LimitBannerProps) => (
       </p>
     </div>
     <Button asChild size="sm" variant="outline" className="shrink-0 border-primary/30 text-primary hover:bg-primary/10">
-      <Link to="/pricing">
+      <Link to="/pricing" onClick={() => analytics.upgradeClicked(label, "limit_banner")}>
         <Sparkles className="mr-1 h-3 w-3" />
         Pro
       </Link>
     </Button>
   </div>
-);
+  );
+};

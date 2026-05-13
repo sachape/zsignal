@@ -1,9 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
+import { analytics } from "@/services/analytics";
 
 export type PlanName = "pro" | "growth";
 export type BillingCycle = "monthly" | "annual";
 
 export async function startCheckout(plan: PlanName, billing_cycle: BillingCycle): Promise<void> {
+  analytics.checkoutStarted(plan, billing_cycle);
   const { data, error } = await supabase.functions.invoke("create-checkout-session", {
     body: { plan, billing_cycle },
   });

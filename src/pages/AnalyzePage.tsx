@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 
 import { AlertCircle, RefreshCw, SearchX } from "lucide-react";
+import { analytics } from "@/services/analytics";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import AnalysisStep from "@/components/AnalysisStep";
@@ -97,6 +98,8 @@ const AnalyzePage = () => {
       teaserStore.clearPendingChannel();
     }
     startedRef.current = true;
+    const analysisMode = mode === "full" && user ? "full" : "teaser";
+    analytics.analysisStarted(channel, analysisMode);
 
     (async () => {
       // Authenticated full analysis
@@ -111,6 +114,7 @@ const AnalyzePage = () => {
             platformDisplayName: account?.platform_display_name ?? null,
             onStage: (s) => setCurrentStage(s),
           });
+          analytics.analysisCompleted(channel, "full");
           setTimeout(() => navigate(`/result?report_id=${reportId}`), 500);
         } catch (e) {
           setError(e instanceof Error ? e.message : "Une erreur est survenue.");
@@ -126,6 +130,7 @@ const AnalyzePage = () => {
         onLookupResolved: (info) => setLookupInfo(info),
       });
       if (result.ok === true) {
+        analytics.analysisCompleted(channel, "teaser");
         setTimeout(() => navigate(`/result?teaser=${result.record.id}`), 500);
       } else if (result.reason === "not_found") {
         setNotFound(true);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Loader2, XCircle } from "lucide-react";
+import { analytics } from "@/services/analytics";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -188,6 +189,7 @@ const TwitchCallbackPage = () => {
 
       // Cockpit is the canonical authenticated home. The enriched report is
       // reachable one click away via the welcome banner / "Rapport complet".
+      analytics.twitchConnected(connected.platform_login);
       const target = `/dashboard?welcome=1`;
       devLog("navigating to:", target);
       navigate(target, { replace: true });
