@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlan } from "@/hooks/usePlan";
 import { cn } from "@/lib/utils";
 import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
@@ -66,6 +67,7 @@ const AppSidebar = () => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { user, signOut } = useAuth();
+  const { isPro, plan } = usePlan();
   const navigate = useNavigate();
 
   const [hasNewBadge, setHasNewBadge] = useState(false);
@@ -253,7 +255,7 @@ const AppSidebar = () => {
         })()}
 
         {/* Upgrade CTA */}
-        {user && (
+        {user && !isPro && (
           <Link
             to="/pricing"
             className={cn(
@@ -312,8 +314,14 @@ const AppSidebar = () => {
                   <p className="truncate text-xs font-medium text-foreground">
                     {user.email}
                   </p>
-                  <span className="mt-0.5 inline-flex items-center rounded-full border border-border/60 bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                    Plan Gratuit
+                  <span className={cn(
+                    "mt-0.5 inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                    isPro
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-border/60 bg-muted/60 text-muted-foreground"
+                  )}>
+                    {isPro && <Sparkles className="h-2.5 w-2.5" />}
+                    {plan === "pro" ? "Plan Pro" : plan === "growth" ? "Plan Growth" : "Plan Gratuit"}
                   </span>
                 </div>
               </div>
