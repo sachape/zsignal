@@ -125,6 +125,53 @@ Deno.serve(async (req) => {
       return json({ success: true, mode: "all", count: results.length, results });
     }
 
+    if (mode === "weekly") {
+      // Vault-backed cron auth (same pattern as eventsub functions).
+      const authHeader = req.headers.get("Authorization") ?? "";
+      const token = authHeader.startsWith("Bearer ")
+        ? authHeader.slice("Bearer ".length)
+        : "";
+      if (!token) return json({ error: "Unauthorized" }, 401);
+      const { data: ok, error: rpcError } = await admin.rpc(
+        "verify_eventsub_cron_secret",
+        { token },
+      );
+      if (rpcError || ok !== true) return json({ error: "Unauthorized" }, 401);
+
+      const { enqueueAnalysisJobForConnectedAccount } = await import(
+        "../_shared/enqueueAnalysisJob.ts"
+      );
+      const cutoff = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
+      const { data: accounts, error } = await admin
+        .from("connected_accounts")
+        .select("id, user_id, platform_user_id, platform_login, platform_display_name, last_auto_refresh_at")
+        .eq("platform", "twitch")
+        .or(`last_auto_refresh_at.is.null,last_auto_refresh_at.lte.${cutoff}`);
+      if (error) return json({ error: error.message }, 500);
+
+      const results: unknown[] = [];
+      for (const a of accounts ?? []) {
+        const r = await enqueueAnalysisJobForConnectedAccount(
+          admin,
+          {
+            user_id: (a as any).user_id,
+            platform_user_id: (a as any).platform_user_id,
+            platform_login: (a as any).platform_login,
+            platform_display_name: (a as any).platform_display_name,
+          },
+          "auto_weekly",
+          { bumpLastAutoRefresh: true },
+        );
+        results.push({
+          user_id: (a as any).user_id,
+          platform_user_id: (a as any).platform_user_id,
+          enqueued: r.enqueued,
+          reason: r.reason,
+        });
+      }
+      return json({ success: true, mode: "weekly", count: results.length, results });
+    }
+
     // mode === "self" → user-initiated manual refresh
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return json({ error: "Missing authorization." }, 401);
