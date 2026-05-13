@@ -373,6 +373,60 @@ export type Database = {
           },
         ]
       }
+      competitor_snapshots: {
+        Row: {
+          captured_at: string
+          captured_on: string
+          clips_30d: number | null
+          created_at: string
+          game_id: string | null
+          game_name: string | null
+          id: string
+          is_live: boolean
+          login: string
+          platform: string
+          platform_user_id: string | null
+          stream_score: number | null
+          streams_30d: number | null
+          user_id: string
+          viewer_count: number | null
+        }
+        Insert: {
+          captured_at?: string
+          captured_on?: string
+          clips_30d?: number | null
+          created_at?: string
+          game_id?: string | null
+          game_name?: string | null
+          id?: string
+          is_live?: boolean
+          login: string
+          platform?: string
+          platform_user_id?: string | null
+          stream_score?: number | null
+          streams_30d?: number | null
+          user_id: string
+          viewer_count?: number | null
+        }
+        Update: {
+          captured_at?: string
+          captured_on?: string
+          clips_30d?: number | null
+          created_at?: string
+          game_id?: string | null
+          game_name?: string | null
+          id?: string
+          is_live?: boolean
+          login?: string
+          platform?: string
+          platform_user_id?: string | null
+          stream_score?: number | null
+          streams_30d?: number | null
+          user_id?: string
+          viewer_count?: number | null
+        }
+        Relationships: []
+      }
       connected_accounts: {
         Row: {
           access_token_encrypted: string | null
@@ -1208,6 +1262,60 @@ export type Database = {
           },
         ]
       }
+      user_badge_state: {
+        Row: {
+          badge_key: string
+          badge_type: string
+          created_at: string
+          id: string
+          seen_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_key: string
+          badge_type?: string
+          created_at?: string
+          id?: string
+          seen_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_key?: string
+          badge_type?: string
+          created_at?: string
+          id?: string
+          seen_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_checklist_progress: {
+        Row: {
+          checklist_key: string
+          completed_at: string
+          created_at: string
+          id: string
+          item_key: string
+          user_id: string
+        }
+        Insert: {
+          checklist_key: string
+          completed_at?: string
+          created_at?: string
+          id?: string
+          item_key: string
+          user_id: string
+        }
+        Update: {
+          checklist_key?: string
+          completed_at?: string
+          created_at?: string
+          id?: string
+          item_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_onboarding: {
         Row: {
           completed_at: string | null
@@ -1227,6 +1335,30 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           steps_visited?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          preferred_language: string | null
+          preferred_niche: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          preferred_language?: string | null
+          preferred_niche?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          preferred_language?: string | null
+          preferred_niche?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1253,6 +1385,54 @@ export type Database = {
           quest_id?: string
           user_id?: string
           week_key?: string
+        }
+        Relationships: []
+      }
+      watchlist_entries: {
+        Row: {
+          broadcaster_type: string | null
+          created_at: string
+          display_name: string | null
+          game_id: string | null
+          game_name: string | null
+          id: string
+          login: string
+          notes: string | null
+          platform: string
+          platform_user_id: string
+          profile_image_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          broadcaster_type?: string | null
+          created_at?: string
+          display_name?: string | null
+          game_id?: string | null
+          game_name?: string | null
+          id?: string
+          login: string
+          notes?: string | null
+          platform?: string
+          platform_user_id?: string
+          profile_image_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          broadcaster_type?: string | null
+          created_at?: string
+          display_name?: string | null
+          game_id?: string | null
+          game_name?: string | null
+          id?: string
+          login?: string
+          notes?: string | null
+          platform?: string
+          platform_user_id?: string
+          profile_image_url?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

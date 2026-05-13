@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
+import { loadWatchlistFromDb } from "@/services/benchmarkWatchlist";
+import { loadPreferredNicheFromDb } from "@/services/preferredNiche";
+import { loadSeenBadgesFromDb } from "@/services/badgeEngine";
 
 interface AuthContextType {
   user: User | null;
@@ -24,6 +27,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        const uid = session?.user?.id;
+        if (uid) {
+          // Hydrate per-user caches (fire-and-forget)
+          void loadWatchlistFromDb(uid);
+          void loadPreferredNicheFromDb(uid);
+          void loadSeenBadgesFromDb(uid);
+        }
       }
     );
 
@@ -31,6 +41,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      const uid = session?.user?.id;
+      if (uid) {
+        void loadWatchlistFromDb(uid);
+        void loadPreferredNicheFromDb(uid);
+        void loadSeenBadgesFromDb(uid);
+      }
     });
 
     return () => subscription.unsubscribe();

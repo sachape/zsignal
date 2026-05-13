@@ -526,7 +526,10 @@ const StreamerProfilePage = () => {
         const loginKey = r.identity?.platform_login ?? r.channel_summary.channel_name ?? login;
         const clips30d = Number(r.facts.find((f) => f.key === "clips_30d")?.value ?? 0) || null;
         const streams30d = Number(r.facts.find((f) => f.key === "streams_30d")?.value ?? 0) || null;
-        recordSnapshot(user?.id ?? null, loginKey, {
+        // Hydrate cache from DB first so the chart shows full history.
+        const { loadSnapshotsFromDb } = await import("@/services/competitorSnapshots");
+        await loadSnapshotsFromDb(user?.id ?? null, loginKey);
+        await recordSnapshot(user?.id ?? null, loginKey, {
           stream_score: r.score.overall ?? null,
           avg_viewers: r.channel_summary.avg_viewers || null,
           clips_30d: clips30d,
