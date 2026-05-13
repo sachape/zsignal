@@ -118,10 +118,10 @@ export async function patchWatchlistEntry(
   cache.set(key(userId), current);
   emit();
   if (!userId) return;
-  const dbPatch: Record<string, unknown> = {};
-  if ("display_name" in patch) dbPatch.display_name = patch.display_name;
-  if ("category" in patch) dbPatch.game_name = patch.category;
-  if ("avatar_url" in patch) dbPatch.profile_image_url = patch.avatar_url;
+  const dbPatch: { display_name?: string; game_name?: string | null; profile_image_url?: string | null } = {};
+  if ("display_name" in patch && patch.display_name !== undefined) dbPatch.display_name = patch.display_name;
+  if ("category" in patch) dbPatch.game_name = patch.category ?? null;
+  if ("avatar_url" in patch) dbPatch.profile_image_url = patch.avatar_url ?? null;
   if (Object.keys(dbPatch).length === 0) return;
   await supabase
     .from("watchlist_entries")
