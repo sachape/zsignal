@@ -12,6 +12,10 @@ export interface PlanInfo {
 
 const PLAN_CACHE = new Map<string, PlanTier>();
 
+export function invalidatePlanCache(userId: string) {
+  PLAN_CACHE.delete(userId);
+}
+
 // Dev override: set localStorage key "streamnco_plan_override" to "pro" | "growth" | "agency"
 function getDevOverride(): PlanTier | null {
   try {

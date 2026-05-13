@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { usePlan } from "@/hooks/usePlan";
+import { usePlan, invalidatePlanCache } from "@/hooks/usePlan";
+import { toast } from "sonner";
 import { InlineLock } from "@/components/PaywallGate";
 import {
   ArrowRight,
@@ -83,7 +84,7 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const { isPro } = usePlan();
   const { isConnected, account, loading: connectionLoading } = useTwitchConnection();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [currentReport, setCurrentReport] = useState<SavedReport | null>(null);
   const [history, setHistory] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +107,17 @@ const DashboardPage = () => {
     onboardingFlags.dismissCockpitWelcome();
     setShowWelcome(false);
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get("checkout") !== "success" || !user) return;
+    invalidatePlanCache(user.id);
+    toast.success("Abonnement activé ! Bienvenue sur ton nouveau plan.", {
+      description: "Toutes les fonctionnalités Pro sont maintenant débloquées.",
+      duration: 6000,
+    });
+    setSearchParams((p) => { p.delete("checkout"); return p; }, { replace: true });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
   // null = still loading from DB; true/false = resolved. Avoids flicker for completed users.
   const [showGuide, setShowGuide] = useState<boolean | null>(null);
 
