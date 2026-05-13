@@ -1490,6 +1490,473 @@ export const ARTICLES: Article[] = [
       </>
     ),
   },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 8 — Streamnco VS autres outils
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    slug: "streamnco-vs-autres-outils-twitch",
+    category: "Outils",
+    categoryColor: "info",
+    title: "Streamnco vs les autres outils Twitch : pourquoi les stats seules ne suffisent pas",
+    excerpt:
+      "TwitchTracker te dit combien de viewers tu avais. SullyGnome te dit quel jeu regarder. Streamnco te dit quoi faire cette semaine. Ce n'est pas le même produit.",
+    readingTime: 7,
+    publishedAt: "2025-05-12",
+    keywords: [
+      "streamnco vs twitchtracker",
+      "meilleur outil analytics twitch",
+      "alternative twitchtracker",
+      "outil progression twitch",
+      "streamnco avis",
+      "streamnco vs sullygnome",
+    ],
+    metaDescription:
+      "Comparatif Streamnco vs TwitchTracker, SullyGnome et le dashboard natif Twitch : pourquoi un outil de diagnostic orienté action est fondamentalement différent d'un outil de statistiques.",
+    illustration: (() => (
+      <svg viewBox="0 0 600 260" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+        <defs>
+          <linearGradient id="vsGlow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="hsl(95,98%,61%)" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="hsl(95,98%,61%)" stopOpacity="0.04" />
+          </linearGradient>
+        </defs>
+        {/* Left: "autres outils" — cold grey columns */}
+        {[60, 110, 160].map((x, i) => (
+          <rect key={x} x={x} y={180 - [60,90,75][i]} width={36} height={[60,90,75][i]} rx={5}
+            fill="white" fillOpacity="0.05" stroke="white" strokeOpacity="0.08" strokeWidth={1} />
+        ))}
+        <text x="130" y="220" textAnchor="middle" fontSize="10" fill="white" fillOpacity="0.25" fontFamily="DM Sans">Stats brutes</text>
+
+        {/* VS badge */}
+        <circle cx="300" cy="120" r="28" fill="hsl(220,18%,9%)" stroke="white" strokeOpacity="0.1" strokeWidth="1" />
+        <text x="300" y="125" textAnchor="middle" fontSize="13" fontWeight="700" fill="white" fillOpacity="0.5" fontFamily="DM Sans">VS</text>
+
+        {/* Right: Streamnco — glowing primary */}
+        <rect x="380" y="50" width="180" height="150" rx="12" fill="url(#vsGlow)" stroke="hsl(95,98%,61%)" strokeOpacity="0.3" strokeWidth="1" />
+        <text x="470" y="100" textAnchor="middle" fontSize="11" fontWeight="700" fill="hsl(95,98%,61%)" fontFamily="DM Sans">Diagnostic</text>
+        <text x="470" y="118" textAnchor="middle" fontSize="11" fontWeight="700" fill="hsl(95,98%,61%)" fontFamily="DM Sans">Blocage identifié</text>
+        <text x="470" y="136" textAnchor="middle" fontSize="11" fontWeight="700" fill="hsl(95,98%,61%)" fontFamily="DM Sans">Plan d'action</text>
+        <text x="470" y="154" textAnchor="middle" fontSize="11" fontWeight="700" fill="hsl(95,98%,61%)" fontFamily="DM Sans">Suivi de progression</text>
+        <text x="470" y="220" textAnchor="middle" fontSize="10" fill="hsl(95,98%,61%)" fillOpacity="0.6" fontFamily="DM Sans">Streamnco</text>
+        {/* Glow dot */}
+        <circle cx="470" cy="70" r="18" fill="hsl(95,98%,61%)" fillOpacity="0.08" />
+        <circle cx="470" cy="70" r="8" fill="hsl(95,98%,61%)" fillOpacity="0.25" />
+        <text x="470" y="74" textAnchor="middle" fontSize="10" fill="hsl(95,98%,61%)" fontFamily="DM Sans">🎯</text>
+      </svg>
+    ))(),
+    tableOfContents: [
+      { id: "problem", label: "Le problème avec les outils de stats" },
+      { id: "difference", label: "La différence fondamentale" },
+      { id: "tableau", label: "Tableau comparatif" },
+      { id: "cas-usage", label: "Quel outil pour quel besoin" },
+      { id: "streamnco-unique", label: "Ce que seul Streamnco fait" },
+      { id: "combiner", label: "Comment combiner les outils" },
+    ],
+    content: (
+      <>
+        <P>
+          Il existe une dizaine d'outils pour analyser une chaîne Twitch. Ils ont tous un point commun :
+          ils te montrent des données. Ce qu'ils ne font pas, c'est te dire <em>quoi faire</em> avec.
+        </P>
+        <P>
+          Streamnco est construit autour d'une idée différente : les données ne sont pas une fin,
+          elles sont un moyen. L'objectif n'est pas de te montrer ton CCV des 30 derniers jours —
+          c'est de t'expliquer pourquoi il stagne et ce que tu dois changer cette semaine.
+        </P>
+
+        <H2 id="problem">Le problème avec les outils de statistiques</H2>
+        <P>
+          Les outils de stats Twitch existants ont été conçus pour répondre à la question
+          "qu'est-ce qui s'est passé ?". C'est utile. Mais ce n'est pas la question que se pose
+          un streamer qui veut progresser.
+        </P>
+        <P>
+          La question qu'il se pose, c'est : <strong>"qu'est-ce que je fais maintenant ?"</strong>
+        </P>
+        <P>
+          Et pour ça, un tableau de statistiques brutes ne suffit pas. Il faut de l'interprétation,
+          du contexte, et une priorité claire. C'est exactement ce que les outils de stats ne font pas.
+        </P>
+        <Callout icon="📊" title="La limite des dashboards de métriques">
+          Un dashboard te donne de l'information. Un copilote te donne une décision.
+          La différence semble subtile — elle est fondamentale pour un streamer qui a 30 minutes
+          par semaine à consacrer à l'analyse de sa chaîne.
+        </Callout>
+
+        <H2 id="difference">La différence fondamentale</H2>
+        <P>
+          Il existe trois catégories d'outils pour les streamers Twitch :
+        </P>
+        <NumberedStep n={1} title="Les outils de données brutes (TwitchTracker, SullyGnome)">
+          Ils agrègent et affichent des données historiques publiques. Très utiles pour la recherche
+          et l'analyse de marché. Inutiles pour le pilotage quotidien d'une chaîne.
+        </NumberedStep>
+        <NumberedStep n={2} title="Les outils de production (Streamlabs, OBS)">
+          Ils t'aident à produire ton stream : overlay, alertes, encodage. Ils ne disent rien sur
+          la stratégie de ta chaîne.
+        </NumberedStep>
+        <NumberedStep n={3} title="Les outils de progression (Streamnco)">
+          Ils analysent tes signaux pour identifier ce qui bloque ta progression et te donner
+          un plan d'action. C'est une catégorie à part entière — et pratiquement le seul outil
+          francophone dans cette niche.
+        </NumberedStep>
+
+        <H2 id="tableau">Tableau comparatif</H2>
+
+        <div className="my-8 overflow-hidden rounded-xl border border-white/[0.06]">
+          <table className="w-full text-[13px]">
+            <thead>
+              <tr className="border-b border-white/[0.06] bg-card/60">
+                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">Fonctionnalité</th>
+                <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">TwitchTracker</th>
+                <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">SullyGnome</th>
+                <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-primary/80">Streamnco</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.04]">
+              {[
+                ["Stats historiques", "✓", "✓", "✓"],
+                ["Analyse de marché par jeu", "partiel", "✓", "✓"],
+                ["Benchmark concurrents", "✓", "✓", "✓"],
+                ["Score synthétique de chaîne", "✗", "✗", "✓"],
+                ["Identification du blocage principal", "✗", "✗", "✓"],
+                ["Plan hebdomadaire actionnable", "✗", "✗", "✓"],
+                ["Suivi de régularité / série", "✗", "✗", "✓"],
+                ["Quêtes et progression XP", "✗", "✗", "✓"],
+                ["Débrief post-live", "✗", "✗", "✓"],
+                ["Interface en français", "✗", "✗", "✓"],
+                ["Gratuit pour commencer", "✓", "partiel", "✓"],
+              ].map(([feat, tt, sg, sn]) => (
+                <tr key={feat} className="bg-card/20 hover:bg-card/40 transition-colors">
+                  <td className="px-4 py-2.5 text-foreground/70">{feat}</td>
+                  <td className={`px-4 py-2.5 text-center ${tt === "✓" ? "text-foreground/50" : tt === "✗" ? "text-foreground/20" : "text-foreground/40"}`}>{tt}</td>
+                  <td className={`px-4 py-2.5 text-center ${sg === "✓" ? "text-foreground/50" : sg === "✗" ? "text-foreground/20" : "text-foreground/40"}`}>{sg}</td>
+                  <td className={`px-4 py-2.5 text-center font-semibold ${sn === "✓" ? "text-primary" : sn === "✗" ? "text-foreground/20" : "text-foreground/40"}`}>{sn}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <H2 id="cas-usage">Quel outil pour quel besoin précis</H2>
+        <Ul>
+          <Li>
+            <strong>Tu veux choisir ta niche ou analyser un marché :</strong> SullyGnome.
+            Le meilleur outil pour analyser le ratio viewers/streamers par catégorie.
+          </Li>
+          <Li>
+            <strong>Tu veux regarder l'historique d'une chaîne concurrente :</strong> TwitchTracker.
+            Données publiques remontant à plusieurs années, gratuites et sans compte.
+          </Li>
+          <Li>
+            <strong>Tu veux comprendre ce qui bloque ta croissance et quoi faire :</strong> Streamnco.
+            C'est son unique raison d'être.
+          </Li>
+          <Li>
+            <strong>Tu veux optimiser ta production technique :</strong> Streamlabs ou OBS Studio.
+            Ces outils ne font pas d'analytics — ils font de la production.
+          </Li>
+        </Ul>
+
+        <H2 id="streamnco-unique">Ce que seul Streamnco fait</H2>
+        <P>
+          Plusieurs fonctionnalités de Streamnco n'existent tout simplement pas dans les autres outils :
+        </P>
+        <Ul>
+          <Li>
+            <strong>Le StreamScore :</strong> un score synthétique de 0 à 100 qui résume la santé
+            de ta chaîne sur 6 dimensions (régularité, progression, momentum, profil, signaux croissance,
+            cohérence). Un chiffre qui dit plus que 20 tableaux de stats.
+          </Li>
+          <Li>
+            <strong>L'identification du blocage principal :</strong> parmi tous les signaux de ta chaîne,
+            Streamnco identifie celui qui freine le plus ta progression — pas une liste de 10 conseils,
+            un seul blocage priorisé.
+          </Li>
+          <Li>
+            <strong>Le plan hebdomadaire séquencé :</strong> chaque semaine, un plan clair avec
+            pourquoi chaque étape existe, quel impact attendre, quoi éviter.
+          </Li>
+          <Li>
+            <strong>Le débrief post-live :</strong> analyse automatique de chaque session après la fin
+            du stream — score, points forts, points à améliorer, comparaison avec la moyenne.
+          </Li>
+          <Li>
+            <strong>Le système de quêtes et XP :</strong> une progression gamifiée qui transforme
+            les bonnes habitudes streamer en objectifs hebdomadaires mesurables.
+          </Li>
+        </Ul>
+
+        <H2 id="combiner">Comment combiner les outils intelligemment</H2>
+        <P>
+          Ces outils ne sont pas concurrents — ils sont complémentaires. La combinaison optimale
+          selon ton niveau :
+        </P>
+        <Callout icon="🎯" title="Stack recommandé par niveau">
+          <strong>Débutant :</strong> Streamnco (diagnostic + plan) + dashboard natif Twitch (suivi basique)<br /><br />
+          <strong>Intermédiaire :</strong> Streamnco (pilotage) + SullyGnome (veille marché) + TwitchTracker (benchmarks)<br /><br />
+          <strong>Avancé :</strong> Streamnco (copilote principal) + tous les outils selon le besoin du moment
+        </Callout>
+        <P>
+          L'erreur à éviter : passer du temps à croiser des données sur plusieurs outils sans en tirer
+          de décision. Un bon système d'analyse, c'est celui qui débouche sur une action concrète
+          en moins de 15 minutes par semaine. Streamnco est conçu pour ça.
+        </P>
+      </>
+    ),
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 9 — Streamnco en valeur : le copilote de progression
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    slug: "streamnco-copilote-progression-twitch",
+    category: "Produit",
+    categoryColor: "primary",
+    title: "Streamnco : comment le copilote de progression transforme ta façon de streamer",
+    excerpt:
+      "Un score, un blocage, un plan. Streamnco ne te noie pas sous les données — il te donne exactement ce dont tu as besoin pour progresser cette semaine. Voici comment ça fonctionne.",
+    readingTime: 8,
+    publishedAt: "2025-05-13",
+    keywords: [
+      "streamnco",
+      "streamscore twitch",
+      "copilote streamer twitch",
+      "diagnostic chaîne twitch",
+      "plan hebdomadaire twitch",
+      "comment utiliser streamnco",
+      "améliorer sa chaîne twitch",
+    ],
+    metaDescription:
+      "Découvrez Streamnco, le copilote de progression pour streamers Twitch : StreamScore, identification du blocage principal, plan hebdomadaire actionnable et suivi de progression.",
+    illustration: (() => (
+      <svg viewBox="0 0 600 260" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+        <defs>
+          <radialGradient id="heroGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="hsl(95,98%,61%)" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="hsl(95,98%,61%)" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="scoreArc" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="hsl(95,98%,61%)" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="hsl(95,98%,61%)" />
+          </linearGradient>
+        </defs>
+
+        {/* Central glow */}
+        <circle cx="300" cy="130" r="100" fill="url(#heroGlow)" />
+
+        {/* Score ring */}
+        <circle cx="300" cy="130" r="62" stroke="white" strokeOpacity="0.06" strokeWidth="12" fill="none" />
+        <circle cx="300" cy="130" r="62"
+          stroke="url(#scoreArc)" strokeWidth="12" fill="none"
+          strokeLinecap="round" strokeDasharray="310 390"
+          transform="rotate(-90 300 130)"
+        />
+        <text x="300" y="120" textAnchor="middle" fontSize="30" fontWeight="800" fill="white" fontFamily="DM Sans">74</text>
+        <text x="300" y="138" textAnchor="middle" fontSize="10" fill="white" fillOpacity="0.4" fontFamily="DM Sans">StreamScore</text>
+
+        {/* Satellite cards */}
+        {[
+          { x: 60, y: 60, label: "Régularité", val: "85", ok: true },
+          { x: 460, y: 60, label: "Momentum", val: "68", ok: true },
+          { x: 60, y: 180, label: "Profil", val: "52", ok: false },
+          { x: 460, y: 180, label: "Croissance", val: "71", ok: true },
+        ].map(({ x, y, label, val, ok }) => (
+          <g key={label}>
+            <rect x={x} y={y} width={80} height={44} rx={8}
+              fill="hsl(220,18%,9%)"
+              stroke={ok ? "hsl(95,98%,61%)" : "white"}
+              strokeOpacity={ok ? 0.3 : 0.08}
+              strokeWidth={1}
+            />
+            <text x={x + 40} y={y + 16} textAnchor="middle" fontSize="9" fill="white" fillOpacity="0.4" fontFamily="DM Sans">{label}</text>
+            <text x={x + 40} y={y + 34} textAnchor="middle" fontSize="16" fontWeight="700"
+              fill={ok ? "hsl(95,98%,61%)" : "white"} fillOpacity={ok ? 1 : 0.4} fontFamily="DM Sans">{val}</text>
+            {/* Connector line */}
+            <line
+              x1={x + 40} y1={y + 44}
+              x2={300} y2={130}
+              stroke={ok ? "hsl(95,98%,61%)" : "white"}
+              strokeOpacity={ok ? 0.1 : 0.05}
+              strokeWidth={1}
+              strokeDasharray="3 4"
+            />
+          </g>
+        ))}
+      </svg>
+    ))(),
+    tableOfContents: [
+      { id: "vision", label: "La vision derrière Streamnco" },
+      { id: "streamscore", label: "Le StreamScore" },
+      { id: "blocage", label: "L'identification du blocage" },
+      { id: "plan", label: "Le plan hebdomadaire" },
+      { id: "debrief", label: "Le débrief post-live" },
+      { id: "progression", label: "Le suivi de progression" },
+      { id: "commencer", label: "Par où commencer" },
+    ],
+    content: (
+      <>
+        <P>
+          La plupart des streamers savent ce qu'ils font. Ils streament régulièrement, ils essaient
+          des choses, ils regardent leurs stats. Ce qu'ils ne savent pas, c'est <em>pourquoi</em>{" "}
+          ça stagne — et surtout, <em>quoi changer en priorité</em>.
+        </P>
+        <P>
+          Streamnco a été conçu pour répondre à cette question précise. Pas un dashboard de plus.
+          Pas une liste de conseils génériques. Un diagnostic structuré, un blocage identifié,
+          un plan clair.
+        </P>
+
+        <H2 id="vision">La vision : signal → diagnostic → priorité → action</H2>
+        <P>
+          Chaque fonctionnalité de Streamnco suit la même logique : transformer un signal brut
+          (données de ta chaîne) en décision concrète (ce que tu fais cette semaine). C'est
+          une différence de philosophie fondamentale avec les outils de stats classiques.
+        </P>
+        <StatBlock
+          stats={[
+            { value: "< 1 min", label: "Pour recevoir ton premier diagnostic" },
+            { value: "6", label: "Dimensions analysées dans le StreamScore" },
+            { value: "1", label: "Blocage principal identifié, pas dix" },
+          ]}
+        />
+        <P>
+          Le principe directeur : un streamer n'a pas besoin de plus de données — il a besoin
+          de moins de bruit et d'une priorité claire. Streamnco filtre, interprète et priorise
+          pour te donner exactement ça.
+        </P>
+
+        <H2 id="streamscore">Le StreamScore : un chiffre qui dit l'essentiel</H2>
+        <P>
+          Le StreamScore est un score de 0 à 100 qui mesure la santé globale de ta chaîne.
+          Il agrège six dimensions distinctes, chacune pondérée selon son impact sur la progression
+          à long terme.
+        </P>
+        <Ul>
+          <Li><strong>Régularité (25%) :</strong> cohérence du schedule, série hebdomadaire, stabilité de la cadence</Li>
+          <Li><strong>Momentum (20%) :</strong> trajectoire récente — est-ce que ta chaîne monte, stagne ou descend ?</Li>
+          <Li><strong>Profil (15%) :</strong> complétude et cohérence de ta page Twitch — titre, bio, panneau, tags</Li>
+          <Li><strong>Signaux croissance (20%) :</strong> followers, clips, VODs, ratio engagement</Li>
+          <Li><strong>Cohérence de contenu (10%) :</strong> concentration de catégories, identité de chaîne</Li>
+          <Li><strong>Fondations (10%) :</strong> qualité minimale requise — stream title, preview, schedule affiché</Li>
+        </Ul>
+        <Callout icon="💡" title="Le StreamScore n'est pas une note">
+          Ce n'est pas un jugement de valeur — c'est un diagnostic. Un score de 45 avec un blocage
+          clairement identifié est plus utile qu'un score de 70 sans aucune indication sur quoi
+          travailler. L'objectif est de comprendre, pas de cocher une case.
+        </Callout>
+
+        <H2 id="blocage">L'identification du blocage principal</H2>
+        <P>
+          C'est la fonctionnalité la plus différenciante de Streamnco. Parmi tous les signaux
+          analysés, l'algorithme identifie le <strong>blocage principal</strong> — le facteur
+          unique qui a le plus d'impact négatif sur ta progression en ce moment.
+        </P>
+        <P>
+          Pourquoi un seul blocage ? Parce que travailler 5 choses en même temps, c'est ne rien
+          améliorer vraiment. Le focus sur un seul levier crée des résultats mesurables en quelques
+          semaines. Ensuite, le prochain blocage est identifié. Et ainsi de suite.
+        </P>
+        <H3>Exemples de blocages fréquemment identifiés</H3>
+        <Ul>
+          <Li>
+            <strong>Irrégularité de cadence :</strong> ton CCV stagne parce que les viewers ne
+            peuvent pas anticiper tes streams — ils ne développent pas l'habitude de te regarder.
+          </Li>
+          <Li>
+            <strong>Profil incomplet :</strong> tes titres de stream sont génériques, ta bio
+            n'existe pas ou ton schedule n'est pas affiché — la conversion des nouveaux viewers
+            est mécaniquement basse.
+          </Li>
+          <Li>
+            <strong>Absence de clips :</strong> tu génères du contenu mais il reste exclusivement
+            sur Twitch — aucun mécanisme de découverte externe n'est actif.
+          </Li>
+          <Li>
+            <strong>Dispersion de catégorie :</strong> tu changes souvent de jeu — tu n'envoies
+            pas de signal cohérent ni à l'algorithme ni aux viewers potentiels.
+          </Li>
+        </Ul>
+
+        <H2 id="plan">Le plan hebdomadaire : de l'analyse à l'action</H2>
+        <P>
+          Un diagnostic sans suite est inutile. C'est pourquoi Streamnco génère chaque semaine
+          un plan d'action séquencé et personnalisé — basé sur ton blocage actuel, ton niveau,
+          et les signaux récents de ta chaîne.
+        </P>
+        <P>
+          Ce plan n'est pas générique. Il n'énonce pas "streame régulièrement" ou "engage ta communauté"
+          — deux conseils que tu connais déjà. Il dit : "Cette semaine, tu dois faire X parce que
+          ton signal Y montre Z. Voici comment, voici l'impact attendu, voici ce qu'il faut éviter."
+        </P>
+        <Callout icon="📋" title="La structure d'un plan Streamnco">
+          Chaque étape du plan inclut : l'action précise à effectuer, le <em>pourquoi</em>
+          (le lien avec ton blocage), l'impact attendu (quel signal devrait s'améliorer),
+          et les erreurs fréquentes à éviter. Pas de padding, pas de généralités.
+        </Callout>
+
+        <H2 id="debrief">Le débrief post-live : analyser chaque session</H2>
+        <P>
+          Après chaque stream, Streamnco génère automatiquement un débrief structuré de la session.
+          Il analyse les données du live pour identifier ce qui a bien fonctionné, ce qui a moins
+          bien fonctionné, et comment la session se compare à ta moyenne habituelle.
+        </P>
+        <Ul>
+          <Li>Score de session sur les dimensions clés (rétention, engagement, performance)</Li>
+          <Li>Comparaison avec ta moyenne sur les 30 derniers jours</Li>
+          <Li>Points forts du live (moments à clipper, comportements à reproduire)</Li>
+          <Li>Points d'amélioration prioritaires pour la prochaine session</Li>
+        </Ul>
+        <P>
+          Le débrief est disponible sans aucune action de ta part — il se génère dès que ton
+          stream se termine et que les données sont disponibles.
+        </P>
+
+        <H2 id="progression">Le suivi de progression : quêtes, XP et badges</H2>
+        <P>
+          Streamnco transforme les bonnes habitudes streamer en système de progression visible.
+          Chaque semaine, un set de quêtes hebdomadaires — certaines vérifiées automatiquement
+          (tu as streamé 3 fois cette semaine), d'autres à cocher manuellement (j'ai créé un clip,
+          j'ai mis à jour mon titre).
+        </P>
+        <P>
+          Compléter les quêtes génère de l'XP qui fait progresser ton niveau de streamer,
+          débloque des badges tiered (Bronze → Silver → Gold) et maintient une série hebdomadaire
+          qui crée une motivation durable sans pression artificielle.
+        </P>
+        <Callout icon="🔥" title="La série comme ancre motivationnelle">
+          Une série de 8 semaines respectées change la relation au stream. Ce n'est plus
+          "est-ce que j'ai envie de streamer ce soir ?" — c'est "est-ce que je veux briser
+          ma série de 8 semaines ?". La réponse est presque toujours non.
+        </Callout>
+
+        <H2 id="commencer">Par où commencer avec Streamnco</H2>
+        <P>
+          La première étape ne demande ni compte ni connexion Twitch. Entre simplement ton
+          pseudo Twitch dans la barre de recherche et reçois ton diagnostic en moins d'une minute :
+          StreamScore, blocage principal et première priorité.
+        </P>
+        <NumberedStep n={1} title="Diagnostic teaser (sans compte)">
+          Entre ton pseudo → reçois ton StreamScore et le blocage principal identifié. Gratuit,
+          immédiat, aucune connexion requise.
+        </NumberedStep>
+        <NumberedStep n={2} title="Connecte ton compte Twitch">
+          La connexion débloque les données privées (followers, métriques fines) pour un diagnostic
+          encore plus précis. Un clic, sécurisé via OAuth Twitch officiel.
+        </NumberedStep>
+        <NumberedStep n={3} title="Accède au tableau de bord complet">
+          Plan hebdomadaire, débrief post-live, quêtes, suivi de progression, benchmark concurrents —
+          tout ce dont tu as besoin pour piloter ta croissance dans un seul endroit.
+        </NumberedStep>
+        <P>
+          Streamnco est conçu pour un streamer qui a 15 minutes par semaine à consacrer à
+          l'analyse de sa chaîne — pas des heures. C'est la contrainte de design qui a guidé
+          chaque décision produit.
+        </P>
+      </>
+    ),
+  },
 ];
 
 export function getArticle(slug: string): Article | undefined {
