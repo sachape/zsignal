@@ -329,8 +329,8 @@ const PricingSection = () => {
                 <FeatureList features={GROWTH_FEATURES} />
               </div>
               <div className="mt-auto pt-7">
-                <Button size="lg" variant="outline" className="w-full" onClick={handlePaidCta}>
-                  Activer le plan Growth
+                <Button size="lg" variant="outline" className="w-full" onClick={() => handlePaidCta("growth")} disabled={loadingPlan !== null}>
+                  {loadingPlan === "growth" ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirection…</> : "Activer le plan Growth"}
                 </Button>
                 {FOUNDING_MEMBER && (
                   <p className="mt-3 text-center text-[11px] text-muted-foreground">
