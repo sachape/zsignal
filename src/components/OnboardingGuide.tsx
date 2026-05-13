@@ -92,6 +92,8 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
 
   const isStepDone = (step: Step) => {
     if (step.autoChecked !== undefined) return step.autoChecked;
+    // Steps 3 & 4 require Twitch connected + report to be meaningful
+    if (!isConnected || !hasReport) return false;
     return visited.has(step.id);
   };
 
