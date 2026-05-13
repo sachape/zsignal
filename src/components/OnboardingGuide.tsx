@@ -141,10 +141,10 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
-          Bienvenue, {displayName} 👋
+          Prêt à prendre le contrôle, {displayName} ?
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          4 étapes pour activer ton cockpit et comprendre ta progression.
+          Connecte Twitch et découvre exactement ce qui freine ta croissance.
         </p>
       </div>
 
