@@ -16,6 +16,8 @@ const NAV_LINKS = [
   { label: "FAQ", anchor: "faq" },
 ] as const;
 
+const BLOG_LINK = { label: "Blog", href: "/blog" };
+
 const LandingNav = () => {
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
@@ -72,6 +74,12 @@ const LandingNav = () => {
               {link.label}
             </a>
           ))}
+          <Link
+            to={BLOG_LINK.href}
+            className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          >
+            {BLOG_LINK.label}
+          </Link>
         </div>
 
         {/* Desktop CTAs */}
@@ -141,6 +149,13 @@ const LandingNav = () => {
                 {link.label}
               </a>
             ))}
+            <Link
+              to={BLOG_LINK.href}
+              onClick={() => setMobileOpen(false)}
+              className="block rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+            >
+              {BLOG_LINK.label}
+            </Link>
             <div className="mt-2 border-t border-border pt-3">
               {!user && (
                 <button

@@ -38,6 +38,8 @@ const LegalTermsPage = lazy(() => import("./pages/LegalTermsPage.tsx"));
 const LegalPrivacyPage = lazy(() => import("./pages/LegalPrivacyPage.tsx"));
 const LegalMentionsPage = lazy(() => import("./pages/LegalMentionsPage.tsx"));
 const LegalCookiesPage = lazy(() => import("./pages/LegalCookiesPage.tsx"));
+const BlogPage = lazy(() => import("./pages/BlogPage.tsx"));
+const BlogArticlePage = lazy(() => import("./pages/BlogArticlePage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -186,6 +188,8 @@ const App = () => (
                   }
                 />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:slug" element={<BlogArticlePage />} />
                 <Route path="/legal/terms" element={<LegalTermsPage />} />
                 <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
                 <Route path="/legal/mentions" element={<LegalMentionsPage />} />

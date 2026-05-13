@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Zap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthModal } from "@/contexts/AuthModalContext";
+import { ARTICLES } from "@/data/articles";
 
 const PRODUCT_LINKS = [
   { label: "Aperçu", anchor: "preview" },
@@ -59,8 +60,8 @@ const LandingFooter = () => {
     <footer className="relative border-t border-white/[0.06] bg-background">
       <div className="container mx-auto max-w-6xl px-4 py-12 md:px-6 md:py-14">
 
-        {/* 4-column grid */}
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.8fr_1fr_1fr_1fr]">
+        {/* 5-column grid */}
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.8fr_1fr_1fr_1fr_1fr]">
 
           {/* Marque */}
           <div>
@@ -129,6 +130,25 @@ const LandingFooter = () => {
                   </button>
                 )}
               </li>
+            </ul>
+          </div>
+
+          {/* Blog */}
+          <div>
+            <p className={colTitleCls}>Blog</p>
+            <ul className="space-y-2.5">
+              <li>
+                <Link to="/blog" className={linkCls}>
+                  Tous les articles
+                </Link>
+              </li>
+              {ARTICLES.slice(0, 4).map((a) => (
+                <li key={a.slug}>
+                  <Link to={`/blog/${a.slug}`} className={linkCls + " line-clamp-1"}>
+                    {a.title.split(":")[0].split("—")[0].trim()}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
