@@ -27,5 +27,11 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Brevo Tracker -->
+    <script src="https://cdn.brevo.com/js/sdk-loader.js" async></script>
+    <script>
+      window.Brevo = window.Brevo || [];
+      Brevo.push(["init", { client_key: "urcyhsor4oaqv5xq3wj13iz2" }]);
+    </script>
   </body>
 </html>
