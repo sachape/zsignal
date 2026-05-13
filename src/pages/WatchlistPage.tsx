@@ -116,10 +116,19 @@ const WatchlistPage = () => {
 
   useEffect(() => {
     const uid = user?.id ?? null;
-    const list = getWatchlist(uid);
-    setEntries(list);
-    setAlerts(computeAlerts(uid, list));
-    setAlertsDismissed(areAlertsDismissed(uid));
+    let cancelled = false;
+    (async () => {
+      const { loadWatchlistFromDb } = await import("@/services/benchmarkWatchlist");
+      const list = await loadWatchlistFromDb(uid);
+      if (cancelled) return;
+      setEntries(list);
+      // Hydrate snapshots for all entries so trends render
+      const { loadSnapshotsFromDb } = await import("@/services/competitorSnapshots");
+      await Promise.all(list.map((e) => loadSnapshotsFromDb(uid, e.login)));
+      if (cancelled) return;
+      setAlerts(computeAlerts(uid, list));
+      setAlertsDismissed(areAlertsDismissed(uid));
+    })();
 
     const sync = () => {
       const updated = getWatchlist(uid);
@@ -130,6 +139,7 @@ const WatchlistPage = () => {
     window.addEventListener("streampulse:watchlist-changed", sync);
     window.addEventListener("streampulse:alerts-dismissed", onDismiss);
     return () => {
+      cancelled = true;
       window.removeEventListener("streampulse:watchlist-changed", sync);
       window.removeEventListener("streampulse:alerts-dismissed", onDismiss);
     };
