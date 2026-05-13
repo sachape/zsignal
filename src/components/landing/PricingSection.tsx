@@ -85,7 +85,9 @@ const FeatureList = ({ features }: { features: string[] }) => (
 const PricingSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.15);
   const { openAuthModal } = useAuthModal();
+  const { user } = useAuth();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [loadingPlan, setLoadingPlan] = useState<PlanName | null>(null);
 
   const handleFreeCta = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -96,8 +98,19 @@ const PricingSection = () => {
     }, 600);
   };
 
-  const handlePaidCta = () => {
-    openAuthModal({ redirectTo: "/dashboard" });
+  const handlePaidCta = async (plan: PlanName) => {
+    if (loadingPlan) return;
+    if (!user) {
+      openAuthModal({ redirectTo: "/pricing" });
+      return;
+    }
+    try {
+      setLoadingPlan(plan);
+      await startCheckout(plan, billing as BillingCycle);
+    } catch (e) {
+      toast.error("Impossible de démarrer le paiement. Réessaie dans un instant.");
+      setLoadingPlan(null);
+    }
   };
 
   const proPrice = billing === "annual"
