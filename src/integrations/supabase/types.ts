@@ -97,6 +97,27 @@ export type Database = {
           },
         ]
       }
+      billing_customers: {
+        Row: {
+          created_at: string
+          stripe_customer_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          stripe_customer_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          stripe_customer_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       channel_facts: {
         Row: {
           analysis_job_id: string
@@ -828,6 +849,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subscriptions: {
+        Row: {
+          billing_cycle: string | null
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          founder_price: boolean
+          plan_name: string | null
+          status: string | null
+          stripe_customer_id: string
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_cycle?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          founder_price?: boolean
+          plan_name?: string | null
+          status?: string | null
+          stripe_customer_id: string
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          founder_price?: boolean
+          plan_name?: string | null
+          status?: string | null
+          stripe_customer_id?: string
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       twitch_clip_snapshots: {
         Row: {
