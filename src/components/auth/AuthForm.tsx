@@ -61,10 +61,7 @@ const AuthForm = ({
       if (mode === "signup") {
         const { error } = await signUp(email, password);
         if (error) setError(translateError(error.message));
-        else {
-          analytics.signupCompleted(email);
-          setSuccess(true);
-        }
+        else setSuccess(true);
       } else {
         const { error } = await signIn(email, password);
         if (error) {

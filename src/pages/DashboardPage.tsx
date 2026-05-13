@@ -111,7 +111,17 @@ const DashboardPage = () => {
 
   // Identify user for Brevo on every session
   useEffect(() => {
-    if (user?.email) analytics.identify(user.email);
+    if (!user?.email) return;
+    analytics.identify(user.email);
+    // Detect new signup regardless of method (email or Google OAuth)
+    const trackKey = `streamnco:signup_tracked:${user.id}`;
+    if (!localStorage.getItem(trackKey)) {
+      const ageMs = Date.now() - new Date(user.created_at).getTime();
+      if (ageMs < 120_000) {
+        analytics.signupCompleted(user.email);
+        localStorage.setItem(trackKey, "1");
+      }
+    }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Checkout success: clear cache, toast, clean URL
