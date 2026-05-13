@@ -381,6 +381,27 @@ const DashboardPage = () => {
     );
   }
 
+  if (showGuide === true) {
+    const guideDisplayName =
+      account?.platform_display_name ||
+      account?.platform_login ||
+      currentReport?.report?.channel_summary?.display_name ||
+      "toi";
+    return (
+      <AppShell>
+        <PageContainer size="sm">
+          <OnboardingGuide
+            userId={user!.id}
+            displayName={guideDisplayName}
+            isConnected={isConnected}
+            hasReport={!!currentReport}
+            onComplete={() => setShowGuide(false)}
+          />
+        </PageContainer>
+      </AppShell>
+    );
+  }
+
   if (isConnected && account && !currentReport) {
     const displayName = account.platform_display_name || account.platform_login || "ta chaîne";
     return (
@@ -420,7 +441,10 @@ const DashboardPage = () => {
             title="Bienvenue sur ton cockpit"
             description="Connecte Twitch pour activer ton plan personnalisé."
           />
-          <EmptyReportState />
+          <EmptyReportState
+            ctaLabel="Connecter Twitch"
+            ctaHref="/connect-twitch"
+          />
         </PageContainer>
       </AppShell>
     );
@@ -497,24 +521,6 @@ const DashboardPage = () => {
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
 
   const endedSessions = allSessions.filter((s) => s.status === "ended").length;
-
-  if (showGuide === true) {
-    const guideDisplayName =
-      account?.platform_display_name || account?.platform_login || summary?.display_name || "toi";
-    return (
-      <AppShell>
-        <PageContainer size="sm">
-          <OnboardingGuide
-            userId={user!.id}
-            displayName={guideDisplayName}
-            isConnected={isConnected}
-            hasReport={!!currentReport}
-            onComplete={() => setShowGuide(false)}
-          />
-        </PageContainer>
-      </AppShell>
-    );
-  }
 
   return (
     <AppShell>
