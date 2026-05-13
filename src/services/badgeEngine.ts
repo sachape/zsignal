@@ -19,26 +19,43 @@ interface BadgeInput {
   userId: string;
 }
 
-const SEEN_KEY = (userId: string) => `seen_badges_${userId}`;
+// Seen-badge state is persisted in Lovable Cloud (`user_badge_state`).
+// In-memory caches mirror DB so getters stay synchronous.
+import { supabase } from "@/integrations/supabase/client";
+
+const seenBadgeCache = new Map<string, Set<string>>();
+const seenTierCache = new Map<string, Set<string>>();
 
 function getSeenBadges(userId: string): Set<string> {
-  try {
-    const raw = localStorage.getItem(SEEN_KEY(userId));
-    return raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set();
-  } catch {
-    return new Set();
-  }
+  return seenBadgeCache.get(userId) ?? new Set();
 }
 
-export function markBadgesSeen(userId: string, badgeIds: string[]): void {
-  if (badgeIds.length === 0) return;
-  try {
-    const seen = getSeenBadges(userId);
-    badgeIds.forEach((id) => seen.add(id));
-    localStorage.setItem(SEEN_KEY(userId), JSON.stringify([...seen]));
-  } catch {
-    // localStorage unavailable
+export async function loadSeenBadgesFromDb(userId: string): Promise<void> {
+  if (!userId) return;
+  const { data, error } = await supabase
+    .from("user_badge_state")
+    .select("badge_key, badge_type")
+    .eq("user_id", userId);
+  if (error) return;
+  const badges = new Set<string>();
+  const tiers = new Set<string>();
+  for (const r of data ?? []) {
+    if (r.badge_type === "tier") tiers.add(r.badge_key);
+    else badges.add(r.badge_key);
   }
+  seenBadgeCache.set(userId, badges);
+  seenTierCache.set(userId, tiers);
+}
+
+export async function markBadgesSeen(userId: string, badgeIds: string[]): Promise<void> {
+  if (badgeIds.length === 0 || !userId) return;
+  const seen = getSeenBadges(userId);
+  badgeIds.forEach((id) => seen.add(id));
+  seenBadgeCache.set(userId, seen);
+  await supabase.from("user_badge_state").upsert(
+    badgeIds.map((id) => ({ user_id: userId, badge_key: id, badge_type: "badge" })),
+    { onConflict: "user_id,badge_key,badge_type", ignoreDuplicates: true },
+  );
 }
 
 export function evaluateBadges({ sessions, report, userId }: BadgeInput): Badge[] {
