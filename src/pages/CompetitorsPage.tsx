@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Trophy, Users, Info, Bug, Compass, Lock } from "lucide-react";
+import { usePlan } from "@/hooks/usePlan";
+import { InlineLock } from "@/components/PaywallGate";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -92,8 +94,11 @@ function isSeedCategoryTrustworthy(seed: BenchmarkSeed | null): boolean {
   return true;
 }
 
+const FREE_COMPETITORS_LIMIT = 3;
+
 const CompetitorsPage = () => {
   const { user, loading: authLoading } = useAuth();
+  const { isPro } = usePlan();
   const { account, loading: connectionLoading } = useTwitchConnection();
   const [report, setReport] = useState<SavedReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -629,31 +634,66 @@ const CompetitorsPage = () => {
           </Card>
         )}
 
-        {hasRenderableBenchmark ? (
-          renderSections.map((section) => (
-            <section key={section.key} className="mb-8">
-              <div className="mb-3 flex items-center gap-2">
-                <Badge variant="outline" className="text-[10px] text-primary">
-                  {section.badge}
-                </Badge>
-                <SectionHeader
-                  title={section.title}
-                  description={section.description}
-                  align="left"
-                />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {section.matches.map((m) => (
-                  <StreamerBenchmarkCard
-                    key={m.id}
-                    competitor={m}
-                    groupLabel={section.badge}
+        {hasRenderableBenchmark ? (() => {
+          // Count all matches so we can apply the free-tier limit across sections
+          const allSectionMatches = renderSections.flatMap((s) => s.matches);
+          const totalLocked = !isPro && allSectionMatches.length > FREE_COMPETITORS_LIMIT
+            ? allSectionMatches.length - FREE_COMPETITORS_LIMIT
+            : 0;
+
+          let shown = 0;
+          return renderSections.map((section) => {
+            const freeSlots = Math.max(0, FREE_COMPETITORS_LIMIT - shown);
+            const visibleMatches = isPro ? section.matches : section.matches.slice(0, freeSlots);
+            const lockedMatches = isPro ? [] : section.matches.slice(freeSlots);
+            shown += visibleMatches.length;
+
+            return (
+              <section key={section.key} className="mb-8">
+                <div className="mb-3 flex items-center gap-2">
+                  <Badge variant="outline" className="text-[10px] text-primary">
+                    {section.badge}
+                  </Badge>
+                  <SectionHeader
+                    title={section.title}
+                    description={section.description}
+                    align="left"
                   />
-                ))}
-              </div>
-            </section>
-          ))
-        ) : mode === "personal" ? (
+                </div>
+                {visibleMatches.length > 0 && (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {visibleMatches.map((m) => (
+                      <StreamerBenchmarkCard
+                        key={m.id}
+                        competitor={m}
+                        groupLabel={section.badge}
+                      />
+                    ))}
+                  </div>
+                )}
+                {lockedMatches.length > 0 && (
+                  <div className={visibleMatches.length > 0 ? "mt-4" : ""}>
+                    <InlineLock
+                      feature={`${totalLocked} profil${totalLocked > 1 ? "s" : ""} supplémentaire${totalLocked > 1 ? "s" : ""} — Pro`}
+                      description="Accède à tous les concurrents identifiés et compare les profils."
+                      blurHeight="160px"
+                    >
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {lockedMatches.map((m) => (
+                          <StreamerBenchmarkCard
+                            key={m.id}
+                            competitor={m}
+                            groupLabel={section.badge}
+                          />
+                        ))}
+                      </div>
+                    </InlineLock>
+                  </div>
+                )}
+              </section>
+            );
+          });
+        })() : mode === "personal" ? (
           <section className="mb-8">
             <div className="mb-3 flex items-center gap-2">
               <Badge variant="outline" className="text-[10px] text-primary">

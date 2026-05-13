@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { usePlan } from "@/hooks/usePlan";
 import { Link } from "react-router-dom";
 import { Check, ChevronRight, ChevronsUpDown, Eye, Loader2, Radio, Trophy } from "lucide-react";
+import { InlineLock } from "@/components/PaywallGate";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -79,8 +81,11 @@ const TIER_SEPARATORS: Record<number, string> = {
   10: "Suite du classement",
 };
 
+const FREE_LEADERS_LIMIT = 10;
+
 const LeadersPage = () => {
   const { user } = useAuth();
+  const { isPro } = usePlan();
 
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("fr");
@@ -440,117 +445,99 @@ const LeadersPage = () => {
                   <p className="pl-6 text-xs">Essaie une autre langue ou une autre catégorie.</p>
                 </CardContent>
               </Card>
-            ) : (
-              <div className="grid gap-2">
-                {filtered.map((c, idx) => {
-                  const separatorLabel = TIER_SEPARATORS[idx];
-                  const signal = getSecondarySignal(c);
-                  const tier = getTierTheme(getScoreTier(c.stream_score));
-                  const isPodium = c.rank <= 3;
+            ) : (() => {
+              const visibleRows = isPro ? filtered : filtered.slice(0, FREE_LEADERS_LIMIT);
+              const lockedRows = isPro ? [] : filtered.slice(FREE_LEADERS_LIMIT);
 
-                  return (
-                    <React.Fragment key={c.id}>
-                      {separatorLabel && (
-                        <div className="flex items-center gap-3 py-1">
-                          <div className="h-px flex-1 bg-border/40" />
-                          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-                            {separatorLabel}
-                          </span>
-                          <div className="h-px flex-1 bg-border/40" />
-                        </div>
+              const renderRow = (c: (typeof filtered)[number], idx: number) => {
+                const separatorLabel = TIER_SEPARATORS[idx];
+                const signal = getSecondarySignal(c);
+                const tier = getTierTheme(getScoreTier(c.stream_score));
+                const isPodium = c.rank <= 3;
+                return (
+                  <React.Fragment key={c.id}>
+                    {separatorLabel && (
+                      <div className="flex items-center gap-3 py-1">
+                        <div className="h-px flex-1 bg-border/40" />
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                          {separatorLabel}
+                        </span>
+                        <div className="h-px flex-1 bg-border/40" />
+                      </div>
+                    )}
+                    <Link
+                      to={`/streamer/${c.login}`}
+                      className={cn(
+                        "group flex items-start gap-2 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-card/80 sm:items-center sm:gap-3",
+                        c.rank === 1
+                          ? "border-primary/25 bg-primary/[0.03]"
+                          : "border-border bg-card",
                       )}
-                      <Link
-                        to={`/streamer/${c.login}`}
+                    >
+                      <span
                         className={cn(
-                          "group flex items-start gap-2 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-card/80 sm:items-center sm:gap-3",
+                          "w-7 shrink-0 text-right text-xs font-bold tabular-nums",
                           c.rank === 1
-                            ? "border-primary/25 bg-primary/[0.03]"
-                            : "border-border bg-card",
+                            ? "text-primary"
+                            : isPodium
+                              ? "text-foreground/80"
+                              : "text-muted-foreground",
                         )}
                       >
-                        <span
-                          className={cn(
-                            "w-7 shrink-0 text-right text-xs font-bold tabular-nums",
-                            c.rank === 1
-                              ? "text-primary"
-                              : isPodium
-                                ? "text-foreground/80"
-                                : "text-muted-foreground",
-                          )}
-                        >
-                          #{c.rank}
-                        </span>
-                        <Avatar className="h-10 w-10 shrink-0 rounded-full border border-border/60">
-                          {c.profile_image_url && (
-                            <AvatarImage src={c.profile_image_url} alt={c.login} />
-                          )}
-                          <AvatarFallback className="rounded-full text-[10px]">
-                            {c.login.slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
+                        #{c.rank}
+                      </span>
+                      <Avatar className="h-10 w-10 shrink-0 rounded-full border border-border/60">
+                        {c.profile_image_url && (
+                          <AvatarImage src={c.profile_image_url} alt={c.login} />
+                        )}
+                        <AvatarFallback className="rounded-full text-[10px]">
+                          {c.login.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
 
-                        <div className="min-w-0 flex-1 overflow-hidden">
-                          <div className="flex min-w-0 items-center gap-2">
-                            <p className="truncate text-sm font-semibold text-foreground">
-                              {c.display_name}
-                            </p>
-                            {c.is_live && (
-                              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
-                                <Radio className="h-2 w-2" /> Live
-                              </span>
-                            )}
-                            {c.language && (
-                              <Badge variant="outline" className="shrink-0 text-[10px]">
-                                {c.language.toUpperCase()}
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-                            <span className="truncate">@{c.login}</span>
-                            {c.game_name && (
-                              <>
-                                <span>·</span>
-                                <span className="truncate">{c.game_name}</span>
-                              </>
-                            )}
-                          </div>
-                          {signal && (
-                            <div className="mt-1.5">
-                              <span
-                                className={cn(
-                                  "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
-                                  SIGNAL_TONE_CLASS[signal.tone],
-                                )}
-                              >
-                                {signal.label}
-                              </span>
-                            </div>
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {c.display_name}
+                          </p>
+                          {c.is_live && (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                              <Radio className="h-2 w-2" /> Live
+                            </span>
                           )}
-
-                          {/* Stats — mobile */}
-                          <div className="mt-2.5 flex items-center gap-2 sm:hidden">
-                            <div>
-                              <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
-                              <div className="flex items-center gap-1">
-                                <Eye className="h-3 w-3 text-muted-foreground/40" />
-                                <span className="text-sm font-semibold tabular-nums text-foreground">
-                                  {formatViewers(c.live_viewer_count)}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="h-7 w-px bg-border/40" />
-                            <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
-                              <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
-                              <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
-                            </div>
-                          </div>
+                          {c.language && (
+                            <Badge variant="outline" className="shrink-0 text-[10px]">
+                              {c.language.toUpperCase()}
+                            </Badge>
+                          )}
                         </div>
+                        <div className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+                          <span className="truncate">@{c.login}</span>
+                          {c.game_name && (
+                            <>
+                              <span>·</span>
+                              <span className="truncate">{c.game_name}</span>
+                            </>
+                          )}
+                        </div>
+                        {signal && (
+                          <div className="mt-1.5">
+                            <span
+                              className={cn(
+                                "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                                SIGNAL_TONE_CLASS[signal.tone],
+                              )}
+                            >
+                              {signal.label}
+                            </span>
+                          </div>
+                        )}
 
-                        {/* Stats — desktop */}
-                        <div className="hidden shrink-0 items-center gap-2 sm:flex sm:gap-3">
-                          <div className="text-right">
+                        {/* Stats — mobile */}
+                        <div className="mt-2.5 flex items-center gap-2 sm:hidden">
+                          <div>
                             <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
-                            <div className="flex items-center justify-end gap-1">
+                            <div className="flex items-center gap-1">
                               <Eye className="h-3 w-3 text-muted-foreground/40" />
                               <span className="text-sm font-semibold tabular-nums text-foreground">
                                 {formatViewers(c.live_viewer_count)}
@@ -563,14 +550,51 @@ const LeadersPage = () => {
                             <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
                           </div>
                         </div>
+                      </div>
 
-                        <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
-                      </Link>
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-            )}
+                      {/* Stats — desktop */}
+                      <div className="hidden shrink-0 items-center gap-2 sm:flex sm:gap-3">
+                        <div className="text-right">
+                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
+                          <div className="flex items-center justify-end gap-1">
+                            <Eye className="h-3 w-3 text-muted-foreground/40" />
+                            <span className="text-sm font-semibold tabular-nums text-foreground">
+                              {formatViewers(c.live_viewer_count)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="h-7 w-px bg-border/40" />
+                        <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
+                          <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
+                          <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
+                        </div>
+                      </div>
+
+                      <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
+                    </Link>
+                  </React.Fragment>
+                );
+              };
+
+              return (
+                <div className="grid gap-2">
+                  {visibleRows.map((c, idx) => renderRow(c, idx))}
+                  {lockedRows.length > 0 && (
+                    <div className="mt-2">
+                      <InlineLock
+                        feature={`${lockedRows.length} chaîne${lockedRows.length > 1 ? "s" : ""} supplémentaire${lockedRows.length > 1 ? "s" : ""} — Pro`}
+                        description="Accède à l'intégralité du classement et compare tous les profils."
+                        blurHeight="200px"
+                      >
+                        <div className="grid gap-2">
+                          {lockedRows.map((c, idx) => renderRow(c, FREE_LEADERS_LIMIT + idx))}
+                        </div>
+                      </InlineLock>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <p className="mt-6 text-[11px] text-muted-foreground">
               Source : Twitch /streams (snapshot live). Score calculé sur l'audience, le statut broadcaster et la portée en direct.

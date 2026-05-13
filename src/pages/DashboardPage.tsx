@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { usePlan } from "@/hooks/usePlan";
+import { InlineLock } from "@/components/PaywallGate";
 import {
   ArrowRight,
   FileText,
@@ -79,6 +81,7 @@ const formatDate = (iso: string) =>
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  const { isPro } = usePlan();
   const { isConnected, account, loading: connectionLoading } = useTwitchConnection();
   const [searchParams] = useSearchParams();
   const [currentReport, setCurrentReport] = useState<SavedReport | null>(null);
@@ -674,31 +677,60 @@ const DashboardPage = () => {
 
         {/* Live stack — action principale, en priorité */}
         <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">Live</p>
-        <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '120ms' }}>
-          <LiveStatusCard
-            current={liveSnapshot?.current ?? null}
-            last={liveSnapshot?.last ?? null}
-            lastDebrief={liveSnapshot?.lastDebrief ?? null}
-          />
-          <LastVsAverageCard current={liveSnapshot?.current ?? null} />
-          {focusSlot === "milestone" && (
-            <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
-          )}
-          {focusSlot === "inactivity" && (
-            <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
-          )}
-          <PreLiveChecklistCard
-            current={liveSnapshot?.current ?? null}
-            last={liveSnapshot?.last ?? null}
-            lastDebrief={liveSnapshot?.lastDebrief ?? null}
-          />
-          <SmartAlertsCard current={liveSnapshot?.current ?? null} />
-        </div>
+        {isPro ? (
+          <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '120ms' }}>
+            <LiveStatusCard
+              current={liveSnapshot?.current ?? null}
+              last={liveSnapshot?.last ?? null}
+              lastDebrief={liveSnapshot?.lastDebrief ?? null}
+            />
+            <LastVsAverageCard current={liveSnapshot?.current ?? null} />
+            {focusSlot === "milestone" && (
+              <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
+            )}
+            {focusSlot === "inactivity" && (
+              <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
+            )}
+            <PreLiveChecklistCard
+              current={liveSnapshot?.current ?? null}
+              last={liveSnapshot?.last ?? null}
+              lastDebrief={liveSnapshot?.lastDebrief ?? null}
+            />
+            <SmartAlertsCard current={liveSnapshot?.current ?? null} />
+          </div>
+        ) : (
+          <div className="animate-fade-up mb-6" style={{ animationDelay: '120ms' }}>
+            <InlineLock
+              feature="Cockpit Live — Pro"
+              description="Suivi en direct, debrief automatique, alertes intelligentes et checklist pré-live."
+              blurHeight="140px"
+            >
+              <div className="space-y-2.5">
+                <LiveStatusCard
+                  current={liveSnapshot?.current ?? null}
+                  last={liveSnapshot?.last ?? null}
+                  lastDebrief={liveSnapshot?.lastDebrief ?? null}
+                />
+                <LastVsAverageCard current={liveSnapshot?.current ?? null} />
+              </div>
+            </InlineLock>
+          </div>
+        )}
 
         {/* Weekly quests — only outside foundation mode */}
         {!foundationActive && weeklyQuests && (
           <div className="animate-fade-up mb-6" style={{ animationDelay: '160ms' }}>
-            <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
+            {isPro ? (
+              <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
+            ) : (
+              <InlineLock
+                feature="Quêtes hebdomadaires — Pro"
+                description="Suis tes quêtes de la semaine et accumule de l'XP."
+                blurHeight="120px"
+              >
+                <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
+              </InlineLock>
+            )}
           </div>
         )}
 

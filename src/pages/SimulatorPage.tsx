@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { usePlan } from "@/hooks/usePlan";
+import { FullPageLock } from "@/components/PaywallGate";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
@@ -215,6 +217,7 @@ const DEMO = {
 
 const SimulatorPage = () => {
   const { user } = useAuth();
+  const { isPro } = usePlan();
   const { account } = useTwitchConnection();
   const [report, setReport] = useState<SavedReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -292,6 +295,22 @@ const SimulatorPage = () => {
   const projectedStreamHours = Math.round(sessionsPerWeek * durationHours * 4.3);
 
   const alreadyAffiliate = overallBoostedEta === 0 && overallBaseEta === 0;
+
+  if (!isPro) {
+    return (
+      <AppShell>
+        <FullPageLock
+          feature="Simulateur d'affiliation"
+          description="Projette ta trajectoire vers l'affiliation Twitch selon ton rythme de stream."
+          bullets={[
+            "Simulation avec et sans Streamnco",
+            "ETA par critère (viewers, jours, heures, chatters, followers)",
+            "Graphe de projection sur 2 ans",
+          ]}
+        />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>

@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { markOnboardingStepVisited } from "@/components/OnboardingGuide";
+import { usePlan } from "@/hooks/usePlan";
+import { FullPageLock } from "@/components/PaywallGate";
 import {
   ListChecks,
   Target,
@@ -815,6 +817,7 @@ const MonthTab = ({
 
 const WeeklyPlanPage = () => {
   const { user, loading: authLoading } = useAuth();
+  const { isPro } = usePlan();
   const [tab, setTab] = useState<Tab>("today");
   const [milestoneTitle, setMilestoneTitle] = useState<string>("");
   const [milestoneDiagnosis, setMilestoneDiagnosis] = useState<string | null>(null);
@@ -910,6 +913,22 @@ const WeeklyPlanPage = () => {
     return (
       <AppShell>
         <LoadingState />
+      </AppShell>
+    );
+  }
+
+  if (!isPro) {
+    return (
+      <AppShell>
+        <FullPageLock
+          feature="Feuille de route"
+          description="Visualise tes actions prioritaires jour par jour — aujourd'hui, cette semaine et ce mois."
+          bullets={[
+            "Actions du jour basées sur ton dernier live",
+            "Plan hebdo avec objectifs concrets",
+            "Progression mensuelle et axes à travailler",
+          ]}
+        />
       </AppShell>
     );
   }

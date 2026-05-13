@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Bookmark, BookmarkX, Trophy, ArrowRight, ChevronRight, TrendingUp, TrendingDown, Minus, Bell, X, Zap, Star } from "lucide-react";
+import { usePlan } from "@/hooks/usePlan";
+import { LimitBanner, InlineLock } from "@/components/PaywallGate";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -103,8 +105,11 @@ const Avatar = ({ entry }: { entry: WatchlistEntry }) => {
   );
 };
 
+const FREE_WATCHLIST_LIMIT = 3;
+
 const WatchlistPage = () => {
   const { user } = useAuth();
+  const { isPro } = usePlan();
   const [entries, setEntries] = useState<WatchlistEntry[]>([]);
   const [alerts, setAlerts] = useState<CompetitorAlert[]>([]);
   const [alertsDismissed, setAlertsDismissed] = useState(false);
@@ -299,8 +304,14 @@ const WatchlistPage = () => {
           </div>
         ) : (
           /* Filled list */
+          <>
+            {!isPro && entries.length >= FREE_WATCHLIST_LIMIT && (
+              <div className="mb-4">
+                <LimitBanner current={entries.length} max={FREE_WATCHLIST_LIMIT} label="streamer" />
+              </div>
+            )}
           <div className="divide-y divide-border/40 rounded-xl border border-border/60 bg-card/40 overflow-hidden">
-            {entries.map((entry) => {
+            {(isPro ? entries : entries.slice(0, FREE_WATCHLIST_LIMIT)).map((entry) => {
               const snaps = getSnapshots(user?.id ?? null, entry.login);
               const { direction, pct } = viewersTrend(snaps);
               const hasTrend = snaps.length >= 2;
@@ -370,6 +381,28 @@ const WatchlistPage = () => {
               );
             })}
           </div>
+          {!isPro && entries.length > FREE_WATCHLIST_LIMIT && (
+            <div className="mt-3">
+              <InlineLock
+                feature={`${entries.length - FREE_WATCHLIST_LIMIT} profil${entries.length - FREE_WATCHLIST_LIMIT > 1 ? "s" : ""} masqué${entries.length - FREE_WATCHLIST_LIMIT > 1 ? "s" : ""} — Pro`}
+                description="Passe au Pro pour suivre un nombre illimité de streamers."
+                blurHeight="80px"
+              >
+                <div className="divide-y divide-border/40 rounded-xl border border-border/60 bg-card/40 overflow-hidden opacity-50">
+                  {entries.slice(FREE_WATCHLIST_LIMIT).map((e) => (
+                    <div key={e.login} className="flex items-center gap-4 px-5 py-4">
+                      <div className="h-10 w-10 shrink-0 rounded-full bg-muted" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground">{e.display_name}</p>
+                        <p className="text-xs text-muted-foreground">@{e.login}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </InlineLock>
+            </div>
+          )}
+          </>
         )}
 
         {entries.length > 0 && (
