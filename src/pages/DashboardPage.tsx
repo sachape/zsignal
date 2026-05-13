@@ -6,13 +6,6 @@ import {
   AlertCircle,
   Sparkles,
   X,
-  CalendarCheck,
-  BarChart3,
-  Users as UsersIcon,
-  Star,
-  Radio,
-  BookOpen,
-  Trophy,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -448,52 +441,6 @@ const DashboardPage = () => {
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
 
   const endedSessions = allSessions.filter((s) => s.status === "ended").length;
-  const navHub = [
-    {
-      to: "/analyse",
-      icon: BarChart3,
-      label: "Analyse",
-      desc: "Diagnostic complet et évolution du score.",
-      stat: `${score.overall} pts`,
-    },
-    {
-      to: "/plan",
-      icon: CalendarCheck,
-      label: "Plan de la semaine",
-      desc: "Tes actions prioritaires.",
-      stat: foundationActive && foundation.sequence.length > 0
-        ? `${foundation.sequence.length} actions`
-        : null,
-    },
-    {
-      to: "/progression",
-      icon: Star,
-      label: "Progression",
-      desc: "Tes paliers et objectifs.",
-      stat: `${nextMilestone.current} / ${nextMilestone.target} ${nextMilestone.label.toLowerCase()}`,
-    },
-    {
-      to: "/lives",
-      icon: Radio,
-      label: "Lives",
-      desc: "Tes sessions et performances.",
-      stat: endedSessions > 0 ? `${endedSessions} session${endedSessions > 1 ? "s" : ""}` : null,
-    },
-    {
-      to: "/classements",
-      icon: Trophy,
-      label: "Classements",
-      desc: "Ta position parmi les streamers.",
-      stat: null,
-    },
-    {
-      to: "/playbooks",
-      icon: BookOpen,
-      label: "Playbooks",
-      desc: "Des guides d'exécution pratiques.",
-      stat: "16 guides",
-    },
-  ];
 
   if (showGuide === true) {
     const guideDisplayName =
@@ -703,32 +650,6 @@ const DashboardPage = () => {
           </Card>
         )}
 
-        {/* Navigation hub — all cockpit surfaces at a glance */}
-        <div className="animate-fade-up mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3" style={{ animationDelay: "120ms" }}>
-          {navHub.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-card/40 p-4 backdrop-blur-xl transition-all duration-300 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)] sm:p-5"
-            >
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <div className="relative">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 transition-colors group-hover:bg-primary/25">
-                    <item.icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/30 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
-                </div>
-                <p className="mt-3 text-sm font-semibold text-foreground">{item.label}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{item.desc}</p>
-                {item.stat && (
-                  <p className="mt-2 text-[11px] font-semibold tabular-nums text-primary/70">{item.stat}</p>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
-
         {/* Post generator sheet */}
         {liveSnapshot?.last && (
           <LivePostGenerator
@@ -739,15 +660,8 @@ const DashboardPage = () => {
           />
         )}
 
-        {/* Weekly quests — only outside foundation mode */}
-        {!foundationActive && weeklyQuests && (
-          <div className="animate-fade-up" style={{ animationDelay: '160ms' }}>
-            <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} />
-          </div>
-        )}
-
-        {/* Live stack */}
-        <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '220ms' }}>
+        {/* Live stack — action principale, en priorité */}
+        <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '120ms' }}>
           <LiveStatusCard
             current={liveSnapshot?.current ?? null}
             last={liveSnapshot?.last ?? null}
@@ -767,6 +681,13 @@ const DashboardPage = () => {
           />
           <SmartAlertsCard current={liveSnapshot?.current ?? null} />
         </div>
+
+        {/* Weekly quests — only outside foundation mode */}
+        {!foundationActive && weeklyQuests && (
+          <div className="animate-fade-up mb-6" style={{ animationDelay: '160ms' }}>
+            <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} />
+          </div>
+        )}
 
         {/* EventSub product signals */}
         <div className="mb-6 space-y-3">

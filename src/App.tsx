@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -41,6 +41,12 @@ const LegalCookiesPage = lazy(() => import("./pages/LegalCookiesPage.tsx"));
 
 const queryClient = new QueryClient();
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+};
+
 const RouteFallback = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
     <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
@@ -56,6 +62,7 @@ const App = () => (
         <AuthProvider>
           <AuthModalProvider>
             <Suspense fallback={<RouteFallback />}>
+              <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />

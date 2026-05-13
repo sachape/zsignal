@@ -350,13 +350,20 @@ const AnalysePage = () => {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      {/* Chevron */}
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 shrink-0 text-muted-foreground/30 transition-transform duration-200 group-hover:text-muted-foreground/60",
-                          isOpen && "rotate-180 text-muted-foreground/60",
+                      {/* Expand hint */}
+                      <div className="flex shrink-0 items-center gap-1">
+                        {!isOpen && (
+                          <span className="text-[10px] text-muted-foreground/50 group-hover:text-muted-foreground/80 transition-colors hidden sm:inline">
+                            Détails
+                          </span>
                         )}
-                      />
+                        <ChevronDown
+                          className={cn(
+                            "h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:text-muted-foreground/80",
+                            isOpen && "rotate-180 text-muted-foreground/80",
+                          )}
+                        />
+                      </div>
                     </button>
                     {isOpen && (
                       <div className="mx-1 mb-2 grid gap-2 rounded-xl border border-border/40 bg-muted/10 p-3 sm:grid-cols-2">
@@ -519,9 +526,12 @@ const AnalysePage = () => {
                 </div>
               ))}
               {visibleCompetitors.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Aucun concurrent similaire trouvé pour cette chaîne.
-                </p>
+                <div className="rounded-xl border border-border/40 bg-muted/20 px-4 py-5 text-center">
+                  <p className="text-sm font-medium text-foreground">Aucun concurrent détecté</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Le positionnement de ta chaîne est encore trop peu défini pour trouver des profils similaires. Stream régulièrement dans une catégorie principale pour que l'algorithme puisse te situer.
+                  </p>
+                </div>
               )}
             </div>
           </section>

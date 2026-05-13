@@ -634,7 +634,7 @@ const ResultPage = () => {
                 </div>
                 <div className="max-w-sm">
                   <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                    Mode Structuration
+                    Mode structuration
                   </p>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
                     Pas encore assez de signal pour un score fiable. L'objectif : créer une régularité de stream.

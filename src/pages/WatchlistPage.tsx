@@ -274,6 +274,10 @@ const WatchlistPage = () => {
                 </Button>
               </div>
 
+              <p className="text-[11px] text-muted-foreground/50">
+                Stockée sur cet appareil · non synchronisée entre appareils
+              </p>
+
               {/* Feature hints */}
               <div className="mt-2 grid gap-2 text-left sm:grid-cols-3">
                 {[

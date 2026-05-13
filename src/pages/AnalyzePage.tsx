@@ -271,6 +271,11 @@ const AnalyzePage = () => {
             </ul>
 
             <Progress value={progress} className="mt-6" />
+            {progress >= 85 && !isDone && (
+              <p className="mt-2 text-center text-[11px] text-muted-foreground/60">
+                Finalisation de l'analyse, encore quelques secondes…
+              </p>
+            )}
             {import.meta.env.DEV && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("debug") === "1" && (
               <div className="mt-6 rounded-md border border-border/60 bg-muted/40 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground">
                 <div className="mb-1 font-semibold text-foreground">DEBUG /analyze</div>
