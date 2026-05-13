@@ -119,8 +119,13 @@ const DashboardPage = () => {
     const emailKey = `streamnco:signup_tracked:email:${user.email}`;
     if (!localStorage.getItem(trackKey)) {
       if (!localStorage.getItem(emailKey)) {
-        const ageMs = Date.now() - new Date(user.created_at).getTime();
-        if (ageMs < 120_000) {
+        // New user detection: for a first-ever OAuth sign-in, created_at and
+        // last_sign_in_at are set in the same auth event (< a few seconds apart).
+        // Returning users always have last_sign_in_at >> created_at.
+        const createdAt = new Date(user.created_at).getTime();
+        const lastSignIn = new Date(user.last_sign_in_at ?? user.created_at).getTime();
+        const isNewUser = Math.abs(lastSignIn - createdAt) < 30_000;
+        if (isNewUser) {
           analytics.signupCompleted(user.email);
         }
       }
