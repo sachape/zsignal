@@ -153,8 +153,11 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
         {steps.map((step, i) => {
           const done = isStepDone(step);
           const Icon = step.icon;
-          // A step is clickable if it's not done and has a destination
-          const isClickable = !done && !!step.href;
+          // A step is clickable only if its prerequisites are met
+          const prerequisitesMet = step.autoChecked !== undefined
+            ? !!step.href                  // auto-checked steps: just need an href
+            : isConnected && hasReport;    // manual steps: need Twitch + report first
+          const isClickable = !done && !!step.href && prerequisitesMet;
 
           return (
             <div
