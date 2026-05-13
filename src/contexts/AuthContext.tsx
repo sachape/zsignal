@@ -27,6 +27,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        const uid = session?.user?.id;
+        if (uid) {
+          // Hydrate per-user caches (fire-and-forget)
+          void loadWatchlistFromDb(uid);
+          void loadPreferredNicheFromDb(uid);
+          void loadSeenBadgesFromDb(uid);
+        }
       }
     );
 
@@ -34,6 +41,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      const uid = session?.user?.id;
+      if (uid) {
+        void loadWatchlistFromDb(uid);
+        void loadPreferredNicheFromDb(uid);
+        void loadSeenBadgesFromDb(uid);
+      }
     });
 
     return () => subscription.unsubscribe();
