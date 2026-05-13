@@ -1,9 +1,10 @@
 /**
  * User-selected reference niche for benchmark exploration.
- *
- * Used as a TRUSTWORTHY fallback when the personal benchmark signal
- * is too weak to surface direct competitors. Stored locally per user.
+ * Source of truth: Lovable Cloud database (`user_preferences`).
+ * In-memory cache keeps existing synchronous getter usable.
  */
+
+import { supabase } from "@/integrations/supabase/client";
 
 export interface PreferredNiche {
   category: string;
@@ -11,52 +12,80 @@ export interface PreferredNiche {
   set_at: string;
 }
 
-const KEY_PREFIX = "streampulse:preferred-niche:";
 const EVENT = "streampulse:preferred-niche-changed";
+const cache = new Map<string, PreferredNiche | null>(); // userId -> niche
 
-function key(userId: string | null | undefined): string {
-  return `${KEY_PREFIX}${userId ?? "anon"}`;
+function ukey(userId: string | null | undefined): string {
+  return userId ?? "anon";
+}
+
+function emit() {
+  try { window.dispatchEvent(new CustomEvent(EVENT)); } catch { /* noop */ }
+}
+
+export async function loadPreferredNicheFromDb(
+  userId: string | null | undefined,
+): Promise<PreferredNiche | null> {
+  if (!userId) {
+    cache.set("anon", null);
+    return null;
+  }
+  const { data, error } = await supabase
+    .from("user_preferences")
+    .select("preferred_niche, preferred_language, updated_at")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error || !data?.preferred_niche) {
+    cache.set(userId, null);
+    emit();
+    return null;
+  }
+  const value: PreferredNiche = {
+    category: data.preferred_niche,
+    language: data.preferred_language ?? "fr",
+    set_at: data.updated_at,
+  };
+  cache.set(userId, value);
+  emit();
+  return value;
 }
 
 export function getPreferredNiche(
   userId: string | null | undefined,
 ): PreferredNiche | null {
-  try {
-    const raw = localStorage.getItem(key(userId));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed?.category) return null;
-    return parsed as PreferredNiche;
-  } catch {
-    return null;
-  }
+  return cache.get(ukey(userId)) ?? null;
 }
 
-export function setPreferredNiche(
+export async function setPreferredNiche(
   userId: string | null | undefined,
   category: string,
   language = "fr",
-): PreferredNiche {
+): Promise<PreferredNiche> {
   const value: PreferredNiche = {
     category,
     language,
     set_at: new Date().toISOString(),
   };
-  try {
-    localStorage.setItem(key(userId), JSON.stringify(value));
-    window.dispatchEvent(new CustomEvent(EVENT));
-  } catch {
-    // ignore
+  cache.set(ukey(userId), value);
+  emit();
+  if (userId) {
+    await supabase.from("user_preferences").upsert(
+      {
+        user_id: userId,
+        preferred_niche: category,
+        preferred_language: language,
+      },
+      { onConflict: "user_id" },
+    );
   }
   return value;
 }
 
-export function clearPreferredNiche(userId: string | null | undefined): void {
-  try {
-    localStorage.removeItem(key(userId));
-    window.dispatchEvent(new CustomEvent(EVENT));
-  } catch {
-    // ignore
+export async function clearPreferredNiche(userId: string | null | undefined): Promise<void> {
+  cache.set(ukey(userId), null);
+  emit();
+  if (userId) {
+    await supabase.from("user_preferences").update({ preferred_niche: null }).eq("user_id", userId);
   }
 }
 
