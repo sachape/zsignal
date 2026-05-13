@@ -56,7 +56,7 @@ const NextMilestoneCard = ({ milestone, reportId, foundationActive }: Props) => 
             <p className="mt-1 text-xs text-muted-foreground">{rationale}</p>
           </div>
           <Button asChild variant="ghost" size="sm">
-            <Link to={`/result?report_id=${reportId}`}>
+            <Link to="/progression">
               Détail <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </Button>

@@ -54,7 +54,7 @@ import EventSubCockpitSection from "@/components/EventSubCockpitSection";
 import ScopeDriftBanner from "@/components/ScopeDriftBanner";
 import { computeStreak } from "@/services/streakEngine";
 import { computeMaturityLevel } from "@/services/maturityLevel";
-import { evaluateBadges, markBadgesSeen, evaluateTieredBadges } from "@/services/badgeEngine";
+import { evaluateTieredBadges } from "@/services/badgeEngine";
 import { loadTotalXp, cacheXpData } from "@/services/xpEngine";
 import {
   generateWeeklyQuests,
@@ -324,20 +324,13 @@ const DashboardPage = () => {
       ),
     [currentReport, allSessions],
   );
-  const badges = useMemo(() => {
-    if (!user || !currentReport) return [];
-    const b = evaluateBadges({ sessions: allSessions, report: currentReport.report, userId: user.id });
-    const newIds = b.filter((badge) => badge.isNew).map((badge) => badge.id);
-    if (newIds.length > 0) markBadgesSeen(user.id, newIds);
-
-    // Check tiered badges — set sidebar notification dot if any new tier unlocked
+  useMemo(() => {
+    if (!user || !currentReport) return;
     const tiered = evaluateTieredBadges({ sessions: allSessions, report: currentReport.report, userId: user.id });
     if (tiered.some((tb) => tb.tiers.some((t) => t.isNew))) {
       try { localStorage.setItem(`quetes_new_${user.id}`, "1"); } catch { /* noop */ }
       window.dispatchEvent(new CustomEvent("quetes-notif-update"));
     }
-
-    return b;
   }, [allSessions, currentReport, user]);
 
   if (loading || showGuide === null) {

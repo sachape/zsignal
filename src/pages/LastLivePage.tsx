@@ -147,7 +147,7 @@ const LastLivePage = () => {
                 <Clock className="h-4 w-4 text-muted-foreground" />
               </div>
               <p className="text-sm text-muted-foreground">
-                StreamPulse écoute Twitch toutes les quelques minutes pour
+                Streamnco écoute Twitch toutes les quelques minutes pour
                 détecter automatiquement tes streams.
               </p>
               <Button asChild variant="outline" size="sm">

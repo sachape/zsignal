@@ -95,7 +95,7 @@ export function buildSmartAlerts(input: BuildInput): AlertsState {
           tone: "neutral",
           title: "Pas encore assez de recul pour une vraie tendance.",
           description:
-            "Encore quelques lives et StreamPulse pourra faire ressortir une alerte fiable.",
+            "Encore quelques lives et Streamnco pourra faire ressortir une alerte fiable.",
         },
       ],
     };
