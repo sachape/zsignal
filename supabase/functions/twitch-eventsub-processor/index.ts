@@ -13,6 +13,7 @@
 //  - manual operator runs
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enqueueAnalysisJobForConnectedAccount } from "../_shared/enqueueAnalysisJob.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -190,6 +191,66 @@ async function handleStreamOffline(admin: SupabaseClient, raw: RawEvent) {
     source_event_type: "stream.offline",
     metadata: { live_session_ids: closedIds, ended_at: endedAt },
   });
+
+  // Enqueue an automatic analysis refresh (auto_scheduled) for every
+  // connected account tied to this broadcaster, with a 6h throttle.
+  // The frontend autoRefreshRunner consumes these queued jobs and runs
+  // the actual analysis pipeline — we never run it inside the processor.
+  const accounts = await findUserContexts(admin, broadcasterUserId);
+  for (const account of accounts) {
+    await logEvent(admin, "info", "auto_analysis_enqueue_started", "stream.offline", {
+      user_id: account.user_id,
+      platform_user_id: broadcasterUserId,
+      trigger_source: "auto_scheduled",
+    });
+    try {
+      const result = await enqueueAnalysisJobForConnectedAccount(
+        admin,
+        {
+          user_id: account.user_id,
+          platform_user_id: broadcasterUserId,
+          platform_login: account.platform_login,
+          platform_display_name: account.platform_display_name,
+        },
+        "auto_scheduled",
+        {
+          throttleHours: 6,
+          lastAutoRefreshThrottleHours: 6,
+          bumpLastAutoRefresh: true,
+        },
+      );
+      if (result.enqueued) {
+        await logEvent(admin, "info", "auto_analysis_enqueued", "stream.offline", {
+          user_id: account.user_id,
+          platform_user_id: broadcasterUserId,
+          job_id: result.job_id,
+          trigger_source: "auto_scheduled",
+        });
+      } else {
+        await logEvent(
+          admin,
+          "info",
+          result.reason === "duplicate_active_job"
+            ? "auto_analysis_skipped_duplicate"
+            : result.reason?.startsWith("throttled")
+              ? "auto_analysis_skipped_throttled"
+              : "auto_analysis_skipped_no_account",
+          "stream.offline",
+          {
+            user_id: account.user_id,
+            platform_user_id: broadcasterUserId,
+            reason: result.reason,
+          },
+        );
+      }
+    } catch (e) {
+      await logEvent(admin, "error", "auto_analysis_enqueue_error", String(e), {
+        user_id: account.user_id,
+        platform_user_id: broadcasterUserId,
+      });
+    }
+  }
+
 
   return { live_session_ids: closedIds };
 }
