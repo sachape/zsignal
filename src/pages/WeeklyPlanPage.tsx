@@ -84,26 +84,42 @@ const STARTER_STEPS = [
 type StarterStepId = (typeof STARTER_STEPS)[number]["id"];
 
 const StarterPlanCard = ({ userId }: { userId: string }) => {
-  const storageKey = `streampulse:starter:${userId}`;
-  const [checked, setChecked] = useState<Set<StarterStepId>>(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem(storageKey) ?? "[]") as StarterStepId[];
-      return new Set(raw);
-    } catch {
-      return new Set<StarterStepId>();
-    }
-  });
+  const checklistKey = "starter";
+  const [checked, setChecked] = useState<Set<StarterStepId>>(new Set());
 
-  const toggle = (id: StarterStepId) => {
-    setChecked((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      try {
-        localStorage.setItem(storageKey, JSON.stringify([...next]));
-      } catch { /* noop */ }
-      return next;
-    });
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("user_checklist_progress")
+        .select("item_key")
+        .eq("user_id", userId)
+        .eq("checklist_key", checklistKey);
+      if (cancelled) return;
+      setChecked(new Set((data ?? []).map((r) => r.item_key as StarterStepId)));
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const toggle = async (id: StarterStepId) => {
+    const has = checked.has(id);
+    const next = new Set(checked);
+    if (has) next.delete(id);
+    else next.add(id);
+    setChecked(next); // optimistic
+    if (has) {
+      await supabase
+        .from("user_checklist_progress")
+        .delete()
+        .eq("user_id", userId)
+        .eq("checklist_key", checklistKey)
+        .eq("item_key", id);
+    } else {
+      await supabase.from("user_checklist_progress").upsert(
+        { user_id: userId, checklist_key: checklistKey, item_key: id },
+        { onConflict: "user_id,checklist_key,item_key", ignoreDuplicates: true },
+      );
+    }
   };
 
   const completedCount = checked.size;
