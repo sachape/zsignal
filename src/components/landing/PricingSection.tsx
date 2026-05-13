@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Check, Sparkles, Clock } from "lucide-react";
+import { Check, Sparkles, Clock, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuthModal } from "@/contexts/AuthModalContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
+import { startCheckout, type PlanName, type BillingCycle } from "@/services/billingService";
+import { toast } from "sonner";
 import {
   GlassCard,
   MicroLabel,
@@ -82,7 +85,9 @@ const FeatureList = ({ features }: { features: string[] }) => (
 const PricingSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.15);
   const { openAuthModal } = useAuthModal();
+  const { user } = useAuth();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [loadingPlan, setLoadingPlan] = useState<PlanName | null>(null);
 
   const handleFreeCta = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -93,8 +98,19 @@ const PricingSection = () => {
     }, 600);
   };
 
-  const handlePaidCta = () => {
-    openAuthModal({ redirectTo: "/dashboard" });
+  const handlePaidCta = async (plan: PlanName) => {
+    if (loadingPlan) return;
+    if (!user) {
+      openAuthModal({ redirectTo: "/pricing" });
+      return;
+    }
+    try {
+      setLoadingPlan(plan);
+      await startCheckout(plan, billing as BillingCycle);
+    } catch (e) {
+      toast.error("Impossible de démarrer le paiement. Réessaie dans un instant.");
+      setLoadingPlan(null);
+    }
   };
 
   const proPrice = billing === "annual"
@@ -251,8 +267,8 @@ const PricingSection = () => {
                 <FeatureList features={PRO_FEATURES} />
               </div>
               <div className="mt-auto pt-7">
-                <Button size="lg" className="w-full" onClick={handlePaidCta}>
-                  Activer le plan Pro
+                <Button size="lg" className="w-full" onClick={() => handlePaidCta("pro")} disabled={loadingPlan !== null}>
+                  {loadingPlan === "pro" ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirection…</> : "Activer le plan Pro"}
                 </Button>
                 <p className="mt-3 text-center text-[11px] text-muted-foreground">
                   {FOUNDING_MEMBER ? "Prix locké à vie · sans engagement" : "Sans engagement · résiliable à tout moment"}
@@ -313,8 +329,8 @@ const PricingSection = () => {
                 <FeatureList features={GROWTH_FEATURES} />
               </div>
               <div className="mt-auto pt-7">
-                <Button size="lg" variant="outline" className="w-full" onClick={handlePaidCta}>
-                  Activer le plan Growth
+                <Button size="lg" variant="outline" className="w-full" onClick={() => handlePaidCta("growth")} disabled={loadingPlan !== null}>
+                  {loadingPlan === "growth" ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirection…</> : "Activer le plan Growth"}
                 </Button>
                 {FOUNDING_MEMBER && (
                   <p className="mt-3 text-center text-[11px] text-muted-foreground">
