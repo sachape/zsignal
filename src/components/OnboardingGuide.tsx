@@ -141,7 +141,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
-          Prêt à prendre le contrôle, {displayName} ?
+          Prêt à prendre le contrôle ?
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Connecte Twitch et découvre exactement ce qui freine ta croissance.
@@ -211,11 +211,26 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                   </p>
                 </div>
 
-                {/* Arrow for clickable */}
-                {isClickable && (
+                {/* Chevron for steps 3 & 4 */}
+                {isClickable && step.id !== "twitch" && (
                   <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/40" />
                 )}
               </div>
+
+              {/* Inline CTA for step 1 */}
+              {step.id === "twitch" && !done && (
+                <div className="px-4 pb-4">
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    onClick={() => handleStepClick(step)}
+                  >
+                    <Tv className="h-3.5 w-3.5" />
+                    Connecter Twitch
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -236,7 +251,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Analyse en cours, laisse cette page ouverte…
               </div>
-            ) : nextActionable ? (
+            ) : nextActionable && nextActionable.id !== "twitch" ? (
               <Button className="w-full sm:w-auto" onClick={() => handleStepClick(nextActionable)}>
                 {nextActionable.cta}
                 <ArrowRight className="h-4 w-4" />
