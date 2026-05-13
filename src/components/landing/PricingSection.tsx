@@ -267,8 +267,8 @@ const PricingSection = () => {
                 <FeatureList features={PRO_FEATURES} />
               </div>
               <div className="mt-auto pt-7">
-                <Button size="lg" className="w-full" onClick={handlePaidCta}>
-                  Activer le plan Pro
+                <Button size="lg" className="w-full" onClick={() => handlePaidCta("pro")} disabled={loadingPlan !== null}>
+                  {loadingPlan === "pro" ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Redirection…</> : "Activer le plan Pro"}
                 </Button>
                 <p className="mt-3 text-center text-[11px] text-muted-foreground">
                   {FOUNDING_MEMBER ? "Prix locké à vie · sans engagement" : "Sans engagement · résiliable à tout moment"}
