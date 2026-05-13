@@ -64,7 +64,6 @@ import {
   type WeeklyQuests,
 } from "@/services/questEngine";
 import StreakBadge from "@/components/StreakBadge";
-import BadgeStrip from "@/components/BadgeStrip";
 import WeeklyQuestCard from "@/components/WeeklyQuestCard";
 import ShareScoreButton from "@/components/ShareScoreButton";
 import WeeklyDigestCard from "@/components/WeeklyDigestCard";
@@ -92,6 +91,9 @@ const DashboardPage = () => {
   const [showPostGen, setShowPostGen] = useState(false);
   const [allSessions, setAllSessions] = useState<LiveSession[]>([]);
   const [weeklyQuests, setWeeklyQuests] = useState<WeeklyQuests | null>(null);
+  const [greeting, setGreeting] = useState(() =>
+    new Date().getHours() >= 19 ? "Bonsoir," : "Bonjour,"
+  );
 
   const welcomeRequested = searchParams.get("welcome") === "1";
   const [showWelcome, setShowWelcome] = useState(
@@ -118,6 +120,13 @@ const DashboardPage = () => {
       active = false;
     };
   }, [user]);
+  useEffect(() => {
+    const t = setInterval(() => {
+      setGreeting(new Date().getHours() >= 19 ? "Bonsoir," : "Bonjour,");
+    }, 60_000);
+    return () => clearInterval(t);
+  }, []);
+
   const autoTriggeredRef = useRef(false);
   const processingRef = useRef(false);
 
@@ -284,10 +293,24 @@ const DashboardPage = () => {
   const handleManualRefresh = useCallback(async () => {
     if (manualRefreshing) return;
     setManualRefreshing(true);
-    await enqueueRefreshForSelf("manual");
+    if (
+      user &&
+      account?.platform_user_id &&
+      account.platform_login &&
+      syncSnapshot?.lastJobStatus === "queued"
+    ) {
+      await processPendingForAccount(
+        user.id,
+        account.platform_user_id,
+        account.platform_login,
+        account.platform_display_name ?? null,
+      );
+    } else {
+      await enqueueRefreshForSelf("manual");
+    }
     await loadDashboardState();
     setManualRefreshing(false);
-  }, [manualRefreshing, loadDashboardState]);
+  }, [manualRefreshing, loadDashboardState, user, account, syncSnapshot]);
 
   // Sprint 1 — gamification derived state. Hooks must run unconditionally,
   // so we compute them before any early return. Values are safe defaults
@@ -317,7 +340,7 @@ const DashboardPage = () => {
     return b;
   }, [allSessions, currentReport, user]);
 
-  if (loading) {
+  if (loading || showGuide === null) {
     return (
       <AppShell>
         <LoadingState />
@@ -492,7 +515,7 @@ const DashboardPage = () => {
         {/* Identity strip */}
         <div className="animate-fade-up mb-6">
           <p className="mb-5 sm:mb-7 text-[32px] font-medium text-foreground">
-            {new Date().getHours() >= 19 ? "Bonsoir," : "Bonjour,"}
+            {greeting}
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* Avatar + name */}
@@ -563,10 +586,6 @@ const DashboardPage = () => {
                     démo
                   </span>
                 )}
-                {/* Badge strip */}
-                <div className="mt-2">
-                  <BadgeStrip badges={badges} />
-                </div>
               </div>
             </div>
 
@@ -661,6 +680,7 @@ const DashboardPage = () => {
         )}
 
         {/* Live stack — action principale, en priorité */}
+        <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">Live</p>
         <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '120ms' }}>
           <LiveStatusCard
             current={liveSnapshot?.current ?? null}
@@ -685,7 +705,7 @@ const DashboardPage = () => {
         {/* Weekly quests — only outside foundation mode */}
         {!foundationActive && weeklyQuests && (
           <div className="animate-fade-up mb-6" style={{ animationDelay: '160ms' }}>
-            <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} />
+            <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
           </div>
         )}
 
@@ -734,6 +754,7 @@ const DashboardPage = () => {
           )}
 
         {/* Next milestone */}
+        <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">Progression</p>
         <div className="mb-4">
           <NextMilestoneCard
             milestone={nextMilestone}

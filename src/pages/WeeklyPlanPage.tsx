@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { markOnboardingStepVisited } from "@/components/OnboardingGuide";
 import {
   ListChecks,
@@ -14,6 +15,7 @@ import {
   CalendarDays,
   MapPin,
   ChevronRight,
+  Rocket,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -39,6 +41,169 @@ import { getLatestReport, getRecentReports, type SavedReport } from "@/services/
 import type { Recommendation } from "@/types/analysis";
 import { cn } from "@/lib/utils";
 import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
+
+/* ────────────────────────────────────────────────────────── */
+/* Starter plan                                              */
+/* ────────────────────────────────────────────────────────── */
+
+const STARTER_STEPS = [
+  {
+    id: "bio" as const,
+    title: "Rédige ta bio Twitch en 3 lignes",
+    detail: "Qui tu es · ce que tu streams · quand tu es live",
+    playbookSlug: "twitch-bio-clarity",
+  },
+  {
+    id: "schedule" as const,
+    title: "Fixe 3 créneaux de stream par semaine",
+    detail: "Mêmes jours, mêmes heures — affiche-les dans ta bio",
+    playbookSlug: "stable-schedule",
+  },
+  {
+    id: "category" as const,
+    title: "Choisis ta catégorie principale",
+    detail: "70 % de tes lives dans une seule niche au départ",
+    playbookSlug: "category-positioning",
+  },
+  {
+    id: "panels" as const,
+    title: "Configure tes 4 panels essentiels",
+    detail: "À propos, Planning, Rejoindre, Règles — en 20 minutes",
+    playbookSlug: "twitch-panels",
+  },
+  {
+    id: "first-live" as const,
+    title: "Lance ton premier live",
+    detail: "Durée libre — l'objectif c'est de démarrer",
+    playbookSlug: null,
+  },
+];
+
+type StarterStepId = (typeof STARTER_STEPS)[number]["id"];
+
+const StarterPlanCard = ({ userId }: { userId: string }) => {
+  const storageKey = `streampulse:starter:${userId}`;
+  const [checked, setChecked] = useState<Set<StarterStepId>>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(storageKey) ?? "[]") as StarterStepId[];
+      return new Set(raw);
+    } catch {
+      return new Set<StarterStepId>();
+    }
+  });
+
+  const toggle = (id: StarterStepId) => {
+    setChecked((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      try {
+        localStorage.setItem(storageKey, JSON.stringify([...next]));
+      } catch { /* noop */ }
+      return next;
+    });
+  };
+
+  const completedCount = checked.size;
+  const total = STARTER_STEPS.length;
+  const pct = Math.round((completedCount / total) * 100);
+  const allDone = completedCount === total;
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardContent className="p-5">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                <Rocket className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Plan d'amorce</p>
+                <p className="text-xs text-muted-foreground">Commence ici, même sans live</p>
+              </div>
+            </div>
+            <span className="text-xs font-semibold tabular-nums text-muted-foreground">
+              {completedCount}/{total}
+            </span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-all duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-5">
+          {allDone ? (
+            <div className="rounded-xl border border-primary/25 bg-primary/[0.06] p-4 text-center">
+              <Sparkles className="mx-auto mb-2 h-5 w-5 text-primary" />
+              <p className="text-sm font-semibold text-foreground">Chaîne prête !</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Lance ton premier live — ton plan complet s'activera automatiquement.
+              </p>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {STARTER_STEPS.map((step) => {
+                const done = checked.has(step.id);
+                return (
+                  <li
+                    key={step.id}
+                    className={cn(
+                      "flex items-start gap-3 rounded-lg border p-3 transition-all",
+                      done
+                        ? "border-primary/20 bg-primary/[0.04]"
+                        : "border-border/30 hover:border-border/60",
+                    )}
+                  >
+                    <button
+                      onClick={() => toggle(step.id)}
+                      aria-pressed={done}
+                      className="mt-0.5 shrink-0 transition-opacity hover:opacity-80"
+                    >
+                      {done ? (
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-muted-foreground/50" />
+                      )}
+                    </button>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={cn(
+                          "text-sm leading-snug",
+                          done
+                            ? "text-muted-foreground line-through"
+                            : "font-medium text-foreground",
+                        )}
+                      >
+                        {step.title}
+                      </p>
+                      {!done && (
+                        <p className="mt-0.5 text-xs text-muted-foreground">{step.detail}</p>
+                      )}
+                      {step.playbookSlug && !done && (
+                        <Link
+                          to={`/playbooks/${step.playbookSlug}`}
+                          className="mt-1 inline-flex items-center gap-0.5 text-xs text-primary hover:underline"
+                        >
+                          Voir le playbook <ChevronRight className="h-3 w-3" />
+                        </Link>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 /* ────────────────────────────────────────────────────────── */
 /* Helpers                                                   */
@@ -146,11 +311,15 @@ const TodayTab = ({
   sessions,
   nextAction,
   milestoneTitle,
+  hasAnySessions,
+  onSwitchToWeek,
 }: {
   inLive: boolean;
   sessions: LiveSession[];
   nextAction: Recommendation | null;
   milestoneTitle: string;
+  hasAnySessions: boolean;
+  onSwitchToWeek: () => void;
 }) => {
   const streamToday = isLikelyStreamDay(sessions);
   const hasEnoughData = sessions.filter((s) => s.status === "ended").length >= 4;
@@ -219,6 +388,24 @@ const TodayTab = ({
       {/* Action du jour */}
       {nextAction ? (
         <ActionCard action={nextAction} label="À faire aujourd'hui" />
+      ) : !hasAnySessions ? (
+        <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <Rocket className="h-4 w-4 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-foreground">Avant ton premier live</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Configure ta bio, ton planning et ta catégorie — ça prend moins d'une heure.
+            </p>
+            <button
+              onClick={onSwitchToWeek}
+              className="mt-2 inline-flex items-center gap-0.5 text-xs font-medium text-primary hover:underline"
+            >
+              Voir le plan d'amorce <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="rounded-xl border border-border/50 bg-card/40 p-4 text-center">
           <p className="text-sm text-muted-foreground">Lance un live pour générer ton action du jour.</p>
@@ -249,6 +436,8 @@ const TodayTab = ({
 const WeekTab = ({
   inLive,
   noPlan,
+  hasAnySessions,
+  userId,
   reportFallbackAction,
   milestoneTitle,
   milestoneDiagnosis,
@@ -261,6 +450,8 @@ const WeekTab = ({
 }: {
   inLive: boolean;
   noPlan: boolean;
+  hasAnySessions: boolean;
+  userId: string;
   reportFallbackAction: Recommendation | null;
   milestoneTitle: string;
   milestoneDiagnosis: string | null;
@@ -290,6 +481,9 @@ const WeekTab = ({
   }
 
   if (noPlan) {
+    if (!hasAnySessions) {
+      return <StarterPlanCard userId={userId} />;
+    }
     return (
       <Card>
         <CardContent className="space-y-4 p-6">
@@ -725,6 +919,7 @@ const WeeklyPlanPage = () => {
   const allDone = totalActions > 0 && completedCount === totalActions;
   const progressPct = totalActions > 0 ? Math.round((completedCount / totalActions) * 100) : 0;
   const nextAction = currentReport?.report.next_best_action ?? reportFallbackAction ?? null;
+  const hasAnySessions = allSessions.some((s) => s.status === "ended");
 
   return (
     <AppShell>
@@ -759,12 +954,16 @@ const WeeklyPlanPage = () => {
             sessions={allSessions}
             nextAction={nextAction}
             milestoneTitle={milestoneTitle}
+            hasAnySessions={hasAnySessions}
+            onSwitchToWeek={() => setTab("week")}
           />
         )}
         {tab === "week" && (
           <WeekTab
             inLive={inLive}
             noPlan={noPlan}
+            hasAnySessions={hasAnySessions}
+            userId={user?.id ?? ""}
             reportFallbackAction={reportFallbackAction}
             milestoneTitle={milestoneTitle}
             milestoneDiagnosis={milestoneDiagnosis}

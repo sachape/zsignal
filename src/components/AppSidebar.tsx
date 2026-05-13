@@ -39,6 +39,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
+import { getWatchlist } from "@/services/benchmarkWatchlist";
+import { computeAlerts, areAlertsDismissed } from "@/services/competitorAlerts";
 
 const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true, secondary: false },
@@ -67,6 +69,7 @@ const AppSidebar = () => {
   const navigate = useNavigate();
 
   const [hasNewBadge, setHasNewBadge] = useState(false);
+  const [hasWatchlistAlerts, setHasWatchlistAlerts] = useState(false);
   const [cachedTotalXp, setCachedTotalXp] = useState<number | null>(null);
 
   useEffect(() => {
@@ -79,6 +82,26 @@ const AppSidebar = () => {
     check();
     window.addEventListener(NOTIF_EVENT, check);
     return () => window.removeEventListener(NOTIF_EVENT, check);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const check = () => {
+      try {
+        const uid = user.id;
+        const list = getWatchlist(uid);
+        const alerts = computeAlerts(uid, list);
+        const dismissed = areAlertsDismissed(uid);
+        setHasWatchlistAlerts(alerts.length > 0 && !dismissed);
+      } catch { /* noop */ }
+    };
+    check();
+    window.addEventListener("streampulse:watchlist-changed", check);
+    window.addEventListener("streampulse:alerts-dismissed", check);
+    return () => {
+      window.removeEventListener("streampulse:watchlist-changed", check);
+      window.removeEventListener("streampulse:alerts-dismissed", check);
+    };
   }, [user]);
 
   const refreshXp = useCallback(() => {
@@ -125,6 +148,12 @@ const AppSidebar = () => {
               <span className="relative shrink-0">
                 <item.icon className={item.secondary ? "h-3.5 w-3.5" : "h-4 w-4"} />
                 {item.url === "/quetes" && hasNewBadge && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                  </span>
+                )}
+                {item.url === "/watchlist" && hasWatchlistAlerts && (
                   <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />

@@ -26,10 +26,10 @@ const Index = () => {
       <AudienceValueSection />
       {/* 6. Prix */}
       <PricingSection />
-      {/* 7. Ancrage de valeur (après le prix pour réassurance) */}
-      <ValueAnchorSection />
-      {/* 8. Objections */}
+      {/* 7. Objections (au moment de la décision, juste après le prix) */}
       <FaqSection />
+      {/* 8. Ancrage de valeur (dernière validation avant le CTA final) */}
+      <ValueAnchorSection />
       {/* 9. Action finale */}
       <FinalCtaSection />
       {/* 10. Footer */}

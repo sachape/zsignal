@@ -382,15 +382,13 @@ const QuestesPage = () => {
               ))}
               {lockedBadges.length > 0 && (
                 <>
-                  {unlockedBadges.length > 0 && (
-                    <div className="my-3 flex items-center gap-3">
-                      <div className="h-px flex-1 bg-border/40" />
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
-                        À débloquer
-                      </p>
-                      <div className="h-px flex-1 bg-border/40" />
-                    </div>
-                  )}
+                  <div className="my-3 flex items-center gap-3">
+                    {unlockedBadges.length > 0 && <div className="h-px flex-1 bg-border/40" />}
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
+                      À débloquer
+                    </p>
+                    {unlockedBadges.length > 0 && <div className="h-px flex-1 bg-border/40" />}
+                  </div>
                   {lockedBadges.map((badge) => (
                     <TieredBadgeCard key={badge.id} badge={badge} />
                   ))}

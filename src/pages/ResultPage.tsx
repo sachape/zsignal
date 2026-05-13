@@ -359,18 +359,15 @@ const ResultPage = () => {
                 Aucun diagnostic disponible pour le moment
               </h3>
               <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                Connecte Twitch et lance la première analyse pour découvrir ton
-                StreamScore, le détail de tes blocages, et les actions
-                prioritaires.
+                Ton premier StreamScore sera calculé automatiquement dès la fin
+                de ton premier live. En attendant, prépare ta chaîne depuis le
+                tableau de bord.
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>
-                  <Link to="/analyze">
-                    <Zap className="h-4 w-4" /> Lancer ma première analyse
+                  <Link to="/dashboard">
+                    <Zap className="h-4 w-4" /> Aller au tableau de bord
                   </Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link to="/dashboard">Retour au tableau de bord</Link>
                 </Button>
               </div>
             </CardContent>
@@ -737,11 +734,8 @@ const ResultPage = () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/connect-twitch">Voir mon compte connecté</Link>
-                </Button>
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/analyze">
-                    <RefreshCw className="h-3.5 w-3.5" /> Analyser mon compte
+                  <Link to="/analyse">
+                    <RefreshCw className="h-3.5 w-3.5" /> Voir mon analyse
                   </Link>
                 </Button>
                 <Button asChild size="sm" variant="ghost">

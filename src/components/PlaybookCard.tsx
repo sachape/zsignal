@@ -5,6 +5,7 @@ import type { Playbook } from "@/services/playbookLibrary";
 
 interface Props {
   playbook: Playbook;
+  highlighted?: boolean;
 }
 
 function ImpactDot({ impact }: { impact: Playbook["impact"] }) {
@@ -18,11 +19,16 @@ function ImpactDot({ impact }: { impact: Playbook["impact"] }) {
   );
 }
 
-const PlaybookCard = ({ playbook }: Props) => {
+const PlaybookCard = ({ playbook, highlighted = false }: Props) => {
   return (
     <Link
       to={`/playbooks/${playbook.slug}`}
-      className="group flex flex-col rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-sm transition-all hover:border-primary/20 hover:bg-card/60 hover:shadow-[0_0_24px_-8px] hover:shadow-primary/15"
+      className={cn(
+        "group flex flex-col rounded-2xl border p-5 backdrop-blur-sm transition-all hover:bg-card/60 hover:shadow-[0_0_24px_-8px] hover:shadow-primary/15",
+        highlighted
+          ? "border-primary/30 bg-primary/[0.03] hover:border-primary/50"
+          : "border-white/[0.08] bg-card/40 hover:border-primary/20",
+      )}
     >
       {/* Header */}
       <div className="mb-3 flex items-start gap-3">

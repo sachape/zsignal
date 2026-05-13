@@ -1,11 +1,13 @@
 import { useRef, useEffect } from "react";
-import { CheckCircle2, Circle, Sparkles, Zap } from "lucide-react";
+import { Link } from "react-router-dom";
+import { CheckCircle2, Circle, Sparkles, Trophy, Zap, ArrowRight } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import type { WeeklyQuests, Quest } from "@/services/questEngine";
 
 interface Props {
   weeklyQuests: WeeklyQuests;
   onToggle: (questId: string) => void;
+  linkToQuests?: boolean;
 }
 
 const QuestRow = ({
@@ -78,6 +80,11 @@ const QuestRow = ({
 
         <p className="mt-0.5 text-[11px] text-muted-foreground">{quest.description}</p>
 
+        {/* Quest type indicator */}
+        <p className="mt-1 text-[10px] text-muted-foreground/40">
+          {quest.type === "verifiable" ? "Vérifié automatiquement" : "À cocher manuellement"}
+        </p>
+
         {/* Progress bar for verifiable quests */}
         {quest.type === "verifiable" && !quest.completed && (
           <div className="mt-2 flex items-center gap-2">
@@ -96,6 +103,14 @@ const QuestRow = ({
     </div>
   );
 };
+
+function nextMondayLabel(): string {
+  const d = new Date();
+  const day = d.getDay();
+  const daysUntil = day === 0 ? 1 : day === 1 ? 7 : 8 - day;
+  d.setDate(d.getDate() + daysUntil);
+  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+}
 
 const NOTIF_KEY = (userId?: string) => userId ? `quetes_new_${userId}` : null;
 const NOTIF_EVENT = "quetes-notif-update";
@@ -116,7 +131,7 @@ export function hasQuestesNotification(userId: string): boolean {
 
 void NOTIF_KEY; // suppress unused warning
 
-const WeeklyQuestCard = ({ weeklyQuests, onToggle }: Props) => {
+const WeeklyQuestCard = ({ weeklyQuests, onToggle, linkToQuests = false }: Props) => {
   const { quests, allCompleted, weekKey } = weeklyQuests;
   const prevAllCompleted = useRef(allCompleted);
 
@@ -177,18 +192,65 @@ const WeeklyQuestCard = ({ weeklyQuests, onToggle }: Props) => {
 
       {/* All completed celebration */}
       {allCompleted ? (
-        <div className="relative rounded-xl border border-primary/25 bg-primary/[0.07] p-4 text-center">
-          <Sparkles className="mx-auto mb-2 h-6 w-6 text-primary" aria-hidden />
-          <p className="text-sm font-semibold text-foreground">Semaine parfaite !</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Toutes les quêtes complétées — reviens lundi pour la suite.
-          </p>
+        <div className="relative overflow-hidden rounded-xl border border-primary/30 bg-primary/[0.06] p-5">
+          {/* Background glow */}
+          <div
+            className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full blur-2xl"
+            style={{ background: "hsl(var(--primary) / 0.18)" }}
+            aria-hidden
+          />
+
+          {/* Header */}
+          <div className="relative flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15">
+                <Trophy className="h-5 w-5 text-primary" aria-hidden />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">Semaine parfaite !</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Reviens {nextMondayLabel()} pour la suite
+                </p>
+              </div>
+            </div>
+            {/* XP total */}
+            <div className="shrink-0 rounded-xl border border-primary/30 bg-primary/10 px-3 py-1.5 text-center">
+              <p className="text-base font-bold tabular-nums text-primary leading-none">+{totalXp}</p>
+              <p className="text-[9px] font-semibold uppercase tracking-wider text-primary/70">XP</p>
+            </div>
+          </div>
+
+          {/* Completed quest list */}
+          <div className="relative mt-4 space-y-1.5">
+            {quests.map((q) => (
+              <div key={q.id} className="flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary/60" aria-hidden />
+                <span className="flex-1 text-[11px] text-muted-foreground line-through">{q.title}</span>
+                <span className="shrink-0 text-[10px] font-semibold tabular-nums text-primary/60">+{q.xp} XP</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Sparkles decoration */}
+          <Sparkles className="pointer-events-none absolute bottom-3 right-3 h-4 w-4 text-primary/20" aria-hidden />
         </div>
       ) : (
         <div className="relative space-y-2">
           {quests.map((q) => (
             <QuestRow key={q.id} quest={q} onToggle={onToggle} />
           ))}
+        </div>
+      )}
+
+      {linkToQuests && (
+        <div className="relative mt-3 border-t border-border/30 pt-3">
+          <Link
+            to="/quetes"
+            className="flex items-center justify-between text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <span>Badges, XP et progression complète</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
       )}
     </div>

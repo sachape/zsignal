@@ -115,9 +115,12 @@ const ConnectTwitchPage = () => {
                       "Twitch"}
                   </span>
                 </p>
+                <p className="text-xs text-muted-foreground">
+                  Streamnco met à jour ton score automatiquement après chaque live.
+                </p>
               </div>
-              <Button onClick={() => navigate("/analyze")} className="mt-2">
-                Lancer une analyse
+              <Button onClick={() => navigate("/dashboard")} className="mt-2">
+                Aller au tableau de bord
               </Button>
             </CardContent>
           </Card>

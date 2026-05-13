@@ -342,26 +342,47 @@ export const PLAYBOOKS: Playbook[] = [
   },
 ];
 
+const DIM_TAG_MAP: Record<string, PlaybookTag> = {
+  regularity: "schedule",
+  structure: "structure",
+  content: "clips",
+  positioning: "category",
+  momentum: "community",
+  monetization: "monetization",
+};
+
 export function recommendPlaybookForReport(report: AnalysisReport): Playbook {
   const weakest = report.score.breakdown.slice().sort((a, b) => a.score - b.score)[0];
   const dim = weakest?.dimension.toLowerCase() ?? "";
   const facts = report.facts;
   const clips30d = Number(facts.find((f) => f.key === "clips_30d")?.value ?? 0);
 
-  const map: Record<string, PlaybookTag> = {
-    regularity: "schedule",
-    structure: "structure",
-    content: "clips",
-    positioning: "category",
-    momentum: "clips",
-    monetization: "monetization",
-  };
-  const tag = map[dim] ?? "clarity";
+  const tag = DIM_TAG_MAP[dim] ?? "clarity";
   if (clips30d < 2) {
     const p = PLAYBOOKS.find((p) => p.tags.includes("clips"));
     if (p) return p;
   }
   return PLAYBOOKS.find((p) => p.tags.includes(tag)) ?? PLAYBOOKS[0];
+}
+
+export function getRecommendedPlaybooks(report: AnalysisReport, count = 3): Playbook[] {
+  const sorted = report.score.breakdown.slice().sort((a, b) => a.score - b.score);
+  const seen = new Set<string>();
+  const result: Playbook[] = [];
+
+  for (const dim of sorted) {
+    if (result.length >= count) break;
+    const tag = DIM_TAG_MAP[dim.dimension.toLowerCase()] ?? "clarity";
+    const candidate = PLAYBOOKS.find(
+      (p) => p.tags.includes(tag) && !seen.has(p.slug) && p.impact === "high",
+    ) ?? PLAYBOOKS.find((p) => p.tags.includes(tag) && !seen.has(p.slug));
+    if (candidate) {
+      seen.add(candidate.slug);
+      result.push(candidate);
+    }
+  }
+
+  return result;
 }
 
 export function getPlaybookBySlug(slug: string): Playbook | null {

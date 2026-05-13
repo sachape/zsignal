@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Sparkles } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import PlaybookCard from "@/components/PlaybookCard";
-import { PLAYBOOKS, type PlaybookTag } from "@/services/playbookLibrary";
+import { PLAYBOOKS, getRecommendedPlaybooks, type PlaybookTag } from "@/services/playbookLibrary";
+import { getLatestReport } from "@/services/reportRepository";
+import { useAuth } from "@/contexts/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { cn } from "@/lib/utils";
+import type { Playbook } from "@/services/playbookLibrary";
 
 const ALL_TAGS: { tag: PlaybookTag | "all"; label: string }[] = [
   { tag: "all", label: "Tous" },
@@ -20,7 +24,20 @@ const ALL_TAGS: { tag: PlaybookTag | "all"; label: string }[] = [
 ];
 
 const PlaybooksPage = () => {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<PlaybookTag | "all">("all");
+  const [recommended, setRecommended] = useState<Playbook[]>([]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    getLatestReport(user.id).then((saved) => {
+      if (cancelled || !saved) return;
+      setRecommended(getRecommendedPlaybooks(saved.report, 3));
+    });
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
   const filtered = filter === "all" ? PLAYBOOKS : PLAYBOOKS.filter((p) => p.tags.includes(filter));
 
   usePageMeta({
@@ -36,6 +53,25 @@ const PlaybooksPage = () => {
           title="Playbooks"
           description="Des guides courts et concrets pour appliquer les recommandations de ton plan."
         />
+
+        {/* Recommended section */}
+        {recommended.length > 0 && (
+          <div className="mb-8">
+            <div className="mb-3 flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
+              <h2 className="text-sm font-semibold text-foreground">Recommandé pour toi</h2>
+              <span className="text-[11px] text-muted-foreground">
+                basé sur tes dimensions les plus faibles
+              </span>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {recommended.map((p) => (
+                <PlaybookCard key={p.slug} playbook={p} highlighted />
+              ))}
+            </div>
+            <div className="mt-6 h-px w-full bg-border/40" />
+          </div>
+        )}
 
         {/* Filters — scrollable on mobile, wrapped on desktop */}
         <div className="-mx-4 mb-6 overflow-x-auto px-4 pb-1 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0">

@@ -13,6 +13,7 @@ import {
 import { onboardingFlags } from "@/services/onboardingFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { runAnalysis } from "@/services/analysisRunner";
+import { processPendingForAccount } from "@/services/autoRefreshRunner";
 import { bootstrapTwitchEventSub } from "@/services/twitchEventSubBootstrap";
 
 type CallbackState = "processing" | "error" | "cancelled" | "enrichment_failed";
@@ -138,16 +139,32 @@ const TwitchCallbackPage = () => {
       let enrichedReportId: string | null = null;
       try {
         devLog("starting enrichment run");
-        const result = await runAnalysis({
-          channelName: connected.platform_login,
+        // Prefer the backend-queued auto_first job (created by twitch-oauth
+        // edge function on connected_accounts insert). Claiming it avoids a
+        // duplicate analysis_jobs row from runAnalysis creating its own.
+        const queued = await processPendingForAccount(
           userId,
-          platform: "twitch",
-          platformUserId: connected.platform_user_id,
-          platformLogin: connected.platform_login,
-          platformDisplayName: connected.platform_display_name ?? connected.platform_login,
-        });
-        enrichedReportId = result.reportId;
-        devLog("enrichment done, reportId:", enrichedReportId);
+          connected.platform_user_id,
+          connected.platform_login,
+          connected.platform_display_name ?? connected.platform_login,
+        );
+        if (queued?.ok && queued.reportId) {
+          enrichedReportId = queued.reportId;
+          devLog("enrichment done via queued job, reportId:", enrichedReportId);
+        } else {
+          // Fallback: backend job not found yet (race) — run directly.
+          devLog("no queued job found, falling back to direct run");
+          const result = await runAnalysis({
+            channelName: connected.platform_login,
+            userId,
+            platform: "twitch",
+            platformUserId: connected.platform_user_id,
+            platformLogin: connected.platform_login,
+            platformDisplayName: connected.platform_display_name ?? connected.platform_login,
+          });
+          enrichedReportId = result.reportId;
+          devLog("enrichment done via direct run, reportId:", enrichedReportId);
+        }
       } catch (err) {
         devLog("enrichment failed", err);
         enrichedReportId = null;

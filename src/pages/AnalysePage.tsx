@@ -7,7 +7,6 @@ import {
   Zap,
   Trophy,
   AlertCircle,
-  Printer,
   ChevronDown,
   TrendingDown,
   ArrowRight,
@@ -15,6 +14,7 @@ import {
   Radio,
   Calendar,
 } from "lucide-react";
+import ShareScoreButton from "@/components/ShareScoreButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import AppShell from "@/components/AppShell";
@@ -104,6 +104,7 @@ const AnalysePage = () => {
   const [notFound, setNotFound] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [openDim, setOpenDim] = useState<string | null>(null);
+  const [showAllDims, setShowAllDims] = useState(false);
 
   useEffect(() => {
     if (authLoading || twitchLoading || !user) return;
@@ -119,6 +120,15 @@ const AnalysePage = () => {
       if (r) {
         setSaved(r);
         setReport(r.report);
+        const weakest = [
+          { key: "regularity", pct: r.report.score.regularity },
+          { key: "content", pct: r.report.score.content },
+          { key: "structure", pct: r.report.score.structure },
+          { key: "positioning", pct: r.report.score.positioning },
+          { key: "momentum", pct: r.report.score.momentum },
+          { key: "monetization", pct: r.report.score.monetization },
+        ].sort((a, b) => a.pct - b.pct)[0];
+        setOpenDim(weakest?.key ?? null);
       } else {
         setNotFound(true);
       }
@@ -195,17 +205,15 @@ const AnalysePage = () => {
     <AppShell>
       <PageContainer>
 
-        {/* Top bar: print */}
-        <div className="mb-4 flex items-center justify-end print:hidden" style={anim(0)}>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.print()}
-            className="gap-1.5 text-muted-foreground hover:text-foreground"
-          >
-            <Printer className="h-3.5 w-3.5" />
-            Télécharger en PDF
-          </Button>
+        {/* Top bar: share */}
+        <div className="mb-4 flex items-center justify-end" style={anim(0)}>
+          <ShareScoreButton
+            score={score}
+            displayName={summary.display_name}
+            login={report.identity?.platform_login ?? null}
+            date={new Date(saved.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })}
+            variant="button"
+          />
         </div>
 
         {/* Hero card */}
@@ -314,7 +322,10 @@ const AnalysePage = () => {
                 { key: "positioning", label: "Positionnement", pct: score.positioning },
                 { key: "momentum", label: "Momentum", pct: score.momentum },
                 { key: "monetization", label: "Monétisation", pct: score.monetization },
-              ].map(({ key, label, pct }) => {
+              ]
+                .sort((a, b) => a.pct - b.pct)
+                .slice(0, showAllDims ? 6 : 3)
+                .map(({ key, label, pct }) => {
                 const bdItem = score.breakdown.find(
                   (b) => b.dimension === key || b.dimension === label.toLowerCase(),
                 );
@@ -400,6 +411,13 @@ const AnalysePage = () => {
                   </div>
                 );
               })}
+              <button
+                onClick={() => setShowAllDims((v) => !v)}
+                className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+              >
+                {showAllDims ? "Réduire" : "Voir les 3 dimensions restantes"}
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showAllDims && "rotate-180")} />
+              </button>
             </CardContent>
           </Card>
         </div>
