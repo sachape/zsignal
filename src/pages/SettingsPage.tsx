@@ -1,17 +1,44 @@
-import { Link } from "react-router-dom";
-import { ArrowLeft, Mail, Shield, Tv2, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Mail, Shield, Tv2, Trash2, Loader2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import AccountMenu from "@/components/AccountMenu";
 
 const SettingsPage = () => {
-  const { user } = useAuth();
+  const { user, deleteAccount } = useAuth();
   const { account, isConnected } = useTwitchConnection();
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    setDeleteError(null);
+    const { error } = await deleteAccount();
+    if (error) {
+      setDeleteError("La suppression a échoué. Réessaie ou contacte le support.");
+      setDeleting(false);
+      return;
+    }
+    navigate("/");
+  };
 
   usePageMeta({ title: "Mon compte", description: "Gérez votre compte Streamnco." });
 
@@ -186,9 +213,41 @@ const SettingsPage = () => {
                   </p>
                 </div>
               </div>
-              <Button variant="destructive" size="sm" disabled className="text-xs opacity-60">
-                Supprimer
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="text-xs">
+                    Supprimer
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer ton compte ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Cette action est irréversible. Ton compte, tes données d'analyse et ton historique seront supprimés définitivement.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  {deleteError && (
+                    <p className="text-xs text-destructive">{deleteError}</p>
+                  )}
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      disabled={deleting}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        void handleDeleteAccount();
+                      }}
+                    >
+                      {deleting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Supprimer définitivement"
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </CardContent>
           </Card>
         </section>
