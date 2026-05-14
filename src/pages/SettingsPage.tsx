@@ -33,7 +33,7 @@ const SettingsPage = () => {
     setDeleteError(null);
     const { error } = await deleteAccount();
     if (error) {
-      setDeleteError("La suppression a échoué. Réessaie ou contacte le support.");
+      setDeleteError(error.message || "La suppression a échoué. Réessaie ou contacte le support.");
       setDeleting(false);
       return;
     }
