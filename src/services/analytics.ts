@@ -17,8 +17,8 @@ function push(...args: unknown[]) {
 }
 
 export const analytics = {
-  identify(email: string, attributes?: Record<string, unknown>, listIds?: number[]) {
-    push("identify", { email, ...(attributes && { attributes }), ...(listIds && { listIds }) });
+  identify(email: string, attributes?: Record<string, unknown>) {
+    push("identify", { email, ...(attributes && { attributes }) });
   },
 
   track(event: string, properties?: Record<string, unknown>) {
@@ -38,7 +38,7 @@ export const analytics = {
   // ── Auth ──────────────────────────────────────────────────────────────────
 
   signupCompleted(email: string) {
-    this.identify(email, undefined, [6]);
+    this.identify(email);
     this.track("signup_completed", { email });
   },
 
