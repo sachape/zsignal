@@ -11,6 +11,7 @@ import {
   consumePendingTeaserId,
   peekPendingTeaserId,
 } from "@/services/twitchOAuth";
+import { invalidateTwitchCache } from "@/hooks/useTwitchConnection";
 import { onboardingFlags } from "@/services/onboardingFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { runAnalysis } from "@/services/analysisRunner";
@@ -190,6 +191,7 @@ const TwitchCallbackPage = () => {
       // Cockpit is the canonical authenticated home. The enriched report is
       // reachable one click away via the welcome banner / "Rapport complet".
       analytics.twitchConnected(connected.platform_login);
+      invalidateTwitchCache(userId);
       const target = `/dashboard?welcome=1`;
       devLog("navigating to:", target);
       navigate(target, { replace: true });

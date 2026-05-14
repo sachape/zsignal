@@ -119,6 +119,12 @@ async function fetchAndCache(userId: string): Promise<void> {
   });
 }
 
+export function invalidateTwitchCache(userId: string) {
+  cache.delete(userId);
+  inflight.delete(userId);
+  notify();
+}
+
 function ensureFetch(userId: string) {
   if (inflight.has(userId)) return inflight.get(userId)!;
   const p = fetchAndCache(userId).finally(() => {
@@ -143,8 +149,9 @@ export function useTwitchConnection() {
   useEffect(() => {
     if (!user) return;
     const entry = cache.get(user.id);
-    // Trigger a fetch on first sight of this user, or refresh stale data.
-    if (!entry || entry.status === "idle") {
+    // Fetch on first sight, or re-verify when cache shows disconnected
+    // (avoids being stuck on "Connecter Twitch" after Twitch is linked).
+    if (!entry || entry.status === "idle" || (entry.status === "resolved" && !entry.account)) {
       ensureFetch(user.id);
     }
   }, [user]);
