@@ -109,28 +109,10 @@ const DashboardPage = () => {
     setShowWelcome(false);
   }, []);
 
-  // Identify user for Brevo on every session
+  // Re-identify user for Brevo on every dashboard session
   useEffect(() => {
     if (!user?.email) return;
     analytics.identify(user.email);
-    // Email signups: already tracked in AuthForm, skip here to avoid double-fire.
-    // Google OAuth: no AuthForm involved, detect via created_at < 2 min.
-    const trackKey = `streamnco:signup_tracked:${user.id}`;
-    const emailKey = `streamnco:signup_tracked:email:${user.email}`;
-    if (!localStorage.getItem(trackKey)) {
-      if (!localStorage.getItem(emailKey)) {
-        // New user detection: for a first-ever OAuth sign-in, created_at and
-        // last_sign_in_at are set in the same auth event (< a few seconds apart).
-        // Returning users always have last_sign_in_at >> created_at.
-        const createdAt = new Date(user.created_at).getTime();
-        const lastSignIn = new Date(user.last_sign_in_at ?? user.created_at).getTime();
-        const isNewUser = Math.abs(lastSignIn - createdAt) < 30_000;
-        if (isNewUser) {
-          analytics.signupCompleted(user.email);
-        }
-      }
-      localStorage.setItem(trackKey, "1");
-    }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Checkout success: clear cache, toast, clean URL

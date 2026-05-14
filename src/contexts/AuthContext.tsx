@@ -4,6 +4,7 @@ import type { User, Session } from "@supabase/supabase-js";
 import { loadWatchlistFromDb } from "@/services/benchmarkWatchlist";
 import { loadPreferredNicheFromDb } from "@/services/preferredNiche";
 import { loadSeenBadgesFromDb } from "@/services/badgeEngine";
+import { analytics } from "@/services/analytics";
 
 interface AuthContextType {
   user: User | null;
@@ -23,16 +24,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        const uid = session?.user?.id;
-        if (uid) {
+        const u = session?.user;
+        if (u?.id) {
           // Hydrate per-user caches (fire-and-forget)
-          void loadWatchlistFromDb(uid);
-          void loadPreferredNicheFromDb(uid);
-          void loadSeenBadgesFromDb(uid);
+          void loadWatchlistFromDb(u.id);
+          void loadPreferredNicheFromDb(u.id);
+          void loadSeenBadgesFromDb(u.id);
+        }
+        // Detect new signup on SIGNED_IN: created_at ≈ last_sign_in_at means
+        // it's the very first authentication event for this account.
+        if (event === "SIGNED_IN" && u?.email) {
+          const trackKey = `streamnco:signup_tracked:${u.id}`;
+          const emailKey = `streamnco:signup_tracked:email:${u.email}`;
+          if (!localStorage.getItem(trackKey) && !localStorage.getItem(emailKey)) {
+            const createdAt = new Date(u.created_at).getTime();
+            const lastSignIn = new Date(u.last_sign_in_at ?? u.created_at).getTime();
+            if (Math.abs(lastSignIn - createdAt) < 30_000) {
+              analytics.identify(u.email);
+              analytics.signupCompleted(u.email);
+              localStorage.setItem(trackKey, "1");
+            }
+          }
         }
       }
     );

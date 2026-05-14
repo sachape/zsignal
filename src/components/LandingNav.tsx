@@ -93,7 +93,7 @@ const LandingNav = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => openAuthModal({ redirectTo: "/dashboard" })}
+                onClick={() => openAuthModal({ redirectTo: "/dashboard", mode: "login" })}
                 className="text-muted-foreground hover:text-foreground"
               >
                 Se connecter
@@ -160,7 +160,7 @@ const LandingNav = () => {
               {!user && (
                 <button
                   onClick={() => {
-                    openAuthModal({ redirectTo: "/dashboard" });
+                    openAuthModal({ redirectTo: "/dashboard", mode: "login" });
                     setMobileOpen(false);
                   }}
                   className="block w-full rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
