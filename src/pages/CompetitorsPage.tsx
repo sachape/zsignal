@@ -477,7 +477,13 @@ const CompetitorsPage = () => {
 
   // In exploration mode the user's explicitly chosen niche takes priority.
   // In personal mode the live/report category drives the section context.
-  const category =
+  const sanitizeCategory = (v: string | null | undefined): string | null => {
+    if (!v) return null;
+    const trimmed = v.trim();
+    if (/^(unknown|inconnu|inconnue|n\/?a|null|undefined|none|-+|\?+)$/i.test(trimmed)) return null;
+    return trimmed || null;
+  };
+  const category = sanitizeCategory(
     mode === "exploration"
       ? (getPreferredNiche(user?.id)?.category ??
          benchmarkReport?.channel_summary.category ??
@@ -486,7 +492,8 @@ const CompetitorsPage = () => {
       : (benchmarkReport?.channel_summary.category ??
          seed?.category ??
          getPreferredNiche(user?.id)?.category ??
-         null);
+         null),
+  );
   const hasRenderableBenchmark = renderSections.length > 0;
   const copyMechanicsCount = opportunities.length;
 
