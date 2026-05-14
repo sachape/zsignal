@@ -149,9 +149,8 @@ export function useTwitchConnection() {
   useEffect(() => {
     if (!user) return;
     const entry = cache.get(user.id);
-    // Fetch on first sight, or re-verify when cache shows disconnected
-    // (avoids being stuck on "Connecter Twitch" after Twitch is linked).
-    if (!entry || entry.status === "idle" || (entry.status === "resolved" && !entry.account)) {
+    // Trigger a fetch on first sight of this user, or refresh stale data.
+    if (!entry || entry.status === "idle") {
       ensureFetch(user.id);
     }
   }, [user]);
