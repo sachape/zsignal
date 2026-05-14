@@ -24,7 +24,8 @@ interface Step {
   id: string;
   icon: React.ElementType;
   label: string;
-  description: string;
+  description: string;       // shown when done
+  descriptionTodo: string;   // shown when not yet done
   cta: string;
   href: string;
   autoChecked?: boolean;
@@ -57,8 +58,9 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
     {
       id: "twitch",
       icon: Tv,
-      label: "Twitch connecté",
-      description: "Ton compte Twitch est lié — Streamnco lit tes données en temps réel.",
+      label: "Connecte ton compte Twitch",
+      descriptionTodo: "Relie ton compte Twitch — c'est ce qui active l'analyse complète et ton cockpit personnalisé.",
+      description: "Compte Twitch lié. Streamnco lit tes données en temps réel.",
       cta: "Connecter Twitch",
       href: "/connect-twitch",
       autoChecked: isConnected,
@@ -66,8 +68,9 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
     {
       id: "score",
       icon: Sparkles,
-      label: "Premier StreamScore calculé",
-      description: "Ton score de départ est prêt. C'est la base de toutes tes recommandations.",
+      label: "Premier StreamScore en cours…",
+      descriptionTodo: "Ton score est en train d'être calculé, ça prend environ une minute. Laisse cette page ouverte.",
+      description: "Ton StreamScore de départ est prêt. C'est la base de toutes tes recommandations.",
       cta: "",
       href: "",
       autoChecked: hasReport,
@@ -76,7 +79,8 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
       id: "analyse",
       icon: FileText,
       label: "Comprends ce qui te freine",
-      description: "Ton analyse complète détaille chaque dimension de ta chaîne et les leviers pour progresser.",
+      descriptionTodo: "Consulte ton analyse complète pour voir exactement ce qui limite ta progression.",
+      description: "Analyse consultée — tu sais ce qui freine ta croissance.",
       cta: "Voir mon analyse",
       href: "/analyse",
     },
@@ -84,7 +88,8 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
       id: "plan",
       icon: CalendarCheck,
       label: "Prépare ta semaine",
-      description: "Ton plan personnalisé te donne 3 actions concrètes pour cette semaine, basées sur tes données.",
+      descriptionTodo: "Accède à ton plan pour recevoir 3 actions concrètes à appliquer cette semaine.",
+      description: "Plan consulté — tu sais exactement quoi faire cette semaine.",
       cta: "Voir mon plan",
       href: "/plan",
     },
@@ -196,7 +201,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                       "text-sm font-semibold",
                       done ? "text-foreground" : "text-foreground/80",
                     )}>
-                      {step.label}
+                      {step.id === "score" && done ? "Premier StreamScore calculé" : step.label}
                     </p>
                     {done && (
                       <span className="ml-auto shrink-0 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
@@ -205,9 +210,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                     )}
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {step.id === "score" && isConnected && !hasReport
-                      ? "Ton analyse tourne en ce moment, ça prend une minute…"
-                      : step.description}
+                    {done ? step.description : step.descriptionTodo}
                   </p>
                 </div>
 
