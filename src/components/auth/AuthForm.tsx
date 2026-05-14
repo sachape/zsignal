@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { analytics } from "@/services/analytics";
-import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,18 +86,17 @@ const AuthForm = ({
     setError(null);
     setGoogleLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + redirectTo,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + redirectTo,
+        },
       });
-      if (result.redirected) return;
-      if (result.error) {
+      if (error) {
         setError("La connexion Google a échoué. Réessaie.");
         setGoogleLoading(false);
-        return;
       }
-      analytics.googleSignin();
-      onSuccess?.();
-      navigate(redirectTo);
+      // On success: browser redirects automatically to Google then back to redirectTo
     } catch {
       setError("La connexion Google a échoué. Réessaie.");
       setGoogleLoading(false);
