@@ -38,7 +38,6 @@ import {
 import type { AnalysisReport } from "@/types/analysis";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { formatNumber, formatCompact } from "@/lib/format";
-import DimensionResources from "@/components/DimensionResources";
 import StreamScoreEvolutionCard from "@/components/StreamScoreEvolutionCard";
 import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
 import { cn } from "@/lib/utils";
@@ -521,11 +520,6 @@ const AnalysePage = () => {
             </div>
           ))}
         </div>
-
-        {/* Learning resources */}
-        {score.breakdown.length > 0 && (
-          <DimensionResources breakdown={score.breakdown} maxDimensions={2} />
-        )}
 
         {/* Competitors */}
         {showCompetitorsSection && (

@@ -77,11 +77,10 @@ const SIGNAL_TONE_CLASS: Record<"primary" | "warning" | "muted" | "destructive",
 
 // Visual separators injected before these indices
 const TIER_SEPARATORS: Record<number, string> = {
-  3: "Garde rapprochée",
-  10: "Suite du classement",
+  3: "Suite du classement",
 };
 
-const FREE_LEADERS_LIMIT = 10;
+const FREE_LEADERS_LIMIT = 3;
 
 const LeadersPage = () => {
   const { user } = useAuth();
