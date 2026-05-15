@@ -203,7 +203,11 @@ export async function completeTwitchCallback(
   const wasAlreadyLoggedIn = !!priorSession.session?.user;
 
   const { data, error } = await supabase.functions.invoke("twitch-oauth", {
-    body: { code, redirect_uri: REDIRECT_URI, mode: mode ?? "default" },
+    body: {
+      code,
+      redirect_uri: REDIRECT_URI,
+      ...(mode && mode !== "default" ? { mode } : {}),
+    },
   });
 
   if (error) {

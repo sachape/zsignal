@@ -82,10 +82,12 @@ const TwitchCallbackPage = () => {
     let cancelled = false;
     (async () => {
       devLog("callback received");
-      const oauthResult = await completeTwitchCallback(code, stateParam);
+      const oauthMode = consumeOAuthMode();
+      const oauthResult = await completeTwitchCallback(code, stateParam, oauthMode ?? undefined);
       if (cancelled) return;
 
       if (!oauthResult.success) {
+        devLog("completeTwitchCallback failed:", oauthResult.code, oauthResult.error);
         setState("error");
         setErrorMsg("error" in oauthResult ? oauthResult.error : "La connexion n’a pas pu être finalisée.");
         return;
@@ -110,9 +112,6 @@ const TwitchCallbackPage = () => {
         );
         return;
       }
-
-      // Consume the mode before any early returns so sessionStorage stays clean.
-      const oauthMode = consumeOAuthMode();
 
       const { data: connectedRows } = await supabase
         .from("connected_accounts")
