@@ -351,6 +351,21 @@ const LeadersPage = () => {
               </CardContent>
             </Card>
 
+            <Tabs defaultValue="streamscore" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="streamscore">StreamScore (indexé)</TabsTrigger>
+                <TabsTrigger value="live">Score Live</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="streamscore" className="mt-0">
+                <StreamScoreLeaderboard
+                  category={category}
+                  language={language}
+                  isPro={isPro}
+                />
+              </TabsContent>
+
+              <TabsContent value="live" className="mt-0">
             {/* Category header */}
             {resolvedCategory && !loading && (
               <div className="mb-4 flex items-center gap-3 rounded-lg border border-border bg-card/40 p-3">
