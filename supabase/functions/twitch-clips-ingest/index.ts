@@ -64,48 +64,29 @@ async function selectEligibleBroadcasters(
   // Source B: weekly actions requiring clips verification
   const { data: actionRows } = await admin
     .from("weekly_action_items")
-    .select("weekly_milestone_id, action_key, status")
+    .select("user_id, action_key, status")
     .eq("status", "todo")
     .ilike("action_key", "%clip%")
     .limit(500);
-  if (actionRows && actionRows.length > 0) {
-    const milestoneIds = Array.from(
-      new Set(
-        actionRows
-          .map((r) => (r as { weekly_milestone_id?: string }).weekly_milestone_id)
-          .filter(Boolean) as string[],
-      ),
-    );
-    if (milestoneIds.length > 0) {
-      const { data: milestones } = await admin
-        .from("weekly_milestones")
-        .select("id, user_id")
-        .in("id", milestoneIds);
-      const userIds = Array.from(
-        new Set(
-          (milestones ?? [])
-            .map((m) => (m as { user_id?: string }).user_id)
-            .filter(Boolean) as string[],
-        ),
-      );
-      if (userIds.length > 0) {
-        const { data: accounts } = await admin
-          .from("connected_accounts")
-          .select("user_id, platform_user_id")
-          .eq("platform", "twitch")
-          .in("user_id", userIds);
-        for (const a of accounts ?? []) {
-          const pid = (a as { platform_user_id?: string }).platform_user_id;
-          const uid = (a as { user_id?: string }).user_id;
-          if (!pid || !uid) continue;
-          if (!map.has(pid)) {
-            map.set(pid, {
-              user_id: uid,
-              broadcaster_id: pid,
-              source: "weekly_action",
-            });
-          }
-        }
+  const actionUserIds = Array.from(
+    new Set(
+      (actionRows ?? [])
+        .map((r) => (r as { user_id?: string }).user_id)
+        .filter(Boolean) as string[],
+    ),
+  );
+  if (actionUserIds.length > 0) {
+    const { data: accounts } = await admin
+      .from("connected_accounts")
+      .select("user_id, platform_user_id")
+      .eq("platform", "twitch")
+      .in("user_id", actionUserIds);
+    for (const a of accounts ?? []) {
+      const pid = (a as { platform_user_id?: string }).platform_user_id;
+      const uid = (a as { user_id?: string }).user_id;
+      if (!pid || !uid) continue;
+      if (!map.has(pid)) {
+        map.set(pid, { user_id: uid, broadcaster_id: pid, source: "weekly_action" });
       }
     }
   }
