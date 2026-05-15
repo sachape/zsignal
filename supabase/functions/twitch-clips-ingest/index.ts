@@ -129,7 +129,12 @@ async function runBatch(admin: ReturnType<typeof createClient>) {
         JSON.stringify({
           event: "clips_ingest_error",
           source: acc.source,
-          message: e instanceof Error ? e.message : "unknown",
+          message:
+            e instanceof Error
+              ? e.message
+              : typeof e === "object" && e !== null && "message" in e
+                ? String((e as { message: unknown }).message)
+                : "unknown",
         }),
       );
     }
