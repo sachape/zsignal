@@ -40,6 +40,8 @@ import {
   type LeaderCategory,
 } from "@/services/leadersService";
 import { getLatestReport, type SavedReport } from "@/services/reportRepository";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import StreamScoreLeaderboard from "@/components/leaders/StreamScoreLeaderboard";
 
 type SortKey = "viewers" | "score" | "name";
 
