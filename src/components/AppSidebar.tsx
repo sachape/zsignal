@@ -37,6 +37,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
+import { analytics } from "@/services/analytics";
 import { cn } from "@/lib/utils";
 import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
@@ -263,6 +264,7 @@ const AppSidebar = () => {
               collapsed ? "px-2" : "px-4",
             )}
             title="Passer au Pro"
+            onClick={() => analytics.upgradeClicked("pro", "sidebar")}
           >
             <Sparkles className="h-4 w-4 shrink-0" />
             {!collapsed && (
