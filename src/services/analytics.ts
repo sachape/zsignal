@@ -63,7 +63,12 @@ export const analytics = {
   },
 
   analysisCompleted(channel: string, mode: "full" | "teaser") {
+    if (token) mixpanel.people.increment("analyses_count", 1);
     this.track("analysis_completed", { channel, mode });
+  },
+
+  analysisFailed(channel: string, reason: string) {
+    this.track("analysis_failed", { channel, reason });
   },
 
   // ── Auth ──────────────────────────────────────────────────────────────────
@@ -81,6 +86,15 @@ export const analytics = {
   twitchConnected(login: string) {
     mpSetPeople({ twitch_connected: true, twitch_login: login });
     this.track("twitch_connected", { login });
+  },
+
+  twitchConnectionFailed(code: string) {
+    this.track("twitch_connection_failed", { code });
+  },
+
+  onboardingCompleted() {
+    mpSetPeople({ onboarding_completed: true });
+    this.track("onboarding_completed");
   },
 
   reportViewed(channel: string, score: number) {

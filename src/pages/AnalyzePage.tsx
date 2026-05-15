@@ -117,6 +117,8 @@ const AnalyzePage = () => {
           analytics.analysisCompleted(channel, "full");
           setTimeout(() => navigate(`/result?report_id=${reportId}`), 500);
         } catch (e) {
+          const reason = e instanceof Error ? e.message : "unknown";
+          analytics.analysisFailed(channel, reason);
           setError(e instanceof Error ? e.message : "Une erreur est survenue.");
         }
         return;
@@ -133,8 +135,10 @@ const AnalyzePage = () => {
         analytics.analysisCompleted(channel, "teaser");
         setTimeout(() => navigate(`/result?teaser=${result.record.id}`), 500);
       } else if (result.reason === "not_found") {
+        analytics.analysisFailed(channel, "not_found");
         setNotFound(true);
       } else {
+        analytics.analysisFailed(channel, result.message ?? "unknown");
         setError(result.message ?? "Une erreur est survenue.");
       }
     })();

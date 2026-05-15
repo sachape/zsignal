@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { analytics } from "@/services/analytics";
 import { Check, ArrowRight, Tv, Sparkles, FileText, CalendarCheck, ChevronRight, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -149,6 +150,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
   };
 
   const handleComplete = () => {
+    analytics.onboardingCompleted();
     void dbCompleteOnboarding();
     onComplete();
   };

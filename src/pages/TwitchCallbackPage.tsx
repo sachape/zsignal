@@ -67,6 +67,7 @@ const TwitchCallbackPage = () => {
       if (error === "access_denied") {
         setState("cancelled");
       } else {
+        analytics.twitchConnectionFailed(error);
         setState("error");
         setErrorMsg(searchParams.get("error_description") || error);
       }
@@ -74,6 +75,7 @@ const TwitchCallbackPage = () => {
     }
 
     if (!code || !stateParam) {
+      analytics.twitchConnectionFailed("missing_params");
       setState("error");
       setErrorMsg("Paramètres OAuth manquants.");
       return;
@@ -89,6 +91,7 @@ const TwitchCallbackPage = () => {
       if (oauthResult.success !== true) {
         const failure = oauthResult as { success: false; code?: string; error?: string };
         devLog("completeTwitchCallback failed:", failure.code, failure.error);
+        analytics.twitchConnectionFailed(failure.code ?? "unknown");
         setState("error");
         setErrorMsg(failure.error ?? "La connexion n’a pas pu être finalisée.");
         return;
@@ -107,6 +110,7 @@ const TwitchCallbackPage = () => {
       const userId = sessionData.session?.user?.id;
       if (!userId) {
         devLog("no user session after oauth");
+        analytics.twitchConnectionFailed("no_session_after_oauth");
         setState("enrichment_failed");
         setErrorMsg(
           "La connexion Twitch a réussi, mais le diagnostic enrichi n’a pas pu être finalisé. Réessaie dans un instant.",
