@@ -104,8 +104,11 @@ const DashboardPage = () => {
   const [showWelcome, setShowWelcome] = useState(
     () => welcomeRequested && !onboardingFlags.isCockpitWelcomeDismissed(),
   );
+  // Auto-dismiss on first view so the banner never re-appears on future Twitch re-links.
+  useEffect(() => {
+    if (showWelcome) onboardingFlags.dismissCockpitWelcome();
+  }, [showWelcome]);
   const dismissWelcome = useCallback(() => {
-    onboardingFlags.dismissCockpitWelcome();
     setShowWelcome(false);
   }, []);
 
