@@ -335,7 +335,7 @@ const ShareScoreCard = forwardRef<HTMLDivElement, Props>(
           }}
         >
           <span style={{ fontSize: 10, color: FG_MUTED }}>
-            streamnco.com
+            streamnco.fr
           </span>
         </div>
       </div>

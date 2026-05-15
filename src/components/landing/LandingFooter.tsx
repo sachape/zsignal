@@ -158,10 +158,10 @@ const LandingFooter = () => {
             <ul className="space-y-2.5">
               <li>
                 <a
-                  href="mailto:contact@streamnco.com"
+                  href="mailto:contact@streamnco.fr"
                   className={linkCls}
                 >
-                  contact@streamnco.com
+                  contact@streamnco.fr
                 </a>
               </li>
             </ul>
