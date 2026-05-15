@@ -1,23 +1,41 @@
 project_id = "poblhczgdbnfunroshul"
 
-[functions]
-  [functions.auth-email-hook]
-    verify_jwt = false
-  [functions.process-email-queue]
-    verify_jwt = true
-  [functions.stripe-webhook]
-    verify_jwt = false
-  [functions.twitch-clips-ingest]
-    verify_jwt = false
-  [functions.twitch-eventsub-monitor]
-    verify_jwt = false
-  [functions.twitch-eventsub-webhook]
-    verify_jwt = false
-  [functions.twitch-oauth]
-    verify_jwt = false
-  [functions.twitch-public-lookup]
-    verify_jwt = false
-  [functions.twitch-refresh-enqueue]
-    verify_jwt = false
-  [functions.weekly-actions-verify]
-    verify_jwt = false
+[functions.twitch-oauth]
+verify_jwt = false
+
+[functions.twitch-public-lookup]
+verify_jwt = false
+
+[functions.twitch-refresh-enqueue]
+verify_jwt = false
+
+[functions.twitch-eventsub-webhook]
+verify_jwt = false
+
+[functions.twitch-eventsub-monitor]
+verify_jwt = false
+
+[functions.twitch-clips-ingest]
+verify_jwt = false
+
+[functions.weekly-actions-verify]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+
+[functions.process-email-queue]
+verify_jwt = true
+
+[functions.send-transactional-email]
+verify_jwt = true
+
+[functions.preview-transactional-email]
+verify_jwt = false
+
+[functions.handle-email-unsubscribe]
+verify_jwt = false
+
+[functions.handle-email-suppression]
+verify_jwt = false
