@@ -41,4 +41,4 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-upsell-unpaid]
-verify_jwt = true
+verify_jwt = false
