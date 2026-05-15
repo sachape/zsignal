@@ -562,7 +562,7 @@ const ResultPage = () => {
               className="gap-1.5 text-muted-foreground hover:text-foreground"
             >
               <Printer className="h-3.5 w-3.5" />
-              Télécharger en PDF
+              Imprimer
             </Button>
           </div>
         </div>
