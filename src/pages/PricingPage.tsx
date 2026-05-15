@@ -132,11 +132,6 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
     ],
   },
   {
-    group: "_REMOVED_",
-    rows: [
-    ],
-  },
-  {
     group: "Comptes & support",
     rows: [
       {
