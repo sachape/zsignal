@@ -12,6 +12,7 @@ type TwitchOAuthErrorCode =
   | "invalid_state"
   | "session_bootstrap_failed"
   | "twitch_account_already_linked"
+  | "twitch_account_limit_reached"
   | "temporary_unavailable";
 
 type TwitchOAuthFailure = {
@@ -64,6 +65,14 @@ function mapCallbackError(code?: string, rawError?: string): TwitchOAuthFailure 
       success: false,
       code: "twitch_account_already_linked",
       error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+    };
+  }
+
+  if (normalizedCode === "twitch_account_limit_reached") {
+    return {
+      success: false,
+      code: "twitch_account_limit_reached",
+      error: "Tu as atteint la limite de comptes Twitch connectés pour ton offre actuelle.",
     };
   }
 
