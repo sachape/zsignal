@@ -58,8 +58,13 @@ const AccountMenu = () => {
       navigate("/pricing");
       return;
     }
+    if (atLimit) return;
     navigate("/connect-twitch?mode=add");
   };
+
+  const counterLabel = `${accountCount}/${maxAccounts} ${
+    maxAccounts > 1 ? "chaînes Twitch connectées" : "chaîne Twitch connectée"
+  }`;
 
   return (
     <DropdownMenu>
