@@ -105,21 +105,64 @@ Deno.serve(async (req) => {
     }
     const userId = userData.user.id;
 
-    const { data: account, error: accountError } = await admin
+    // Optional broadcaster_user_id targets a specific Twitch account
+    // (Growth plan: a user can have up to 3 connected Twitch accounts).
+    let requestedBroadcasterId: string | null = null;
+    try {
+      const body = await req.json().catch(() => ({}));
+      const raw = body?.broadcaster_user_id ?? body?.platform_user_id;
+      if (typeof raw === "string" && /^[0-9A-Za-z_-]{1,64}$/.test(raw)) {
+        requestedBroadcasterId = raw;
+      }
+    } catch {
+      // no body — legacy single-account behavior
+    }
+
+    let accountQuery = admin
       .from("connected_accounts")
       .select("platform_user_id, scope, platform_login")
       .eq("user_id", userId)
-      .eq("platform", "twitch")
-      .maybeSingle();
+      .eq("platform", "twitch");
 
-    if (accountError || !account?.platform_user_id) {
+    if (requestedBroadcasterId) {
+      accountQuery = accountQuery.eq("platform_user_id", requestedBroadcasterId);
+    }
+
+    const { data: accounts, error: accountError } = await accountQuery.limit(2);
+
+    if (accountError) {
       return new Response(
         JSON.stringify({ error: "No connected Twitch account" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const broadcasterUserId = account.platform_user_id;
+    if (!accounts || accounts.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "No connected Twitch account" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    if (!requestedBroadcasterId && accounts.length > 1) {
+      return new Response(
+        JSON.stringify({
+          error: "Multiple Twitch accounts connected. Provide broadcaster_user_id.",
+          code: "broadcaster_user_id_required",
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const account = accounts[0];
+    if (!account?.platform_user_id) {
+      return new Response(
+        JSON.stringify({ error: "No connected Twitch account" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const broadcasterUserId = account.platform_user_id as string;
     const scopes = (account.scope ?? "").split(/\s+/).filter(Boolean);
 
     const callbackUrl = `${supabaseUrl}/functions/v1/twitch-eventsub-webhook`;
