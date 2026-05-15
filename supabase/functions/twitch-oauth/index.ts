@@ -187,15 +187,36 @@ Deno.serve(async (req) => {
     // ============ Branch A: authenticated caller — LINK ONLY ============
     if (callerUserId) {
       if (existingConnection && existingConnection.user_id !== callerUserId) {
-        console.warn("[twitch-oauth] conflict_existing_link");
-        return json(
-          {
-            success: false,
-            code: "twitch_account_already_linked",
-            error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
-          },
-          409,
-        );
+        // Check if the existing row belongs to a synthetic Twitch-first user
+        // (auto-created by Branch B when the user had no email account yet).
+        // If so, the authenticated caller is reclaiming their own Twitch identity:
+        // delete the synthetic row and let the insert below reassign it.
+        const syntheticEmail = `twitch-${tw.id}@users.streampulse.app`;
+        const { data: existingOwner } = await adminClient
+          .from("profiles")
+          .select("email")
+          .eq("user_id", existingConnection.user_id)
+          .maybeSingle();
+
+        if (existingOwner?.email !== syntheticEmail) {
+          console.warn("[twitch-oauth] conflict_existing_link");
+          return json(
+            {
+              success: false,
+              code: "twitch_account_already_linked",
+              error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+            },
+            409,
+          );
+        }
+        // Synthetic owner — reclaim: delete their row so the insert below can proceed.
+        console.log("[twitch-oauth] reclaiming_synthetic_user_twitch");
+        await adminClient
+          .from("connected_accounts")
+          .delete()
+          .eq("user_id", existingConnection.user_id)
+          .eq("platform", "twitch")
+          .eq("platform_user_id", tw.id);
       }
 
       // Load this user's existing Twitch rows.

@@ -211,6 +211,14 @@ export async function completeTwitchCallback(
   });
 
   if (error) {
+    // Non-2xx from edge function: body is in error.context — parse it for the real code.
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const body = await (error as any).context?.json?.();
+      if (body?.code) return mapCallbackError(body.code as string, body.error as string | undefined);
+    } catch (_e) {
+      // ignore
+    }
     return mapCallbackError(undefined, error.message);
   }
   if (!data?.success) {
