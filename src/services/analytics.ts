@@ -13,10 +13,20 @@ function mpTrack(event: string, properties?: Record<string, unknown>) {
   mixpanel.track(event, properties);
 }
 
+function mpSetPeople(properties: Record<string, unknown>) {
+  if (!token) return;
+  // Strip undefined/null values — Mixpanel stores "undefined" as a string otherwise.
+  const clean: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(properties)) {
+    if (v !== undefined && v !== null) clean[k] = v;
+  }
+  if (Object.keys(clean).length > 0) mixpanel.people.set(clean);
+}
+
 function mpIdentify(userId: string, properties?: Record<string, unknown>) {
   if (!token) return;
   mixpanel.identify(userId);
-  if (properties) mixpanel.people.set(properties);
+  if (properties) mpSetPeople(properties);
 }
 
 // ── Brevo tracker (kept for email automation) ─────────────────────────────
@@ -40,8 +50,34 @@ export const analytics = {
     brevoPush("identify", { email, ...(attributes && { attributes }), ...(listIds && { listIds }) });
   },
 
-  identifyUser(userId: string, properties?: Record<string, unknown>) {
-    mpIdentify(userId, properties);
+  /**
+   * Called on every sign-in. Sets the Mixpanel distinct_id and enriches the
+   * user profile. Uses Mixpanel reserved property names ($email, $name) so
+   * the Users table shows readable columns instead of UUIDs.
+   */
+  identifyUser(userId: string, properties?: {
+    email?: string | null;
+    name?: string | null;
+    plan?: string;
+    twitch_login?: string | null;
+    created_at?: string;
+  }) {
+    if (!token) return;
+    mixpanel.identify(userId);
+    const email = properties?.email ?? null;
+    const name = properties?.name ?? (email ? email.split("@")[0] : null);
+    mpSetPeople({
+      $email: email,
+      $name: name,
+      ...(properties?.plan && { plan: properties.plan }),
+      ...(properties?.twitch_login && { twitch_login: properties.twitch_login, $name: properties.twitch_login }),
+      ...(properties?.created_at && { created_at: properties.created_at }),
+    });
+  },
+
+  /** Update plan on the user profile — call when plan is known. */
+  setPlan(plan: string) {
+    mpSetPeople({ plan });
   },
 
   track(event: string, properties?: Record<string, unknown>) {
@@ -78,6 +114,8 @@ export const analytics = {
   // ── Activation ────────────────────────────────────────────────────────────
 
   twitchConnected(login: string) {
+    // Enrich the user profile: Twitch login becomes the display name.
+    mpSetPeople({ $name: login, twitch_login: login });
     this.track("twitch_connected", { login });
   },
 
@@ -98,6 +136,7 @@ export const analytics = {
   },
 
   checkoutCompleted(plan: string) {
+    mpSetPeople({ plan });
     this.track("checkout_completed", { plan });
   },
 };

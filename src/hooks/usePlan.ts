@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { analytics } from "@/services/analytics";
 
 export type PlanTier = "free" | "pro" | "growth" | "agency";
 
@@ -62,6 +63,7 @@ export function usePlan(): PlanInfo {
         PLAN_CACHE.set(user.id, t);
         setPlan(t);
         setLoading(false);
+        analytics.setPlan(t);
       });
   }, [user]);
 
