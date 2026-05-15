@@ -333,6 +333,7 @@ Deno.serve(async (req) => {
         linked: true,
         mode: linkMode,
         session: null,
+        platform_user_id: tw.id,
         platform_login: tw.login,
         platform_display_name: tw.display_name,
       });
