@@ -643,6 +643,7 @@ Deno.serve(async (req) => {
         meta: {
           scope: "streamnco_indexed_category",
           is_exhaustive: false,
+          includes_offline: true,
           source: "channel_stream_scores",
           live_enriched: true,
           indexed_count: channels.length,
