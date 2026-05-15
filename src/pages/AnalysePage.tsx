@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { markOnboardingStepVisited } from "@/components/OnboardingGuide";
 import {
   Clock,
@@ -38,6 +38,8 @@ import {
 import type { AnalysisReport } from "@/types/analysis";
 import { getAccountDisplayMode } from "@/services/accountDisplayMode";
 import { formatNumber, formatCompact } from "@/lib/format";
+import { runAnalysis } from "@/services/analysisRunner";
+import { Loader2 } from "lucide-react";
 import StreamScoreEvolutionCard from "@/components/StreamScoreEvolutionCard";
 import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
 import { cn } from "@/lib/utils";
@@ -101,9 +103,25 @@ const AnalysePage = () => {
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [autoRunning, setAutoRunning] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [openDim, setOpenDim] = useState<string | null>(null);
   const [showAllDims, setShowAllDims] = useState(false);
+
+  const applyReport = useCallback((r: SavedReport) => {
+    setSaved(r);
+    setReport(r.report);
+    const weakest = [
+      { key: "regularity", pct: r.report.score.regularity },
+      { key: "content", pct: r.report.score.content },
+      { key: "structure", pct: r.report.score.structure },
+      { key: "positioning", pct: r.report.score.positioning },
+      { key: "momentum", pct: r.report.score.momentum },
+      { key: "monetization", pct: r.report.score.monetization },
+    ].sort((a, b) => a.pct - b.pct)[0];
+    setOpenDim(weakest?.key ?? null);
+    setNotFound(false);
+  }, []);
 
   useEffect(() => {
     if (authLoading || twitchLoading || !user) return;
@@ -117,24 +135,42 @@ const AnalysePage = () => {
         : await getLatestReport(user.id);
       if (cancelled) return;
       if (r) {
-        setSaved(r);
-        setReport(r.report);
-        const weakest = [
-          { key: "regularity", pct: r.report.score.regularity },
-          { key: "content", pct: r.report.score.content },
-          { key: "structure", pct: r.report.score.structure },
-          { key: "positioning", pct: r.report.score.positioning },
-          { key: "momentum", pct: r.report.score.momentum },
-          { key: "monetization", pct: r.report.score.monetization },
-        ].sort((a, b) => a.pct - b.pct)[0];
-        setOpenDim(weakest?.key ?? null);
+        applyReport(r);
+        setLoading(false);
+      } else if (account?.platform_login) {
+        // No report found but Twitch is connected — auto-trigger analysis.
+        setLoading(false);
+        setAutoRunning(true);
+        try {
+          const result = await runAnalysis({
+            channelName: account.platform_login,
+            userId: user.id,
+            platform: "twitch",
+            platformUserId: account.platform_user_id ?? undefined,
+            platformLogin: account.platform_login,
+            platformDisplayName: account.platform_display_name ?? account.platform_login,
+          });
+          if (cancelled) return;
+          const fresh = result.reportId
+            ? await getLatestReport(user.id)
+            : null;
+          if (fresh) {
+            applyReport(fresh);
+          } else {
+            setNotFound(true);
+          }
+        } catch {
+          if (!cancelled) setNotFound(true);
+        } finally {
+          if (!cancelled) setAutoRunning(false);
+        }
       } else {
         setNotFound(true);
+        setLoading(false);
       }
-      setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [user, authLoading, twitchLoading, account?.platform_user_id]);
+  }, [user, authLoading, twitchLoading, account?.platform_user_id, account?.platform_login, applyReport]);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
@@ -145,6 +181,20 @@ const AnalysePage = () => {
     return (
       <AppShell>
         <LoadingState />
+      </AppShell>
+    );
+  }
+
+  if (autoRunning) {
+    return (
+      <AppShell>
+        <PageContainer size="sm">
+          <div className="flex flex-col items-center gap-4 py-20 text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm font-medium text-foreground">Analyse en cours…</p>
+            <p className="text-xs text-muted-foreground">On lit tes 30 derniers jours de stream et on calcule ton StreamScore.</p>
+          </div>
+        </PageContainer>
       </AppShell>
     );
   }
@@ -160,7 +210,9 @@ const AnalysePage = () => {
           />
           <EmptyReportState
             title="Aucun diagnostic disponible"
-            description="Lance une analyse depuis la page d'accueil pour générer ton diagnostic."
+            description="Connecte ta chaîne Twitch pour générer ton diagnostic automatiquement."
+            ctaLabel="Connecter Twitch"
+            ctaHref="/connect-twitch"
           />
         </PageContainer>
       </AppShell>
