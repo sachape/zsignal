@@ -994,6 +994,30 @@ export type Database = {
           },
         ]
       }
+      streamscore_email_events: {
+        Row: {
+          email_key: string
+          id: string
+          sent_at: string
+          snapshot_id: string
+          user_id: string
+        }
+        Insert: {
+          email_key: string
+          id?: string
+          sent_at?: string
+          snapshot_id: string
+          user_id: string
+        }
+        Update: {
+          email_key?: string
+          id?: string
+          sent_at?: string
+          snapshot_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           billing_cycle: string | null
