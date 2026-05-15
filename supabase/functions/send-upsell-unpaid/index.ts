@@ -46,7 +46,21 @@ Deno.serve(async (_req) => {
 
   const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
 
-  // 1. Find users created >= 3 days ago
+  // Eligibility baseline = profiles.welcome_email_sent_at.
+  // We only target users whose welcome email was sent at least 3 days ago.
+  // Users without a welcome_email_sent_at are intentionally skipped to avoid
+  // blasting pre-existing accounts that never went through the welcome flow.
+  const { data: profiles, error: profilesErr } = await supabase
+    .from('profiles')
+    .select('user_id, welcome_email_sent_at')
+    .not('welcome_email_sent_at', 'is', null)
+    .lte('welcome_email_sent_at', cutoff)
+
+  if (profilesErr) {
+    safeLog('upsell_email_error', { stage: 'list_profiles', message: profilesErr.message })
+    return new Response('error', { status: 500 })
+  }
+
   const { data: usersList, error: usersErr } =
     await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 })
   if (usersErr) {
@@ -54,9 +68,8 @@ Deno.serve(async (_req) => {
     return new Response('error', { status: 500 })
   }
 
-  const candidates = usersList.users.filter(
-    (u) => u.created_at && u.created_at <= cutoff,
-  )
+  const eligibleIds = new Set((profiles ?? []).map((p) => p.user_id))
+  const candidates = usersList.users.filter((u) => eligibleIds.has(u.id))
 
   let sent = 0
   let skippedPaid = 0
