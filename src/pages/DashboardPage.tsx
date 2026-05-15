@@ -519,7 +519,7 @@ const DashboardPage = () => {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-foreground sm:text-[0.95rem]">
-                Ton premier diagnostic est prêt.
+                Ton diagnostic est prêt.
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
                 Cette page devient ta home hebdo : un blocage à lever, un objectif à viser, rien de plus.
