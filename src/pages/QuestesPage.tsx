@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { Zap, Trophy, Clock } from "lucide-react";
-import { usePlan } from "@/hooks/usePlan";
-import { FullPageLock } from "@/components/PaywallGate";
 import { toast } from "@/components/ui/sonner";
 import AppShell from "@/components/AppShell";
 import PageHeader from "@/components/PageHeader";
@@ -191,7 +189,6 @@ const XpCard = ({ xpLevel, season }: { xpLevel: XpLevelData; season: SeasonData 
 
 const QuestesPage = () => {
   const { user } = useAuth();
-  const { isPro } = usePlan();
 
   const [sessions, setSessions] = useState<LiveSession[]>([]);
   const [report, setReport] = useState<AnalysisReport | null>(null);
@@ -323,21 +320,6 @@ const QuestesPage = () => {
 
   if (!user) return null;
 
-  if (!isPro) {
-    return (
-      <AppShell>
-        <FullPageLock
-          feature="Quêtes & badges"
-          description="Suis ta progression hebdomadaire, débloque des badges et accumule de l'XP."
-          bullets={[
-            "Quêtes de la semaine basées sur tes sessions",
-            "Badges à tiers (Bronze, Silver, Gold)",
-            "Niveau XP et saisons de progression",
-          ]}
-        />
-      </AppShell>
-    );
-  }
 
   const unlockedBadges = badges.filter((b) => b.currentTier !== null);
   const lockedBadges = badges.filter((b) => b.currentTier === null);
