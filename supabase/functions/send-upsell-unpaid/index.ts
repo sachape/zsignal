@@ -8,7 +8,11 @@ const TEMPLATE_NAME = 'upsell-unpaid-3-days'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
+// Hardcoded anon JWT used only as gateway-validated Bearer for internal
+// function-to-function calls (verify_jwt is true on send-transactional-email).
+// This is a public publishable key, not a secret.
+const ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvYmxoY3pnZGJuZnVucm9zaHVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyODE1MTksImV4cCI6MjA5MTg1NzUxOX0.AZytxuMjgJQGYWV7UpKLD3Sbd6x6PbUEGL1wlr4l8M0'
 
 // Synthetic OAuth email patterns to skip
 const SYNTHETIC_PATTERNS: RegExp[] = [
