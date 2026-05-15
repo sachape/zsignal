@@ -9,6 +9,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Section,
   Text,
@@ -28,8 +29,7 @@ export const RecoveryEmail = ({
     <Preview>Réinitialise ton mot de passe {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={brandBar} />
-        <Text style={brand}>{siteName}</Text>
+        <Img src="https://poblhczgdbnfunroshul.supabase.co/storage/v1/object/public/email-assets/streamnco-logo.png" alt="Streamnco" width="140" style={logo} />
         <Heading style={h1}>Réinitialise ton mot de passe</Heading>
         <Text style={text}>
           Nous avons reçu une demande de réinitialisation de mot de passe pour ton compte {siteName}. Clique sur le bouton ci-dessous pour en choisir un nouveau.
@@ -49,8 +49,7 @@ export default RecoveryEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: '"DM Sans", Helvetica, Arial, sans-serif' }
 const container = { padding: '32px 28px', maxWidth: '520px' }
-const brandBar = { width: '40px', height: '4px', backgroundColor: '#89FD3A', borderRadius: '2px', margin: '0 0 20px' }
-const brand = { fontSize: '13px', fontWeight: 600 as const, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#121417', margin: '0 0 28px' }
+const logo = { margin: '0 0 28px', display: 'block' }
 const h1 = { fontSize: '24px', fontWeight: 700 as const, color: '#121417', margin: '0 0 16px', lineHeight: '1.25' }
 const text = { fontSize: '15px', color: '#4b5563', lineHeight: '1.6', margin: '0 0 24px' }
 const button = {
