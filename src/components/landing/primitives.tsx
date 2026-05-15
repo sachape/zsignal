@@ -53,7 +53,7 @@ export const SectionHeading = ({
       {title}
     </h2>
     {subtitle && (
-      <p className="mt-3 text-sm text-muted-foreground sm:mt-4 sm:text-base md:text-lg">{subtitle}</p>
+      <p className="mt-3 text-sm text-foreground/70 sm:mt-4 sm:text-base md:text-lg">{subtitle}</p>
     )}
   </div>
 );

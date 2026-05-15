@@ -57,7 +57,7 @@ const FinalCtaSection = () => {
                 Tu n'as plus à deviner.
               </h2>
 
-              <p className="mt-4 max-w-md text-sm text-muted-foreground md:text-base">
+              <p className="mt-4 max-w-md text-sm text-foreground/70 md:text-base">
                 Lance ton diagnostic gratuit. Si tu veux ensuite suivre ta
                 progression dans le temps, le suivi complet prend le relais.
               </p>

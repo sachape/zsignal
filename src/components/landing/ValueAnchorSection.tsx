@@ -75,7 +75,7 @@ const ValueAnchorSection = () => {
           <span className="text-primary"> Streamnco, c'est {PRO_MONTHLY.toFixed(2).replace(".", ",")} € par mois.</span>
         </h2>
 
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+        <p className="mt-4 text-base leading-relaxed text-foreground/70 md:text-lg">
           Un humain ne peut pas scruter ton stream chaque semaine, comparer tes stats
           avec tes concurrents directs, et te rédiger un plan d'action personnalisé.
           <span className="font-semibold text-foreground"> Streamnco, si.</span>
