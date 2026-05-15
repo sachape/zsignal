@@ -136,7 +136,9 @@ const TwitchCallbackPage = () => {
 
       // Fire-and-forget: create EventSub subscriptions for the connected
       // Twitch account. The edge function is idempotent and never blocks.
-      void bootstrapTwitchEventSub();
+      // We pass the exact platform_user_id so multi-account (Growth) users
+      // get coverage targeted at the newly linked account.
+      void bootstrapTwitchEventSub(connected.platform_user_id);
 
       let enrichedReportId: string | null = null;
       try {
