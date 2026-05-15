@@ -609,6 +609,8 @@ const LeadersPage = () => {
             <p className="mt-6 text-[11px] text-muted-foreground">
               Source : Twitch /streams (snapshot live). Score calculé sur l'audience, le statut broadcaster et la portée en direct.
             </p>
+              </TabsContent>
+            </Tabs>
           </>
       </PageContainer>
     </AppShell>
