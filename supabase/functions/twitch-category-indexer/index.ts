@@ -84,14 +84,13 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ success: false, reason: "method_not_allowed" }, 405);
 
-  const cronSecret = Deno.env.get("CRON_SECRET");
-  if (!cronSecret) return json({ success: false, reason: "cron_secret_missing" }, 500);
-
   let body: { secret?: string; categories?: CategoryReq[]; limit?: number } = {};
   try { body = await req.json(); } catch { /* tolerate empty */ }
 
-  const provided = req.headers.get("x-cron-secret") ?? body.secret ?? "";
-  if (provided !== cronSecret) return json({ success: false, reason: "unauthorized" }, 401);
+  const provided = req.headers.get("x-cron-secret")
+    ?? (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "")
+    ?? body.secret
+    ?? "";
 
   const clientId = Deno.env.get("TWITCH_CLIENT_ID");
   const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET");
@@ -100,6 +99,13 @@ Deno.serve(async (req) => {
   if (!clientId || !clientSecret || !supabaseUrl || !serviceKey) {
     return json({ success: false, reason: "config_missing" }, 500);
   }
+
+  // Validate cron secret using the same vault-backed RPC the other cron-protected
+  // functions use (verify_eventsub_cron_secret against vault `eventsub_cron_secret`).
+  const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+  const { data: cronOk } = await admin.rpc("verify_eventsub_cron_secret", { token: provided });
+  if (!cronOk) return json({ success: false, reason: "unauthorized" }, 401);
+
 
   const categories: CategoryReq[] = (body.categories && body.categories.length > 0)
     ? body.categories
