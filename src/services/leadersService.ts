@@ -200,7 +200,14 @@ interface CategoryAllResponse {
   reason?: string;
   category?: LeaderCategory;
   channels?: Array<Omit<StreamScoreLeaderChannel, "rank">>;
-  meta?: { scope: "indexed"; is_exhaustive: boolean };
+  meta?: {
+    scope?: string;
+    source?: string;
+    is_exhaustive?: boolean;
+    includes_offline?: boolean;
+    live_enriched?: boolean;
+    indexed_count?: number;
+  };
 }
 
 export async function fetchCategoryStreamScoreLeaders(opts: {
@@ -211,6 +218,9 @@ export async function fetchCategoryStreamScoreLeaders(opts: {
   category: LeaderCategory | null;
   channels: StreamScoreLeaderChannel[];
   isExhaustive: boolean;
+  indexedCount: number;
+  includesOffline: boolean;
+  liveEnriched: boolean;
 }> {
   const { data, error } = await supabase.functions.invoke<CategoryAllResponse>(
     "twitch-public-lookup",
@@ -228,12 +238,19 @@ export async function fetchCategoryStreamScoreLeaders(opts: {
       category: data?.category ?? null,
       channels: [],
       isExhaustive: false,
+      indexedCount: 0,
+      includesOffline: true,
+      liveEnriched: false,
     };
   }
+  const channels = data.channels.map((c, i) => ({ ...c, rank: i + 1 }));
   return {
     category: data.category ?? null,
-    channels: data.channels.map((c, i) => ({ ...c, rank: i + 1 })),
+    channels,
     isExhaustive: data.meta?.is_exhaustive ?? false,
+    indexedCount: data.meta?.indexed_count ?? channels.length,
+    includesOffline: data.meta?.includes_offline ?? true,
+    liveEnriched: data.meta?.live_enriched ?? false,
   };
 }
 
