@@ -16,8 +16,12 @@ import { usePlan } from "@/hooks/usePlan";
 const AccountMenu = () => {
   const { user } = useAuth();
   const { isConnected, accounts, account, initializing } = useTwitchConnection();
-  const { isGrowth } = usePlan();
+  const { isGrowth, loading: planLoading } = usePlan();
   const navigate = useNavigate();
+
+  const maxAccounts = planLoading ? 1 : isGrowth ? 3 : 1;
+  const accountCount = accounts.length;
+  const atLimit = accountCount >= maxAccounts;
 
   if (!user) return null;
 
@@ -54,8 +58,13 @@ const AccountMenu = () => {
       navigate("/pricing");
       return;
     }
+    if (atLimit) return;
     navigate("/connect-twitch?mode=add");
   };
+
+  const counterLabel = `${accountCount}/${maxAccounts} ${
+    maxAccounts > 1 ? "chaînes Twitch connectées" : "chaîne Twitch connectée"
+  }`;
 
   return (
     <DropdownMenu>
@@ -81,40 +90,53 @@ const AccountMenu = () => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-64 p-1.5">
-        {/* Account list — shown only when there are multiple */}
-        {accounts.length > 1 && (
-          <>
-            <div className="px-2 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-              Mes chaînes
-            </div>
-            {accounts.map((acc) => {
-              const accLogin = acc.platform_login ?? "";
-              const accName = acc.platform_display_name || accLogin;
-              const isActive = accLogin === (account?.platform_login ?? "");
-              return (
-                <DropdownMenuItem
-                  key={acc.id}
-                  className="gap-2.5 px-2.5 py-2 text-xs"
-                  onClick={() => {
-                    if (!isActive) switchActiveAccount(user.id, accLogin);
-                  }}
-                >
-                  <Avatar className="h-5 w-5 shrink-0 rounded-full">
-                    {acc.profile_image_url && (
-                      <AvatarImage src={acc.profile_image_url} alt={accLogin} className="object-cover" />
-                    )}
-                    <AvatarFallback className="rounded-full bg-muted text-[8px] font-semibold">
-                      {accLogin.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="flex-1 truncate font-medium">{accName}</span>
-                  {isActive && <Check className="h-3.5 w-3.5 shrink-0 text-primary" />}
-                </DropdownMenuItem>
-              );
-            })}
-            <DropdownMenuSeparator className="my-1" />
-          </>
-        )}
+        {/* Counter header */}
+        <div className="flex items-center justify-between gap-2 px-2 pb-1.5 pt-1">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+            Mes chaînes
+          </span>
+          <span className="rounded-full border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-foreground">
+            {accountCount}/{maxAccounts}
+          </span>
+        </div>
+        <div className="px-2 pb-1.5 text-[10px] text-muted-foreground/80">
+          {counterLabel}
+        </div>
+
+        {/* Account list */}
+        {accounts.map((acc) => {
+          const accLogin = acc.platform_login ?? "";
+          const accName = acc.platform_display_name || accLogin;
+          const isActive = accLogin === (account?.platform_login ?? "");
+          return (
+            <DropdownMenuItem
+              key={acc.id}
+              className="gap-2.5 px-2.5 py-2 text-xs"
+              onClick={() => {
+                if (!isActive) switchActiveAccount(user.id, accLogin);
+              }}
+            >
+              <Avatar className="h-5 w-5 shrink-0 rounded-full">
+                {acc.profile_image_url && (
+                  <AvatarImage src={acc.profile_image_url} alt={accLogin} className="object-cover" />
+                )}
+                <AvatarFallback className="rounded-full bg-muted text-[8px] font-semibold">
+                  {accLogin.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="flex-1 truncate font-medium">{accName}</span>
+              {isActive && (
+                <>
+                  <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary">
+                    Active
+                  </span>
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+                </>
+              )}
+            </DropdownMenuItem>
+          );
+        })}
+        <DropdownMenuSeparator className="my-1" />
 
         {/* View on Twitch */}
         {login && (
@@ -131,19 +153,40 @@ const AccountMenu = () => {
           </DropdownMenuItem>
         )}
 
-        {/* Add account */}
-        <DropdownMenuItem
-          className="gap-2.5 px-2.5 py-2 text-xs"
-          onClick={handleAddAccount}
-        >
-          <PlusCircle className="h-3.5 w-3.5 shrink-0" />
-          <span className="flex-1">Ajouter une chaîne Twitch</span>
-          {!isGrowth && (
+        {/* Add account / upgrade / limit */}
+        {!isGrowth && atLimit ? (
+          <DropdownMenuItem
+            className="gap-2.5 px-2.5 py-2 text-xs"
+            onClick={() => navigate("/pricing")}
+          >
+            <PlusCircle className="h-3.5 w-3.5 shrink-0 text-primary" />
+            <span className="flex-1">Passe à Growth pour connecter jusqu’à 3 chaînes</span>
             <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary">
               Growth
             </span>
-          )}
-        </DropdownMenuItem>
+          </DropdownMenuItem>
+        ) : isGrowth && atLimit ? (
+          <DropdownMenuItem
+            disabled
+            className="gap-2.5 px-2.5 py-2 text-xs opacity-60"
+          >
+            <PlusCircle className="h-3.5 w-3.5 shrink-0" />
+            <span className="flex-1">Limite Growth atteinte : 3/3</span>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            className="gap-2.5 px-2.5 py-2 text-xs"
+            onClick={handleAddAccount}
+          >
+            <PlusCircle className="h-3.5 w-3.5 shrink-0" />
+            <span className="flex-1">Ajouter une chaîne Twitch</span>
+            {!isGrowth && (
+              <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary">
+                Growth
+              </span>
+            )}
+          </DropdownMenuItem>
+        )}
 
         <DropdownMenuSeparator className="my-1" />
 
