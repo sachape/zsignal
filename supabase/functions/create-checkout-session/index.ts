@@ -79,6 +79,13 @@ Deno.serve(async (req) => {
     const plan = body?.plan;
     const billing_cycle = body?.billing_cycle;
 
+    // Reject frontend overrides of server-side controlled fields
+    if (body?.price_id != null || body?.payment_method_types != null) {
+      return new Response(JSON.stringify({ error: "Invalid request: client cannot override price or payment methods" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!["pro", "growth"].includes(plan) || !["monthly", "annual"].includes(billing_cycle)) {
       return new Response(JSON.stringify({ error: "Invalid plan or billing_cycle" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -93,6 +100,9 @@ Deno.serve(async (req) => {
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2024-06-20" });
+
+    // Annual plans allow Klarna; monthly stays card-only
+    const paymentMethodTypes: string[] = billing_cycle === "annual" ? ["card", "klarna"] : ["card"];
 
     // Get or create Stripe customer
     const admin = createClient(
@@ -124,6 +134,7 @@ Deno.serve(async (req) => {
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
+      payment_method_types: paymentMethodTypes,
       success_url: `${siteUrl}/dashboard?checkout=success`,
       cancel_url: `${siteUrl}/pricing?checkout=cancel`,
       metadata: {
