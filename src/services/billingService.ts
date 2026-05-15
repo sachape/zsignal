@@ -31,6 +31,7 @@ export async function startCheckout(plan: PlanName, billing_cycle: BillingCycle)
 }
 
 export async function openBillingPortal(): Promise<void> {
+  analytics.billingPortalOpened();
   const portalTab = window.open("about:blank", "_blank");
   const { data, error } = await supabase.functions.invoke("create-customer-portal-session", {
     body: {},

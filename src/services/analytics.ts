@@ -95,9 +95,9 @@ export const analytics = {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
-  signupCompleted(email: string) {
+  signupCompleted(email: string, method?: string) {
     this.identify(email, undefined, [6]);
-    this.track("signup_completed", { email });
+    this.track("signup_completed", { email, ...(method && { method }) });
   },
 
   signinCompleted(email: string) {
@@ -113,6 +113,10 @@ export const analytics = {
 
   twitchConnected(login: string) {
     this.track("twitch_connected", { login });
+  },
+
+  reportViewed(channel: string, score: number) {
+    this.track("report_viewed", { channel, score });
   },
 
   // ── Paywall ───────────────────────────────────────────────────────────────
@@ -134,5 +138,9 @@ export const analytics = {
   checkoutCompleted(plan: string) {
     mpSetPeople({ plan });
     this.track("checkout_completed", { plan });
+  },
+
+  billingPortalOpened() {
+    this.track("billing_portal_opened");
   },
 };

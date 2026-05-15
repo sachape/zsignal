@@ -50,8 +50,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const createdAt = new Date(u.created_at).getTime();
             const lastSignIn = new Date(u.last_sign_in_at ?? u.created_at).getTime();
             if (Math.abs(lastSignIn - createdAt) < 30_000) {
+              const method = (u.app_metadata?.provider as string | undefined) ?? "email";
               analytics.identify(u.email);
-              analytics.signupCompleted(u.email);
+              analytics.signupCompleted(u.email, method);
               localStorage.setItem(trackKey, "1");
             }
           }

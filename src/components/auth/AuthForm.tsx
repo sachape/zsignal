@@ -63,8 +63,6 @@ const AuthForm = ({
         if (error) {
           setError(translateError(error.message));
         } else {
-          analytics.signupCompleted(email);
-          localStorage.setItem(`streamnco:signup_tracked:email:${email}`, "1");
           setSuccess(true);
         }
       } else {

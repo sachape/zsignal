@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { markOnboardingStepVisited } from "@/components/OnboardingGuide";
+import { analytics } from "@/services/analytics";
 import {
   Clock,
   Target,
@@ -111,6 +112,10 @@ const AnalysePage = () => {
   const applyReport = useCallback((r: SavedReport) => {
     setSaved(r);
     setReport(r.report);
+    analytics.reportViewed(
+      r.report.identity?.platform_login ?? r.report.channel_summary?.channel_name ?? "",
+      r.report.score?.overall ?? 0,
+    );
     const weakest = [
       { key: "regularity", pct: r.report.score.regularity },
       { key: "content", pct: r.report.score.content },
