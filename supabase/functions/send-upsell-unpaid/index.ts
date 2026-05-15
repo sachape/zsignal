@@ -100,25 +100,32 @@ Deno.serve(async (_req) => {
         (user.user_metadata?.full_name as string | undefined) ??
         (user.user_metadata?.name as string | undefined)
 
-      const { error: invokeErr } = await supabase.functions.invoke(
-        'send-transactional-email',
+      const invokeRes = await fetch(
+        `${SUPABASE_URL}/functions/v1/send-transactional-email`,
         {
-          headers: { Authorization: `Bearer ${SERVICE_ROLE_KEY}` },
-          body: {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+            apikey: SERVICE_ROLE_KEY,
+          },
+          body: JSON.stringify({
             templateName: TEMPLATE_NAME,
             recipientEmail: email,
             idempotencyKey: `${EMAIL_KEY}-${user.id}`,
             templateData: displayName ? { displayName } : {},
-          },
+          }),
         },
       )
 
-      if (invokeErr) {
+      if (!invokeRes.ok) {
+        const errBody = await invokeRes.text().catch(() => '')
         errors++
         safeLog('upsell_email_error', {
           user_id: user.id,
           stage: 'invoke',
-          message: invokeErr.message,
+          status: invokeRes.status,
+          message: errBody.slice(0, 200),
         })
         continue
       }
