@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, ExternalLink, Link2, Unplug } from "lucide-react";
+import { Check, ChevronDown, ExternalLink, PlusCircle, Unplug } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,30 +10,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTwitchConnection } from "@/hooks/useTwitchConnection";
+import { useTwitchConnection, switchActiveAccount } from "@/hooks/useTwitchConnection";
+import { usePlan } from "@/hooks/usePlan";
 
-/**
- * Top-right header identity = CONNECTED PLATFORM (Twitch) only.
- *
- * Strictly separates the StreamPulse app account (which lives in the sidebar
- * footer) from the connected Twitch identity. The compact menu stays minimal:
- *   - connected   → Voir mon compte Twitch · Déconnecter Twitch
- *   - disconnected → Connecter Twitch
- *
- * App-level actions (logout, sync refresh, full report) intentionally do NOT
- * live here — they belong to the sidebar footer or in-page surfaces.
- */
 const AccountMenu = () => {
   const { user } = useAuth();
-  const { isConnected, account, initializing } = useTwitchConnection();
+  const { isConnected, accounts, account, initializing } = useTwitchConnection();
+  const { isGrowth } = usePlan();
   const navigate = useNavigate();
 
   if (!user) return null;
 
-  // Loading / first resolution with no cached identity: render a neutral
-  // placeholder. We must NEVER fall back to the "Connecter Twitch" CTA here,
-  // otherwise the control flickers to a fake disconnected state on every
-  // route change.
   if (initializing) {
     return (
       <div
@@ -45,7 +32,6 @@ const AccountMenu = () => {
     );
   }
 
-  // Confirmed disconnected: single CTA, no dropdown noise.
   if (!isConnected || !account) {
     return (
       <Button
@@ -54,7 +40,6 @@ const AccountMenu = () => {
         className="h-8 gap-2 text-xs"
         onClick={() => navigate("/connect-twitch")}
       >
-        <Link2 className="h-3.5 w-3.5" />
         Connecter Twitch
       </Button>
     );
@@ -64,10 +49,12 @@ const AccountMenu = () => {
   const displayName = account.platform_display_name || login;
   const avatarUrl = account.profile_image_url ?? null;
 
-  const handleDisconnect = () => {
-    // Disconnect flow lives on the Twitch settings page so users see what
-    // they're about to do (revoke OAuth, drop cached profile, etc.).
-    navigate("/connect-twitch");
+  const handleAddAccount = () => {
+    if (!isGrowth) {
+      navigate("/pricing");
+      return;
+    }
+    navigate("/connect-twitch?mode=add");
   };
 
   return (
@@ -92,7 +79,44 @@ const AccountMenu = () => {
           <ChevronDown className="ml-0.5 h-3.5 w-3.5 shrink-0 opacity-70" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="w-60 p-1.5">
+
+      <DropdownMenuContent align="end" sideOffset={8} className="w-64 p-1.5">
+        {/* Account list — shown only when there are multiple */}
+        {accounts.length > 1 && (
+          <>
+            <div className="px-2 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              Mes chaînes
+            </div>
+            {accounts.map((acc) => {
+              const accLogin = acc.platform_login ?? "";
+              const accName = acc.platform_display_name || accLogin;
+              const isActive = accLogin === (account?.platform_login ?? "");
+              return (
+                <DropdownMenuItem
+                  key={acc.id}
+                  className="gap-2.5 px-2.5 py-2 text-xs"
+                  onClick={() => {
+                    if (!isActive) switchActiveAccount(user.id, accLogin);
+                  }}
+                >
+                  <Avatar className="h-5 w-5 shrink-0 rounded-full">
+                    {acc.profile_image_url && (
+                      <AvatarImage src={acc.profile_image_url} alt={accLogin} className="object-cover" />
+                    )}
+                    <AvatarFallback className="rounded-full bg-muted text-[8px] font-semibold">
+                      {accLogin.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="flex-1 truncate font-medium">{accName}</span>
+                  {isActive && <Check className="h-3.5 w-3.5 shrink-0 text-primary" />}
+                </DropdownMenuItem>
+              );
+            })}
+            <DropdownMenuSeparator className="my-1" />
+          </>
+        )}
+
+        {/* View on Twitch */}
         {login && (
           <DropdownMenuItem asChild className="gap-2.5 px-2.5 py-2 text-xs">
             <a
@@ -107,11 +131,25 @@ const AccountMenu = () => {
           </DropdownMenuItem>
         )}
 
+        {/* Add account */}
+        <DropdownMenuItem
+          className="gap-2.5 px-2.5 py-2 text-xs"
+          onClick={handleAddAccount}
+        >
+          <PlusCircle className="h-3.5 w-3.5 shrink-0" />
+          <span className="flex-1">Ajouter une chaîne Twitch</span>
+          {!isGrowth && (
+            <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary">
+              Growth
+            </span>
+          )}
+        </DropdownMenuItem>
+
         <DropdownMenuSeparator className="my-1" />
 
         <DropdownMenuItem
           variant="destructive"
-          onClick={handleDisconnect}
+          onClick={() => navigate("/connect-twitch")}
           className="gap-2.5 px-2.5 py-2 text-xs"
         >
           <Unplug />

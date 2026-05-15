@@ -10,6 +10,7 @@ import {
   completeTwitchCallback,
   consumePendingTeaserId,
   peekPendingTeaserId,
+  consumeOAuthMode,
 } from "@/services/twitchOAuth";
 import { invalidateTwitchCache } from "@/hooks/useTwitchConnection";
 import { onboardingFlags } from "@/services/onboardingFlags";
@@ -110,14 +111,23 @@ const TwitchCallbackPage = () => {
         return;
       }
 
-      const { data: connected } = await supabase
+      // Consume the mode before any early returns so sessionStorage stays clean.
+      const oauthMode = consumeOAuthMode();
+
+      const { data: connectedRows } = await supabase
         .from("connected_accounts")
         .select("platform_user_id, platform_login, platform_display_name")
         .eq("user_id", userId)
         .eq("platform", "twitch")
-        .maybeSingle();
+        .order("created_at", { ascending: false });
 
       if (cancelled) return;
+
+      // When adding a second account, match by the login returned by OAuth.
+      // When replacing (or first connection), take the most-recent row.
+      const connected = oauthResult.platform_login
+        ? (connectedRows?.find((r) => r.platform_login === oauthResult.platform_login) ?? connectedRows?.[0])
+        : connectedRows?.[0];
 
       if (!connected?.platform_user_id || !connected.platform_login) {
         devLog("connected_accounts row incomplete", connected);
@@ -128,7 +138,7 @@ const TwitchCallbackPage = () => {
         return;
       }
 
-      devLog("connected identity:", connected);
+      devLog("connected identity (mode=%s):", oauthMode, connected);
 
       // Mark the durable flag now that we really have a connection the DB
       // confirms — this drives the welcome UX down the line.
@@ -194,7 +204,7 @@ const TwitchCallbackPage = () => {
       // reachable one click away via the welcome banner / "Rapport complet".
       analytics.twitchConnected(connected.platform_login);
       invalidateTwitchCache(userId);
-      const target = `/dashboard?welcome=1`;
+      const target = oauthMode === "add" ? "/dashboard?added=1" : "/dashboard?welcome=1";
       devLog("navigating to:", target);
       navigate(target, { replace: true });
     })();

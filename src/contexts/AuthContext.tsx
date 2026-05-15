@@ -46,15 +46,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (event === "SIGNED_IN" && u?.email) {
           const trackKey = `streamnco:signup_tracked:${u.id}`;
           const emailKey = `streamnco:signup_tracked:email:${u.email}`;
+          const method = (u.app_metadata?.provider as string | undefined) ?? "email";
+          let isNewSignup = false;
           if (!localStorage.getItem(trackKey) && !localStorage.getItem(emailKey)) {
             const createdAt = new Date(u.created_at).getTime();
             const lastSignIn = new Date(u.last_sign_in_at ?? u.created_at).getTime();
             if (Math.abs(lastSignIn - createdAt) < 30_000) {
-              const method = (u.app_metadata?.provider as string | undefined) ?? "email";
-              analytics.identify(u.email);
-              analytics.signupCompleted(u.email, method);
+              isNewSignup = true;
+              analytics.signupCompleted(method);
               localStorage.setItem(trackKey, "1");
             }
+          }
+          if (!isNewSignup) {
+            analytics.signinCompleted(method);
           }
           // Send the branded welcome email exactly once per user.
           // Internally guarded against synthetic emails, duplicates, and reloads.

@@ -205,6 +205,7 @@ const AnalysePage = () => {
   }
 
   if (notFound || !report || !saved) {
+    const isConnected = !!account?.platform_login;
     return (
       <AppShell>
         <PageContainer size="sm">
@@ -213,12 +214,31 @@ const AnalysePage = () => {
             title="Analyse"
             description="Comprends ton StreamScore, tes blocages, et ce qu'il faut corriger."
           />
-          <EmptyReportState
-            title="Aucun diagnostic disponible"
-            description="Connecte ta chaîne Twitch pour générer ton diagnostic automatiquement."
-            ctaLabel="Connecter Twitch"
-            ctaHref="/connect-twitch"
-          />
+          {isConnected ? (
+            <Card>
+              <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+                  <AlertCircle className="h-4 w-4 text-primary" />
+                </div>
+                <div className="space-y-1.5">
+                  <h2 className="text-base font-semibold text-foreground">Diagnostic introuvable</h2>
+                  <p className="mx-auto max-w-md text-sm text-muted-foreground">
+                    Une erreur est survenue lors de la génération. Actualise la page pour relancer automatiquement.
+                  </p>
+                </div>
+                <Button className="mt-2" onClick={() => window.location.reload()}>
+                  Actualiser
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <EmptyReportState
+              title="Aucun diagnostic disponible"
+              description="Connecte ta chaîne Twitch pour générer ton diagnostic automatiquement."
+              ctaLabel="Connecter Twitch"
+              ctaHref="/connect-twitch"
+            />
+          )}
         </PageContainer>
       </AppShell>
     );

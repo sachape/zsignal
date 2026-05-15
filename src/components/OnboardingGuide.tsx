@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ArrowRight, Tv, Sparkles, FileText, CalendarCheck, ChevronRight, Loader2 } from "lucide-react";
+import { Check, ArrowRight, Tv, Sparkles, FileText, CalendarCheck, ChevronRight, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -39,9 +39,13 @@ interface Props {
   onComplete: () => void;
 }
 
+const SCORE_TIMEOUT_MS = 120_000; // 2 minutes
+
 const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComplete }: Props) => {
   const navigate = useNavigate();
   const [visited, setVisited] = useState<Set<string>>(new Set());
+  const [scoreTimedOut, setScoreTimedOut] = useState(false);
+  const scoreTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -53,6 +57,19 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
       active = false;
     };
   }, [userId]);
+
+  // Start/stop the score timeout when the user is waiting for their first report.
+  useEffect(() => {
+    if (isConnected && !hasReport) {
+      scoreTimerRef.current = setTimeout(() => setScoreTimedOut(true), SCORE_TIMEOUT_MS);
+    } else {
+      if (scoreTimerRef.current) clearTimeout(scoreTimerRef.current);
+      setScoreTimedOut(false);
+    }
+    return () => {
+      if (scoreTimerRef.current) clearTimeout(scoreTimerRef.current);
+    };
+  }, [isConnected, hasReport]);
 
   const steps: Step[] = [
     {
@@ -250,10 +267,25 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
         ) : (
           <>
             {nextActionable === "waiting" ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Analyse en cours, laisse cette page ouverte…
-              </div>
+              scoreTimedOut ? (
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    L'analyse prend plus longtemps que prévu.
+                  </p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-card/60 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-card"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    Actualiser la page
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyse en cours, laisse cette page ouverte…
+                </div>
+              )
             ) : nextActionable && nextActionable.id !== "twitch" ? (
               <Button className="w-full sm:w-auto" onClick={() => handleStepClick(nextActionable)}>
                 {nextActionable.cta}

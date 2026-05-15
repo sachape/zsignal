@@ -109,11 +109,6 @@ const DashboardPage = () => {
     setShowWelcome(false);
   }, []);
 
-  // Re-identify user for Brevo on every dashboard session
-  useEffect(() => {
-    if (!user?.email) return;
-    analytics.identify(user.email);
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Checkout success: clear cache, toast, clean URL
   const checkoutSuccessOnMount = useRef(searchParams.get("checkout") === "success");

@@ -35,6 +35,7 @@ const ConnectTwitchPage = () => {
     useTwitchConnection();
 
   const justConnected = searchParams.get("connected") === "true";
+  const isAddMode = searchParams.get("mode") === "add";
   const teaserParam = searchParams.get("teaser");
   const hasTeaserContext =
     Boolean(teaserParam) || Boolean(onboardingFlags.getPendingTeaserId());
@@ -52,7 +53,8 @@ const ConnectTwitchPage = () => {
   const getState = (): PageState => {
     if (connectionLoading) return "loading";
     if (justConnected) return "success";
-    if (isConnected) return "already-connected";
+    // In add-mode, skip the "already-connected" guard so the OAuth button stays visible.
+    if (isConnected && !isAddMode) return "already-connected";
     return "default";
   };
 
@@ -158,9 +160,10 @@ const ConnectTwitchPage = () => {
                 if (teaserId) {
                   onboardingFlags.setPendingTeaserId(teaserId);
                 }
-                initiateTwitchOAuth({ teaserId }).catch((err) =>
-                  console.error(err),
-                );
+                initiateTwitchOAuth({
+                  teaserId,
+                  mode: isAddMode ? "add" : undefined,
+                }).catch((err) => console.error(err));
               }}
               variant="twitch"
               className="mt-2"

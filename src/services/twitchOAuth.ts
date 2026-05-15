@@ -5,6 +5,7 @@ import { onboardingFlags } from "@/services/onboardingFlags";
 const REDIRECT_URI = `${window.location.origin}/twitch/callback`;
 const STATE_KEY = "streampulse_twitch_oauth_state";
 const STATE_TEASER_KEY = "streampulse_twitch_oauth_teaser_id";
+const STATE_MODE_KEY = "streampulse_twitch_oauth_mode";
 
 type TwitchOAuthErrorCode =
   | "cancelled"
@@ -118,15 +119,19 @@ function mapCallbackError(code?: string, rawError?: string): TwitchOAuthFailure 
  * can reconcile the gratuit diagnostic with the enriched data after callback,
  * without re-running an analysis from scratch.
  */
-export async function initiateTwitchOAuth(options?: { teaserId?: string | null }): Promise<void> {
+export async function initiateTwitchOAuth(options?: { teaserId?: string | null; mode?: "add" | "replace" }): Promise<void> {
   const nonce = generateNonce();
   sessionStorage.setItem(STATE_KEY, nonce);
 
   if (options?.teaserId) {
-    // Persist locally (sessionStorage) AND in the durable flags store so
-    // the callback can still recover it if the tab is restored.
     sessionStorage.setItem(STATE_TEASER_KEY, options.teaserId);
     onboardingFlags.setPendingTeaserId(options.teaserId);
+  }
+
+  if (options?.mode) {
+    sessionStorage.setItem(STATE_MODE_KEY, options.mode);
+  } else {
+    sessionStorage.removeItem(STATE_MODE_KEY);
   }
 
   const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
@@ -161,6 +166,16 @@ export function consumePendingTeaserId(): string | null {
   sessionStorage.removeItem(STATE_TEASER_KEY);
   onboardingFlags.clearPendingTeaserId();
   return teaserId;
+}
+
+export function peekOAuthMode(): "add" | "replace" | null {
+  return (sessionStorage.getItem(STATE_MODE_KEY) as "add" | "replace" | null) ?? null;
+}
+
+export function consumeOAuthMode(): "add" | "replace" | null {
+  const mode = peekOAuthMode();
+  sessionStorage.removeItem(STATE_MODE_KEY);
+  return mode;
 }
 
 /**

@@ -8,6 +8,7 @@ export type PlanTier = "free" | "pro" | "growth" | "agency";
 export interface PlanInfo {
   plan: PlanTier;
   isPro: boolean;
+  isGrowth: boolean;
   loading: boolean;
 }
 
@@ -67,5 +68,5 @@ export function usePlan(): PlanInfo {
       });
   }, [user]);
 
-  return { plan, isPro: plan !== "free", loading };
+  return { plan, isPro: plan !== "free", isGrowth: plan === "growth" || plan === "agency", loading };
 }

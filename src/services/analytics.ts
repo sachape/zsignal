@@ -15,7 +15,6 @@ function mpTrack(event: string, properties?: Record<string, unknown>) {
 
 function mpSetPeople(properties: Record<string, unknown>) {
   if (!token) return;
-  // Strip undefined/null values — Mixpanel stores "undefined" as a string otherwise.
   const clean: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(properties)) {
     if (v !== undefined && v !== null) clean[k] = v;
@@ -23,38 +22,9 @@ function mpSetPeople(properties: Record<string, unknown>) {
   if (Object.keys(clean).length > 0) mixpanel.people.set(clean);
 }
 
-function mpIdentify(userId: string, properties?: Record<string, unknown>) {
-  if (!token) return;
-  mixpanel.identify(userId);
-  if (properties) mpSetPeople(properties);
-}
-
-// ── Brevo tracker (kept for email automation) ─────────────────────────────
-
-declare global {
-  interface Window {
-    Brevo?: unknown[];
-  }
-}
-
-function brevoPush(...args: unknown[]) {
-  if (typeof window === "undefined") return;
-  window.Brevo = window.Brevo || [];
-  (window.Brevo as unknown[]).push(args);
-}
-
 // ── Public API ────────────────────────────────────────────────────────────
 
 export const analytics = {
-  identify(email: string, attributes?: Record<string, unknown>, listIds?: number[]) {
-    brevoPush("identify", { email, ...(attributes && { attributes }), ...(listIds && { listIds }) });
-  },
-
-  /**
-   * Called on every sign-in. Sets the Mixpanel distinct_id and enriches the
-   * user profile. Uses Mixpanel reserved property names ($email, $name) so
-   * the Users table shows readable columns instead of UUIDs.
-   */
   identifyUser(userId: string, properties?: {
     email?: string | null;
     name?: string | null;
@@ -73,13 +43,11 @@ export const analytics = {
     });
   },
 
-  /** Update plan on the user profile — call when plan is known. */
   setPlan(plan: string) {
     mpSetPeople({ plan });
   },
 
   track(event: string, properties?: Record<string, unknown>) {
-    brevoPush("track", event, properties ? { data: properties } : {});
     mpTrack(event, properties);
   },
 
@@ -95,18 +63,12 @@ export const analytics = {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
-  signupCompleted(email: string, method?: string) {
-    this.identify(email, undefined, [6]);
-    this.track("signup_completed", { email, ...(method && { method }) });
+  signupCompleted(method?: string) {
+    this.track("signup_completed", { ...(method && { method }) });
   },
 
-  signinCompleted(email: string) {
-    this.identify(email);
-    this.track("signin_completed");
-  },
-
-  googleSignin() {
-    this.track("google_signin");
+  signinCompleted(method: string = "email") {
+    this.track("signin_completed", { method });
   },
 
   // ── Activation ────────────────────────────────────────────────────────────
