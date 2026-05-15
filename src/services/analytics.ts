@@ -5,7 +5,7 @@ const token: string | undefined =
   "ac06a0825fa7a54c685acc4593991341";
 
 if (token) {
-  mixpanel.init(token, { track_pageview: true, persistence: "localStorage" });
+  mixpanel.init(token, { track_pageview: true, persistence: "localStorage", api_host: "https://api-eu.mixpanel.com" });
 }
 
 function mpTrack(event: string, properties?: Record<string, unknown>) {
