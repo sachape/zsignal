@@ -476,6 +476,7 @@ Deno.serve(async (req) => {
     return json({
       success: true,
       linked: false,
+      platform_user_id: tw.id,
       platform_login: tw.login,
       platform_display_name: tw.display_name,
       session: authSession.session,
