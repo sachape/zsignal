@@ -129,13 +129,6 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
         growth: true,
         agency: true,
       },
-      {
-        label: "Export PDF rapport",
-        free: false,
-        pro: true,
-        growth: true,
-        agency: true,
-      },
     ],
   },
   {

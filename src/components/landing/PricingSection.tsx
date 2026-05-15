@@ -62,7 +62,8 @@ const PRO_FEATURES = [
 const GROWTH_FEATURES = [
   "Tout le plan Pro",
   "Jusqu'à 3 chaînes Twitch connectées",
-  "Export PNG et PDF des rapports",
+  "Suivi multi-chaînes unifié",
+  "Export PNG de ta carte score",
   "Support prioritaire",
   "Accès anticipé aux nouvelles features",
 ];
