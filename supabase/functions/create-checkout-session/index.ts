@@ -80,10 +80,12 @@ Deno.serve(async (req) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
+    const billingEmail = resolveBillingEmail(user);
+
     let customerId = existing?.stripe_customer_id;
     if (!customerId) {
       const customer = await stripe.customers.create({
-        email: user.email ?? undefined,
+        email: billingEmail ?? undefined,
         metadata: { user_id: user.id },
       });
       customerId = customer.id;
