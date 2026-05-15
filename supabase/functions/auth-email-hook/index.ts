@@ -17,12 +17,12 @@ const corsHeaders = {
 }
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'Confirme ton adresse email',
+  invite: 'Tu es invité à rejoindre Streamnco',
+  magiclink: 'Ton lien de connexion Streamnco',
+  recovery: 'Réinitialise ton mot de passe',
+  email_change: 'Confirme ta nouvelle adresse email',
+  reauthentication: 'Ton code de vérification',
 }
 
 // Template mapping
