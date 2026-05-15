@@ -18,6 +18,31 @@ const PRICE_MAP: Record<string, Record<string, string | undefined>> = {
   },
 };
 
+// Resolves a real signup email for billing. Returns null for synthetic
+// Twitch OAuth emails or any placeholder so Stripe Checkout can collect one.
+function resolveBillingEmail(user: { email?: string | null; app_metadata?: Record<string, unknown>; user_metadata?: Record<string, unknown> }): string | null {
+  const email = (user.email ?? "").trim().toLowerCase();
+  if (!email || !email.includes("@")) return null;
+
+  const authSource = (user.user_metadata as { auth_source?: string } | undefined)?.auth_source;
+  if (authSource === "twitch_oauth") return null;
+
+  const syntheticPatterns = [
+    /^twitch[-_]/,
+    /@users\.streampulse\.app$/,
+    /@twitch\.local$/,
+    /@streamnco-oauth\.local$/,
+    /^no-?email@/,
+    /@example\.(com|org|net)$/,
+  ];
+  if (syntheticPatterns.some((re) => re.test(email))) return null;
+
+  const provider = (user.app_metadata as { provider?: string } | undefined)?.provider;
+  if (provider && !["email", "google"].includes(provider)) return null;
+
+  return email;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
