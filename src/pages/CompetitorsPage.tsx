@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { analytics } from "@/services/analytics";
 import { ArrowLeft, Trophy, Users, Info, Bug, Compass, Lock } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { InlineLock } from "@/components/PaywallGate";
@@ -772,7 +773,7 @@ const CompetitorsPage = () => {
                       <div key={c.id} className="relative">
                         <Link
                           to={locked ? "#" : `/streamer/${c.login}`}
-                          onClick={locked ? (e) => e.preventDefault() : undefined}
+                          onClick={locked ? (e) => e.preventDefault() : () => analytics.competitorOpened(c.login)}
                           className={cn(
                             "flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors",
                             locked

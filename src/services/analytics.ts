@@ -86,6 +86,36 @@ export const analytics = {
     this.track("report_viewed", { channel, score });
   },
 
+  reportShared(channel: string) {
+    this.track("report_shared", { channel });
+  },
+
+  scoreDimensionExpanded(dimension: string, score: number) {
+    this.track("score_dimension_expanded", { dimension, score });
+  },
+
+  // ── Engagement features ───────────────────────────────────────────────────
+
+  planActionUpdated(status: "done" | "skipped" | "todo") {
+    this.track("plan_action_updated", { status });
+  },
+
+  questToggled(questId: string, completed: boolean) {
+    this.track("quest_toggled", { quest_id: questId, completed });
+  },
+
+  competitorOpened(channel: string) {
+    this.track("competitor_opened", { channel });
+  },
+
+  simulatorPresetUsed(preset: string) {
+    this.track("simulator_preset_used", { preset });
+  },
+
+  simulatorRun() {
+    this.track("simulator_run");
+  },
+
   // ── Paywall ───────────────────────────────────────────────────────────────
 
   paywallHit(feature: string, variant: "full_page" | "inline" | "limit_banner") {

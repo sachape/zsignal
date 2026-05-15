@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { analytics } from "@/services/analytics";
 import { usePlan } from "@/hooks/usePlan";
 import { FullPageLock } from "@/components/PaywallGate";
 import {
@@ -260,11 +261,13 @@ const SimulatorPage = () => {
     setActivePreset(idx);
     setSessionsPerWeek(PRESETS[idx].sessions);
     setDurationHours(PRESETS[idx].duration);
+    analytics.simulatorPresetUsed(PRESETS[idx].label);
   };
 
   const handleSlider = (setter: (v: number) => void) => (val: number[]) => {
     setter(val[0]);
     setActivePreset(null);
+    analytics.simulatorRun();
   };
 
   // ETAs

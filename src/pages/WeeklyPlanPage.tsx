@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { analytics } from "@/services/analytics";
 import { Link } from "react-router-dom";
 import { markOnboardingStepVisited } from "@/components/OnboardingGuide";
 import { usePlan } from "@/hooks/usePlan";
@@ -921,6 +922,7 @@ const WeeklyPlanPage = () => {
             : it,
         ),
       );
+      if (status !== "todo") analytics.planActionUpdated(status);
       await setActionStatus(id, status);
     },
     [],

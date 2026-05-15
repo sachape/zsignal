@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import ShareScoreCard from "@/components/ShareScoreCard";
 import type { StreamScore } from "@/types/analysis";
 import { buildScoreNarrative } from "@/services/streamScoreTier";
+import { analytics } from "@/services/analytics";
 
 interface Props {
   score: StreamScore;
@@ -28,6 +29,7 @@ const ShareScoreButton = ({
   const handleCapture = async () => {
     if (!cardRef.current || capturing) return;
     setCapturing(true);
+    analytics.reportShared(login ?? displayName);
     try {
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 2,

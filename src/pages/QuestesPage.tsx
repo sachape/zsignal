@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { analytics } from "@/services/analytics";
 import { Zap, Trophy, Clock } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import AppShell from "@/components/AppShell";
@@ -292,6 +293,7 @@ const QuestesPage = () => {
         });
       }
 
+      analytics.questToggled(questId, !currentlyChecked);
       const confirmed = await toggleManualQuest(user.id, weekKey, questId, currentlyChecked);
 
       if (confirmed !== !currentlyChecked) {
