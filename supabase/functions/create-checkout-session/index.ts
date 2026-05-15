@@ -18,6 +18,23 @@ const PRICE_MAP: Record<string, Record<string, string | undefined>> = {
   },
 };
 
+const SYNTHETIC_PATTERNS: RegExp[] = [
+  /^twitch[-_]/i,
+  /@users\.streampulse\.app$/i,
+  /@users\.stream/i,
+  /@twitch\.local$/i,
+  /@streamnco-oauth\.local$/i,
+  /^no-?email@/i,
+  /@example\.(com|org|net)$/i,
+];
+
+function isSyntheticBillingEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const e = email.trim().toLowerCase();
+  if (!e || !e.includes("@")) return true;
+  return SYNTHETIC_PATTERNS.some((re) => re.test(e));
+}
+
 // Resolves a real signup email for billing. Returns null for synthetic
 // Twitch OAuth emails or any placeholder so Stripe Checkout can collect one.
 function resolveBillingEmail(user: { email?: string | null; app_metadata?: Record<string, unknown>; user_metadata?: Record<string, unknown> }): string | null {
@@ -27,15 +44,7 @@ function resolveBillingEmail(user: { email?: string | null; app_metadata?: Recor
   const authSource = (user.user_metadata as { auth_source?: string } | undefined)?.auth_source;
   if (authSource === "twitch_oauth") return null;
 
-  const syntheticPatterns = [
-    /^twitch[-_]/,
-    /@users\.streampulse\.app$/,
-    /@twitch\.local$/,
-    /@streamnco-oauth\.local$/,
-    /^no-?email@/,
-    /@example\.(com|org|net)$/,
-  ];
-  if (syntheticPatterns.some((re) => re.test(email))) return null;
+  if (isSyntheticBillingEmail(email)) return null;
 
   const provider = (user.app_metadata as { provider?: string } | undefined)?.provider;
   if (provider && !["email", "google"].includes(provider)) return null;
@@ -79,7 +88,6 @@ Deno.serve(async (req) => {
     const plan = body?.plan;
     const billing_cycle = body?.billing_cycle;
 
-    // Reject frontend overrides of server-side controlled fields
     if (body?.price_id != null || body?.payment_method_types != null) {
       return new Response(JSON.stringify({ error: "Invalid request: client cannot override price or payment methods" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -100,11 +108,8 @@ Deno.serve(async (req) => {
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2024-06-20" });
-
-    // Annual plans allow Klarna; monthly stays card-only
     const paymentMethodTypes: string[] = billing_cycle === "annual" ? ["card", "klarna"] : ["card"];
 
-    // Get or create Stripe customer
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -117,7 +122,60 @@ Deno.serve(async (req) => {
 
     const billingEmail = resolveBillingEmail(user);
 
-    let customerId = existing?.stripe_customer_id;
+    let customerId: string | undefined = existing?.stripe_customer_id;
+
+    if (customerId) {
+      // Validate existing Stripe customer's email
+      let stripeCustomer: Stripe.Customer | Stripe.DeletedCustomer | null = null;
+      try {
+        stripeCustomer = await stripe.customers.retrieve(customerId);
+      } catch (_e) {
+        stripeCustomer = null;
+      }
+
+      const isDeleted = !stripeCustomer || (stripeCustomer as Stripe.DeletedCustomer).deleted;
+      const currentEmail = !isDeleted ? (stripeCustomer as Stripe.Customer).email : null;
+      const synthetic = isSyntheticBillingEmail(currentEmail);
+
+      if (isDeleted) {
+        // Old reference is gone; create a fresh customer below
+        customerId = undefined;
+      } else if (synthetic) {
+        if (billingEmail) {
+          // Update Stripe customer email to real email — reuse same id
+          await stripe.customers.update(customerId, { email: billingEmail });
+        } else {
+          // Cannot fix email; check for active subscription before replacing
+          const subs = await stripe.subscriptions.list({
+            customer: customerId,
+            status: "all",
+            limit: 5,
+          });
+          const hasActive = subs.data.some((s) =>
+            ["active", "trialing", "past_due", "unpaid"].includes(s.status)
+          );
+          if (hasActive) {
+            return new Response(JSON.stringify({
+              error: "Billing email needs manual correction. Please contact support.",
+            }), {
+              status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          // Safe to replace — create new customer without synthetic email
+          const fresh = await stripe.customers.create({
+            metadata: { user_id: user.id, replaced_customer: customerId },
+          });
+          customerId = fresh.id;
+          await admin.from("billing_customers").upsert({
+            user_id: user.id,
+            stripe_customer_id: customerId,
+            updated_at: new Date().toISOString(),
+          });
+        }
+      }
+      // valid email: reuse as-is, do not overwrite
+    }
+
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: billingEmail ?? undefined,
@@ -127,6 +185,7 @@ Deno.serve(async (req) => {
       await admin.from("billing_customers").upsert({
         user_id: user.id,
         stripe_customer_id: customerId,
+        updated_at: new Date().toISOString(),
       });
     }
 
