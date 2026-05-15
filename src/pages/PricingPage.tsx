@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { startCheckout } from "@/services/billingService";
+import { Loader2 } from "lucide-react";
 import {
   Check,
   Minus,
@@ -207,7 +209,6 @@ const TIERS: Tier[] = [
     period: "par mois",
     description: "Tout ce qu'il faut pour progresser semaine après semaine.",
     cta: "Passer au Pro",
-    ctaTo: "/billing",
     highlighted: true,
     badge: "Recommandé",
   },
@@ -220,7 +221,6 @@ const TIERS: Tier[] = [
     period: "par mois",
     description: "Pour les streamers sérieux qui pilotent plusieurs chaînes.",
     cta: "Passer au Growth",
-    ctaTo: "/billing",
     highlighted: false,
   },
 ];
@@ -242,6 +242,17 @@ function CellValue({ value }: { value: string | boolean }) {
 const PricingPage = () => {
   const { user } = useAuth();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  const handleCheckout = async (plan: "pro" | "growth") => {
+    if (!user) return;
+    setCheckoutLoading(plan);
+    try {
+      await startCheckout(plan, billing === "annual" ? "annual" : "monthly");
+    } catch {
+      setCheckoutLoading(null);
+    }
+  };
 
   usePageMeta({
     title: "Tarifs",
@@ -364,14 +375,30 @@ const PricingPage = () => {
                 </p>
               </div>
 
-              <Button
-                asChild
-                size="sm"
-                variant={tier.highlighted ? "default" : "outline"}
-                className="w-full"
-              >
-                <Link to={tier.ctaTo}>{tier.cta}</Link>
-              </Button>
+              {tier.id === "free" ? (
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Link to={user ? "/dashboard" : "/auth"}>Commencer gratuitement</Link>
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant={tier.highlighted ? "default" : "outline"}
+                  className="w-full"
+                  disabled={checkoutLoading !== null}
+                  onClick={() => handleCheckout(tier.id as "pro" | "growth")}
+                >
+                  {checkoutLoading === tier.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    tier.cta
+                  )}
+                </Button>
+              )}
             </div>
           ))}
         </div>
