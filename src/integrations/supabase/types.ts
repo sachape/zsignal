@@ -158,12 +158,15 @@ export type Database = {
           broadcaster_type: string | null
           confidence: string | null
           created_at: string
+          discovery_source: string | null
           display_name: string
           game_id: string | null
           game_name: string
           id: string
           is_live: boolean
           language: string
+          last_seen_in_category_at: string | null
+          last_seen_live_at: string | null
           live_updated_at: string | null
           live_viewer_count: number | null
           login: string
@@ -179,12 +182,15 @@ export type Database = {
           broadcaster_type?: string | null
           confidence?: string | null
           created_at?: string
+          discovery_source?: string | null
           display_name: string
           game_id?: string | null
           game_name: string
           id?: string
           is_live?: boolean
           language?: string
+          last_seen_in_category_at?: string | null
+          last_seen_live_at?: string | null
           live_updated_at?: string | null
           live_viewer_count?: number | null
           login: string
@@ -200,12 +206,15 @@ export type Database = {
           broadcaster_type?: string | null
           confidence?: string | null
           created_at?: string
+          discovery_source?: string | null
           display_name?: string
           game_id?: string | null
           game_name?: string
           id?: string
           is_live?: boolean
           language?: string
+          last_seen_in_category_at?: string | null
+          last_seen_live_at?: string | null
           live_updated_at?: string | null
           live_viewer_count?: number | null
           login?: string
