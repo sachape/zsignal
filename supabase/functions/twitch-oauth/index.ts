@@ -1,7 +1,16 @@
 // Twitch OAuth edge function
 // Two actions:
 //   - GET ?action=authorize-url&redirect_uri=...&state=... → returns { url }
-//   - POST { action: "exchange", code, redirect_uri, state } → exchanges code, stores tokens
+//   - POST { code, redirect_uri, mode? } → exchanges code, stores tokens
+//
+// Modes (authenticated callers only):
+//   - undefined / "default" → first-connection behavior. If the caller already
+//     owns a Twitch row, we update/replace that single row (legacy semantics
+//     so existing single-account users keep working).
+//   - "add" → multi-account. Append a new Twitch account to the caller's
+//     existing accounts. Subject to plan limits.
+//   - "replace" → drop ALL existing Twitch rows for the caller and insert
+//     the freshly-linked account. Used by the explicit "replace" UX.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -19,6 +28,10 @@ const TWITCH_SCOPES = [
   "moderator:read:followers",
 ].join(" ");
 
+// Plan-based connected-account limits.
+const LIMIT_FREE_PRO = 1;
+const LIMIT_GROWTH = 3;
+
 async function deriveTwitchPassword(
   twitchUserId: string,
   clientId: string,
@@ -27,6 +40,20 @@ async function deriveTwitchPassword(
   const input = new TextEncoder().encode(`${twitchUserId}:${clientId}:${clientSecret}`);
   const digest = await crypto.subtle.digest("SHA-256", input);
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+// deno-lint-ignore no-explicit-any
+async function resolveAccountLimit(admin: any, userId: string): Promise<number> {
+  const { data } = await admin
+    .from("subscriptions")
+    .select("plan_name, status")
+    .eq("user_id", userId)
+    .maybeSingle();
+  const status = (data?.status ?? "") as string;
+  const plan = (data?.plan_name ?? "free") as string;
+  const active = status === "active" || status === "trialing";
+  if (active && plan === "growth") return LIMIT_GROWTH;
+  return LIMIT_FREE_PRO;
 }
 
 Deno.serve(async (req) => {
@@ -43,7 +70,6 @@ Deno.serve(async (req) => {
 
     const url = new URL(req.url);
 
-    // ---- Action 1: Build authorize URL (no auth needed, just returns a URL) ----
     if (req.method === "GET" && url.searchParams.get("action") === "authorize-url") {
       const redirectUri = url.searchParams.get("redirect_uri");
       const state = url.searchParams.get("state");
@@ -63,7 +89,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ---- Action 2: Exchange code for tokens (auth required) ----
     if (req.method !== "POST") {
       return json({ error: "Method not allowed." }, 405);
     }
@@ -73,13 +98,16 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     const body = await req.json().catch(() => ({}));
-    const { code, redirect_uri } = body as {
+    const { code, redirect_uri, mode } = body as {
       code?: string;
       redirect_uri?: string;
+      mode?: "add" | "replace" | "default";
     };
     if (!code || !redirect_uri) {
       return json({ error: "Missing code or redirect_uri." }, 400);
     }
+    const linkMode: "add" | "replace" | "default" =
+      mode === "add" || mode === "replace" ? mode : "default";
 
     // 1) Exchange code → tokens
     const tokenRes = await fetch("https://id.twitch.tv/oauth2/token", {
@@ -97,7 +125,7 @@ Deno.serve(async (req) => {
     if (!tokenRes.ok) {
       console.error("[twitch-oauth] error: token_exchange_failed");
       return json(
-        { error: tokenData.message || "Token exchange failed.", details: tokenData },
+        { error: tokenData.message || "Token exchange failed.", code: "token_exchange_failed" },
         400,
       );
     }
@@ -119,16 +147,14 @@ Deno.serve(async (req) => {
     const userJson = await userRes.json();
     if (!userRes.ok || !userJson.data?.[0]) {
       console.error("[twitch-oauth] error: helix_users_failed");
-      return json({ error: "Failed to fetch Twitch user." }, 400);
+      return json({ error: "Failed to fetch Twitch user.", code: "twitch_user_lookup_failed" }, 400);
     }
     const tw = userJson.data[0];
 
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
     const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
 
-    // 3) Resolve authenticated caller (if any) from Authorization header.
-    // If a valid JWT is present, this is a "link Twitch to existing account"
-    // flow — we MUST NOT create a new Auth user nor return a session.
+    // 3) Resolve authenticated caller (if any).
     let callerUserId: string | null = null;
     const authHeader = req.headers.get("Authorization") ?? req.headers.get("authorization");
     if (authHeader && /^Bearer\s+/i.test(authHeader)) {
@@ -139,15 +165,14 @@ Deno.serve(async (req) => {
         const { data: { user } } = await callerClient.auth.getUser();
         if (user?.id) callerUserId = user.id;
       } catch (_e) {
-        // ignore — treat as unauthenticated
+        // ignore
       }
     }
     console.log("[twitch-oauth] link_started", {
-      mode: callerUserId ? "linked_existing_user" : "twitch_first",
+      mode: callerUserId ? `linked_existing_user:${linkMode}` : "twitch_first",
     });
 
-    // Ownership guard — refuse if this Twitch broadcaster is already linked to
-    // a different Streamnco user.
+    // Global ownership guard (across users).
     const { data: existingConnection } = await adminClient
       .from("connected_accounts")
       .select("user_id")
@@ -155,7 +180,6 @@ Deno.serve(async (req) => {
       .eq("platform_user_id", tw.id)
       .maybeSingle();
 
-    // Encrypt tokens (shared with both branches).
     const { encryptToken } = await import("../_shared/tokenCrypto.ts");
     const encAccess = await encryptToken(accessToken);
     const encRefresh = refreshToken ? await encryptToken(refreshToken) : null;
@@ -174,12 +198,74 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Replace any prior twitch row for this user, then insert fresh.
-      await adminClient
+      // Load this user's existing Twitch rows.
+      const { data: existingRows } = await adminClient
         .from("connected_accounts")
-        .delete()
+        .select("id, platform_user_id")
         .eq("user_id", callerUserId)
         .eq("platform", "twitch");
+
+      const rows = existingRows ?? [];
+      const alreadyHasThisAccount = rows.some((r) => r.platform_user_id === tw.id);
+
+      // Plan-limit enforcement.
+      // Reconnecting an existing account = no new row → never blocked.
+      // mode=replace = end count stays the same (or shrinks) → never blocked.
+      if (!alreadyHasThisAccount && linkMode !== "replace") {
+        const wouldHave = rows.length + 1;
+        const limit = await resolveAccountLimit(adminClient, callerUserId);
+        if (wouldHave > limit) {
+          console.warn("[twitch-oauth] limit_reached");
+          return json(
+            {
+              success: false,
+              code: "twitch_account_limit_reached",
+              error:
+                "Tu as atteint la limite de comptes Twitch connectés pour ton offre actuelle.",
+            },
+            403,
+          );
+        }
+      }
+
+      // Apply mode-specific deletion.
+      if (linkMode === "replace") {
+        // Replace ALL twitch rows for this user with the new one.
+        await adminClient
+          .from("connected_accounts")
+          .delete()
+          .eq("user_id", callerUserId)
+          .eq("platform", "twitch");
+      } else if (linkMode === "default") {
+        // Legacy first-connection semantics: keep at most one twitch row.
+        // If the user already had a different twitch account, replace it.
+        // (Multi-account users use mode=add explicitly.)
+        if (rows.length > 0 && !alreadyHasThisAccount) {
+          await adminClient
+            .from("connected_accounts")
+            .delete()
+            .eq("user_id", callerUserId)
+            .eq("platform", "twitch");
+        } else if (alreadyHasThisAccount) {
+          await adminClient
+            .from("connected_accounts")
+            .delete()
+            .eq("user_id", callerUserId)
+            .eq("platform", "twitch")
+            .eq("platform_user_id", tw.id);
+        }
+      } else {
+        // mode=add: only remove the prior row for THIS specific twitch account
+        // (token refresh path). Other accounts stay intact.
+        if (alreadyHasThisAccount) {
+          await adminClient
+            .from("connected_accounts")
+            .delete()
+            .eq("user_id", callerUserId)
+            .eq("platform", "twitch")
+            .eq("platform_user_id", tw.id);
+        }
+      }
 
       const { error: insertError } = await adminClient
         .from("connected_accounts")
@@ -196,8 +282,8 @@ Deno.serve(async (req) => {
         });
       if (insertError) {
         // deno-lint-ignore no-explicit-any
-        const code = (insertError as any).code as string | undefined;
-        if (code === "23505") {
+        const errCode = (insertError as any).code as string | undefined;
+        if (errCode === "23505") {
           return json(
             {
               success: false,
@@ -211,7 +297,7 @@ Deno.serve(async (req) => {
         return json({ success: false, code: "connection_store_failed", error: "Failed to store connection." }, 500);
       }
 
-      // Auto-enqueue first analysis for the existing caller user.
+      // Auto-enqueue first analysis for this specific Twitch identity.
       try {
         const { enqueueAnalysisJobForConnectedAccount } = await import(
           "../_shared/enqueueAnalysisJob.ts"
@@ -241,10 +327,11 @@ Deno.serve(async (req) => {
         console.error("[twitch-oauth] auto_first enqueue failed");
       }
 
-      console.log("[twitch-oauth] linked_existing_user");
+      console.log("[twitch-oauth] linked_existing_user", { mode: linkMode });
       return json({
         success: true,
         linked: true,
+        mode: linkMode,
         session: null,
         platform_login: tw.login,
         platform_display_name: tw.display_name,
@@ -317,11 +404,14 @@ Deno.serve(async (req) => {
       return json({ code: "session_bootstrap_failed", error: "Unable to initialize user session." }, 500);
     }
 
+    // Twitch-first: only one row per twitch account is needed; keep prior row
+    // for THIS twitch account if any (refresh tokens), then upsert.
     await adminClient
       .from("connected_accounts")
       .delete()
       .eq("user_id", authSession.user.id)
-      .eq("platform", "twitch");
+      .eq("platform", "twitch")
+      .eq("platform_user_id", tw.id);
 
     const { error: insertError } = await adminClient
       .from("connected_accounts")
@@ -338,8 +428,8 @@ Deno.serve(async (req) => {
       });
     if (insertError) {
       // deno-lint-ignore no-explicit-any
-      const code = (insertError as any).code as string | undefined;
-      if (code === "23505") {
+      const errCode = (insertError as any).code as string | undefined;
+      if (errCode === "23505") {
         return json(
           {
             success: false,

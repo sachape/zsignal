@@ -12,6 +12,7 @@ type TwitchOAuthErrorCode =
   | "invalid_state"
   | "session_bootstrap_failed"
   | "twitch_account_already_linked"
+  | "twitch_account_limit_reached"
   | "temporary_unavailable";
 
 type TwitchOAuthFailure = {
@@ -64,6 +65,14 @@ function mapCallbackError(code?: string, rawError?: string): TwitchOAuthFailure 
       success: false,
       code: "twitch_account_already_linked",
       error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+    };
+  }
+
+  if (normalizedCode === "twitch_account_limit_reached") {
+    return {
+      success: false,
+      code: "twitch_account_limit_reached",
+      error: "Tu as atteint la limite de comptes Twitch connectés pour ton offre actuelle.",
     };
   }
 
@@ -161,6 +170,7 @@ export function consumePendingTeaserId(): string | null {
 export async function completeTwitchCallback(
   code: string,
   state: string,
+  mode?: "add" | "replace" | "default",
 ): Promise<CompleteTwitchCallbackResult> {
   const expectedState = sessionStorage.getItem(STATE_KEY);
   sessionStorage.removeItem(STATE_KEY);
@@ -178,7 +188,7 @@ export async function completeTwitchCallback(
   const wasAlreadyLoggedIn = !!priorSession.session?.user;
 
   const { data, error } = await supabase.functions.invoke("twitch-oauth", {
-    body: { code, redirect_uri: REDIRECT_URI },
+    body: { code, redirect_uri: REDIRECT_URI, mode: mode ?? "default" },
   });
 
   if (error) {
