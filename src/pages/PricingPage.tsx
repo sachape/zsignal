@@ -376,14 +376,15 @@ const PricingPage = () => {
               </div>
 
               {tier.id === "free" ? (
-                <Button
-                  asChild
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Link to={user ? "/dashboard" : "/auth"}>Commencer gratuitement</Link>
-                </Button>
+                user ? (
+                  <Button size="sm" variant="outline" className="w-full" disabled>
+                    Plan actuel
+                  </Button>
+                ) : (
+                  <Button asChild size="sm" variant="outline" className="w-full">
+                    <Link to="/auth">Commencer gratuitement</Link>
+                  </Button>
+                ))
               ) : (
                 <Button
                   size="sm"
