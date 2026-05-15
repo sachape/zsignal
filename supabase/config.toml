@@ -42,3 +42,6 @@ verify_jwt = false
 
 [functions.send-upsell-unpaid]
 verify_jwt = false
+
+[functions.streamscore-email-monitor]
+verify_jwt = false
