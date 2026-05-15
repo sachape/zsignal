@@ -79,8 +79,8 @@ const LegalCookiesPage = () => (
     <LegalSection title="6. Contact">
       <p>
         Pour toute question relative à la présente politique de cookies :{" "}
-        <a href="mailto:contact@streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
-          contact@streamnco.com
+        <a href="mailto:contact@streamnco.fr" className="text-foreground/80 underline-offset-2 hover:underline">
+          contact@streamnco.fr
         </a>
       </p>
     </LegalSection>

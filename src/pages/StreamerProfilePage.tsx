@@ -591,7 +591,7 @@ const StreamerProfilePage = () => {
       ogDescription: `StreamScore ${report.score.overall}/100 · ${cat ?? "Twitch"} · Découvrez les mécaniques de cette chaîne.`,
       ogImage: report.identity?.avatar_url ?? undefined,
       ogType: "profile" as const,
-      canonical: `https://streamnco.com/streamer/${login}`,
+      canonical: `https://streamnco.fr/streamer/${login}`,
     };
   }, [report, login]);
   usePageMeta(pageMeta);

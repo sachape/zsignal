@@ -23,12 +23,12 @@ const LegalMentionsPage = () => (
           <span className="font-medium text-foreground/80">SIREN/SIRET :</span> [À compléter : SIREN/SIRET]
         </p>
         <p>
-          <span className="font-medium text-foreground/80">Email :</span> contact@streamnco.com
+          <span className="font-medium text-foreground/80">Email :</span> contact@streamnco.fr
         </p>
         <p>
           <span className="font-medium text-foreground/80">Site :</span>{" "}
-          <a href="https://streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
-            https://streamnco.com
+          <a href="https://streamnco.fr" className="text-foreground/80 underline-offset-2 hover:underline">
+            https://streamnco.fr
           </a>
         </p>
       </div>
@@ -66,8 +66,8 @@ const LegalMentionsPage = () => (
     <LegalSection title="Contact">
       <p>
         Pour toute question concernant le site Streamnco, vous pouvez nous écrire à :{" "}
-        <a href="mailto:contact@streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
-          contact@streamnco.com
+        <a href="mailto:contact@streamnco.fr" className="text-foreground/80 underline-offset-2 hover:underline">
+          contact@streamnco.fr
         </a>
       </p>
     </LegalSection>

@@ -9,8 +9,8 @@ const LegalPrivacyPage = () => (
       </p>
       <p>
         Pour toute question relative à vos données personnelles, vous pouvez nous écrire à :{" "}
-        <a href="mailto:contact@streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
-          contact@streamnco.com
+        <a href="mailto:contact@streamnco.fr" className="text-foreground/80 underline-offset-2 hover:underline">
+          contact@streamnco.fr
         </a>
       </p>
     </LegalSection>
@@ -104,8 +104,8 @@ const LegalPrivacyPage = () => (
       </ul>
       <p>
         Pour exercer ces droits, contactez-nous à{" "}
-        <a href="mailto:contact@streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
-          contact@streamnco.com
+        <a href="mailto:contact@streamnco.fr" className="text-foreground/80 underline-offset-2 hover:underline">
+          contact@streamnco.fr
         </a>
         . Vous disposez également du droit d'introduire une réclamation auprès de la CNIL
         (cnil.fr).
@@ -116,8 +116,8 @@ const LegalPrivacyPage = () => (
       <p>
         Pour toute question relative à la présente politique de confidentialité ou à l'exercice
         de vos droits :{" "}
-        <a href="mailto:contact@streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
-          contact@streamnco.com
+        <a href="mailto:contact@streamnco.fr" className="text-foreground/80 underline-offset-2 hover:underline">
+          contact@streamnco.fr
         </a>
       </p>
     </LegalSection>

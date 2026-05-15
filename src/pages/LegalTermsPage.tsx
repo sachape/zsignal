@@ -16,7 +16,7 @@ const LegalTermsPage = () => (
 
     <LegalSection title="2. Accès au service">
       <p>
-        Streamnco est accessible via le site https://streamnco.com. Une partie du service est
+        Streamnco est accessible via le site https://streamnco.fr. Une partie du service est
         accessible sans création de compte (analyse publique). L'accès aux fonctionnalités
         avancées requiert la création d'un compte et, pour certaines fonctionnalités, une
         connexion à un compte Twitch.
@@ -135,7 +135,7 @@ const LegalTermsPage = () => (
       </p>
       <p>
         L'utilisateur peut à tout moment demander la suppression de son compte en écrivant à
-        contact@streamnco.com ou depuis son espace compte lorsque la fonctionnalité est disponible.
+        contact@streamnco.fr ou depuis son espace compte lorsque la fonctionnalité est disponible.
       </p>
     </LegalSection>
 
@@ -158,8 +158,8 @@ const LegalTermsPage = () => (
     <LegalSection title="14. Contact">
       <p>
         Pour toute question relative aux présentes CGU, vous pouvez nous écrire à :{" "}
-        <a href="mailto:contact@streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
-          contact@streamnco.com
+        <a href="mailto:contact@streamnco.fr" className="text-foreground/80 underline-offset-2 hover:underline">
+          contact@streamnco.fr
         </a>
       </p>
     </LegalSection>

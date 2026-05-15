@@ -17,7 +17,7 @@ import {
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'Streamnco'
-const SITE_URL = 'https://streamnco.com'
+const SITE_URL = 'https://streamnco.fr'
 const LOGO_URL =
   'https://poblhczgdbnfunroshul.supabase.co/storage/v1/object/public/email-assets/streamnco-logo.png'
 

@@ -418,7 +418,7 @@ const PricingPage = () => {
             size="sm"
             className="shrink-0"
           >
-            <a href="mailto:hello@streamnco.com">
+            <a href="mailto:contact@streamnco.fr">
               <Mail className="h-3.5 w-3.5" /> Nous contacter
             </a>
           </Button>
