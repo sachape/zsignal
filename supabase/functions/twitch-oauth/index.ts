@@ -123,9 +123,135 @@ Deno.serve(async (req) => {
     }
     const tw = userJson.data[0];
 
-    // 3) Upsert into connected_accounts using service role (bypass RLS, scoped to this user_id)
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
     const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+
+    // 3) Resolve authenticated caller (if any) from Authorization header.
+    // If a valid JWT is present, this is a "link Twitch to existing account"
+    // flow — we MUST NOT create a new Auth user nor return a session.
+    let callerUserId: string | null = null;
+    const authHeader = req.headers.get("Authorization") ?? req.headers.get("authorization");
+    if (authHeader && /^Bearer\s+/i.test(authHeader)) {
+      try {
+        const callerClient = createClient(supabaseUrl, supabaseAnonKey, {
+          global: { headers: { Authorization: authHeader } },
+        });
+        const { data: { user } } = await callerClient.auth.getUser();
+        if (user?.id) callerUserId = user.id;
+      } catch (_e) {
+        // ignore — treat as unauthenticated
+      }
+    }
+    console.log("[twitch-oauth] link_started", {
+      mode: callerUserId ? "linked_existing_user" : "twitch_first",
+    });
+
+    // Ownership guard — refuse if this Twitch broadcaster is already linked to
+    // a different Streamnco user.
+    const { data: existingConnection } = await adminClient
+      .from("connected_accounts")
+      .select("user_id")
+      .eq("platform", "twitch")
+      .eq("platform_user_id", tw.id)
+      .maybeSingle();
+
+    // Encrypt tokens (shared with both branches).
+    const { encryptToken } = await import("../_shared/tokenCrypto.ts");
+    const encAccess = await encryptToken(accessToken);
+    const encRefresh = refreshToken ? await encryptToken(refreshToken) : null;
+
+    // ============ Branch A: authenticated caller — LINK ONLY ============
+    if (callerUserId) {
+      if (existingConnection && existingConnection.user_id !== callerUserId) {
+        console.warn("[twitch-oauth] conflict_existing_link");
+        return json(
+          {
+            success: false,
+            code: "twitch_account_already_linked",
+            error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+          },
+          409,
+        );
+      }
+
+      // Replace any prior twitch row for this user, then insert fresh.
+      await adminClient
+        .from("connected_accounts")
+        .delete()
+        .eq("user_id", callerUserId)
+        .eq("platform", "twitch");
+
+      const { error: insertError } = await adminClient
+        .from("connected_accounts")
+        .insert({
+          user_id: callerUserId,
+          platform: "twitch",
+          platform_user_id: tw.id,
+          platform_login: tw.login,
+          platform_display_name: tw.display_name,
+          access_token_encrypted: encAccess,
+          refresh_token_encrypted: encRefresh,
+          scope,
+          expires_at: expiresAt,
+        });
+      if (insertError) {
+        // deno-lint-ignore no-explicit-any
+        const code = (insertError as any).code as string | undefined;
+        if (code === "23505") {
+          return json(
+            {
+              success: false,
+              code: "twitch_account_already_linked",
+              error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
+            },
+            409,
+          );
+        }
+        console.error("[twitch-oauth] error: insert failed");
+        return json({ success: false, code: "connection_store_failed", error: "Failed to store connection." }, 500);
+      }
+
+      // Auto-enqueue first analysis for the existing caller user.
+      try {
+        const { enqueueAnalysisJobForConnectedAccount } = await import(
+          "../_shared/enqueueAnalysisJob.ts"
+        );
+        const { data: prior } = await adminClient
+          .from("analysis_jobs")
+          .select("id")
+          .eq("user_id", callerUserId)
+          .eq("platform", "twitch")
+          .eq("platform_user_id", tw.id)
+          .limit(1)
+          .maybeSingle();
+        if (!prior) {
+          await enqueueAnalysisJobForConnectedAccount(
+            adminClient,
+            {
+              user_id: callerUserId,
+              platform_user_id: tw.id,
+              platform_login: tw.login,
+              platform_display_name: tw.display_name,
+            },
+            "auto_first",
+            { uniquePerTriggerSource: true, bumpLastAutoRefresh: true },
+          );
+        }
+      } catch (_e) {
+        console.error("[twitch-oauth] auto_first enqueue failed");
+      }
+
+      console.log("[twitch-oauth] linked_existing_user");
+      return json({
+        success: true,
+        linked: true,
+        session: null,
+        platform_login: tw.login,
+        platform_display_name: tw.display_name,
+      });
+    }
+
+    // ============ Branch B: unauthenticated — Twitch-first signup ============
     const syntheticEmail = `twitch-${tw.id}@users.streampulse.app`;
     const derivedPassword = await deriveTwitchPassword(tw.id, clientId, clientSecret);
 
@@ -137,27 +263,10 @@ Deno.serve(async (req) => {
 
     let authUserId = existingProfile?.user_id ?? null;
 
-    // Ownership guard — refuse if this Twitch broadcaster is already linked to a
-    // different Streamnco user. One Twitch broadcaster_user_id = one Streamnco user.
-    const { data: existingConnection } = await adminClient
-      .from("connected_accounts")
-      .select("user_id")
-      .eq("platform", "twitch")
-      .eq("platform_user_id", tw.id)
-      .maybeSingle();
-
-    if (
-      existingConnection &&
-      authUserId &&
-      existingConnection.user_id !== authUserId
-    ) {
-      console.warn("[twitch-oauth] ownership conflict", {
-        twitch_user_id: tw.id,
-        owner: existingConnection.user_id,
-        attempted: authUserId,
-      });
+    if (existingConnection && authUserId && existingConnection.user_id !== authUserId) {
       return json(
         {
+          success: false,
           code: "twitch_account_already_linked",
           error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
         },
@@ -178,17 +287,18 @@ Deno.serve(async (req) => {
       });
 
       if (createUserError || !createdUser.user) {
-        console.error("[twitch-oauth] auth user creation failed", createUserError);
+        console.error("[twitch-oauth] auth user creation failed");
         return json({ code: "session_bootstrap_failed", error: "Unable to initialize user session." }, 500);
       }
 
       authUserId = createdUser.user.id;
+      console.log("[twitch-oauth] created_twitch_user");
     }
 
-    // Final guard once we know the resolved auth user id.
     if (existingConnection && existingConnection.user_id !== authUserId) {
       return json(
         {
+          success: false,
           code: "twitch_account_already_linked",
           error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
         },
@@ -197,30 +307,21 @@ Deno.serve(async (req) => {
     }
 
     const authClient = createClient(supabaseUrl, supabaseAnonKey);
-    const {
-      data: authSession,
-      error: authSessionError,
-    } = await authClient.auth.signInWithPassword({
+    const { data: authSession, error: authSessionError } = await authClient.auth.signInWithPassword({
       email: syntheticEmail,
       password: derivedPassword,
     });
 
     if (authSessionError || !authSession.session || !authSession.user) {
-      console.error("[twitch-oauth] sign in failed", authSessionError);
+      console.error("[twitch-oauth] sign in failed");
       return json({ code: "session_bootstrap_failed", error: "Unable to initialize user session." }, 500);
     }
 
-    // Delete any prior twitch row for this user, then insert fresh
     await adminClient
       .from("connected_accounts")
       .delete()
       .eq("user_id", authSession.user.id)
       .eq("platform", "twitch");
-
-    // Encrypt tokens before storing. See _shared/tokenCrypto.ts for the flow.
-    const { encryptToken } = await import("../_shared/tokenCrypto.ts");
-    const encAccess = await encryptToken(accessToken);
-    const encRefresh = refreshToken ? await encryptToken(refreshToken) : null;
 
     const { error: insertError } = await adminClient
       .from("connected_accounts")
@@ -236,25 +337,22 @@ Deno.serve(async (req) => {
         expires_at: expiresAt,
       });
     if (insertError) {
-      // 23505 = unique_violation → another Streamnco user owns this Twitch account.
       // deno-lint-ignore no-explicit-any
       const code = (insertError as any).code as string | undefined;
       if (code === "23505") {
         return json(
           {
+            success: false,
             code: "twitch_account_already_linked",
             error: "Ce compte Twitch est déjà connecté à un autre compte Streamnco.",
           },
           409,
         );
       }
-      console.error("[twitch-oauth] insert failed", insertError);
+      console.error("[twitch-oauth] insert failed");
       return json({ code: "connection_store_failed", error: "Failed to store connection." }, 500);
     }
 
-    // Auto-enqueue a first-analysis job if this user/platform_user_id
-    // has never been analyzed yet. Edge function ENQUEUES only — the
-    // dashboard frontend (autoRefreshRunner) executes the pipeline.
     try {
       const { enqueueAnalysisJobForConnectedAccount } = await import(
         "../_shared/enqueueAnalysisJob.ts"
@@ -268,7 +366,7 @@ Deno.serve(async (req) => {
         .limit(1)
         .maybeSingle();
       if (!prior) {
-        const result = await enqueueAnalysisJobForConnectedAccount(
+        await enqueueAnalysisJobForConnectedAccount(
           adminClient,
           {
             user_id: authSession.user.id,
@@ -279,19 +377,14 @@ Deno.serve(async (req) => {
           "auto_first",
           { uniquePerTriggerSource: true, bumpLastAutoRefresh: true },
         );
-        console.log("[twitch-oauth] auto_first enqueue", {
-          user_id: authSession.user.id,
-          platform_user_id: tw.id,
-          enqueued: result.enqueued,
-          reason: result.reason,
-        });
       }
-    } catch (e) {
-      console.error("[twitch-oauth] auto_first enqueue failed", String(e));
+    } catch (_e) {
+      console.error("[twitch-oauth] auto_first enqueue failed");
     }
 
     return json({
       success: true,
+      linked: false,
       platform_login: tw.login,
       platform_display_name: tw.display_name,
       session: authSession.session,
