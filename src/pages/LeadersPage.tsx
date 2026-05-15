@@ -381,7 +381,7 @@ const LeadersPage = () => {
                         {formatViewers(categoryStats.medianViewers)}
                       </p>
                     </div>
-                    {categoryStats.dominantLang && (
+                    {categoryStats.dominantLang && language === "all" && (
                       <div className="text-right">
                         <p className="text-[10px] text-muted-foreground">Langue top</p>
                         <p className="text-sm font-bold text-foreground">
@@ -391,12 +391,6 @@ const LeadersPage = () => {
                     )}
                   </div>
                 )}
-                <div className="text-right">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Live
-                  </p>
-                  <p className="text-sm font-semibold text-foreground">{filtered.length}</p>
-                </div>
               </div>
             )}
 
