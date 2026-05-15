@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
+import { analytics } from "@/services/analytics";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -46,7 +47,10 @@ const queryClient = new QueryClient();
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    analytics.pageView();
+  }, [pathname]);
   return null;
 };
 
