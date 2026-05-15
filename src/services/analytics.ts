@@ -1,6 +1,8 @@
 import mixpanel from "mixpanel-browser";
 
-const token = import.meta.env.VITE_MIXPANEL_TOKEN as string | undefined;
+const token: string | undefined =
+  (import.meta.env.VITE_MIXPANEL_TOKEN as string | undefined) ||
+  "ac06a0825fa7a54c685acc4593991341";
 
 if (token) {
   mixpanel.init(token, { track_pageview: true, persistence: "localStorage" });
