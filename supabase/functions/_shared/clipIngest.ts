@@ -94,7 +94,17 @@ export async function ingestClipsFor(
   );
   if (clips.length === 0) return { fetched: 0, upserted: 0 };
 
-  const rows = clips.map((c) => ({
+  // Dedupe by twitch_clip_id — Helix pagination can return the same clip
+  // across pages, which would break ON CONFLICT DO UPDATE in a single batch.
+  const seen = new Set<string>();
+  const uniqueClips: RawClip[] = [];
+  for (const c of clips) {
+    if (!c.id || seen.has(c.id)) continue;
+    seen.add(c.id);
+    uniqueClips.push(c);
+  }
+
+  const rows = uniqueClips.map((c) => ({
     user_id: params.user_id,
     broadcaster_id: params.broadcaster_id,
     twitch_clip_id: c.id,
