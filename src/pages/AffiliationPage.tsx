@@ -20,6 +20,8 @@ import { LoadingState } from "@/components/StateView";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
+import { usePlan } from "@/hooks/usePlan";
+import { InlineLock } from "@/components/PaywallGate";
 import {
   getLatestReport,
   getLatestReportForPlatformUser,
@@ -348,6 +350,7 @@ function CriteriaGrid({ progress, tier }: { progress: RawProgress; tier: TierDef
 const AffiliationPage = () => {
   const { user } = useAuth();
   const { account, loading: connectionLoading } = useTwitchConnection();
+  const { isPro } = usePlan();
   const [loading, setLoading] = useState(true);
   const [affiliateProgress, setAffiliateProgress] = useState<AffiliateProgress | null>(null);
   const [broadcasterType, setBroadcasterType] = useState<string>("");
@@ -488,7 +491,7 @@ const AffiliationPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold tabular-nums text-foreground">{overallPct}%</span>
-                  <TrendingUp className="h-5 w-5 text-primary" />
+                  {overallPct > 0 && <TrendingUp className="h-5 w-5 text-primary" />}
                 </div>
               </div>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
@@ -526,8 +529,11 @@ const AffiliationPage = () => {
                 <h2 className="mb-3 text-sm font-semibold text-foreground">
                   Ce que tu peux faire maintenant
                 </h2>
-                <div className="space-y-2">
-                  {unlockedTips.map((c) => (
+                {(() => {
+                  const FREE_TIPS = 2;
+                  const visibleTips = unlockedTips.slice(0, FREE_TIPS);
+                  const lockedTips = unlockedTips.slice(FREE_TIPS);
+                  const TipItem = (c: typeof unlockedTips[0]) => (
                     <div
                       key={c.id}
                       className="flex items-start gap-3 rounded-xl border border-border/40 bg-card/40 p-4"
@@ -542,8 +548,25 @@ const AffiliationPage = () => {
                         </p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                  return (
+                    <div className="space-y-2">
+                      {visibleTips.map((c) => TipItem(c))}
+                      {lockedTips.length > 0 && !isPro && (
+                        <InlineLock
+                          feature="progression_tips"
+                          description="Toutes les actions pour progresser vers l'affiliation"
+                          blurHeight="120px"
+                        >
+                          <div className="space-y-2">
+                            {lockedTips.map((c) => TipItem(c))}
+                          </div>
+                        </InlineLock>
+                      )}
+                      {lockedTips.length > 0 && isPro && lockedTips.map((c) => TipItem(c))}
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
