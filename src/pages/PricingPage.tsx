@@ -184,7 +184,7 @@ interface Tier {
   period: string;
   description: string;
   cta: string;
-  ctaTo: string;
+  ctaTo?: string;
   highlighted: boolean;
   badge?: string;
 }
@@ -384,7 +384,7 @@ const PricingPage = () => {
                   <Button asChild size="sm" variant="outline" className="w-full">
                     <Link to="/auth">Commencer gratuitement</Link>
                   </Button>
-                ))
+                )
               ) : (
                 <Button
                   size="sm"
