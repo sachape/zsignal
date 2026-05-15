@@ -1664,6 +1664,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_user: { Args: never; Returns: undefined }
       normalize_dimension_key: { Args: { label: string }; Returns: string }
       score_level_from_pct: { Args: { pct: number }; Returns: string }
       verify_eventsub_cron_secret: { Args: { token: string }; Returns: boolean }
