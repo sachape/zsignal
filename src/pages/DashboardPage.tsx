@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { usePlan, invalidatePlanCache } from "@/hooks/usePlan";
+import { usePlan, invalidatePlanCache, triggerPlanRefresh } from "@/hooks/usePlan";
 import { toast } from "sonner";
 import { analytics } from "@/services/analytics";
 import { InlineLock } from "@/components/PaywallGate";
@@ -113,8 +113,8 @@ const DashboardPage = () => {
   }, []);
 
 
-  // Checkout success: clear cache, toast, clean URL
-  const checkoutSuccessOnMount = useRef(searchParams.get("checkout") === "success");
+  // Checkout success: toast, clean URL, then poll until plan is confirmed Pro
+  const checkoutPending = useRef(searchParams.get("checkout") === "success");
   useEffect(() => {
     if (searchParams.get("checkout") !== "success" || !user) return;
     invalidatePlanCache(user.id);
@@ -126,12 +126,24 @@ const DashboardPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  // Fire checkout_completed once plan confirmed from DB
+  // Fire checkout_completed once plan confirmed from DB.
+  // Polls via triggerPlanRefresh if the Stripe webhook is slow (new-tab flow).
   useEffect(() => {
-    if (!checkoutSuccessOnMount.current || planLoading || !isPro) return;
-    analytics.checkoutCompleted(plan);
-    checkoutSuccessOnMount.current = false;
-  }, [plan, planLoading, isPro]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!checkoutPending.current || !user) return;
+    if (isPro && !planLoading) {
+      analytics.checkoutCompleted(plan);
+      checkoutPending.current = false;
+      return;
+    }
+    if (planLoading) return;
+    // Plan loaded but still "free" — webhook hasn't fired yet, poll every 3s (max 1 min)
+    let attempts = 0;
+    const interval = setInterval(() => {
+      if (attempts++ >= 20 || !checkoutPending.current) { clearInterval(interval); return; }
+      triggerPlanRefresh();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [user, isPro, planLoading, plan]); // eslint-disable-line react-hooks/exhaustive-deps
   // null = still loading from DB; true/false = resolved. Avoids flicker for completed users.
   const [showGuide, setShowGuide] = useState<boolean | null>(null);
 

@@ -18,6 +18,12 @@ export function invalidatePlanCache(userId: string) {
   PLAN_CACHE.delete(userId);
 }
 
+const PLAN_REFRESH_EVENT = "streamnco:plan-refresh";
+
+export function triggerPlanRefresh() {
+  window.dispatchEvent(new CustomEvent(PLAN_REFRESH_EVENT));
+}
+
 // Dev override: set localStorage key "streamnco_plan_override" to "pro" | "growth" | "agency"
 function getDevOverride(): PlanTier | null {
   try {
@@ -31,6 +37,13 @@ export function usePlan(): PlanInfo {
   const { user } = useAuth();
   const [plan, setPlan] = useState<PlanTier>("free");
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const handler = () => setRefreshKey((k) => k + 1);
+    window.addEventListener(PLAN_REFRESH_EVENT, handler);
+    return () => window.removeEventListener(PLAN_REFRESH_EVENT, handler);
+  }, []);
 
   useEffect(() => {
     if (!user) {
@@ -46,12 +59,14 @@ export function usePlan(): PlanInfo {
       return;
     }
 
-    if (PLAN_CACHE.has(user.id)) {
+    // Use cache only on initial load — skip it on forced refreshes
+    if (refreshKey === 0 && PLAN_CACHE.has(user.id)) {
       setPlan(PLAN_CACHE.get(user.id)!);
       setLoading(false);
       return;
     }
 
+    setLoading(true);
     supabase
       .from("subscriptions")
       .select("plan_name, status")
@@ -66,7 +81,7 @@ export function usePlan(): PlanInfo {
         setLoading(false);
         analytics.setPlan(t);
       });
-  }, [user]);
+  }, [user, refreshKey]);
 
   return { plan, isPro: plan !== "free", isGrowth: plan === "growth" || plan === "agency", loading };
 }

@@ -79,10 +79,12 @@ export const analytics = {
   // ── Activation ────────────────────────────────────────────────────────────
 
   twitchConnected(login: string) {
+    mpSetPeople({ twitch_connected: true, twitch_login: login });
     this.track("twitch_connected", { login });
   },
 
   reportViewed(channel: string, score: number) {
+    if (token) mixpanel.people.set_once({ first_report_date: new Date().toISOString() });
     this.track("report_viewed", { channel, score });
   },
 
