@@ -6,6 +6,9 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 const EMAIL_KEY = 'upsell_unpaid_3_days'
 const TEMPLATE_NAME = 'upsell-unpaid-3-days'
 
+// Use the public project URL for function-to-function calls so the gateway
+// validates auth headers correctly (the internal SUPABASE_URL may bypass it).
+const PROJECT_URL = 'https://poblhczgdbnfunroshul.supabase.co'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 // Hardcoded anon JWT used only as gateway-validated Bearer for internal
@@ -106,7 +109,7 @@ Deno.serve(async (_req) => {
         (user.user_metadata?.name as string | undefined)
 
       const invokeRes = await fetch(
-        `${SUPABASE_URL}/functions/v1/send-transactional-email`,
+        `${PROJECT_URL}/functions/v1/send-transactional-email`,
         {
           method: 'POST',
           headers: {
