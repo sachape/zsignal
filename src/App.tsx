@@ -32,6 +32,7 @@ const WatchlistPage = lazy(() => import("./pages/WatchlistPage.tsx"));
 const SimulatorPage = lazy(() => import("./pages/SimulatorPage.tsx"));
 const QuestesPage = lazy(() => import("./pages/QuestesPage.tsx"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
+const StreamScoreHistoryPage = lazy(() => import("./pages/StreamScoreHistoryPage.tsx"));
 const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
 const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -182,6 +183,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <SettingsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/streamscore"
+                  element={
+                    <ProtectedRoute>
+                      <StreamScoreHistoryPage />
                     </ProtectedRoute>
                   }
                 />
