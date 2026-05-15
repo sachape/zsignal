@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
     });
     const tokenData = await tokenRes.json();
     if (!tokenRes.ok) {
-      console.error("[twitch-oauth] token exchange failed", tokenData);
+      console.error("[twitch-oauth] error: token_exchange_failed");
       return json(
         { error: tokenData.message || "Token exchange failed.", details: tokenData },
         400,
@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
     });
     const userJson = await userRes.json();
     if (!userRes.ok || !userJson.data?.[0]) {
-      console.error("[twitch-oauth] helix /users failed", userJson);
+      console.error("[twitch-oauth] error: helix_users_failed");
       return json({ error: "Failed to fetch Twitch user." }, 400);
     }
     const tw = userJson.data[0];
@@ -390,7 +390,7 @@ Deno.serve(async (req) => {
       session: authSession.session,
     });
   } catch (err) {
-    console.error("[twitch-oauth] unexpected", err);
+    console.error("[twitch-oauth] error: unexpected");
     return json({ error: String(err) }, 500);
   }
 });
