@@ -40,6 +40,7 @@ const LegalMentionsPage = lazy(() => import("./pages/LegalMentionsPage.tsx"));
 const LegalCookiesPage = lazy(() => import("./pages/LegalCookiesPage.tsx"));
 const BlogPage = lazy(() => import("./pages/BlogPage.tsx"));
 const BlogArticlePage = lazy(() => import("./pages/BlogArticlePage.tsx"));
+const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ const App = () => (
                 <Route path="/result" element={<ResultPage />} />
                 <Route path="/connect-twitch" element={<ConnectTwitchPage />} />
                 <Route path="/twitch/callback" element={<TwitchCallbackPage />} />
+                <Route path="/unsubscribe" element={<UnsubscribePage />} />
                 <Route
                   path="/dashboard"
                   element={
