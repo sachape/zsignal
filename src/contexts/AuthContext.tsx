@@ -5,6 +5,7 @@ import { loadWatchlistFromDb } from "@/services/benchmarkWatchlist";
 import { loadPreferredNicheFromDb } from "@/services/preferredNiche";
 import { loadSeenBadgesFromDb } from "@/services/badgeEngine";
 import { analytics } from "@/services/analytics";
+import { sendWelcomeEmailOnce } from "@/services/welcomeEmail";
 
 interface AuthContextType {
   user: User | null;
@@ -50,6 +51,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               localStorage.setItem(trackKey, "1");
             }
           }
+          // Send the branded welcome email exactly once per user.
+          // Internally guarded against synthetic emails, duplicates, and reloads.
+          void sendWelcomeEmailOnce(u);
         }
       }
     );
