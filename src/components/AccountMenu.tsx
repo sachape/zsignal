@@ -16,8 +16,12 @@ import { usePlan } from "@/hooks/usePlan";
 const AccountMenu = () => {
   const { user } = useAuth();
   const { isConnected, accounts, account, initializing } = useTwitchConnection();
-  const { isGrowth } = usePlan();
+  const { isGrowth, loading: planLoading } = usePlan();
   const navigate = useNavigate();
+
+  const maxAccounts = planLoading ? 1 : isGrowth ? 3 : 1;
+  const accountCount = accounts.length;
+  const atLimit = accountCount >= maxAccounts;
 
   if (!user) return null;
 
