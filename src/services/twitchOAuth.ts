@@ -161,6 +161,7 @@ export function consumePendingTeaserId(): string | null {
 export async function completeTwitchCallback(
   code: string,
   state: string,
+  mode?: "add" | "replace" | "default",
 ): Promise<CompleteTwitchCallbackResult> {
   const expectedState = sessionStorage.getItem(STATE_KEY);
   sessionStorage.removeItem(STATE_KEY);
@@ -178,7 +179,7 @@ export async function completeTwitchCallback(
   const wasAlreadyLoggedIn = !!priorSession.session?.user;
 
   const { data, error } = await supabase.functions.invoke("twitch-oauth", {
-    body: { code, redirect_uri: REDIRECT_URI },
+    body: { code, redirect_uri: REDIRECT_URI, mode: mode ?? "default" },
   });
 
   if (error) {
