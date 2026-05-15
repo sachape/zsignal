@@ -184,7 +184,7 @@ interface Tier {
   period: string;
   description: string;
   cta: string;
-  ctaTo: string;
+  ctaTo?: string;
   highlighted: boolean;
   badge?: string;
 }
