@@ -168,6 +168,15 @@ export async function completeTwitchCallback(
     return mapCallbackError("invalid_state");
   }
 
+  // Snapshot whether the user was already authenticated BEFORE calling the
+  // edge function. If they were, we must NOT overwrite their session with
+  // whatever session the edge function bootstraps for the Twitch OAuth user —
+  // that would silently switch them to a second Supabase account (two-accounts
+  // bug: connected_accounts row ends up on Account A / Twitch, but the user
+  // signs back in as Account B / Gmail and finds nothing).
+  const { data: priorSession } = await supabase.auth.getSession();
+  const wasAlreadyLoggedIn = !!priorSession.session?.user;
+
   const { data, error } = await supabase.functions.invoke("twitch-oauth", {
     body: { code, redirect_uri: REDIRECT_URI },
   });
@@ -179,7 +188,9 @@ export async function completeTwitchCallback(
     return mapCallbackError(data?.code, data?.error);
   }
 
-  if (data.session?.access_token && data.session?.refresh_token) {
+  if (!wasAlreadyLoggedIn && data.session?.access_token && data.session?.refresh_token) {
+    // New / unauthenticated user: bootstrap their Supabase session from the
+    // Twitch OAuth tokens so they become logged-in after the callback.
     const { error: sessionError } = await supabase.auth.setSession({
       access_token: data.session.access_token,
       refresh_token: data.session.refresh_token,
