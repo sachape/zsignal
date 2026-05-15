@@ -32,10 +32,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
         const u = session?.user;
         if (u?.id) {
-          // Hydrate per-user caches (fire-and-forget)
           void loadWatchlistFromDb(u.id);
           void loadPreferredNicheFromDb(u.id);
           void loadSeenBadgesFromDb(u.id);
+          analytics.identifyUser(u.id, { email: u.email });
         }
         // Detect new signup on SIGNED_IN: created_at ≈ last_sign_in_at means
         // it's the very first authentication event for this account.

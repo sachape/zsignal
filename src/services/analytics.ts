@@ -1,8 +1,23 @@
-/**
- * Analytics wrapper — Brevo tracker.
- * All calls are no-ops until the Brevo script is loaded in index.html.
- * Safe to call at any time.
- */
+import mixpanel from "mixpanel-browser";
+
+const token = import.meta.env.VITE_MIXPANEL_TOKEN as string | undefined;
+
+if (token) {
+  mixpanel.init(token, { track_pageview: true, persistence: "localStorage" });
+}
+
+function mpTrack(event: string, properties?: Record<string, unknown>) {
+  if (!token) return;
+  mixpanel.track(event, properties);
+}
+
+function mpIdentify(userId: string, properties?: Record<string, unknown>) {
+  if (!token) return;
+  mixpanel.identify(userId);
+  if (properties) mixpanel.people.set(properties);
+}
+
+// ── Brevo tracker (kept for email automation) ─────────────────────────────
 
 declare global {
   interface Window {
@@ -10,19 +25,26 @@ declare global {
   }
 }
 
-function push(...args: unknown[]) {
+function brevoPush(...args: unknown[]) {
   if (typeof window === "undefined") return;
   window.Brevo = window.Brevo || [];
   (window.Brevo as unknown[]).push(args);
 }
 
+// ── Public API ────────────────────────────────────────────────────────────
+
 export const analytics = {
   identify(email: string, attributes?: Record<string, unknown>, listIds?: number[]) {
-    push("identify", { email, ...(attributes && { attributes }), ...(listIds && { listIds }) });
+    brevoPush("identify", { email, ...(attributes && { attributes }), ...(listIds && { listIds }) });
+  },
+
+  identifyUser(userId: string, properties?: Record<string, unknown>) {
+    mpIdentify(userId, properties);
   },
 
   track(event: string, properties?: Record<string, unknown>) {
-    push("track", event, properties ? { data: properties } : {});
+    brevoPush("track", event, properties ? { data: properties } : {});
+    mpTrack(event, properties);
   },
 
   // ── Acquisition ───────────────────────────────────────────────────────────
