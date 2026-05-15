@@ -7,9 +7,6 @@ export const LegalLayout = ({ title, children }: { title: string; children: Reac
     <LandingNav />
     <div className="pt-14">
       <div className="container mx-auto max-w-3xl px-4 py-14 md:px-6 md:py-20">
-        <div className="mb-8 rounded-xl border border-warning/20 bg-warning/5 px-5 py-3 text-sm text-warning/80">
-          Document modèle à adapter avant publication officielle.
-        </div>
         <h1 className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
           {title}
         </h1>
