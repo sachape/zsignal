@@ -1,6 +1,22 @@
-// HTTP entrypoint to ingest Twitch clips for a (user, broadcaster).
-// Idempotent upsert keyed by twitch_clip_id. Server-side only — uses
-// Twitch app access token, never exposes tokens or raw payloads.
+// HTTP entrypoint to ingest Twitch clips.
+//
+// Two modes:
+//   1) Single (default, backward compatible):
+//      { user_id, broadcaster_id, started_at, ended_at? }
+//      - Caller may be the authenticated user (own broadcaster only)
+//      - Or a cron-secret-authenticated job
+//
+//   2) Batch (cron-only):
+//      { mode: "batch" }
+//      - Requires cron secret via Authorization: Bearer <secret>
+//      - Selects eligible Twitch broadcasters server-side:
+//          A. connected_accounts (twitch) with a live_session updated/ended in last 7 days
+//          B. connected_accounts (twitch) tied to users with todo weekly_action_items
+//             whose action_key references clips
+//      - Ingests last 7 days of clips per broadcaster, dedupe via existing
+//        unique(twitch_clip_id) constraint.
+//
+// Privacy: never logs tokens, Authorization headers, or raw Twitch payloads.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { ingestClipsFor, type IngestParams } from "../_shared/clipIngest.ts";
@@ -11,6 +27,149 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+interface EligibleBroadcaster {
+  user_id: string;
+  broadcaster_id: string;
+  source: "live_session" | "weekly_action";
+}
+
+async function selectEligibleBroadcasters(
+  admin: ReturnType<typeof createClient>,
+): Promise<EligibleBroadcaster[]> {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const map = new Map<string, EligibleBroadcaster>();
+
+  // Source A: connected accounts with recent live activity
+  const { data: liveRows } = await admin
+    .from("live_sessions")
+    .select("user_id, platform_user_id, platform")
+    .eq("platform", "twitch")
+    .gte("updated_at", sevenDaysAgo);
+  for (const r of liveRows ?? []) {
+    const pid = (r as { platform_user_id?: string }).platform_user_id;
+    const uid = (r as { user_id?: string }).user_id;
+    if (!pid || !uid) continue;
+    if (!map.has(pid)) {
+      map.set(pid, { user_id: uid, broadcaster_id: pid, source: "live_session" });
+    }
+  }
+
+  // Source B: weekly actions requiring clips verification
+  const { data: actionRows } = await admin
+    .from("weekly_action_items")
+    .select("weekly_milestone_id, action_key, status")
+    .eq("status", "todo")
+    .ilike("action_key", "%clip%")
+    .limit(500);
+  if (actionRows && actionRows.length > 0) {
+    const milestoneIds = Array.from(
+      new Set(
+        actionRows
+          .map((r) => (r as { weekly_milestone_id?: string }).weekly_milestone_id)
+          .filter(Boolean) as string[],
+      ),
+    );
+    if (milestoneIds.length > 0) {
+      const { data: milestones } = await admin
+        .from("weekly_milestones")
+        .select("id, user_id")
+        .in("id", milestoneIds);
+      const userIds = Array.from(
+        new Set(
+          (milestones ?? [])
+            .map((m) => (m as { user_id?: string }).user_id)
+            .filter(Boolean) as string[],
+        ),
+      );
+      if (userIds.length > 0) {
+        const { data: accounts } = await admin
+          .from("connected_accounts")
+          .select("user_id, platform_user_id")
+          .eq("platform", "twitch")
+          .in("user_id", userIds);
+        for (const a of accounts ?? []) {
+          const pid = (a as { platform_user_id?: string }).platform_user_id;
+          const uid = (a as { user_id?: string }).user_id;
+          if (!pid || !uid) continue;
+          if (!map.has(pid)) {
+            map.set(pid, {
+              user_id: uid,
+              broadcaster_id: pid,
+              source: "weekly_action",
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return Array.from(map.values());
+}
+
+async function runBatch(admin: ReturnType<typeof createClient>) {
+  console.log(JSON.stringify({ event: "clips_ingest_batch_started" }));
+  const startedAt = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const eligible = await selectEligibleBroadcasters(admin);
+  let processed = 0;
+  let skipped = 0;
+  let upserted = 0;
+  let fetched = 0;
+  let errors = 0;
+
+  for (const acc of eligible) {
+    try {
+      const result = await ingestClipsFor(admin, {
+        user_id: acc.user_id,
+        broadcaster_id: acc.broadcaster_id,
+        started_at: startedAt,
+      });
+      processed++;
+      fetched += result.fetched;
+      upserted += result.upserted;
+      console.log(
+        JSON.stringify({
+          event: "clips_ingest_account_processed",
+          source: acc.source,
+          fetched: result.fetched,
+          upserted: result.upserted,
+        }),
+      );
+    } catch (e) {
+      errors++;
+      console.log(
+        JSON.stringify({
+          event: "clips_ingest_error",
+          source: acc.source,
+          message: e instanceof Error ? e.message : "unknown",
+        }),
+      );
+    }
+  }
+
+  if (eligible.length === 0) {
+    skipped++;
+    console.log(JSON.stringify({ event: "clips_ingest_account_skipped", reason: "no_eligible" }));
+  }
+
+  const summary = {
+    eligible: eligible.length,
+    processed,
+    skipped,
+    fetched,
+    upserted,
+    errors,
+  };
+  console.log(JSON.stringify({ event: "clips_ingest_batch_completed", ...summary }));
+  return summary;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -26,6 +185,10 @@ Deno.serve(async (req) => {
       ? authHeader.slice("Bearer ".length)
       : "";
 
+    const body = (await req.json().catch(() => ({}))) as
+      | (Partial<IngestParams> & { mode?: string })
+      | Record<string, never>;
+
     let isCron = false;
     if (token) {
       const { data: ok } = await admin.rpc("verify_eventsub_cron_secret", {
@@ -34,39 +197,32 @@ Deno.serve(async (req) => {
       isCron = ok === true;
     }
 
+    // Batch mode: cron-only
+    if (body && (body as { mode?: string }).mode === "batch") {
+      if (!isCron) {
+        return json({ error: "Unauthorized" }, 401);
+      }
+      const summary = await runBatch(admin);
+      return json({ success: true, mode: "batch", ...summary });
+    }
+
+    // Single mode (legacy)
     let callerUserId: string | null = null;
     if (!isCron) {
       const { data } = await admin.auth.getUser(token);
       callerUserId = data.user?.id ?? null;
-      if (!callerUserId) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      if (!callerUserId) return json({ error: "Unauthorized" }, 401);
     }
 
-    const body = (await req.json().catch(() => ({}))) as Partial<IngestParams>;
-    if (!body.user_id || !body.broadcaster_id || !body.started_at) {
-      return new Response(
-        JSON.stringify({
-          error: "user_id, broadcaster_id, started_at required",
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
+    const single = body as Partial<IngestParams>;
+    if (!single.user_id || !single.broadcaster_id || !single.started_at) {
+      return json(
+        { error: "user_id, broadcaster_id, started_at required" },
+        400,
       );
     }
     if (!isCron) {
-      if (callerUserId !== body.user_id) {
-        return new Response(JSON.stringify({ error: "Forbidden" }), {
-          status: 403,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      // Derive/verify broadcaster_id from connected Twitch account.
-      // A JWT user can only ingest clips for their own connected broadcaster.
+      if (callerUserId !== single.user_id) return json({ error: "Forbidden" }, 403);
       const { data: account } = await admin
         .from("connected_accounts")
         .select("platform_user_id")
@@ -75,32 +231,22 @@ Deno.serve(async (req) => {
         .maybeSingle();
       const ownedBroadcasterId = account?.platform_user_id ?? null;
       if (!ownedBroadcasterId) {
-        return new Response(
-          JSON.stringify({ error: "No connected Twitch account" }),
-          {
-            status: 403,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          },
-        );
+        return json({ error: "No connected Twitch account" }, 403);
       }
-      if (body.broadcaster_id !== ownedBroadcasterId) {
-        return new Response(JSON.stringify({ error: "Forbidden" }), {
-          status: 403,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      if (single.broadcaster_id !== ownedBroadcasterId) {
+        return json({ error: "Forbidden" }, 403);
       }
     }
 
-    const result = await ingestClipsFor(admin, body as IngestParams);
-    return new Response(JSON.stringify({ success: true, ...result }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    const result = await ingestClipsFor(admin, single as IngestParams);
+    return json({ success: true, ...result });
   } catch (err) {
-    console.error("[twitch-clips-ingest] error", err);
-    return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.log(
+      JSON.stringify({
+        event: "clips_ingest_error",
+        message: err instanceof Error ? err.message : "unknown",
+      }),
+    );
+    return json({ error: "internal_error" }, 500);
   }
 });
