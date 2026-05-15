@@ -86,10 +86,11 @@ const TwitchCallbackPage = () => {
       const oauthResult = await completeTwitchCallback(code, stateParam, oauthMode ?? undefined);
       if (cancelled) return;
 
-      if (!oauthResult.success) {
-        devLog("completeTwitchCallback failed:", oauthResult.code, oauthResult.error);
+      if (oauthResult.success !== true) {
+        const failure = oauthResult as { success: false; code?: string; error?: string };
+        devLog("completeTwitchCallback failed:", failure.code, failure.error);
         setState("error");
-        setErrorMsg("error" in oauthResult ? oauthResult.error : "La connexion n’a pas pu être finalisée.");
+        setErrorMsg(failure.error ?? "La connexion n’a pas pu être finalisée.");
         return;
       }
 
