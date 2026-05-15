@@ -187,6 +187,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/streamscore"
+                  element={
+                    <ProtectedRoute>
+                      <StreamScoreHistoryPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/billing"
                   element={
                     <ProtectedRoute>
