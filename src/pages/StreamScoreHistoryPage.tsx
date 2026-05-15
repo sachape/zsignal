@@ -190,7 +190,7 @@ const StreamScoreHistoryPage = () => {
     return (
       <AppShell>
         <PageContainer size="lg">
-          <LoadingState message="Chargement de ton historique StreamScore…" />
+          <LoadingState label="Chargement de ton historique StreamScore…" />
         </PageContainer>
       </AppShell>
     );
