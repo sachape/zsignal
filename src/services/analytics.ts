@@ -59,7 +59,6 @@ export const analytics = {
     email?: string | null;
     name?: string | null;
     plan?: string;
-    twitch_login?: string | null;
     created_at?: string;
   }) {
     if (!token) return;
@@ -70,7 +69,6 @@ export const analytics = {
       $email: email,
       $name: name,
       ...(properties?.plan && { plan: properties.plan }),
-      ...(properties?.twitch_login && { twitch_login: properties.twitch_login, $name: properties.twitch_login }),
       ...(properties?.created_at && { created_at: properties.created_at }),
     });
   },
@@ -114,8 +112,6 @@ export const analytics = {
   // ── Activation ────────────────────────────────────────────────────────────
 
   twitchConnected(login: string) {
-    // Enrich the user profile: Twitch login becomes the display name.
-    mpSetPeople({ $name: login, twitch_login: login });
     this.track("twitch_connected", { login });
   },
 
