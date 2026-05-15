@@ -1,97 +1,74 @@
-import { LegalLayout, LegalSection, LegalPlaceholder } from "@/components/LegalLayout";
+import { LegalLayout, LegalSection } from "@/components/LegalLayout";
 
 const LegalMentionsPage = () => (
   <LegalLayout title="Mentions légales">
     <LegalSection title="Éditeur du site">
       <div className="space-y-2">
         <p>
-          <span className="font-medium text-foreground/80">Raison sociale :</span>{" "}
-          <LegalPlaceholder label="Nom de la société" />
+          <span className="font-medium text-foreground/80">Société :</span> Streamnco
         </p>
         <p>
-          <span className="font-medium text-foreground/80">Forme juridique :</span>{" "}
-          <LegalPlaceholder label="SAS / SARL / Auto-entrepreneur / etc." />
+          <span className="font-medium text-foreground/80">Forme juridique :</span> Micro-Entreprise
         </p>
         <p>
-          <span className="font-medium text-foreground/80">Capital social :</span>{" "}
-          <LegalPlaceholder label="Montant en €" />
+          <span className="font-medium text-foreground/80">Capital social :</span> 1 000 €
         </p>
         <p>
-          <span className="font-medium text-foreground/80">Siège social :</span>{" "}
-          <LegalPlaceholder label="Adresse complète" />
+          <span className="font-medium text-foreground/80">Siège social :</span> 8, Rue de la Mare, 75020 Paris, France
         </p>
         <p>
-          <span className="font-medium text-foreground/80">SIRET :</span>{" "}
-          <LegalPlaceholder label="Numéro SIRET" />
+          <span className="font-medium text-foreground/80">RCS :</span> Paris
         </p>
         <p>
-          <span className="font-medium text-foreground/80">Numéro de TVA intracommunautaire :</span>{" "}
-          <LegalPlaceholder label="FR + numéro" />
-        </p>
-      </div>
-    </LegalSection>
-
-    <LegalSection title="Responsable de publication">
-      <p>
-        <span className="font-medium text-foreground/80">Nom :</span>{" "}
-        <LegalPlaceholder label="Prénom Nom" />
-      </p>
-      <p>
-        <span className="font-medium text-foreground/80">Qualité :</span>{" "}
-        <LegalPlaceholder label="Gérant / Directeur de publication / etc." />
-      </p>
-    </LegalSection>
-
-    <LegalSection title="Hébergeur">
-      <p>Le site Streamnco est hébergé par :</p>
-      <div className="space-y-2">
-        <p>
-          <span className="font-medium text-foreground/80">Société :</span>{" "}
-          <LegalPlaceholder label="Nom de l'hébergeur" />
+          <span className="font-medium text-foreground/80">SIREN/SIRET :</span> [À compléter : SIREN/SIRET]
         </p>
         <p>
-          <span className="font-medium text-foreground/80">Adresse :</span>{" "}
-          <LegalPlaceholder label="Adresse de l'hébergeur" />
+          <span className="font-medium text-foreground/80">Email :</span> contact@streamnco.com
         </p>
         <p>
           <span className="font-medium text-foreground/80">Site :</span>{" "}
-          <LegalPlaceholder label="URL de l'hébergeur" />
+          <a href="https://streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
+            https://streamnco.com
+          </a>
         </p>
       </div>
     </LegalSection>
 
-    <LegalSection title="Contact">
+    <LegalSection title="Directeur de publication">
       <p>
-        Pour toute question ou demande concernant le site Streamnco, vous pouvez nous contacter :
+        <span className="font-medium text-foreground/80">Nom :</span> Sacha Perathoner
       </p>
-      <div className="space-y-2">
-        <p>
-          <span className="font-medium text-foreground/80">Par e-mail :</span>{" "}
-          <LegalPlaceholder label="Email de contact" />
-        </p>
-        <p>
-          <span className="font-medium text-foreground/80">Par courrier :</span>{" "}
-          <LegalPlaceholder label="Adresse postale" />
-        </p>
-      </div>
+    </LegalSection>
+
+    <LegalSection title="Hébergement">
+      <p>
+        Le site Streamnco est hébergé par <span className="font-medium text-foreground/80">Lovable Cloud</span>.
+      </p>
     </LegalSection>
 
     <LegalSection title="Propriété intellectuelle">
       <p>
-        L'ensemble des éléments constituant le site Streamnco (textes, graphiques, logotypes,
-        icônes, images, sons, logiciels) est la propriété exclusive de{" "}
-        <LegalPlaceholder label="Nom de la société" /> ou de ses partenaires, et est protégé
-        par les lois françaises et internationales relatives à la propriété intellectuelle.
+        Le site, les textes, interfaces, logos, éléments graphiques, contenus, noms de produit et
+        éléments de marque Streamnco sont protégés par les lois françaises et internationales
+        relatives à la propriété intellectuelle.
       </p>
       <p>
-        Toute reproduction, représentation, modification, publication ou adaptation de tout ou
-        partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est
-        interdite sans l'autorisation écrite préalable de{" "}
-        <LegalPlaceholder label="Nom de la société" />.
+        Toute reproduction, diffusion, modification, adaptation ou exploitation non autorisée de
+        tout ou partie des éléments du site, quel que soit le support ou le procédé utilisé, est
+        interdite sans l'autorisation écrite préalable de Streamnco.
       </p>
       <p>
-        Streamnco n'est pas affilié à Twitch Interactive, Inc. ni à Amazon.com, Inc.
-        La marque Twitch et le logo Twitch sont la propriété de Twitch Interactive, Inc.
+        Streamnco n'est pas affilié à Twitch Interactive, Inc. ni à Amazon.com, Inc. Les marques
+        Twitch et leurs logos appartiennent à leurs titulaires respectifs.
+      </p>
+    </LegalSection>
+
+    <LegalSection title="Contact">
+      <p>
+        Pour toute question concernant le site Streamnco, vous pouvez nous écrire à :{" "}
+        <a href="mailto:contact@streamnco.com" className="text-foreground/80 underline-offset-2 hover:underline">
+          contact@streamnco.com
+        </a>
       </p>
     </LegalSection>
   </LegalLayout>
