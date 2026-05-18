@@ -221,7 +221,7 @@ const BillingPage = () => {
                     </p>
                   </div>
                   <p className="mb-3 text-xs text-muted-foreground">
-                    Live cockpit, débrief post-live, plan de la semaine, quêtes, simulator — à partir de 7,99 €/mois.
+                    Live cockpit, débrief post-live, plan de la semaine, simulator — à partir de 7,99 €/mois.
                   </p>
                   <Button asChild size="sm">
                     <Link to="/pricing">

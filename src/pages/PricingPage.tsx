@@ -98,7 +98,7 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
       },
       {
         label: "Quêtes & badges",
-        free: false,
+        free: true,
         pro: true,
         growth: true,
         agency: true,
