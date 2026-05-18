@@ -89,7 +89,8 @@ const LeadersPage = () => {
 
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("fr");
-  const [sort, setSort] = useState<SortKey>("score");
+  const [sort, setSort] = useState<SortKey>("viewers");
+  const [tab, setTab] = useState<"streamscore" | "live">("streamscore");
 
   const [catOpen, setCatOpen] = useState(false);
   const [catQuery, setCatQuery] = useState<string>("");
