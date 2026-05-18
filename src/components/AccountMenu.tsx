@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, ExternalLink, PlusCircle, Unplug } from "lucide-react";
+import { Check, ChevronDown, ExternalLink, PlusCircle, Settings, Unplug } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
