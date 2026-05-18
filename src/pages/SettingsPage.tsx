@@ -159,11 +159,12 @@ const SettingsPage = () => {
                 </div>
               )}
 
-              {isConnected && (
-                <div className="mt-4 flex justify-end">
-                  <AccountMenu />
-                </div>
-              )}
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <Button asChild variant="outline" size="sm" className="text-xs">
+                  <Link to="/settings/twitch-accounts">Gérer mes comptes Twitch</Link>
+                </Button>
+                {isConnected && <AccountMenu />}
+              </div>
             </CardContent>
           </Card>
         </section>
