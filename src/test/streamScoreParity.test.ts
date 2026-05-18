@@ -7,6 +7,13 @@ import { computeStreamScore as legacyCompute } from "@/services/streamScoreEngin
 import { computeStreamScore as sharedCompute } from "../../supabase/functions/_shared/streamScoreEngine";
 import type { ChannelFact } from "@/types/analysis";
 
+const f = (key: string, value: number): ChannelFact => ({
+  key,
+  value,
+  label: key,
+  confidence: 1,
+});
+
 type Scenario = { name: string; facts: ChannelFact[] };
 
 const scenarios: Scenario[] = [
