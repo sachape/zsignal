@@ -114,6 +114,7 @@ Deno.serve(async (req) => {
       if (cronOk !== true) return json({ error: "Unauthorized" }, 401);
 
       // Enqueue for every account whose next_auto_refresh_at has elapsed
+      const nowIso = new Date().toISOString();
       const { data: accounts, error } = await admin
         .from("connected_accounts")
         .select("id, user_id, platform_user_id, platform_login, next_auto_refresh_at")
