@@ -28,6 +28,53 @@ const TWITCH_SCOPES = [
   "moderator:read:followers",
 ].join(" ");
 
+/**
+ * After a successful Twitch (re)connect, allow the server score batch to
+ * retry analysis_jobs that previously failed for a transient/account-bound
+ * reason. Scoped to (user_id, platform='twitch', platform_user_id) so it
+ * never touches other users or other Twitch identities owned by the same
+ * user. Leaves `computed` jobs and non-retryable failures untouched.
+ */
+const RETRYABLE_SCORE_ERROR_REASONS = [
+  "missing_account",
+  "token_unavailable",
+  "twitch_unauthorized",
+  "missing_credentials",
+  "fetch_failed",
+];
+
+// deno-lint-ignore no-explicit-any
+async function resetRetryableScoreFailures(adminClient: any, userId: string, platformUserId: string) {
+  try {
+    const { data, error } = await adminClient
+      .from("analysis_jobs")
+      .update({
+        score_status: null,
+        score_error_message: null,
+        score_computed_at: null,
+        score_processed_by: null,
+      })
+      .eq("user_id", userId)
+      .eq("platform", "twitch")
+      .eq("platform_user_id", platformUserId)
+      .eq("status", "queued")
+      .eq("score_status", "failed")
+      .in("score_error_message", RETRYABLE_SCORE_ERROR_REASONS)
+      .select("id");
+    if (error) {
+      console.warn("[twitch-oauth] score_reset_failed");
+      return;
+    }
+    if (data && data.length > 0) {
+      console.log("[twitch-oauth] score_reset_ok", { count: data.length });
+    }
+  } catch (_e) {
+    console.warn("[twitch-oauth] score_reset_exception");
+  }
+}
+
+
+
 // Plan-based connected-account limits.
 const LIMIT_FREE_PRO = 1;
 const LIMIT_GROWTH = 3;
@@ -348,6 +395,11 @@ Deno.serve(async (req) => {
         console.error("[twitch-oauth] auto_first enqueue failed");
       }
 
+      // Reset prior retryable server-score failures so the cron picks them up.
+      await resetRetryableScoreFailures(adminClient, callerUserId, tw.id);
+
+
+
       console.log("[twitch-oauth] linked_existing_user", { mode: linkMode });
       return json({
         success: true,
@@ -493,6 +545,11 @@ Deno.serve(async (req) => {
     } catch (_e) {
       console.error("[twitch-oauth] auto_first enqueue failed");
     }
+
+    // Reset prior retryable server-score failures (Twitch-first signup path).
+    await resetRetryableScoreFailures(adminClient, authSession.user.id, tw.id);
+
+
 
     return json({
       success: true,
