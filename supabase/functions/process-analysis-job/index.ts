@@ -423,9 +423,7 @@ Deno.serve(async (req) => {
       result,
     });
   } catch (err) {
-    return json(
-      { error: err instanceof Error ? err.message : String(err) },
-      500,
-    );
+    console.error("[process-analysis-job] error", err);
+    return json({ error: "Internal server error" }, 500);
   }
 });
