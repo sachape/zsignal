@@ -100,10 +100,17 @@ async function sendEmail(
   return { ok: res.ok, status: res.status, body: body.slice(0, 200) }
 }
 
-Deno.serve(async (_req) => {
+Deno.serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
   })
+
+  // Cron-secret auth — this function is invoked by pg_cron, not by users.
+  const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '')
+  const { data: ok } = await supabase.rpc('verify_eventsub_cron_secret', { token })
+  if (ok !== true) {
+    return new Response('Unauthorized', { status: 401 })
+  }
 
   const sinceIso = new Date(Date.now() - LOOKBACK_MS).toISOString()
 

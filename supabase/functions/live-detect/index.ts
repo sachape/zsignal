@@ -268,7 +268,11 @@ Deno.serve(async (req) => {
         .eq("platform", "twitch");
       accounts = (data ?? []) as Account[];
     } else {
-      // mode === "all" → cron
+      // mode === "all" → cron. Require cron-secret since pg_net passes no JWT.
+      const tok = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+      const { data: ok } = await admin.rpc("verify_eventsub_cron_secret", { token: tok });
+      if (ok !== true) return json({ error: "Unauthorized" }, 401);
+
       const { data } = await admin
         .from("connected_accounts")
         .select("id, user_id, platform_user_id, platform_login, platform_display_name")
