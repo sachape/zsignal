@@ -29,14 +29,6 @@ function pickRealEmail(user: User): string | null {
   return null;
 }
 
-function pickDisplayName(user: User): string | undefined {
-  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const candidates = [meta.display_name, meta.full_name, meta.name, meta.preferred_username];
-  for (const c of candidates) {
-    if (typeof c === "string" && c.trim().length > 0) return c.trim();
-  }
-  return undefined;
-}
 
 /**
  * Sends the welcome email exactly once per user.
@@ -70,15 +62,10 @@ export async function sendWelcomeEmailOnce(user: User): Promise<void> {
     return;
   }
 
-  const displayName = pickDisplayName(user);
-
-  const { error } = await supabase.functions.invoke("send-transactional-email", {
-    body: {
-      templateName: "welcome-email",
-      recipientEmail: email,
-      idempotencyKey: `welcome-${user.id}`,
-      templateData: displayName ? { displayName } : {},
-    },
+  // Server-side proxy: recipient is derived from the authenticated user on
+  // the edge function side, so the client cannot send to arbitrary addresses.
+  const { error } = await supabase.functions.invoke("send-welcome-email", {
+    body: {},
   });
 
   if (error) {
@@ -86,11 +73,7 @@ export async function sendWelcomeEmailOnce(user: User): Promise<void> {
     return;
   }
 
-  // Persist sent-state on both sides.
-  await supabase
-    .from("profiles")
-    .update({ welcome_email_sent_at: new Date().toISOString() })
-    .eq("user_id", user.id);
+  // Persist sent-state locally — the edge function already updated profiles.
   localStorage.setItem(localKey, "1");
   console.info("welcome_email_sent");
 }

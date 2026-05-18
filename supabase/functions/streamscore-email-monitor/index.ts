@@ -16,10 +16,6 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 const PROJECT_URL = 'https://poblhczgdbnfunroshul.supabase.co'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-// Public publishable (anon) key — required only as a gateway-validated Bearer
-// for internal function-to-function calls. Not a secret.
-const ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvYmxoY3pnZGJuZnVucm9zaHVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyODE1MTksImV4cCI6MjA5MTg1NzUxOX0.AZytxuMjgJQGYWV7UpKLD3Sbd6x6PbUEGL1wlr4l8M0'
 
 const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000
 const MIN_DELTA = 5
@@ -91,8 +87,8 @@ async function sendEmail(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${ANON_KEY}`,
-      apikey: ANON_KEY,
+      Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+      apikey: SERVICE_ROLE_KEY,
     },
     body: JSON.stringify({ templateName, recipientEmail, idempotencyKey, templateData }),
   })
