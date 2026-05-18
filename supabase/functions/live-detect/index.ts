@@ -288,7 +288,7 @@ Deno.serve(async (req) => {
         console.error("[live-detect] account error", acc.platform_login, err);
         results.push({
           login: acc.platform_login ?? "?",
-          action: `error:${String(err).slice(0, 80)}`,
+          action: "error:internal",
         });
       }
     }
@@ -296,6 +296,6 @@ Deno.serve(async (req) => {
     return json({ success: true, mode, count: results.length, results });
   } catch (err) {
     console.error("[live-detect]", err);
-    return json({ success: false, error: String(err) }, 500);
+    return json({ success: false, error: "internal_server_error" }, 500);
   }
 });
