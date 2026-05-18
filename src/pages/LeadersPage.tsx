@@ -353,7 +353,7 @@ const LeadersPage = () => {
 
             <Tabs defaultValue="streamscore" className="w-full">
               <TabsList className="mb-4">
-                <TabsTrigger value="streamscore">StreamScore (indexé)</TabsTrigger>
+                <TabsTrigger value="streamscore">StreamScore</TabsTrigger>
                 <TabsTrigger value="live">Score Live</TabsTrigger>
               </TabsList>
 
