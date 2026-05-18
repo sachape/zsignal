@@ -107,34 +107,34 @@ Deno.serve(async (req) => {
   if (!cronOk) return json({ success: false, reason: "unauthorized" }, 401);
 
 
-  // Default coverage aligned with LeadersPage UI presets (FR + EN).
-  // Keep per-category limit bounded to stay rate-limit safe under hourly cron.
-  // Rough budget per run: 16 categories × ~3 Helix calls + 50 upserts each
-  // ≈ 48 Helix calls + 800 upserts. Well within Helix quota.
-  const DEFAULT_CATEGORIES: CategoryReq[] = [
-    { name: "Just Chatting", language: "fr" },
-    { name: "VALORANT", language: "fr" },
-    { name: "League of Legends", language: "fr" },
-    { name: "Fortnite", language: "fr" },
-    { name: "Minecraft", language: "fr" },
-    { name: "Grand Theft Auto V", language: "fr" },
-    { name: "EA Sports FC 25", language: "fr" },
-    { name: "Counter-Strike", language: "fr" },
-    { name: "Just Chatting", language: "en" },
-    { name: "VALORANT", language: "en" },
-    { name: "League of Legends", language: "en" },
-    { name: "Fortnite", language: "en" },
-    { name: "Minecraft", language: "en" },
-    { name: "Grand Theft Auto V", language: "en" },
-    { name: "EA Sports FC 25", language: "en" },
-    { name: "Counter-Strike", language: "en" },
+  // Default coverage aligned with LeadersPage UI presets across all supported
+  // UI languages (FR, EN, IT, PT, ES, DE). 8 categories × 6 languages = 48 pairs.
+  // Budget per hourly run with limit=100:
+  //   - /games: deduped per category → 8 calls
+  //   - /streams: 1 per pair → 48 calls
+  //   - /users: 1 per pair (≤100 ids fits one call) → up to 48 calls
+  //   ≈ 104 Helix calls + ≤ 4 800 upserts per run. Well within Helix quota.
+  // No rotation needed at this budget.
+  const PRESET_CATEGORIES = [
+    "Just Chatting",
+    "VALORANT",
+    "League of Legends",
+    "Fortnite",
+    "Minecraft",
+    "Grand Theft Auto V",
+    "EA Sports FC 25",
+    "Counter-Strike",
   ];
+  const PRESET_LANGUAGES = ["fr", "en", "it", "pt", "es", "de"];
+  const DEFAULT_CATEGORIES: CategoryReq[] = PRESET_CATEGORIES.flatMap((name) =>
+    PRESET_LANGUAGES.map((language) => ({ name, language })),
+  );
 
   const categories: CategoryReq[] = (body.categories && body.categories.length > 0)
     ? body.categories
     : DEFAULT_CATEGORIES;
 
-  const perCategoryLimit = Math.min(Math.max(body.limit ?? 50, 1), 100);
+  const perCategoryLimit = Math.min(Math.max(body.limit ?? 100, 1), 100);
 
   const token = await getAppToken(clientId, clientSecret);
   const helixHeaders: HeadersInit = {
@@ -146,15 +146,23 @@ Deno.serve(async (req) => {
   const nowIso = new Date().toISOString();
   const summary: Array<{ category: string; language: string; resolved: boolean; live: number; upserted: number; error?: string }> = [];
 
+  // Cache /games resolution per category name to avoid duplicate calls when the
+  // same category is indexed across multiple languages in the same run.
+  const gameCache = new Map<string, { id: string; name: string } | null>();
+
   for (const cat of categories) {
     const lang = (cat.language || "all").toLowerCase();
     const entry = { category: cat.name, language: lang, resolved: false, live: 0, upserted: 0 } as typeof summary[number];
     try {
-      const gj = await helix<{ data: { id: string; name: string }[] }>(
-        `https://api.twitch.tv/helix/games?name=${encodeURIComponent(cat.name)}`,
-        helixHeaders,
-      );
-      const game = gj.data?.[0];
+      let game = gameCache.get(cat.name);
+      if (game === undefined) {
+        const gj = await helix<{ data: { id: string; name: string }[] }>(
+          `https://api.twitch.tv/helix/games?name=${encodeURIComponent(cat.name)}`,
+          helixHeaders,
+        );
+        game = gj.data?.[0] ?? null;
+        gameCache.set(cat.name, game);
+      }
       if (!game) { summary.push({ ...entry, error: "category_not_found" }); continue; }
       entry.resolved = true;
 

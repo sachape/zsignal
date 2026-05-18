@@ -642,6 +642,12 @@ Deno.serve(async (req) => {
         : channels.length < 50 ? "medium"
         : "good";
 
+      let lastIndexedAt: string | null = null;
+      for (const c of channels) {
+        if (!c.updated_at) continue;
+        if (!lastIndexedAt || c.updated_at > lastIndexedAt) lastIndexedAt = c.updated_at;
+      }
+
       return json({
         success: true,
         category,
@@ -654,6 +660,7 @@ Deno.serve(async (req) => {
           live_enriched: true,
           indexed_count: channels.length,
           coverage_level: coverageLevel,
+          last_indexed_at: lastIndexedAt,
           cache_ttl_minutes: 60,
         },
       });
