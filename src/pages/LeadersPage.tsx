@@ -43,10 +43,9 @@ import { getLatestReport, type SavedReport } from "@/services/reportRepository";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import StreamScoreLeaderboard from "@/components/leaders/StreamScoreLeaderboard";
 
-type SortKey = "viewers" | "score" | "name";
+type SortKey = "viewers" | "name";
 
 const SORT_COMPARATORS: Record<SortKey, (a: LeaderChannel, b: LeaderChannel) => number> = {
-  score: (a, b) => b.stream_score - a.stream_score,
   viewers: (a, b) => (b.live_viewer_count ?? 0) - (a.live_viewer_count ?? 0),
   name: (a, b) => a.display_name.localeCompare(b.display_name),
 };
@@ -90,7 +89,8 @@ const LeadersPage = () => {
 
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("fr");
-  const [sort, setSort] = useState<SortKey>("score");
+  const [sort, setSort] = useState<SortKey>("viewers");
+  const [tab, setTab] = useState<"streamscore" | "live">("streamscore");
 
   const [catOpen, setCatOpen] = useState(false);
   const [catQuery, setCatQuery] = useState<string>("");
@@ -333,25 +333,26 @@ const LeadersPage = () => {
                   </Select>
                 </div>
 
-                <div>
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Tri
-                  </label>
-                  <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-                    <SelectTrigger className="h-9 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="score">Score Live</SelectItem>
-                      <SelectItem value="viewers">Audience live</SelectItem>
-                      <SelectItem value="name">Nom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {tab === "live" && (
+                  <div>
+                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Tri
+                    </label>
+                    <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="viewers">Audience live</SelectItem>
+                        <SelectItem value="name">Nom</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            <Tabs defaultValue="streamscore" className="w-full">
+            <Tabs value={tab} onValueChange={(v) => setTab(v as "streamscore" | "live")} className="w-full">
               <TabsList className="mb-4">
                 <TabsTrigger value="streamscore">StreamScore</TabsTrigger>
                 <TabsTrigger value="live">Score Live</TabsTrigger>

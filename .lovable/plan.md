@@ -1,74 +1,29 @@
-## Goal
+## Plan: Clean up Classements sorting + confirm row timestamp removal
 
-Produce a single, comprehensive Markdown audit at `/mnt/documents/streamnco-audit-2026-05-15.md` that documents every Streamnco feature, backend pipeline, cron job, table, and risk after the latest reliability and product fixes. No code, schema, UI, or deployment changes.
+### Scope
+Frontend-only edits in `src/pages/LeadersPage.tsx`. No changes to `StreamScoreLeaderboard.tsx` (rows already do not display "Maj il y a X min" — only the footer keeps "Dernière maj", which is out of the "rows" scope per the request). No backend/API/sort-by-score changes.
 
-## Deliverable
+### Changes
 
-- One Markdown file (~25–40 pages) following the exact 13-section structure you specified, in English, with French quoted copy where it appears in the product.
-- Surfaced via a `<presentation-artifact>` tag so it is downloadable.
-- All claims cross-referenced to real files / tables / functions / cron jobs. Anything I cannot verify will be marked `unknown` or `not found` rather than invented.
+**`src/pages/LeadersPage.tsx`**
 
-## Method (read-only)
+1. Track active tab in state: `const [tab, setTab] = useState<"streamscore" | "live">("streamscore");` and wire `<Tabs value={tab} onValueChange={...}>`.
+2. Restrict `SortKey` to live-only: `type SortKey = "viewers" | "name"` (drop `"score"`). Update `SORT_COMPARATORS` to remove the `score` entry. Default `sort` state = `"viewers"`.
+3. Make the "Tri" `<Select>` block render only when `tab === "live"`. On the StreamScore tab the filter card shows just Catégorie + Langue (grid collapses to 3 cols on lg).
+4. In the Tri dropdown, keep only:
+   - `viewers` → "Audience live"
+   - `name` → "Nom"
+   Remove the "Score Live" option.
+5. Sort state is naturally tab-aware because Tri is hidden on StreamScore and `StreamScoreLeaderboard` ignores `sort` entirely (it uses backend order). No extra reset needed.
 
-1. **Codebase sweep** (parallel):
-   - `supabase/functions/*/index.ts` for every edge function listed in your spec + any others present.
-   - `supabase/functions/_shared/*` for shared logic (clip ingest, score, email, eventsub).
-   - `src/pages/*`, `src/components/*`, `src/services/*`, `src/hooks/*` to map UI features to data sources.
-   - `src/App.tsx` for the route map.
-   - `supabase/migrations/*` to enumerate schema, triggers, indexes added since previous audit.
-2. **Database introspection** (read-only via `supabase--read_query`):
-   - Confirm RLS policies, columns, unique constraints for every table in section 6.
-   - List active `cron.job` rows: name, schedule, command target — to fill section 7 cron map and confirm `twitch-clips-ingest-hourly` exists.
-   - Spot-check `channel_stream_scores`, `stream_score_snapshots`, `analysis_reports` for shape only (no PII).
-3. **Cross-reference with chat history** for the recent fixes you listed (cron realignment, auto_weekly, preview-transactional-email, Growth pricing/multi-account, /streamscore, indexer pipeline, StreamScore tab, clips batch + dedupe).
-4. **No writes**, no deploys, no migrations, no destructive ops.
+### Confirmations
+- "Maj il y a X min" on rows: already removed in prior turn — verified in `StreamScoreLeaderboard.tsx` rows (lines 133–193). Footer "Dernière maj" stays (not a row).
+- StreamScore ranking remains backend-driven (`fetchCategoryStreamScoreLeaders` ordered by score desc).
+- Score Live tab data flow, API, and live filtering untouched.
+- Helper copy in `StreamScoreLeaderboard` (`COPY_DEFAULT`) unchanged — already matches the required text.
 
-## Output structure (exact)
-
-The Markdown file will contain these top-level sections in this order:
-
-```
-1.  Executive summary
-2.  Changes completed since previous audit
-    A. Cron reliability
-    B. auto_weekly
-    C. preview-transactional-email
-    D. Exports / pricing honesty
-    E. Growth multi-account UI
-    F. /streamscore page
-    G. Category leaderboard indexing
-    H. twitch-clips-ingest batch mode
-3.  Feature inventory  (A–L groups)
-4.  End-to-end flows  (Flow 1–10, each: frontend files / edge functions / tables / cron / failure modes / status)
-5.  StreamScore deep dive  (A. Purpose → H. Limitations)
-6.  Database map  (one row per table, all tables you listed)
-7.  Edge functions and cron map  (two tables: functions, crons)
-8.  Real vs placeholder matrix
-9.  Current risks and gaps  (A. Critical → E. Scalability)
-10. Recommended next backend priorities  (ranked, effort/risk/next step)
-11. Recommended next product/UI priorities  (ranked)
-12. What Streamnco can do today
-13. What Streamnco cannot fully guarantee yet
-```
-
-## Honesty rules I will apply
-
-- Each feature gets a status: **real / partial / placeholder / planned** with concrete evidence (file path, table, cron name).
-- Anything client-side-only (e.g. StreamScore engine if still in `src/`, active account in localStorage) is flagged in section 8 and section 9.
-- Leaderboard coverage is described as non-exhaustive; PNG/PDF export claims reflect what's actually shipped.
-- Cron jobs are listed only if I can confirm them in `cron.job`; ones that may be out-of-band (e.g. `process-email-queue`) are flagged.
-
-## What I will NOT do
-
-- No file edits in `src/`, `supabase/functions/`, or `supabase/migrations/`.
-- No `INSERT` / `UPDATE` / `DELETE` / `cron.schedule` / `cron.unschedule`.
-- No edge function deploys.
-- No invented features. If a feature mentioned in your spec doesn't exist in the repo, it will be marked `not found`.
-
-## Estimated execution (after approval)
-
-- ~6–10 read tool calls (codebase + db introspection in parallel batches)
-- 1 file write (`/mnt/documents/streamnco-audit-2026-05-15.md`)
-- 1 `presentation-artifact` reference for download
-
-Approve to run the audit and generate the file.
+### QA
+- A: StreamScore tab → no Tri, rows sorted by score, no "Maj il y a X min".
+- B: Score Live tab → Tri visible with only Audience live + Nom.
+- C: Tab switch toggles Tri visibility cleanly; sort state never affects StreamScore rendering.
+- D: `vite build` + tsc clean.
