@@ -156,12 +156,6 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
           </div>
           <div className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
             <span className="truncate">@{c.login}</span>
-            {c.updated_at && (
-              <>
-                <span>·</span>
-                <span className="truncate">Maj {formatRelative(c.updated_at)}</span>
-              </>
-            )}
           </div>
 
           {/* Mobile stats */}
