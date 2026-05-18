@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { usePlan } from "@/hooks/usePlan";
 import { supabase } from "@/integrations/supabase/client";
+import { getHistoryCutoffISO } from "@/services/historyAccess";
 import {
   computeStreamScoreMovement,
   type StreamScoreMovement,
