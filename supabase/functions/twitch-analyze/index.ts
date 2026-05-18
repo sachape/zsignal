@@ -49,7 +49,8 @@ Deno.serve(async (req) => {
       .single();
 
     if (jobError) {
-      return new Response(JSON.stringify({ error: jobError.message }), {
+      console.error("[twitch-analyze] job insert failed", jobError);
+      return new Response(JSON.stringify({ error: "internal_server_error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -74,7 +75,8 @@ Deno.serve(async (req) => {
       }
     );
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
+    console.error("[twitch-analyze] unexpected", err);
+    return new Response(JSON.stringify({ error: "internal_server_error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

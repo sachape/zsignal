@@ -649,6 +649,6 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error("[twitch-live-fetch] unexpected", err);
-    return json({ error: String(err) }, 500);
+    return json({ error: "internal_server_error" }, 500);
   }
 });
