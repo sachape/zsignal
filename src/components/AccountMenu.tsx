@@ -113,7 +113,7 @@ const AccountMenu = () => {
               key={acc.id}
               className="gap-2.5 px-2.5 py-2 text-xs"
               onClick={() => {
-                if (!isActive) switchActiveAccount(user.id, accLogin);
+                if (!isActive) switchActiveAccount(user.id, accLogin, acc.id);
               }}
             >
               <Avatar className="h-5 w-5 shrink-0 rounded-full">
