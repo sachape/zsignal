@@ -146,15 +146,23 @@ Deno.serve(async (req) => {
   const nowIso = new Date().toISOString();
   const summary: Array<{ category: string; language: string; resolved: boolean; live: number; upserted: number; error?: string }> = [];
 
+  // Cache /games resolution per category name to avoid duplicate calls when the
+  // same category is indexed across multiple languages in the same run.
+  const gameCache = new Map<string, { id: string; name: string } | null>();
+
   for (const cat of categories) {
     const lang = (cat.language || "all").toLowerCase();
     const entry = { category: cat.name, language: lang, resolved: false, live: 0, upserted: 0 } as typeof summary[number];
     try {
-      const gj = await helix<{ data: { id: string; name: string }[] }>(
-        `https://api.twitch.tv/helix/games?name=${encodeURIComponent(cat.name)}`,
-        helixHeaders,
-      );
-      const game = gj.data?.[0];
+      let game = gameCache.get(cat.name);
+      if (game === undefined) {
+        const gj = await helix<{ data: { id: string; name: string }[] }>(
+          `https://api.twitch.tv/helix/games?name=${encodeURIComponent(cat.name)}`,
+          helixHeaders,
+        );
+        game = gj.data?.[0] ?? null;
+        gameCache.set(cat.name, game);
+      }
       if (!game) { summary.push({ ...entry, error: "category_not_found" }); continue; }
       entry.resolved = true;
 
