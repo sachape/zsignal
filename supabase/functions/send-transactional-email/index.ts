@@ -25,14 +25,43 @@ function generateToken(): string {
     .join('')
 }
 
-// Auth note: this function uses verify_jwt = true in config.toml, so Supabase's
-// gateway validates the caller's JWT (anon or service_role) before the request
-// reaches this code. No in-function auth check is needed.
+// Auth note: this function uses verify_jwt = true in config.toml. The gateway
+// validates the JWT, but we additionally reject calls made with an end-user
+// (`authenticated`) JWT — only server-side callers (anon key from cron edge
+// functions, or service_role) are allowed. This prevents authenticated users
+// from invoking the function directly to send emails to arbitrary recipients.
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
+  }
+
+  // Block direct invocation by end-users. Only server-side callers
+  // (anon key from internal cron functions, or service_role) may send.
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const token = authHeader.replace(/^Bearer\s+/i, '')
+  if (token) {
+    try {
+      const payloadPart = token.split('.')[1]
+      if (payloadPart) {
+        const padded = payloadPart + '='.repeat((4 - (payloadPart.length % 4)) % 4)
+        const claims = JSON.parse(
+          atob(padded.replace(/-/g, '+').replace(/_/g, '/'))
+        )
+        if (claims?.role === 'authenticated') {
+          return new Response(
+            JSON.stringify({ error: 'Forbidden' }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      }
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -90,9 +119,7 @@ Deno.serve(async (req) => {
   if (!template) {
     console.error('Template not found in registry', { templateName })
     return new Response(
-      JSON.stringify({
-        error: `Template '${templateName}' not found. Available: ${Object.keys(TEMPLATES).join(', ')}`,
-      }),
+      JSON.stringify({ error: 'Template not found' }),
       {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
