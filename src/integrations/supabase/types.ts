@@ -1864,6 +1864,82 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_competitor_matches_for_job: {
+        Args: { p_analysis_job_id: string }
+        Returns: {
+          analysis_job_id: string
+          avg_viewers: number | null
+          competitor_login: string
+          created_at: string
+          display_name: string | null
+          follower_count: number | null
+          id: string
+          similarity_score: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "competitor_matches"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_latest_streamscore_snapshot: {
+        Args: { p_platform_user_id?: string }
+        Returns: {
+          analysis_job_id: string | null
+          confidence: string
+          content: number | null
+          created_at: string
+          evidence: Json | null
+          id: string
+          momentum: number | null
+          monetization: number | null
+          overall: number
+          positioning: number | null
+          priority_dimension: string | null
+          regularity: number | null
+          signal_quality: string
+          structure: number | null
+          top_drag: string | null
+          top_support: string | null
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "stream_score_snapshots"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_streamscore_history: {
+        Args: { p_platform_user_id?: string; p_range_days?: number }
+        Returns: {
+          analysis_job_id: string | null
+          confidence: string
+          content: number | null
+          created_at: string
+          evidence: Json | null
+          id: string
+          momentum: number | null
+          monetization: number | null
+          overall: number
+          positioning: number | null
+          priority_dimension: string | null
+          regularity: number | null
+          signal_quality: string
+          structure: number | null
+          top_drag: string | null
+          top_support: string | null
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "stream_score_snapshots"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_user_effective_plan: { Args: { uid: string }; Returns: string }
       move_to_dlq: {
         Args: {
           dlq_name: string

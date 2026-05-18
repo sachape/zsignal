@@ -560,18 +560,48 @@ Deno.serve(async (req) => {
       }
 
       const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY");
-      if (!supabaseUrl || !supabaseAnon) {
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+      if (!supabaseUrl || !serviceRoleKey || !anonKey) {
         return json({ success: false, reason: "db_unavailable" }, 500);
       }
-      const db = createClient(supabaseUrl, supabaseAnon);
+      // Service role reader (RLS bypass — channel_stream_scores is no longer
+      // publicly readable; access is gated through this function).
+      const db = createClient(supabaseUrl, serviceRoleKey);
 
-      const limit = Math.min(Math.max(body.limit ?? 50, 1), 100);
+      // Resolve the caller's plan to apply server-side row cap.
+      // Free / unauthenticated = 3 rows, paid = up to 100 rows.
+      const FREE_LEADER_LIMIT = 3;
+      const PAID_LEADER_MAX = 100;
+      let callerPlan: "free" | "pro" | "growth" | "agency" = "free";
+      const authHeader = req.headers.get("Authorization") ?? "";
+      if (authHeader.startsWith("Bearer ")) {
+        try {
+          const authed = createClient(supabaseUrl, anonKey, {
+            global: { headers: { Authorization: authHeader } },
+          });
+          const { data: u } = await authed.auth.getUser();
+          if (u?.user?.id) {
+            const { data: planRow } = await db.rpc("get_user_effective_plan", {
+              uid: u.user.id,
+            });
+            if (typeof planRow === "string") {
+              callerPlan = planRow as typeof callerPlan;
+            }
+          }
+        } catch {
+          // fall back to free
+        }
+      }
+      const isPaid = callerPlan !== "free";
+      const requestedLimit = Math.min(Math.max(body.limit ?? 50, 1), PAID_LEADER_MAX);
+      const effectiveLimit = isPaid ? requestedLimit : FREE_LEADER_LIMIT;
+
       const langFilter =
         body.language && body.language !== "all" ? body.language : null;
 
-      // Primary candidate source = indexed Streamnco scores. We never fall
-      // back to /helix/streams here — that is the Score Live tab's job.
+      // Always fetch the paid-tier window so we can report indexed_count and
+      // locked_count honestly, then slice to the caller's effective limit.
       let q = db
         .from("channel_stream_scores")
         .select(
@@ -583,14 +613,16 @@ Deno.serve(async (req) => {
         .order("stream_score", { ascending: false })
         .order("live_viewer_count", { ascending: false, nullsFirst: false })
         .order("updated_at", { ascending: false })
-        .limit(limit);
+        .limit(requestedLimit);
 
       if (langFilter) q = q.eq("language", langFilter);
 
-      const { data: rows, error: dbErr } = await q;
+      const { data: rowsRaw, error: dbErr } = await q;
       if (dbErr) {
         return json({ success: false, reason: "db_error" }, 500);
       }
+      const indexedFetched = (rowsRaw ?? []).length;
+      const rows = (rowsRaw ?? []).slice(0, effectiveLimit);
 
       const liveByPid = new Map<string, HelixStream>();
       const ids = (rows ?? [])
@@ -658,7 +690,11 @@ Deno.serve(async (req) => {
           includes_offline: true,
           source: "channel_stream_scores",
           live_enriched: true,
-          indexed_count: channels.length,
+          indexed_count: indexedFetched,
+          returned_count: channels.length,
+          locked_count: Math.max(0, indexedFetched - channels.length),
+          is_limited_by_plan: !isPaid && indexedFetched > effectiveLimit,
+          caller_plan: callerPlan,
           coverage_level: coverageLevel,
           last_indexed_at: lastIndexedAt,
           cache_ttl_minutes: 60,
