@@ -37,6 +37,10 @@ import {
   type SharedStreamScore,
 } from "../_shared/streamScoreEngine.ts";
 import { extractChannelFacts } from "../_shared/factsEngine.ts";
+import {
+  fetchTwitchFactsForAccount,
+  type ServerTwitchFacts,
+} from "../_shared/twitchFactsFetch.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,24 +54,6 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-}
-
-interface LiveFetchPayload {
-  success?: boolean;
-  profile?: {
-    id?: string | null;
-    login?: string | null;
-    display_name?: string | null;
-  } | null;
-  follower_count?: number | null;
-  followers_available?: boolean;
-  videos?: Array<{
-    title: string;
-    duration: string;
-    view_count: number;
-    created_at: string;
-  }>;
-  clips?: Array<{ game_id: string; view_count: number; created_at: string }>;
 }
 
 type Level = "low" | "medium" | "high";
@@ -97,7 +83,7 @@ interface ProcessResult {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
+
 
 /**
  * Builds a stream_score_snapshots row from a computed score.
@@ -147,17 +133,17 @@ function buildSnapshotRow(args: {
 }
 
 /**
- * Compute + persist a snapshot for ONE job, given a working Twitch fetch
- * function. Returns a structured result instead of throwing.
+ * Compute + persist a snapshot for ONE job given already-fetched Twitch
+ * facts. Idempotent: returns skipped_existing if a snapshot row is present
+ * for the analysis_job_id (server- or trigger-origin).
  */
 async function processOneJob(args: {
   admin: ReturnType<typeof createClient>;
   job: JobRow;
-  fetchLive: () => Promise<Response>;
+  facts: ServerTwitchFacts;
 }): Promise<ProcessResult> {
-  const { admin, job, fetchLive } = args;
+  const { admin, job, facts } = args;
 
-  // Skip if snapshot already exists for this job (server or trigger origin).
   const { data: existing } = await admin
     .from("stream_score_snapshots")
     .select("id")
@@ -171,28 +157,15 @@ async function processOneJob(args: {
     };
   }
 
-  const liveRes = await fetchLive();
-  if (!liveRes.ok) {
-    return {
-      job_id: job.id,
-      status: "error",
-      error: `twitch-live-fetch ${liveRes.status}`,
-    };
-  }
-  const live = (await liveRes.json()) as LiveFetchPayload;
-  if (!live?.success || !live.profile) {
-    return { job_id: job.id, status: "error", error: "invalid live payload" };
-  }
-
-  const facts = extractChannelFacts(
+  const channelFacts = extractChannelFacts(
     {
-      follower_count: live.follower_count ?? null,
-      followers_available: live.followers_available ?? false,
+      follower_count: facts.follower_count,
+      followers_available: facts.followers_available,
     },
-    live.videos ?? [],
-    live.clips ?? [],
+    facts.videos,
+    facts.clips,
   );
-  const normalized: SharedChannelFact[] = normalizeChannelFacts(facts);
+  const normalized: SharedChannelFact[] = normalizeChannelFacts(channelFacts);
   if (normalized.length === 0) {
     return { job_id: job.id, status: "skipped_no_facts" };
   }
@@ -204,9 +177,6 @@ async function processOneJob(args: {
     score,
   });
 
-  // Insert via service role. We already SELECTed for existing rows above,
-  // so a unique-violation here means a concurrent worker raced us — re-read
-  // and report skipped_existing.
   const { data: inserted, error: insertErr } = await admin
     .from("stream_score_snapshots")
     .insert(row)
@@ -251,12 +221,11 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
-    // ---------- BATCH MODE (cron-secret protected) ----------
+    // ---------- BATCH MODE (vault-backed cron-secret protected) ----------
     if (mode === "queued_batch") {
-      if (
-        !CRON_SECRET ||
-        authHeader !== `Bearer ${CRON_SECRET}`
-      ) {
+      const token = authHeader.replace(/^Bearer\s+/i, "");
+      const { data: ok } = await admin.rpc("verify_eventsub_cron_secret", { token });
+      if (ok !== true) {
         return json({ error: "Unauthorized (batch)" }, 401);
       }
       const limit = Math.min(
@@ -264,7 +233,6 @@ Deno.serve(async (req) => {
         25,
       );
 
-      // Queued Twitch jobs that do NOT already have a snapshot.
       const { data: jobs, error: jobsErr } = await admin
         .from("analysis_jobs")
         .select(
@@ -279,51 +247,65 @@ Deno.serve(async (req) => {
       if (jobsErr) return json({ error: jobsErr.message }, 500);
       const candidates = (jobs ?? []) as JobRow[];
 
-      // Filter out jobs that already have a snapshot (cheap second pass).
       const ids = candidates.map((j) => j.id);
-      const { data: existing } = ids.length
+      const { data: existingSnaps } = ids.length
         ? await admin
             .from("stream_score_snapshots")
             .select("analysis_job_id")
             .in("analysis_job_id", ids)
         : { data: [] as Array<{ analysis_job_id: string }> };
       const has = new Set(
-        (existing ?? []).map((r) => r.analysis_job_id as string),
+        (existingSnaps ?? []).map((r) => r.analysis_job_id as string),
       );
       const todo = candidates.filter((j) => !has.has(j.id)).slice(0, limit);
 
+      const summary = {
+        scanned: candidates.length,
+        processed: 0,
+        skipped_existing_snapshot: candidates.length - todo.length,
+        skipped_missing_account: 0,
+        skipped_no_facts: 0,
+        failed: 0,
+      };
       const results: ProcessResult[] = [];
+
       for (const job of todo) {
-        // In batch mode we have no user JWT. We mint a service-role JWT
-        // for the job owner so twitch-live-fetch can resolve their
-        // connected account. Service role bypasses Edge JWT verification
-        // checks for verify_jwt=false functions, and twitch-live-fetch's
-        // own logic resolves the connected_account row via the bearer
-        // user. Since we cannot impersonate a user without their token,
-        // we instead pass a service-role bearer and rely on
-        // twitch-live-fetch reading from connected_accounts by the
-        // bearer-resolved user. However, twitch-live-fetch uses
-        // auth.getUser() — service role tokens do not resolve to a user.
-        // To keep Phase 3 SAFE and avoid duplicating token-decryption
-        // here, we SKIP jobs in batch mode that require user-scoped
-        // Twitch calls. The cron is therefore implemented but NOT
-        // scheduled yet — see route response.
-        results.push({
-          job_id: job.id,
-          status: "error",
-          error:
-            "batch mode requires user-scoped Twitch token; deferred to Phase 4 (frontend invoked or service-token-aware twitch-live-fetch path)",
+        const fetched = await fetchTwitchFactsForAccount({
+          user_id: job.user_id,
+          platform_user_id: job.platform_user_id!,
+          admin,
         });
+        if (!fetched.ok || !fetched.facts) {
+          if (fetched.error === "missing_account") {
+            summary.skipped_missing_account++;
+            results.push({
+              job_id: job.id,
+              status: "error",
+              error: "missing_account",
+            });
+          } else {
+            summary.failed++;
+            results.push({
+              job_id: job.id,
+              status: "error",
+              error: fetched.error ?? "fetch_failed",
+            });
+          }
+          continue;
+        }
+        const r = await processOneJob({ admin, job, facts: fetched.facts });
+        results.push(r);
+        if (r.status === "persisted") summary.processed++;
+        else if (r.status === "skipped_existing") summary.skipped_existing_snapshot++;
+        else if (r.status === "skipped_no_facts") summary.skipped_no_facts++;
+        else summary.failed++;
       }
 
       return json({
         ok: true,
         mode: "queued_batch",
-        considered: candidates.length,
-        eligible: todo.length,
+        ...summary,
         results,
-        note:
-          "Batch mode is implemented but cron is NOT scheduled yet. Token decryption + user resolution must be moved into a service-callable Twitch fetch path before enabling /5min cron. Single-job (user-invoked) mode is fully functional.",
       });
     }
 
@@ -361,19 +343,22 @@ Deno.serve(async (req) => {
       return json({ error: "Job is not a connected Twitch job" }, 422);
     }
 
+    const fetched = await fetchTwitchFactsForAccount({
+      user_id: job.user_id,
+      platform_user_id: job.platform_user_id,
+      admin,
+    });
+    if (!fetched.ok || !fetched.facts) {
+      return json(
+        { error: `twitch_facts_failed:${fetched.error ?? "unknown"}` },
+        502,
+      );
+    }
+
     const result = await processOneJob({
       admin,
       job: job as JobRow,
-      fetchLive: () =>
-        fetch(`${SUPABASE_URL}/functions/v1/twitch-live-fetch`, {
-          method: "POST",
-          headers: {
-            Authorization: authHeader,
-            "Content-Type": "application/json",
-            apikey: SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify({}),
-        }),
+      facts: fetched.facts,
     });
 
     return json({
