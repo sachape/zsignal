@@ -146,10 +146,13 @@ export async function getRecentReports(
   userId: string,
   limit = 5,
 ): Promise<SavedReport[]> {
-  const { data, error } = await supabase
+  const cutoff = await getHistoryCutoffISO(userId);
+  let q = supabase
     .from("analysis_reports")
     .select(SELECT_WITH_JOB)
-    .eq("user_id", userId)
+    .eq("user_id", userId);
+  if (cutoff) q = q.gte("created_at", cutoff);
+  const { data, error } = await q
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error || !data) return [];
@@ -172,11 +175,14 @@ export async function getRecentReportsForPlatformUser(
 
   if (!jobs || jobs.length === 0) return [];
 
-  const { data, error } = await supabase
+  const cutoff = await getHistoryCutoffISO(userId);
+  let q = supabase
     .from("analysis_reports")
     .select(SELECT_WITH_JOB)
     .eq("user_id", userId)
-    .in("analysis_job_id", jobs.map((j) => j.id as string))
+    .in("analysis_job_id", jobs.map((j) => j.id as string));
+  if (cutoff) q = q.gte("created_at", cutoff);
+  const { data, error } = await q
     .order("created_at", { ascending: false })
     .limit(limit);
 
