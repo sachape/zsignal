@@ -254,7 +254,6 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
       <p className="mt-2 text-[11px] text-muted-foreground">
         {indexedCount} chaîne{indexedCount > 1 ? "s" : ""} indexée{indexedCount > 1 ? "s" : ""} ·
         Classement non exhaustif · Source : Streamnco (channel_stream_scores)
-        {lastUpdated && ` · Dernière maj ${formatRelative(lastUpdated)}`}
       </p>
     </div>
   );
