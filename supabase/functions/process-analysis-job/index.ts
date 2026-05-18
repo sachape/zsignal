@@ -137,6 +137,34 @@ function buildSnapshotRow(args: {
  * facts. Idempotent: returns skipped_existing if a snapshot row is present
  * for the analysis_job_id (server- or trigger-origin).
  */
+async function markJobScoreStatus(
+  admin: ReturnType<typeof createClient>,
+  jobId: string,
+  fields: {
+    score_status: "computed" | "failed";
+    score_error_message?: string | null;
+  },
+) {
+  const patch: Record<string, unknown> = {
+    score_status: fields.score_status,
+    score_processed_by: "server",
+    updated_at: new Date().toISOString(),
+  };
+  if (fields.score_status === "computed") {
+    patch.score_computed_at = new Date().toISOString();
+    patch.score_error_message = null;
+  }
+  if (fields.score_status === "failed") {
+    patch.score_error_message = (fields.score_error_message ?? "unknown").slice(0, 200);
+  }
+  await admin.from("analysis_jobs").update(patch).eq("id", jobId);
+}
+
+/**
+ * Compute + persist a snapshot for ONE job given already-fetched Twitch
+ * facts. Idempotent: returns skipped_existing if a snapshot row is present
+ * for the analysis_job_id (server- or trigger-origin).
+ */
 async function processOneJob(args: {
   admin: ReturnType<typeof createClient>;
   job: JobRow;
@@ -150,6 +178,7 @@ async function processOneJob(args: {
     .eq("analysis_job_id", job.id)
     .maybeSingle();
   if (existing?.id) {
+    await markJobScoreStatus(admin, job.id, { score_status: "computed" });
     return {
       job_id: job.id,
       status: "skipped_existing",
@@ -167,6 +196,10 @@ async function processOneJob(args: {
   );
   const normalized: SharedChannelFact[] = normalizeChannelFacts(channelFacts);
   if (normalized.length === 0) {
+    await markJobScoreStatus(admin, job.id, {
+      score_status: "failed",
+      score_error_message: "no_facts_available",
+    });
     return { job_id: job.id, status: "skipped_no_facts" };
   }
 
@@ -190,6 +223,7 @@ async function processOneJob(args: {
         .select("id")
         .eq("analysis_job_id", job.id)
         .maybeSingle();
+      await markJobScoreStatus(admin, job.id, { score_status: "computed" });
       return {
         job_id: job.id,
         status: "skipped_existing",
@@ -197,9 +231,14 @@ async function processOneJob(args: {
         overall: row.overall,
       };
     }
+    await markJobScoreStatus(admin, job.id, {
+      score_status: "failed",
+      score_error_message: `insert_failed:${insertErr.code ?? "db"}`,
+    });
     return { job_id: job.id, status: "error", error: insertErr.message };
   }
 
+  await markJobScoreStatus(admin, job.id, { score_status: "computed" });
   return {
     job_id: job.id,
     status: "persisted",
@@ -207,6 +246,7 @@ async function processOneJob(args: {
     overall: row.overall,
   };
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -236,16 +276,17 @@ Deno.serve(async (req) => {
       const { data: jobs, error: jobsErr } = await admin
         .from("analysis_jobs")
         .select(
-          "id, user_id, status, platform, platform_user_id, platform_login",
+          "id, user_id, status, platform, platform_user_id, platform_login, score_status",
         )
         .eq("platform", "twitch")
         .eq("status", "queued")
         .not("platform_user_id", "is", null)
+        .or("score_status.is.null,score_status.eq.pending")
         .order("created_at", { ascending: true })
         .limit(limit * 2);
 
       if (jobsErr) return json({ error: jobsErr.message }, 500);
-      const candidates = (jobs ?? []) as JobRow[];
+      const candidates = (jobs ?? []) as Array<JobRow & { score_status: string | null }>;
 
       const ids = candidates.map((j) => j.id);
       const { data: existingSnaps } = ids.length
@@ -257,6 +298,15 @@ Deno.serve(async (req) => {
       const has = new Set(
         (existingSnaps ?? []).map((r) => r.analysis_job_id as string),
       );
+
+      // Pre-mark jobs that already have a snapshot but no score_status set
+      // (legacy/frontend-only snapshots) so future cron ticks skip them.
+      for (const j of candidates) {
+        if (has.has(j.id) && j.score_status !== "computed") {
+          await markJobScoreStatus(admin, j.id, { score_status: "computed" });
+        }
+      }
+
       const todo = candidates.filter((j) => !has.has(j.id)).slice(0, limit);
 
       const summary = {
@@ -276,21 +326,20 @@ Deno.serve(async (req) => {
           admin,
         });
         if (!fetched.ok || !fetched.facts) {
-          if (fetched.error === "missing_account") {
+          const reason = fetched.error ?? "fetch_failed";
+          // Mark score_status=failed so the next cron tick does NOT retry
+          // forever (missing_account, token issues, etc.). Stored message
+          // is sanitized — no token material is ever passed back here.
+          await markJobScoreStatus(admin, job.id, {
+            score_status: "failed",
+            score_error_message: reason,
+          });
+          if (reason === "missing_account") {
             summary.skipped_missing_account++;
-            results.push({
-              job_id: job.id,
-              status: "error",
-              error: "missing_account",
-            });
           } else {
             summary.failed++;
-            results.push({
-              job_id: job.id,
-              status: "error",
-              error: fetched.error ?? "fetch_failed",
-            });
           }
+          results.push({ job_id: job.id, status: "error", error: reason });
           continue;
         }
         const r = await processOneJob({ admin, job, facts: fetched.facts });

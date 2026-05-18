@@ -24,6 +24,10 @@ export type Database = {
           platform: string | null
           platform_login: string | null
           platform_user_id: string | null
+          score_computed_at: string | null
+          score_error_message: string | null
+          score_processed_by: string | null
+          score_status: string | null
           started_at: string | null
           status: string
           trigger_source: string
@@ -39,6 +43,10 @@ export type Database = {
           platform?: string | null
           platform_login?: string | null
           platform_user_id?: string | null
+          score_computed_at?: string | null
+          score_error_message?: string | null
+          score_processed_by?: string | null
+          score_status?: string | null
           started_at?: string | null
           status?: string
           trigger_source?: string
@@ -54,6 +62,10 @@ export type Database = {
           platform?: string | null
           platform_login?: string | null
           platform_user_id?: string | null
+          score_computed_at?: string | null
+          score_error_message?: string | null
+          score_processed_by?: string | null
+          score_status?: string | null
           started_at?: string | null
           status?: string
           trigger_source?: string
