@@ -46,11 +46,8 @@ export function usePlan(): PlanInfo {
       return;
     }
 
-    if (dev) {
-      setPlan(dev);
-      setLoading(false);
-      return;
-    }
+
+
 
     // Use cache only on initial load — skip it on forced refreshes
     if (refreshKey === 0 && PLAN_CACHE.has(user.id)) {
