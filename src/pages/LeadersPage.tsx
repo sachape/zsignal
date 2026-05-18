@@ -355,7 +355,7 @@ const LeadersPage = () => {
               </CardContent>
             </Card>
 
-            <Tabs value={tab} onValueChange={(v) => setTab(v as "streamscore" | "live")} className="w-full">
+            <Tabs value={tab} onValueChange={(v) => setTab(v as "streamscore" | "live")} className="w-full min-w-0">
               <TabsList className="mb-4">
                 <TabsTrigger value="streamscore">StreamScore</TabsTrigger>
                 <TabsTrigger value="live">Score Live</TabsTrigger>
