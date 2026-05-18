@@ -221,9 +221,11 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
-    // ---------- BATCH MODE (cron-secret protected) ----------
+    // ---------- BATCH MODE (vault-backed cron-secret protected) ----------
     if (mode === "queued_batch") {
-      if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
+      const token = authHeader.replace(/^Bearer\s+/i, "");
+      const { data: ok } = await admin.rpc("verify_eventsub_cron_secret", { token });
+      if (ok !== true) {
         return json({ error: "Unauthorized (batch)" }, 401);
       }
       const limit = Math.min(
