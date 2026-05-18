@@ -29,14 +29,6 @@ function pickRealEmail(user: User): string | null {
   return null;
 }
 
-function pickDisplayName(user: User): string | undefined {
-  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const candidates = [meta.display_name, meta.full_name, meta.name, meta.preferred_username];
-  for (const c of candidates) {
-    if (typeof c === "string" && c.trim().length > 0) return c.trim();
-  }
-  return undefined;
-}
 
 /**
  * Sends the welcome email exactly once per user.
