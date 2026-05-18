@@ -11,16 +11,60 @@ export interface TwitchAccount {
   profile_image_url?: string | null;
 }
 
-// ── Active account (localStorage) ────────────────────────────────────────────
+// ── Active account persistence ───────────────────────────────────────────────
+// Source of truth: user_preferences.active_connected_account_id (Lovable Cloud).
+// localStorage is kept as a hydration cache for offline / pre-fetch UX only.
 
 const ACTIVE_KEY = (userId: string) => `streamnco:active_twitch:${userId}`;
 
-function getActiveLogin(userId: string): string | null {
+function getCachedActiveLogin(userId: string): string | null {
   try { return localStorage.getItem(ACTIVE_KEY(userId)); } catch { return null; }
 }
 
-export function switchActiveAccount(userId: string, login: string): void {
+function setCachedActiveLogin(userId: string, login: string): void {
   try { localStorage.setItem(ACTIVE_KEY(userId), login); } catch { /* noop */ }
+}
+
+// Module-level cache of resolved DB preference per user (id of the active connected account).
+const activeIdCache = new Map<string, string | null>();
+
+async function fetchActiveAccountId(userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("user_preferences")
+    .select("active_connected_account_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  // Cast: the column was just added; types may not yet reflect it.
+  const id = (data as { active_connected_account_id?: string | null } | null)
+    ?.active_connected_account_id ?? null;
+  activeIdCache.set(userId, id);
+  return id;
+}
+
+async function persistActiveAccount(userId: string, accountId: string): Promise<void> {
+  // Upsert preserves other preference fields (preferred_niche, preferred_language).
+  await supabase
+    .from("user_preferences")
+    .upsert(
+      { user_id: userId, active_connected_account_id: accountId } as never,
+      { onConflict: "user_id" },
+    );
+  activeIdCache.set(userId, accountId);
+}
+
+/**
+ * Switch the active Twitch account.
+ * - Updates UI immediately (via cache + notify)
+ * - Persists to DB (source of truth)
+ * - Mirrors to localStorage as hydration cache
+ * - DB failure does NOT break the UI switch
+ */
+export function switchActiveAccount(userId: string, login: string, accountId?: string): void {
+  setCachedActiveLogin(userId, login);
+  if (accountId) {
+    activeIdCache.set(userId, accountId);
+    void persistActiveAccount(userId, accountId).catch(() => { /* non-fatal */ });
+  }
   notify();
 }
 
@@ -81,13 +125,18 @@ async function fetchAndCache(userId: string): Promise<void> {
     status: existing?.accounts.length ? "revalidating" : "loading",
   });
 
-  const { data: rows } = await supabase
-    .from("connected_accounts")
-    .select("id, platform_login, platform_display_name, platform_user_id, created_at")
-    .eq("user_id", userId)
-    .eq("platform", "twitch")
-    .order("created_at", { ascending: true });
+  // Fetch accounts + active preference in parallel
+  const [accountsRes] = await Promise.all([
+    supabase
+      .from("connected_accounts")
+      .select("id, platform_login, platform_display_name, platform_user_id, created_at")
+      .eq("user_id", userId)
+      .eq("platform", "twitch")
+      .order("created_at", { ascending: true }),
+    fetchActiveAccountId(userId).catch(() => null),
+  ]);
 
+  const rows = accountsRes.data;
   if (!rows || rows.length === 0) {
     setEntry(userId, { accounts: [], status: "resolved" });
     return;
@@ -108,6 +157,7 @@ async function fetchAndCache(userId: string): Promise<void> {
 export function invalidateTwitchCache(userId: string) {
   cache.delete(userId);
   inflight.delete(userId);
+  activeIdCache.delete(userId);
   notify();
 }
 
@@ -153,11 +203,28 @@ export function useTwitchConnection() {
   const initializing = status === "loading" && accounts.length === 0;
   const revalidating = status === "revalidating";
 
-  // Active account = the one matching the stored login, or the first one
-  const activeLogin = getActiveLogin(user.id);
-  const account = (activeLogin ? accounts.find((a) => a.platform_login === activeLogin) : null)
-    ?? accounts[0]
-    ?? null;
+  // Resolve active account, with fallback chain:
+  // 1. DB preference (source of truth) — match by connected_account.id
+  // 2. localStorage cache — match by login (legacy / pre-hydration)
+  // 3. First account
+  let account: TwitchAccount | null = null;
+  const dbActiveId = activeIdCache.get(user.id) ?? null;
+  if (dbActiveId) {
+    account = accounts.find((a) => a.id === dbActiveId) ?? null;
+  }
+  if (!account) {
+    const cachedLogin = getCachedActiveLogin(user.id);
+    if (cachedLogin) {
+      account = accounts.find((a) => a.platform_login === cachedLogin) ?? null;
+    }
+  }
+  if (!account) account = accounts[0] ?? null;
+
+  // Self-heal: if DB preference points to a non-existent/non-owned account,
+  // silently promote the fallback to be the persisted preference.
+  if (dbActiveId && accounts.length > 0 && !accounts.some((a) => a.id === dbActiveId) && account) {
+    void persistActiveAccount(user.id, account.id).catch(() => { /* non-fatal */ });
+  }
 
   return {
     isConnected: accounts.length > 0,
