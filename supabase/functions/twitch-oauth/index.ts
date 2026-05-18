@@ -546,6 +546,11 @@ Deno.serve(async (req) => {
       console.error("[twitch-oauth] auto_first enqueue failed");
     }
 
+    // Reset prior retryable server-score failures (Twitch-first signup path).
+    await resetRetryableScoreFailures(adminClient, authSession.user.id, tw.id);
+
+
+
     return json({
       success: true,
       linked: false,
