@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
         .eq("platform", "twitch")
         .or(`next_auto_refresh_at.is.null,next_auto_refresh_at.lte.${nowIso}`);
 
-      if (error) return json({ error: error.message }, 500);
+      if (error) { console.error("[twitch-refresh-enqueue] db error", error); return json({ error: "internal_server_error" }, 500); }
 
       const results: unknown[] = [];
       for (const account of (accounts ?? []) as Account[]) {
@@ -152,7 +152,7 @@ Deno.serve(async (req) => {
         .select("id, user_id, platform_user_id, platform_login, platform_display_name, last_auto_refresh_at")
         .eq("platform", "twitch")
         .or(`last_auto_refresh_at.is.null,last_auto_refresh_at.lte.${cutoff}`);
-      if (error) return json({ error: error.message }, 500);
+      if (error) { console.error("[twitch-refresh-enqueue] db error", error); return json({ error: "internal_server_error" }, 500); }
 
       const results: unknown[] = [];
       for (const a of accounts ?? []) {
