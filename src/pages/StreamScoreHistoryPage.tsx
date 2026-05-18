@@ -144,11 +144,14 @@ const StreamScoreHistoryPage = () => {
         }
         return;
       }
-      const { data } = await supabase
+      const cutoff = await getHistoryCutoffISO(user.id);
+      let snapQ = supabase
         .from("stream_score_snapshots")
         .select("*")
         .eq("user_id", user.id)
-        .in("analysis_job_id", jobIds)
+        .in("analysis_job_id", jobIds);
+      if (cutoff) snapQ = snapQ.gte("created_at", cutoff);
+      const { data } = await snapQ
         .order("created_at", { ascending: false })
         .limit(200);
       if (!cancelled) {
