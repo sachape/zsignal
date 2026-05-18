@@ -45,7 +45,15 @@ import StreamScoreEvolutionCard from "@/components/StreamScoreEvolutionCard";
 import { getScoreTier, getTierTheme, buildScoreNarrative } from "@/services/streamScoreTier";
 import { cn } from "@/lib/utils";
 
-const AnimatedScoreRing = ({ score, strokeVar }: { score: number; strokeVar: string }) => {
+const AnimatedScoreRing = ({
+  score,
+  strokeVar,
+  size = 168,
+}: {
+  score: number;
+  strokeVar: string;
+  size?: number;
+}) => {
   const radius = 78;
   const sw = 7;
   const circumference = 2 * Math.PI * radius;
@@ -60,7 +68,7 @@ const AnimatedScoreRing = ({ score, strokeVar }: { score: number; strokeVar: str
   }, [score, circumference]);
 
   return (
-    <div className="relative h-52 w-52 shrink-0">
+    <div className="relative shrink-0" style={{ height: size, width: size }}>
       <div className="pointer-events-none absolute inset-6 rounded-full blur-2xl" style={{ background: `hsl(${strokeVar} / 0.2)` }} />
       <svg viewBox="0 0 200 200" className="relative h-full w-full -rotate-90">
         <defs>
@@ -80,7 +88,7 @@ const AnimatedScoreRing = ({ score, strokeVar }: { score: number; strokeVar: str
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[3.25rem] font-bold leading-none tabular-nums tracking-tight text-foreground">{score}</span>
+        <span className="text-[2.75rem] font-bold leading-none tabular-nums tracking-tight text-foreground">{score}</span>
         <span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">StreamScore</span>
       </div>
     </div>
