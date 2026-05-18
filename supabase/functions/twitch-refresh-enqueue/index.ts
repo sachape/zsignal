@@ -206,6 +206,6 @@ Deno.serve(async (req) => {
     return json({ success: true, mode: "self", ...result });
   } catch (err) {
     console.error("[twitch-refresh-enqueue]", err);
-    return json({ error: String(err) }, 500);
+    return json({ error: "Internal server error" }, 500);
   }
 });
