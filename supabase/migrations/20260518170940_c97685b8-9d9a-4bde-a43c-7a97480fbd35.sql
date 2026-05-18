@@ -1,0 +1,3 @@
+DELETE FROM public.stream_score_snapshots WHERE user_id IN ('aaaaaaaa-1111-0000-0000-000000000001'::uuid,'aaaaaaaa-1111-0000-0000-000000000002'::uuid,'aaaaaaaa-1111-0000-0000-000000000003'::uuid);
+DELETE FROM public.analysis_reports WHERE user_id IN ('aaaaaaaa-1111-0000-0000-000000000001'::uuid,'aaaaaaaa-1111-0000-0000-000000000002'::uuid,'aaaaaaaa-1111-0000-0000-000000000003'::uuid);
+DELETE FROM public.analysis_jobs WHERE user_id IN ('aaaaaaaa-1111-0000-0000-000000000001'::uuid,'aaaaaaaa-1111-0000-0000-000000000002'::uuid,'aaaaaaaa-1111-0000-0000-000000000003'::uuid);
