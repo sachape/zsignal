@@ -28,17 +28,6 @@ const formatViewers = (n: number | null): string => {
   return String(n);
 };
 
-const formatRelative = (iso: string): string => {
-  const d = new Date(iso).getTime();
-  if (!Number.isFinite(d)) return "";
-  const diffMin = Math.max(0, Math.round((Date.now() - d) / 60_000));
-  if (diffMin < 1) return "à l'instant";
-  if (diffMin < 60) return `il y a ${diffMin} min`;
-  const h = Math.round(diffMin / 60);
-  if (h < 24) return `il y a ${h} h`;
-  const j = Math.round(h / 24);
-  return `il y a ${j} j`;
-};
 
 const COPY_DEFAULT =
   "Classement Streamnco basé sur les chaînes déjà indexées dans cette catégorie. Les chaînes live sont enrichies en temps réel, mais le classement reste trié par StreamScore.";
