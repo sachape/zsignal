@@ -636,6 +636,12 @@ Deno.serve(async (req) => {
         },
       );
 
+      const coverageLevel: "empty" | "low" | "medium" | "good" =
+        channels.length === 0 ? "empty"
+        : channels.length < 10 ? "low"
+        : channels.length < 50 ? "medium"
+        : "good";
+
       return json({
         success: true,
         category,
@@ -647,6 +653,7 @@ Deno.serve(async (req) => {
           source: "channel_stream_scores",
           live_enriched: true,
           indexed_count: channels.length,
+          coverage_level: coverageLevel,
           cache_ttl_minutes: 60,
         },
       });
