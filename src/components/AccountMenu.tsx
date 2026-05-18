@@ -191,12 +191,11 @@ const AccountMenu = () => {
         <DropdownMenuSeparator className="my-1" />
 
         <DropdownMenuItem
-          variant="destructive"
-          onClick={() => navigate("/connect-twitch")}
+          onClick={() => navigate("/settings/twitch-accounts")}
           className="gap-2.5 px-2.5 py-2 text-xs"
         >
-          <Unplug />
-          <span>Déconnecter Twitch</span>
+          <Settings />
+          <span>Gérer mes comptes Twitch</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
