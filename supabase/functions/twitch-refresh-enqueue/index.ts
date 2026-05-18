@@ -108,8 +108,12 @@ Deno.serve(async (req) => {
     const mode = (body as { mode?: string }).mode ?? "self";
 
     if (mode === "all") {
+      // Cron-secret auth (pg_net passes no JWT).
+      const tok = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+      const { data: cronOk } = await admin.rpc("verify_eventsub_cron_secret", { token: tok });
+      if (cronOk !== true) return json({ error: "Unauthorized" }, 401);
+
       // Enqueue for every account whose next_auto_refresh_at has elapsed
-      const nowIso = new Date().toISOString();
       const { data: accounts, error } = await admin
         .from("connected_accounts")
         .select("id, user_id, platform_user_id, platform_login, next_auto_refresh_at")
