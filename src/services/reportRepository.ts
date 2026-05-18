@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getHistoryCutoffISO } from "@/services/historyAccess";
 import type { AnalysisReport } from "@/types/analysis";
 
 export interface SavedReport {
