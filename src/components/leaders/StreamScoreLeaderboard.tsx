@@ -40,7 +40,6 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
   const [rows, setRows] = useState<StreamScoreLeaderChannel[]>([]);
   const [indexedCount, setIndexedCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,12 +50,6 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
       // Backend already orders by stream_score desc — do not re-sort by is_live.
       setRows(res.channels);
       setIndexedCount(res.indexedCount);
-      const newest = res.channels.reduce<string | null>((acc, c) => {
-        if (!c.updated_at) return acc;
-        if (!acc || new Date(c.updated_at) > new Date(acc)) return c.updated_at;
-        return acc;
-      }, null);
-      setLastUpdated(newest);
       setLoading(false);
     })();
     return () => {
