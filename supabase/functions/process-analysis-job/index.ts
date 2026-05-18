@@ -37,6 +37,10 @@ import {
   type SharedStreamScore,
 } from "../_shared/streamScoreEngine.ts";
 import { extractChannelFacts } from "../_shared/factsEngine.ts";
+import {
+  fetchTwitchFactsForAccount,
+  type ServerTwitchFacts,
+} from "../_shared/twitchFactsFetch.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,24 +54,6 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-}
-
-interface LiveFetchPayload {
-  success?: boolean;
-  profile?: {
-    id?: string | null;
-    login?: string | null;
-    display_name?: string | null;
-  } | null;
-  follower_count?: number | null;
-  followers_available?: boolean;
-  videos?: Array<{
-    title: string;
-    duration: string;
-    view_count: number;
-    created_at: string;
-  }>;
-  clips?: Array<{ game_id: string; view_count: number; created_at: string }>;
 }
 
 type Level = "low" | "medium" | "high";
