@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { analytics } from "@/services/analytics";
-import { ArrowLeft, Trophy, Users, Info, Bug, Compass, Lock } from "lucide-react";
+import { ArrowLeft, Trophy, Users, Info, Compass, Lock } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { InlineLock } from "@/components/PaywallGate";
 import AppShell from "@/components/AppShell";
