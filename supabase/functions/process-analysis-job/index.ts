@@ -204,34 +204,30 @@ async function processOneJob(args: {
     score,
   });
 
-  // Insert via service role; partial unique index on analysis_job_id +
-  // ignoreDuplicates guarantees one row even on concurrent calls.
+  // Insert via service role. We already SELECTed for existing rows above,
+  // so a unique-violation here means a concurrent worker raced us — re-read
+  // and report skipped_existing.
   const { data: inserted, error: insertErr } = await admin
     .from("stream_score_snapshots")
-    .upsert(row, {
-      onConflict: "analysis_job_id",
-      ignoreDuplicates: true,
-    })
+    .insert(row)
     .select("id")
     .maybeSingle();
 
   if (insertErr) {
+    if (/duplicate key|unique/i.test(insertErr.message)) {
+      const { data: again } = await admin
+        .from("stream_score_snapshots")
+        .select("id")
+        .eq("analysis_job_id", job.id)
+        .maybeSingle();
+      return {
+        job_id: job.id,
+        status: "skipped_existing",
+        snapshot_id: again?.id,
+        overall: row.overall,
+      };
+    }
     return { job_id: job.id, status: "error", error: insertErr.message };
-  }
-
-  if (!inserted?.id) {
-    // Raced — another worker inserted between our SELECT and UPSERT. Re-read.
-    const { data: again } = await admin
-      .from("stream_score_snapshots")
-      .select("id")
-      .eq("analysis_job_id", job.id)
-      .maybeSingle();
-    return {
-      job_id: job.id,
-      status: "skipped_existing",
-      snapshot_id: again?.id,
-      overall: row.overall,
-    };
   }
 
   return {
