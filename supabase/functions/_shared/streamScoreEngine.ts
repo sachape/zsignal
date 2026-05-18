@@ -214,7 +214,7 @@ export function normalizeChannelFacts(raw: unknown): SharedChannelFact[] {
       typeof value === "string" ||
       typeof value === "boolean"
     ) {
-      out.push({ key, value: value ?? null });
+      out.push({ key, value: (value ?? null) as string | number | boolean | null });
     }
   }
   return out;
