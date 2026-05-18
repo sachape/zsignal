@@ -1,0 +1,1 @@
+DELETE FROM public.subscriptions WHERE stripe_customer_id IN ('cus_qa_temp_sacha', 'cus_qa_temp_pera');
