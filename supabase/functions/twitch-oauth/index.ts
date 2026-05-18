@@ -560,8 +560,8 @@ Deno.serve(async (req) => {
       session: authSession.session,
     });
   } catch (err) {
-    console.error("[twitch-oauth] error: unexpected");
-    return json({ error: String(err) }, 500);
+    console.error("[twitch-oauth] error: unexpected", err);
+    return json({ error: "internal_server_error" }, 500);
   }
 });
 
