@@ -336,7 +336,8 @@ const LeadersPage = () => {
                 </div>
 
                 {tab === "live" && (
-                  <div>
+                  <div className="min-w-0">
+
                     <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       Tri
                     </label>
