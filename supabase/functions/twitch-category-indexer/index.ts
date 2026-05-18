@@ -165,6 +165,30 @@ Deno.serve(async (req) => {
       );
       const streams = sj.data ?? [];
       entry.live = streams.length;
+
+      // Reset is_live=false for previously-live rows in this game/language scope.
+      // This ensures channels that went offline are reflected honestly. We
+      // preserve stream_score, last_seen_live_at, and last_seen_in_category_at.
+      // The live rows below will flip is_live back to true via the upsert.
+      {
+        const { error: resetErr } = await db
+          .from("channel_stream_scores")
+          .update({
+            is_live: false,
+            live_viewer_count: null,
+            live_updated_at: nowIso,
+            updated_at: nowIso,
+          })
+          .eq("platform", "twitch")
+          .eq("game_id", game.id)
+          .eq("language", lang === "all" ? "" : lang)
+          .eq("is_live", true);
+        if (resetErr) {
+          // Non-fatal: continue with upserts, but record it.
+          entry.error = `reset_failed:${resetErr.message ?? "unknown"}`;
+        }
+      }
+
       if (streams.length === 0) { summary.push(entry); continue; }
 
       // Batch /users for broadcaster_type + avatar (max 100 ids per call)
