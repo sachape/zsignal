@@ -300,84 +300,132 @@ const AnalysePage = () => {
           />
         </div>
 
-        {/* Hero card */}
+        {/* Hero card — compact analysis summary */}
         <div
           style={anim(80)}
           className="relative mb-4 overflow-hidden rounded-3xl border border-white/[0.08] bg-card/40 backdrop-blur-xl shadow-[0_32px_100px_-32px_hsl(var(--primary)/0.35)]"
         >
-          <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/12 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 right-0 h-64 w-64 rounded-full bg-primary/8 blur-3xl" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_55%)]" />
+          <div className="pointer-events-none absolute -top-24 left-1/3 h-64 w-64 rounded-full bg-primary/12 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 right-0 h-56 w-56 rounded-full bg-primary/8 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.07),transparent_55%)]" />
 
-          <div className="relative flex flex-col items-center gap-5 px-4 py-8 text-center sm:px-6 sm:py-12 md:py-16">
+          <div className="relative grid gap-6 p-5 sm:p-6 md:grid-cols-[1fr_auto] md:gap-8 md:p-7">
+            {/* Left: identity + KPIs */}
+            <div className="flex min-w-0 flex-col gap-5">
+              {/* Identity */}
+              <div className="flex items-center gap-4">
+                <div className="relative shrink-0">
+                  <div className="absolute -inset-3 rounded-full bg-primary/12 blur-xl" />
+                  <Avatar className="relative h-16 w-16 border-2 border-primary/25 shadow-[0_0_40px_hsl(var(--primary)/0.28)] ring-2 ring-primary/10 sm:h-[72px] sm:w-[72px]">
+                    {report.identity?.avatar_url && (
+                      <AvatarImage src={report.identity.avatar_url} alt={`Avatar ${summary.display_name}`} />
+                    )}
+                    <AvatarFallback className="bg-muted text-base font-bold text-muted-foreground">
+                      {(summary.display_name || "?").slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {summary.is_live && (
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background bg-destructive">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+                    Résumé d'analyse
+                  </p>
+                  <h1 className="mt-0.5 truncate bg-gradient-to-b from-foreground to-foreground/80 bg-clip-text text-2xl font-bold tracking-tight text-transparent md:text-[28px]">
+                    {summary.display_name}
+                  </h1>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-xs text-muted-foreground">
+                      @{report.identity?.platform_login ?? summary.channel_name}
+                    </span>
+                    {summary.category && summary.category !== "unknown" && (
+                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                        {summary.category}
+                      </span>
+                    )}
+                    {summary.broadcaster_type === "affiliate" && (
+                      <span className="rounded-full border border-white/10 bg-card/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                        Affilié
+                      </span>
+                    )}
+                    {summary.broadcaster_type === "partner" && (
+                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                        Partenaire
+                      </span>
+                    )}
+                    {summary.is_live && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+                        En live
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-            {/* Avatar */}
-            <div className="relative">
-              <div className="absolute -inset-4 rounded-full bg-primary/12 blur-2xl" />
-              <Avatar className="relative h-24 w-24 border-2 border-primary/25 shadow-[0_0_56px_hsl(var(--primary)/0.3)] ring-[3px] ring-primary/10">
-                {report.identity?.avatar_url && (
-                  <AvatarImage src={report.identity.avatar_url} alt={`Avatar ${summary.display_name}`} />
-                )}
-                <AvatarFallback className="bg-muted text-xl font-bold text-muted-foreground">
-                  {(summary.display_name || "?").slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              {summary.is_live && (
-                <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-destructive">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-                </span>
-              )}
-            </div>
-
-            {/* Identity */}
-            <div className="flex flex-col items-center gap-2">
-              <h1 className="bg-gradient-to-b from-foreground to-foreground/80 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl">
-                {summary.display_name}
-              </h1>
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  @{report.identity?.platform_login ?? summary.channel_name}
-                </span>
-                {summary.category && summary.category !== "unknown" && (
-                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
-                    {summary.category}
-                  </span>
-                )}
-                {summary.broadcaster_type === "affiliate" && (
-                  <span className="rounded-full border border-white/10 bg-card/60 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    Affilié
-                  </span>
-                )}
-                {summary.broadcaster_type === "partner" && (
-                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
-                    Partenaire
-                  </span>
-                )}
+              {/* KPIs inside the hero */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {[
+                  {
+                    icon: Radio,
+                    label: "Viewers moyens",
+                    value: summary.avg_viewers > 0 ? `~${formatNumber(summary.avg_viewers)}` : "—",
+                    sub: "Derniers 30 jours",
+                  },
+                  {
+                    icon: Calendar,
+                    label: "Sessions",
+                    value: `${streams30d}`,
+                    sub: "Lives en 30 jours",
+                  },
+                  {
+                    icon: Users,
+                    label: "Followers",
+                    value: summary.follower_count != null && summary.follower_count > 0
+                      ? formatNumber(summary.follower_count)
+                      : "—",
+                    sub: "Total Twitch",
+                  },
+                ].map(({ icon: Icon, label, value, sub }) => (
+                  <div
+                    key={label}
+                    className="flex min-w-0 flex-col gap-1 rounded-xl border border-white/[0.06] bg-background/30 p-3"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <Icon className="h-3 w-3 text-muted-foreground/50" />
+                      <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                        {label}
+                      </p>
+                    </div>
+                    <p className="text-lg font-bold tabular-nums leading-tight text-foreground sm:text-xl">
+                      {value}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/50">{sub}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Score ring */}
-            <AnimatedScoreRing score={score.overall} strokeVar={theme.strokeVar} />
-
-            {/* Tier label */}
-            <span
-              className={cn("rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider", theme.surfaceClass, theme.textClass)}
-              style={{ opacity: mounted ? 1 : 0, transition: "opacity 500ms ease-out 700ms" }}
-            >
-              {theme.label}
-            </span>
-
-            {/* Live indicator */}
-            {summary.is_live && (
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-destructive">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-                En live
-                {(summary.live_viewer_count ?? 0) > 0 && ` · ${formatNumber(summary.live_viewer_count!)} viewers`}
-                {summary.live_title ? ` · ${summary.live_title}` : ""}
-              </div>
-            )}
+            {/* Right: Score */}
+            <div className="flex flex-col items-center justify-center gap-3 md:min-w-[200px] md:border-l md:border-white/[0.06] md:pl-8">
+              <AnimatedScoreRing score={score.overall} strokeVar={theme.strokeVar} size={168} />
+              <span
+                className={cn(
+                  "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider",
+                  theme.surfaceClass,
+                  theme.textClass,
+                )}
+                style={{ opacity: mounted ? 1 : 0, transition: "opacity 500ms ease-out 700ms" }}
+              >
+                {theme.label}
+              </span>
+            </div>
           </div>
         </div>
+
 
         {/* Score evolution */}
         <div style={anim(160)} className="mb-4">
