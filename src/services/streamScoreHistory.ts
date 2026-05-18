@@ -92,12 +92,14 @@ export async function getSnapshotsSince(
   if (!platformUserId) return [];
   const jobIds = await getJobIdsForPlatformUser(userId, platformUserId);
   if (jobIds.length === 0) return [];
+  const cutoff = await getHistoryCutoffISO(userId);
+  const effectiveSince = cutoff && cutoff > sinceISO ? cutoff : sinceISO;
   const { data } = await supabase
     .from("stream_score_snapshots")
     .select("*")
     .eq("user_id", userId)
     .in("analysis_job_id", jobIds)
-    .gte("created_at", sinceISO)
+    .gte("created_at", effectiveSince)
     .order("created_at", { ascending: true });
   return (data as StreamScoreSnapshot[] | null) ?? [];
 }
