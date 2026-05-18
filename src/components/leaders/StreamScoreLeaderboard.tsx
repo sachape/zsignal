@@ -28,17 +28,6 @@ const formatViewers = (n: number | null): string => {
   return String(n);
 };
 
-const formatRelative = (iso: string): string => {
-  const d = new Date(iso).getTime();
-  if (!Number.isFinite(d)) return "";
-  const diffMin = Math.max(0, Math.round((Date.now() - d) / 60_000));
-  if (diffMin < 1) return "à l'instant";
-  if (diffMin < 60) return `il y a ${diffMin} min`;
-  const h = Math.round(diffMin / 60);
-  if (h < 24) return `il y a ${h} h`;
-  const j = Math.round(h / 24);
-  return `il y a ${j} j`;
-};
 
 const COPY_DEFAULT =
   "Classement Streamnco basé sur les chaînes déjà indexées dans cette catégorie. Les chaînes live sont enrichies en temps réel, mais le classement reste trié par StreamScore.";
@@ -51,7 +40,6 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
   const [rows, setRows] = useState<StreamScoreLeaderChannel[]>([]);
   const [indexedCount, setIndexedCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,12 +50,6 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
       // Backend already orders by stream_score desc — do not re-sort by is_live.
       setRows(res.channels);
       setIndexedCount(res.indexedCount);
-      const newest = res.channels.reduce<string | null>((acc, c) => {
-        if (!c.updated_at) return acc;
-        if (!acc || new Date(c.updated_at) > new Date(acc)) return c.updated_at;
-        return acc;
-      }, null);
-      setLastUpdated(newest);
       setLoading(false);
     })();
     return () => {
@@ -254,7 +236,6 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
       <p className="mt-2 text-[11px] text-muted-foreground">
         {indexedCount} chaîne{indexedCount > 1 ? "s" : ""} indexée{indexedCount > 1 ? "s" : ""} ·
         Classement non exhaustif · Source : Streamnco (channel_stream_scores)
-        {lastUpdated && ` · Dernière maj ${formatRelative(lastUpdated)}`}
       </p>
     </div>
   );

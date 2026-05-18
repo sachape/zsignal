@@ -233,8 +233,9 @@ const LeadersPage = () => {
         <>
             {/* Filters */}
             <Card className="mb-4">
-              <CardContent className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
-                <div className="col-span-2 lg:col-span-2">
+              <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="min-w-0 sm:col-span-2">
+
                   <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Catégorie Twitch
                   </label>
@@ -314,7 +315,8 @@ const LeadersPage = () => {
                   </Popover>
                 </div>
 
-                <div>
+                <div className="min-w-0">
+
                   <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Langue
                   </label>
@@ -334,7 +336,8 @@ const LeadersPage = () => {
                 </div>
 
                 {tab === "live" && (
-                  <div>
+                  <div className="min-w-0">
+
                     <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       Tri
                     </label>
@@ -352,7 +355,7 @@ const LeadersPage = () => {
               </CardContent>
             </Card>
 
-            <Tabs value={tab} onValueChange={(v) => setTab(v as "streamscore" | "live")} className="w-full">
+            <Tabs value={tab} onValueChange={(v) => setTab(v as "streamscore" | "live")} className="w-full min-w-0">
               <TabsList className="mb-4">
                 <TabsTrigger value="streamscore">StreamScore</TabsTrigger>
                 <TabsTrigger value="live">Score Live</TabsTrigger>
