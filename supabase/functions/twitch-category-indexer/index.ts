@@ -107,11 +107,34 @@ Deno.serve(async (req) => {
   if (!cronOk) return json({ success: false, reason: "unauthorized" }, 401);
 
 
+  // Default coverage aligned with LeadersPage UI presets (FR + EN).
+  // Keep per-category limit bounded to stay rate-limit safe under hourly cron.
+  // Rough budget per run: 16 categories × ~3 Helix calls + 50 upserts each
+  // ≈ 48 Helix calls + 800 upserts. Well within Helix quota.
+  const DEFAULT_CATEGORIES: CategoryReq[] = [
+    { name: "Just Chatting", language: "fr" },
+    { name: "VALORANT", language: "fr" },
+    { name: "League of Legends", language: "fr" },
+    { name: "Fortnite", language: "fr" },
+    { name: "Minecraft", language: "fr" },
+    { name: "Grand Theft Auto V", language: "fr" },
+    { name: "EA Sports FC 25", language: "fr" },
+    { name: "Counter-Strike", language: "fr" },
+    { name: "Just Chatting", language: "en" },
+    { name: "VALORANT", language: "en" },
+    { name: "League of Legends", language: "en" },
+    { name: "Fortnite", language: "en" },
+    { name: "Minecraft", language: "en" },
+    { name: "Grand Theft Auto V", language: "en" },
+    { name: "EA Sports FC 25", language: "en" },
+    { name: "Counter-Strike", language: "en" },
+  ];
+
   const categories: CategoryReq[] = (body.categories && body.categories.length > 0)
     ? body.categories
-    : [{ name: "Just Chatting", language: "fr" }, { name: "VALORANT", language: "fr" }];
+    : DEFAULT_CATEGORIES;
 
-  const perCategoryLimit = Math.min(Math.max(body.limit ?? 60, 1), 100);
+  const perCategoryLimit = Math.min(Math.max(body.limit ?? 50, 1), 100);
 
   const token = await getAppToken(clientId, clientSecret);
   const helixHeaders: HeadersInit = {
@@ -142,6 +165,30 @@ Deno.serve(async (req) => {
       );
       const streams = sj.data ?? [];
       entry.live = streams.length;
+
+      // Reset is_live=false for previously-live rows in this game/language scope.
+      // This ensures channels that went offline are reflected honestly. We
+      // preserve stream_score, last_seen_live_at, and last_seen_in_category_at.
+      // The live rows below will flip is_live back to true via the upsert.
+      {
+        const { error: resetErr } = await db
+          .from("channel_stream_scores")
+          .update({
+            is_live: false,
+            live_viewer_count: null,
+            live_updated_at: nowIso,
+            updated_at: nowIso,
+          })
+          .eq("platform", "twitch")
+          .eq("game_id", game.id)
+          .eq("language", lang === "all" ? "" : lang)
+          .eq("is_live", true);
+        if (resetErr) {
+          // Non-fatal: continue with upserts, but record it.
+          entry.error = `reset_failed:${resetErr.message ?? "unknown"}`;
+        }
+      }
+
       if (streams.length === 0) { summary.push(entry); continue; }
 
       // Batch /users for broadcaster_type + avatar (max 100 ids per call)
