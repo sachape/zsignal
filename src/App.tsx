@@ -188,6 +188,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/settings/twitch-accounts"
+                  element={
+                    <ProtectedRoute>
+                      <TwitchAccountsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/streamscore"
                   element={
                     <ProtectedRoute>
