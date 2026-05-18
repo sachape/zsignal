@@ -1,6 +1,7 @@
 // Read-side helpers for StreamScore history (stream_score_snapshots).
 
 import { supabase } from "@/integrations/supabase/client";
+import { getHistoryCutoffISO } from "@/services/historyAccess";
 
 export type ScoreLevel = "low" | "medium" | "high";
 
