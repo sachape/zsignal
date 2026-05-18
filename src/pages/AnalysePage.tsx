@@ -619,43 +619,8 @@ const AnalysePage = () => {
           </div>
         )}
 
-        {/* 3 stat cards — unique metrics not in score decomposition */}
-        <div style={anim(320)} className="mb-14 grid grid-cols-3 gap-3">
-          {[
-            {
-              icon: Radio,
-              label: "Viewers moyens",
-              value: summary.avg_viewers > 0 ? `~${formatNumber(summary.avg_viewers)}` : "—",
-              sub: "Derniers 30 jours",
-            },
-            {
-              icon: Calendar,
-              label: "Sessions",
-              value: `${streams30d}`,
-              sub: "Lives en 30 jours",
-            },
-            {
-              icon: Users,
-              label: "Followers",
-              value: summary.follower_count != null && summary.follower_count > 0
-                ? formatNumber(summary.follower_count)
-                : "—",
-              sub: "Total Twitch",
-            },
-          ].map(({ icon: Icon, label, value, sub }) => (
-            <div
-              key={label}
-              className="flex flex-col gap-1.5 rounded-2xl border border-white/[0.07] bg-card/40 p-4 backdrop-blur-xl"
-            >
-              <div className="flex items-center gap-1.5">
-                <Icon className="h-3.5 w-3.5 text-muted-foreground/50" />
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{label}</p>
-              </div>
-              <p className="text-2xl font-bold tabular-nums text-foreground">{value}</p>
-              <p className="text-[10px] text-muted-foreground/40">{sub}</p>
-            </div>
-          ))}
-        </div>
+        <div className="mb-10" />
+
 
         {/* Competitors */}
         {showCompetitorsSection && (
