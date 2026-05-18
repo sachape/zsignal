@@ -333,21 +333,22 @@ const LeadersPage = () => {
                   </Select>
                 </div>
 
-                <div>
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Tri
-                  </label>
-                  <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-                    <SelectTrigger className="h-9 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="score">Score Live</SelectItem>
-                      <SelectItem value="viewers">Audience live</SelectItem>
-                      <SelectItem value="name">Nom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {tab === "live" && (
+                  <div>
+                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Tri
+                    </label>
+                    <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="viewers">Audience live</SelectItem>
+                        <SelectItem value="name">Nom</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
