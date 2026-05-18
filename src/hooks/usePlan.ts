@@ -24,14 +24,8 @@ export function triggerPlanRefresh() {
   window.dispatchEvent(new CustomEvent(PLAN_REFRESH_EVENT));
 }
 
-// Dev override: set localStorage key "streamnco_plan_override" to "pro" | "growth" | "agency"
-function getDevOverride(): PlanTier | null {
-  try {
-    const v = localStorage.getItem("streamnco_plan_override");
-    if (v === "pro" || v === "growth" || v === "agency") return v;
-  } catch {/* noop */}
-  return null;
-}
+// Plan is always resolved from the server-backed subscriptions table.
+// No client-side override is permitted in production to prevent paywall bypass.
 
 export function usePlan(): PlanInfo {
   const { user } = useAuth();
