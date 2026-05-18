@@ -395,6 +395,11 @@ Deno.serve(async (req) => {
         console.error("[twitch-oauth] auto_first enqueue failed");
       }
 
+      // Reset prior retryable server-score failures so the cron picks them up.
+      await resetRetryableScoreFailures(adminClient, callerUserId, tw.id);
+
+
+
       console.log("[twitch-oauth] linked_existing_user", { mode: linkMode });
       return json({
         success: true,
