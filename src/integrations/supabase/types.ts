@@ -1510,6 +1510,7 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          active_connected_account_id: string | null
           created_at: string
           preferred_language: string | null
           preferred_niche: string | null
@@ -1517,6 +1518,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          active_connected_account_id?: string | null
           created_at?: string
           preferred_language?: string | null
           preferred_niche?: string | null
@@ -1524,13 +1526,22 @@ export type Database = {
           user_id: string
         }
         Update: {
+          active_connected_account_id?: string | null
           created_at?: string
           preferred_language?: string | null
           preferred_niche?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_active_connected_account_id_fkey"
+            columns: ["active_connected_account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_quest_checks: {
         Row: {
