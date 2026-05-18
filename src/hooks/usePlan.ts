@@ -46,7 +46,6 @@ export function usePlan(): PlanInfo {
       return;
     }
 
-    const dev = getDevOverride();
     if (dev) {
       setPlan(dev);
       setLoading(false);
