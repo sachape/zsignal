@@ -43,10 +43,9 @@ import { getLatestReport, type SavedReport } from "@/services/reportRepository";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import StreamScoreLeaderboard from "@/components/leaders/StreamScoreLeaderboard";
 
-type SortKey = "viewers" | "score" | "name";
+type SortKey = "viewers" | "name";
 
 const SORT_COMPARATORS: Record<SortKey, (a: LeaderChannel, b: LeaderChannel) => number> = {
-  score: (a, b) => b.stream_score - a.stream_score,
   viewers: (a, b) => (b.live_viewer_count ?? 0) - (a.live_viewer_count ?? 0),
   name: (a, b) => a.display_name.localeCompare(b.display_name),
 };
