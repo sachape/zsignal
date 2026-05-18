@@ -26,10 +26,10 @@ function generateToken(): string {
 }
 
 // Auth note: this function uses verify_jwt = true in config.toml. The gateway
-// validates the JWT, but we additionally reject calls made with an end-user
-// (`authenticated`) JWT — only server-side callers (anon key from cron edge
-// functions, or service_role) are allowed. This prevents authenticated users
-// from invoking the function directly to send emails to arbitrary recipients.
+// validates the JWT, but we additionally require `service_role` claims.
+// The anon key is shipped in the public frontend bundle, so allowing role
+// 'anon' would let any attacker spam emails through our verified domain.
+// Internal cron callers must authenticate with SUPABASE_SERVICE_ROLE_KEY.
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -37,31 +37,33 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
-  // Block direct invocation by end-users. Only server-side callers
-  // (anon key from internal cron functions, or service_role) may send.
+  // Require service_role JWT. Anything else (anon, authenticated, missing) is rejected.
   const authHeader = req.headers.get('Authorization') ?? ''
   const token = authHeader.replace(/^Bearer\s+/i, '')
-  if (token) {
-    try {
-      const payloadPart = token.split('.')[1]
-      if (payloadPart) {
-        const padded = payloadPart + '='.repeat((4 - (payloadPart.length % 4)) % 4)
-        const claims = JSON.parse(
-          atob(padded.replace(/-/g, '+').replace(/_/g, '/'))
-        )
-        if (claims?.role === 'authenticated') {
-          return new Response(
-            JSON.stringify({ error: 'Forbidden' }),
-            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
-        }
-      }
-    } catch {
+  if (!token) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+  try {
+    const payloadPart = token.split('.')[1]
+    if (!payloadPart) throw new Error('malformed jwt')
+    const padded = payloadPart + '='.repeat((4 - (payloadPart.length % 4)) % 4)
+    const claims = JSON.parse(
+      atob(padded.replace(/-/g, '+').replace(/_/g, '/'))
+    )
+    if (claims?.role !== 'service_role') {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Forbidden' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+  } catch {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
