@@ -39,10 +39,17 @@ function safeLog(event: string, ctx: Record<string, unknown> = {}) {
   console.log(JSON.stringify({ event, ...ctx }))
 }
 
-Deno.serve(async (_req) => {
+Deno.serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
   })
+
+  // Cron-secret auth — invoked by pg_cron, not by users.
+  const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '')
+  const { data: ok } = await supabase.rpc('verify_eventsub_cron_secret', { token })
+  if (ok !== true) {
+    return new Response('Unauthorized', { status: 401 })
+  }
 
   const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
 
