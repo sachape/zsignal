@@ -346,6 +346,13 @@ const AppSidebar = () => {
                 <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
                 Facturation
               </Link>
+              <Link
+                to="/help"
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-muted/50"
+              >
+                <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                Centre d'aide
+              </Link>
 
               <button
                 type="button"

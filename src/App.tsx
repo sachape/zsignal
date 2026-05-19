@@ -44,6 +44,7 @@ const LegalCookiesPage = lazy(() => import("./pages/LegalCookiesPage.tsx"));
 const BlogPage = lazy(() => import("./pages/BlogPage.tsx"));
 const BlogArticlePage = lazy(() => import("./pages/BlogArticlePage.tsx"));
 const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage.tsx"));
+const HelpPage = lazy(() => import("./pages/HelpPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -212,6 +213,7 @@ const App = () => (
                   }
                 />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/help" element={<HelpPage />} />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/blog/:slug" element={<BlogArticlePage />} />
                 <Route path="/legal/terms" element={<LegalTermsPage />} />
