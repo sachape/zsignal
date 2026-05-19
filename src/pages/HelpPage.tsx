@@ -273,8 +273,6 @@ const HelpPage = () => {
       <PageContainer size="lg">
         {/* Hero */}
         <section className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-        {/* Hero */}
-        <section className="relative overflow-hidden border-b border-white/[0.06]">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 -z-10 opacity-60"
