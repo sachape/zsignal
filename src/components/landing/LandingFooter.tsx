@@ -130,11 +130,6 @@ const LandingFooter = () => {
                   </button>
                 )}
               </li>
-              <li>
-                <Link to="/help" className={linkCls}>
-                  Centre d'aide
-                </Link>
-              </li>
             </ul>
           </div>
 

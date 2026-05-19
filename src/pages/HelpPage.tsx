@@ -11,8 +11,8 @@ import {
   AlertTriangle,
   MessageCircle,
 } from "lucide-react";
-import LandingNav from "@/components/LandingNav";
-import LandingFooter from "@/components/landing/LandingFooter";
+import AppShell from "@/components/AppShell";
+import PageContainer from "@/components/PageContainer";
 import {
   Accordion,
   AccordionContent,
@@ -269,12 +269,10 @@ const HelpPage = () => {
   const noResults = query.trim().length > 0 && filtered.length === 0;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <LandingNav />
-
-      <main className="pt-14">
+    <AppShell>
+      <PageContainer size="lg">
         {/* Hero */}
-        <section className="relative overflow-hidden border-b border-white/[0.06]">
+        <section className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02]">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 -z-10 opacity-60"
@@ -309,7 +307,7 @@ const HelpPage = () => {
           </div>
         </section>
 
-        <div className="container mx-auto max-w-5xl px-4 py-12 md:px-6 md:py-16">
+        <div className="mt-10">
           {/* Quick support card */}
           <div className="mb-12 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-white/[0.02] to-transparent p-6 md:p-8">
             <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
@@ -454,10 +452,8 @@ const HelpPage = () => {
             </div>
           )}
         </div>
-      </main>
-
-      <LandingFooter />
-    </div>
+      </PageContainer>
+    </AppShell>
   );
 };
 

@@ -213,7 +213,14 @@ const App = () => (
                   }
                 />
                 <Route path="/pricing" element={<PricingPage />} />
-                <Route path="/help" element={<HelpPage />} />
+                <Route
+                  path="/help"
+                  element={
+                    <ProtectedRoute>
+                      <HelpPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/blog/:slug" element={<BlogArticlePage />} />
                 <Route path="/legal/terms" element={<LegalTermsPage />} />
