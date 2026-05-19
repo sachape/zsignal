@@ -41,5 +41,24 @@
       window.Brevo = window.Brevo || [];
       Brevo.push(["init", { client_key: "urcyhsor4oaqv5xq3wj13iz2" }]);
     </script>
+    <!-- Crisp Chat (hidden by default, opened from Support menu) -->
+    <script>
+      (function () {
+        if (window.__crispLoaded) return;
+        window.__crispLoaded = true;
+        window.$crisp = [];
+        window.CRISP_WEBSITE_ID = "5ffec5bb-e74a-4db1-bc4a-6c58e50b58bb";
+        window.$crisp.push(["safe", true]);
+        window.$crisp.push(["do", "chat:hide"]);
+        window.$crisp.push(["on", "chat:closed", function () {
+          window.$crisp.push(["do", "chat:hide"]);
+        }]);
+        var d = document;
+        var s = d.createElement("script");
+        s.src = "https://client.crisp.chat/l.js";
+        s.async = 1;
+        d.getElementsByTagName("head")[0].appendChild(s);
+      })();
+    </script>
   </body>
 </html>
