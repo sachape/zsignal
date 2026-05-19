@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Activity,
   Zap,
+  MessageCircle,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
