@@ -269,10 +269,10 @@ const HelpPage = () => {
   const noResults = query.trim().length > 0 && filtered.length === 0;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <LandingNav />
-
-      <main className="pt-14">
+    <AppShell>
+      <PageContainer size="lg">
+        {/* Hero */}
+        <section className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02]">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-white/[0.06]">
           <div
