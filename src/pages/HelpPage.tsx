@@ -454,10 +454,8 @@ const HelpPage = () => {
             </div>
           )}
         </div>
-      </main>
-
-      <LandingFooter />
-    </div>
+      </PageContainer>
+    </AppShell>
   );
 };
 
