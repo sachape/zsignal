@@ -11,8 +11,8 @@ import {
   AlertTriangle,
   MessageCircle,
 } from "lucide-react";
-import LandingNav from "@/components/LandingNav";
-import LandingFooter from "@/components/landing/LandingFooter";
+import AppShell from "@/components/AppShell";
+import PageContainer from "@/components/PageContainer";
 import {
   Accordion,
   AccordionContent,
