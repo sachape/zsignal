@@ -309,7 +309,7 @@ const HelpPage = () => {
           </div>
         </section>
 
-        <div className="container mx-auto max-w-5xl px-4 py-12 md:px-6 md:py-16">
+        <div className="mt-10">
           {/* Quick support card */}
           <div className="mb-12 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-white/[0.02] to-transparent p-6 md:p-8">
             <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
