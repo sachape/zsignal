@@ -347,6 +347,24 @@ const AppSidebar = () => {
                 Facturation
               </Link>
 
+              <button
+                type="button"
+                onClick={() => {
+                  const w = window as unknown as { $crisp?: unknown[] };
+                  if (!w.$crisp || typeof (w.$crisp as { push?: unknown }).push !== "function") return;
+                  try {
+                    (w.$crisp as unknown[]).push(["do", "chat:show"] as never);
+                    (w.$crisp as unknown[]).push(["do", "chat:open"] as never);
+                  } catch {
+                    // fail silently if Crisp is unavailable
+                  }
+                }}
+                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-muted/50"
+              >
+                <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                Support
+              </button>
+
               <div className="my-1 h-px bg-border/60" />
 
               {/* Sign out */}
