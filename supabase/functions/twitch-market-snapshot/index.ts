@@ -432,6 +432,22 @@ Deno.serve(async (req) => {
     logs,
   };
 
+  if (runId) {
+    await admin
+      .from("twitch_market_runs")
+      .update({
+        finished_at: new Date().toISOString(),
+        status: logs.length > 0 ? "completed_with_warnings" : "completed",
+        helix_calls: stats.calls,
+        snapshots_written: snapshotsWritten,
+        channels_upserted: channelsUpserted,
+        game_snapshots_written: gameSnapshotsWritten,
+        rate_limited_count: stats.rateLimited,
+        metadata: { ...summary, run_id: runId },
+      })
+      .eq("id", runId);
+  }
+
   console.log(JSON.stringify({ event: "twitch_market_snapshot_done", ...summary }));
   return json(summary, 200);
 });
