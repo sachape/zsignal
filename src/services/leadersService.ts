@@ -31,28 +31,41 @@ export interface LeaderCategory {
   box_art_url: string | null;
 }
 
+interface RawCategoryChannel {
+  rank: number;
+  id: string;
+  login: string;
+  display_name: string;
+  profile_image_url: string | null;
+  broadcaster_type: string;
+  description: string;
+  view_count: number;
+  is_live: boolean;
+  live_viewer_count: number | null;
+  title: string | null;
+  game_name: string | null;
+  game_id: string | null;
+  language: string | null;
+  started_at: string | null;
+}
+
 interface CategoryRankingResponse {
   success: boolean;
   mode?: "category";
   reason?: string;
+  retry_after?: string | null;
   category?: LeaderCategory;
-  channels?: Array<{
-    rank: number;
-    id: string;
-    login: string;
-    display_name: string;
-    profile_image_url: string | null;
-    broadcaster_type: string;
-    description: string;
-    view_count: number;
-    is_live: boolean;
-    live_viewer_count: number | null;
-    title: string | null;
-    game_name: string | null;
-    game_id: string | null;
-    language: string | null;
-    started_at: string | null;
-  }>;
+  channels?: RawCategoryChannel[];
+  pagination?: { cursor: string | null; has_more: boolean };
+  fetched_at?: string;
+  filters_applied?: {
+    category: string;
+    game_id: string;
+    language: string;
+    sort: string;
+    first: number;
+    after: string | null;
+  };
 }
 
 interface CategorySearchResponse {
@@ -149,6 +162,76 @@ export async function fetchCategoryLeaders(opts: {
       stream_score: computeTeaserScore(c),
       tags: buildTags(c),
     })),
+  };
+}
+
+export interface CategoryLeadersPage {
+  category: LeaderCategory | null;
+  channels: LeaderChannel[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  fetchedAt: string | null;
+  rateLimited: boolean;
+  reason: string | null;
+}
+
+/**
+ * Paginated category ranking. Uses Twitch Get Streams pagination via the
+ * twitch-public-lookup edge function. `first` is capped at 100 by Twitch.
+ */
+export async function fetchCategoryLeadersPage(opts: {
+  category: string;
+  language?: string;
+  first?: number;
+  after?: string | null;
+}): Promise<CategoryLeadersPage> {
+  const { data, error } = await supabase.functions.invoke<CategoryRankingResponse>(
+    "twitch-public-lookup",
+    {
+      body: {
+        input: opts.category,
+        mode: "category",
+        first: Math.min(Math.max(opts.first ?? 100, 1), 100),
+        after: opts.after ?? undefined,
+        language: opts.language ?? "all",
+      },
+    },
+  );
+  if (error || !data) {
+    return {
+      category: null,
+      channels: [],
+      nextCursor: null,
+      hasMore: false,
+      fetchedAt: null,
+      rateLimited: false,
+      reason: error?.message ?? "request_failed",
+    };
+  }
+  if (!data.success) {
+    return {
+      category: data.category ?? null,
+      channels: [],
+      nextCursor: null,
+      hasMore: false,
+      fetchedAt: data.fetched_at ?? null,
+      rateLimited: data.reason === "rate_limited",
+      reason: data.reason ?? "unknown",
+    };
+  }
+  const channels = (data.channels ?? []).map((c) => ({
+    ...c,
+    stream_score: computeTeaserScore(c),
+    tags: buildTags(c),
+  }));
+  return {
+    category: data.category ?? null,
+    channels,
+    nextCursor: data.pagination?.cursor ?? null,
+    hasMore: data.pagination?.has_more ?? false,
+    fetchedAt: data.fetched_at ?? null,
+    rateLimited: false,
+    reason: null,
   };
 }
 

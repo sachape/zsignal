@@ -32,7 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import {
-  fetchCategoryLeaders,
+  fetchCategoryLeadersPage,
   searchCategories,
   LEADER_CATEGORY_PRESETS,
   LEADER_LANGUAGE_PRESETS,
@@ -101,6 +101,14 @@ const LeadersPage = () => {
   const [resolvedCategory, setResolvedCategory] = useState<LeaderCategory | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const PAGE_SIZE = 100;
+  const MAX_ROWS = 500;
 
   const [userReport, setUserReport] = useState<SavedReport | null>(null);
 
@@ -129,27 +137,73 @@ const LeadersPage = () => {
     return () => clearTimeout(t);
   }, [catQuery]);
 
-  // Load ranking when category or language changes
+  // Initial / filter-change load — first page of 100.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setNotFound(false);
+    setRateLimited(false);
+    setLoadError(null);
+    setRows([]);
+    setNextCursor(null);
+    setHasMore(false);
     (async () => {
-      const { category: resolved, channels } = await fetchCategoryLeaders({
+      const page = await fetchCategoryLeadersPage({
         category,
         language,
-        limit: 40,
+        first: PAGE_SIZE,
       });
       if (cancelled) return;
-      setResolvedCategory(resolved);
-      setRows(channels);
-      setNotFound(!resolved);
+      setResolvedCategory(page.category);
+      setRows(page.channels);
+      setNextCursor(page.nextCursor);
+      setHasMore(page.hasMore);
+      setRateLimited(page.rateLimited);
+      setNotFound(!page.category && page.reason !== "rate_limited");
+      if (page.reason && page.reason !== "rate_limited" && page.channels.length === 0 && page.category) {
+        setLoadError(page.reason);
+      }
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
   }, [category, language]);
+
+  const handleLoadMore = async () => {
+    if (!nextCursor || loadingMore || rows.length >= MAX_ROWS) return;
+    setLoadingMore(true);
+    setRateLimited(false);
+    const remaining = MAX_ROWS - rows.length;
+    const page = await fetchCategoryLeadersPage({
+      category,
+      language,
+      first: Math.min(PAGE_SIZE, remaining),
+      after: nextCursor,
+    });
+    if (page.rateLimited) {
+      setRateLimited(true);
+      setLoadingMore(false);
+      return;
+    }
+    // Dedup by user id — Twitch pagination can repeat channels when the
+    // audience shifts between pages.
+    setRows((prev) => {
+      const seen = new Set(prev.map((r) => r.id));
+      const merged = [...prev];
+      for (const c of page.channels) {
+        if (!seen.has(c.id) && merged.length < MAX_ROWS) {
+          seen.add(c.id);
+          merged.push(c);
+        }
+      }
+      return merged;
+    });
+    setNextCursor(page.nextCursor);
+    setHasMore(page.hasMore && rows.length + page.channels.length < MAX_ROWS);
+    setLoadingMore(false);
+  };
+
 
   // Score Live tab: all rows are live channels (API constraint)
   const filtered = useMemo(() => {
@@ -610,9 +664,46 @@ const LeadersPage = () => {
               );
             })()}
 
+            {!loading && !notFound && rows.length > 0 && (
+              <div className="mt-4 flex flex-col items-center gap-2">
+                {rateLimited && (
+                  <p className="text-xs text-warning">
+                    Twitch limite temporairement les appels — réessaie dans quelques secondes.
+                  </p>
+                )}
+                {loadError && (
+                  <p className="text-xs text-muted-foreground">
+                    Impossible de charger plus de chaînes pour le moment.
+                  </p>
+                )}
+                {hasMore && rows.length < MAX_ROWS && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                  >
+                    {loadingMore ? (
+                      <>
+                        <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                        Chargement…
+                      </>
+                    ) : (
+                      "Charger plus"
+                    )}
+                  </Button>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  {rows.length} chaîne{rows.length > 1 ? "s" : ""} chargée{rows.length > 1 ? "s" : ""}
+                  {rows.length >= MAX_ROWS && " · limite V1 atteinte"}
+                </p>
+              </div>
+            )}
+
             <p className="mt-6 text-[11px] text-muted-foreground">
               Source : Twitch /streams (snapshot live). Score calculé sur l'audience, le statut broadcaster et la portée en direct.
             </p>
+
               </TabsContent>
             </Tabs>
           </>

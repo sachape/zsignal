@@ -377,6 +377,8 @@ Deno.serve(async (req) => {
         | "category_search"
         | "category_all";
       limit?: number;
+      first?: number;
+      after?: string;
       language?: string;
     } = {};
     try {
@@ -480,20 +482,36 @@ Deno.serve(async (req) => {
         });
       }
 
-      const limit = Math.min(Math.max(body.limit ?? 30, 5), 60);
-      const langParam =
-        body.language && body.language !== "all"
-          ? `&language=${encodeURIComponent(body.language)}`
-          : "";
+      // Pagination: Twitch caps `first` at 100. Accept `after` cursor too.
+      // Back-compat: legacy callers passed `limit` (1..60).
+      const rawFirst = typeof body.first === "number" ? body.first : body.limit;
+      const first = Math.min(Math.max(rawFirst ?? 100, 1), 100);
+      const after = typeof body.after === "string" && body.after.trim() !== ""
+        ? body.after.trim()
+        : null;
+      const language =
+        body.language && body.language !== "all" ? body.language : null;
+      const langParam = language ? `&language=${encodeURIComponent(language)}` : "";
+      const afterParam = after ? `&after=${encodeURIComponent(after)}` : "";
       const streamsRes = await fetch(
-        `https://api.twitch.tv/helix/streams?game_id=${encodeURIComponent(game.id)}&first=${limit}${langParam}`,
+        `https://api.twitch.tv/helix/streams?game_id=${encodeURIComponent(game.id)}&first=${first}${langParam}${afterParam}`,
         { headers: helixHeaders },
       );
+      if (streamsRes.status === 429) {
+        const retryAfter = streamsRes.headers.get("Ratelimit-Reset")
+          ?? streamsRes.headers.get("Retry-After");
+        return json({
+          success: false,
+          reason: "rate_limited",
+          retry_after: retryAfter,
+        });
+      }
       if (!streamsRes.ok) {
         return json({ success: false, reason: "streams_fetch_failed" });
       }
       const streamsJson = await streamsRes.json();
       const streams = (streamsJson?.data ?? []) as HelixStream[];
+      const nextCursor = streamsJson?.pagination?.cursor as string | undefined;
 
       const userIds = streams.map((s) => s.user_id);
       const users = await batchUsers(userIds, helixHeaders);
@@ -526,8 +544,22 @@ Deno.serve(async (req) => {
             started_at: s.started_at,
           };
         }),
+        pagination: {
+          cursor: nextCursor ?? null,
+          has_more: Boolean(nextCursor) && streams.length > 0,
+        },
+        fetched_at: new Date().toISOString(),
+        filters_applied: {
+          category: game.name,
+          game_id: game.id,
+          language: language ?? "all",
+          sort: "viewer_count_desc",
+          first,
+          after,
+        },
       });
     }
+
 
     // Indexed Streamnco leaderboard for a given Twitch category, enriched with
     // current live data when possible. Reads channel_stream_scores (public-read
