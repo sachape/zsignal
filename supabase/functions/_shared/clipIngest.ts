@@ -76,7 +76,118 @@ async function fetchClips(
   return out;
 }
 
-export async function ingestClipsFor(
+interface RawGame {
+  id: string;
+  name: string;
+  box_art_url?: string;
+}
+
+async function fetchGames(
+  clientId: string,
+  appToken: string,
+  gameIds: string[],
+): Promise<RawGame[]> {
+  if (gameIds.length === 0) return [];
+  const out: RawGame[] = [];
+  // Twitch Get Games accepts up to 100 ids per call.
+  for (let i = 0; i < gameIds.length; i += 100) {
+    const batch = gameIds.slice(i, i + 100);
+    const url = new URL("https://api.twitch.tv/helix/games");
+    for (const id of batch) url.searchParams.append("id", id);
+    const res = await fetch(url, {
+      headers: {
+        "Client-Id": clientId,
+        Authorization: `Bearer ${appToken}`,
+      },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      console.log(
+        JSON.stringify({
+          event: "twitch_get_games_failed",
+          status: res.status,
+          batch_size: batch.length,
+        }),
+      );
+      // Don't break ingestion — categories are best-effort enrichment.
+      continue;
+    }
+    out.push(...((data.data ?? []) as RawGame[]));
+  }
+  return out;
+}
+
+/** Refresh the twitch_categories cache for the given game_ids. */
+async function enrichCategories(
+  admin: ReturnType<typeof createClient>,
+  clientId: string,
+  appToken: string,
+  gameIds: string[],
+  options: { staleAfterDays?: number } = {},
+): Promise<{ upserted: number }> {
+  const cleaned = Array.from(
+    new Set(gameIds.filter((id): id is string => Boolean(id) && id.trim() !== "")),
+  );
+  if (cleaned.length === 0) return { upserted: 0 };
+
+  const staleAfterDays = options.staleAfterDays ?? 30;
+  const staleBefore = new Date(
+    Date.now() - staleAfterDays * 86400000,
+  ).toISOString();
+
+  // Find which ids are missing or stale in cache.
+  const { data: existing } = await admin
+    .from("twitch_categories")
+    .select("game_id, last_synced_at")
+    .in("game_id", cleaned);
+  const fresh = new Set<string>(
+    ((existing ?? []) as { game_id: string; last_synced_at: string }[])
+      .filter((r) => r.last_synced_at > staleBefore)
+      .map((r) => r.game_id),
+  );
+  const toFetch = cleaned.filter((id) => !fresh.has(id));
+  if (toFetch.length === 0) return { upserted: 0 };
+
+  let games: RawGame[] = [];
+  try {
+    games = await fetchGames(clientId, appToken, toFetch);
+  } catch (e) {
+    console.log(
+      JSON.stringify({
+        event: "twitch_get_games_error",
+        message: e instanceof Error ? e.message : "unknown",
+      }),
+    );
+    return { upserted: 0 };
+  }
+  if (games.length === 0) return { upserted: 0 };
+
+  const now = new Date().toISOString();
+  const rows = games
+    .filter((g) => g.id && g.name)
+    .map((g) => ({
+      game_id: g.id,
+      game_name: g.name,
+      box_art_url: g.box_art_url ?? null,
+      last_synced_at: now,
+      updated_at: now,
+    }));
+  if (rows.length === 0) return { upserted: 0 };
+
+  const { error } = await admin
+    .from("twitch_categories")
+    .upsert(rows, { onConflict: "game_id" });
+  if (error) {
+    console.log(
+      JSON.stringify({
+        event: "twitch_categories_upsert_failed",
+        message: error.message,
+      }),
+    );
+    return { upserted: 0 };
+  }
+  return { upserted: rows.length };
+}
   admin: ReturnType<typeof createClient>,
   params: IngestParams,
 ): Promise<{ fetched: number; upserted: number }> {
