@@ -10,6 +10,36 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
+export interface CategoryInfo {
+  game_id: string;
+  game_name: string;
+  box_art_url: string | null;
+}
+
+/** Load human-readable Twitch category names for the given game_ids. */
+export async function loadCategories(
+  gameIds: (string | null | undefined)[],
+): Promise<Map<string, CategoryInfo>> {
+  const ids = Array.from(
+    new Set(gameIds.filter((id): id is string => !!id && id.trim() !== "")),
+  );
+  if (ids.length === 0) return new Map();
+  const { data, error } = await supabase
+    .from("twitch_categories")
+    .select("game_id, game_name, box_art_url")
+    .in("game_id", ids);
+  if (error || !data) return new Map();
+  const map = new Map<string, CategoryInfo>();
+  for (const row of data) {
+    map.set(row.game_id, {
+      game_id: row.game_id,
+      game_name: row.game_name,
+      box_art_url: row.box_art_url ?? null,
+    });
+  }
+  return map;
+}
+
 /** Raw row read from twitch_clip_snapshots. */
 export interface ClipRow {
   id: string;
