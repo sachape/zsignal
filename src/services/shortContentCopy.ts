@@ -35,7 +35,13 @@ const TIKTOK_TAGS = "#fyp #pourtoi #Twitch";
 function getGameHashtags(game: string | null | undefined): string {
   if (!game) return "#Twitch #Gaming #Streamer";
   if (GAME_HASHTAGS[game]) return GAME_HASHTAGS[game];
-  const clean = game.replace(/[\s:'"!?]/g, "");
+  // Strip accents/diacritics, then keep only alphanumerics to produce a
+  // safe hashtag (e.g. "Pokémon Écarlate" → "#PokemonEcarlate").
+  const clean = game
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "");
+  if (!clean) return "#Twitch #Gaming #Streamer";
   return `#${clean} #Gaming #Twitch`;
 }
 
