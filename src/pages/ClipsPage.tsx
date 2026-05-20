@@ -210,6 +210,15 @@ const ClipCard = ({ insight, gameName }: ClipCardProps) => {
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{formatDuration(insight.durationSec)}</span>
               <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{formatRelDate(insight.clip.clip_created_at)}</span>
               <span className="flex items-center gap-1"><TrendingUp className="h-3 w-3" />{insight.score}/100</span>
+              {gameName ? (
+                <Badge variant="outline" className="h-5 border-border/60 bg-muted/30 text-[10px] font-medium text-muted-foreground">
+                  {gameName}
+                </Badge>
+              ) : insight.clip.game_id ? (
+                <Badge variant="outline" className="h-5 border-border/60 bg-muted/20 text-[10px] font-medium text-muted-foreground/70">
+                  Catégorie inconnue
+                </Badge>
+              ) : null}
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
