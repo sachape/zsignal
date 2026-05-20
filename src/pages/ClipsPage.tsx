@@ -27,10 +27,12 @@ import { cn } from "@/lib/utils";
 import {
   buildPlannerResult,
   filterInsights,
+  loadCategories,
   loadConnectedTwitchAccount,
   loadRecentClips,
   POTENTIAL_LABEL_FR,
   sortInsights,
+  type CategoryInfo,
   type ClipFilter,
   type ClipInsight,
   type ClipSort,
