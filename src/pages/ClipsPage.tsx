@@ -27,10 +27,12 @@ import { cn } from "@/lib/utils";
 import {
   buildPlannerResult,
   filterInsights,
+  loadCategories,
   loadConnectedTwitchAccount,
   loadRecentClips,
   POTENTIAL_LABEL_FR,
   sortInsights,
+  type CategoryInfo,
   type ClipFilter,
   type ClipInsight,
   type ClipSort,
@@ -139,11 +141,15 @@ const CopyButton = ({ label, text, small }: CopyButtonProps) => {
 
 interface ClipCardProps {
   insight: ClipInsight;
+  gameName: string | null;
 }
 
-const ClipCard = ({ insight }: ClipCardProps) => {
+const ClipCard = ({ insight, gameName }: ClipCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const copy = useMemo(() => generateClipCopy(insight.clip, insight), [insight]);
+  const copy = useMemo(
+    () => generateClipCopy(insight.clip, insight, gameName),
+    [insight, gameName],
+  );
   const thumb = thumbUrl(insight.clip.thumbnail_url);
   const title = insight.clip.title?.trim() || "Clip sans titre";
 
@@ -204,6 +210,15 @@ const ClipCard = ({ insight }: ClipCardProps) => {
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{formatDuration(insight.durationSec)}</span>
               <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{formatRelDate(insight.clip.clip_created_at)}</span>
               <span className="flex items-center gap-1"><TrendingUp className="h-3 w-3" />{insight.score}/100</span>
+              {gameName ? (
+                <Badge variant="outline" className="h-5 border-border/60 bg-muted/30 text-[10px] font-medium text-muted-foreground">
+                  {gameName}
+                </Badge>
+              ) : insight.clip.game_id ? (
+                <Badge variant="outline" className="h-5 border-border/60 bg-muted/20 text-[10px] font-medium text-muted-foreground/70">
+                  Catégorie inconnue
+                </Badge>
+              ) : null}
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -298,6 +313,7 @@ const ClipsPage = () => {
   const [status, setStatus] = useState<Status>("loading");
   const [account, setAccount] = useState<ConnectedTwitchAccount | null>(null);
   const [result, setResult] = useState<PlannerResult | null>(null);
+  const [categories, setCategories] = useState<Map<string, CategoryInfo>>(new Map());
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<ClipFilter>("all");
   const [sort, setSort] = useState<ClipSort>("potential");
@@ -309,7 +325,11 @@ const ClipsPage = () => {
       const acc = await loadConnectedTwitchAccount(user.id);
       setAccount(acc);
       const clips = await loadRecentClips({ lookbackDays: 14 });
-      setResult(buildPlannerResult(clips));
+      const planner = buildPlannerResult(clips);
+      setResult(planner);
+      // Best-effort: load category names. Failure is silent (cards show fallback).
+      const cats = await loadCategories(clips.map((c) => c.game_id));
+      setCategories(cats);
       setStatus("ready");
     } catch {
       setStatus("error");
@@ -497,7 +517,15 @@ const ClipsPage = () => {
             ) : (
               <div className="space-y-3">
                 {visibleInsights.map((insight) => (
-                  <ClipCard key={insight.clip.id} insight={insight} />
+                  <ClipCard
+                    key={insight.clip.id}
+                    insight={insight}
+                    gameName={
+                      insight.clip.game_id
+                        ? categories.get(insight.clip.game_id)?.game_name ?? null
+                        : null
+                    }
+                  />
                 ))}
               </div>
             )}

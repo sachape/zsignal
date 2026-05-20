@@ -1108,6 +1108,33 @@ export type Database = {
         }
         Relationships: []
       }
+      twitch_categories: {
+        Row: {
+          box_art_url: string | null
+          created_at: string
+          game_id: string
+          game_name: string
+          last_synced_at: string
+          updated_at: string
+        }
+        Insert: {
+          box_art_url?: string | null
+          created_at?: string
+          game_id: string
+          game_name: string
+          last_synced_at?: string
+          updated_at?: string
+        }
+        Update: {
+          box_art_url?: string | null
+          created_at?: string
+          game_id?: string
+          game_name?: string
+          last_synced_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       twitch_clip_snapshots: {
         Row: {
           broadcaster_id: string

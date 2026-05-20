@@ -81,33 +81,50 @@ interface CopyContext {
 
 function buildHooks(ctx: CopyContext): string[] {
   const t = ctx.cleanedTitle;
-  const game = ctx.game ?? "stream";
-
+  const game = ctx.game;
   const hooks: string[] = [];
 
-  // Hook 1 — curiosité directe
+  // Hook 1 — curiosité directe, ancrée sur le titre si possible.
   if (t) {
     hooks.push(`POV : ${truncate(firstSentence(t).toLowerCase(), 70)}.`);
+  } else if (game) {
+    hooks.push(`Ce move ${game} mérite clairement un format court.`);
   } else {
-    hooks.push(`Ce qui s'est passé sur ${game}, je m'y attendais pas.`);
+    hooks.push("Ce qui s'est passé en stream, je m'y attendais pas.");
   }
 
-  // Hook 2 — adapté au contexte
+  // Hook 2 — contexte (featured / underused / vues / durée), enrichi par le jeu.
   if (ctx.isFeatured) {
-    hooks.push("Le clip que Twitch a décidé de mettre en avant 👇");
+    hooks.push(
+      game
+        ? `Le clip ${game} que Twitch a décidé de mettre en avant 👇`
+        : "Le clip que Twitch a décidé de mettre en avant 👇",
+    );
   } else if (ctx.isUnderused) {
-    hooks.push("Personne n'a vu ce moment — alors je le remets ici.");
+    hooks.push(
+      game
+        ? `Personne n'a vu ce moment ${game} — alors je le remets ici.`
+        : "Personne n'a vu ce moment — alors je le remets ici.",
+    );
   } else if (ctx.views >= 500) {
     hooks.push(`${ctx.views} personnes l'ont vu sur Twitch. Voilà pourquoi.`);
   } else if (ctx.durationSec > 0 && ctx.durationSec <= 30) {
-    hooks.push("Regarde jusqu'au bout, ça part vite.");
+    hooks.push(
+      game
+        ? `Séquence ${game} courte, lisible, faite pour le vertical.`
+        : "Regarde jusqu'au bout, ça part vite.",
+    );
+  } else if (game) {
+    hooks.push(`Un moment ${game} court, parfait à recycler en short.`);
   } else {
     hooks.push("Petit moment de stream qui mérite mieux qu'un VOD oublié.");
   }
 
-  // Hook 3 — appel à interaction
+  // Hook 3 — appel à interaction, adapté au type de catégorie.
   if (game && game !== "Just Chatting") {
     hooks.push(`Tu joues à ${game} ? Dis-moi ce que t'aurais fait à ma place.`);
+  } else if (game === "Just Chatting") {
+    hooks.push("Tu réagirais comment, toi ? Dis-le en commentaire.");
   } else {
     hooks.push("Tu réagirais comment, toi ?");
   }
@@ -189,10 +206,14 @@ function buildPack(opts: {
   return lines.join("\n");
 }
 
-function buildContext(clip: ClipRow, insight?: ClipInsight): CopyContext {
+function buildContext(
+  clip: ClipRow,
+  insight?: ClipInsight,
+  gameName?: string | null,
+): CopyContext {
   return {
     cleanedTitle: cleanTitle(clip.title),
-    game: null, // game name is not stored; only game_id. Reserved for future enrichment.
+    game: gameName && gameName.trim() !== "" ? gameName.trim() : null,
     durationSec: insight?.durationSec ?? Math.max(0, clip.duration ?? 0),
     views: Math.max(0, clip.view_count ?? 0),
     isRecent: (insight?.ageDays ?? 999) <= 7,
@@ -205,8 +226,9 @@ function buildContext(clip: ClipRow, insight?: ClipInsight): CopyContext {
 export function generateClipCopy(
   clip: ClipRow,
   insight?: ClipInsight,
+  gameName?: string | null,
 ): ClipCopyPack {
-  const ctx = buildContext(clip, insight);
+  const ctx = buildContext(clip, insight, gameName);
   const hooks = buildHooks(ctx);
   const caption = buildCaption(ctx);
   const title = buildTitle(ctx);
