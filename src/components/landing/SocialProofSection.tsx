@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
+import avatarGamer1 from "@/assets/avatar-gamer-1.jpg";
+import avatarGamer2 from "@/assets/avatar-gamer-2.jpg";
+import avatarGamer3 from "@/assets/avatar-gamer-3.jpg";
 
 const useCountUp = (target: number, active: boolean, duration = 1400) => {
   const [value, setValue] = useState(0);
@@ -23,21 +26,21 @@ const useCountUp = (target: number, active: boolean, duration = 1400) => {
 const TESTIMONIALS = [
   {
     quote: "J'ai compris en 2 minutes pourquoi je stagnais depuis 3 mois. Le blocage identifié était exactement le bon.",
-    name: "ReaperFPS",
-    handle: "@reaperfps_tv",
-    initials: "RF",
+    name: "Streamer FPS",
+    role: "Utilisateur bêta",
+    avatar: avatarGamer1,
   },
   {
     quote: "Le plan d'action est concret et priorisé. Pour une fois, je sais exactement quoi travailler ce weekend.",
-    name: "CastleQueen",
-    handle: "@castlequeen",
-    initials: "CQ",
+    name: "Créatrice Twitch",
+    role: "Test bêta Streamnco",
+    avatar: avatarGamer2,
   },
   {
     quote: "L'outil m'a montré que mon vrai problème c'était la régularité, pas le contenu. Ça change tout.",
-    name: "MistralGaming",
-    handle: "@mistralgaming",
-    initials: "MG",
+    name: "Streamer compétitif",
+    role: "Utilisateur bêta",
+    avatar: avatarGamer3,
   },
 ];
 
@@ -130,12 +133,17 @@ const SocialProofSection = () => {
                 <p className="text-sm leading-relaxed text-foreground/80">{t.quote}</p>
               </div>
               <div className="mt-5 flex items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[10px] font-bold text-primary">
-                  {t.initials}
-                </div>
+                <img
+                  src={t.avatar}
+                  alt=""
+                  loading="lazy"
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-white/[0.08]"
+                />
                 <div>
                   <p className="text-xs font-semibold text-foreground">{t.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{t.handle} · Twitch</p>
+                  <p className="text-[10px] text-muted-foreground">{t.role}</p>
                 </div>
               </div>
             </div>
