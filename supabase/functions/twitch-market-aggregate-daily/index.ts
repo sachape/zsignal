@@ -54,24 +54,30 @@ Deno.serve(async (req) => {
   const t0 = Date.now();
   const logs: string[] = [];
 
+  // Auth: x-cron-secret (env CRON_SECRET) OR Authorization: Bearer <vault eventsub_cron_secret>
   const cronSecret = Deno.env.get("CRON_SECRET");
-  if (!cronSecret) return json({ error: "missing_cron_secret_env" }, 500);
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceKey) return json({ error: "missing_env" }, 500);
 
   let body: { secret?: string; date?: string } = {};
   try {
     if (req.method === "POST") body = await req.json().catch(() => ({}));
   } catch (_) { /* ignore */ }
 
-  const provided = req.headers.get("x-cron-secret") ?? body.secret ?? "";
-  if (provided !== cronSecret) return json({ error: "unauthorized" }, 401);
-
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!supabaseUrl || !serviceKey) return json({ error: "missing_env" }, 500);
-
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  const headerSecret = req.headers.get("x-cron-secret") ?? body.secret ?? "";
+  const bearer = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
+  let authorized = false;
+  if (cronSecret && headerSecret && headerSecret === cronSecret) authorized = true;
+  if (!authorized && bearer) {
+    const { data: ok } = await admin.rpc("verify_eventsub_cron_secret", { token: bearer });
+    if (ok === true) authorized = true;
+  }
+  if (!authorized) return json({ error: "unauthorized" }, 401);
 
   const targetDate = body.date && validIsoDate(body.date) ? body.date : yesterdayUtcDate();
   const startIso = `${targetDate}T00:00:00.000Z`;
