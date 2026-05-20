@@ -122,11 +122,12 @@ async function resolveGames(
     logs.push(`resolveGames_failed status=${res.status}`);
     return [];
   }
-  const found = new Set(res.data.map((g) => g.name.toLowerCase()));
+  const list = res.data.data ?? [];
+  const found = new Set(list.map((g) => g.name.toLowerCase()));
   for (const n of names) {
     if (!found.has(n.toLowerCase())) logs.push(`category_not_found "${n}"`);
   }
-  return res.data;
+  return list;
 }
 
 // ---------------------------------------------------------------------------
