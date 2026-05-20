@@ -242,7 +242,7 @@ export function buildPlannerResult(clips: ClipRow[]): PlannerResult {
   const insights: ClipInsight[] = clips.map((clip) => {
     const ageDays = daysBetween(clip.clip_created_at);
     const { score, durationSec, durationFit } = scoreClip(clip, ageDays);
-    const label = labelFor(score);
+    const label = labelFor(score, Math.max(0, clip.view_count ?? 0));
     return {
       clip,
       score,
