@@ -517,7 +517,15 @@ const ClipsPage = () => {
             ) : (
               <div className="space-y-3">
                 {visibleInsights.map((insight) => (
-                  <ClipCard key={insight.clip.id} insight={insight} />
+                  <ClipCard
+                    key={insight.clip.id}
+                    insight={insight}
+                    gameName={
+                      insight.clip.game_id
+                        ? categories.get(insight.clip.game_id)?.game_name ?? null
+                        : null
+                    }
+                  />
                 ))}
               </div>
             )}
