@@ -664,9 +664,46 @@ const LeadersPage = () => {
               );
             })()}
 
+            {!loading && !notFound && rows.length > 0 && (
+              <div className="mt-4 flex flex-col items-center gap-2">
+                {rateLimited && (
+                  <p className="text-xs text-warning">
+                    Twitch limite temporairement les appels — réessaie dans quelques secondes.
+                  </p>
+                )}
+                {loadError && (
+                  <p className="text-xs text-muted-foreground">
+                    Impossible de charger plus de chaînes pour le moment.
+                  </p>
+                )}
+                {hasMore && rows.length < MAX_ROWS && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                  >
+                    {loadingMore ? (
+                      <>
+                        <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                        Chargement…
+                      </>
+                    ) : (
+                      "Charger plus"
+                    )}
+                  </Button>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  {rows.length} chaîne{rows.length > 1 ? "s" : ""} chargée{rows.length > 1 ? "s" : ""}
+                  {rows.length >= MAX_ROWS && " · limite V1 atteinte"}
+                </p>
+              </div>
+            )}
+
             <p className="mt-6 text-[11px] text-muted-foreground">
               Source : Twitch /streams (snapshot live). Score calculé sur l'audience, le statut broadcaster et la portée en direct.
             </p>
+
               </TabsContent>
             </Tabs>
           </>
