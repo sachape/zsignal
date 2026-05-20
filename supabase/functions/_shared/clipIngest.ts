@@ -188,9 +188,11 @@ async function enrichCategories(
   }
   return { upserted: rows.length };
 }
+
+export async function ingestClipsFor(
   admin: ReturnType<typeof createClient>,
   params: IngestParams,
-): Promise<{ fetched: number; upserted: number }> {
+): Promise<{ fetched: number; upserted: number; categories_synced: number }> {
   const clientId = Deno.env.get("TWITCH_CLIENT_ID")!;
   const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET")!;
   const appToken = await getAppAccessToken(clientId, clientSecret);
@@ -203,7 +205,9 @@ async function enrichCategories(
     params.started_at,
     endedAt,
   );
-  if (clips.length === 0) return { fetched: 0, upserted: 0 };
+  if (clips.length === 0) {
+    return { fetched: 0, upserted: 0, categories_synced: 0 };
+  }
 
   // Dedupe by twitch_clip_id — Helix pagination can return the same clip
   // across pages, which would break ON CONFLICT DO UPDATE in a single batch.
@@ -238,5 +242,26 @@ async function enrichCategories(
     .upsert(rows, { onConflict: "twitch_clip_id" });
   if (error) throw error;
 
-  return { fetched: clips.length, upserted: rows.length };
+  // Best-effort category enrichment. Failures must not break ingestion.
+  let categoriesSynced = 0;
+  try {
+    const gameIds = uniqueClips
+      .map((c) => c.game_id ?? "")
+      .filter((id) => id !== "");
+    const res = await enrichCategories(admin, clientId, appToken, gameIds);
+    categoriesSynced = res.upserted;
+  } catch (e) {
+    console.log(
+      JSON.stringify({
+        event: "twitch_categories_enrich_error",
+        message: e instanceof Error ? e.message : "unknown",
+      }),
+    );
+  }
+
+  return {
+    fetched: clips.length,
+    upserted: rows.length,
+    categories_synced: categoriesSynced,
+  };
 }
