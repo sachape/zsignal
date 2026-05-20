@@ -259,13 +259,40 @@ Deno.serve(async (req) => {
     }
   }
 
+
+  // --- Best-effort user hydration (profile_image_url, broadcaster_type) ---
+  const userInfo = new Map<string, { profile_image_url: string | null; broadcaster_type: string | null }>();
+  if (allStreams.length > 0 && stats.calls < HARD_CAP_HELIX_CALLS) {
+    const ids = Array.from(seenStreamKey);
+    for (let i = 0; i < ids.length; i += 100) {
+      if (stats.calls >= HARD_CAP_HELIX_CALLS) {
+        logs.push("hydration_skipped_cap_reached");
+        break;
+      }
+      const batch = ids.slice(i, i + 100);
+      const url = new URL("https://api.twitch.tv/helix/users");
+      for (const id of batch) url.searchParams.append("id", id);
+      const res = await helix<{ data: HelixUser[] }>(url.toString(), headers, stats);
+      if (!res.ok || !res.data) {
+        logs.push(`helix_users_failed status=${res.status} batch_size=${batch.length}`);
+        continue;
+      }
+      for (const u of res.data.data ?? []) {
+        userInfo.set(u.id, {
+          profile_image_url: u.profile_image_url ?? null,
+          broadcaster_type: u.broadcaster_type ?? null,
+        });
+      }
+    }
+  }
+
   // --- Write stream snapshots (batched) ---
   const snapshotRows = allStreams.map((s) => ({
     captured_at: capturedAt,
     broadcaster_id: s.user_id,
     broadcaster_login: s.user_login,
     broadcaster_name: s.user_name ?? null,
-    profile_image_url: null,
+    profile_image_url: userInfo.get(s.user_id)?.profile_image_url ?? null,
     game_id: s.game_id || null,
     game_name: s.game_name || null,
     language: s.language || null,
