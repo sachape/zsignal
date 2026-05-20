@@ -141,11 +141,15 @@ const CopyButton = ({ label, text, small }: CopyButtonProps) => {
 
 interface ClipCardProps {
   insight: ClipInsight;
+  gameName: string | null;
 }
 
-const ClipCard = ({ insight }: ClipCardProps) => {
+const ClipCard = ({ insight, gameName }: ClipCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const copy = useMemo(() => generateClipCopy(insight.clip, insight), [insight]);
+  const copy = useMemo(
+    () => generateClipCopy(insight.clip, insight, gameName),
+    [insight, gameName],
+  );
   const thumb = thumbUrl(insight.clip.thumbnail_url);
   const title = insight.clip.title?.trim() || "Clip sans titre";
 
