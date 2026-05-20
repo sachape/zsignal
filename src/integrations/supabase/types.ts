@@ -1135,6 +1135,114 @@ export type Database = {
         }
         Relationships: []
       }
+      twitch_channel_daily_stats: {
+        Row: {
+          avg_viewers: number
+          broadcaster_id: string
+          broadcaster_login: string | null
+          created_at: string
+          date: string
+          dominant_game_id: string | null
+          dominant_game_name: string | null
+          dominant_language: string | null
+          estimated_hours_watched: number
+          hours_streamed_estimated: number
+          id: string
+          min_viewers: number
+          peak_viewers: number
+          snapshots_count: number
+          updated_at: string
+        }
+        Insert: {
+          avg_viewers?: number
+          broadcaster_id: string
+          broadcaster_login?: string | null
+          created_at?: string
+          date: string
+          dominant_game_id?: string | null
+          dominant_game_name?: string | null
+          dominant_language?: string | null
+          estimated_hours_watched?: number
+          hours_streamed_estimated?: number
+          id?: string
+          min_viewers?: number
+          peak_viewers?: number
+          snapshots_count?: number
+          updated_at?: string
+        }
+        Update: {
+          avg_viewers?: number
+          broadcaster_id?: string
+          broadcaster_login?: string | null
+          created_at?: string
+          date?: string
+          dominant_game_id?: string | null
+          dominant_game_name?: string | null
+          dominant_language?: string | null
+          estimated_hours_watched?: number
+          hours_streamed_estimated?: number
+          id?: string
+          min_viewers?: number
+          peak_viewers?: number
+          snapshots_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      twitch_channel_index: {
+        Row: {
+          broadcaster_id: string
+          broadcaster_login: string
+          broadcaster_name: string | null
+          broadcaster_type: string | null
+          created_at: string
+          first_seen_at: string
+          last_game_id: string | null
+          last_game_name: string | null
+          last_language: string | null
+          last_seen_at: string
+          last_viewer_count: number | null
+          lifetime_peak_viewers: number
+          profile_image_url: string | null
+          snapshot_count: number
+          updated_at: string
+        }
+        Insert: {
+          broadcaster_id: string
+          broadcaster_login: string
+          broadcaster_name?: string | null
+          broadcaster_type?: string | null
+          created_at?: string
+          first_seen_at?: string
+          last_game_id?: string | null
+          last_game_name?: string | null
+          last_language?: string | null
+          last_seen_at?: string
+          last_viewer_count?: number | null
+          lifetime_peak_viewers?: number
+          profile_image_url?: string | null
+          snapshot_count?: number
+          updated_at?: string
+        }
+        Update: {
+          broadcaster_id?: string
+          broadcaster_login?: string
+          broadcaster_name?: string | null
+          broadcaster_type?: string | null
+          created_at?: string
+          first_seen_at?: string
+          last_game_id?: string | null
+          last_game_name?: string | null
+          last_language?: string | null
+          last_seen_at?: string
+          last_viewer_count?: number | null
+          lifetime_peak_viewers?: number
+          profile_image_url?: string | null
+          snapshot_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       twitch_clip_snapshots: {
         Row: {
           broadcaster_id: string
@@ -1362,6 +1470,48 @@ export type Database = {
         }
         Relationships: []
       }
+      twitch_game_snapshots: {
+        Row: {
+          captured_at: string
+          created_at: string
+          game_id: string
+          game_name: string | null
+          id: string
+          language: string
+          median_viewers: number
+          top_channel_viewers: number
+          total_channels: number
+          total_viewers: number
+          viewer_channel_ratio: number
+        }
+        Insert: {
+          captured_at?: string
+          created_at?: string
+          game_id: string
+          game_name?: string | null
+          id?: string
+          language?: string
+          median_viewers?: number
+          top_channel_viewers?: number
+          total_channels?: number
+          total_viewers?: number
+          viewer_channel_ratio?: number
+        }
+        Update: {
+          captured_at?: string
+          created_at?: string
+          game_id?: string
+          game_name?: string | null
+          id?: string
+          language?: string
+          median_viewers?: number
+          top_channel_viewers?: number
+          total_channels?: number
+          total_viewers?: number
+          viewer_channel_ratio?: number
+        }
+        Relationships: []
+      }
       twitch_profiles: {
         Row: {
           broadcaster_type: string | null
@@ -1407,6 +1557,57 @@ export type Database = {
           updated_at?: string
           user_id?: string
           view_count?: number | null
+        }
+        Relationships: []
+      }
+      twitch_stream_snapshots: {
+        Row: {
+          broadcaster_id: string
+          broadcaster_login: string
+          broadcaster_name: string | null
+          captured_at: string
+          created_at: string
+          game_id: string | null
+          game_name: string | null
+          id: string
+          language: string | null
+          profile_image_url: string | null
+          started_at: string | null
+          thumbnail_url: string | null
+          title: string | null
+          viewer_count: number
+        }
+        Insert: {
+          broadcaster_id: string
+          broadcaster_login: string
+          broadcaster_name?: string | null
+          captured_at?: string
+          created_at?: string
+          game_id?: string | null
+          game_name?: string | null
+          id?: string
+          language?: string | null
+          profile_image_url?: string | null
+          started_at?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+          viewer_count?: number
+        }
+        Update: {
+          broadcaster_id?: string
+          broadcaster_login?: string
+          broadcaster_name?: string | null
+          captured_at?: string
+          created_at?: string
+          game_id?: string | null
+          game_name?: string | null
+          id?: string
+          language?: string | null
+          profile_image_url?: string | null
+          started_at?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+          viewer_count?: number
         }
         Relationships: []
       }
