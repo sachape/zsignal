@@ -18,6 +18,7 @@ import {
   Activity,
   Zap,
   MessageCircle,
+  Scissors,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -49,6 +50,7 @@ const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true, secondary: false },
   { title: "Analyse", url: "/analyse", icon: Activity, end: false, secondary: false },
   { title: "Lives", url: "/lives", icon: Radio, end: false, secondary: false },
+  { title: "Clips", url: "/clips", icon: Scissors, end: false, secondary: false },
   { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false, secondary: false },
   { title: "Progression", url: "/progression", icon: Star, end: false, secondary: false },
   { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false, secondary: true },
