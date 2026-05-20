@@ -165,6 +165,76 @@ export async function fetchCategoryLeaders(opts: {
   };
 }
 
+export interface CategoryLeadersPage {
+  category: LeaderCategory | null;
+  channels: LeaderChannel[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  fetchedAt: string | null;
+  rateLimited: boolean;
+  reason: string | null;
+}
+
+/**
+ * Paginated category ranking. Uses Twitch Get Streams pagination via the
+ * twitch-public-lookup edge function. `first` is capped at 100 by Twitch.
+ */
+export async function fetchCategoryLeadersPage(opts: {
+  category: string;
+  language?: string;
+  first?: number;
+  after?: string | null;
+}): Promise<CategoryLeadersPage> {
+  const { data, error } = await supabase.functions.invoke<CategoryRankingResponse>(
+    "twitch-public-lookup",
+    {
+      body: {
+        input: opts.category,
+        mode: "category",
+        first: Math.min(Math.max(opts.first ?? 100, 1), 100),
+        after: opts.after ?? undefined,
+        language: opts.language ?? "all",
+      },
+    },
+  );
+  if (error || !data) {
+    return {
+      category: null,
+      channels: [],
+      nextCursor: null,
+      hasMore: false,
+      fetchedAt: null,
+      rateLimited: false,
+      reason: error?.message ?? "request_failed",
+    };
+  }
+  if (!data.success) {
+    return {
+      category: data.category ?? null,
+      channels: [],
+      nextCursor: null,
+      hasMore: false,
+      fetchedAt: data.fetched_at ?? null,
+      rateLimited: data.reason === "rate_limited",
+      reason: data.reason ?? "unknown",
+    };
+  }
+  const channels = (data.channels ?? []).map((c) => ({
+    ...c,
+    stream_score: computeTeaserScore(c),
+    tags: buildTags(c),
+  }));
+  return {
+    category: data.category ?? null,
+    channels,
+    nextCursor: data.pagination?.cursor ?? null,
+    hasMore: data.pagination?.has_more ?? false,
+    fetchedAt: data.fetched_at ?? null,
+    rateLimited: false,
+    reason: null,
+  };
+}
+
 /** Real category autocomplete using /helix/search/categories. */
 export async function searchCategories(query: string): Promise<LeaderCategory[]> {
   if (query.trim().length < 2) return [];
