@@ -434,7 +434,9 @@ const ClipsPage = () => {
               <SummaryTile
                 icon={Sparkles}
                 label="À republier"
-                value={String(result.underusedCount + Math.min(3, result.highPotentialCount))}
+                value={String(
+                  result.insights.filter((i) => i.isUnderused || i.label === "high").length,
+                )}
                 hint={result.underusedCount > 0 ? `${result.underusedCount} sous-exploités` : "Top potentiel inclus"}
               />
               <SummaryTile

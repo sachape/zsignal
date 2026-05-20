@@ -162,8 +162,10 @@ function scoreClip(row: ClipRow, ageDays: number): {
   return { score: total, durationSec, durationFit };
 }
 
-function labelFor(score: number): PotentialLabel {
-  if (score >= 70) return "high";
+function labelFor(score: number, views: number): PotentialLabel {
+  // Guardrail: a clip with very few views can never be "Potentiel élevé",
+  // even if it ticks every other box (recent, sweet duration, featured).
+  if (score >= 70 && views >= 150) return "high";
   if (score >= 45) return "good";
   if (score >= 22) return "rework";
   return "weak";
@@ -240,7 +242,7 @@ export function buildPlannerResult(clips: ClipRow[]): PlannerResult {
   const insights: ClipInsight[] = clips.map((clip) => {
     const ageDays = daysBetween(clip.clip_created_at);
     const { score, durationSec, durationFit } = scoreClip(clip, ageDays);
-    const label = labelFor(score);
+    const label = labelFor(score, Math.max(0, clip.view_count ?? 0));
     return {
       clip,
       score,
