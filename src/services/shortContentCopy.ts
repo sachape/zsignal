@@ -206,10 +206,14 @@ function buildPack(opts: {
   return lines.join("\n");
 }
 
-function buildContext(clip: ClipRow, insight?: ClipInsight): CopyContext {
+function buildContext(
+  clip: ClipRow,
+  insight?: ClipInsight,
+  gameName?: string | null,
+): CopyContext {
   return {
     cleanedTitle: cleanTitle(clip.title),
-    game: null, // game name is not stored; only game_id. Reserved for future enrichment.
+    game: gameName && gameName.trim() !== "" ? gameName.trim() : null,
     durationSec: insight?.durationSec ?? Math.max(0, clip.duration ?? 0),
     views: Math.max(0, clip.view_count ?? 0),
     isRecent: (insight?.ageDays ?? 999) <= 7,
@@ -222,8 +226,9 @@ function buildContext(clip: ClipRow, insight?: ClipInsight): CopyContext {
 export function generateClipCopy(
   clip: ClipRow,
   insight?: ClipInsight,
+  gameName?: string | null,
 ): ClipCopyPack {
-  const ctx = buildContext(clip, insight);
+  const ctx = buildContext(clip, insight, gameName);
   const hooks = buildHooks(ctx);
   const caption = buildCaption(ctx);
   const title = buildTitle(ctx);
