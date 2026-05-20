@@ -313,6 +313,7 @@ const ClipsPage = () => {
   const [status, setStatus] = useState<Status>("loading");
   const [account, setAccount] = useState<ConnectedTwitchAccount | null>(null);
   const [result, setResult] = useState<PlannerResult | null>(null);
+  const [categories, setCategories] = useState<Map<string, CategoryInfo>>(new Map());
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<ClipFilter>("all");
   const [sort, setSort] = useState<ClipSort>("potential");
@@ -324,7 +325,11 @@ const ClipsPage = () => {
       const acc = await loadConnectedTwitchAccount(user.id);
       setAccount(acc);
       const clips = await loadRecentClips({ lookbackDays: 14 });
-      setResult(buildPlannerResult(clips));
+      const planner = buildPlannerResult(clips);
+      setResult(planner);
+      // Best-effort: load category names. Failure is silent (cards show fallback).
+      const cats = await loadCategories(clips.map((c) => c.game_id));
+      setCategories(cats);
       setStatus("ready");
     } catch {
       setStatus("error");
