@@ -140,30 +140,45 @@ Deno.serve(async (req) => {
   const stats = { calls: 0, rateLimited: 0 };
   const logs: string[] = [];
 
-  // --- Auth: CRON_SECRET ---
+  // --- Auth: accept either x-cron-secret (env CRON_SECRET, manual tests)
+  //     or Authorization: Bearer <token> validated against vault entry
+  //     'eventsub_cron_secret' via verify_eventsub_cron_secret RPC (used by pg_cron). ---
   const cronSecret = Deno.env.get("CRON_SECRET");
-  if (!cronSecret) return json({ error: "missing_cron_secret_env" }, 500);
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceKey) return json({ error: "missing_env" }, 500);
 
   let body: { secret?: string; languages?: string[]; categories?: string[]; maxPagesPerCombo?: number } = {};
   try {
     if (req.method === "POST") body = await req.json().catch(() => ({}));
   } catch (_) { /* ignore */ }
 
-  const provided = req.headers.get("x-cron-secret") ?? body.secret ?? "";
-  if (provided !== cronSecret) return json({ error: "unauthorized" }, 401);
-
-  // --- Env ---
-  const clientId = Deno.env.get("TWITCH_CLIENT_ID");
-  const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET");
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!clientId || !clientSecret || !supabaseUrl || !serviceKey) {
-    return json({ error: "missing_env" }, 500);
-  }
-
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  const headerSecret = req.headers.get("x-cron-secret") ?? body.secret ?? "";
+  const bearer = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
+  let authorized = false;
+  if (cronSecret && headerSecret && headerSecret === cronSecret) authorized = true;
+  if (!authorized && bearer) {
+    const { data: ok } = await admin.rpc("verify_eventsub_cron_secret", { token: bearer });
+    if (ok === true) authorized = true;
+  }
+  if (!authorized) return json({ error: "unauthorized" }, 401);
+
+  const clientId = Deno.env.get("TWITCH_CLIENT_ID");
+  const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET");
+  if (!clientId || !clientSecret) return json({ error: "missing_env" }, 500);
+
+  // --- Monitoring: open run row ---
+  const { data: runRow } = await admin
+    .from("twitch_market_runs")
+    .insert({ run_type: "snapshot", status: "running" })
+    .select("id")
+    .single();
+  const runId = (runRow as { id: string } | null)?.id ?? null;
+
 
   // --- Scope ---
   const languages = (body.languages && body.languages.length > 0 ? body.languages : V1_LANGUAGES)
@@ -251,13 +266,40 @@ Deno.serve(async (req) => {
     }
   }
 
+
+  // --- Best-effort user hydration (profile_image_url, broadcaster_type) ---
+  const userInfo = new Map<string, { profile_image_url: string | null; broadcaster_type: string | null }>();
+  if (allStreams.length > 0 && stats.calls < HARD_CAP_HELIX_CALLS) {
+    const ids = Array.from(seenStreamKey);
+    for (let i = 0; i < ids.length; i += 100) {
+      if (stats.calls >= HARD_CAP_HELIX_CALLS) {
+        logs.push("hydration_skipped_cap_reached");
+        break;
+      }
+      const batch = ids.slice(i, i + 100);
+      const url = new URL("https://api.twitch.tv/helix/users");
+      for (const id of batch) url.searchParams.append("id", id);
+      const res = await helix<{ data: HelixUser[] }>(url.toString(), headers, stats);
+      if (!res.ok || !res.data) {
+        logs.push(`helix_users_failed status=${res.status} batch_size=${batch.length}`);
+        continue;
+      }
+      for (const u of res.data.data ?? []) {
+        userInfo.set(u.id, {
+          profile_image_url: u.profile_image_url ?? null,
+          broadcaster_type: u.broadcaster_type ?? null,
+        });
+      }
+    }
+  }
+
   // --- Write stream snapshots (batched) ---
   const snapshotRows = allStreams.map((s) => ({
     captured_at: capturedAt,
     broadcaster_id: s.user_id,
     broadcaster_login: s.user_login,
     broadcaster_name: s.user_name ?? null,
-    profile_image_url: null,
+    profile_image_url: userInfo.get(s.user_id)?.profile_image_url ?? null,
     game_id: s.game_id || null,
     game_name: s.game_name || null,
     language: s.language || null,
@@ -304,8 +346,8 @@ Deno.serve(async (req) => {
         broadcaster_id: s.user_id,
         broadcaster_login: s.user_login,
         broadcaster_name: s.user_name ?? null,
-        profile_image_url: null,
-        broadcaster_type: null,
+        profile_image_url: userInfo.get(s.user_id)?.profile_image_url ?? null,
+        broadcaster_type: userInfo.get(s.user_id)?.broadcaster_type ?? null,
         first_seen_at: prev?.first_seen_at ?? capturedAt,
         last_seen_at: capturedAt,
         last_game_id: s.game_id || null,
@@ -396,6 +438,22 @@ Deno.serve(async (req) => {
     duration_ms: durationMs,
     logs,
   };
+
+  if (runId) {
+    await admin
+      .from("twitch_market_runs")
+      .update({
+        finished_at: new Date().toISOString(),
+        status: logs.length > 0 ? "completed_with_warnings" : "completed",
+        helix_calls: stats.calls,
+        snapshots_written: snapshotsWritten,
+        channels_upserted: channelsUpserted,
+        game_snapshots_written: gameSnapshotsWritten,
+        rate_limited_count: stats.rateLimited,
+        metadata: { ...summary, run_id: runId },
+      })
+      .eq("id", runId);
+  }
 
   console.log(JSON.stringify({ event: "twitch_market_snapshot_done", ...summary }));
   return json(summary, 200);

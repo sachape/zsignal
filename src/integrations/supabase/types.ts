@@ -1512,6 +1512,57 @@ export type Database = {
         }
         Relationships: []
       }
+      twitch_market_runs: {
+        Row: {
+          channels_upserted: number
+          created_at: string
+          daily_stats_upserted: number
+          error_message: string | null
+          finished_at: string | null
+          game_snapshots_written: number
+          helix_calls: number
+          id: string
+          metadata: Json
+          rate_limited_count: number
+          run_type: string
+          snapshots_written: number
+          started_at: string
+          status: string
+        }
+        Insert: {
+          channels_upserted?: number
+          created_at?: string
+          daily_stats_upserted?: number
+          error_message?: string | null
+          finished_at?: string | null
+          game_snapshots_written?: number
+          helix_calls?: number
+          id?: string
+          metadata?: Json
+          rate_limited_count?: number
+          run_type: string
+          snapshots_written?: number
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          channels_upserted?: number
+          created_at?: string
+          daily_stats_upserted?: number
+          error_message?: string | null
+          finished_at?: string | null
+          game_snapshots_written?: number
+          helix_calls?: number
+          id?: string
+          metadata?: Json
+          rate_limited_count?: number
+          run_type?: string
+          snapshots_written?: number
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       twitch_profiles: {
         Row: {
           broadcaster_type: string | null
