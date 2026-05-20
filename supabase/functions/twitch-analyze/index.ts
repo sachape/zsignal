@@ -18,13 +18,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { channel_name } = await req.json();
-    if (!channel_name) {
-      return new Response(JSON.stringify({ error: "Missing channel_name" }), {
+    const body = await req.json().catch(() => ({}));
+    const raw = typeof body?.channel_name === "string" ? body.channel_name : "";
+    // Normalize: trim + lowercase; accept @prefix and twitch.tv URLs by extracting the login segment.
+    let candidate = raw.trim().toLowerCase();
+    if (candidate.startsWith("@")) candidate = candidate.slice(1);
+    if (candidate.includes("twitch.tv")) {
+      const idx = candidate.indexOf("twitch.tv/");
+      if (idx >= 0) candidate = candidate.slice(idx + "twitch.tv/".length).split(/[/?#]/)[0];
+    }
+    // Twitch login: 4–25 chars, [a-z0-9_].
+    if (!/^[a-z0-9_]{4,25}$/.test(candidate)) {
+      return new Response(JSON.stringify({ error: "invalid_channel_name" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const channel_name = candidate;
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
