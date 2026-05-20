@@ -165,6 +165,14 @@ Deno.serve(async (req) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  // --- Monitoring: open run row ---
+  const { data: runRow } = await admin
+    .from("twitch_market_runs")
+    .insert({ run_type: "snapshot", status: "running" })
+    .select("id")
+    .single();
+  const runId = (runRow as { id: string } | null)?.id ?? null;
+
   // --- Scope ---
   const languages = (body.languages && body.languages.length > 0 ? body.languages : V1_LANGUAGES)
     .map((l) => l.trim().toLowerCase()).filter(Boolean);
