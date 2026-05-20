@@ -377,6 +377,8 @@ Deno.serve(async (req) => {
         | "category_search"
         | "category_all";
       limit?: number;
+      first?: number;
+      after?: string;
       language?: string;
     } = {};
     try {
