@@ -31,28 +31,41 @@ export interface LeaderCategory {
   box_art_url: string | null;
 }
 
+interface RawCategoryChannel {
+  rank: number;
+  id: string;
+  login: string;
+  display_name: string;
+  profile_image_url: string | null;
+  broadcaster_type: string;
+  description: string;
+  view_count: number;
+  is_live: boolean;
+  live_viewer_count: number | null;
+  title: string | null;
+  game_name: string | null;
+  game_id: string | null;
+  language: string | null;
+  started_at: string | null;
+}
+
 interface CategoryRankingResponse {
   success: boolean;
   mode?: "category";
   reason?: string;
+  retry_after?: string | null;
   category?: LeaderCategory;
-  channels?: Array<{
-    rank: number;
-    id: string;
-    login: string;
-    display_name: string;
-    profile_image_url: string | null;
-    broadcaster_type: string;
-    description: string;
-    view_count: number;
-    is_live: boolean;
-    live_viewer_count: number | null;
-    title: string | null;
-    game_name: string | null;
-    game_id: string | null;
-    language: string | null;
-    started_at: string | null;
-  }>;
+  channels?: RawCategoryChannel[];
+  pagination?: { cursor: string | null; has_more: boolean };
+  fetched_at?: string;
+  filters_applied?: {
+    category: string;
+    game_id: string;
+    language: string;
+    sort: string;
+    first: number;
+    after: string | null;
+  };
 }
 
 interface CategorySearchResponse {
