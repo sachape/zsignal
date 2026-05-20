@@ -1,10 +1,11 @@
 // Twitch Market Aggregate Daily — Phase B (Streamnco Market Index).
 //
-// - Cron-protected via CRON_SECRET.
-// - Aggregates twitch_stream_snapshots for a given UTC date (default: yesterday)
-//   and upserts twitch_channel_daily_stats.
-// - hours_streamed_estimated and estimated_hours_watched are SNAPSHOT-BASED
-//   estimations. They are NOT official Twitch metrics.
+// - Cron-protected via CRON_SECRET or vault eventsub_cron_secret.
+// - Aggregates twitch_stream_snapshots for a given UTC date and upserts
+//   twitch_channel_daily_stats.
+// - hours_streamed_estimated / estimated_hours_watched / avg_viewers are
+//   computed using REAL gaps between distinct captured_at values
+//   (captured_at_delta_weighted method). They are NOT official Twitch metrics.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -21,9 +22,13 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-// Snapshot cron interval, in minutes. Drives hours_streamed_estimated.
-// Keep in sync with the actual cron schedule of twitch-market-snapshot.
-const SNAPSHOT_INTERVAL_MINUTES = 30;
+// Interval constants — used ONLY as fallback / cap, never as primary multiplier.
+const DEFAULT_SNAPSHOT_INTERVAL_MINUTES = Number(
+  Deno.env.get("MARKET_DEFAULT_SNAPSHOT_INTERVAL_MINUTES") ?? 30,
+);
+const MAX_SNAPSHOT_INTERVAL_MINUTES = Number(
+  Deno.env.get("MARKET_MAX_SNAPSHOT_INTERVAL_MINUTES") ?? 45,
+);
 
 interface Snapshot {
   broadcaster_id: string;
@@ -32,6 +37,7 @@ interface Snapshot {
   game_name: string | null;
   language: string | null;
   viewer_count: number;
+  captured_at: string;
 }
 
 function isoDate(d: Date): string {
@@ -48,13 +54,19 @@ function validIsoDate(s: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(new Date(`${s}T00:00:00Z`).getTime());
 }
 
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const t0 = Date.now();
   const logs: string[] = [];
 
-  // Auth: x-cron-secret (env CRON_SECRET) OR Authorization: Bearer <vault eventsub_cron_secret>
   const cronSecret = Deno.env.get("CRON_SECRET");
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -80,8 +92,12 @@ Deno.serve(async (req) => {
   if (!authorized) return json({ error: "unauthorized" }, 401);
 
   const targetDate = body.date && validIsoDate(body.date) ? body.date : yesterdayUtcDate();
-  const startIso = `${targetDate}T00:00:00.000Z`;
-  const endIso = `${targetDate}T23:59:59.999Z`;
+  const startMs = Date.parse(`${targetDate}T00:00:00.000Z`);
+  const endMs = Date.parse(`${targetDate}T23:59:59.999Z`);
+  const startIso = new Date(startMs).toISOString();
+  const endIso = new Date(endMs).toISOString();
+  // Hard cap: never extend beyond end of target UTC day.
+  const dayEndMs = startMs + 24 * 60 * 60 * 1000;
 
   // Track run in monitoring table.
   const { data: runRow } = await admin
@@ -90,20 +106,25 @@ Deno.serve(async (req) => {
       run_type: "aggregate_daily",
       status: "running",
       started_at: new Date().toISOString(),
-      metadata: { target_date: targetDate, interval_minutes: SNAPSHOT_INTERVAL_MINUTES },
+      metadata: {
+        target_date: targetDate,
+        aggregation_method: "captured_at_delta_weighted",
+        default_interval_minutes: DEFAULT_SNAPSHOT_INTERVAL_MINUTES,
+        max_interval_minutes: MAX_SNAPSHOT_INTERVAL_MINUTES,
+      },
     })
     .select("id")
     .single();
   const runId = (runRow as { id: string } | null)?.id ?? null;
 
-  // Page through snapshots (PostgREST default cap 1000 rows per query).
+  // Page through snapshots.
   const all: Snapshot[] = [];
   const pageSize = 1000;
   let offset = 0;
   while (true) {
     const { data, error } = await admin
       .from("twitch_stream_snapshots")
-      .select("broadcaster_id, broadcaster_login, game_id, game_name, language, viewer_count")
+      .select("broadcaster_id, broadcaster_login, game_id, game_name, language, viewer_count, captured_at")
       .gte("captured_at", startIso)
       .lte("captured_at", endIso)
       .order("captured_at", { ascending: true })
@@ -118,11 +139,53 @@ Deno.serve(async (req) => {
     offset += pageSize;
   }
 
-  // Group by broadcaster_id.
+  // Build distinct sorted captured_at timestamps for the day, then compute
+  // contribution_minutes per distinct capture using real next-capture delta.
+  const distinctTimesSet = new Set<number>();
+  for (const s of all) distinctTimesSet.add(Date.parse(s.captured_at));
+  const distinctTimes = [...distinctTimesSet].sort((a, b) => a - b);
+
+  const observedIntervalsMin: number[] = [];
+  for (let i = 0; i < distinctTimes.length - 1; i++) {
+    const deltaMin = (distinctTimes[i + 1] - distinctTimes[i]) / 60000;
+    if (deltaMin > 0 && deltaMin <= MAX_SNAPSHOT_INTERVAL_MINUTES) {
+      observedIntervalsMin.push(deltaMin);
+    }
+  }
+  const medianInterval = median(observedIntervalsMin);
+  const fallbackIntervalMin = medianInterval ?? DEFAULT_SNAPSHOT_INTERVAL_MINUTES;
+  const singleCaptureFallback = distinctTimes.length <= 1;
+
+  let cappedIntervalsCount = 0;
+  const contributionByTime = new Map<number, number>(); // minutes
+  for (let i = 0; i < distinctTimes.length; i++) {
+    const t = distinctTimes[i];
+    let nextT: number;
+    if (i < distinctTimes.length - 1) {
+      nextT = distinctTimes[i + 1];
+    } else {
+      // Last capture: use fallback interval, bounded by end-of-day.
+      nextT = t + fallbackIntervalMin * 60000;
+    }
+    if (nextT > dayEndMs) nextT = dayEndMs;
+    let deltaMin = (nextT - t) / 60000;
+    if (deltaMin <= 0) deltaMin = Math.min(fallbackIntervalMin, MAX_SNAPSHOT_INTERVAL_MINUTES);
+    if (deltaMin > MAX_SNAPSHOT_INTERVAL_MINUTES) {
+      cappedIntervalsCount += 1;
+      deltaMin = MAX_SNAPSHOT_INTERVAL_MINUTES;
+    }
+    contributionByTime.set(t, deltaMin);
+  }
+
+  // Group by broadcaster, accumulating delta-weighted metrics.
   interface Acc {
     broadcaster_login: string;
-    viewers: number[];
+    snapshotsCount: number;
+    peak: number;
+    min: number;
     sumViewers: number;
+    sumHours: number;
+    sumViewerHours: number;
     gameCounts: Map<string, { count: number; name: string | null }>;
     langCounts: Map<string, number>;
   }
@@ -132,16 +195,29 @@ Deno.serve(async (req) => {
     if (!acc) {
       acc = {
         broadcaster_login: s.broadcaster_login,
-        viewers: [],
+        snapshotsCount: 0,
+        peak: 0,
+        min: Number.POSITIVE_INFINITY,
         sumViewers: 0,
+        sumHours: 0,
+        sumViewerHours: 0,
         gameCounts: new Map(),
         langCounts: new Map(),
       };
       groups.set(s.broadcaster_id, acc);
     }
     const v = s.viewer_count ?? 0;
-    acc.viewers.push(v);
+    const tMs = Date.parse(s.captured_at);
+    const contribMin = contributionByTime.get(tMs) ?? fallbackIntervalMin;
+    const contribH = contribMin / 60;
+
+    acc.snapshotsCount += 1;
     acc.sumViewers += v;
+    if (v > acc.peak) acc.peak = v;
+    if (v < acc.min) acc.min = v;
+    acc.sumHours += contribH;
+    acc.sumViewerHours += v * contribH;
+
     if (s.game_id) {
       const g = acc.gameCounts.get(s.game_id);
       if (g) g.count += 1;
@@ -152,17 +228,19 @@ Deno.serve(async (req) => {
     }
   }
 
-  const intervalH = SNAPSHOT_INTERVAL_MINUTES / 60;
-
   const rows: Array<Record<string, unknown>> = [];
+  // Legacy comparison for logs only.
+  let legacySumHoursStreamed = 0;
+  let legacySumHoursWatched = 0;
+  let newSumHoursStreamed = 0;
+  let newSumHoursWatched = 0;
+  const legacyIntervalH = DEFAULT_SNAPSHOT_INTERVAL_MINUTES / 60;
+
   for (const [broadcasterId, acc] of groups) {
-    const count = acc.viewers.length;
-    if (count === 0) continue;
-    const peak = acc.viewers.reduce((a, b) => Math.max(a, b), 0);
-    const min = acc.viewers.reduce((a, b) => Math.min(a, b), Number.POSITIVE_INFINITY);
-    const avg = acc.sumViewers / count;
-    const hoursStreamed = count * intervalH;
-    const hoursWatched = acc.sumViewers * intervalH;
+    if (acc.snapshotsCount === 0) continue;
+    const avg = acc.sumHours > 0
+      ? acc.sumViewerHours / acc.sumHours
+      : acc.sumViewers / acc.snapshotsCount;
 
     let dominantGameId: string | null = null;
     let dominantGameName: string | null = null;
@@ -180,6 +258,11 @@ Deno.serve(async (req) => {
       if (c > bestLang) { bestLang = c; dominantLang = lg; }
     }
 
+    legacySumHoursStreamed += acc.snapshotsCount * legacyIntervalH;
+    legacySumHoursWatched += acc.sumViewers * legacyIntervalH;
+    newSumHoursStreamed += acc.sumHours;
+    newSumHoursWatched += acc.sumViewerHours;
+
     rows.push({
       date: targetDate,
       broadcaster_id: broadcasterId,
@@ -188,11 +271,11 @@ Deno.serve(async (req) => {
       dominant_game_name: dominantGameName,
       dominant_language: dominantLang,
       avg_viewers: avg,
-      peak_viewers: peak,
-      min_viewers: min === Number.POSITIVE_INFINITY ? 0 : min,
-      hours_streamed_estimated: hoursStreamed,
-      estimated_hours_watched: hoursWatched,
-      snapshots_count: count,
+      peak_viewers: acc.peak,
+      min_viewers: acc.min === Number.POSITIVE_INFINITY ? 0 : acc.min,
+      hours_streamed_estimated: acc.sumHours,
+      estimated_hours_watched: acc.sumViewerHours,
+      snapshots_count: acc.snapshotsCount,
       updated_at: new Date().toISOString(),
     });
   }
@@ -213,10 +296,22 @@ Deno.serve(async (req) => {
   const summary = {
     ok: true,
     target_date: targetDate,
-    interval_minutes: SNAPSHOT_INTERVAL_MINUTES,
+    aggregation_method: "captured_at_delta_weighted",
+    default_interval_minutes: DEFAULT_SNAPSHOT_INTERVAL_MINUTES,
+    max_interval_minutes: MAX_SNAPSHOT_INTERVAL_MINUTES,
+    distinct_capture_times: distinctTimes.length,
+    median_observed_interval_minutes: medianInterval,
+    capped_intervals_count: cappedIntervalsCount,
+    single_capture_fallback_used: singleCaptureFallback,
     snapshots_read: all.length,
     channels_aggregated: groups.size,
     daily_stats_upserted: upserted,
+    legacy_vs_new: {
+      legacy_hours_streamed_total: legacySumHoursStreamed,
+      new_hours_streamed_total: newSumHoursStreamed,
+      legacy_hours_watched_total: legacySumHoursWatched,
+      new_hours_watched_total: newSumHoursWatched,
+    },
     duration_ms: durationMs,
     logs,
   };
