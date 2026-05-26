@@ -1,0 +1,31 @@
+# Streamnco
+
+> Streamnco est le copilote de progression pour streamers Twitch : analyse de chaîne, StreamScore, benchmarks concurrents et plan d'action clair pour progresser vers l'affiliation et au-delà.
+
+Streamnco transforme les données publiques d'une chaîne Twitch en un diagnostic actionnable : un score d'exécution (StreamScore), une lecture honnête des points faibles, des concurrents pertinents et les prochaines actions concrètes à poser. Le produit fonctionne en mode public (teaser sans compte) et en mode connecté (suivi complet avec OAuth Twitch).
+
+## Pages
+
+- [Accueil](/): Présentation du produit, recherche de chaîne et démo du diagnostic.
+- [Tarifs](/pricing): Plans Gratuit, Pro et Growth avec comparatif des fonctionnalités.
+- [Blog](/blog): Guides et stratégies pour progresser sur Twitch.
+- [Playbooks](/playbooks): Tactiques prêtes à appliquer pour streamers.
+
+## Articles
+
+- [Comment progresser sur Twitch](/blog/comment-progresser-sur-twitch)
+- [Devenir affilié Twitch en 2025](/blog/devenir-affilie-twitch-2025)
+- [La régularité, facteur clé de croissance](/blog/regularite-twitch-facteur-croissance)
+- [Meilleurs outils analytics Twitch 2025](/blog/meilleurs-outils-analytics-twitch-2025)
+- [Comment lire ses stats Twitch](/blog/comment-lire-ses-stats-twitch)
+- [Schedule Twitch : guide complet](/blog/schedule-twitch-guide-complet)
+- [Choisir sa niche Twitch](/blog/choisir-sa-niche-twitch)
+- [Streamnco vs autres outils Twitch](/blog/streamnco-vs-autres-outils-twitch)
+- [Streamnco, copilote de progression Twitch](/blog/streamnco-copilote-progression-twitch)
+
+## Optional
+
+- [Conditions générales](/legal/terms)
+- [Confidentialité](/legal/privacy)
+- [Mentions légales](/legal/mentions)
+- [Cookies](/legal/cookies)

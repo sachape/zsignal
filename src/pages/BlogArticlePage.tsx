@@ -4,6 +4,7 @@ import { Clock, ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { ARTICLES, getArticle } from "@/data/articles";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Croissance: "border-primary/30 bg-primary/10 text-primary",
@@ -26,17 +27,40 @@ const BlogArticlePage = () => {
     if (slug && !article) navigate("/blog", { replace: true });
   }, [slug, article, navigate]);
 
-  // Meta title
-  useEffect(() => {
-    if (article) {
-      document.title = `${article.title} — Streamnco`;
-      const meta = document.querySelector('meta[name="description"]');
-      if (meta) meta.setAttribute("content", article.metaDescription);
-    }
-    return () => {
-      document.title = "Streamnco — Copilote de progression Twitch";
-    };
-  }, [article]);
+  // Per-route meta + Article JSON-LD
+  const canonical = article
+    ? `https://streamnco.fr/blog/${article.slug}`
+    : undefined;
+  usePageMeta(
+    article
+      ? {
+          title: article.title,
+          description: article.metaDescription,
+          ogType: "article",
+          canonical,
+          ogUrl: canonical,
+          jsonLd: {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: article.title,
+            description: article.metaDescription,
+            datePublished: article.publishedAt,
+            inLanguage: "fr-FR",
+            keywords: article.keywords.join(", "),
+            mainEntityOfPage: canonical,
+            author: { "@type": "Organization", name: "Streamnco" },
+            publisher: {
+              "@type": "Organization",
+              name: "Streamnco",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://streamnco.fr/favicon.ico",
+              },
+            },
+          },
+        }
+      : null,
+  );
 
   // Reading progress bar
   useEffect(() => {

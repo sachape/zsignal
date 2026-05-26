@@ -42,6 +42,7 @@ import {
   getReportByJobId,
   type SavedReport,
 } from "@/services/reportRepository";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import { useAuthModal } from "@/contexts/AuthModalContext";
@@ -139,6 +140,23 @@ const ResultPage = () => {
   const [mounted, setMounted] = useState(false);
 
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+
+  const reportChannelName =
+    report?.channel_summary?.display_name ??
+    report?.identity?.platform_login ??
+    teaserChannel ??
+    channel ??
+    null;
+  usePageMeta({
+    title: reportChannelName
+      ? `Diagnostic Twitch — ${reportChannelName}`
+      : "Diagnostic Twitch",
+    description: reportChannelName
+      ? `StreamScore, points faibles et plan d'action pour la chaîne Twitch ${reportChannelName}.`
+      : "StreamScore, points faibles et plan d'action pour ta chaîne Twitch.",
+    // Per-channel report pages are user/teaser specific — keep them out of the index.
+    robots: "noindex,follow",
+  });
   // Debug panel is opt-in via ?debug=1 so it never leaks into the real user UX.
   const showDebugPanel =
     import.meta.env.DEV && searchParams.get("debug") === "1";

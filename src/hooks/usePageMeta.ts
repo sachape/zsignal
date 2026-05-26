@@ -7,12 +7,19 @@ export interface PageMeta {
   ogDescription?: string;
   ogImage?: string;
   ogType?: "website" | "profile" | "article";
+  ogUrl?: string;
   canonical?: string;
+  /** Optional JSON-LD object(s) to inject as <script type="application/ld+json"> */
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+  /** Optional <meta name="robots"> directive (e.g. "noindex,nofollow") */
+  robots?: string;
 }
 
 const DEFAULT_TITLE = "Streamnco — Analyse ta chaîne Twitch";
 const DEFAULT_DESC =
   "Analyse ta chaîne Twitch gratuitement. StreamScore, progression vers l'affiliation, benchmarks concurrents — tout automatiquement.";
+
+const JSONLD_ATTR = "data-page-meta-jsonld";
 
 function upsertMeta(
   attr: "name" | "property",
@@ -40,29 +47,47 @@ function upsertLink(rel: string, href: string): void {
   el.setAttribute("href", href);
 }
 
+function clearJsonLd(): void {
+  document
+    .querySelectorAll(`script[${JSONLD_ATTR}]`)
+    .forEach((el) => el.remove());
+}
+
+function injectJsonLd(
+  data: Record<string, unknown> | Array<Record<string, unknown>>,
+): void {
+  const arr = Array.isArray(data) ? data : [data];
+  for (const item of arr) {
+    const el = document.createElement("script");
+    el.setAttribute("type", "application/ld+json");
+    el.setAttribute(JSONLD_ATTR, "true");
+    el.textContent = JSON.stringify(item);
+    document.head.appendChild(el);
+  }
+}
+
 export function usePageMeta(meta: PageMeta | null): void {
   useEffect(() => {
     if (!meta) return;
 
-    // Title
     document.title = `${meta.title} | Streamnco`;
 
-    // Description
     const desc = meta.description ?? DEFAULT_DESC;
     upsertMeta("name", "description", desc);
 
-    // Open Graph
     const ogTitle = meta.ogTitle ?? meta.title;
     const ogDesc = meta.ogDescription ?? desc;
     upsertMeta("property", "og:title", `${ogTitle} | Streamnco`);
     upsertMeta("property", "og:description", ogDesc);
     upsertMeta("property", "og:type", meta.ogType ?? "website");
     upsertMeta("property", "og:site_name", "Streamnco");
+    if (meta.ogUrl) {
+      upsertMeta("property", "og:url", meta.ogUrl);
+    }
     if (meta.ogImage) {
       upsertMeta("property", "og:image", meta.ogImage);
     }
 
-    // Twitter Card
     upsertMeta("name", "twitter:card", "summary_large_image");
     upsertMeta("name", "twitter:title", `${ogTitle} | Streamnco`);
     upsertMeta("name", "twitter:description", ogDesc);
@@ -70,14 +95,22 @@ export function usePageMeta(meta: PageMeta | null): void {
       upsertMeta("name", "twitter:image", meta.ogImage);
     }
 
-    // Canonical
     if (meta.canonical) {
       upsertLink("canonical", meta.canonical);
     }
 
-    // Restore on unmount
+    if (meta.robots) {
+      upsertMeta("name", "robots", meta.robots);
+    }
+
+    clearJsonLd();
+    if (meta.jsonLd) {
+      injectJsonLd(meta.jsonLd);
+    }
+
     return () => {
       document.title = DEFAULT_TITLE;
+      clearJsonLd();
     };
   }, [meta]);
 }

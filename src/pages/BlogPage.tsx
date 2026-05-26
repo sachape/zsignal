@@ -4,6 +4,7 @@ import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { SectionShell, SectionBadge } from "@/components/landing/primitives";
 import { ARTICLES } from "@/data/articles";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Croissance: "border-primary/30 bg-primary/10 text-primary",
@@ -59,6 +60,14 @@ const ArticleCard = ({ article, featured = false }: { article: typeof ARTICLES[n
 );
 
 const BlogPage = () => {
+  usePageMeta({
+    title: "Blog — Guides Twitch pour streamers",
+    description:
+      "Guides concrets, stratégies testées et analyses approfondies pour progresser sur Twitch.",
+    canonical: "https://streamnco.fr/blog",
+    ogUrl: "https://streamnco.fr/blog",
+  });
+
   const [featured, ...rest] = ARTICLES;
 
   return (
