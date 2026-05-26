@@ -4,6 +4,7 @@ import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { SectionShell, SectionBadge } from "@/components/landing/primitives";
 import { ARTICLES } from "@/data/articles";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Croissance: "border-primary/30 bg-primary/10 text-primary",
