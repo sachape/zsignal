@@ -60,6 +60,14 @@ const ArticleCard = ({ article, featured = false }: { article: typeof ARTICLES[n
 );
 
 const BlogPage = () => {
+  usePageMeta({
+    title: "Blog — Guides Twitch pour streamers",
+    description:
+      "Guides concrets, stratégies testées et analyses approfondies pour progresser sur Twitch.",
+    canonical: "https://streamnco.fr/blog",
+    ogUrl: "https://streamnco.fr/blog",
+  });
+
   const [featured, ...rest] = ARTICLES;
 
   return (
