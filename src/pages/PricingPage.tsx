@@ -251,6 +251,34 @@ const PricingPage = () => {
     title: "Tarifs",
     description:
       "Streamnco — Gratuit, Pro à 7,99€/mois, Growth à 14,99€/mois. Analyse ta chaîne Twitch et progresse vers l'affiliation.",
+    canonical: "https://streamnco.fr/pricing",
+    ogUrl: "https://streamnco.fr/pricing",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          q: "Puis-je changer de plan à tout moment ?",
+          a: "Oui. Tu peux passer à un plan supérieur ou inférieur à tout moment. Le changement prend effet immédiatement.",
+        },
+        {
+          q: "Comment fonctionne la facturation ?",
+          a: "Facturation mensuelle via Stripe. Aucun engagement, annulable à tout moment depuis la page Facturation.",
+        },
+        {
+          q: "Mes données sont-elles sécurisées ?",
+          a: "Oui. Toutes les données sont chiffrées et hébergées en Europe. Streamnco n'accède qu'aux données publiques de ta chaîne Twitch.",
+        },
+        {
+          q: "Le plan Gratuit est-il vraiment gratuit ?",
+          a: "Oui, sans limite de durée. Aucune carte bancaire requise pour démarrer.",
+        },
+      ].map(({ q, a }) => ({
+        "@type": "Question",
+        name: q,
+        acceptedAnswer: { "@type": "Answer", text: a },
+      })),
+    },
   });
 
   return (
