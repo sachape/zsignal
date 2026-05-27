@@ -1,4 +1,5 @@
 import mixpanel from "mixpanel-browser";
+import { metaPixel } from "@/services/metaPixel";
 
 const token: string | undefined =
   (import.meta.env.VITE_MIXPANEL_TOKEN as string | undefined) ||
