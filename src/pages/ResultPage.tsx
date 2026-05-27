@@ -43,6 +43,7 @@ import {
   type SavedReport,
 } from "@/services/reportRepository";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { analytics } from "@/services/analytics";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import { useAuthModal } from "@/contexts/AuthModalContext";
@@ -449,6 +450,9 @@ const ResultPage = () => {
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
   const fromOnboarding = searchParams.get("from") === "onboarding";
   const handleUnlock = () => {
+    // Strong intent signal: the user clicked a CTA after seeing the teaser
+    // result to unlock more — this is the Meta Pixel "Lead" moment.
+    analytics.leadUnlock(teaserId ?? teaserCtaChannel ?? "unknown");
     // Persist teaser id across the auth round-trip so the post-signup flow can
     // redirect the user back to /result?teaser=...&from=onboarding and present
     // an enriched version of the same diagnostic.
