@@ -32,10 +32,9 @@
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '1664633797961616');
-    // Initial PageView is also fired by the SPA route effect; Meta de-dupes
-    // by event id, but we still fire it here so direct landings count even
-    // before React mounts.
-    fbq('track', 'PageView');
+    // NOTE: PageView is fired from the React analytics service
+    // (src/services/metaPixel.ts) on initial mount and on every SPA route
+    // change. Do NOT fire it here — that would double-count the landing.
   </script>
   </head>
 
