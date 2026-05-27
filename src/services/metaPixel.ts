@@ -179,9 +179,10 @@ export const metaPixel = {
     if (safeFbq("track", "InitiateCheckout", payload)) devLog("InitiateCheckout", payload);
   },
 
-  /** After confirmed successful payment only. */
+  /** After confirmed successful payment only. Keyed per offer so a user who
+   * upgrades from one plan to another in the same session still records both. */
   purchase(value: number | undefined, offer = "founder_lifetime", currency = "EUR") {
-    const key = "purchase";
+    const key = `purchase:${offer}`;
     if (fired.has(key)) return;
     fired.add(key);
     const payload: Record<string, unknown> = {
