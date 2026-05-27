@@ -158,6 +158,15 @@ const ResultPage = () => {
     // Per-channel report pages are user/teaser specific — keep them out of the index.
     robots: "noindex,follow",
   });
+
+  // Fire Meta Pixel ViewContent once the teaser diagnostic is actually rendered.
+  useEffect(() => {
+    if (!isTeaser || !report || loading) return;
+    analytics.track; // keep import side-effect resolved
+    import("@/services/metaPixel").then(({ metaPixel }) => {
+      metaPixel.viewContentTeaser(teaserId ?? teaserChannel ?? "teaser");
+    });
+  }, [isTeaser, report, loading, teaserId, teaserChannel]);
   // Debug panel is opt-in via ?debug=1 so it never leaks into the real user UX.
   const showDebugPanel =
     import.meta.env.DEV && searchParams.get("debug") === "1";
