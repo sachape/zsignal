@@ -49,6 +49,7 @@ export const analytics = {
   },
 
   pageView() {
+    metaPixel.pageView();
     if (!token) return;
     mixpanel.track_pageview();
   },
@@ -60,6 +61,7 @@ export const analytics = {
   // ── Acquisition ───────────────────────────────────────────────────────────
 
   analysisStarted(channel: string, mode: "full" | "teaser") {
+    metaPixel.search(channel);
     this.track("analysis_started", { channel, mode });
   },
 
@@ -75,6 +77,9 @@ export const analytics = {
   // ── Auth ──────────────────────────────────────────────────────────────────
 
   signupCompleted(method?: string) {
+    metaPixel.completeRegistration(
+      method === "twitch" ? "twitch" : method === "email" ? "email" : "email_or_twitch",
+    );
     this.track("signup_completed", { ...(method && { method }) });
   },
 
@@ -146,12 +151,26 @@ export const analytics = {
   // ── Revenue ───────────────────────────────────────────────────────────────
 
   checkoutStarted(plan: string, billing_cycle: string) {
+    metaPixel.initiateCheckout(plan);
     this.track("checkout_started", { plan, billing_cycle });
   },
 
-  checkoutCompleted(plan: string) {
+  checkoutCompleted(plan: string, value?: number, currency: string = "EUR") {
     mpSetPeople({ plan });
-    this.track("checkout_completed", { plan });
+    metaPixel.purchase(value, plan, currency);
+    this.track("checkout_completed", { plan, ...(value !== undefined && { value, currency }) });
+  },
+
+  /** Fire when the user clicks a CTA after the teaser to unlock the full diagnostic. */
+  leadUnlock(intentKey: string) {
+    metaPixel.leadUnlock(intentKey);
+    this.track("lead_unlock", { intent: intentKey });
+  },
+
+  /** Fire only after a real founder reservation/signup submission. */
+  leadFounderOffer(intentKey: string) {
+    metaPixel.leadFounderOffer(intentKey);
+    this.track("lead_founder_offer", { intent: intentKey });
   },
 
   billingPortalOpened() {
