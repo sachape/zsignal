@@ -44,6 +44,7 @@ import {
 } from "@/services/reportRepository";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { analytics } from "@/services/analytics";
+import { metaPixel } from "@/services/metaPixel";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import { useAuthModal } from "@/contexts/AuthModalContext";
@@ -162,10 +163,7 @@ const ResultPage = () => {
   // Fire Meta Pixel ViewContent once the teaser diagnostic is actually rendered.
   useEffect(() => {
     if (!isTeaser || !report || loading) return;
-    analytics.track; // keep import side-effect resolved
-    import("@/services/metaPixel").then(({ metaPixel }) => {
-      metaPixel.viewContentTeaser(teaserId ?? teaserChannel ?? "teaser");
-    });
+    metaPixel.viewContentTeaser(teaserId ?? teaserChannel ?? "teaser");
   }, [isTeaser, report, loading, teaserId, teaserChannel]);
   // Debug panel is opt-in via ?debug=1 so it never leaks into the real user UX.
   const showDebugPanel =
