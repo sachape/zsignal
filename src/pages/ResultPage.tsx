@@ -43,6 +43,8 @@ import {
   type SavedReport,
 } from "@/services/reportRepository";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { analytics } from "@/services/analytics";
+import { metaPixel } from "@/services/metaPixel";
 import type { AnalysisReport } from "@/types/analysis";
 import MainBlockerCard from "@/components/MainBlockerCard";
 import { useAuthModal } from "@/contexts/AuthModalContext";
@@ -157,6 +159,12 @@ const ResultPage = () => {
     // Per-channel report pages are user/teaser specific — keep them out of the index.
     robots: "noindex,follow",
   });
+
+  // Fire Meta Pixel ViewContent once the teaser diagnostic is actually rendered.
+  useEffect(() => {
+    if (!isTeaser || !report || loading) return;
+    metaPixel.viewContentTeaser(teaserId ?? teaserChannel ?? "teaser");
+  }, [isTeaser, report, loading, teaserId, teaserChannel]);
   // Debug panel is opt-in via ?debug=1 so it never leaks into the real user UX.
   const showDebugPanel =
     import.meta.env.DEV && searchParams.get("debug") === "1";
@@ -449,6 +457,9 @@ const ResultPage = () => {
   const teaserCtaChannel = teaserChannel ?? channel ?? "";
   const fromOnboarding = searchParams.get("from") === "onboarding";
   const handleUnlock = () => {
+    // Strong intent signal: the user clicked a CTA after seeing the teaser
+    // result to unlock more — this is the Meta Pixel "Lead" moment.
+    analytics.leadUnlock(teaserId ?? teaserCtaChannel ?? "unknown");
     // Persist teaser id across the auth round-trip so the post-signup flow can
     // redirect the user back to /result?teaser=...&from=onboarding and present
     // an enriched version of the same diagnostic.
