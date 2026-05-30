@@ -1,7 +1,11 @@
 import { LegalLayout, LegalSection } from "@/components/LegalLayout";
 
 const LegalTermsPage = () => (
-  <LegalLayout title="Conditions générales d'utilisation">
+  <LegalLayout
+    title="Conditions générales d'utilisation"
+    canonicalPath="/legal/terms"
+    description="Conditions générales d'utilisation du service Streamnco."
+  >
     <LegalSection title="1. Objet">
       <p>
         Les présentes conditions générales d'utilisation (ci-après « CGU ») régissent l'accès et

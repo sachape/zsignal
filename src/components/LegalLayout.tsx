@@ -1,8 +1,31 @@
 import { ReactNode } from "react";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/landing/LandingFooter";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
-export const LegalLayout = ({ title, children }: { title: string; children: ReactNode }) => (
+export const LegalLayout = ({
+  title,
+  children,
+  canonicalPath,
+  description,
+}: {
+  title: string;
+  children: ReactNode;
+  canonicalPath?: string;
+  description?: string;
+}) => {
+  usePageMeta(
+    canonicalPath
+      ? {
+          title,
+          description,
+          canonical: `https://streamnco.fr${canonicalPath}`,
+          ogUrl: `https://streamnco.fr${canonicalPath}`,
+          robots: "index, follow",
+        }
+      : null,
+  );
+  return (
   <div className="min-h-screen bg-background">
     <LandingNav />
     <div className="pt-14">
@@ -15,7 +38,8 @@ export const LegalLayout = ({ title, children }: { title: string; children: Reac
     </div>
     <LandingFooter />
   </div>
-);
+  );
+};
 
 export const LegalSection = ({ title, children }: { title: string; children: ReactNode }) => (
   <section>

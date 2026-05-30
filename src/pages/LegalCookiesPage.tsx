@@ -1,7 +1,11 @@
 import { LegalLayout, LegalSection } from "@/components/LegalLayout";
 
 const LegalCookiesPage = () => (
-  <LegalLayout title="Gestion des cookies">
+  <LegalLayout
+    title="Gestion des cookies"
+    canonicalPath="/legal/cookies"
+    description="Politique de gestion des cookies utilisés par Streamnco."
+  >
     <LegalSection title="1. Qu'est-ce qu'un cookie ?">
       <p>
         Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette,
