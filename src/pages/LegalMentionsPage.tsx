@@ -1,7 +1,11 @@
 import { LegalLayout, LegalSection } from "@/components/LegalLayout";
 
 const LegalMentionsPage = () => (
-  <LegalLayout title="Mentions légales">
+  <LegalLayout
+    title="Mentions légales"
+    canonicalPath="/legal/mentions"
+    description="Mentions légales du site Streamnco : éditeur, hébergement, propriété intellectuelle."
+  >
     <LegalSection title="Éditeur du site">
       <div className="space-y-2">
         <p>
