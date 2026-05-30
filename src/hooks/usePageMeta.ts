@@ -95,7 +95,7 @@ export function usePageMeta(meta: PageMeta | null): void {
     }
 
     upsertMeta("name", "twitter:card", "summary_large_image");
-    upsertMeta("name", "twitter:title", `${ogTitle} | Streamnco`);
+    upsertMeta("name", "twitter:title", fullOgTitle);
     upsertMeta("name", "twitter:description", ogDesc);
     if (meta.ogImage) {
       upsertMeta("name", "twitter:image", meta.ogImage);

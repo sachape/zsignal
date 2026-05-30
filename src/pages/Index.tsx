@@ -45,10 +45,10 @@ const HOMEPAGE_FAQ = [
 
 const Index = () => {
   usePageMeta({
-    title: "Analyse Twitch, StreamScore et plan d'action pour streamers",
+    title: "Streamnco — Analyse Twitch, StreamScore et plan d'action pour streamers",
     description:
       "Streamnco analyse ta chaîne Twitch, identifie ce qui bloque ta progression et génère un plan d'action clair pour progresser stream après stream.",
-    ogTitle: "Analyse Twitch, StreamScore et plan d'action pour streamers",
+    ogTitle: "Streamnco — Analyse Twitch, StreamScore et plan d'action pour streamers",
     ogDescription:
       "Analyse ta chaîne Twitch, comprends ce qui bloque ta progression et obtiens un plan d'action clair.",
     canonical: "https://streamnco.fr/",
