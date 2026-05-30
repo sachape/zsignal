@@ -7,6 +7,19 @@
     <meta name="description" content="Streamnco analyse ta chaîne Twitch, identifie ce qui bloque ta progression et génère un plan d'action clair pour progresser stream après stream." />
     <meta name="author" content="Streamnco" />
     <meta name="robots" content="index, follow" />
+    <script>
+      (function () {
+        if (location.hostname.includes('lovable.app')) {
+          var m = document.querySelector('meta[name="robots"]');
+          if (!m) {
+            m = document.createElement('meta');
+            m.setAttribute('name', 'robots');
+            document.head.appendChild(m);
+          }
+          m.setAttribute('content', 'noindex, nofollow');
+        }
+      })();
+    </script>
     <link rel="canonical" href="https://streamnco.fr/" />
 
     <meta property="og:type" content="website" />
