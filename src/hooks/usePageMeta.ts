@@ -105,8 +105,12 @@ export function usePageMeta(meta: PageMeta | null): void {
       upsertLink("canonical", meta.canonical);
     }
 
-    if (meta.robots) {
-      upsertMeta("name", "robots", meta.robots);
+    const isLovableHost =
+      typeof window !== "undefined" &&
+      window.location.hostname.includes("lovable.app");
+    const robots = isLovableHost ? "noindex, nofollow" : meta.robots;
+    if (robots) {
+      upsertMeta("name", "robots", robots);
     }
 
     clearJsonLd();
