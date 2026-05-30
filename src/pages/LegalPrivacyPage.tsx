@@ -1,7 +1,11 @@
 import { LegalLayout, LegalSection } from "@/components/LegalLayout";
 
 const LegalPrivacyPage = () => (
-  <LegalLayout title="Politique de confidentialité">
+  <LegalLayout
+    title="Politique de confidentialité"
+    canonicalPath="/legal/privacy"
+    description="Politique de confidentialité de Streamnco : données collectées, traitements, droits des utilisateurs."
+  >
     <LegalSection title="1. Responsable du traitement">
       <p>
         Le responsable du traitement des données collectées via Streamnco est la société Streamnco,

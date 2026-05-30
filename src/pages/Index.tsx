@@ -45,11 +45,15 @@ const HOMEPAGE_FAQ = [
 
 const Index = () => {
   usePageMeta({
-    title: "Le copilote de progression pour streamers Twitch",
+    title: "Streamnco — Analyse Twitch, StreamScore et plan d'action pour streamers",
     description:
-      "Analyse ta chaîne Twitch, obtiens ton StreamScore et un plan d'action clair pour progresser vers l'affiliation.",
+      "Streamnco analyse ta chaîne Twitch, identifie ce qui bloque ta progression et génère un plan d'action clair pour progresser stream après stream.",
+    ogTitle: "Streamnco — Analyse Twitch, StreamScore et plan d'action pour streamers",
+    ogDescription:
+      "Analyse ta chaîne Twitch, comprends ce qui bloque ta progression et obtiens un plan d'action clair.",
     canonical: "https://streamnco.fr/",
     ogUrl: "https://streamnco.fr/",
+    robots: "index, follow",
     jsonLd: [
       {
         "@context": "https://schema.org",
@@ -57,6 +61,7 @@ const Index = () => {
         name: "Streamnco",
         url: "https://streamnco.fr/",
         logo: "https://streamnco.fr/favicon.ico",
+        sameAs: ["https://www.instagram.com/streamnco.fr/"],
       },
       {
         "@context": "https://schema.org",
@@ -64,6 +69,18 @@ const Index = () => {
         name: "Streamnco",
         url: "https://streamnco.fr/",
         inLanguage: "fr-FR",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "Streamnco",
+        alternateName: "Streamnco.fr",
+        url: "https://streamnco.fr/",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description:
+          "Streamnco analyse les chaînes Twitch et aide les streamers à comprendre ce qui bloque leur progression.",
+        sameAs: ["https://www.instagram.com/streamnco.fr/"],
       },
       {
         "@context": "https://schema.org",
