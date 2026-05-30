@@ -171,7 +171,7 @@ const HeroSection = () => {
             Diagnostic Twitch instantané
           </span>
           <h1 className="mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
-            Comprends ce qui bloque ta chaîne Twitch.
+            Streamnco, le copilote de progression pour streamers Twitch
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-foreground/75 md:text-lg">
             En moins d'une minute, sache exactement ce qui bloque ta chaîne —
