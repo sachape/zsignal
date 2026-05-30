@@ -70,14 +70,20 @@ export function usePageMeta(meta: PageMeta | null): void {
   useEffect(() => {
     if (!meta) return;
 
-    document.title = `${meta.title} | Streamnco`;
+    const fullTitle = /^streamnco/i.test(meta.title)
+      ? meta.title
+      : `${meta.title} | Streamnco`;
+    document.title = fullTitle;
 
     const desc = meta.description ?? DEFAULT_DESC;
     upsertMeta("name", "description", desc);
 
     const ogTitle = meta.ogTitle ?? meta.title;
+    const fullOgTitle = /^streamnco/i.test(ogTitle)
+      ? ogTitle
+      : `${ogTitle} | Streamnco`;
     const ogDesc = meta.ogDescription ?? desc;
-    upsertMeta("property", "og:title", `${ogTitle} | Streamnco`);
+    upsertMeta("property", "og:title", fullOgTitle);
     upsertMeta("property", "og:description", ogDesc);
     upsertMeta("property", "og:type", meta.ogType ?? "website");
     upsertMeta("property", "og:site_name", "Streamnco");
