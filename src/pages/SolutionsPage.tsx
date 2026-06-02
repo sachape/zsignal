@@ -64,6 +64,7 @@ const PERSONAS = [
     border: "border-violet-500/15",
     iconBg: "bg-violet-500/10 text-violet-400",
     dot: "bg-violet-400",
+    highlighted: false,
   },
 ] as const;
 
