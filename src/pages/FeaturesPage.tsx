@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import {
   Activity, BarChart2, Bell, Calendar, CalendarDays, Clapperboard, Compass,
   ListChecks, Radio, Sparkles, Target, Trophy, TrendingUp, Type, Users, Zap,
@@ -330,6 +331,7 @@ const FadeIn = ({ children, delay = 0, className = "" }: { children: React.React
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 const FeaturesPage = () => {
+  const { openAuthModal } = useAuthModal();
   usePageMeta({
     title: "Fonctionnalités — Streamnco",
     description: "StreamScore, plan hebdomadaire, live tracking, clips, classements et plus. Tout ce qu'il faut pour progresser sur Twitch.",
@@ -582,16 +584,14 @@ const FeaturesPage = () => {
                   Entre ton pseudo Twitch ci-dessous. En 60 secondes tu as ton score, ton blocage principal et ton premier plan d'action.
                 </p>
 
-                {/* Inline search mock → links to home */}
-                <Link
-                  to="/"
-                  className="mt-7 group flex h-12 max-w-sm items-center gap-3 rounded-xl border border-white/[0.1] bg-background/60 px-4 backdrop-blur-sm transition-all hover:border-primary/40 hover:shadow-[0_0_24px_hsl(var(--primary)/0.15)]"
+                <Button
+                  size="lg"
+                  className="mt-7 gap-2"
+                  onClick={() => openAuthModal("signup")}
                 >
-                  <span className="flex-1 text-sm text-muted-foreground/50">Ton pseudo Twitch…</span>
-                  <span className="flex h-7 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground transition-all group-hover:bg-primary/90">
-                    Analyser <Activity className="h-3 w-3" />
-                  </span>
-                </Link>
+                  <Sparkles className="h-4 w-4" />
+                  Essayer gratuitement
+                </Button>
 
                 <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground/60">
                   {["Sans connexion Twitch", "Résultat en 60 s", "8 000+ chaînes analysées"].map((t) => (
