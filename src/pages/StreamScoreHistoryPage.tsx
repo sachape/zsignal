@@ -126,7 +126,7 @@ const StreamScoreHistoryPage = () => {
   useEffect(() => {
     if (!user) return;
     getLatestReport(user.id).then((r) => {
-      if (r?.report?.stream_score) setLatestStreamScore(r.report.stream_score);
+      if (r?.report?.score) setLatestStreamScore(r.report.score);
     });
   }, [user]);
 

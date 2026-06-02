@@ -130,12 +130,12 @@ const LeadersPage = () => {
     setH2hReport(null);
     const result = await runTeaserAnalysis({ channelInput: input });
     setH2hLoading(false);
-    if (!result.ok) {
+    if (result.ok === false) {
       setH2hError(result.reason === "not_found" ? "Chaîne introuvable sur Twitch." : "Erreur lors de l'analyse. Réessaie.");
       return;
     }
-    setH2hReport(result.record.report.report);
-    setH2hLogin(result.record.report.report.channel_summary?.display_name ?? input);
+    setH2hReport(result.record.report);
+    setH2hLogin(result.record.report.channel_summary?.display_name ?? input);
   };
 
   // Fetch user report once for personal position banner
@@ -765,8 +765,8 @@ const LeadersPage = () => {
                 {h2hReport && userReport?.report && (() => {
                   const mine = userReport.report;
                   const theirs = h2hReport;
-                  const myScore = mine.stream_score;
-                  const theirScore = theirs.stream_score;
+                  const myScore = mine.score;
+                  const theirScore = theirs.score;
                   if (!myScore || !theirScore) return null;
 
                   const dims = [

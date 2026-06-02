@@ -36,6 +36,7 @@ const PERSONAS = [
     border: "border-emerald-500/15",
     iconBg: "bg-emerald-500/10 text-emerald-400",
     dot: "bg-emerald-400",
+    highlighted: false,
   },
   {
     icon: TrendingUp,
@@ -63,6 +64,7 @@ const PERSONAS = [
     border: "border-violet-500/15",
     iconBg: "bg-violet-500/10 text-violet-400",
     dot: "bg-violet-400",
+    highlighted: false,
   },
 ] as const;
 
