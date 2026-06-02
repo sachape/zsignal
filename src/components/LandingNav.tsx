@@ -9,7 +9,7 @@ import FounderBanner from "@/components/landing/FounderBanner";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { label: "Fonctionnalités", href: "/features" },
+  { label: "Fonctionnalités", href: "/fonctionnalites" },
   { label: "Solutions", href: "/solutions" },
   { label: "Articles", href: "/blog" },
   { label: "À propos", href: "/about" },
