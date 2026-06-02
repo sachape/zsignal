@@ -253,10 +253,13 @@ const App = () => (
                   }
                 />
                 <Route path="/pricing" element={<PricingPage />} />
-                <Route path="/features" element={<FeaturesPage />} />
+                <Route path="/fonctionnalites" element={<FeaturesPage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
-                <Route path="/about" element={<AboutPage />} />
+                <Route path="/a-propos" element={<AboutPage />} />
                 <Route path="/streamscore" element={<StreamScorePage />} />
+                {/* Redirections permanentes (SPA client-side) vers les URLs canoniques */}
+                <Route path="/features" element={<Navigate to="/fonctionnalites" replace />} />
+                <Route path="/about" element={<Navigate to="/a-propos" replace />} />
                 <Route
                   path="/help"
                   element={
@@ -265,8 +268,11 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/blog" element={<BlogPage />} />
-                <Route path="/blog/:slug" element={<BlogArticlePage />} />
+                <Route path="/articles" element={<BlogPage />} />
+                <Route path="/articles/:slug" element={<BlogArticlePage />} />
+                {/* /blog/* → 301 vers /articles/* */}
+                <Route path="/blog" element={<Navigate to="/articles" replace />} />
+                <Route path="/blog/:slug" element={<BlogSlugRedirect />} />
                 <Route path="/legal/terms" element={<LegalTermsPage />} />
                 <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
                 <Route path="/legal/mentions" element={<LegalMentionsPage />} />
