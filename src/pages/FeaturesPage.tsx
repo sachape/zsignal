@@ -362,7 +362,7 @@ const FeaturesPage = () => {
 
           <FadeIn delay={0.15} className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg">
-              <Link to="/analyze">Analyser ma chaîne gratuitement</Link>
+              <Link to="/">Analyser ma chaîne gratuitement</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
               <Link to="/solutions">Voir les solutions →</Link>
@@ -434,7 +434,7 @@ const FeaturesPage = () => {
               </p>
               <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                 <Button size="lg" asChild>
-                  <Link to="/analyze">Analyser ma chaîne →</Link>
+                  <Link to="/">Analyser ma chaîne →</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link to="/pricing">Voir les tarifs</Link>

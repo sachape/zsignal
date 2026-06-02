@@ -1,367 +1,235 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import {
-  Activity, ArrowRight, BarChart2, Building2, Calendar, CheckCircle2,
-  Clapperboard, Compass, Flame, Rocket, Sparkles, Target, TrendingUp, Users, Zap,
-} from "lucide-react";
+import { ArrowRight, Building2, CheckCircle2, Rocket, Target, TrendingUp, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
-import { GlassCard, MicroLabel, SectionBadge, SectionHeading, SectionShell } from "@/components/landing/primitives";
+import { SectionBadge, SectionShell } from "@/components/landing/primitives";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { cn } from "@/lib/utils";
 
 const FadeIn = ({ children, delay = 0, className = "" }: {
   children: React.ReactNode; delay?: number; className?: string;
 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 28 }}
+    initial={{ opacity: 0, y: 24 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay }}
+    viewport={{ once: true, margin: "-40px" }}
+    transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay }}
     className={className}
   >
     {children}
   </motion.div>
 );
 
-// ── Persona data ──────────────────────────────────────────────────────────────
-
 const PERSONAS = [
   {
-    id: "debutant",
     icon: Rocket,
-    emoji: "🌱",
     tag: "Le Débutant",
-    tagline: "Tu streams depuis quelques semaines. Tu ne sais pas encore ce qui compte vraiment.",
-    quote: "\"Je fais tout ce qu'on me dit, mais rien ne décolle.\"",
-    pain: [
-      "Impossible de savoir quel signal regarder en priorité",
-      "Trop d'infos contradictoires sur Twitch growth",
-      "Pas de méthode pour évaluer si tu progresses vraiment",
-    ],
-    solution: [
-      "Un score global qui dit si ta base est solide ou fragile",
-      "Le blocage principal identifié sans jargon",
-      "Un plan d'action en 3 étapes, pas 30",
-    ],
-    features: ["Diagnostic gratuit", "StreamScore", "Plan hebdomadaire", "Playbooks"],
-    plan: "Gratuit → Pro",
-    planColor: "text-muted-foreground",
-    accentColor: "border-emerald-500/20 bg-emerald-500/5",
-    iconColor: "bg-emerald-500/10 text-emerald-400",
-    badgeColor: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
+    headline: "Pose les bonnes bases dès le départ.",
+    description: "Tu streams depuis peu et tu ne sais pas encore ce qui compte vraiment.",
+    benefits: ["Diagnostic en 1 min", "Premier plan d'action", "Sans compte requis"],
+    plan: "Gratuit",
+    planStyle: "border-border/40 text-muted-foreground",
+    accent: "from-emerald-500/10 to-transparent",
+    border: "border-emerald-500/15",
+    iconBg: "bg-emerald-500/10 text-emerald-400",
+    dot: "bg-emerald-400",
   },
   {
-    id: "regulier",
     icon: TrendingUp,
-    emoji: "📈",
     tag: "Le Régulier",
-    tagline: "Tu es là, tu streams souvent. Mais ta croissance s'est arrêtée et tu ne sais pas pourquoi.",
-    quote: "\"Je fais autant que d'autres qui grandissent 3× plus vite que moi.\"",
-    pain: [
-      "Tu streams régulièrement mais les viewers ne suivent pas",
-      "Tes stats ne disent pas ce qui est vraiment important",
-      "Tu essaies des choses, sans savoir si ça change quelque chose",
-    ],
-    solution: [
-      "Identification du frein exact parmi les 6 dimensions",
-      "Historique 30/60/90 jours pour voir ce qui bouge",
-      "Comparaison avec des chaînes de ton niveau réel",
-    ],
-    features: ["StreamScore", "Historique", "Benchmark", "Alertes email"],
+    headline: "Trouve ce qui bloque ta croissance.",
+    description: "Tu stream régulièrement mais les viewers ne suivent pas.",
+    benefits: ["Blocage identifié", "Historique 90 jours", "Alertes automatiques"],
     plan: "Pro",
-    planColor: "text-primary",
-    accentColor: "border-primary/20 bg-primary/5",
-    iconColor: "bg-primary/10 text-primary",
-    badgeColor: "border-primary/30 bg-primary/10 text-primary",
+    planStyle: "border-primary/30 text-primary bg-primary/10",
+    accent: "from-primary/10 to-transparent",
+    border: "border-primary/20",
+    iconBg: "bg-primary/10 text-primary",
+    dot: "bg-primary",
     highlighted: true,
   },
   {
-    id: "ambitieux",
     icon: Target,
-    emoji: "🎯",
     tag: "L'Ambitieux",
-    tagline: "Tu vises l'affiliation, peut-être le partenariat. Tu veux des données pour décider, pas des intuitions.",
-    quote: "\"Je veux savoir exactement ce qui me sépare de l'affiliation Twitch.\"",
-    pain: [
-      "Les 4 critères Twitch s'entremêlent et tu perds le fil",
-      "Difficile de savoir si tes actions ont un impact réel",
-      "Ton setup est bon mais quelque chose bloque la croissance",
-    ],
-    solution: [
-      "Tracker d'affiliation avec les 4 critères Twitch en temps réel",
-      "Score de progression hebdomadaire avec vérification automatique",
-      "Face-à-face avec les streamers qui ont réussi avant toi",
-    ],
-    features: ["Tracker affiliation", "Plan vérifiable", "Face-à-face", "Clips analytics"],
+    headline: "Décide avec des données, pas des intuitions.",
+    description: "Tu vises l'affiliation ou le partenariat Twitch.",
+    benefits: ["Tracker affiliation", "Vérification auto", "Face-à-face concurrents"],
     plan: "Growth",
-    planColor: "text-violet-400",
-    accentColor: "border-violet-500/20 bg-violet-500/5",
-    iconColor: "bg-violet-500/10 text-violet-400",
-    badgeColor: "border-violet-500/20 bg-violet-500/10 text-violet-400",
+    planStyle: "border-violet-500/30 text-violet-400 bg-violet-500/10",
+    accent: "from-violet-500/10 to-transparent",
+    border: "border-violet-500/15",
+    iconBg: "bg-violet-500/10 text-violet-400",
+    dot: "bg-violet-400",
   },
-  {
-    id: "manager",
-    icon: Building2,
-    emoji: "🏢",
-    tag: "Le Manager",
-    tagline: "Tu gères plusieurs streamers — une org esport, une agence, un collectif. Tu as besoin d'un vue d'ensemble.",
-    quote: "\"Je perds 2h par semaine à consolider manuellement les stats de mes streamers.\"",
-    pain: [
-      "Suivre chaque chaîne individuellement prend trop de temps",
-      "Difficile d'identifier rapidement qui a besoin d'aide",
-      "Pas d'outil de reporting adapté au suivi multi-créateurs",
-    ],
-    solution: [
-      "Jusqu'à 3 comptes Twitch sur un seul plan Agency",
-      "Dashboard unifié avec scores et alertes par chaîne",
-      "Vue comparative entre les streamers que tu gères",
-    ],
-    features: ["Multi-comptes (3)", "Dashboard unifié", "Alertes", "StreamScore par chaîne"],
-    plan: "Agency",
-    planColor: "text-sky-400",
-    accentColor: "border-sky-500/20 bg-sky-500/5",
-    iconColor: "bg-sky-500/10 text-sky-400",
-    badgeColor: "border-sky-500/20 bg-sky-500/10 text-sky-400",
-  },
-];
+] as const;
 
-// ── Persona card ──────────────────────────────────────────────────────────────
-const PersonaCard = ({ p, delay }: { p: typeof PERSONAS[number]; delay: number }) => (
-  <FadeIn delay={delay}>
-    <GlassCard
-      interactive
-      className={`h-full border ${p.accentColor} p-6 md:p-7`}
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${p.iconColor}`}>
-            <p.icon className="h-5 w-5" />
-          </div>
-          <div>
-            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${p.badgeColor}`}>
-              {p.tag}
-            </span>
-          </div>
-        </div>
-        <span className="text-2xl leading-none">{p.emoji}</span>
-      </div>
-
-      {/* Tagline */}
-      <p className="mt-4 text-sm font-medium leading-snug text-foreground">
-        {p.tagline}
-      </p>
-
-      {/* Quote */}
-      <blockquote className="mt-3 border-l-2 border-border/40 pl-3 text-xs italic text-muted-foreground leading-relaxed">
-        {p.quote}
-      </blockquote>
-
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        {/* Pain */}
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">
-            Le problème
-          </p>
-          <ul className="space-y-1.5">
-            {p.pain.map((item) => (
-              <li key={item} className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
-                <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Solution */}
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">
-            Ce que Streamnco apporte
-          </p>
-          <ul className="space-y-1.5">
-            {p.solution.map((item) => (
-              <li key={item} className="flex items-start gap-1.5 text-[11px] text-foreground/80">
-                <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* Features chips */}
-      <div className="mt-4 flex flex-wrap gap-1.5">
-        {p.features.map((f) => (
-          <span
-            key={f}
-            className="rounded-full border border-border/40 bg-muted/30 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground"
-          >
-            {f}
-          </span>
-        ))}
-      </div>
-
-      {/* Plan + CTA */}
-      <div className="mt-5 flex items-center justify-between border-t border-border/30 pt-4">
-        <div>
-          <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/50">Plan recommandé</p>
-          <p className={`text-sm font-bold ${p.planColor}`}>{p.plan}</p>
-        </div>
-        <Button size="sm" variant="outline" asChild className="gap-1.5 text-xs">
-          <Link to="/analyze">
-            Commencer <ArrowRight className="h-3 w-3" />
-          </Link>
-        </Button>
-      </div>
-    </GlassCard>
-  </FadeIn>
-);
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 const SolutionsPage = () => {
   usePageMeta({
     title: "Solutions — Streamnco",
-    description: "Streamnco s'adapte à ton niveau — débutant, régulier, ambitieux ou manager. Trouve le plan qui correspond à ton profil.",
+    description: "Streamnco s'adapte à chaque type de streamer. Débutant, régulier, ambitieux ou manager — trouvez votre plan.",
   });
-
-  const individual = PERSONAS.filter((p) => p.id !== "manager");
-  const manager = PERSONAS.find((p) => p.id === "manager")!;
 
   return (
     <div className="min-h-screen bg-background">
       <LandingNav />
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden pt-32 pb-16 md:pt-40 md:pb-20">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.1),transparent_55%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)] opacity-40" />
-
+      <section className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-28">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_55%)]" />
         <div className="container relative mx-auto max-w-3xl px-4 text-center md:px-6">
           <FadeIn>
             <SectionBadge>
               <Users className="h-3 w-3" /> Solutions
             </SectionBadge>
-            <h1 className="mx-auto mt-5 max-w-2xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
-              Streamnco pour chaque type de streamer
+            <h1 className="mx-auto mt-5 max-w-2xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-[3.5rem]">
+              Le bon outil,<br />au bon niveau.
             </h1>
-            <p className="mx-auto mt-4 max-w-lg text-base text-foreground/70 md:text-lg">
-              Que tu démarres, que tu stagues ou que tu gères une équipe — le bon outil au bon niveau.
+            <p className="mx-auto mt-4 max-w-md text-base text-foreground/60 md:text-lg">
+              Que tu démarres ou que tu gères une équipe, Streamnco s'adapte à ton profil.
             </p>
-          </FadeIn>
-
-          <FadeIn delay={0.15} className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" asChild>
-              <Link to="/analyze">Analyser ma chaîne gratuitement</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link to="/features">Voir toutes les fonctionnalités →</Link>
-            </Button>
           </FadeIn>
         </div>
       </section>
 
-      {/* ── Individual streamers (3 personas) ── */}
-      <SectionShell glow={false}>
-        <div className="mb-8 text-center">
-          <SectionHeading
-            badge="Streamers individuels"
-            title="À quel stade es-tu ?"
-            subtitle="Le même outil, adapté à là où tu en es. Commence gratuitement, évolue quand tu es prêt."
-          />
-        </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {individual.map((p, i) => (
-            <PersonaCard key={p.id} p={p} delay={i * 0.1} />
-          ))}
-        </div>
-      </SectionShell>
-
-      {/* ── Manager (Agency) ── */}
-      <SectionShell glow={false} grid={false}>
-        <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl border border-sky-500/20 bg-sky-500/5 p-6 md:p-10">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_right,hsl(200,80%,60%,0.06),transparent_60%)]" />
-
-            <div className="relative grid gap-8 md:grid-cols-2 md:items-center">
-              {/* Left */}
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/10">
-                    <Building2 className="h-6 w-6 text-sky-400" />
+      {/* ── 3 individual personas ── */}
+      <section className="relative overflow-hidden pb-24">
+        <div className="container mx-auto max-w-5xl px-4 md:px-6">
+          <div className="grid gap-4 md:grid-cols-3">
+            {PERSONAS.map((p, i) => (
+              <FadeIn key={p.tag} delay={i * 0.1}>
+                <div
+                  className={cn(
+                    "relative flex h-full flex-col overflow-hidden rounded-2xl border bg-gradient-to-b p-6 transition-all duration-300 hover:-translate-y-0.5",
+                    p.border,
+                    p.accent,
+                    p.highlighted && "shadow-[0_0_40px_hsl(var(--primary)/0.08)]",
+                  )}
+                >
+                  {/* Icon + Tag */}
+                  <div className="flex items-center justify-between">
+                    <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", p.iconBg)}>
+                      <p.icon className="h-5 w-5" />
+                    </div>
+                    {p.highlighted && (
+                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                        Populaire
+                      </span>
+                    )}
                   </div>
-                  <div>
-                    <span className="inline-flex items-center rounded-full border border-sky-500/20 bg-sky-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-sky-400">
+
+                  {/* Label + headline */}
+                  <div className="mt-5 flex-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                      {p.tag}
+                    </p>
+                    <h3 className="mt-1.5 text-lg font-bold leading-snug text-foreground">
+                      {p.headline}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                      {p.description}
+                    </p>
+                  </div>
+
+                  {/* Benefits */}
+                  <ul className="mt-5 space-y-2">
+                    {p.benefits.map((b) => (
+                      <li key={b} className="flex items-center gap-2 text-xs text-foreground/80">
+                        <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", p.dot)} />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Plan + CTA */}
+                  <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-4">
+                    <span className={cn("rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", p.planStyle)}>
+                      {p.plan}
+                    </span>
+                    <Link
+                      to="/"
+                      className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      Commencer <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Agency / Manager ── */}
+      <section className="relative overflow-hidden py-8 pb-28">
+        <div className="container mx-auto max-w-5xl px-4 md:px-6">
+          <FadeIn>
+            <div className="relative overflow-hidden rounded-3xl border border-sky-500/15 bg-gradient-to-r from-sky-500/8 via-background to-background p-8 md:p-12">
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(ellipse_at_right,hsl(200,80%,60%,0.06),transparent_60%)]" />
+
+              <div className="relative grid gap-10 md:grid-cols-2 md:items-center">
+                {/* Left */}
+                <div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/10">
+                      <Building2 className="h-5 w-5 text-sky-400" />
+                    </div>
+                    <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-sky-400">
                       Agency
                     </span>
                   </div>
+                  <h2 className="mt-5 text-2xl font-bold text-foreground sm:text-3xl">
+                    Tu gères plusieurs streamers ?
+                  </h2>
+                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed max-w-sm">
+                    Un seul plan pour suivre jusqu'à 3 chaînes Twitch. Idéal pour les orgs esport, agences de talent et managers de contenu.
+                  </p>
+                  <Button className="mt-6 gap-2 bg-sky-500 hover:bg-sky-400 text-white border-0" asChild>
+                    <Link to="/pricing">
+                      Voir le plan Agency <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
-                  {manager.tag}
-                </h2>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{manager.tagline}</p>
-                <blockquote className="mt-3 border-l-2 border-sky-500/30 pl-3 text-xs italic text-muted-foreground">
-                  {manager.quote}
-                </blockquote>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {manager.features.map((f) => (
-                    <span key={f} className="rounded-full border border-sky-500/20 bg-sky-500/10 px-2.5 py-0.5 text-[10px] font-medium text-sky-400">
-                      {f}
-                    </span>
-                  ))}
-                </div>
-                <Button className="mt-6 gap-2" asChild>
-                  <Link to="/pricing">
-                    Voir le plan Agency <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
 
-              {/* Right */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-3">Le problème</p>
-                  <ul className="space-y-2">
-                    {manager.pain.map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
-                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-3">Ce que ça change</p>
-                  <ul className="space-y-2">
-                    {manager.solution.map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-xs text-foreground/80">
-                        <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-400" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                {/* Right */}
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    "3 comptes Twitch",
+                    "Dashboard unifié",
+                    "Score par chaîne",
+                    "Alertes automatiques",
+                    "Plans d'action séparés",
+                    "Support prioritaire",
+                  ].map((f) => (
+                    <div key={f} className="flex items-center gap-2 rounded-xl border border-sky-500/10 bg-sky-500/5 px-3 py-2.5">
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-sky-400" />
+                      <span className="text-xs font-medium text-foreground/80">{f}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
-        </FadeIn>
-      </SectionShell>
+          </FadeIn>
+        </div>
+      </section>
 
       {/* ── Bottom CTA ── */}
       <SectionShell grid={false}>
         <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-10 text-center md:p-16">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_65%)]" />
+          <div className="relative overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-b from-primary/8 to-transparent p-10 text-center md:p-16">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.1),transparent_60%)]" />
             <div className="relative">
-              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
-                Commence avec le diagnostic gratuit
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-primary/70">Gratuit pour commencer</p>
+              <h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">
+                Analyse ta chaîne en 1 minute
               </h2>
-              <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
-                Aucun compte requis. Entre ton pseudo Twitch et récupère ton score en moins d'une minute.
+              <p className="mx-auto mt-3 max-w-sm text-sm text-muted-foreground">
+                Aucun compte, aucune connexion Twitch. Juste ton pseudo.
               </p>
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
                 <Button size="lg" asChild>
-                  <Link to="/analyze">Analyser ma chaîne →</Link>
+                  <Link to="/">Analyser ma chaîne →</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link to="/pricing">Voir les tarifs</Link>
