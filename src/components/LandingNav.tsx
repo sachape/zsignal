@@ -11,8 +11,8 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { label: "Fonctionnalités", href: "/features" },
   { label: "Solutions", href: "/solutions" },
-  { label: "Tarifs", href: "/pricing" },
   { label: "Articles", href: "/blog" },
+  { label: "À propos", href: "/about" },
 ] as const;
 
 const LandingNav = () => {
@@ -107,8 +107,8 @@ const LandingNav = () => {
               >
                 Connexion
               </button>
-              <Button size="sm" onClick={() => openAuthModal("signup")}>
-                Essayer gratuitement
+              <Button size="sm" asChild>
+                <Link to="/">Analyser ma chaîne</Link>
               </Button>
             </>
           )}
@@ -164,8 +164,8 @@ const LandingNav = () => {
                 <Button variant="outline" className="w-full" onClick={() => { openAuthModal("login"); setMobileOpen(false); }}>
                   Connexion
                 </Button>
-                <Button className="w-full" onClick={() => { openAuthModal("signup"); setMobileOpen(false); }}>
-                  Essayer gratuitement
+                <Button asChild className="w-full">
+                  <Link to="/" onClick={() => setMobileOpen(false)}>Analyser ma chaîne</Link>
                 </Button>
               </>
             )}

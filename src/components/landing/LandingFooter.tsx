@@ -1,39 +1,49 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { useAuthModal } from "@/contexts/AuthModalContext";
-import { ARTICLES } from "@/data/articles";
 import logo from "@/assets/logo.svg";
 
-const PRODUCT_LINKS = [
-  { label: "Fonctionnalités", href: "/features" },
-  { label: "Solutions", href: "/solutions" },
-  { label: "Tarifs", href: "/pricing" },
-  { label: "Articles", href: "/blog" },
-  { label: "À propos", href: "/about" },
+const LEGAL_LINKS = [
+  { label: "Mentions légales", href: "/legal/mentions" },
+  { label: "Confidentialité", href: "/legal/privacy" },
+  { label: "Conditions générales", href: "/legal/terms" },
+  { label: "Cookies", href: "/legal/cookies" },
 ];
 
-const LEGAL_LINKS = [
-  { label: "Conditions générales", href: "/legal/terms" },
-  { label: "Confidentialité", href: "/legal/privacy" },
-  { label: "Mentions légales", href: "/legal/mentions" },
-  { label: "Cookies", href: "/legal/cookies" },
+const COLUMNS = [
+  {
+    title: "Produit",
+    links: [
+      { label: "Fonctionnalités", href: "/features" },
+      { label: "Solutions", href: "/solutions" },
+      { label: "StreamScore", href: "/features" },
+      { label: "Tarifs", href: "/pricing" },
+    ],
+  },
+  {
+    title: "Ressources",
+    links: [
+      { label: "Articles", href: "/blog" },
+      { label: "Playbooks", href: "/playbooks" },
+    ],
+  },
+  {
+    title: "Entreprise",
+    links: [
+      { label: "À propos", href: "/about" },
+      { label: "Contact", href: "mailto:contact@streamnco.fr", external: true },
+    ],
+  },
 ];
 
 const colTitle = "mb-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground/35";
 const linkCls  = "text-sm text-muted-foreground/70 transition-colors hover:text-foreground";
 
 const LandingFooter = () => {
-  const { user } = useAuth();
-  const { openAuthModal } = useAuthModal();
-  const navigate = useNavigate();
-
   return (
     <footer className="relative mt-auto border-t border-white/[0.05]">
-      {/* Subtle top glow */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
       <div className="container mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1.4fr]">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
 
           {/* ── Brand ── */}
           <div>
@@ -43,8 +53,6 @@ const LandingFooter = () => {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground/70">
               Le copilote de progression pour streamers Twitch. Score, blocages, plan d'action — en moins d'une minute.
             </p>
-
-            {/* Instagram */}
             <a
               href="https://www.instagram.com/streamnco.fr"
               target="_blank"
@@ -59,75 +67,31 @@ const LandingFooter = () => {
             </a>
           </div>
 
-          {/* ── Produit ── */}
+          {/* ── Navigation columns ── */}
+          {COLUMNS.map((col) => (
+            <div key={col.title}>
+              <p className={colTitle}>{col.title}</p>
+              <ul className="space-y-3">
+                {col.links.map(({ label, href, external }) => (
+                  <li key={label}>
+                    {external ? (
+                      <a href={href} className={linkCls}>{label}</a>
+                    ) : (
+                      <Link to={href} className={linkCls}>{label}</Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          {/* ── Légal ── */}
           <div>
-            <p className={colTitle}>Produit</p>
+            <p className={colTitle}>Légal</p>
             <ul className="space-y-3">
-              {PRODUCT_LINKS.map(({ label, href }) => (
+              {LEGAL_LINKS.map(({ label, href }) => (
                 <li key={href}>
                   <Link to={href} className={linkCls}>{label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* ── Accès ── */}
-          <div>
-            <p className={colTitle}>Accès</p>
-            <ul className="space-y-3">
-              <li>
-                <button
-                  onClick={() => navigate("/")}
-                  className="text-sm text-muted-foreground/70 transition-colors hover:text-foreground text-left"
-                >
-                  Analyser ma chaîne
-                </button>
-              </li>
-              {user ? (
-                <li>
-                  <Link to="/dashboard" className={linkCls}>Tableau de bord</Link>
-                </li>
-              ) : (
-                <>
-                  <li>
-                    <button
-                      onClick={() => openAuthModal("login")}
-                      className="text-sm text-muted-foreground/70 transition-colors hover:text-foreground text-left"
-                    >
-                      Se connecter
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => openAuthModal("signup")}
-                      className="text-sm text-muted-foreground/70 transition-colors hover:text-foreground text-left"
-                    >
-                      Créer un compte
-                    </button>
-                  </li>
-                </>
-              )}
-              <li>
-                <Link to="/pricing" className={linkCls}>Voir les tarifs</Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* ── Articles ── */}
-          <div>
-            <p className={colTitle}>Articles</p>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/blog" className={linkCls}>Tous les articles</Link>
-              </li>
-              {ARTICLES.slice(0, 3).map((a) => (
-                <li key={a.slug}>
-                  <Link
-                    to={`/blog/${a.slug}`}
-                    className={linkCls + " line-clamp-1 block"}
-                  >
-                    {a.title.split(":")[0].split("—")[0].trim()}
-                  </Link>
                 </li>
               ))}
             </ul>
@@ -135,21 +99,13 @@ const LandingFooter = () => {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/[0.05] pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-2 border-t border-white/[0.05] pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground/40">
             © 2026 Streamnco. Tous droits réservés.
           </p>
-          <nav aria-label="Liens légaux" className="flex flex-wrap gap-x-5 gap-y-1">
-            {LEGAL_LINKS.map(({ label, href }) => (
-              <Link
-                key={href}
-                to={href}
-                className="text-xs text-muted-foreground/35 transition-colors hover:text-muted-foreground"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
+          <p className="text-xs text-muted-foreground/30">
+            Fait avec ♥ pour les streamers francophones
+          </p>
         </div>
       </div>
     </footer>
