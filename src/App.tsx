@@ -42,7 +42,6 @@ const FeaturesPage = lazy(() => import("./pages/FeaturesPage.tsx"));
 const SolutionsPage = lazy(() => import("./pages/SolutionsPage.tsx"));
 const AboutPage = lazy(() => import("./pages/AboutPage.tsx"));
 const StreamScorePage = lazy(() => import("./pages/StreamScorePage.tsx"));
-const OutreachPage = lazy(() => import("./pages/OutreachPage.tsx"));
 const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
 const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -267,14 +266,6 @@ const App = () => (
                 {/* Redirections permanentes (SPA client-side) vers les URLs canoniques */}
                 <Route path="/features" element={<Navigate to="/fonctionnalites" replace />} />
                 <Route path="/about" element={<Navigate to="/a-propos" replace />} />
-                <Route
-                  path="/outreach"
-                  element={
-                    <ProtectedRoute>
-                      <OutreachPage />
-                    </ProtectedRoute>
-                  }
-                />
                 <Route
                   path="/help"
                   element={
