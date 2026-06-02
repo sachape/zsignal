@@ -765,8 +765,8 @@ const LeadersPage = () => {
                 {h2hReport && userReport?.report && (() => {
                   const mine = userReport.report;
                   const theirs = h2hReport;
-                  const myScore = mine.stream_score;
-                  const theirScore = theirs.stream_score;
+                  const myScore = mine.score.overall;
+                  const theirScore = theirs.score.overall;
                   if (!myScore || !theirScore) return null;
 
                   const dims = [
