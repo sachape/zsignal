@@ -335,6 +335,9 @@ const FeaturesPage = () => {
   usePageMeta({
     title: "Fonctionnalités — Streamnco",
     description: "StreamScore, plan hebdomadaire, live tracking, clips, classements et plus. Tout ce qu'il faut pour progresser sur Twitch.",
+    canonical: "https://streamnco.fr/fonctionnalites",
+    ogUrl: "https://streamnco.fr/fonctionnalites",
+    robots: "index, follow",
   });
 
   const mainFeatures = FEATURES.filter((f) => f.illus);
