@@ -41,6 +41,7 @@ const SchedulePage = lazy(() => import("./pages/SchedulePage.tsx"));
 const FeaturesPage = lazy(() => import("./pages/FeaturesPage.tsx"));
 const SolutionsPage = lazy(() => import("./pages/SolutionsPage.tsx"));
 const AboutPage = lazy(() => import("./pages/AboutPage.tsx"));
+const StreamScorePage = lazy(() => import("./pages/StreamScorePage.tsx"));
 const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
 const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -212,7 +213,7 @@ const App = () => (
                   }
                 />
                 <Route
-                  path="/streamscore"
+                  path="/mon-score"
                   element={
                     <ProtectedRoute>
                       <StreamScoreHistoryPage />
@@ -255,6 +256,7 @@ const App = () => (
                 <Route path="/features" element={<FeaturesPage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/streamscore" element={<StreamScorePage />} />
                 <Route
                   path="/help"
                   element={

@@ -14,7 +14,7 @@ const COLUMNS = [
     links: [
       { label: "Fonctionnalités", href: "/features" },
       { label: "Solutions", href: "/solutions" },
-      { label: "StreamScore", href: "/features" },
+      { label: "StreamScore", href: "/streamscore" },
       { label: "Tarifs", href: "/pricing" },
     ],
   },
