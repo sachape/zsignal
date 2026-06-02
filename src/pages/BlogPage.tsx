@@ -61,11 +61,11 @@ const ArticleCard = ({ article, featured = false }: { article: typeof ARTICLES[n
 
 const BlogPage = () => {
   usePageMeta({
-    title: "Blog — Guides Twitch pour streamers",
+    title: "Articles — Guides Twitch pour streamers",
     description:
       "Guides concrets, stratégies testées et analyses approfondies pour progresser sur Twitch.",
-    canonical: "https://streamnco.fr/blog",
-    ogUrl: "https://streamnco.fr/blog",
+    canonical: "https://streamnco.fr/articles",
+    ogUrl: "https://streamnco.fr/articles",
   });
 
   const [featured, ...rest] = ARTICLES;
