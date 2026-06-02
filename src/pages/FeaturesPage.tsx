@@ -1,0 +1,453 @@
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Link } from "react-router-dom";
+import {
+  Activity, BarChart2, Bell, Calendar, CalendarDays, Clapperboard, Compass,
+  ListChecks, Radio, Sparkles, Target, Trophy, TrendingUp, Type, Users, Zap,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import LandingNav from "@/components/LandingNav";
+import { GlassCard, MicroLabel, SectionHeading, SectionShell, SectionBadge } from "@/components/landing/primitives";
+import { usePageMeta } from "@/hooks/usePageMeta";
+import LandingFooter from "@/components/landing/LandingFooter";
+
+usePageMeta;
+
+// ── Animated score ring ───────────────────────────────────────────────────────
+const ScoreRingIllus = ({ score = 74 }: { score?: number }) => {
+  const r = 40;
+  const circ = 2 * Math.PI * r;
+  return (
+    <div className="relative mx-auto mt-4 h-28 w-28">
+      <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl" />
+      <svg viewBox="0 0 100 100" className="relative h-full w-full -rotate-90">
+        <circle cx="50" cy="50" r={r} fill="none" stroke="hsl(var(--border)/0.3)" strokeWidth="6" />
+        <motion.circle
+          cx="50" cy="50" r={r} fill="none"
+          stroke="hsl(var(--primary))" strokeWidth="6" strokeLinecap="round"
+          strokeDasharray={circ}
+          initial={{ strokeDashoffset: circ }}
+          whileInView={{ strokeDashoffset: circ - (score / 100) * circ }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-bold text-foreground">{score}</span>
+        <span className="text-[9px] uppercase tracking-widest text-muted-foreground">score</span>
+      </div>
+    </div>
+  );
+};
+
+// ── Dimension bars illus ──────────────────────────────────────────────────────
+const DimensionBars = () => {
+  const dims = [
+    { label: "Régularité", val: 82, color: "bg-primary" },
+    { label: "Structure", val: 65, color: "bg-primary" },
+    { label: "Contenu", val: 38, color: "bg-warning" },
+    { label: "Positionnement", val: 91, color: "bg-emerald-400" },
+    { label: "Momentum", val: 55, color: "bg-primary" },
+    { label: "Monétisation", val: 44, color: "bg-warning" },
+  ];
+  return (
+    <div className="mt-4 space-y-2">
+      {dims.map((d, i) => (
+        <div key={d.label}>
+          <div className="mb-0.5 flex items-center justify-between text-[10px]">
+            <span className="text-muted-foreground/80">{d.label}</span>
+            <span className="font-semibold tabular-nums text-foreground">{d.val}</span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-muted/40">
+            <motion.div
+              className={`h-full rounded-full ${d.color}`}
+              initial={{ width: 0 }}
+              whileInView={{ width: `${d.val}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: i * 0.08 }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ── Weekly plan illus ─────────────────────────────────────────────────────────
+const WeeklyPlanIllus = () => {
+  const tasks = [
+    { label: "Fixer 2 créneaux fixes", done: true },
+    { label: "Créer 1 clip par live", done: true },
+    { label: "Retravailler les titres VOD", done: false },
+    { label: "Cibler Just Chatting cette semaine", done: false },
+  ];
+  return (
+    <div className="mt-4 space-y-2">
+      {tasks.map((t) => (
+        <div key={t.label} className="flex items-center gap-2.5">
+          <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${t.done ? "border-primary/40 bg-primary/20" : "border-border/50"}`}>
+            {t.done && <div className="h-1.5 w-1.5 rounded-full bg-primary" />}
+          </div>
+          <span className={`text-[11px] ${t.done ? "text-muted-foreground/60 line-through" : "text-foreground/80"}`}>{t.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ── Live timeline illus ───────────────────────────────────────────────────────
+const LiveTimelineIllus = () => {
+  const points = [12, 18, 24, 32, 45, 38, 41, 52, 60, 55, 48];
+  const max = Math.max(...points);
+  const w = 220;
+  const h = 60;
+  const path = points
+    .map((v, i) => {
+      const x = (i / (points.length - 1)) * w;
+      const y = h - (v / max) * h * 0.9;
+      return `${i === 0 ? "M" : "L"} ${x} ${y}`;
+    })
+    .join(" ");
+  return (
+    <div className="mt-4">
+      <div className="flex items-center justify-between text-[10px] text-muted-foreground/60 mb-1">
+        <span>Début du live</span>
+        <span className="flex items-center gap-1"><Radio className="h-2.5 w-2.5 text-destructive" /> 60 vw peak</span>
+      </div>
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full overflow-visible">
+        <defs>
+          <linearGradient id="liveGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="hsl(var(--primary)/0.3)" />
+            <stop offset="100%" stopColor="hsl(var(--primary))" />
+          </linearGradient>
+        </defs>
+        <motion.path
+          d={path} fill="none" stroke="url(#liveGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+        />
+      </svg>
+    </div>
+  );
+};
+
+// ── Clip cards illus ──────────────────────────────────────────────────────────
+const ClipIllus = () => {
+  const clips = [
+    { title: "Clutch 1v4 final", views: "1.2k", top: true },
+    { title: "Montée ranked Immortal", views: "847" },
+    { title: "Fail hilarant", views: "634" },
+  ];
+  return (
+    <div className="mt-4 space-y-2">
+      {clips.map((c) => (
+        <div key={c.title} className={`flex items-center justify-between rounded-lg px-3 py-2 ${c.top ? "border border-primary/20 bg-primary/5" : "bg-muted/20"}`}>
+          <div className="flex items-center gap-2">
+            <Clapperboard className="h-3 w-3 text-muted-foreground/60" />
+            <span className="text-[11px] text-foreground/80">{c.title}</span>
+          </div>
+          <span className={`text-[11px] font-semibold tabular-nums ${c.top ? "text-primary" : "text-muted-foreground"}`}>{c.views}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ── Head to head illus ────────────────────────────────────────────────────────
+const H2HIllus = () => {
+  const dims = [
+    { label: "Régularité", me: 82, them: 65 },
+    { label: "Contenu", me: 38, them: 78 },
+    { label: "Momentum", me: 90, them: 55 },
+  ];
+  return (
+    <div className="mt-4 space-y-2.5">
+      {dims.map((d) => (
+        <div key={d.label}>
+          <div className="mb-1 flex items-center justify-between text-[10px]">
+            <span className="text-muted-foreground/70">{d.label}</span>
+            <div className="flex items-center gap-2 font-semibold">
+              <span className="text-primary">{d.me}</span>
+              <span className="text-muted-foreground/40">vs</span>
+              <span className="text-muted-foreground">{d.them}</span>
+            </div>
+          </div>
+          <div className="flex gap-1">
+            {[{ val: d.me, cls: "bg-primary" }, { val: d.them, cls: "bg-muted-foreground/30" }].map((b, i) => (
+              <div key={i} className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted/30">
+                <motion.div
+                  className={`absolute left-0 h-full rounded-full ${b.cls}`}
+                  initial={{ width: 0 }} whileInView={{ width: `${b.val}%` }} viewport={{ once: true }}
+                  transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ── Feature cards data ────────────────────────────────────────────────────────
+const FEATURES = [
+  {
+    icon: Activity,
+    label: "StreamScore",
+    title: "Un score global. Six dimensions actionnables.",
+    description: "Régularité, Structure, Contenu, Positionnement, Momentum, Monétisation. Chaque dimension pointe vers une action concrète.",
+    illus: <><ScoreRingIllus score={74} /><DimensionBars /></>,
+    span: "md:col-span-2",
+    hero: true,
+  },
+  {
+    icon: ListChecks,
+    label: "Plan hebdomadaire",
+    title: "Un plan d'action généré chaque semaine",
+    description: "Pas une liste générique. Des actions basées sur ton score du moment, vérifiées automatiquement.",
+    illus: <WeeklyPlanIllus />,
+    span: "md:col-span-2",
+    hero: true,
+  },
+  {
+    icon: Radio,
+    label: "Suivi live",
+    title: "Chaque live analysé en temps réel",
+    description: "Viewers, engagement, durée — tout est tracké. Un débrief automatique t'attend à la fin.",
+    illus: <LiveTimelineIllus />,
+    span: "md:col-span-2",
+    hero: false,
+  },
+  {
+    icon: Clapperboard,
+    label: "Clips Analytics",
+    title: "Tes meilleurs moments, classés par impact",
+    description: "Vues par clip, tendances hebdomadaires, patterns de performance. Sache ce qui accroche vraiment.",
+    illus: <ClipIllus />,
+    span: "md:col-span-2",
+    hero: false,
+  },
+  {
+    icon: Users,
+    label: "Face-à-face",
+    title: "Compare-toi à n'importe quel concurrent",
+    description: "Analyse publique de n'importe quelle chaîne Twitch. Vois exactement où il te devance et pourquoi.",
+    illus: <H2HIllus />,
+    span: "md:col-span-2",
+    hero: true,
+  },
+  {
+    icon: Type,
+    label: "Titres",
+    title: "5 titres optimisés pour ton prochain live",
+    description: "Score de potentiel de clic, tags explicatifs, copie en 1 clic. Génère et teste.",
+    illus: (
+      <div className="mt-4 space-y-1.5">
+        {["🎯 Grind Diamond — push ranked EN DIRECT", "VALORANT ⚡ | Solo carry ranked", "💎 Tryhard ranked — qui est là ?"].map((t, i) => (
+          <div key={t} className={`rounded-lg px-3 py-2 text-[11px] ${i === 0 ? "border border-primary/25 bg-primary/5 text-foreground font-medium" : "bg-muted/20 text-foreground/70"}`}>
+            {t}
+          </div>
+        ))}
+      </div>
+    ),
+    span: "md:col-span-2",
+    hero: false,
+  },
+  {
+    icon: CalendarDays,
+    label: "Planning optimal",
+    title: "Tes meilleurs créneaux calculés sur l'historique",
+    description: "Heatmap 7j × 24h basée sur tes viewers réels. Les créneaux où ton audience est là — pas ceux que tu imagines.",
+    illus: (
+      <div className="mt-4">
+        <div className="grid grid-cols-7 gap-1">
+          {["L", "M", "M", "J", "V", "S", "D"].map((d) => (
+            <div key={d} className="text-center text-[9px] text-muted-foreground/60 pb-1">{d}</div>
+          ))}
+          {Array.from({ length: 21 }, (_, i) => {
+            const hot = [10, 11, 17, 18, 19, 20, 24, 25].includes(i);
+            const warm = [3, 4, 12, 13, 16].includes(i);
+            return (
+              <div key={i} className={`h-4 rounded-sm ${hot ? "bg-primary/80" : warm ? "bg-primary/30" : "bg-muted/20"}`} />
+            );
+          })}
+        </div>
+      </div>
+    ),
+    span: "md:col-span-2",
+    hero: false,
+  },
+  {
+    icon: TrendingUp,
+    label: "Historique",
+    title: "30, 60, 90 jours de progression",
+    description: "Ton score évolue. Vois quand il a bougé, pourquoi, et ce qui a changé ce jour-là.",
+    illus: null,
+    span: "md:col-span-1",
+    hero: false,
+  },
+  {
+    icon: Bell,
+    label: "Alertes",
+    title: "Notifié quand ton score bouge",
+    description: "Email automatique dès qu'un delta significatif est détecté. Tu ne rates rien.",
+    illus: null,
+    span: "md:col-span-1",
+    hero: false,
+  },
+  {
+    icon: Target,
+    label: "Affiliation",
+    title: "Tracker ta progression vers l'affiliation",
+    description: "Moyenne viewers, jours de stream, followers — les 4 critères Twitch suivis en temps réel.",
+    illus: null,
+    span: "md:col-span-1",
+    hero: false,
+  },
+  {
+    icon: Trophy,
+    label: "Classements",
+    title: "Benchmark par catégorie",
+    description: "Où tu te situes dans ta catégorie, indexée ou en live. Score et audience.",
+    illus: null,
+    span: "md:col-span-1",
+    hero: false,
+  },
+];
+
+// ── Fade in wrapper ───────────────────────────────────────────────────────────
+const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 24 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-60px" }}
+    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+const FeaturesPage = () => {
+  usePageMeta({
+    title: "Fonctionnalités — Streamnco",
+    description: "StreamScore, plan hebdomadaire, live tracking, clips, classements et plus. Tout ce qu'il faut pour progresser sur Twitch.",
+  });
+
+  const mainFeatures = FEATURES.filter((f) => f.illus);
+  const microFeatures = FEATURES.filter((f) => !f.illus);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <LandingNav />
+
+      {/* ── Hero ── */}
+      <section className="relative overflow-hidden pt-32 pb-16 md:pt-40 md:pb-20">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.1),transparent_55%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)] opacity-40" />
+
+        <div className="container relative mx-auto max-w-4xl px-4 text-center md:px-6">
+          <FadeIn>
+            <SectionBadge>
+              <Sparkles className="h-3 w-3" /> Fonctionnalités
+            </SectionBadge>
+            <h1 className="mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
+              Tout ce qu'il faut pour progresser sur Twitch
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-base text-foreground/70 md:text-lg">
+              Un outil conçu pour te donner une direction claire — pas juste des chiffres.
+            </p>
+          </FadeIn>
+
+          <FadeIn delay={0.15} className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button asChild size="lg">
+              <Link to="/analyze">Analyser ma chaîne gratuitement</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/solutions">Voir les solutions →</Link>
+            </Button>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ── Main features bento grid ── */}
+      <SectionShell glow={false}>
+        <div className="grid gap-4 md:grid-cols-4">
+          {mainFeatures.map((f, i) => (
+            <FadeIn key={f.label} delay={i * 0.07} className={f.span}>
+              <GlassCard interactive hero={f.hero} className="h-full p-6">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <f.icon className="h-4 w-4 text-primary" />
+                  </div>
+                  <MicroLabel>{f.label}</MicroLabel>
+                </div>
+                <h3 className="mt-3 text-base font-semibold leading-snug text-foreground">
+                  {f.title}
+                </h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {f.description}
+                </p>
+                {f.illus && <div className="mt-2">{f.illus}</div>}
+              </GlassCard>
+            </FadeIn>
+          ))}
+        </div>
+      </SectionShell>
+
+      {/* ── Micro features grid ── */}
+      <SectionShell glow={false} grid={false}>
+        <div className="mb-10 text-center">
+          <SectionHeading
+            badge="Et aussi"
+            title="Tout l'écosystème"
+            subtitle="Des outils qui se complètent, pas qui se dispersent."
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {microFeatures.map((f, i) => (
+            <FadeIn key={f.label} delay={i * 0.08}>
+              <GlassCard interactive className="h-full p-5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+                  <f.icon className="h-4.5 w-4.5 text-primary" />
+                </div>
+                <h3 className="mt-3 text-sm font-semibold text-foreground">{f.title}</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{f.description}</p>
+              </GlassCard>
+            </FadeIn>
+          ))}
+        </div>
+      </SectionShell>
+
+      {/* ── CTA ── */}
+      <SectionShell grid={false}>
+        <FadeIn>
+          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-10 text-center md:p-16">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_65%)]" />
+            <div className="relative">
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
+                Commence avec le diagnostic gratuit
+              </h2>
+              <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground md:text-base">
+                Aucun compte requis. Entre ton pseudo Twitch, récupère ton score et tes priorités en moins d'une minute.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Button size="lg" asChild>
+                  <Link to="/analyze">Analyser ma chaîne →</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link to="/pricing">Voir les tarifs</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+      </SectionShell>
+
+      <LandingFooter />
+    </div>
+  );
+};
+
+export default FeaturesPage;

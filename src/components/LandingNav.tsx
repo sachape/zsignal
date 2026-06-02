@@ -6,17 +6,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import logo from "@/assets/logo.svg";
 import FounderBanner from "@/components/landing/FounderBanner";
-
+import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { label: "Aperçu", anchor: "preview" },
-  { label: "Comment ça marche", anchor: "how-it-works" },
-  { label: "Fonctionnalités", anchor: "features" },
-  { label: "Tarifs", anchor: "pricing" },
-  { label: "FAQ", anchor: "faq" },
+  { label: "Fonctionnalités", href: "/features" },
+  { label: "Solutions", href: "/solutions" },
+  { label: "Tarifs", href: "/#pricing", anchor: true },
+  { label: "Articles", href: "/blog" },
 ] as const;
-
-const BLOG_LINK = { label: "Articles", href: "/blog" };
 
 const LandingNav = () => {
   const { user } = useAuth();
@@ -25,150 +22,153 @@ const LandingNav = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const scrollToHero = () => {
+  const handleLogoClick = () => {
     if (location.pathname === "/") {
-      const section = document.querySelector<HTMLElement>("section");
-      section?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setTimeout(() => {
         const input = document.querySelector<HTMLInputElement>(
           'input[type="text"], input[type="search"]',
         );
         input?.focus();
-      }, 600);
+      }, 400);
     } else {
       navigate("/");
     }
     setMobileOpen(false);
   };
 
-  const handleAnchorClick =
-    (anchor: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
-      setMobileOpen(false);
-      if (location.pathname === "/") {
-        e.preventDefault();
+  const handleAnchorNav = (anchor: string) => {
+    setMobileOpen(false);
+    if (location.pathname === "/") {
+      document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
         document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth" });
-      }
-    };
+      }, 350);
+    }
+  };
 
   return (
     <nav
-      className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md"
+      className="fixed left-0 right-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md"
       aria-label="Navigation principale"
     >
       <FounderBanner />
       <div className="container mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link to="/" className="flex shrink-0 items-center" aria-label="Streamnco">
+        <button
+          onClick={handleLogoClick}
+          className="flex shrink-0 items-center focus-visible:outline-none"
+          aria-label="Streamnco — Accueil"
+        >
           <img src={logo} alt="Streamnco" className="h-6 w-auto" />
-        </Link>
+        </button>
 
-        {/* Desktop nav links */}
-        <div className="hidden items-center gap-0.5 md:flex" role="list">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={`/#${link.anchor}`}
-              onClick={handleAnchorClick(link.anchor)}
-              className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            >
-              {link.label}
-            </a>
-          ))}
-          <Link
-            to={BLOG_LINK.href}
-            className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-          >
-            {BLOG_LINK.label}
-          </Link>
+        {/* Desktop nav */}
+        <div className="hidden items-center gap-0.5 md:flex">
+          {NAV_LINKS.map((link) =>
+            "anchor" in link && link.anchor ? (
+              <button
+                key={link.label}
+                onClick={() => handleAnchorNav("pricing")}
+                className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </button>
+            ) : (
+              <Link
+                key={link.label}
+                to={link.href}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-sm transition-colors hover:text-foreground",
+                  location.pathname === link.href
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground",
+                )}
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
         </div>
 
-        {/* Desktop CTAs */}
+        {/* Desktop CTA */}
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
-            <Button asChild size="sm">
+            <Button size="sm" asChild>
               <Link to="/dashboard">Tableau de bord</Link>
             </Button>
           ) : (
             <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => openAuthModal({ redirectTo: "/dashboard", mode: "login" })}
-                className="text-muted-foreground hover:text-foreground"
+              <button
+                onClick={() => openAuthModal("login")}
+                className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                Se connecter
-              </Button>
-              <Button size="sm" onClick={scrollToHero}>
-                Analyser ma chaîne
+                Connexion
+              </button>
+              <Button size="sm" onClick={() => openAuthModal("signup")}>
+                Essayer gratuitement
               </Button>
             </>
           )}
         </div>
 
-        {/* Mobile: primary CTA + hamburger */}
-        <div className="flex items-center gap-2 md:hidden">
-          {user ? (
-            <Button asChild size="sm" className="h-8 px-3 text-xs">
-              <Link to="/dashboard">Tableau de bord</Link>
-            </Button>
-          ) : (
-            <Button size="sm" onClick={scrollToHero} className="h-8 px-3 text-xs">
-              Analyser ma chaîne
-            </Button>
-          )}
-          <button
-            onClick={() => setMobileOpen((v) => !v)}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-nav"
-          >
-            {mobileOpen ? (
-              <X className="h-4 w-4" />
-            ) : (
-              <Menu className="h-4 w-4" />
-            )}
-          </button>
-        </div>
+        {/* Mobile burger */}
+        <button
+          className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-foreground md:hidden"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
+        >
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Mobile drawer */}
       {mobileOpen && (
-        <div
-          id="mobile-nav"
-          className="border-t border-border bg-background/95 backdrop-blur-md md:hidden"
-        >
-          <div className="container mx-auto max-w-6xl px-4 py-3">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={`/#${link.anchor}`}
-                onClick={handleAnchorClick(link.anchor)}
-                className="block rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
-              >
-                {link.label}
-              </a>
-            ))}
-            <Link
-              to={BLOG_LINK.href}
-              onClick={() => setMobileOpen(false)}
-              className="block rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
-            >
-              {BLOG_LINK.label}
-            </Link>
-            <div className="mt-2 border-t border-border pt-3">
-              {!user && (
+        <div className="border-t border-border/50 bg-background/95 px-4 pb-6 pt-4 backdrop-blur-md md:hidden">
+          <div className="flex flex-col gap-1">
+            {NAV_LINKS.map((link) =>
+              "anchor" in link && link.anchor ? (
                 <button
-                  onClick={() => {
-                    openAuthModal({ redirectTo: "/dashboard", mode: "login" });
-                    setMobileOpen(false);
-                  }}
-                  className="block w-full rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+                  key={link.label}
+                  onClick={() => handleAnchorNav("pricing")}
+                  className="rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                 >
-                  Se connecter
+                  {link.label}
                 </button>
-              )}
-            </div>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-muted/30 hover:text-foreground",
+                    location.pathname === link.href ? "font-medium text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
+          </div>
+          <div className="mt-4 flex flex-col gap-2">
+            {user ? (
+              <Button asChild className="w-full">
+                <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+                  Tableau de bord
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" className="w-full" onClick={() => { openAuthModal("login"); setMobileOpen(false); }}>
+                  Connexion
+                </Button>
+                <Button className="w-full" onClick={() => { openAuthModal("signup"); setMobileOpen(false); }}>
+                  Essayer gratuitement
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
