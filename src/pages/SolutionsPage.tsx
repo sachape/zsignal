@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Building2, CheckCircle2, Rocket, Target, TrendingUp, Users } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, Building2, CheckCircle2, ListChecks, Rocket, Sparkles, Target, TrendingUp, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import { SectionBadge, SectionShell } from "@/components/landing/primitives";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import { cn } from "@/lib/utils";
 
 const FadeIn = ({ children, delay = 0, className = "" }: {
@@ -66,6 +67,7 @@ const PERSONAS = [
 ] as const;
 
 const SolutionsPage = () => {
+  const { openAuthModal } = useAuthModal();
   usePageMeta({
     title: "Solutions — Streamnco",
     description: "Streamnco s'adapte à chaque type de streamer. Débutant, régulier, ambitieux ou manager — trouvez votre plan.",
@@ -214,27 +216,75 @@ const SolutionsPage = () => {
         </div>
       </section>
 
-      {/* ── Bottom CTA ── */}
+      {/* ── Bottom CTA — premium split ── */}
       <SectionShell grid={false}>
         <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-b from-primary/8 to-transparent p-10 text-center md:p-16">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.1),transparent_60%)]" />
-            <div className="relative">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-primary/70">Gratuit pour commencer</p>
-              <h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">
-                Analyse ta chaîne en 1 minute
-              </h2>
-              <p className="mx-auto mt-3 max-w-sm text-sm text-muted-foreground">
-                Aucun compte, aucune connexion Twitch. Juste ton pseudo.
-              </p>
-              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-                <Button size="lg" asChild>
-                  <Link to="/">Analyser ma chaîne →</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link to="/pricing">Voir les tarifs</Link>
-                </Button>
+          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background shadow-[0_40px_120px_-40px_hsl(var(--primary)/0.2)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_left,hsl(var(--primary)/0.12),transparent_55%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)] opacity-40" />
+
+            <div className="relative grid lg:grid-cols-[1.1fr_1fr]">
+
+              {/* LEFT — CTA */}
+              <div className="flex flex-col justify-center p-8 sm:p-10 md:p-12 lg:p-14">
+                <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  <Zap className="h-3 w-3" /> Gratuit · Sans compte
+                </span>
+                <h2 className="mt-5 text-3xl font-bold leading-tight text-foreground md:text-4xl">
+                  Découvre ton profil<br />de streamer.
+                </h2>
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                  Score global, blocage principal, plan d'action — en 60 secondes. Sans connexion Twitch, sans carte bancaire.
+                </p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <Button size="lg" className="gap-2" onClick={() => openAuthModal("signup")}>
+                    <Sparkles className="h-4 w-4" /> Essayer gratuitement
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <Link to="/pricing">Voir les tarifs</Link>
+                  </Button>
+                </div>
+                <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground/60">
+                  {["Sans connexion Twitch", "Résultat en 60 s", "8 000+ chaînes analysées"].map((t) => (
+                    <span key={t} className="flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />{t}
+                    </span>
+                  ))}
+                </div>
               </div>
+
+              {/* RIGHT — 4 persona mini-cards stacked */}
+              <div className="relative hidden overflow-hidden lg:flex lg:items-center lg:justify-center py-10 pr-10">
+                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card/20 to-transparent" />
+                <div className="relative space-y-3 w-full max-w-[260px]">
+                  {[
+                    { emoji: "🌱", tag: "Le Débutant", line: "Score 34 · Blocage : Régularité", color: "border-emerald-500/20 bg-emerald-500/5" },
+                    { emoji: "📈", tag: "Le Régulier", line: "Score 58 · Frein : Contenu clips", color: "border-primary/20 bg-primary/5", active: true },
+                    { emoji: "🎯", tag: "L'Ambitieux", line: "Score 72 · Objectif : Affiliation", color: "border-violet-500/20 bg-violet-500/5" },
+                    { emoji: "🏢", tag: "Le Manager", line: "3 chaînes · Score moyen : 61", color: "border-primary/15 bg-primary/5" },
+                  ].map((p, i) => (
+                    <motion.div
+                      key={p.tag}
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 + i * 0.12, duration: 0.5 }}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl border px-4 py-3 backdrop-blur-sm",
+                        p.color,
+                        p.active && "shadow-[0_0_20px_hsl(var(--primary)/0.15)]"
+                      )}
+                    >
+                      <span className="text-lg leading-none">{p.emoji}</span>
+                      <div className="min-w-0">
+                        <p className={cn("text-[11px] font-semibold", p.active ? "text-primary" : "text-foreground")}>{p.tag}</p>
+                        <p className="text-[10px] text-muted-foreground/60 truncate">{p.line}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
             </div>
           </div>
         </FadeIn>
