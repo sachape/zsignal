@@ -40,6 +40,7 @@ const ClipAnalyticsPage = lazy(() => import("./pages/ClipAnalyticsPage.tsx"));
 const SchedulePage = lazy(() => import("./pages/SchedulePage.tsx"));
 const FeaturesPage = lazy(() => import("./pages/FeaturesPage.tsx"));
 const SolutionsPage = lazy(() => import("./pages/SolutionsPage.tsx"));
+const AboutPage = lazy(() => import("./pages/AboutPage.tsx"));
 const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
 const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -253,6 +254,7 @@ const App = () => (
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/features" element={<FeaturesPage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
+                <Route path="/about" element={<AboutPage />} />
                 <Route
                   path="/help"
                   element={

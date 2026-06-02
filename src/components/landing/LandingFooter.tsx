@@ -9,6 +9,7 @@ const PRODUCT_LINKS = [
   { label: "Solutions", href: "/solutions" },
   { label: "Tarifs", href: "/pricing" },
   { label: "Articles", href: "/blog" },
+  { label: "À propos", href: "/about" },
 ];
 
 const LEGAL_LINKS = [
