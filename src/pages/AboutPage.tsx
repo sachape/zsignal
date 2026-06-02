@@ -154,7 +154,8 @@ const AboutPage = () => {
   usePageMeta({
     title: "À propos de Streamnco — Outil de progression pour streamers Twitch",
     description: "Streamnco est un outil d'analyse et de progression pour streamers Twitch. Il calcule un StreamScore, identifie les points faibles et génère un plan d'action concret.",
-    canonical: "https://streamnco.fr/about",
+    canonical: "https://streamnco.fr/a-propos",
+    ogUrl: "https://streamnco.fr/a-propos",
     robots: "index, follow",
   });
 
