@@ -20,6 +20,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { cn } from "@/lib/utils";
 
@@ -234,11 +235,15 @@ function CellValue({ value }: { value: string | boolean }) {
 
 const PricingPage = () => {
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   const handleCheckout = async (plan: "pro" | "growth") => {
-    if (!user) return;
+    if (!user) {
+      openAuthModal("signup");
+      return;
+    }
     setCheckoutLoading(plan);
     try {
       await startCheckout(plan, billing === "annual" ? "annual" : "monthly");
@@ -403,8 +408,8 @@ const PricingPage = () => {
                     Plan actuel
                   </Button>
                 ) : (
-                  <Button asChild size="sm" variant="outline" className="w-full">
-                    <Link to="/auth">Commencer gratuitement</Link>
+                  <Button size="sm" variant="outline" className="w-full" onClick={() => openAuthModal("signup")}>
+                    Commencer gratuitement
                   </Button>
                 )
               ) : (
@@ -551,11 +556,11 @@ const PricingPage = () => {
             Rejoins les streamers qui suivent leur progression et atteignent l'affiliation plus vite.
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild>
-              <Link to="/auth">Commencer gratuitement</Link>
+            <Button onClick={() => openAuthModal("signup")}>
+              Commencer gratuitement
             </Button>
             <Button asChild variant="outline">
-              <Link to="/pricing">Voir les offres Pro</Link>
+              <Link to="/">Analyser ma chaîne →</Link>
             </Button>
           </div>
         </div>
