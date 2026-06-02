@@ -540,7 +540,7 @@ const AboutPage = () => {
                       <Sparkles className="h-4 w-4" /> Essayer gratuitement
                     </Button>
                     <Button size="lg" variant="outline" asChild>
-                      <Link to="/features">Voir les fonctionnalités <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                      <Link to="/fonctionnalites">Voir les fonctionnalités <ArrowRight className="ml-1 h-4 w-4" /></Link>
                     </Button>
                   </div>
                   <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground/60">
