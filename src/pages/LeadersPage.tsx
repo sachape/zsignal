@@ -765,8 +765,8 @@ const LeadersPage = () => {
                 {h2hReport && userReport?.report && (() => {
                   const mine = userReport.report;
                   const theirs = h2hReport;
-                  const myScore = mine.score.overall;
-                  const theirScore = theirs.score.overall;
+                  const myScore = mine.score;
+                  const theirScore = theirs.score;
                   if (!myScore || !theirScore) return null;
 
                   const dims = [
