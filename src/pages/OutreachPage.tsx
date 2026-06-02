@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
+import { Navigate } from "react-router-dom";
 import {
-  CheckCircle2, Copy, Download, Loader2, RefreshCw, Search, Trash2, AlertTriangle,
+  CheckCircle2, Copy, Download, Loader2, Search, AlertTriangle,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -11,6 +12,9 @@ import { cn } from "@/lib/utils";
 import { runTeaserAnalysis } from "@/services/teaserAnalysisRunner";
 import type { AnalysisReport } from "@/types/analysis";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useAuth } from "@/contexts/AuthContext";
+
+const ADMIN_EMAIL = "perathonersacha@gmail.com";
 
 // ── DM template generator ────────────────────────────────────────────────────
 
@@ -106,6 +110,11 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const OutreachPage = () => {
   usePageMeta({ title: "Outreach — Streamnco" });
+  const { user } = useAuth();
+
+  if (!user || user.email !== ADMIN_EMAIL) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const [input, setInput] = useState("");
   const [rows, setRows] = useState<StreamerRow[]>([]);
