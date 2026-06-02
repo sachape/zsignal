@@ -71,6 +71,12 @@ const RouteFallback = () => (
   </div>
 );
 
+// /blog/:slug → /articles/:slug (redirection permanente côté SPA)
+const BlogSlugRedirect = () => {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`/articles/${slug ?? ""}`} replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
