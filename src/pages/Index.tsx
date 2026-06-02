@@ -1,56 +1,52 @@
 import LandingNav from "@/components/LandingNav";
 import HeroSection from "@/components/landing/HeroSection";
 import SocialProofSection from "@/components/landing/SocialProofSection";
-import DemoPreviewSection from "@/components/DemoPreviewSection";
-import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import AudienceValueSection from "@/components/landing/AudienceValueSection";
-import PricingSection from "@/components/landing/PricingSection";
+import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import DemoPreviewSection from "@/components/DemoPreviewSection";
 import ValueAnchorSection from "@/components/landing/ValueAnchorSection";
+import PricingSection from "@/components/landing/PricingSection";
 import FaqSection from "@/components/landing/FaqSection";
-import ArticlesSection from "@/components/landing/ArticlesSection";
 import FinalCtaSection from "@/components/landing/FinalCtaSection";
+import ArticlesSection from "@/components/landing/ArticlesSection";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const HOMEPAGE_FAQ = [
   {
     q: "Faut-il connecter Twitch pour commencer ?",
-    a: "Non. Entre simplement ton pseudo : Streamnco lit les signaux publics de ta chaîne pour générer un premier diagnostic. La connexion Twitch arrive seulement si tu veux le suivi complet.",
+    a: "Non. Entre simplement ton pseudo Twitch — Streamnco lit les signaux publics de ta chaîne et génère ton diagnostic en moins d'une minute. Pas de token, pas de permission, pas de compte requis.",
   },
   {
     q: "Quelles données sont analysées ?",
-    a: "Streamnco analyse les signaux utiles de ta chaîne : régularité, progression vers l'objectif, dynamiques visibles et premiers indicateurs de performance. Le niveau de détail augmente avec le suivi complet.",
+    a: "Streamnco analyse 6 dimensions : ta régularité de stream, la structure de tes sessions, ta production de clips, ton positionnement en catégorie, ton momentum récent et ta progression vers l'affiliation. Chaque dimension génère un score et un levier d'action concret.",
   },
   {
-    q: "Puis-je essayer sans créer de compte ?",
-    a: "Oui. Tu peux lancer un premier diagnostic sans compte. Le compte devient utile si tu veux sauvegarder ton analyse, la retrouver et aller plus loin.",
-  },
-  {
-    q: "Que débloque la version complète ?",
-    a: "Le suivi complet ajoute l'historique, une lecture plus riche de ta progression, davantage de contexte sur tes performances et un accompagnement plus utile dans le temps.",
+    q: "Pourquoi Streamnco plutôt que TwitchTracker ou SullyGnome ?",
+    a: "Ces outils te donnent des statistiques brutes. Streamnco te dit ce qu'elles signifient pour toi, identifie ton blocage principal et génère un plan d'action personnalisé. Ce n'est pas un dashboard, c'est un diagnostic.",
   },
   {
     q: "Est-ce utile si je débute ?",
-    a: "Oui. Streamnco n'est pas réservé aux grosses chaînes. L'outil est justement utile pour poser de bonnes bases, éviter les erreurs classiques et suivre une progression plus claire.",
+    a: "Oui. C'est même là que Streamnco est le plus utile. Un débutant sans méthode peut passer des mois sur des axes secondaires. Streamnco identifie ce qui compte vraiment dès le départ.",
   },
   {
-    q: "Streamnco publie-t-il quoi que ce soit sur ma chaîne ?",
-    a: "Non. Streamnco ne publie rien à ta place. Le diagnostic initial est en lecture seule.",
+    q: "Que débloque la version complète ?",
+    a: "Le plan Pro ajoute l'historique de progression (30/60/90 jours), le suivi live automatique après chaque stream, le benchmark de tes concurrents directs et le plan d'action hebdomadaire vérifié automatiquement.",
   },
   {
-    q: "Pourrai-je suivre plusieurs chaînes plus tard ?",
-    a: "Oui, c'est prévu pour les usages plus avancés. L'expérience actuelle est centrée sur l'analyse et le suivi de ta chaîne, avec une ouverture progressive vers le multi-chaînes.",
+    q: "Puis-je annuler à tout moment ?",
+    a: "Oui. Pas d'engagement, pas de frais de résiliation. Tu peux annuler depuis ton espace facturation en 1 clic.",
   },
 ];
 
 const Index = () => {
   usePageMeta({
-    title: "Streamnco — Analyse Twitch, StreamScore et plan d'action pour streamers",
+    title: "Streamnco — Découvre en 60 s ce qui bloque ta chaîne Twitch",
     description:
-      "Streamnco analyse ta chaîne Twitch, identifie ce qui bloque ta progression et génère un plan d'action clair pour progresser stream après stream.",
-    ogTitle: "Streamnco — Analyse Twitch, StreamScore et plan d'action pour streamers",
+      "Entre ton pseudo Twitch. Streamnco analyse ta régularité, tes clips, ta catégorie et 4 autres signaux — puis te dit exactement ce qui freine ta croissance et quoi corriger en premier.",
+    ogTitle: "Streamnco — Découvre ce qui bloque ta chaîne Twitch",
     ogDescription:
-      "Analyse ta chaîne Twitch, comprends ce qui bloque ta progression et obtiens un plan d'action clair.",
+      "Diagnostic Twitch en 60 secondes. Score, blocage principal, plan d'action. Sans compte, sans connexion Twitch.",
     canonical: "https://streamnco.fr/",
     ogUrl: "https://streamnco.fr/",
     robots: "index, follow",
@@ -74,12 +70,11 @@ const Index = () => {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         name: "Streamnco",
-        alternateName: "Streamnco.fr",
         url: "https://streamnco.fr/",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         description:
-          "Streamnco analyse les chaînes Twitch et aide les streamers à comprendre ce qui bloque leur progression.",
+          "Diagnostic Twitch instantané. Streamnco analyse ta chaîne, identifie ton blocage principal et génère un plan d'action personnalisé — sans connexion Twitch requise.",
         sameAs: ["https://www.instagram.com/streamnco.fr/"],
       },
       {
@@ -97,27 +92,37 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <LandingNav />
-      {/* 1. Promesse */}
+
+      {/* 1. Hook + CTA principal */}
       <HeroSection />
-      {/* 2. Preuve sociale */}
+
+      {/* 2. Preuve sociale immédiate — crédibilité */}
       <SocialProofSection />
-      {/* 3. Aperçu du diagnostic */}
-      <DemoPreviewSection />
-      {/* 4. Fonctionnement */}
-      <HowItWorksSection />
-      {/* 5. Fonctionnalités */}
+
+      {/* 3. Différenciateurs — pourquoi pas les autres outils */}
       <AudienceValueSection />
-      {/* 6. Prix */}
-      <PricingSection />
-      {/* 7. Objections (au moment de la décision, juste après le prix) */}
-      <FaqSection />
-      {/* 8. Ancrage de valeur (dernière validation avant le CTA final) */}
+
+      {/* 4. Comment ça marche — réduction de friction */}
+      <HowItWorksSection />
+
+      {/* 5. Aperçu du produit — voir avant de s'engager */}
+      <DemoPreviewSection />
+
+      {/* 6. Comparaison vs alternatives — justifier la valeur AVANT le prix */}
       <ValueAnchorSection />
-      {/* 9. Articles */}
-      <ArticlesSection />
-      {/* 10. Action finale */}
+
+      {/* 7. Tarifs */}
+      <PricingSection />
+
+      {/* 8. FAQ — traiter les objections au moment de la décision */}
+      <FaqSection />
+
+      {/* 9. CTA final — dernière conversion */}
       <FinalCtaSection />
-      {/* 11. Footer */}
+
+      {/* 10. Articles — pour ceux qui veulent en savoir plus */}
+      <ArticlesSection />
+
       <LandingFooter />
     </div>
   );

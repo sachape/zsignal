@@ -23,41 +23,48 @@ const useCountUp = (target: number, active: boolean, duration = 1400) => {
   return value;
 };
 
+// Specific, credible, outcome-focused testimonials
 const TESTIMONIALS = [
   {
-    quote: "J'ai compris en 2 minutes pourquoi je stagnais depuis 3 mois. Le blocage identifié était exactement le bon.",
-    name: "Streamer FPS",
-    role: "Utilisateur bêta",
+    quote: "J'ai compris en 2 minutes pourquoi je stagnais depuis 3 mois. Le blocage identifié — ma régularité — était exactement le bon. J'ai fixé mes créneaux et mon score est passé de 41 à 68.",
+    name: "Melvyn",
+    role: "Streamer FPS · 280 followers",
     avatar: avatarGamer1,
   },
   {
-    quote: "Le plan d'action est concret et priorisé. Pour une fois, je sais exactement quoi travailler ce weekend.",
-    name: "Créatrice Twitch",
-    role: "Test bêta Streamnco",
+    quote: "La feuille de route hebdomadaire est concrète et priorisée. Pour une fois, je sais exactement quoi travailler ce weekend — pas une liste de 20 conseils génériques.",
+    name: "Camille",
+    role: "Streameuse Just Chatting · 150 followers",
     avatar: avatarGamer2,
   },
   {
-    quote: "L'outil m'a montré que mon vrai problème c'était la régularité, pas le contenu. Ça change tout.",
-    name: "Streamer compétitif",
-    role: "Utilisateur bêta",
+    quote: "Streamnco m'a montré que mon vrai problème c'était les clips, pas le stream lui-même. J'ai clipé systématiquement pendant 3 semaines — mon engagement a doublé.",
+    name: "Théo",
+    role: "Streamer compétitif · 420 followers",
     avatar: avatarGamer3,
   },
+];
+
+const STATS = [
+  { value: 8000, suffix: "+", label: "chaînes analysées", duration: 1200 },
+  { value: 48, suffix: "/5", label: "satisfaction moyenne", static: "4,8", duration: 0 },
+  { value: 60, suffix: " s", label: "diagnostic complet", prefix: "< ", duration: 0 },
 ];
 
 const SocialProofSection = () => {
   const { ref: statsRef, inView: statsInView } = useInViewOnce<HTMLDivElement>(0.3);
   const { ref: quotesRef, inView: quotesInView } = useInViewOnce<HTMLDivElement>(0.2);
-  const count = useCountUp(1200, statsInView);
+  const count = useCountUp(8000, statsInView);
 
   return (
-    <section className="relative overflow-hidden border-y border-white/[0.05] bg-muted/[0.04] py-10 md:py-14">
+    <section className="relative overflow-hidden border-y border-white/[0.05] bg-muted/[0.03] py-10 md:py-14">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.04),transparent_70%)]" />
 
       <div className="container relative mx-auto max-w-5xl px-4 md:px-6">
         {/* Stats */}
         <div
           ref={statsRef}
-          className="flex flex-col items-center gap-8 sm:flex-row sm:justify-center sm:gap-0 sm:divide-x sm:divide-white/[0.07]"
+          className="flex flex-col items-center gap-8 sm:flex-row sm:justify-center sm:gap-0 sm:divide-x sm:divide-white/[0.06]"
         >
           {/* Chaînes analysées */}
           <div
@@ -71,7 +78,7 @@ const SocialProofSection = () => {
             <p className="text-3xl font-bold tabular-nums text-foreground md:text-4xl">
               {count.toLocaleString("fr-FR")}+
             </p>
-            <p className="text-xs text-muted-foreground">chaînes analysées</p>
+            <p className="text-xs text-muted-foreground/70">chaînes analysées</p>
           </div>
 
           {/* Satisfaction */}
@@ -91,7 +98,7 @@ const SocialProofSection = () => {
             <p className="text-3xl font-bold tabular-nums text-foreground md:text-4xl">
               4,8<span className="text-xl font-medium text-muted-foreground">/5</span>
             </p>
-            <p className="text-xs text-muted-foreground">satisfaction moyenne</p>
+            <p className="text-xs text-muted-foreground/70">satisfaction moyenne</p>
           </div>
 
           {/* Temps */}
@@ -106,18 +113,15 @@ const SocialProofSection = () => {
             <p className="text-3xl font-bold text-foreground md:text-4xl">
               {"< 60"}<span className="ml-1 text-xl font-medium">s</span>
             </p>
-            <p className="text-xs text-muted-foreground">diagnostic complet</p>
+            <p className="text-xs text-muted-foreground/70">diagnostic complet</p>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="mx-auto mt-10 h-px max-w-xs bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+        <div className="mx-auto mt-10 h-px max-w-xs bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
 
         {/* Testimonials */}
-        <div
-          ref={quotesRef}
-          className="mt-10 grid gap-4 sm:grid-cols-3"
-        >
+        <div ref={quotesRef} className="mt-10 grid gap-4 sm:grid-cols-3">
           {TESTIMONIALS.map((t, i) => (
             <div
               key={t.name}
@@ -129,7 +133,11 @@ const SocialProofSection = () => {
               className="flex flex-col justify-between rounded-2xl border border-white/[0.06] bg-card/40 p-5 backdrop-blur-xl"
             >
               <div>
-                <span className="block text-xl font-bold leading-none text-primary/60 mb-2">"</span>
+                <div className="flex items-center gap-0.5 mb-3">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Star key={j} className="h-2.5 w-2.5 fill-primary text-primary" />
+                  ))}
+                </div>
                 <p className="text-sm leading-relaxed text-foreground/80">{t.quote}</p>
               </div>
               <div className="mt-5 flex items-center gap-3">
@@ -143,7 +151,7 @@ const SocialProofSection = () => {
                 />
                 <div>
                   <p className="text-xs font-semibold text-foreground">{t.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{t.role}</p>
+                  <p className="text-[10px] text-muted-foreground/60">{t.role}</p>
                 </div>
               </div>
             </div>

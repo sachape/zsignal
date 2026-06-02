@@ -50,16 +50,16 @@ const FinalCtaSection = () => {
             <div className="flex flex-col justify-center p-8 sm:p-10 md:p-12 lg:p-14">
               <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-primary shadow-[0_0_24px_hsl(var(--primary)/0.25)]">
                 <Sparkles className="h-3 w-3" />
-                Prêt à voir ce qui bloque ?
+                Diagnostic gratuit · Résultat en 60 s
               </span>
 
               <h2 className="mt-5 bg-gradient-to-b from-foreground to-foreground/65 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl lg:text-[2.75rem] lg:leading-[1.05]">
-                Tu n'as plus à deviner.
+                Vois ce qui bloque ta chaîne. Maintenant.
               </h2>
 
               <p className="mt-4 max-w-md text-sm text-foreground/70 md:text-base">
-                Lance ton diagnostic gratuit. Si tu veux ensuite suivre ta
-                progression dans le temps, le suivi complet prend le relais.
+                Entre ton pseudo Twitch. En 60 secondes tu as ton score, ton blocage principal, et ton premier plan d'action.
+                <span className="font-semibold text-foreground"> Gratuit, sans compte.</span>
               </p>
 
               <div className="mt-7 max-w-md">
