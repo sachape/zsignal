@@ -12,7 +12,7 @@ const COLUMNS = [
   {
     title: "Produit",
     links: [
-      { label: "Fonctionnalités", href: "/features" },
+      { label: "Fonctionnalités", href: "/fonctionnalites" },
       { label: "Solutions", href: "/solutions" },
       { label: "StreamScore", href: "/streamscore" },
       { label: "Tarifs", href: "/pricing" },
@@ -21,14 +21,14 @@ const COLUMNS = [
   {
     title: "Ressources",
     links: [
-      { label: "Articles", href: "/blog" },
+      { label: "Articles", href: "/articles" },
       { label: "Playbooks", href: "/playbooks" },
     ],
   },
   {
     title: "Entreprise",
     links: [
-      { label: "À propos", href: "/about" },
+      { label: "À propos", href: "/a-propos" },
       { label: "Contact", href: "mailto:contact@streamnco.fr", external: true },
     ],
   },
