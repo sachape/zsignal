@@ -15,8 +15,8 @@ const FOUNDING_MEMBER = true;
 const FOUNDING_SPOTS = 150;
 const PRO_FUTURE = 12.99;
 const GROWTH_FUTURE = 24.99;
-import AppShell from "@/components/AppShell";
-import PageContainer from "@/components/PageContainer";
+import LandingNav from "@/components/LandingNav";
+import LandingFooter from "@/components/landing/LandingFooter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -282,8 +282,9 @@ const PricingPage = () => {
   });
 
   return (
-    <AppShell>
-      <PageContainer>
+    <div className="min-h-screen bg-background">
+      <LandingNav />
+      <div className="container mx-auto max-w-5xl px-4 pt-28 pb-20 md:px-6 md:pt-32">
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
@@ -558,8 +559,9 @@ const PricingPage = () => {
             </Button>
           </div>
         </div>
-      </PageContainer>
-    </AppShell>
+      </div>
+      <LandingFooter />
+    </div>
   );
 };
 
