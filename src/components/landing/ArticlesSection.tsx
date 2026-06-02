@@ -25,7 +25,7 @@ const ArticleCard = ({
   inView: boolean;
 }) => (
   <Link
-    to={`/blog/${article.slug}`}
+    to={`/articles/${article.slug}`}
     className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-white/[0.14] hover:shadow-[0_12px_48px_hsl(var(--primary)/0.10)]"
     style={{
       opacity: inView ? 1 : 0,
@@ -115,7 +115,7 @@ const ArticlesSection = () => {
           }}
         >
           <Link
-            to="/blog"
+            to="/articles"
             className="group inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.06] px-6 py-2.5 text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary/10 hover:border-primary/40 hover:shadow-[0_0_24px_hsl(var(--primary)/0.2)]"
           >
             Voir tous les articles
