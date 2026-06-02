@@ -396,27 +396,165 @@ const FeaturesPage = () => {
         </div>
       </SectionShell>
 
-      {/* ── Micro features grid ── */}
+      {/* ── Ecosystem features — premium illustrated cards ── */}
       <SectionShell glow={false} grid={false}>
-        <div className="mb-10 text-center">
+        <div className="mb-12 text-center">
           <SectionHeading
             badge="Et aussi"
             title="Tout l'écosystème"
             subtitle="Des outils qui se complètent, pas qui se dispersent."
           />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {microFeatures.map((f, i) => (
-            <FadeIn key={f.label} delay={i * 0.08}>
-              <GlassCard interactive className="h-full p-5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-                  <f.icon className="h-4.5 w-4.5 text-primary" />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+          {/* ── Historique 30/60/90j ── */}
+          <FadeIn delay={0}>
+            <GlassCard interactive className="h-full overflow-hidden p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">Historique</p>
+              <h3 className="mt-1.5 text-sm font-semibold text-foreground">30, 60, 90 jours de progression</h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Vois exactement quand ton score a bougé et pourquoi.</p>
+
+              {/* Area chart illus */}
+              <div className="mt-4 rounded-xl border border-white/[0.06] bg-background/40 p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-[9px] text-muted-foreground/50">StreamScore · 90 jours</span>
+                  <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold text-emerald-400">↑ +18 pts</span>
                 </div>
-                <h3 className="mt-3 text-sm font-semibold text-foreground">{f.title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{f.description}</p>
-              </GlassCard>
-            </FadeIn>
-          ))}
+                <svg viewBox="0 0 160 55" className="w-full overflow-visible">
+                  <defs>
+                    <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <motion.path
+                    d="M0 48 C20 45 30 38 45 35 C55 32 65 30 80 22 C95 14 110 18 130 12 C145 8 155 5 160 4"
+                    fill="none" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round"
+                    initial={{ pathLength: 0, opacity: 0 }} whileInView={{ pathLength: 1, opacity: 1 }}
+                    viewport={{ once: true }} transition={{ duration: 1.4, ease: "easeInOut", delay: 0.1 }}
+                  />
+                  <motion.path
+                    d="M0 48 C20 45 30 38 45 35 C55 32 65 30 80 22 C95 14 110 18 130 12 C145 8 155 5 160 4 L160 55 L0 55 Z"
+                    fill="url(#histGrad)"
+                    initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }} transition={{ duration: 1, delay: 0.6 }}
+                  />
+                  {/* Data points */}
+                  {[[45,35],[80,22],[130,12],[160,4]].map(([x, y], i) => (
+                    <motion.circle key={i} cx={x} cy={y} r="2.5" fill="hsl(var(--primary))"
+                      initial={{ scale: 0 }} whileInView={{ scale: 1 }}
+                      viewport={{ once: true }} transition={{ delay: 0.8 + i * 0.1 }}
+                    />
+                  ))}
+                </svg>
+                <div className="mt-2 flex justify-between text-[9px] text-muted-foreground/40">
+                  <span>J -90</span><span>J -60</span><span>J -30</span><span>Auj.</span>
+                </div>
+              </div>
+            </GlassCard>
+          </FadeIn>
+
+          {/* ── Alertes ── */}
+          <FadeIn delay={0.08}>
+            <GlassCard interactive className="h-full overflow-hidden p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">Alertes</p>
+              <h3 className="mt-1.5 text-sm font-semibold text-foreground">Notifié quand ton score bouge</h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Email automatique dès qu'un delta significatif est détecté.</p>
+
+              {/* Email notification mockup */}
+              <div className="mt-4 space-y-2">
+                {[
+                  { icon: "📈", title: "Score en hausse", sub: "Ton StreamScore a gagné +12 pts", time: "Il y a 2h", color: "border-emerald-500/20 bg-emerald-500/5" },
+                  { icon: "⚠️", title: "Contenu en baisse", sub: "Clips : 0 ce mois — frein détecté", time: "Hier", color: "border-warning/20 bg-warning/5" },
+                ].map((n) => (
+                  <div key={n.title} className={`flex items-start gap-2.5 rounded-lg border p-2.5 ${n.color}`}>
+                    <span className="mt-0.5 text-sm leading-none">{n.icon}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-semibold text-foreground">{n.title}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">{n.sub}</p>
+                    </div>
+                    <span className="shrink-0 text-[9px] text-muted-foreground/40">{n.time}</span>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          </FadeIn>
+
+          {/* ── Affiliation tracker ── */}
+          <FadeIn delay={0.16}>
+            <GlassCard interactive className="h-full overflow-hidden p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">Affiliation</p>
+              <h3 className="mt-1.5 text-sm font-semibold text-foreground">Tracker ta progression vers l'affiliation</h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Les 4 critères Twitch suivis en temps réel.</p>
+
+              {/* Progress bars for affiliation criteria */}
+              <div className="mt-4 space-y-2.5">
+                {[
+                  { label: "Moy. viewers", val: 71, current: "2.1", target: "3", done: false },
+                  { label: "Jours de stream", val: 100, current: "7", target: "7", done: true },
+                  { label: "Heures streamed", val: 100, current: "25", target: "25", done: true },
+                  { label: "Followers", val: 86, current: "43", target: "50", done: false },
+                ].map((c) => (
+                  <div key={c.label}>
+                    <div className="mb-1 flex items-center justify-between">
+                      <span className="text-[10px] text-muted-foreground/70">{c.label}</span>
+                      <div className="flex items-center gap-1">
+                        <span className={`text-[10px] font-bold tabular-nums ${c.done ? "text-emerald-400" : "text-foreground"}`}>{c.current}</span>
+                        <span className="text-[9px] text-muted-foreground/40">/{c.target}</span>
+                        {c.done && <span className="text-emerald-400 text-[10px]">✓</span>}
+                      </div>
+                    </div>
+                    <div className="h-1 overflow-hidden rounded-full bg-muted/40">
+                      <motion.div
+                        className={`h-full rounded-full ${c.done ? "bg-emerald-400" : "bg-primary"}`}
+                        initial={{ width: 0 }} whileInView={{ width: `${c.val}%` }}
+                        viewport={{ once: true }} transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          </FadeIn>
+
+          {/* ── Benchmark ── */}
+          <FadeIn delay={0.24}>
+            <GlassCard interactive className="h-full overflow-hidden p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">Benchmark</p>
+              <h3 className="mt-1.5 text-sm font-semibold text-foreground">Benchmark par catégorie</h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Où tu te situes dans ta catégorie, indexée ou en live.</p>
+
+              {/* Mini leaderboard */}
+              <div className="mt-4 space-y-1.5">
+                {[
+                  { rank: 1, name: "StreamerA", score: 91, me: false },
+                  { rank: 2, name: "NovaPlay", score: 84, me: false },
+                  { rank: 3, name: "JustVibes", score: 79, me: false },
+                  { rank: 4, name: "Toi", score: 74, me: true },
+                  { rank: 5, name: "GrindMode", score: 68, me: false },
+                ].map((r) => (
+                  <div
+                    key={r.rank}
+                    className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[11px] transition-all ${
+                      r.me
+                        ? "border border-primary/30 bg-primary/8 font-semibold"
+                        : "bg-muted/10"
+                    }`}
+                  >
+                    <span className={`w-4 shrink-0 text-right font-bold tabular-nums ${r.me ? "text-primary" : "text-muted-foreground/40"}`}>
+                      #{r.rank}
+                    </span>
+                    <div className={`h-5 w-5 shrink-0 rounded-full ${r.me ? "bg-primary/30" : "bg-muted/40"} flex items-center justify-center text-[8px] font-bold`}>
+                      {r.name[0]}
+                    </div>
+                    <span className={`flex-1 truncate ${r.me ? "text-primary" : "text-foreground/70"}`}>{r.name}</span>
+                    <span className={`tabular-nums font-semibold ${r.me ? "text-primary" : "text-muted-foreground/60"}`}>{r.score}</span>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          </FadeIn>
+
         </div>
       </SectionShell>
 
