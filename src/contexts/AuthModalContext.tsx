@@ -17,8 +17,10 @@ interface OpenAuthModalOptions {
   mode?: "signup" | "login";
 }
 
+type OpenAuthModalArg = OpenAuthModalOptions | "signup" | "login";
+
 interface AuthModalContextValue {
-  openAuthModal: (opts?: OpenAuthModalOptions) => void;
+  openAuthModal: (opts?: OpenAuthModalArg) => void;
   closeAuthModal: () => void;
 }
 
@@ -28,8 +30,10 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [opts, setOpts] = useState<OpenAuthModalOptions>({});
 
-  const openAuthModal = useCallback((next?: OpenAuthModalOptions) => {
-    setOpts(next ?? {});
+  const openAuthModal = useCallback((next?: OpenAuthModalArg) => {
+    const normalized: OpenAuthModalOptions =
+      typeof next === "string" ? { mode: next } : next ?? {};
+    setOpts(normalized);
     setIsOpen(true);
   }, []);
 
