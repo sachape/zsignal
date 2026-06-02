@@ -51,6 +51,9 @@ const PlaybooksPage = () => {
   usePageMeta({
     title: "Playbooks",
     description: "Des guides courts et concrets pour appliquer les recommandations de ton plan.",
+    canonical: "https://streamnco.fr/playbooks",
+    ogUrl: "https://streamnco.fr/playbooks",
+    robots: "index, follow",
   });
 
   return (

@@ -24,12 +24,12 @@ const BlogArticlePage = () => {
 
   // Redirect 404
   useEffect(() => {
-    if (slug && !article) navigate("/blog", { replace: true });
+    if (slug && !article) navigate("/articles", { replace: true });
   }, [slug, article, navigate]);
 
   // Per-route meta + Article JSON-LD
   const canonical = article
-    ? `https://streamnco.fr/blog/${article.slug}`
+    ? `https://streamnco.fr/articles/${article.slug}`
     : undefined;
   usePageMeta(
     article
@@ -121,7 +121,7 @@ const BlogArticlePage = () => {
           <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground/50" aria-label="Fil d'Ariane">
             <Link to="/" className="transition-colors hover:text-muted-foreground">Accueil</Link>
             <ChevronRight className="h-3 w-3" />
-            <Link to="/blog" className="transition-colors hover:text-muted-foreground">Blog</Link>
+            <Link to="/articles" className="transition-colors hover:text-muted-foreground">Blog</Link>
             <ChevronRight className="h-3 w-3" />
             <span className="truncate text-muted-foreground/80">{article.category}</span>
           </nav>
@@ -197,7 +197,7 @@ const BlogArticlePage = () => {
             <div className="mt-12 grid grid-cols-2 gap-4">
               {prevArticle ? (
                 <Link
-                  to={`/blog/${prevArticle.slug}`}
+                  to={`/articles/${prevArticle.slug}`}
                   className="group flex items-center gap-3 rounded-xl border border-white/[0.06] bg-card/40 p-4 transition-all hover:border-white/[0.12]"
                 >
                   <ArrowLeft className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
@@ -211,7 +211,7 @@ const BlogArticlePage = () => {
               ) : <div />}
               {nextArticle ? (
                 <Link
-                  to={`/blog/${nextArticle.slug}`}
+                  to={`/articles/${nextArticle.slug}`}
                   className="group flex items-center justify-end gap-3 rounded-xl border border-white/[0.06] bg-card/40 p-4 text-right transition-all hover:border-white/[0.12]"
                 >
                   <div className="min-w-0">
@@ -278,7 +278,7 @@ const BlogArticlePage = () => {
             {relatedArticles.map((a) => (
               <Link
                 key={a.slug}
-                to={`/blog/${a.slug}`}
+                to={`/articles/${a.slug}`}
                 className="group flex flex-col gap-3 rounded-xl border border-white/[0.06] bg-card/40 p-5 transition-all hover:border-white/[0.12]"
               >
                 <span className={`self-start rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${CATEGORY_COLORS[a.category] ?? "border-border/40 bg-muted/30 text-muted-foreground"}`}>

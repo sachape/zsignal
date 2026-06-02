@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { analytics } from "@/services/analytics";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -70,6 +70,12 @@ const RouteFallback = () => (
     <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
   </div>
 );
+
+// /blog/:slug → /articles/:slug (redirection permanente côté SPA)
+const BlogSlugRedirect = () => {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`/articles/${slug ?? ""}`} replace />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -253,10 +259,13 @@ const App = () => (
                   }
                 />
                 <Route path="/pricing" element={<PricingPage />} />
-                <Route path="/features" element={<FeaturesPage />} />
+                <Route path="/fonctionnalites" element={<FeaturesPage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
-                <Route path="/about" element={<AboutPage />} />
+                <Route path="/a-propos" element={<AboutPage />} />
                 <Route path="/streamscore" element={<StreamScorePage />} />
+                {/* Redirections permanentes (SPA client-side) vers les URLs canoniques */}
+                <Route path="/features" element={<Navigate to="/fonctionnalites" replace />} />
+                <Route path="/about" element={<Navigate to="/a-propos" replace />} />
                 <Route
                   path="/help"
                   element={
@@ -265,8 +274,11 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/blog" element={<BlogPage />} />
-                <Route path="/blog/:slug" element={<BlogArticlePage />} />
+                <Route path="/articles" element={<BlogPage />} />
+                <Route path="/articles/:slug" element={<BlogArticlePage />} />
+                {/* /blog/* → 301 vers /articles/* */}
+                <Route path="/blog" element={<Navigate to="/articles" replace />} />
+                <Route path="/blog/:slug" element={<BlogSlugRedirect />} />
                 <Route path="/legal/terms" element={<LegalTermsPage />} />
                 <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
                 <Route path="/legal/mentions" element={<LegalMentionsPage />} />

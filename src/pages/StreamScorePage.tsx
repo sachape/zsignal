@@ -487,7 +487,7 @@ const StreamScorePage = () => {
                   <Zap className="h-4 w-4" /> Analyser ma chaîne Twitch
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link to="/features">Voir toutes les fonctionnalités</Link>
+                  <Link to="/fonctionnalites">Voir toutes les fonctionnalités</Link>
                 </Button>
               </div>
               <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[11px] text-muted-foreground/60">

@@ -154,7 +154,8 @@ const AboutPage = () => {
   usePageMeta({
     title: "À propos de Streamnco — Outil de progression pour streamers Twitch",
     description: "Streamnco est un outil d'analyse et de progression pour streamers Twitch. Il calcule un StreamScore, identifie les points faibles et génère un plan d'action concret.",
-    canonical: "https://streamnco.fr/about",
+    canonical: "https://streamnco.fr/a-propos",
+    ogUrl: "https://streamnco.fr/a-propos",
     robots: "index, follow",
   });
 
@@ -539,7 +540,7 @@ const AboutPage = () => {
                       <Sparkles className="h-4 w-4" /> Essayer gratuitement
                     </Button>
                     <Button size="lg" variant="outline" asChild>
-                      <Link to="/features">Voir les fonctionnalités <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                      <Link to="/fonctionnalites">Voir les fonctionnalités <ArrowRight className="ml-1 h-4 w-4" /></Link>
                     </Button>
                   </div>
                   <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground/60">

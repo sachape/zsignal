@@ -16,7 +16,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 const ArticleCard = ({ article, featured = false }: { article: typeof ARTICLES[number]; featured?: boolean }) => (
   <Link
-    to={`/blog/${article.slug}`}
+    to={`/articles/${article.slug}`}
     className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white/[0.12] hover:shadow-[0_8px_40px_hsl(var(--primary)/0.08)] ${featured ? "md:col-span-2" : ""}`}
   >
     {/* Top glow */}
@@ -61,11 +61,11 @@ const ArticleCard = ({ article, featured = false }: { article: typeof ARTICLES[n
 
 const BlogPage = () => {
   usePageMeta({
-    title: "Blog — Guides Twitch pour streamers",
+    title: "Articles — Guides Twitch pour streamers",
     description:
       "Guides concrets, stratégies testées et analyses approfondies pour progresser sur Twitch.",
-    canonical: "https://streamnco.fr/blog",
-    ogUrl: "https://streamnco.fr/blog",
+    canonical: "https://streamnco.fr/articles",
+    ogUrl: "https://streamnco.fr/articles",
   });
 
   const [featured, ...rest] = ARTICLES;
