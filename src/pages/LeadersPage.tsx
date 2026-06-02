@@ -130,7 +130,7 @@ const LeadersPage = () => {
     setH2hReport(null);
     const result = await runTeaserAnalysis({ channelInput: input });
     setH2hLoading(false);
-    if (!result.ok) {
+    if (result.ok === false) {
       setH2hError(result.reason === "not_found" ? "Chaîne introuvable sur Twitch." : "Erreur lors de l'analyse. Réessaie.");
       return;
     }
