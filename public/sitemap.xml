@@ -6,6 +6,21 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://streamnco.fr/fonctionnalites</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://streamnco.fr/solutions</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://streamnco.fr/streamscore</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://streamnco.fr/pricing</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -16,52 +31,57 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog</loc>
+    <loc>https://streamnco.fr/articles</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/comment-progresser-sur-twitch</loc>
+    <loc>https://streamnco.fr/a-propos</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://streamnco.fr/articles/comment-progresser-sur-twitch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/devenir-affilie-twitch-2025</loc>
+    <loc>https://streamnco.fr/articles/devenir-affilie-twitch-2025</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/regularite-twitch-facteur-croissance</loc>
+    <loc>https://streamnco.fr/articles/regularite-twitch-facteur-croissance</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/meilleurs-outils-analytics-twitch-2025</loc>
+    <loc>https://streamnco.fr/articles/meilleurs-outils-analytics-twitch-2025</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/comment-lire-ses-stats-twitch</loc>
+    <loc>https://streamnco.fr/articles/comment-lire-ses-stats-twitch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/schedule-twitch-guide-complet</loc>
+    <loc>https://streamnco.fr/articles/schedule-twitch-guide-complet</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/choisir-sa-niche-twitch</loc>
+    <loc>https://streamnco.fr/articles/choisir-sa-niche-twitch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/streamnco-vs-autres-outils-twitch</loc>
+    <loc>https://streamnco.fr/articles/streamnco-vs-autres-outils-twitch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://streamnco.fr/blog/streamnco-copilote-progression-twitch</loc>
+    <loc>https://streamnco.fr/articles/streamnco-copilote-progression-twitch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
