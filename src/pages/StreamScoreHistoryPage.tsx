@@ -10,6 +10,7 @@ import { LoadingState } from "@/components/StateView";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import StreamerDNACard from "@/components/StreamerDNACard";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
@@ -23,6 +24,8 @@ import {
 } from "@/services/streamScoreMovement";
 import type { StreamScoreSnapshot } from "@/services/streamScoreHistory";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { computeStreamerDNA } from "@/services/streamerDNA";
+import { getLatestReport } from "@/services/reportRepository";
 
 type RangeDays = 30 | 60 | 90;
 
@@ -118,6 +121,14 @@ const StreamScoreHistoryPage = () => {
   const [snapshots, setSnapshots] = useState<StreamScoreSnapshot[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState<RangeDays>(30);
+  const [latestStreamScore, setLatestStreamScore] = useState<import("@/types/analysis").StreamScore | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    getLatestReport(user.id).then((r) => {
+      if (r?.report?.stream_score) setLatestStreamScore(r.report.stream_score);
+    });
+  }, [user]);
 
   const platformUserId = account?.platform_user_id ?? null;
 
@@ -238,6 +249,16 @@ const StreamScoreHistoryPage = () => {
           description={`Évolution pour ${account.platform_display_name || account.platform_login || "ta chaîne"}.`}
           avatarLogin={account.platform_login}
         />
+
+        {/* DNA Card */}
+        {latestStreamScore && (
+          <div className="mb-6">
+            <StreamerDNACard
+              dna={computeStreamerDNA(latestStreamScore)}
+              login={account.platform_login}
+            />
+          </div>
+        )}
 
         {/* A. Header card */}
         <Card className="mb-6">

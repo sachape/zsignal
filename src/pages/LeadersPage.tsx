@@ -1,9 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { usePlan } from "@/hooks/usePlan";
 import { Link } from "react-router-dom";
-import { Check, ChevronRight, ChevronsUpDown, Eye, Loader2, Radio, Trophy } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, ChevronsUpDown, Eye, Loader2, Radio, Search, Trophy, TrendingDown, TrendingUp } from "lucide-react";
+import { runTeaserAnalysis } from "@/services/teaserAnalysisRunner";
+import type { AnalysisReport } from "@/types/analysis";
+import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import { InlineLock } from "@/components/PaywallGate";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -30,7 +33,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import {
   fetchCategoryLeadersPage,
   searchCategories,
@@ -111,6 +113,30 @@ const LeadersPage = () => {
   const MAX_ROWS = 500;
 
   const [userReport, setUserReport] = useState<SavedReport | null>(null);
+
+  // Head-to-Head state
+  const [h2hInput, setH2hInput] = useState("");
+  const [h2hLoading, setH2hLoading] = useState(false);
+  const [h2hReport, setH2hReport] = useState<AnalysisReport | null>(null);
+  const [h2hLogin, setH2hLogin] = useState<string | null>(null);
+  const [h2hError, setH2hError] = useState<string | null>(null);
+  const h2hInputRef = useRef<HTMLInputElement>(null);
+
+  const runH2H = async () => {
+    const input = h2hInput.trim();
+    if (!input) return;
+    setH2hLoading(true);
+    setH2hError(null);
+    setH2hReport(null);
+    const result = await runTeaserAnalysis({ channelInput: input });
+    setH2hLoading(false);
+    if (!result.ok) {
+      setH2hError(result.reason === "not_found" ? "Chaîne introuvable sur Twitch." : "Erreur lors de l'analyse. Réessaie.");
+      return;
+    }
+    setH2hReport(result.record.report.report);
+    setH2hLogin(result.record.report.report.channel_summary?.display_name ?? input);
+  };
 
   // Fetch user report once for personal position banner
   useEffect(() => {
@@ -413,6 +439,7 @@ const LeadersPage = () => {
               <TabsList className="mb-4">
                 <TabsTrigger value="streamscore">StreamScore</TabsTrigger>
                 <TabsTrigger value="live">Score Live</TabsTrigger>
+                <TabsTrigger value="h2h">Face-à-face</TabsTrigger>
               </TabsList>
 
               <TabsContent value="streamscore" className="mt-0">
@@ -704,6 +731,183 @@ const LeadersPage = () => {
               Source : Twitch /streams (snapshot live). Score calculé sur l'audience, le statut broadcaster et la portée en direct.
             </p>
 
+              </TabsContent>
+
+              {/* ── Face-à-face tab ── */}
+              <TabsContent value="h2h" className="mt-0">
+                {/* Search */}
+                <Card className="mb-5">
+                  <CardContent className="p-4">
+                    <p className="mb-3 text-sm font-semibold text-foreground">
+                      Compare ta chaîne avec un concurrent
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        ref={h2hInputRef}
+                        value={h2hInput}
+                        onChange={(e) => setH2hInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && runH2H()}
+                        placeholder="Pseudo Twitch du concurrent…"
+                        className="h-9 flex-1 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                      />
+                      <Button size="sm" onClick={runH2H} disabled={h2hLoading} className="gap-1.5 px-4">
+                        {h2hLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
+                        Analyser
+                      </Button>
+                    </div>
+                    {h2hError && (
+                      <p className="mt-2 text-xs text-destructive">{h2hError}</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Comparison */}
+                {h2hReport && userReport?.report && (() => {
+                  const mine = userReport.report;
+                  const theirs = h2hReport;
+                  const myScore = mine.stream_score;
+                  const theirScore = theirs.stream_score;
+                  if (!myScore || !theirScore) return null;
+
+                  const dims = [
+                    { key: "regularity", label: "Régularité", mine: myScore.regularity, theirs: theirScore.regularity, weight: "25%" },
+                    { key: "structure", label: "Structure", mine: myScore.structure, theirs: theirScore.structure, weight: "20%" },
+                    { key: "content", label: "Contenu", mine: myScore.content, theirs: theirScore.content, weight: "20%" },
+                    { key: "positioning", label: "Positionnement", mine: myScore.positioning, theirs: theirScore.positioning, weight: "15%" },
+                    { key: "momentum", label: "Momentum", mine: myScore.momentum, theirs: theirScore.momentum, weight: "10%" },
+                    { key: "monetization", label: "Monétisation", mine: myScore.monetization, theirs: theirScore.monetization, weight: "10%" },
+                  ];
+
+                  const myName = mine.channel_summary?.display_name ?? "Moi";
+                  const theirName = h2hLogin ?? "Concurrent";
+                  const myOverall = myScore.overall;
+                  const theirOverall = theirScore.overall;
+                  const myTier = getTierTheme(getScoreTier(myOverall));
+                  const theirTier = getTierTheme(getScoreTier(theirOverall));
+
+                  const advantages = dims.filter((d) => d.mine > d.theirs + 5);
+                  const gaps = dims.filter((d) => d.theirs > d.mine + 5);
+
+                  return (
+                    <div className="space-y-4">
+                      {/* Overall scores */}
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { name: myName, score: myOverall, tier: myTier, isMe: true },
+                          { name: theirName, score: theirOverall, tier: theirTier, isMe: false },
+                        ].map(({ name, score, tier, isMe }) => (
+                          <Card key={name} className={cn("text-center", isMe && "border-primary/30 bg-primary/5")}>
+                            <CardContent className="p-4">
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                {isMe ? "Toi" : "Concurrent"}
+                              </p>
+                              <p className="mt-1 truncate text-sm font-semibold text-foreground">{name}</p>
+                              <p className={cn("mt-1 text-3xl font-bold tabular-nums", tier.textClass)}>{score}</p>
+                              <p className="text-xs text-muted-foreground">/ 100</p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+
+                      {/* Dimension breakdown */}
+                      <Card>
+                        <CardContent className="p-4">
+                          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Dimensions
+                          </p>
+                          <div className="space-y-3">
+                            {dims.map((d) => {
+                              const delta = d.mine - d.theirs;
+                              const iAhead = delta > 5;
+                              const theyAhead = delta < -5;
+                              return (
+                                <div key={d.key}>
+                                  <div className="mb-1 flex items-center justify-between">
+                                    <span className="text-xs font-medium text-foreground">{d.label}</span>
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className="font-semibold tabular-nums text-primary">{d.mine}</span>
+                                      <span className="text-muted-foreground/40">vs</span>
+                                      <span className="font-semibold tabular-nums text-muted-foreground">{d.theirs}</span>
+                                      {iAhead && <TrendingUp className="h-3 w-3 text-emerald-400" />}
+                                      {theyAhead && <TrendingDown className="h-3 w-3 text-destructive" />}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted/40">
+                                      <div
+                                        className="absolute left-0 h-full rounded-full bg-primary transition-all duration-500"
+                                        style={{ width: `${d.mine}%` }}
+                                      />
+                                    </div>
+                                    <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted/40">
+                                      <div
+                                        className="absolute left-0 h-full rounded-full bg-muted-foreground/40 transition-all duration-500"
+                                        style={{ width: `${d.theirs}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Insights */}
+                      {(gaps.length > 0 || advantages.length > 0) && (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {gaps.length > 0 && (
+                            <Card className="border-destructive/20 bg-destructive/5">
+                              <CardContent className="p-4">
+                                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+                                  Où {theirName} te devance
+                                </p>
+                                <ul className="space-y-1">
+                                  {gaps.map((d) => (
+                                    <li key={d.key} className="flex items-center justify-between text-xs">
+                                      <span className="text-foreground">{d.label}</span>
+                                      <span className="font-semibold text-destructive">
+                                        +{d.theirs - d.mine} pts
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </CardContent>
+                            </Card>
+                          )}
+                          {advantages.length > 0 && (
+                            <Card className="border-emerald-500/20 bg-emerald-500/5">
+                              <CardContent className="p-4">
+                                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+                                  Où tu les devances
+                                </p>
+                                <ul className="space-y-1">
+                                  {advantages.map((d) => (
+                                    <li key={d.key} className="flex items-center justify-between text-xs">
+                                      <span className="text-foreground">{d.label}</span>
+                                      <span className="font-semibold text-emerald-400">
+                                        +{d.mine - d.theirs} pts
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </CardContent>
+                            </Card>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {!h2hReport && !h2hLoading && !h2hError && (
+                  <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-border/40">
+                    <div className="text-center">
+                      <Search className="mx-auto h-7 w-7 text-muted-foreground/30" />
+                      <p className="mt-2 text-sm text-muted-foreground">Entre un pseudo Twitch pour commencer</p>
+                    </div>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </>

@@ -18,7 +18,9 @@ import {
   Activity,
   Zap,
   MessageCircle,
-  Scissors,
+  Clapperboard,
+  CalendarDays,
+  Type,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -50,9 +52,10 @@ const cockpitItems = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true, secondary: false },
   { title: "Analyse", url: "/analyse", icon: Activity, end: false, secondary: false },
   { title: "Lives", url: "/lives", icon: Radio, end: false, secondary: false },
-  { title: "Clips", url: "/clips", icon: Scissors, end: false, secondary: false },
   { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false, secondary: false },
   { title: "Progression", url: "/progression", icon: Star, end: false, secondary: false },
+  { title: "Clips", url: "/clips", icon: Clapperboard, end: false, secondary: true },
+  { title: "Planning", url: "/schedule", icon: CalendarDays, end: false, secondary: true },
   { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false, secondary: true },
   { title: "Quêtes", url: "/quetes", icon: Zap, end: false, secondary: true },
 ];
@@ -62,6 +65,7 @@ const benchmarkItems = [
   { title: "Classements", url: "/classements", icon: Trophy, end: false, secondary: false },
   { title: "Watchlist", url: "/watchlist", icon: Bookmark, end: false, secondary: true },
   { title: "Playbooks", url: "/playbooks", icon: BookOpen, end: false, secondary: true },
+  { title: "Titres", url: "/outils/titres", icon: Type, end: false, secondary: true },
 ];
 
 

@@ -35,6 +35,9 @@ const QuestesPage = lazy(() => import("./pages/QuestesPage.tsx"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
 const TwitchAccountsPage = lazy(() => import("./pages/TwitchAccountsPage.tsx"));
 const StreamScoreHistoryPage = lazy(() => import("./pages/StreamScoreHistoryPage.tsx"));
+const TitleGeneratorPage = lazy(() => import("./pages/TitleGeneratorPage.tsx"));
+const ClipAnalyticsPage = lazy(() => import("./pages/ClipAnalyticsPage.tsx"));
+const SchedulePage = lazy(() => import("./pages/SchedulePage.tsx"));
 const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
 const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -210,6 +213,30 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <StreamScoreHistoryPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/outils/titres"
+                  element={
+                    <ProtectedRoute>
+                      <TitleGeneratorPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/clips"
+                  element={
+                    <ProtectedRoute>
+                      <ClipAnalyticsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/schedule"
+                  element={
+                    <ProtectedRoute>
+                      <SchedulePage />
                     </ProtectedRoute>
                   }
                 />
