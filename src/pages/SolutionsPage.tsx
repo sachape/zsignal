@@ -165,17 +165,17 @@ const SolutionsPage = () => {
       <section className="relative overflow-hidden py-8 pb-28">
         <div className="container mx-auto max-w-5xl px-4 md:px-6">
           <FadeIn>
-            <div className="relative overflow-hidden rounded-3xl border border-sky-500/15 bg-gradient-to-r from-sky-500/8 via-background to-background p-8 md:p-12">
-              <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(ellipse_at_right,hsl(200,80%,60%,0.06),transparent_60%)]" />
+            <div className="relative overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-r from-primary/8 via-background to-background p-8 md:p-12">
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(ellipse_at_right,hsl(var(--primary)/0.06),transparent_60%)]" />
 
               <div className="relative grid gap-10 md:grid-cols-2 md:items-center">
                 {/* Left */}
                 <div>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/10">
-                      <Building2 className="h-5 w-5 text-sky-400" />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                      <Building2 className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-sky-400">
+                    <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
                       Agency
                     </span>
                   </div>
@@ -185,7 +185,7 @@ const SolutionsPage = () => {
                   <p className="mt-3 text-sm text-muted-foreground leading-relaxed max-w-sm">
                     Un seul plan pour suivre jusqu'à 3 chaînes Twitch. Idéal pour les orgs esport, agences de talent et managers de contenu.
                   </p>
-                  <Button className="mt-6 gap-2 bg-sky-500 hover:bg-sky-400 text-white border-0" asChild>
+                  <Button className="mt-6 gap-2" asChild>
                     <Link to="/pricing">
                       Voir le plan Agency <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -202,8 +202,8 @@ const SolutionsPage = () => {
                     "Plans d'action séparés",
                     "Support prioritaire",
                   ].map((f) => (
-                    <div key={f} className="flex items-center gap-2 rounded-xl border border-sky-500/10 bg-sky-500/5 px-3 py-2.5">
-                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-sky-400" />
+                    <div key={f} className="flex items-center gap-2 rounded-xl border border-primary/10 bg-primary/5 px-3 py-2.5">
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary" />
                       <span className="text-xs font-medium text-foreground/80">{f}</span>
                     </div>
                   ))}
