@@ -71,6 +71,9 @@ const SolutionsPage = () => {
   usePageMeta({
     title: "Solutions — Streamnco",
     description: "Streamnco s'adapte à chaque type de streamer. Débutant, régulier, ambitieux ou manager — trouvez votre plan.",
+    canonical: "https://streamnco.fr/solutions",
+    ogUrl: "https://streamnco.fr/solutions",
+    robots: "index, follow",
   });
 
   return (
