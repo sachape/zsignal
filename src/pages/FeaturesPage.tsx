@@ -558,26 +558,105 @@ const FeaturesPage = () => {
         </div>
       </SectionShell>
 
-      {/* ── CTA ── */}
+      {/* ── CTA — split layout with product preview ── */}
       <SectionShell grid={false}>
         <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-10 text-center md:p-16">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_65%)]" />
-            <div className="relative">
-              <h2 className="text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
-                Commence avec le diagnostic gratuit
-              </h2>
-              <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground md:text-base">
-                Aucun compte requis. Entre ton pseudo Twitch, récupère ton score et tes priorités en moins d'une minute.
-              </p>
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                <Button size="lg" asChild>
-                  <Link to="/">Analyser ma chaîne →</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link to="/pricing">Voir les tarifs</Link>
-                </Button>
+          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background shadow-[0_40px_120px_-40px_hsl(var(--primary)/0.2)]">
+            {/* Ambient */}
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_left,hsl(var(--primary)/0.12),transparent_55%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)] opacity-50" />
+
+            <div className="relative grid lg:grid-cols-[1.1fr_1fr]">
+
+              {/* LEFT — CTA */}
+              <div className="flex flex-col justify-center p-8 sm:p-10 md:p-12 lg:p-14">
+                <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  <Zap className="h-3 w-3" /> Gratuit · Sans compte
+                </span>
+
+                <h2 className="mt-5 text-3xl font-bold leading-tight text-foreground md:text-4xl">
+                  Vois ce qui bloque<br />ta chaîne. Maintenant.
+                </h2>
+
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                  Entre ton pseudo Twitch ci-dessous. En 60 secondes tu as ton score, ton blocage principal et ton premier plan d'action.
+                </p>
+
+                {/* Inline search mock → links to home */}
+                <Link
+                  to="/"
+                  className="mt-7 group flex h-12 max-w-sm items-center gap-3 rounded-xl border border-white/[0.1] bg-background/60 px-4 backdrop-blur-sm transition-all hover:border-primary/40 hover:shadow-[0_0_24px_hsl(var(--primary)/0.15)]"
+                >
+                  <span className="flex-1 text-sm text-muted-foreground/50">Ton pseudo Twitch…</span>
+                  <span className="flex h-7 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground transition-all group-hover:bg-primary/90">
+                    Analyser <Activity className="h-3 w-3" />
+                  </span>
+                </Link>
+
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground/60">
+                  {["Sans connexion Twitch", "Résultat en 60 s", "8 000+ chaînes analysées"].map((t) => (
+                    <span key={t} className="flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />{t}
+                    </span>
+                  ))}
+                </div>
               </div>
+
+              {/* RIGHT — Product preview */}
+              <div className="relative hidden min-h-[380px] overflow-hidden lg:flex lg:items-center lg:justify-center">
+                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card/30 to-transparent" />
+
+                {/* Central score ring */}
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-0 rounded-full bg-primary/15 blur-3xl" />
+                  <svg viewBox="0 0 160 160" className="relative h-36 w-36">
+                    <defs>
+                      <linearGradient id="ctaRingGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" />
+                        <stop offset="100%" stopColor="hsl(var(--primary)/0.35)" />
+                      </linearGradient>
+                    </defs>
+                    <circle cx="80" cy="80" r="66" fill="none" stroke="hsl(var(--border)/0.25)" strokeWidth="8" />
+                    <motion.circle
+                      cx="80" cy="80" r="66" fill="none"
+                      stroke="url(#ctaRingGrad)" strokeWidth="8" strokeLinecap="round"
+                      strokeDasharray={2 * Math.PI * 66}
+                      initial={{ strokeDashoffset: 2 * Math.PI * 66, rotate: -90 }}
+                      whileInView={{ strokeDashoffset: 2 * Math.PI * 66 * 0.28 }}
+                      style={{ transformOrigin: "80px 80px", transform: "rotate(-90deg)" }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+                    />
+                    <text x="80" y="76" textAnchor="middle" className="fill-foreground" style={{ fontSize: 28, fontWeight: 700, fill: "hsl(var(--foreground))" }}>72</text>
+                    <text x="80" y="94" textAnchor="middle" style={{ fontSize: 9, fontWeight: 600, fill: "hsl(var(--muted-foreground))", letterSpacing: "0.15em", textTransform: "uppercase" }}>StreamScore</text>
+                  </svg>
+
+                  {/* Floating card — Blocage */}
+                  <motion.div
+                    className="absolute -left-28 top-0 w-[160px] rounded-xl border border-white/10 bg-card/80 p-3 backdrop-blur-xl shadow-lg"
+                    initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }} transition={{ delay: 0.8, duration: 0.6 }}
+                    style={{ animation: "hero-float 7s ease-in-out infinite" }}
+                  >
+                    <p className="text-[9px] font-semibold uppercase tracking-widest text-warning/70">Blocage #1</p>
+                    <p className="mt-1 text-[11px] font-semibold text-foreground">Régularité trop instable</p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground/60">Créneaux variables sur 30j</p>
+                  </motion.div>
+
+                  {/* Floating card — Priorité */}
+                  <motion.div
+                    className="absolute -right-28 bottom-0 w-[160px] rounded-xl border border-white/10 bg-card/80 p-3 backdrop-blur-xl shadow-lg"
+                    initial={{ opacity: 0, x: 10 }} whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }} transition={{ delay: 1, duration: 0.6 }}
+                    style={{ animation: "hero-float 8s ease-in-out infinite 1s" }}
+                  >
+                    <p className="text-[9px] font-semibold uppercase tracking-widest text-primary/70">Action #1</p>
+                    <p className="mt-1 text-[11px] font-semibold text-foreground">Fixer 2 créneaux fixes</p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground/60">Impact estimé : +12 pts</p>
+                  </motion.div>
+                </div>
+              </div>
+
             </div>
           </div>
         </FadeIn>
