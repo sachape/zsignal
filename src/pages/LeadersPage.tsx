@@ -134,8 +134,8 @@ const LeadersPage = () => {
       setH2hError(result.reason === "not_found" ? "Chaîne introuvable sur Twitch." : "Erreur lors de l'analyse. Réessaie.");
       return;
     }
-    setH2hReport(result.record.report.report);
-    setH2hLogin(result.record.report.report.channel_summary?.display_name ?? input);
+    setH2hReport(result.record.report);
+    setH2hLogin(result.record.report.channel_summary?.display_name ?? input);
   };
 
   // Fetch user report once for personal position banner
