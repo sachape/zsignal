@@ -24,12 +24,12 @@ const BlogArticlePage = () => {
 
   // Redirect 404
   useEffect(() => {
-    if (slug && !article) navigate("/blog", { replace: true });
+    if (slug && !article) navigate("/articles", { replace: true });
   }, [slug, article, navigate]);
 
   // Per-route meta + Article JSON-LD
   const canonical = article
-    ? `https://streamnco.fr/blog/${article.slug}`
+    ? `https://streamnco.fr/articles/${article.slug}`
     : undefined;
   usePageMeta(
     article
