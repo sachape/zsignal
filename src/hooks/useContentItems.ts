@@ -9,9 +9,21 @@ export type ContentPlatform =
   | "community"
   | "twitch_clip";
 
-export type ContentStatus = "idea" | "to_produce" | "ready" | "uploaded" | "published" | "ignored";
+export type ContentStatus =
+  | "idea"
+  | "to_produce"
+  | "to_generate"
+  | "generating"
+  | "draft_ready"
+  | "ready"
+  | "uploaded"
+  | "published"
+  | "published_manually"
+  | "ignored";
 export type ContentPriority = "low" | "medium" | "high";
 export type YouTubePrivacyStatus = "private" | "unlisted" | "public";
+export type SourcePlatform = "twitch" | "youtube" | "manual";
+export type GenerationStatus = "pending" | "queued" | "processing" | "succeeded" | "failed" | "unavailable";
 
 export interface ContentItem {
   id: string;
@@ -34,6 +46,16 @@ export interface ContentItem {
   youtube_url: string | null;
   youtube_uploaded_at: string | null;
   youtube_privacy_status: YouTubePrivacyStatus | null;
+  // V3C — Clip Draft Generator
+  source_platform: SourcePlatform | null;
+  source_video_url: string | null;
+  source_start_time: number | null;
+  source_end_time: number | null;
+  source_duration: number | null;
+  generated_video_url: string | null;
+  thumbnail_url: string | null;
+  generation_status: GenerationStatus | null;
+  generation_error: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,6 +74,10 @@ export interface NewContentItem {
   format?: string | null;
   duration?: string | null;
   reason?: string | null;
+  source_platform?: SourcePlatform | null;
+  source_video_url?: string | null;
+  source_start_time?: number | null;
+  source_end_time?: number | null;
 }
 
 export function useContentItems() {
