@@ -338,17 +338,26 @@ export default function ReseauxPlatformPage() {
                       <MetricCard icon={PlaySquare}   label="Vidéos (30 jours)" value={metrics.recent_posts_count} />
                     </>
                   )}
-                  {(platform === "tiktok" || platform === "instagram") && (
+                  {platform === "tiktok" && (
+                    <>
+                      <MetricCard icon={PlaySquare}    label="Vidéos récupérées"  value={metrics.videos_count} />
+                      <MetricCard icon={PlaySquare}    label="Vidéos (30 jours)"  value={metrics.recent_posts_count} />
+                      <MetricCard icon={Eye}           label="Vues totales"       value={fmt(metrics.views_count)} />
+                      <MetricCard icon={Heart}         label="J'aime"             value={fmt(metrics.likes_count)} />
+                      <MetricCard icon={MessageCircle} label="Commentaires"       value={fmt(metrics.comments_count)} />
+                      <MetricCard icon={Share2}        label="Partages"           value={fmt(metrics.shares_count)} />
+                    </>
+                  )}
+                  {platform === "instagram" && (
                     <div className="col-span-full rounded-xl border border-border bg-muted/20 p-4 text-sm text-muted-foreground">
-                      Aucune métrique disponible — l'intégration API{" "}
-                      {platform === "tiktok" ? "TikTok" : "Instagram"} n'est pas encore active.
+                      Aucune métrique disponible — l'intégration API Instagram n'est pas encore active.
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="rounded-xl border border-border bg-muted/20 p-4">
                   <p className="text-sm text-muted-foreground">
-                    {platform === "youtube"
+                    {(platform === "youtube" || platform === "tiktok")
                       ? "Aucune donnée synchronisée. Clique sur \"Synchroniser\" pour récupérer tes métriques."
                       : `Aucune métrique disponible — l'intégration API ${meta.label} n'est pas encore active.`}
                   </p>
