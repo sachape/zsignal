@@ -190,6 +190,24 @@ const ContentQueuePage = () => {
               <ContentRow key={item.id} item={item}
                 youtubeConnected={youtubeConnected}
                 onUpload={() => setUploadItem(item)}
+                onEditSource={() => setSourceItem(item)}
+                onGenerate={async () => {
+                  if (!item.source_video_url || item.source_start_time == null || item.source_end_time == null) {
+                    toast.error("Ajoute d'abord une source vidéo et les timestamps.");
+                    setSourceItem(item);
+                    return;
+                  }
+                  try {
+                    await updateItem(item.id, {
+                      status: "generating",
+                      generation_status: "unavailable",
+                      generation_error: null,
+                    });
+                    toast.info("Génération vidéo bientôt disponible. La source et les timestamps sont sauvegardés.");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Erreur");
+                  }
+                }}
                 onUpdate={(patch) => updateItem(item.id, patch).catch(e => toast.error(e.message))}
                 onDelete={() => {
                   if (confirm("Supprimer ce contenu ?")) {
@@ -209,6 +227,23 @@ const ContentQueuePage = () => {
             youtubeConnected={youtubeConnected}
             onReconnect={goReconnectYouTube}
             onUploaded={() => { refetch(); }}
+          />
+        )}
+
+        {sourceItem && (
+          <SourceVideoDialog
+            item={sourceItem}
+            open={!!sourceItem}
+            onOpenChange={(o) => { if (!o) setSourceItem(null); }}
+            onSave={async (patch) => {
+              try {
+                await updateItem(sourceItem.id, patch);
+                toast.success("Source vidéo enregistrée");
+                setSourceItem(null);
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Erreur");
+              }
+            }}
           />
         )}
       </PageContainer>
