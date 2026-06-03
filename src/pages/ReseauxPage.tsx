@@ -277,11 +277,13 @@ export default function ReseauxPage() {
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
 
   const { state: syncState, errorMessage: syncError, sync: syncYouTube } = useYouTubeSync(refetch);
+  const { state: ttSyncState, errorMessage: ttSyncError, sync: syncTikTok } = useTikTokSync(refetch);
 
   // Handle OAuth result from URL
   useEffect(() => {
     const ytResult = searchParams.get("youtube");
-    if (!ytResult) return;
+    const ttResult = searchParams.get("tiktok");
+    if (!ytResult && !ttResult) return;
     if (ytResult === "connected") {
       toast.success("YouTube connecté avec succès !");
       refetch();
@@ -291,7 +293,16 @@ export default function ReseauxPage() {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion YouTube (${reason}).`);
     }
-    setSearchParams((p) => { p.delete("youtube"); p.delete("reason"); return p; }, { replace: true });
+    if (ttResult === "connected") {
+      toast.success("TikTok connecté avec succès !");
+      refetch();
+    } else if (ttResult === "cancelled") {
+      toast.info("Connexion TikTok annulée.");
+    } else if (ttResult === "error") {
+      const reason = searchParams.get("reason") ?? "inconnue";
+      toast.error(`Erreur de connexion TikTok (${reason}).`);
+    }
+    setSearchParams((p) => { p.delete("youtube"); p.delete("tiktok"); p.delete("reason"); return p; }, { replace: true });
   }, [searchParams, setSearchParams, refetch]);
 
   // Save presence snapshot when accounts or Twitch connection change
