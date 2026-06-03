@@ -200,7 +200,7 @@ const OutreachPage = () => {
       "login,display_name,score,blocage,categorie,dm",
       ...done.map((r) => {
         const report = r.report!;
-        const score = report.stream_score?.overall ?? "";
+        const score = report.score?.overall ?? "";
         const name = report.channel_summary?.display_name ?? r.login;
         const blocker = getMainBlocker(report);
         const cat = report.channel_summary?.category ?? "";
