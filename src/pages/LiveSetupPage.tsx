@@ -156,6 +156,106 @@ const LiveSetupPage = () => {
     }));
   };
 
+  // Persist the current form as a session and return its ID — required by the
+  // push edge functions (they need a live_session_id to record results).
+  async function ensureSavedSession(): Promise<string | null> {
+    if (editingId) return editingId;
+    if (!input.titleRaw.trim() && !input.gameCategory.trim()) {
+      toast.error("Renseigne au moins un titre ou une catégorie");
+      return null;
+    }
+    setSaving(true);
+    try {
+      const created = await saveSession({ input, metadata, checklist, status: "ready" });
+      if (created?.id) { setEditingId(created.id); return created.id; }
+      return null;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur de sauvegarde");
+      return null;
+    } finally { setSaving(false); }
+  }
+
+  function handlePushError(reason: string | undefined, platform: "twitch" | "youtube") {
+    switch (reason) {
+      case "twitch_not_connected":
+        toast.error("Twitch non connecté"); break;
+      case "youtube_not_connected":
+        toast.error("YouTube non connecté"); break;
+      case "missing_scope":
+        toast.error(platform === "twitch"
+          ? "Reconnecte Twitch pour autoriser la mise à jour du titre et de la catégorie."
+          : "Reconnecte YouTube avec l'autorisation de créer des lives.");
+        break;
+      case "token_expired":
+        toast.error(platform === "twitch" ? "Token Twitch expiré, reconnecte." : "Token YouTube expiré, reconnecte.");
+        break;
+      case "category_not_found":
+        toast.error("Catégorie Twitch introuvable. Vérifie le nom exact."); break;
+      case "live_not_enabled":
+        toast.error("Live YouTube non activé sur ce compte (vérification 24h requise)."); break;
+      case "nothing_to_update":
+        toast.error("Rien à pousser : ajoute un titre ou une catégorie."); break;
+      case "server_misconfigured":
+        toast.error("Configuration serveur manquante."); break;
+      default:
+        toast.error(platform === "twitch" ? "Erreur Twitch" : "Erreur YouTube");
+    }
+  }
+
+  async function handlePushTwitch() {
+    if (!twitchConnected) { toast.error("Twitch non connecté"); return; }
+    const sessionId = await ensureSavedSession();
+    if (!sessionId) return;
+    setPushingTwitch(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("twitch-update-channel", {
+        body: {
+          live_session_id: sessionId,
+          title: metadata.twitch.title,
+          category: metadata.twitch.category,
+          language: input.language || undefined,
+        },
+      });
+      if (error || !data?.success) {
+        const reason = (data as { reason?: string } | null)?.reason;
+        handlePushError(reason, "twitch");
+        return;
+      }
+      toast.success("Twitch mis à jour");
+      void refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur Twitch");
+    } finally { setPushingTwitch(false); }
+  }
+
+  async function handlePushYouTube() {
+    if (!youtubeConnected) { toast.error("YouTube non connecté"); return; }
+    const sessionId = await ensureSavedSession();
+    if (!sessionId) return;
+    setPushingYouTube(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("youtube-create-live-broadcast", {
+        body: {
+          live_session_id: sessionId,
+          title: metadata.youtube.title,
+          description: metadata.youtube.description,
+          scheduled_start_time: input.scheduledAt || undefined,
+          privacy_status: ytPrivacy,
+          language: input.language || undefined,
+        },
+      });
+      if (error || !data?.success) {
+        const reason = (data as { reason?: string } | null)?.reason;
+        handlePushError(reason, "youtube");
+        return;
+      }
+      toast.success("Live YouTube créé");
+      void refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur YouTube");
+    } finally { setPushingYouTube(false); }
+  }
+
   return (
     <AppShell>
       <PageContainer size="lg">
