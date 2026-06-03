@@ -523,15 +523,23 @@ function ContentRow({
                 variant={youtubeConnected ? "default" : "outline"}
                 className="h-7 px-2 text-[11px]"
                 onClick={onUpload}
-                title={youtubeConnected ? "Uploader sur YouTube" : "Connecte YouTube pour uploader"}
+                title={
+                  !youtubeConnected ? "Connecte YouTube pour uploader"
+                    : hasGeneratedClip ? "Uploader le clip généré sur YouTube"
+                    : "Uploader un fichier sur YouTube"
+                }
               >
                 <Upload className="mr-1 h-3 w-3" />
-                {item.youtube_video_id ? "Réuploader" : "Uploader sur YouTube"}
+                {item.youtube_video_id
+                  ? "Réuploader"
+                  : hasGeneratedClip
+                    ? "Uploader le clip"
+                    : "Uploader sur YouTube"}
               </Button>
             )}
-            {item.status !== "published" && item.status !== "ignored" && (
+            {item.status !== "published" && item.status !== "published_manually" && item.status !== "ignored" && (
               <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]"
-                onClick={() => onUpdate({ status: "published", published_at: new Date().toISOString() })}>
+                onClick={() => onUpdate({ status: "published_manually", published_at: new Date().toISOString() })}>
                 <Circle className="mr-1 h-3 w-3" />
                 Marquer publié
               </Button>
@@ -547,6 +555,144 @@ function ContentRow({
       </CardContent>
     </Card>
   );
-};
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatSeconds(s: number): string {
+  if (!Number.isFinite(s) || s < 0) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
+function parseTimeInput(value: string): number | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  // Supports mm:ss, hh:mm:ss, or plain seconds.
+  if (/^\d+$/.test(trimmed)) return parseInt(trimmed, 10);
+  const parts = trimmed.split(":").map(p => parseInt(p, 10));
+  if (parts.some(p => Number.isNaN(p) || p < 0)) return null;
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return null;
+}
+
+function detectSourcePlatform(url: string): "twitch" | "youtube" | "manual" {
+  const u = url.toLowerCase();
+  if (u.includes("twitch.tv")) return "twitch";
+  if (u.includes("youtube.com") || u.includes("youtu.be")) return "youtube";
+  return "manual";
+}
+
+// ── SourceVideoDialog ────────────────────────────────────────────────────────
+
+function SourceVideoDialog({
+  item, open, onOpenChange, onSave,
+}: {
+  item: ContentItem;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (patch: Partial<ContentItem>) => Promise<void> | void;
+}) {
+  const [url, setUrl] = useState(item.source_video_url ?? "");
+  const [start, setStart] = useState(
+    item.source_start_time != null ? formatSeconds(item.source_start_time) : "",
+  );
+  const [end, setEnd] = useState(
+    item.source_end_time != null ? formatSeconds(item.source_end_time) : "",
+  );
+  const [saving, setSaving] = useState(false);
+
+  const startSec = parseTimeInput(start);
+  const endSec = parseTimeInput(end);
+  const duration = startSec != null && endSec != null ? endSec - startSec : null;
+
+  const urlOk = (() => {
+    if (!url.trim()) return false;
+    try {
+      const parsed = new URL(url.trim());
+      return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch { return false; }
+  })();
+
+  const durationOk = duration != null && duration >= 5 && duration <= 180;
+  const canSave = urlOk && startSec != null && endSec != null && endSec > startSec && durationOk;
+
+  async function handleSubmit() {
+    if (!canSave) return;
+    setSaving(true);
+    try {
+      await onSave({
+        source_video_url: url.trim(),
+        source_platform: detectSourcePlatform(url),
+        source_start_time: startSec,
+        source_end_time: endSec,
+        source_duration: duration,
+        // Keep status coherent: if it was just an idea, move to to_generate.
+        ...(item.status === "idea" ? { status: "to_generate" as const } : {}),
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Film className="h-5 w-5 text-primary" /> Source vidéo
+          </DialogTitle>
+          <DialogDescription>
+            Colle l'URL de la VOD Twitch / YouTube source, puis indique le moment à clipper.
+            Durée recommandée : 15 à 60 secondes (max 180).
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">URL de la VOD ou de la vidéo</Label>
+            <Input
+              value={url} onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://www.twitch.tv/videos/… ou https://youtu.be/…"
+              maxLength={500}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Début (mm:ss)</Label>
+              <Input value={start} onChange={(e) => setStart(e.target.value)} placeholder="12:34" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Fin (mm:ss)</Label>
+              <Input value={end} onChange={(e) => setEnd(e.target.value)} placeholder="13:10" />
+            </div>
+          </div>
+
+          <div className="rounded-md border border-border/60 bg-muted/20 p-2 text-[11px] text-muted-foreground">
+            {duration == null
+              ? "Indique des timestamps valides."
+              : duration <= 0
+                ? "La fin doit être après le début."
+                : duration < 5
+                  ? `Trop court (${duration}s). Minimum recommandé : 15s.`
+                  : duration > 180
+                    ? `Trop long (${duration}s). Maximum : 180s.`
+                    : `Durée : ${duration}s ${duration < 15 || duration > 60 ? "(hors plage recommandée 15-60s)" : "✓"}`}
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>Annuler</Button>
+          <Button onClick={handleSubmit} disabled={!canSave || saving}>
+            {saving ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Save className="mr-1.5 h-3.5 w-3.5" />}
+            Enregistrer la source
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default ContentQueuePage;
