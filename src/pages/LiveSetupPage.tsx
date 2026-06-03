@@ -565,10 +565,16 @@ const LiveSetupPage = () => {
                       icon={<Video className="h-4 w-4" />}
                       connected={youtubeConnected}
                       busy={pushingYouTube || saving}
+                      disabledReason={
+                        !metadata.youtube.title.trim()
+                          ? "Ajoute un titre pour activer la création du live."
+                          : undefined
+                      }
                       labelConnected="Créer un live YouTube"
                       labelMissing="Connecte YouTube"
                       onPush={handlePushYouTube}
                     />
+
                     <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.youtube_push} platform="youtube" />
                   </TabsContent>
 
