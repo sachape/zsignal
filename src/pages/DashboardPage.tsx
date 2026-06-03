@@ -552,6 +552,9 @@ const DashboardPage = () => {
             </Button>
           </div>
         )}
+        <div className="mb-6">
+          <DashboardQuickActions />
+        </div>
 
         {/* Identity strip */}
         <div className="animate-fade-up mb-6">
