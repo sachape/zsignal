@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -1446,7 +1446,7 @@ function StepSectionHeader({
   step: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
@@ -1469,7 +1469,7 @@ function StepSectionHeader({
 function PushActionRow({
   icon, connected, busy, labelConnected, labelMissing, onPush, disabledReason,
 }: {
-  icon: React.ReactNode; connected: boolean; busy: boolean;
+  icon: ReactNode; connected: boolean; busy: boolean;
   labelConnected: string; labelMissing: string; onPush: () => void;
   disabledReason?: string;
 }) {
@@ -1534,7 +1534,7 @@ function LaunchStep({
 }: {
   done: boolean; label: string; detail?: string;
   link?: { href: string; label: string };
-  action?: React.ReactNode;
+  action?: ReactNode;
 }) {
   return (
     <li className="flex items-start gap-3 rounded-md border border-border/60 bg-background/40 p-3">
