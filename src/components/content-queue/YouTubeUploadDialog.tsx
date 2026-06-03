@@ -24,6 +24,7 @@ interface Props {
 }
 
 const MAX_BYTES = 128 * 1024 * 1024;
+const RECOMMENDED_BYTES = 50 * 1024 * 1024;
 const ACCEPT = ".mp4,.mov,video/mp4,video/quicktime";
 
 function formatBytes(b: number) {
