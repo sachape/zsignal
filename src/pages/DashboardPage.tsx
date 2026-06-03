@@ -528,21 +528,27 @@ const DashboardPage = () => {
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
   const nextAction = report.next_best_action;
   const syncLabel =
-    syncSnapshot?.state === "up_to_date"
+    syncSnapshot?.state === "synchronized"
       ? "Données à jour"
-      : syncSnapshot?.state === "syncing"
+      : syncSnapshot?.state === "update_in_progress" ||
+          syncSnapshot?.state === "first_analysis_in_progress"
         ? "Sync en cours"
         : syncSnapshot?.state === "no_analysis"
           ? "Première analyse en attente"
           : "Dernière sync à vérifier";
   const syncDetail = syncSnapshot
-    ? formatSyncRelative(syncSnapshot.lastSyncAt ?? syncSnapshot.lastAnalysisAt ?? currentReport.created_at)
+    ? formatSyncRelative(
+        syncSnapshot.lastJobCompletedAt ??
+          syncSnapshot.reportCreatedAt ??
+          currentReport.created_at,
+      )
     : `Rapport généré le ${formatDate(currentReport.created_at)}`;
   const liveHeadline = liveSnapshot?.current
-    ? `${liveSnapshot.current.viewer_count ?? 0} viewers en direct`
+    ? `${liveSnapshot.current.peak_viewers ?? 0} viewers en direct`
     : liveSnapshot?.last
       ? "Dernier live disponible"
       : "Aucun live récent";
+
 
   const endedSessions = allSessions.filter((s) => s.status === "ended").length;
 
@@ -664,7 +670,7 @@ const DashboardPage = () => {
           <div className="rounded-2xl border border-white/[0.08] bg-card/60 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Viewers moy.</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
-              {liveSnapshot?.current ? (liveSnapshot.current.viewer_count ?? 0) : (viewersMoy ?? "—")}
+              {liveSnapshot?.current ? (liveSnapshot.current.peak_viewers ?? "—") : (viewersMoy ?? "—")}
             </p>
             <p className="mt-0.5 text-[10px] text-muted-foreground">
               {liveSnapshot?.current ? "en direct" : sessions30d.length > 0 ? "moy. 30j" : "pas de données"}
@@ -675,7 +681,7 @@ const DashboardPage = () => {
           <div className="rounded-2xl border border-white/[0.08] bg-card/60 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Followers</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
-              {followersAvailable ? (summary.followers_count != null ? summary.followers_count.toLocaleString("fr-FR") : "—") : "—"}
+              {followersAvailable ? (summary.follower_count != null ? summary.follower_count.toLocaleString("fr-FR") : "—") : "—"}
             </p>
             {!followersAvailable && (
               <p className="mt-0.5 text-[10px] text-amber-400">Scope manquant</p>
@@ -762,9 +768,9 @@ const DashboardPage = () => {
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {summary.is_live
-                  ? `${liveSnapshot?.current?.viewer_count ?? 0} viewers · ${liveSnapshot?.current?.title ?? "Direct en cours"}`
+                  ? `${liveSnapshot?.current?.peak_viewers ?? "—"} viewers · ${liveSnapshot?.current?.start_title ?? "Live en cours"}`
                   : liveSnapshot?.last
-                    ? `Dernier : ${liveSnapshot.last.title_raw || liveSnapshot.last.category_name || "sans titre"}`
+                    ? `Dernier : ${liveSnapshot.last.start_title || liveSnapshot.last.category_name || "sans titre"}`
                     : "Prépare le prochain live en 60 secondes."}
               </p>
             </div>
