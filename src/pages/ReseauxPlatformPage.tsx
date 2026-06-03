@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, RefreshCw, ExternalLink, Pencil, Trash2,
   AlertCircle, CheckCircle2, Clock, Users, PlaySquare, Eye,
+  Heart, MessageCircle, Share2,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
