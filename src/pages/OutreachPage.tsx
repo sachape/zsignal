@@ -50,7 +50,7 @@ function generateDm(
   report: AnalysisReport,
   tone: DmTone,
 ): string {
-  const score = report.stream_score?.overall ?? 0;
+  const score = report.score?.overall ?? 0;
   const name = report.channel_summary?.display_name ?? login;
   const category = report.channel_summary?.category ?? "Twitch";
   const blocker = getMainBlocker(report);
