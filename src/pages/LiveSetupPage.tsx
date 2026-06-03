@@ -1049,7 +1049,12 @@ const LiveSetupPage = () => {
 
             {/* Post-live brief */}
             {existingBrief && (
-              <PostLiveBriefCard brief={existingBrief} liveSessionId={editingId} />
+              <PostLiveBriefCard
+                brief={existingBrief}
+                liveSessionId={editingId}
+                canRegenerate={isCompleted}
+                onRegenerate={handleRegenerateBrief}
+              />
             )}
 
             {/* Saved sessions */}
