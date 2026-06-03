@@ -915,6 +915,83 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_video_generation_jobs: {
+        Row: {
+          completed_at: string | null
+          content_item_id: string
+          created_at: string
+          duration_seconds: number
+          end_time_seconds: number
+          error_code: string | null
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          output_format: string
+          output_storage_path: string | null
+          output_url: string | null
+          progress: number | null
+          source_storage_path: string | null
+          source_type: string
+          source_url: string | null
+          start_time_seconds: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          content_item_id: string
+          created_at?: string
+          duration_seconds: number
+          end_time_seconds: number
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          output_format?: string
+          output_storage_path?: string | null
+          output_url?: string | null
+          progress?: number | null
+          source_storage_path?: string | null
+          source_type: string
+          source_url?: string | null
+          start_time_seconds: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          content_item_id?: string
+          created_at?: string
+          duration_seconds?: number
+          end_time_seconds?: number
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          output_format?: string
+          output_storage_path?: string | null
+          output_url?: string | null
+          progress?: number | null
+          source_storage_path?: string | null
+          source_type?: string
+          source_url?: string | null
+          start_time_seconds?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_video_generation_jobs_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "creator_content_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_send_log: {
         Row: {
           created_at: string
