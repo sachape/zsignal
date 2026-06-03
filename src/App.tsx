@@ -58,6 +58,7 @@ const ReseauxPlatformPage = lazy(() => import("./pages/ReseauxPlatformPage.tsx")
 const YouTubeCallbackPage = lazy(() => import("./pages/YouTubeCallbackPage.tsx"));
 const TikTokCallbackPage = lazy(() => import("./pages/TikTokCallbackPage.tsx"));
 const LiveSetupPage = lazy(() => import("./pages/LiveSetupPage.tsx"));
+const ContentQueuePage = lazy(() => import("./pages/ContentQueuePage.tsx"));
 
 const queryClient = new QueryClient();
 
