@@ -156,7 +156,7 @@ const YouTubeUploadDialog = ({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Youtube className="h-5 w-5 text-red-500" />
+            <Video className="h-5 w-5 text-red-500" />
             Uploader sur YouTube
           </DialogTitle>
           <DialogDescription>
