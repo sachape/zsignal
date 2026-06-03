@@ -23,6 +23,7 @@ import {
   Type,
   Network,
   Rocket,
+  Inbox,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -55,6 +56,7 @@ const cockpitItems = [
   { title: "Analyse", url: "/analyse", icon: Activity, end: false, secondary: false },
   { title: "Lives", url: "/lives", icon: Radio, end: false, secondary: false },
   { title: "Live Setup", url: "/live-setup", icon: Rocket, end: false, secondary: false },
+  { title: "Content Queue", url: "/content-queue", icon: Inbox, end: false, secondary: false },
   { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false, secondary: false },
   { title: "Progression", url: "/progression", icon: Star, end: false, secondary: false },
   { title: "Réseaux", url: "/reseaux", icon: Network, end: false, secondary: false },

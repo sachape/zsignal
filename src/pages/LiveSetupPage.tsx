@@ -39,7 +39,8 @@ import {
   generatePostLiveBrief, PLATFORM_LABEL, PRIORITY_LABEL,
   type PostLiveBrief, type ContentIdea, type ContentPriority,
 } from "@/services/postLiveBrief";
-import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2 } from "lucide-react";
+import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2, Inbox } from "lucide-react";
+import { useContentItems } from "@/hooks/useContentItems";
 
 const TONES: { value: LiveTone; label: string }[] = [
   { value: "chill", label: "Chill" },
@@ -1010,7 +1011,7 @@ const LiveSetupPage = () => {
 
             {/* Post-live brief */}
             {existingBrief && (
-              <PostLiveBriefCard brief={existingBrief} />
+              <PostLiveBriefCard brief={existingBrief} liveSessionId={editingId} />
             )}
 
             {/* Saved sessions */}
@@ -1284,20 +1285,71 @@ function ContentIdeaRow({ idea }: { idea: ContentIdea }) {
   );
 }
 
-function PostLiveBriefCard({ brief }: { brief: PostLiveBrief }) {
+function PostLiveBriefCard({ brief, liveSessionId }: { brief: PostLiveBrief; liveSessionId: string | null }) {
   const generated = new Date(brief.generated_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
   const platforms = brief.summary.platforms_used.length > 0
     ? brief.summary.platforms_used.join(", ")
     : "—";
+  const { items, createMany } = useContentItems();
+  const [sending, setSending] = useState(false);
+  const alreadyQueued = useMemo(
+    () => liveSessionId
+      ? items.filter(i => i.live_session_id === liveSessionId).length
+      : 0,
+    [items, liveSessionId],
+  );
+
+  async function handleSendToQueue() {
+    if (!liveSessionId) { toast.error("Sauvegarde la session avant."); return; }
+    setSending(true);
+    try {
+      const rows = brief.content_ideas.map((idea) => ({
+        live_session_id: liveSessionId,
+        platform: idea.platform,
+        title: idea.title,
+        description: undefined,
+        hashtags: [],
+        status: "idea" as const,
+        priority: idea.priority,
+        source_idea_id: idea.id,
+        format: idea.format,
+        duration: idea.duration ?? null,
+        reason: idea.reason,
+      }));
+      const count = await createMany(rows);
+      toast.success(`${count} idée${count > 1 ? "s" : ""} envoyée${count > 1 ? "s" : ""} dans Content Queue`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally { setSending(false); }
+  }
+
   return (
     <Card className="border-emerald-500/30 bg-emerald-500/5">
       <CardContent className="space-y-5 p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Flame className="h-4 w-4 text-emerald-400" />
             Post-live Brief
           </div>
           <Badge variant="outline" className="text-xs">Généré le {generated}</Badge>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 bg-background/40 p-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Inbox className="h-3.5 w-3.5 text-primary" />
+            {alreadyQueued > 0
+              ? `${alreadyQueued} contenu(s) déjà dans la queue pour ce live`
+              : "Envoie les idées dans la Content Queue pour les produire."}
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <Button size="sm" onClick={handleSendToQueue} disabled={sending}>
+              {sending ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Inbox className="mr-1.5 h-3.5 w-3.5" />}
+              Envoyer dans la queue
+            </Button>
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/content-queue">Ouvrir la queue</Link>
+            </Button>
+          </div>
         </div>
 
         {/* Summary */}
