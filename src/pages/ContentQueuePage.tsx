@@ -115,10 +115,13 @@ const ContentQueuePage = () => {
 
   const counts = useMemo(() => ({
     total: items.length,
-    to_produce: items.filter(i => i.status === "to_produce").length,
+    to_generate: items.filter(i => i.status === "to_generate" || i.status === "generating").length,
+    draft_ready: items.filter(i => i.status === "draft_ready").length,
     ready: items.filter(i => i.status === "ready").length,
-    published: items.filter(i => i.status === "published").length,
+    published: items.filter(i => i.status === "published" || i.status === "published_manually").length,
   }), [items]);
+
+  const [sourceItem, setSourceItem] = useState<ContentItem | null>(null);
 
   return (
     <AppShell>
@@ -126,13 +129,14 @@ const ContentQueuePage = () => {
         <PageHeader
           eyebrow="Cockpit éditorial"
           title="Content Queue"
-          description="Tous les contenus à produire après tes lives, priorisés et prêts à éditer."
+          description="Transforme chaque live en clips courts prêts à publier."
         />
 
         {/* Stats strip */}
-        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <StatCell label="Total" value={counts.total} />
-          <StatCell label="À produire" value={counts.to_produce} accent="amber" />
+          <StatCell label="À générer" value={counts.to_generate} accent="violet" />
+          <StatCell label="Drafts" value={counts.draft_ready} accent="cyan" />
           <StatCell label="Prêts" value={counts.ready} accent="primary" />
           <StatCell label="Publiés" value={counts.published} accent="emerald" />
         </div>
