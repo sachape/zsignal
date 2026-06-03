@@ -809,4 +809,54 @@ function SourceVideoDialog({
   );
 }
 
+// ── ClipJobStatus ────────────────────────────────────────────────────────────
+// Polls the latest video generation job for an item and renders its live state.
+
+const JOB_STATUS_META: Record<VideoJobStatus, { label: string; cls: string }> = {
+  queued:     { label: "En file d'attente",  cls: "border-violet-500/40 bg-violet-500/10 text-violet-200" },
+  processing: { label: "Découpe en cours",   cls: "border-cyan-500/40 bg-cyan-500/10 text-cyan-200" },
+  completed:  { label: "Clip prêt",          cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" },
+  failed:     { label: "Échec",              cls: "border-destructive/40 bg-destructive/10 text-destructive" },
+  cancelled:  { label: "Annulé",             cls: "border-border/40 bg-muted/30 text-muted-foreground" },
+};
+
+function ClipJobStatus({ contentItemId, onTerminal }: { contentItemId: string; onTerminal: () => void }) {
+  const { job } = useVideoJobsForItem(contentItemId);
+  const prevStatus = useRef<VideoJobStatus | null>(null);
+
+  useEffect(() => {
+    if (!job) return;
+    const wasActive = prevStatus.current === "queued" || prevStatus.current === "processing";
+    const isTerminal = job.status === "completed" || job.status === "failed";
+    if (wasActive && isTerminal) onTerminal();
+    prevStatus.current = job.status;
+  }, [job, onTerminal]);
+
+  if (!job) return null;
+  if (job.status === "completed") return null; // success already reflected via item.generated_video_url
+
+  const meta = JOB_STATUS_META[job.status];
+  return (
+    <div className={cn("space-y-1.5 rounded-md border p-2.5 text-[11px]", meta.cls)}>
+      <div className="flex items-center justify-between">
+        <span className="font-semibold">{meta.label}</span>
+        {typeof job.progress === "number" && job.status === "processing" && (
+          <span className="tabular-nums">{job.progress}%</span>
+        )}
+      </div>
+      {job.status === "processing" && typeof job.progress === "number" && (
+        <div className="h-1 w-full overflow-hidden rounded-full bg-background/40">
+          <div className="h-full bg-current opacity-70 transition-all" style={{ width: `${job.progress}%` }} />
+        </div>
+      )}
+      {job.status === "queued" && (
+        <p className="opacity-80">Streamnco découpe ton extrait dès qu'un worker est disponible.</p>
+      )}
+      {job.status === "failed" && job.error_message && (
+        <p className="opacity-90">{job.error_message}</p>
+      )}
+    </div>
+  );
+}
+
 export default ContentQueuePage;
