@@ -375,9 +375,44 @@ function ContentRow({
               <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", priority.cls)}>
                 Priorité {priority.label}
               </span>
+              {typeof item.opportunity_score === "number" && (
+                <span
+                  title={item.opportunity_reason ?? undefined}
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary"
+                >
+                  <TrendingUp className="h-2.5 w-2.5" />
+                  {item.opportunity_score}
+                  {item.opportunity_label && <span className="font-normal opacity-80">· {item.opportunity_label}</span>}
+                </span>
+              )}
               {item.format && <span className="text-[10px] text-muted-foreground">· {item.format}</span>}
               {item.duration && <span className="text-[10px] text-muted-foreground">· {item.duration}</span>}
             </div>
+            {/* Title variant picker */}
+            {item.title_variants && item.title_variants.length > 1 && !editing && (
+              <div className="mt-2 flex flex-wrap items-center gap-1">
+                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Variantes :</span>
+                {item.title_variants.map(v => {
+                  const active = v.value === item.title;
+                  return (
+                    <button
+                      key={v.style}
+                      type="button"
+                      onClick={() => onUpdate({ title: v.value, selected_title_variant: v.style })}
+                      className={cn(
+                        "rounded-full border px-2 py-0.5 text-[10px] transition",
+                        active
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card text-muted-foreground hover:border-border/80",
+                      )}
+                      title={v.value}
+                    >
+                      {v.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground"
