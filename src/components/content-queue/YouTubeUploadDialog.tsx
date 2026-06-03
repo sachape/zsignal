@@ -136,7 +136,7 @@ const YouTubeUploadDialog = ({
 
       const form = new FormData();
       form.append("content_item_id", item.id);
-      form.append("file", file, file.name);
+      form.append("file", uploadBlob, uploadName);
       form.append("title", title.trim().slice(0, 100));
       form.append("description", description);
       form.append("tags", tagsRaw);
