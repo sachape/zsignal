@@ -61,6 +61,19 @@ const BillingPage = () => {
   usePageMeta({ title: "Facturation", description: "Gérez votre abonnement et vos paiements." });
   const sub = useSubscription();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "growth" | null>(null);
+
+  const handleCheckout = async (plan: "pro" | "growth") => {
+    if (checkoutLoading) return;
+    try {
+      setCheckoutLoading(plan);
+      await startCheckout(plan, "monthly");
+    } catch {
+      toast.error("Impossible de lancer le paiement. Réessaie dans un instant.");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
 
   const handlePortal = async () => {
     if (portalLoading) return;
