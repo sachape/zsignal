@@ -311,9 +311,11 @@ const YouTubeUploadDialog = ({
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>
-                    {phase === "transferring"
-                      ? "Transfert vers YouTube en cours… (peut prendre 30 s à plusieurs minutes)"
-                      : "Envoi du fichier vers Streamnco…"}
+                    {phase === "fetching"
+                      ? "Récupération du clip généré…"
+                      : phase === "transferring"
+                        ? "Transfert vers YouTube en cours… (peut prendre 30 s à plusieurs minutes)"
+                        : "Envoi du fichier vers Streamnco…"}
                   </span>
                   <span className="tabular-nums">{progress}%</span>
                 </div>
