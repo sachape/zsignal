@@ -30,6 +30,7 @@ import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
 import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
 import { useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
+import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
