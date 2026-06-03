@@ -702,19 +702,26 @@ interface PushEntry {
 }
 
 function PushActionRow({
-  icon, connected, busy, labelConnected, labelMissing, onPush,
+  icon, connected, busy, labelConnected, labelMissing, onPush, disabledReason,
 }: {
   icon: React.ReactNode; connected: boolean; busy: boolean;
   labelConnected: string; labelMissing: string; onPush: () => void;
+  disabledReason?: string;
 }) {
+  const disabled = !!disabledReason;
   return (
-    <div className="flex items-center justify-between rounded-md border border-border/60 bg-background/40 p-3">
+    <div className="flex flex-col gap-2 rounded-md border border-border/60 bg-background/40 p-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-2 text-sm">
         {icon}
         <span>{connected ? labelConnected : labelMissing}</span>
       </div>
       {connected ? (
-        <Button size="sm" onClick={onPush} disabled={busy}>
+        <Button
+          size="sm"
+          onClick={onPush}
+          disabled={busy || disabled}
+          title={disabledReason}
+        >
           {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                 : <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />}
           {busy ? "Envoi…" : "Envoyer"}
@@ -724,9 +731,13 @@ function PushActionRow({
           <Link to="/reseaux">Connecter</Link>
         </Button>
       )}
+      {connected && disabled && (
+        <p className="text-xs text-muted-foreground sm:basis-full">{disabledReason}</p>
+      )}
     </div>
   );
 }
+
 
 function PushHistory({ entry, platform }: { entry?: PushEntry; platform: "twitch" | "youtube" }) {
   if (!entry) return null;
