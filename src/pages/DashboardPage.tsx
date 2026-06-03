@@ -768,9 +768,9 @@ const DashboardPage = () => {
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {summary.is_live
-                  ? `${liveSnapshot?.current?.viewer_count ?? 0} viewers · ${liveSnapshot?.current?.title ?? "Direct en cours"}`
+                  ? `${liveSnapshot?.current?.peak_viewers ?? "—"} viewers · ${liveSnapshot?.current?.start_title ?? "Live en cours"}`
                   : liveSnapshot?.last
-                    ? `Dernier : ${liveSnapshot.last.title_raw || liveSnapshot.last.category_name || "sans titre"}`
+                    ? `Dernier : ${liveSnapshot.last.start_title || liveSnapshot.last.category_name || "sans titre"}`
                     : "Prépare le prochain live en 60 secondes."}
               </p>
             </div>
