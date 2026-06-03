@@ -344,6 +344,15 @@ export default function ReseauxPage() {
     window.location.href = data.url;
   }, []);
 
+  const handleReconnectTikTok = useCallback(async () => {
+    const { data, error } = await supabase.functions.invoke("tiktok-auth-start");
+    if (error || !data?.url) {
+      toast.error(data?.configured === false ? "Connexion TikTok non configurée côté serveur." : "Erreur lors de l'initialisation OAuth.");
+      return;
+    }
+    window.location.href = data.url;
+  }, []);
+
   const PLATFORMS: Platform[] = ["twitch", "youtube", "tiktok", "instagram"];
 
   if (!user) return null;
