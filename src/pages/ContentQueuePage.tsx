@@ -28,6 +28,8 @@ import {
 } from "@/hooks/useContentItems";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
+import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
+import { useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -95,6 +97,7 @@ const ContentQueuePage = () => {
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
   const [uploadItem, setUploadItem] = useState<ContentItem | null>(null);
+  const [generateItem, setGenerateItem] = useState<ContentItem | null>(null);
 
   const youtubeAccount = accounts.find(a => a.platform === "youtube");
   const youtubeConnected = youtubeAccount?.connection_status === "connected";
@@ -235,23 +238,15 @@ const ContentQueuePage = () => {
                 youtubeConnected={youtubeConnected}
                 onUpload={() => setUploadItem(item)}
                 onEditSource={() => setSourceItem(item)}
-                onGenerate={async () => {
-                  if (!item.source_video_url || item.source_start_time == null || item.source_end_time == null) {
-                    toast.error("Ajoute d'abord une source vidéo et les timestamps.");
+                onGenerate={() => {
+                  if (item.source_start_time == null || item.source_end_time == null) {
+                    toast.error("Ajoute d'abord des timestamps valides (5–180 s).");
                     setSourceItem(item);
                     return;
                   }
-                  try {
-                    await updateItem(item.id, {
-                      status: "generating",
-                      generation_status: "unavailable",
-                      generation_error: null,
-                    });
-                    toast.info("Génération vidéo bientôt disponible. La source et les timestamps sont sauvegardés.");
-                  } catch (e) {
-                    toast.error(e instanceof Error ? e.message : "Erreur");
-                  }
+                  setGenerateItem(item);
                 }}
+                onJobUpdate={() => refetch()}
                 onUpdate={(patch) => updateItem(item.id, patch).catch(e => toast.error(e.message))}
                 onDelete={() => {
                   if (confirm("Supprimer ce contenu ?")) {
@@ -288,6 +283,15 @@ const ContentQueuePage = () => {
                 toast.error(e instanceof Error ? e.message : "Erreur");
               }
             }}
+          />
+        )}
+
+        {generateItem && (
+          <ClipGenerationDialog
+            item={generateItem}
+            open={!!generateItem}
+            onOpenChange={(o) => { if (!o) setGenerateItem(null); }}
+            onLaunched={() => { refetch(); }}
           />
         )}
       </PageContainer>
