@@ -127,6 +127,7 @@ const LiveSetupPage = () => {
   const [markingReady, setMarkingReady] = useState(false);
   const [endingLive, setEndingLive] = useState(false);
   const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
+  const [lastAppliedTitle, setLastAppliedTitle] = useState<string | null>(null);
 
   const youtubeConnected = useMemo(
     () => accounts.some(a => a.platform === "youtube" && a.connection_status === "connected"),
