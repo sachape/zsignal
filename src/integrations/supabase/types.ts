@@ -595,6 +595,69 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_content_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          format: string | null
+          hashtags: Json
+          id: string
+          live_session_id: string | null
+          notes: string | null
+          platform: string
+          priority: string
+          published_at: string | null
+          reason: string | null
+          recommended_publish_at: string | null
+          source_idea_id: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          format?: string | null
+          hashtags?: Json
+          id?: string
+          live_session_id?: string | null
+          notes?: string | null
+          platform: string
+          priority?: string
+          published_at?: string | null
+          reason?: string | null
+          recommended_publish_at?: string | null
+          source_idea_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          format?: string | null
+          hashtags?: Json
+          id?: string
+          live_session_id?: string | null
+          notes?: string | null
+          platform?: string
+          priority?: string
+          published_at?: string | null
+          reason?: string | null
+          recommended_publish_at?: string | null
+          source_idea_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       creator_live_sessions: {
         Row: {
           checklist: Json
