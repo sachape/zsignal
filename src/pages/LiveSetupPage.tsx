@@ -180,6 +180,9 @@ const LiveSetupPage = () => {
 
   // Push state — derived from persisted session metadata.
   const sessionMeta = editingSession?.generated_metadata as Record<string, unknown> | undefined;
+  const sessionExtras = readExtras(sessionMeta);
+  const existingBrief: PostLiveBrief | null = sessionExtras.post_live_brief ?? null;
+  const isCompleted = editingSession?.status === "completed";
   const twitchPush = sessionMeta?.twitch_push as PushEntry | undefined;
   const youtubePush = sessionMeta?.youtube_push as PushEntry | undefined;
   const twitchDone = !!twitchPush && twitchPush.status === "success";
