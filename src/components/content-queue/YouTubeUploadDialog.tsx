@@ -227,27 +227,57 @@ const YouTubeUploadDialog = ({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs">
-                Fichier vidéo (.mp4 ou .mov, max {MAX_BYTES / 1024 / 1024} Mo · recommandé ≤ {RECOMMENDED_BYTES / 1024 / 1024} Mo)
-              </Label>
-              <Input
-                type="file"
-                accept={ACCEPT}
-                disabled={uploading}
-                onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-              />
-              {file && (
-                <p className="text-[11px] text-muted-foreground">
-                  {file.name} · {formatBytes(file.size)}
-                  {file.size > RECOMMENDED_BYTES && (
-                    <span className="ml-1 text-amber-400">
-                      · Fichier volumineux, le transfert peut être long.
-                    </span>
-                  )}
-                </p>
-              )}
-            </div>
+            {hasGeneratedClip && (
+              <div className="space-y-2 rounded-md border border-primary/30 bg-primary/5 p-3">
+                <p className="text-xs font-medium text-foreground">Source de la vidéo</p>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="radio" name="upload-source" className="mt-0.5"
+                    checked={useGenerated} disabled={uploading}
+                    onChange={() => setUseGenerated(true)}
+                  />
+                  <span>
+                    <span className="font-medium text-foreground">Utiliser le clip généré</span>
+                    <span className="block text-[10px] text-muted-foreground/80">Recommandé — clip prêt à publier.</span>
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="radio" name="upload-source" className="mt-0.5"
+                    checked={!useGenerated} disabled={uploading}
+                    onChange={() => setUseGenerated(false)}
+                  />
+                  <span>
+                    <span className="font-medium text-foreground">Uploader un autre fichier</span>
+                    <span className="block text-[10px] text-muted-foreground/80">Fallback — choisis un fichier depuis ton ordinateur.</span>
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {!useGenerated && (
+              <div className="space-y-1.5">
+                <Label className="text-xs">
+                  Fichier vidéo (.mp4 ou .mov, max {MAX_BYTES / 1024 / 1024} Mo · recommandé ≤ {RECOMMENDED_BYTES / 1024 / 1024} Mo)
+                </Label>
+                <Input
+                  type="file"
+                  accept={ACCEPT}
+                  disabled={uploading}
+                  onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+                />
+                {file && (
+                  <p className="text-[11px] text-muted-foreground">
+                    {file.name} · {formatBytes(file.size)}
+                    {file.size > RECOMMENDED_BYTES && (
+                      <span className="ml-1 text-amber-400">
+                        · Fichier volumineux, le transfert peut être long.
+                      </span>
+                    )}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <Label className="text-xs">Titre</Label>
