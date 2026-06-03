@@ -239,6 +239,12 @@ const PricingPage = () => {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
+  // Authenticated users should manage their plan from the in-app billing page,
+  // not the public marketing pricing page.
+  if (user) {
+    return <Navigate to="/billing" replace />;
+  }
+
   const handleCheckout = async (plan: "pro" | "growth") => {
     if (!user) {
       openAuthModal("signup");
