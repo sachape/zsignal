@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { LiveSetupInput, GeneratedMetadata } from "@/services/liveSetupGenerator";
 
-export type LiveSessionStatus = "draft" | "ready" | "pushed" | "completed";
+export type LiveSessionStatus = "draft" | "ready" | "pushed" | "ready_to_go" | "completed";
 
 export interface LiveSession {
   id: string;
@@ -26,7 +26,7 @@ export interface LiveSession {
 export interface SaveLiveSessionPayload {
   id?: string;
   input: LiveSetupInput;
-  metadata: GeneratedMetadata;
+  metadata: GeneratedMetadata & Record<string, unknown>;
   checklist: Record<string, boolean>;
   status: LiveSessionStatus;
 }
