@@ -274,6 +274,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/live-setup"
+                  element={
+                    <ProtectedRoute>
+                      <LiveSetupPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/billing"
                   element={
                     <ProtectedRoute>
