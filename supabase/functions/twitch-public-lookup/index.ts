@@ -602,9 +602,10 @@ Deno.serve(async (req) => {
       const db = createClient(supabaseUrl, serviceRoleKey);
 
       // Resolve the caller's plan to apply server-side row cap.
-      // Free / unauthenticated = 3 rows, paid = up to 100 rows.
+      // Free / unauthenticated = 3 rows, paid = up to 100 rows per page.
       const FREE_LEADER_LIMIT = 3;
       const PAID_LEADER_MAX = 100;
+      const PAID_LEADER_DEFAULT = 50;
       let callerPlan: "free" | "pro" | "growth" | "agency" = "free";
       const authHeader = req.headers.get("Authorization") ?? "";
       if (authHeader.startsWith("Bearer ")) {
@@ -626,14 +627,36 @@ Deno.serve(async (req) => {
         }
       }
       const isPaid = callerPlan !== "free";
-      const requestedLimit = Math.min(Math.max(body.limit ?? 50, 1), PAID_LEADER_MAX);
+
+      const requestedLimit = Math.min(
+        Math.max(body.limit ?? PAID_LEADER_DEFAULT, 1),
+        PAID_LEADER_MAX,
+      );
+      const requestedOffset = Math.max(body.offset ?? 0, 0);
       const effectiveLimit = isPaid ? requestedLimit : FREE_LEADER_LIMIT;
+      // Free users can never paginate past the locked window.
+      const effectiveOffset = isPaid ? requestedOffset : 0;
 
       const langFilter =
         body.language && body.language !== "all" ? body.language : null;
 
-      // Always fetch the paid-tier window so we can report indexed_count and
-      // locked_count honestly, then slice to the caller's effective limit.
+      const categoryFilter = `game_id.eq.${category.id},game_name.eq.${category.name.replace(/,/g, "")}`;
+
+      // 1) Real total (COUNT) — same filters, no business limit.
+      let countQ = db
+        .from("channel_stream_scores")
+        .select("platform_user_id", { count: "exact", head: true })
+        .eq("platform", "twitch")
+        .not("stream_score", "is", null)
+        .or(categoryFilter);
+      if (langFilter) countQ = countQ.eq("language", langFilter);
+      const { count: indexedCountRaw, error: countErr } = await countQ;
+      if (countErr) {
+        return json({ success: false, reason: "db_error" }, 500);
+      }
+      const indexedCount = indexedCountRaw ?? 0;
+
+      // 2) Paginated data query.
       let q = db
         .from("channel_stream_scores")
         .select(
@@ -641,11 +664,11 @@ Deno.serve(async (req) => {
         )
         .eq("platform", "twitch")
         .not("stream_score", "is", null)
-        .or(`game_id.eq.${category.id},game_name.eq.${category.name.replace(/,/g, "")}`)
+        .or(categoryFilter)
         .order("stream_score", { ascending: false })
         .order("live_viewer_count", { ascending: false, nullsFirst: false })
         .order("updated_at", { ascending: false })
-        .limit(requestedLimit);
+        .range(effectiveOffset, effectiveOffset + effectiveLimit - 1);
 
       if (langFilter) q = q.eq("language", langFilter);
 
@@ -653,11 +676,10 @@ Deno.serve(async (req) => {
       if (dbErr) {
         return json({ success: false, reason: "db_error" }, 500);
       }
-      const indexedFetched = (rowsRaw ?? []).length;
-      const rows = (rowsRaw ?? []).slice(0, effectiveLimit);
+      const rows = rowsRaw ?? [];
 
       const liveByPid = new Map<string, HelixStream>();
-      const ids = (rows ?? [])
+      const ids = rows
         .map((r: { platform_user_id: string }) => r.platform_user_id)
         .filter(Boolean);
       if (ids.length > 0) {
@@ -670,7 +692,7 @@ Deno.serve(async (req) => {
       }
 
       const nowIso = new Date().toISOString();
-      const channels = (rows ?? []).map(
+      const channels = rows.map(
         (r: {
           platform_user_id: string;
           login: string;
@@ -700,17 +722,26 @@ Deno.serve(async (req) => {
         },
       );
 
-      const coverageLevel: "empty" | "low" | "medium" | "good" =
-        channels.length === 0 ? "empty"
-        : channels.length < 10 ? "low"
-        : channels.length < 50 ? "medium"
-        : "good";
+      const returnedCount = channels.length;
+      const visibleCount = isPaid
+        ? effectiveOffset + returnedCount
+        : returnedCount;
+      const lockedCount = Math.max(0, indexedCount - visibleCount);
+      const hasMore = isPaid
+        ? effectiveOffset + returnedCount < indexedCount
+        : false;
 
       let lastIndexedAt: string | null = null;
       for (const c of channels) {
         if (!c.updated_at) continue;
         if (!lastIndexedAt || c.updated_at > lastIndexedAt) lastIndexedAt = c.updated_at;
       }
+
+      const coverageLevel: "empty" | "low" | "medium" | "good" =
+        indexedCount === 0 ? "empty"
+        : indexedCount < 10 ? "low"
+        : indexedCount < 50 ? "medium"
+        : "good";
 
       return json({
         success: true,
@@ -722,10 +753,17 @@ Deno.serve(async (req) => {
           includes_offline: true,
           source: "channel_stream_scores",
           live_enriched: true,
-          indexed_count: indexedFetched,
-          returned_count: channels.length,
-          locked_count: Math.max(0, indexedFetched - channels.length),
-          is_limited_by_plan: !isPaid && indexedFetched > effectiveLimit,
+          indexed_count: indexedCount,
+          returned_count: returnedCount,
+          visible_count: visibleCount,
+          locked_count: lockedCount,
+          limit: effectiveLimit,
+          offset: effectiveOffset,
+          has_more: hasMore,
+          next_offset: hasMore ? effectiveOffset + returnedCount : null,
+          is_pro: isPaid,
+          plan_limit: isPaid ? null : FREE_LEADER_LIMIT,
+          is_limited_by_plan: !isPaid && indexedCount > FREE_LEADER_LIMIT,
           caller_plan: callerPlan,
           coverage_level: coverageLevel,
           last_indexed_at: lastIndexedAt,
