@@ -10,6 +10,10 @@ import {
   AlertCircle,
   Sparkles,
   X,
+  Target,
+  Radio,
+  Orbit,
+  ShieldCheck,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -17,7 +21,7 @@ import PageHeader from "@/components/PageHeader";
 import DashboardQuickActions from "@/components/DashboardQuickActions";
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
-import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
+import { formatSyncRelative } from "@/components/SyncStatusCard";
 import WeeklySequenceCard from "@/components/WeeklySequenceCard";
 import NextMilestoneCard from "@/components/NextMilestoneCard";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
@@ -522,6 +526,23 @@ const DashboardPage = () => {
     ? (report.facts.find((f) => f.key === "dominant_category")?.value as string | undefined)
     : undefined;
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
+  const nextAction = report.next_best_action;
+  const syncLabel =
+    syncSnapshot?.state === "up_to_date"
+      ? "Données à jour"
+      : syncSnapshot?.state === "syncing"
+        ? "Sync en cours"
+        : syncSnapshot?.state === "no_analysis"
+          ? "Première analyse en attente"
+          : "Dernière sync à vérifier";
+  const syncDetail = syncSnapshot
+    ? formatSyncRelative(syncSnapshot.lastSyncAt ?? syncSnapshot.lastAnalysisAt ?? currentReport.created_at)
+    : `Rapport généré le ${formatDate(currentReport.created_at)}`;
+  const liveHeadline = liveSnapshot?.current
+    ? `${liveSnapshot.current.viewer_count ?? 0} viewers en direct`
+    : liveSnapshot?.last
+      ? "Dernier live disponible"
+      : "Aucun live récent";
 
   const endedSessions = allSessions.filter((s) => s.status === "ended").length;
 
@@ -553,133 +574,269 @@ const DashboardPage = () => {
             </Button>
           </div>
         )}
+        <section className="mb-6">
+          <p className="mb-5 text-[32px] font-medium text-foreground">
+            {greeting}
+          </p>
+          <div className="grid gap-4 xl:grid-cols-[1.35fr_0.9fr]">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_35%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--card)))] p-6 shadow-[0_24px_80px_-28px_hsl(var(--primary)/0.35)]">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,transparent_0%,hsl(var(--primary)/0.04)_55%,transparent_100%)]" />
+              <div className="relative flex flex-col gap-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <div className="relative shrink-0">
+                      <div className="h-16 w-16 overflow-hidden rounded-2xl bg-muted ring-1 ring-white/10">
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt={headerTitle}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-muted-foreground">
+                            {headerTitle.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      {summary.is_live && (
+                        <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive ring-4 ring-background">
+                          <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground">
+                          {headerTitle}
+                        </h1>
+                        {summary.broadcaster_type === "partner" && (
+                          <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                            Partner
+                          </span>
+                        )}
+                        {summary.broadcaster_type === "affiliate" && (
+                          <span className="rounded-full border border-border/50 bg-muted/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                            Affiliate
+                          </span>
+                        )}
+                        {summary.is_live && (
+                          <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-destructive">
+                            Live now
+                          </span>
+                        )}
+                        <StreakBadge streak={streakData} variant="compact" />
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        <span>{platformLogin ? `@${platformLogin}` : "Twitch"}</span>
+                        {displayCategory && <span>· {displayCategory}</span>}
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full border border-border/50 bg-muted/30 px-2 py-0.5 text-[10px] font-medium"
+                          title={maturityData.description}
+                        >
+                          <span aria-hidden>{maturityData.icon}</span>
+                          {maturityData.label}
+                        </span>
+                        {currentReport.is_demo && (
+                          <span className="inline-flex items-center rounded-full border border-border/50 bg-muted/25 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                            Demo
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ShareScoreButton
+                      score={score}
+                      displayName={headerTitle}
+                      login={platformLogin}
+                      date={formatDate(currentReport.created_at)}
+                      variant="icon"
+                    />
+                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/30">
+                      <Link to="/analyse">
+                        <FileText className="h-3.5 w-3.5" />
+                        Voir l'analyse
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div className="rounded-[24px] border border-white/[0.08] bg-background/50 p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/60">
+                      StreamScore
+                    </p>
+                    <div className="mt-4 flex items-end gap-4">
+                      <div className={`inline-flex h-20 w-20 items-center justify-center rounded-[22px] border ${theme.surfaceClass}`}>
+                        <span className={`text-3xl font-semibold tabular-nums ${theme.textClass}`}>
+                          {score.overall}
+                        </span>
+                      </div>
+                      <div className="pb-1">
+                        <p className={`text-sm font-semibold uppercase tracking-[0.18em] ${theme.textClass}`}>
+                          {theme.label}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {delta !== null
+                            ? delta > 0
+                              ? `+${delta} pts depuis le rapport précédent`
+                              : delta < 0
+                                ? `${delta} pts depuis le rapport précédent`
+                                : "Stable depuis le rapport précédent"
+                            : "Premier point de référence disponible"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 rounded-2xl border border-primary/15 bg-primary/[0.05] p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">
+                        Point de blocage principal
+                      </p>
+                      <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
+                        {report.weak_point.label}
+                      </p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                        {report.weak_point.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3">
+                    <div className="rounded-[24px] border border-white/[0.08] bg-background/45 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
+                          <Target className="h-4 w-4 text-primary" />
+                        </div>
+                        <Button asChild variant="ghost" size="sm" className="px-2 text-xs text-primary hover:bg-primary/10">
+                          <Link to="/plan">
+                            Ouvrir le plan
+                            <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </Button>
+                      </div>
+                      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">
+                        Next move
+                      </p>
+                      <p className="mt-2 text-base font-semibold leading-tight text-foreground">
+                        {nextAction.title}
+                      </p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                        {nextAction.action || nextAction.reason}
+                      </p>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                      <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+                          Milestone le plus proche
+                        </p>
+                        <p className="mt-2 text-base font-semibold text-foreground">
+                          {nextMilestone.label}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                          {nextMilestone.current}/{nextMilestone.target} · {nextMilestone.pct}%
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+                          Statut des données
+                        </p>
+                        <p className="mt-2 text-base font-semibold text-foreground">
+                          {syncLabel}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                          {syncDetail}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+                          Statut live
+                        </p>
+                        <p className="mt-2 text-base font-semibold text-foreground">
+                          {liveHeadline}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                          {liveSnapshot?.current?.title || liveSnapshot?.last?.title_raw || "Prépare le prochain live"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="rounded-[24px] border border-white/[0.08] bg-card/50 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                  </div>
+                  <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
+                    <Link to="/plan">Voir le plan d'action</Link>
+                  </Button>
+                </div>
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+                  This week
+                </p>
+                <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
+                  Une priorité claire pour faire progresser le score
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  Le cockpit doit te donner une direction nette, pas dix cartes à interpréter.
+                </p>
+              </div>
+              <div className="rounded-[24px] border border-white/[0.08] bg-card/50 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
+                    <Radio className="h-4 w-4 text-primary" />
+                  </div>
+                  <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
+                    <Link to={summary.is_live ? "/lives" : "/live-setup"}>
+                      {summary.is_live ? "Voir le cockpit live" : "Préparer un live"}
+                    </Link>
+                  </Button>
+                </div>
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+                  Operate
+                </p>
+                <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
+                  {summary.is_live ? "Tu es actuellement en live" : "Ton prochain live se prépare ici"}
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {summary.is_live
+                    ? "Surveille les signaux live, la dérive et les alertes en temps réel."
+                    : "Passe par Live Setup pour arriver prêt à lancer, sans friction avant le direct."}
+                </p>
+              </div>
+              <div className="rounded-[24px] border border-white/[0.08] bg-card/50 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
+                    <Orbit className="h-4 w-4 text-primary" />
+                  </div>
+                  <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
+                    <Link to="/competitors">Ouvrir Benchmark</Link>
+                  </Button>
+                </div>
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+                  Compete
+                </p>
+                <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
+                  Garde un oeil sur ta catégorie et tes concurrents
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  Benchmark, watchlist et signaux concurrents doivent rester visibles sans noyer le reste.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <div className="mb-6">
           <DashboardQuickActions />
         </div>
-
-        {/* Identity strip */}
-        <div className="animate-fade-up mb-6">
-          <p className="mb-5 sm:mb-7 text-[32px] font-medium text-foreground">
-            {greeting}
-          </p>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Avatar + name */}
-            <div className="flex items-center gap-4">
-              <div className="relative shrink-0">
-                <div className="h-14 w-14 overflow-hidden rounded-full bg-muted ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={headerTitle}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xl font-bold text-muted-foreground">
-                      {headerTitle.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                {summary.is_live && (
-                  <span
-                    className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive ring-2 ring-background"
-                    aria-hidden
-                  >
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-                  </span>
-                )}
-              </div>
-
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="truncate text-lg font-bold tracking-tight text-foreground">
-                    {headerTitle}
-                  </h1>
-                  {summary.broadcaster_type === "partner" && (
-                    <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                      Partenaire
-                    </span>
-                  )}
-                  {summary.broadcaster_type === "affiliate" && (
-                    <span className="shrink-0 rounded-full border border-border/50 bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Affilié
-                    </span>
-                  )}
-                  {summary.is_live && (
-                    <span className="shrink-0 rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
-                      En live
-                    </span>
-                  )}
-                  <StreakBadge streak={streakData} variant="compact" />
-                </div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                  <p className="truncate text-sm text-muted-foreground">
-                    {platformLogin ? `@${platformLogin}` : "Twitch"}
-                    {displayCategory ? ` · ${displayCategory}` : ""}
-                  </p>
-                  <span
-                    className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border/40 bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
-                    title={maturityData.description}
-                  >
-                    <span aria-hidden>{maturityData.icon}</span>
-                    {maturityData.label}
-                  </span>
-                </div>
-                {currentReport.is_demo && (
-                  <span className="mt-1 inline-flex rounded-sm bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">
-                    démo
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex shrink-0 items-center gap-2">
-              <ShareScoreButton
-                score={score}
-                displayName={headerTitle}
-                login={platformLogin}
-                date={formatDate(currentReport.created_at)}
-                variant="icon"
-              />
-              <Button asChild size="sm" variant="outline">
-                <Link to="/analyse">
-                  <FileText className="h-3.5 w-3.5" />
-                  Voir l'analyse
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* StreamScore compact status */}
-        <Link
-          to="/analyse"
-          className="group animate-fade-up mb-6 flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-white/[0.07] bg-card/40 px-4 py-3 backdrop-blur-xl transition-all hover:border-primary/25 hover:shadow-[0_0_30px_hsl(var(--primary)/0.08)]"
-          style={{ animationDelay: "80ms" }}
-        >
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${theme.surfaceClass}`}>
-              <span className={`text-base font-bold tabular-nums ${theme.textClass}`}>{score.overall}</span>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">StreamScore</p>
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-semibold uppercase tracking-wider ${theme.textClass}`}>{theme.label}</span>
-                {delta !== null && (delta !== 0 || score.overall >= 40) && (
-                  <span className={`text-[10px] font-semibold tabular-nums ${delta > 0 ? "text-primary" : delta < 0 ? "text-destructive" : "text-muted-foreground/50"}`}>
-                    {delta > 0 ? `+${delta} pts` : delta < 0 ? `${delta} pts` : "stable"}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex shrink-0 items-center gap-1.5 rounded-md border border-border/40 bg-muted/30 px-2.5 py-1 text-xs font-medium text-foreground transition-colors group-hover:bg-muted/60">
-            Voir l'analyse
-            <ArrowRight className="h-3 w-3" />
-          </div>
-        </Link>
 
         {/* Weekly digest — after score context, before actions */}
         <WeeklyDigestCard
