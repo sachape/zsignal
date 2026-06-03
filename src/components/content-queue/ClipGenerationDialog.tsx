@@ -25,6 +25,7 @@ type Mode = "upload" | "direct_url";
 
 function reasonLabel(reason: string): string {
   switch (reason) {
+    case "worker_not_configured": return "Génération vidéo bientôt disponible — le worker FFmpeg n'est pas encore déployé. Ta source et tes timestamps sont sauvegardés.";
     case "file_too_large": return `Fichier trop volumineux (max ${MAX_BYTES / 1024 / 1024} Mo).`;
     case "invalid_file_type": return "Format invalide. Utilise un fichier .mp4 ou .mov.";
     case "empty_file": return "Le fichier est vide.";
@@ -155,6 +156,12 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
         },
       );
       const createJson = await createRes.json().catch(() => ({}));
+      if (createRes.status === 503 && createJson?.reason === "worker_not_configured") {
+        setError("worker_not_configured");
+        setBusy(false); setPhase("idle");
+        onLaunched(); // refetch so generation_status=unavailable is shown
+        return;
+      }
       if (!createRes.ok || !createJson?.success) {
         setError(createJson?.error ?? "job_insert_failed");
         setBusy(false); setPhase("idle");

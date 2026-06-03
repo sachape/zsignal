@@ -78,8 +78,25 @@ Deno.serve(async (req) => {
     .maybeSingle();
   if (itemErr || !item) return json({ error: "content_item_not_found" }, 404);
 
-  // Use service role for atomic insert + status updates (still scoped by we already verified).
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  // ── Worker availability check ──
+  // If the external FFmpeg worker is not configured, we MUST NOT create a fake
+  // job or fake clip. Surface a clear "unavailable" state to the user.
+  if (!WORKER_BASE_URL || !WORKER_SHARED_SECRET) {
+    await admin
+      .from("creator_content_items")
+      .update({
+        generation_status: "unavailable",
+        generation_error: "Worker vidéo non configuré. Contacte l'admin Streamnco.",
+      })
+      .eq("id", contentItemId);
+    return json({
+      success: false,
+      reason: "worker_not_configured",
+      message: "Le worker de génération vidéo n'est pas encore déployé.",
+    }, 503);
+  }
 
   const { data: job, error: jobErr } = await admin
     .from("creator_video_generation_jobs")
@@ -111,27 +128,23 @@ Deno.serve(async (req) => {
     .eq("id", contentItemId);
 
   // Dispatch to worker (fire-and-forget).
-  if (WORKER_BASE_URL && WORKER_SHARED_SECRET) {
-    const callbackUrl = `${SUPABASE_URL}/functions/v1/clip-job-callback`;
-    try {
-      await fetch(`${WORKER_BASE_URL.replace(/\/$/, "")}/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Worker-Secret": WORKER_SHARED_SECRET,
-        },
-        body: JSON.stringify({
-          job_id: job.id,
-          callback_url: callbackUrl,
-          callback_secret: WORKER_SHARED_SECRET,
-        }),
-      });
-    } catch (e) {
-      console.error("worker dispatch failed", e instanceof Error ? e.message : "unknown");
-      // Don't fail the request — worker can be polled or retried.
-    }
-  } else {
-    console.warn("WORKER_BASE_URL or WORKER_SHARED_SECRET not configured; job left queued");
+  const callbackUrl = `${SUPABASE_URL}/functions/v1/clip-job-callback`;
+  try {
+    await fetch(`${WORKER_BASE_URL.replace(/\/$/, "")}/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Worker-Secret": WORKER_SHARED_SECRET,
+      },
+      body: JSON.stringify({
+        job_id: job.id,
+        callback_url: callbackUrl,
+        callback_secret: WORKER_SHARED_SECRET,
+      }),
+    });
+  } catch (e) {
+    console.error("worker dispatch failed", e instanceof Error ? e.message : "unknown");
+    // Don't fail the request — the job is queued; admin can retry dispatch.
   }
 
   return json({ success: true, job_id: job.id, status: job.status });
