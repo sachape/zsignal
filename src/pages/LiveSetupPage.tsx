@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import {
   Rocket, Save, Sparkles, Tv, Video, Music2, Camera,
   CheckCircle2, Copy, Trash2, Clock, ChevronRight, ListChecks, Wand2,
-  ExternalLink, AlertTriangle, Loader2,
+  ExternalLink, AlertTriangle, Loader2, MonitorPlay, Settings2, Flag,
+  CircleDashed, ShieldCheck, Film,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -24,11 +25,16 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
-import { useLiveSessions, type LiveSession } from "@/hooks/useLiveSessions";
+import {
+  useLiveSessions, type LiveSession, type LiveSessionStatus,
+} from "@/hooks/useLiveSessions";
 import {
   generateMetadata, DEFAULT_CHECKLIST_ITEMS,
   type LiveSetupInput, type LiveTargetPlatform, type LiveTone, type GeneratedMetadata,
 } from "@/services/liveSetupGenerator";
+import {
+  LIVE_PRESETS, getPreset, type LivePresetId, type ObsChecklistItem,
+} from "@/services/obsPresets";
 
 const TONES: { value: LiveTone; label: string }[] = [
   { value: "chill", label: "Chill" },
@@ -55,7 +61,7 @@ const EMPTY_INPUT: LiveSetupInput = {
   scheduledAt: "",
 };
 
-const EMPTY_CHECKLIST = DEFAULT_CHECKLIST_ITEMS.reduce<Record<string, boolean>>(
+const EMPTY_PRELIVE_CHECKLIST = DEFAULT_CHECKLIST_ITEMS.reduce<Record<string, boolean>>(
   (acc, i) => ({ ...acc, [i.id]: false }), {},
 );
 
@@ -66,6 +72,32 @@ function copy(value: string) {
   );
 }
 
+interface LiveSetupV2Extras {
+  preset?: LivePresetId | null;
+  obs_checklist?: Record<string, boolean>;
+  skip_twitch?: boolean;
+  skip_youtube?: boolean;
+  title_confirmed?: boolean;
+  ready_to_go_at?: string;
+}
+
+interface PushEntry {
+  pushed_at?: string;
+  created_at?: string;
+  status?: string;
+  title?: string;
+  game_name?: string;
+  youtube_broadcast_id?: string;
+  youtube_watch_url?: string;
+  privacy_status?: string;
+}
+
+function readExtras(meta: unknown): LiveSetupV2Extras {
+  if (!meta || typeof meta !== "object") return {};
+  const m = meta as { live_setup_v2?: LiveSetupV2Extras };
+  return m.live_setup_v2 ?? {};
+}
+
 const LiveSetupPage = () => {
   const { accounts } = useConnectedNetworks();
   const { isConnected: twitchConnected } = useTwitchConnection();
@@ -73,11 +105,17 @@ const LiveSetupPage = () => {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [input, setInput] = useState<LiveSetupInput>(EMPTY_INPUT);
-  const [checklist, setChecklist] = useState<Record<string, boolean>>(EMPTY_CHECKLIST);
+  const [preliveChecklist, setPreliveChecklist] = useState<Record<string, boolean>>(EMPTY_PRELIVE_CHECKLIST);
+  const [obsChecklist, setObsChecklist] = useState<Record<string, boolean>>({});
+  const [presetId, setPresetId] = useState<LivePresetId | null>(null);
+  const [skipTwitch, setSkipTwitch] = useState(false);
+  const [skipYouTube, setSkipYouTube] = useState(false);
+  const [titleConfirmed, setTitleConfirmed] = useState(false);
   const [metadata, setMetadata] = useState<GeneratedMetadata>(() => generateMetadata(EMPTY_INPUT));
   const [saving, setSaving] = useState(false);
   const [pushingTwitch, setPushingTwitch] = useState(false);
   const [pushingYouTube, setPushingYouTube] = useState(false);
+  const [markingReady, setMarkingReady] = useState(false);
   const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
 
   const youtubeConnected = useMemo(
@@ -90,20 +128,77 @@ const LiveSetupPage = () => {
     [sessions, editingId],
   );
 
+  // Active preset (or null = generic baseline).
+  const activePreset = useMemo(() => getPreset(presetId), [presetId]);
+
+  // OBS checklist items derived from active preset (or generic baseline).
+  const obsItems: ObsChecklistItem[] = useMemo(() => {
+    if (activePreset) return activePreset.obsChecklist;
+    // Generic baseline if no preset chosen yet.
+    return LIVE_PRESETS[0].obsChecklist;
+  }, [activePreset]);
+
   useEffect(() => {
     setMetadata(generateMetadata(input));
   }, [input]);
 
-  const checklistProgress = useMemo(() => {
+  // When a preset is selected, suggest its tone if user hasn't set one yet.
+  useEffect(() => {
+    if (activePreset && !input.tone) {
+      setInput(prev => ({ ...prev, tone: activePreset.suggestedTone }));
+    }
+    // Ensure obs checklist contains all expected keys for the active preset.
+    setObsChecklist(prev => {
+      const next: Record<string, boolean> = { ...prev };
+      for (const it of obsItems) {
+        if (!(it.id in next)) next[it.id] = false;
+      }
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetId]);
+
+  const preliveProgress = useMemo(() => {
     const total = DEFAULT_CHECKLIST_ITEMS.length;
-    const done = DEFAULT_CHECKLIST_ITEMS.filter(i => checklist[i.id]).length;
+    const done = DEFAULT_CHECKLIST_ITEMS.filter(i => preliveChecklist[i.id]).length;
     return { done, total, pct: Math.round((done / total) * 100) };
-  }, [checklist]);
+  }, [preliveChecklist]);
+
+  const obsProgress = useMemo(() => {
+    const total = obsItems.length;
+    const done = obsItems.filter(i => obsChecklist[i.id]).length;
+    return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+  }, [obsItems, obsChecklist]);
+
+  // Push state — derived from persisted session metadata.
+  const sessionMeta = editingSession?.generated_metadata as Record<string, unknown> | undefined;
+  const twitchPush = sessionMeta?.twitch_push as PushEntry | undefined;
+  const youtubePush = sessionMeta?.youtube_push as PushEntry | undefined;
+  const twitchDone = !!twitchPush && twitchPush.status === "success";
+  const youtubeDone = !!youtubePush && youtubePush.status === "success";
+
+  // ready_to_go criteria:
+  //  - Twitch configured OR explicitly skipped
+  //  - YouTube created OR explicitly skipped
+  //  - OBS checklist fully validated
+  //  - Final title confirmed
+  const readyToGo = useMemo(() => {
+    const twitchOk = twitchDone || skipTwitch;
+    const youtubeOk = youtubeDone || skipYouTube;
+    const obsOk = obsItems.length > 0 && obsItems.every(i => obsChecklist[i.id]);
+    const titleOk = titleConfirmed && (metadata.twitch.title.trim().length > 0 || metadata.youtube.title.trim().length > 0);
+    return { twitchOk, youtubeOk, obsOk, titleOk, all: twitchOk && youtubeOk && obsOk && titleOk };
+  }, [twitchDone, skipTwitch, youtubeDone, skipYouTube, obsItems, obsChecklist, titleConfirmed, metadata]);
 
   const resetForm = () => {
     setEditingId(null);
     setInput(EMPTY_INPUT);
-    setChecklist(EMPTY_CHECKLIST);
+    setPreliveChecklist(EMPTY_PRELIVE_CHECKLIST);
+    setObsChecklist({});
+    setPresetId(null);
+    setSkipTwitch(false);
+    setSkipYouTube(false);
+    setTitleConfirmed(false);
   };
 
   const loadSession = (s: LiveSession) => {
@@ -118,11 +213,37 @@ const LiveSetupPage = () => {
       platforms: (s.platforms as LiveTargetPlatform[]) ?? ["twitch"],
       scheduledAt: s.scheduled_at || "",
     });
-    setChecklist({ ...EMPTY_CHECKLIST, ...(s.checklist || {}) });
+    setPreliveChecklist({ ...EMPTY_PRELIVE_CHECKLIST, ...(s.checklist || {}) });
+    const extras = readExtras(s.generated_metadata);
+    setPresetId(extras.preset ?? null);
+    setObsChecklist(extras.obs_checklist ?? {});
+    setSkipTwitch(!!extras.skip_twitch);
+    setSkipYouTube(!!extras.skip_youtube);
+    setTitleConfirmed(!!extras.title_confirmed);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSave = async (status: "draft" | "ready") => {
+  // Build the metadata payload, preserving existing push history so we don't
+  // overwrite twitch_push / youtube_push entries with each save.
+  function buildMetadataPayload(): GeneratedMetadata & Record<string, unknown> {
+    const existing = (editingSession?.generated_metadata ?? {}) as Record<string, unknown>;
+    const extras: LiveSetupV2Extras = {
+      preset: presetId,
+      obs_checklist: obsChecklist,
+      skip_twitch: skipTwitch,
+      skip_youtube: skipYouTube,
+      title_confirmed: titleConfirmed,
+      ready_to_go_at: (existing.live_setup_v2 as LiveSetupV2Extras | undefined)?.ready_to_go_at,
+    };
+    return {
+      ...metadata,
+      ...(existing.twitch_push ? { twitch_push: existing.twitch_push } : {}),
+      ...(existing.youtube_push ? { youtube_push: existing.youtube_push } : {}),
+      live_setup_v2: extras,
+    } as GeneratedMetadata & Record<string, unknown>;
+  }
+
+  const handleSave = async (status: LiveSessionStatus) => {
     if (!input.titleRaw.trim() && !input.gameCategory.trim()) {
       toast.error("Renseigne au moins un titre ou une catégorie");
       return;
@@ -131,9 +252,16 @@ const LiveSetupPage = () => {
     try {
       await saveSession({
         id: editingId ?? undefined,
-        input, metadata, checklist, status,
+        input,
+        metadata: buildMetadataPayload(),
+        checklist: preliveChecklist,
+        status,
       });
-      toast.success(status === "ready" ? "Session prête" : "Brouillon sauvegardé");
+      toast.success(
+        status === "ready" ? "Session prête"
+        : status === "ready_to_go" ? "Session prête à lancer 🚀"
+        : "Brouillon sauvegardé",
+      );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur de sauvegarde");
     } finally {
@@ -161,17 +289,28 @@ const LiveSetupPage = () => {
     }));
   };
 
-  // Persist the current form as a session and return its ID — required by the
-  // push edge functions (they need a live_session_id to record results).
   async function ensureSavedSession(): Promise<string | null> {
-    if (editingId) return editingId;
+    if (editingId) {
+      // Persist current state (skip flags, obs checklist…) before pushing.
+      try {
+        await saveSession({
+          id: editingId, input,
+          metadata: buildMetadataPayload(),
+          checklist: preliveChecklist, status: "ready",
+        });
+      } catch { /* non-blocking */ }
+      return editingId;
+    }
     if (!input.titleRaw.trim() && !input.gameCategory.trim()) {
       toast.error("Renseigne au moins un titre ou une catégorie");
       return null;
     }
     setSaving(true);
     try {
-      const created = await saveSession({ input, metadata, checklist, status: "ready" });
+      const created = await saveSession({
+        input, metadata: buildMetadataPayload(),
+        checklist: preliveChecklist, status: "ready",
+      });
       if (created?.id) { setEditingId(created.id); return created.id; }
       return null;
     } catch (e) {
@@ -182,10 +321,8 @@ const LiveSetupPage = () => {
 
   function handlePushError(reason: string | undefined, platform: "twitch" | "youtube", category?: string) {
     switch (reason) {
-      case "twitch_not_connected":
-        toast.error("Twitch non connecté"); break;
-      case "youtube_not_connected":
-        toast.error("YouTube non connecté"); break;
+      case "twitch_not_connected": toast.error("Twitch non connecté"); break;
+      case "youtube_not_connected": toast.error("YouTube non connecté"); break;
       case "missing_scope":
         toast.error(platform === "twitch"
           ? "Reconnecte Twitch pour autoriser la mise à jour du titre et de la catégorie."
@@ -219,13 +356,8 @@ const LiveSetupPage = () => {
     }
   }
 
-  // Extract { success, reason } from a supabase.functions.invoke result —
-  // when the edge function returns non-2xx, supabase-js sets `data: null`
-  // and stores the body on `error.context`. Read it so we never silently
-  // claim success and always surface the real reason.
-  async function readInvokeOutcome(
-    data: unknown, error: unknown,
-  ): Promise<{ success: boolean; reason?: string }> {
+  async function readInvokeOutcome(data: unknown, error: unknown):
+  Promise<{ success: boolean; reason?: string }> {
     if (data && typeof data === "object") {
       const d = data as { success?: boolean; reason?: string };
       if (typeof d.success === "boolean") return { success: d.success, reason: d.reason };
@@ -253,15 +385,12 @@ const LiveSetupPage = () => {
     setPushingTwitch(true);
     try {
       const { data, error } = await supabase.functions.invoke("twitch-update-channel", {
-        body: {
-          live_session_id: sessionId,
-          title,
-          category,
-          language: input.language || undefined,
-        },
+        body: { live_session_id: sessionId, title, category, language: input.language || undefined },
       });
       const outcome = await readInvokeOutcome(data, error);
       if (!outcome.success) { handlePushError(outcome.reason, "twitch", category); return; }
+      // Push success = Twitch is "done", so unset the skip flag.
+      if (skipTwitch) setSkipTwitch(false);
       toast.success("Twitch mis à jour");
       void refetch();
     } catch (e) {
@@ -273,12 +402,10 @@ const LiveSetupPage = () => {
     if (!youtubeConnected) { toast.error("YouTube non connecté"); return; }
     const title = metadata.youtube.title.trim();
     if (!title) { toast.error("Renseigne un titre pour créer le live YouTube"); return; }
-    // YouTube rejects scheduled times in the past — validate before invoking.
     if (input.scheduledAt) {
       const t = Date.parse(input.scheduledAt);
       if (!Number.isFinite(t) || t < Date.now() - 60_000) {
-        toast.error("La date programmée doit être dans le futur.");
-        return;
+        toast.error("La date programmée doit être dans le futur."); return;
       }
     }
     const sessionId = await ensureSavedSession();
@@ -287,8 +414,7 @@ const LiveSetupPage = () => {
     try {
       const { data, error } = await supabase.functions.invoke("youtube-create-live-broadcast", {
         body: {
-          live_session_id: sessionId,
-          title,
+          live_session_id: sessionId, title,
           description: metadata.youtube.description,
           scheduled_start_time: input.scheduledAt || undefined,
           privacy_status: ytPrivacy,
@@ -297,6 +423,7 @@ const LiveSetupPage = () => {
       });
       const outcome = await readInvokeOutcome(data, error);
       if (!outcome.success) { handlePushError(outcome.reason, "youtube"); return; }
+      if (skipYouTube) setSkipYouTube(false);
       toast.success(
         ytPrivacy === "private" ? "Live YouTube créé (privé)"
         : ytPrivacy === "unlisted" ? "Live YouTube créé (non listé)"
@@ -308,25 +435,90 @@ const LiveSetupPage = () => {
     } finally { setPushingYouTube(false); }
   }
 
+  async function handleMarkReadyToGo() {
+    if (!readyToGo.all) {
+      toast.error("Termine d'abord toutes les étapes du plan de lancement.");
+      return;
+    }
+    setMarkingReady(true);
+    try {
+      const existing = (editingSession?.generated_metadata ?? {}) as Record<string, unknown>;
+      const extras: LiveSetupV2Extras = {
+        preset: presetId, obs_checklist: obsChecklist,
+        skip_twitch: skipTwitch, skip_youtube: skipYouTube,
+        title_confirmed: titleConfirmed,
+        ready_to_go_at: new Date().toISOString(),
+      };
+      const metaPayload = {
+        ...metadata,
+        ...(existing.twitch_push ? { twitch_push: existing.twitch_push } : {}),
+        ...(existing.youtube_push ? { youtube_push: existing.youtube_push } : {}),
+        live_setup_v2: extras,
+      } as GeneratedMetadata & Record<string, unknown>;
+      await saveSession({
+        id: editingId ?? undefined,
+        input, metadata: metaPayload,
+        checklist: preliveChecklist, status: "ready_to_go",
+      });
+      toast.success("Prêt à lancer 🚀 Ouvre OBS et démarre ton stream.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally { setMarkingReady(false); }
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <AppShell>
       <PageContainer size="lg">
         <PageHeader
           eyebrow="Cockpit pré-live"
           title="Live Setup"
-          description="Prépare ton live une seule fois, adapte-le à chaque plateforme et évite les titres copiés-collés partout."
-          action={
-            editingId ? (
-              <Button variant="outline" size="sm" onClick={resetForm}>
-                Nouvelle session
-              </Button>
-            ) : null
-          }
+          description="Configure ton live, valide ton matos OBS, et lance-toi avec un seul réflexe : ouvrir OBS."
+          action={editingId ? (
+            <Button variant="outline" size="sm" onClick={resetForm}>Nouvelle session</Button>
+          ) : null}
         />
 
         <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
-          {/* ── LEFT: Form + checklist ─────────────────────────────────────── */}
+          {/* ── LEFT: Form + presets + checklist + OBS assistant ─────────── */}
           <div className="space-y-6">
+            {/* Preset selector */}
+            <Card className="border-border/60 bg-card/60 backdrop-blur">
+              <CardContent className="space-y-4 p-6">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Settings2 className="h-4 w-4 text-primary" />
+                  Type de live (preset)
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Choisis un preset pour adapter automatiquement la checklist OBS, le ton du titre,
+                  les moments à prévoir et les clips à viser.
+                </p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {LIVE_PRESETS.map((p) => {
+                    const active = presetId === p.id;
+                    return (
+                      <button
+                        key={p.id} type="button"
+                        onClick={() => setPresetId(active ? null : p.id)}
+                        className={cn(
+                          "rounded-md border p-3 text-left transition",
+                          active
+                            ? "border-primary bg-primary/10"
+                            : "border-border/60 bg-card hover:border-border",
+                        )}
+                      >
+                        <div className="text-sm font-medium text-foreground">{p.label}</div>
+                        <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                          {p.description}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Idea form */}
             <Card className="border-border/60 bg-card/60 backdrop-blur">
               <CardContent className="space-y-5 p-6">
                 <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -337,9 +529,8 @@ const LiveSetupPage = () => {
                 <div className="space-y-2">
                   <Label htmlFor="titleRaw">Titre brut / idée du live</Label>
                   <Input
-                    id="titleRaw"
-                    value={input.titleRaw}
-                    onChange={(e) => setInput({ ...input, titleRaw: e.target.value })}
+                    id="titleRaw" value={input.titleRaw}
+                    onChange={(e) => { setInput({ ...input, titleRaw: e.target.value }); setTitleConfirmed(false); }}
                     placeholder="Ex : Ranked tryhard jusqu'à Diamant"
                     maxLength={140}
                   />
@@ -349,44 +540,34 @@ const LiveSetupPage = () => {
                   <div className="space-y-2">
                     <Label htmlFor="game">Jeu ou catégorie</Label>
                     <Input
-                      id="game"
-                      value={input.gameCategory}
+                      id="game" value={input.gameCategory}
                       onChange={(e) => setInput({ ...input, gameCategory: e.target.value })}
-                      placeholder="Ex : Valorant"
-                      maxLength={80}
+                      placeholder="Ex : Valorant" maxLength={80}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="objective">Objectif du live</Label>
                     <Input
-                      id="objective"
-                      value={input.objective}
+                      id="objective" value={input.objective}
                       onChange={(e) => setInput({ ...input, objective: e.target.value })}
-                      placeholder="Ex : monter Diamant 2"
-                      maxLength={120}
+                      placeholder="Ex : monter Diamant 2" maxLength={120}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="tone">Ton souhaité</Label>
-                    <Select
-                      value={input.tone || undefined}
-                      onValueChange={(v) => setInput({ ...input, tone: v as LiveTone })}
-                    >
+                    <Select value={input.tone || undefined}
+                      onValueChange={(v) => setInput({ ...input, tone: v as LiveTone })}>
                       <SelectTrigger id="tone"><SelectValue placeholder="Choisir un ton" /></SelectTrigger>
                       <SelectContent>
-                        {TONES.map(t => (
-                          <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                        ))}
+                        {TONES.map(t => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lang">Langue</Label>
-                    <Select
-                      value={input.language}
-                      onValueChange={(v) => setInput({ ...input, language: v })}
-                    >
+                    <Select value={input.language}
+                      onValueChange={(v) => setInput({ ...input, language: v })}>
                       <SelectTrigger id="lang"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fr">Français</SelectItem>
@@ -399,19 +580,16 @@ const LiveSetupPage = () => {
                   <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="audience">Audience cible</Label>
                     <Input
-                      id="audience"
-                      value={input.targetAudience}
+                      id="audience" value={input.targetAudience}
                       onChange={(e) => setInput({ ...input, targetAudience: e.target.value })}
-                      placeholder="Ex : joueurs FR niveau intermédiaire"
-                      maxLength={160}
+                      placeholder="Ex : joueurs FR niveau intermédiaire" maxLength={160}
                     />
                   </div>
 
                   <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="scheduled">Date / heure (optionnel)</Label>
                     <Input
-                      id="scheduled"
-                      type="datetime-local"
+                      id="scheduled" type="datetime-local"
                       value={input.scheduledAt ? input.scheduledAt.slice(0, 16) : ""}
                       onChange={(e) => setInput({
                         ...input,
@@ -428,8 +606,7 @@ const LiveSetupPage = () => {
                       const active = input.platforms.includes(value);
                       return (
                         <button
-                          key={value}
-                          type="button"
+                          key={value} type="button"
                           onClick={() => !soon && togglePlatform(value)}
                           disabled={soon}
                           className={cn(
@@ -462,39 +639,115 @@ const LiveSetupPage = () => {
               </CardContent>
             </Card>
 
-            {/* Checklist */}
+            {/* OBS Assistant */}
+            <Card className="border-border/60">
+              <CardContent className="space-y-5 p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <MonitorPlay className="h-4 w-4 text-primary" />
+                    OBS Assistant
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {obsProgress.done}/{obsProgress.total}
+                  </Badge>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <TechBlock label="Résolution" value={activePreset?.obsTechnical.resolution ?? "1920x1080"} />
+                  <TechBlock label="FPS" value={activePreset?.obsTechnical.fps ?? "60 fps"} />
+                  <TechBlock label="Bitrate" value={activePreset?.obsTechnical.bitrateKbps ?? "6000 kbps"} />
+                  <TechBlock label="Encodeur" value={activePreset?.obsTechnical.encoder ?? "NVENC (recommandé)"} />
+                </div>
+                {activePreset?.obsTechnical.notes && (
+                  <p className="rounded-md border border-border/60 bg-muted/30 p-2.5 text-xs text-muted-foreground">
+                    {activePreset.obsTechnical.notes}
+                  </p>
+                )}
+
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="h-full bg-primary transition-all"
+                    style={{ width: `${obsProgress.pct}%` }} />
+                </div>
+
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {obsItems.map((item) => (
+                    <li key={item.id} className="flex items-start gap-2">
+                      <Checkbox
+                        id={`obs-${item.id}`}
+                        checked={!!obsChecklist[item.id]}
+                        onCheckedChange={(v) =>
+                          setObsChecklist((prev) => ({ ...prev, [item.id]: v === true }))
+                        }
+                      />
+                      <Label htmlFor={`obs-${item.id}`}
+                        className={cn(
+                          "cursor-pointer text-xs leading-tight",
+                          obsChecklist[item.id] ? "text-muted-foreground line-through" : "text-foreground",
+                        )}
+                      >
+                        {item.label}
+                      </Label>
+                    </li>
+                  ))}
+                </ul>
+
+                {activePreset && (
+                  <div className="grid gap-4 pt-2 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <Flag className="h-3.5 w-3.5 text-primary" /> Moments à prévoir
+                      </div>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        {activePreset.momentsToPlan.map((m, i) => (
+                          <li key={i} className="flex gap-1.5"><span>•</span><span>{m}</span></li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <Film className="h-3.5 w-3.5 text-primary" /> Clips à viser
+                      </div>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        {activePreset.clipRecommendations.map((c, i) => (
+                          <li key={i} className="flex gap-1.5"><span>•</span><span>{c}</span></li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Pre-live checklist */}
             <Card className="border-border/60">
               <CardContent className="space-y-4 p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <ListChecks className="h-4 w-4 text-primary" />
-                    Checklist avant live
+                    Checklist générale
                   </div>
                   <Badge variant="outline" className="text-xs">
-                    {checklistProgress.done}/{checklistProgress.total}
+                    {preliveProgress.done}/{preliveProgress.total}
                   </Badge>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full bg-primary transition-all"
-                    style={{ width: `${checklistProgress.pct}%` }}
-                  />
+                  <div className="h-full bg-primary transition-all"
+                    style={{ width: `${preliveProgress.pct}%` }} />
                 </div>
                 <ul className="space-y-2">
                   {DEFAULT_CHECKLIST_ITEMS.map((item) => (
                     <li key={item.id} className="flex items-center gap-3">
                       <Checkbox
                         id={`chk-${item.id}`}
-                        checked={!!checklist[item.id]}
+                        checked={!!preliveChecklist[item.id]}
                         onCheckedChange={(v) =>
-                          setChecklist((prev) => ({ ...prev, [item.id]: v === true }))
+                          setPreliveChecklist((prev) => ({ ...prev, [item.id]: v === true }))
                         }
                       />
-                      <Label
-                        htmlFor={`chk-${item.id}`}
+                      <Label htmlFor={`chk-${item.id}`}
                         className={cn(
                           "cursor-pointer text-sm",
-                          checklist[item.id] ? "text-muted-foreground line-through" : "text-foreground",
+                          preliveChecklist[item.id] ? "text-muted-foreground line-through" : "text-foreground",
                         )}
                       >
                         {item.label}
@@ -506,8 +759,9 @@ const LiveSetupPage = () => {
             </Card>
           </div>
 
-          {/* ── RIGHT: Preview + actions + saved sessions ─────────────────── */}
+          {/* ── RIGHT: Preview + actions + launch plan + sessions ────────── */}
           <div className="space-y-6">
+            {/* Generated metadata */}
             <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -539,17 +793,19 @@ const LiveSetupPage = () => {
                       labelMissing="Connecte Twitch"
                       onPush={handlePushTwitch}
                     />
-                    <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.twitch_push} platform="twitch" />
-
+                    <SkipToggle
+                      label="Je préfère configurer Twitch manuellement"
+                      checked={skipTwitch}
+                      disabled={twitchDone}
+                      onChange={setSkipTwitch}
+                    />
+                    <PushHistory entry={twitchPush} platform="twitch" />
                   </TabsContent>
 
                   <TabsContent value="youtube" className="space-y-3 pt-4">
                     <PreviewField label="Titre YouTube" value={metadata.youtube.title} />
                     <PreviewField label="Description" value={metadata.youtube.description} multiline />
-                    <PreviewField
-                      label="Tags"
-                      value={metadata.youtube.tags.join(", ") || "—"}
-                    />
+                    <PreviewField label="Tags" value={metadata.youtube.tags.join(", ") || "—"} />
                     <div className="flex items-center gap-2">
                       <Label className="text-xs uppercase tracking-wide text-muted-foreground">Confidentialité</Label>
                       <Select value={ytPrivacy} onValueChange={(v) => setYtPrivacy(v as typeof ytPrivacy)}>
@@ -574,10 +830,14 @@ const LiveSetupPage = () => {
                       labelMissing="Connecte YouTube"
                       onPush={handlePushYouTube}
                     />
-
-                    <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.youtube_push} platform="youtube" />
+                    <SkipToggle
+                      label="Je préfère configurer YouTube manuellement"
+                      checked={skipYouTube}
+                      disabled={youtubeDone}
+                      onChange={setSkipYouTube}
+                    />
+                    <PushHistory entry={youtubePush} platform="youtube" />
                   </TabsContent>
-
 
                   <TabsContent value="kick" className="space-y-3 pt-4">
                     <PreviewField label="Titre Kick" value={metadata.kick.title} />
@@ -590,6 +850,88 @@ const LiveSetupPage = () => {
                     <PreviewField label="Post court" value={metadata.socialSummary} multiline />
                   </TabsContent>
                 </Tabs>
+              </CardContent>
+            </Card>
+
+            {/* Live Launch Plan */}
+            <Card className={cn(
+              "border-2 transition",
+              readyToGo.all
+                ? "border-emerald-500/40 bg-emerald-500/5"
+                : "border-primary/30 bg-gradient-to-br from-primary/5 to-transparent",
+            )}>
+              <CardContent className="space-y-4 p-6">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Rocket className="h-4 w-4 text-primary" />
+                  Plan de lancement
+                </div>
+
+                <ul className="space-y-2 text-sm">
+                  <LaunchStep
+                    done={readyToGo.twitchOk}
+                    label={twitchDone ? "Twitch configuré" : skipTwitch ? "Twitch ignoré (manuel)" : "Configurer Twitch"}
+                    detail={twitchDone
+                      ? `Titre : ${twitchPush?.title ?? metadata.twitch.title}${twitchPush?.game_name ? ` · ${twitchPush.game_name}` : ""}`
+                      : "Pousse les métadonnées Twitch, ou ignore pour configurer manuellement."}
+                  />
+                  <LaunchStep
+                    done={readyToGo.youtubeOk}
+                    label={youtubeDone ? "Live YouTube créé" : skipYouTube ? "YouTube ignoré (manuel)" : "Créer le live YouTube"}
+                    detail={youtubeDone
+                      ? `Titre : ${metadata.youtube.title}${youtubePush?.privacy_status ? ` · ${youtubePush.privacy_status}` : ""}`
+                      : "Crée le brouillon de live YouTube, ou ignore."}
+                    link={youtubePush?.youtube_watch_url
+                      ? { href: youtubePush.youtube_watch_url, label: "Ouvrir dans YouTube" }
+                      : youtubeDone
+                        ? { href: "https://studio.youtube.com/", label: "Ouvrir YouTube Studio" }
+                        : undefined}
+                  />
+                  <LaunchStep
+                    done={readyToGo.obsOk}
+                    label={`OBS prêt (${obsProgress.done}/${obsProgress.total})`}
+                    detail="Coche toute la checklist OBS ci-contre."
+                  />
+                  <LaunchStep
+                    done={readyToGo.titleOk}
+                    label="Titre final confirmé"
+                    detail={titleConfirmed
+                      ? "Tu valides le titre final."
+                      : "Confirme que le titre final est celui que tu veux."}
+                    action={
+                      <Button
+                        size="sm" variant={titleConfirmed ? "outline" : "default"}
+                        onClick={() => setTitleConfirmed(v => !v)}
+                        disabled={!metadata.twitch.title.trim() && !metadata.youtube.title.trim()}
+                      >
+                        {titleConfirmed ? "Annuler" : "Confirmer"}
+                      </Button>
+                    }
+                  />
+                </ul>
+
+                <div className="rounded-md border border-border/60 bg-background/40 p-3 text-sm">
+                  {readyToGo.all ? (
+                    <p className="flex items-start gap-2 text-emerald-300">
+                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span><strong>Tout est prêt.</strong> Il ne te reste qu'à ouvrir OBS et démarrer ton stream.</span>
+                    </p>
+                  ) : (
+                    <p className="flex items-start gap-2 text-muted-foreground">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                      <span>Termine les étapes ci-dessus pour débloquer « Prêt à lancer ».</span>
+                    </p>
+                  )}
+                </div>
+
+                <Button
+                  className="w-full"
+                  disabled={!readyToGo.all || markingReady}
+                  onClick={handleMarkReadyToGo}
+                >
+                  {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                : <Rocket className="mr-1.5 h-4 w-4" />}
+                  Marquer comme « prêt à lancer »
+                </Button>
               </CardContent>
             </Card>
 
@@ -611,40 +953,46 @@ const LiveSetupPage = () => {
                   </p>
                 ) : (
                   <ul className="space-y-2">
-                    {sessions.map((s) => (
-                      <li
-                        key={s.id}
-                        className={cn(
-                          "group flex items-center gap-3 rounded-md border p-3 transition",
-                          editingId === s.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border/60 hover:border-border",
-                        )}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => loadSession(s)}
-                          className="min-w-0 flex-1 text-left"
+                    {sessions.map((s) => {
+                      const meta = s.generated_metadata as Record<string, unknown> | undefined;
+                      const tp = meta?.twitch_push as PushEntry | undefined;
+                      const yp = meta?.youtube_push as PushEntry | undefined;
+                      const extras = readExtras(meta);
+                      const actions: string[] = [];
+                      if (tp?.status === "success") actions.push("Twitch ✓");
+                      if (yp?.status === "success") actions.push("YouTube ✓");
+                      if (extras.skip_twitch && !tp) actions.push("Twitch ignoré");
+                      if (extras.skip_youtube && !yp) actions.push("YouTube ignoré");
+                      return (
+                        <li
+                          key={s.id}
+                          className={cn(
+                            "group flex items-center gap-3 rounded-md border p-3 transition",
+                            editingId === s.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border/60 hover:border-border",
+                          )}
                         >
-                          <p className="truncate text-sm font-medium text-foreground">
-                            {s.title_raw || s.game_category || "Sans titre"}
-                          </p>
-                          <p className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                            <StatusPill status={s.status} />
-                            {s.game_category && <span className="truncate">· {s.game_category}</span>}
-                          </p>
-                        </button>
-                        <Button
-                          variant="ghost" size="icon"
-                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                          onClick={() => handleDelete(s.id)}
-                          aria-label="Supprimer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      </li>
-                    ))}
+                          <button type="button" onClick={() => loadSession(s)}
+                            className="min-w-0 flex-1 text-left">
+                            <p className="truncate text-sm font-medium text-foreground">
+                              {s.title_raw || s.game_category || "Sans titre"}
+                            </p>
+                            <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                              <StatusPill status={s.status} />
+                              {s.game_category && <span className="truncate">· {s.game_category}</span>}
+                              {actions.length > 0 && <span>· {actions.join(" · ")}</span>}
+                            </p>
+                          </button>
+                          <Button variant="ghost" size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDelete(s.id)} aria-label="Supprimer">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </CardContent>
@@ -653,8 +1001,9 @@ const LiveSetupPage = () => {
             <Card className="border-dashed border-border/60 bg-muted/20">
               <CardContent className="p-4 text-xs text-muted-foreground">
                 <Rocket className="mb-1.5 inline h-3.5 w-3.5 text-primary" />{" "}
-                Le vrai bouton « Lancer le live partout » arrivera plus tard. Pour cette V1 : prépare,
-                copie/colle, et configure tes plateformes connectées depuis{" "}
+                Streamnco ne contrôle pas OBS et ne fait pas de multistreaming.
+                Cette page t'aide à arriver « prêt à lancer » avant d'ouvrir OBS.
+                Connecte tes plateformes depuis{" "}
                 <Link to="/reseaux" className="text-primary underline-offset-2 hover:underline">
                   Réseaux
                 </Link>.
@@ -673,11 +1022,9 @@ function PreviewField({ label, value, multiline = false }: { label: string; valu
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
         <Label className="text-xs uppercase tracking-wide text-muted-foreground">{label}</Label>
-        <Button
-          variant="ghost" size="sm"
+        <Button variant="ghost" size="sm"
           className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-          onClick={() => copy(value)}
-        >
+          onClick={() => copy(value)}>
           <Copy className="mr-1 h-3 w-3" /> Copier
         </Button>
       </div>
@@ -690,15 +1037,31 @@ function PreviewField({ label, value, multiline = false }: { label: string; valu
   );
 }
 
-interface PushEntry {
-  pushed_at?: string;
-  created_at?: string;
-  status?: string;
-  title?: string;
-  game_name?: string;
-  youtube_broadcast_id?: string;
-  youtube_watch_url?: string;
-  privacy_status?: string;
+function TechBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-border/60 bg-background/40 p-2.5">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-sm font-medium text-foreground">{value}</div>
+    </div>
+  );
+}
+
+function SkipToggle({ label, checked, disabled, onChange }: {
+  label: string; checked: boolean; disabled?: boolean; onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className={cn(
+      "flex items-center gap-2 rounded-md border border-dashed border-border/60 bg-muted/20 p-2 text-xs",
+      disabled ? "opacity-60" : "cursor-pointer hover:border-border",
+    )}>
+      <Checkbox
+        checked={checked}
+        disabled={disabled}
+        onCheckedChange={(v) => onChange(v === true)}
+      />
+      <span className="text-muted-foreground">{label}</span>
+    </label>
+  );
 }
 
 function PushActionRow({
@@ -716,12 +1079,7 @@ function PushActionRow({
         <span>{connected ? labelConnected : labelMissing}</span>
       </div>
       {connected ? (
-        <Button
-          size="sm"
-          onClick={onPush}
-          disabled={busy || disabled}
-          title={disabledReason}
-        >
+        <Button size="sm" onClick={onPush} disabled={busy || disabled} title={disabledReason}>
           {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                 : <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />}
           {busy ? "Envoi…" : "Envoyer"}
@@ -737,7 +1095,6 @@ function PushActionRow({
     </div>
   );
 }
-
 
 function PushHistory({ entry, platform }: { entry?: PushEntry; platform: "twitch" | "youtube" }) {
   if (!entry) return null;
@@ -760,10 +1117,8 @@ function PushHistory({ entry, platform }: { entry?: PushEntry; platform: "twitch
           <p className="text-muted-foreground">Catégorie : {entry.game_name}</p>
         )}
         {platform === "youtube" && entry.youtube_watch_url && (
-          <a
-            href={entry.youtube_watch_url} target="_blank" rel="noreferrer"
-            className="inline-flex items-center gap-1 text-primary hover:underline"
-          >
+          <a href={entry.youtube_watch_url} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1 text-primary hover:underline">
             Ouvrir dans YouTube <ExternalLink className="h-3 w-3" />
           </a>
         )}
@@ -772,12 +1127,41 @@ function PushHistory({ entry, platform }: { entry?: PushEntry; platform: "twitch
   );
 }
 
+function LaunchStep({
+  done, label, detail, link, action,
+}: {
+  done: boolean; label: string; detail?: string;
+  link?: { href: string; label: string };
+  action?: React.ReactNode;
+}) {
+  return (
+    <li className="flex items-start gap-3 rounded-md border border-border/60 bg-background/40 p-3">
+      {done
+        ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+        : <CircleDashed className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />}
+      <div className="min-w-0 flex-1">
+        <p className={cn("text-sm font-medium", done ? "text-foreground" : "text-foreground/90")}>
+          {label}
+        </p>
+        {detail && <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>}
+        {link && (
+          <a href={link.href} target="_blank" rel="noreferrer"
+            className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+            {link.label} <ExternalLink className="h-3 w-3" />
+          </a>
+        )}
+      </div>
+      {action}
+    </li>
+  );
+}
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     draft: { label: "Brouillon", cls: "border-border bg-muted text-muted-foreground" },
     ready: { label: "Prêt", cls: "border-primary/40 bg-primary/10 text-primary" },
     pushed: { label: "Poussé", cls: "border-blue-500/40 bg-blue-500/10 text-blue-400" },
+    ready_to_go: { label: "Prêt à lancer", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" },
     completed: { label: "Terminé", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" },
   };
   const s = map[status] ?? map.draft;
