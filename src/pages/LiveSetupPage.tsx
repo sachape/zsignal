@@ -631,28 +631,77 @@ function PreviewField({ label, value, multiline = false }: { label: string; valu
   );
 }
 
-function PlatformActionRow({
-  icon, label, connected, onClick,
-}: { icon: React.ReactNode; label: string; connected: boolean; onClick: () => void }) {
+interface PushEntry {
+  pushed_at?: string;
+  created_at?: string;
+  status?: string;
+  title?: string;
+  game_name?: string;
+  youtube_broadcast_id?: string;
+  youtube_watch_url?: string;
+  privacy_status?: string;
+}
+
+function PushActionRow({
+  icon, connected, busy, labelConnected, labelMissing, onPush,
+}: {
+  icon: React.ReactNode; connected: boolean; busy: boolean;
+  labelConnected: string; labelMissing: string; onPush: () => void;
+}) {
   return (
     <div className="flex items-center justify-between rounded-md border border-border/60 bg-background/40 p-3">
       <div className="flex items-center gap-2 text-sm">
         {icon}
-        <span>{label}</span>
+        <span>{connected ? labelConnected : labelMissing}</span>
       </div>
       {connected ? (
-        <Button size="sm" variant="outline" onClick={onClick}>
-          <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-primary" />
-          Préparer
+        <Button size="sm" onClick={onPush} disabled={busy}>
+          {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                : <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />}
+          {busy ? "Envoi…" : "Envoyer"}
         </Button>
       ) : (
-        <Button size="sm" variant="ghost" asChild>
+        <Button size="sm" variant="outline" asChild>
           <Link to="/reseaux">Connecter</Link>
         </Button>
       )}
     </div>
   );
 }
+
+function PushHistory({ entry, platform }: { entry?: PushEntry; platform: "twitch" | "youtube" }) {
+  if (!entry) return null;
+  const ts = entry.pushed_at ?? entry.created_at;
+  const date = ts ? new Date(ts).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "";
+  const ok = entry.status === "success";
+  return (
+    <div className={cn(
+      "flex items-start gap-2 rounded-md border p-2.5 text-xs",
+      ok ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
+         : "border-amber-500/30 bg-amber-500/5 text-amber-300",
+    )}>
+      {ok ? <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          : <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="font-medium">
+          {platform === "twitch" ? "Twitch mis à jour" : "Live YouTube créé"} · {date}
+        </p>
+        {platform === "twitch" && entry.game_name && (
+          <p className="text-muted-foreground">Catégorie : {entry.game_name}</p>
+        )}
+        {platform === "youtube" && entry.youtube_watch_url && (
+          <a
+            href={entry.youtube_watch_url} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1 text-primary hover:underline"
+          >
+            Ouvrir dans YouTube <ExternalLink className="h-3 w-3" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
