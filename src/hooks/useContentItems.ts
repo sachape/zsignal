@@ -9,8 +9,9 @@ export type ContentPlatform =
   | "community"
   | "twitch_clip";
 
-export type ContentStatus = "idea" | "to_produce" | "ready" | "published" | "ignored";
+export type ContentStatus = "idea" | "to_produce" | "ready" | "uploaded" | "published" | "ignored";
 export type ContentPriority = "low" | "medium" | "high";
+export type YouTubePrivacyStatus = "private" | "unlisted" | "public";
 
 export interface ContentItem {
   id: string;
@@ -29,6 +30,10 @@ export interface ContentItem {
   format: string | null;
   duration: string | null;
   reason: string | null;
+  youtube_video_id: string | null;
+  youtube_url: string | null;
+  youtube_uploaded_at: string | null;
+  youtube_privacy_status: YouTubePrivacyStatus | null;
   created_at: string;
   updated_at: string;
 }

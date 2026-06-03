@@ -615,6 +615,10 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          youtube_privacy_status: string | null
+          youtube_uploaded_at: string | null
+          youtube_url: string | null
+          youtube_video_id: string | null
         }
         Insert: {
           created_at?: string
@@ -635,6 +639,10 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id: string
+          youtube_privacy_status?: string | null
+          youtube_uploaded_at?: string | null
+          youtube_url?: string | null
+          youtube_video_id?: string | null
         }
         Update: {
           created_at?: string
@@ -655,6 +663,10 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          youtube_privacy_status?: string | null
+          youtube_uploaded_at?: string | null
+          youtube_url?: string | null
+          youtube_video_id?: string | null
         }
         Relationships: []
       }

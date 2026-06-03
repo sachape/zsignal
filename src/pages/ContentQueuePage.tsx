@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
-  Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard,
+  Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -22,6 +22,8 @@ import {
   useContentItems, type ContentItem, type ContentPlatform,
   type ContentPriority, type ContentStatus,
 } from "@/hooks/useContentItems";
+import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
+import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -35,6 +37,7 @@ const STATUS_META: Record<ContentStatus, { label: string; cls: string }> = {
   idea: { label: "Idée", cls: "border-border bg-muted text-muted-foreground" },
   to_produce: { label: "À produire", cls: "border-amber-500/40 bg-amber-500/10 text-amber-300" },
   ready: { label: "Prêt", cls: "border-primary/40 bg-primary/10 text-primary" },
+  uploaded: { label: "Uploadé", cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
   published: { label: "Publié", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
   ignored: { label: "Ignoré", cls: "border-border/40 bg-muted/40 text-muted-foreground/60" },
 };
@@ -74,9 +77,16 @@ function buildCopyPayload(item: ContentItem): string {
 }
 
 const ContentQueuePage = () => {
-  const { items, loading, updateItem, deleteItem } = useContentItems();
+  const { items, loading, updateItem, deleteItem, refetch } = useContentItems();
+  const { accounts } = useConnectedNetworks();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
+  const [uploadItem, setUploadItem] = useState<ContentItem | null>(null);
+
+  const youtubeAccount = accounts.find(a => a.platform === "youtube");
+  const youtubeConnected = youtubeAccount?.connection_status === "connected";
+  const goReconnectYouTube = () => navigate("/reseaux");
 
   const filtered = useMemo(() => {
     return items.filter(i => {
@@ -160,6 +170,8 @@ const ContentQueuePage = () => {
           <div className="space-y-3">
             {filtered.map(item => (
               <ContentRow key={item.id} item={item}
+                youtubeConnected={youtubeConnected}
+                onUpload={() => setUploadItem(item)}
                 onUpdate={(patch) => updateItem(item.id, patch).catch(e => toast.error(e.message))}
                 onDelete={() => {
                   if (confirm("Supprimer ce contenu ?")) {
@@ -169,6 +181,17 @@ const ContentQueuePage = () => {
               />
             ))}
           </div>
+        )}
+
+        {uploadItem && (
+          <YouTubeUploadDialog
+            item={uploadItem}
+            open={!!uploadItem}
+            onOpenChange={(o) => { if (!o) setUploadItem(null); }}
+            youtubeConnected={youtubeConnected}
+            onReconnect={goReconnectYouTube}
+            onUploaded={() => { refetch(); }}
+          />
         )}
       </PageContainer>
     </AppShell>
@@ -192,11 +215,13 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete,
+  item, onUpdate, onDelete, youtubeConnected, onUpload,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
   onDelete: () => void;
+  youtubeConnected: boolean;
+  onUpload: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
@@ -340,7 +365,13 @@ function ContentRow({
               </SelectContent>
             </Select>
           </div>
-          <div className="ml-auto flex items-center gap-2 text-[10px] text-muted-foreground">
+          <div className="ml-auto flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+            {item.youtube_url && (
+              <a href={item.youtube_url} target="_blank" rel="noreferrer noopener"
+                className="inline-flex items-center gap-1 text-primary hover:underline">
+                Voir sur YouTube <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
             {item.published_at && (
               <span className="inline-flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3 text-emerald-400" />
@@ -351,6 +382,18 @@ function ContentRow({
               <Link to="/live-setup" className="inline-flex items-center gap-1 text-primary hover:underline">
                 Live source <ExternalLink className="h-3 w-3" />
               </Link>
+            )}
+            {item.platform === "youtube_shorts" && item.status !== "ignored" && (
+              <Button
+                size="sm"
+                variant={youtubeConnected ? "default" : "outline"}
+                className="h-7 px-2 text-[11px]"
+                onClick={onUpload}
+                title={youtubeConnected ? "Uploader sur YouTube" : "Connecte YouTube pour uploader"}
+              >
+                <Upload className="mr-1 h-3 w-3" />
+                {item.youtube_video_id ? "Réuploader" : "Uploader sur YouTube"}
+              </Button>
             )}
             {item.status !== "published" && item.status !== "ignored" && (
               <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]"
