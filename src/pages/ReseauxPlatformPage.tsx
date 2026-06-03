@@ -149,9 +149,17 @@ export default function ReseauxPlatformPage() {
           : `${recent} vidéo${recent > 1 ? "s" : ""} publiée${recent > 1 ? "s" : ""} ces 30 derniers jours. Continue sur cette lancée.`;
     }
     if (platform === "tiktok") {
+      if (status === "connected") {
+        const recent = metrics?.recent_posts_count;
+        return recent == null
+          ? "TikTok est connecté. Synchronise pour voir tes vidéos récentes."
+          : recent === 0
+            ? "Ton TikTok est connecté, mais ton contenu court est sous-exploité. Priorité : publier 2 à 3 vidéos issues de tes meilleurs lives."
+            : `${recent} vidéo${recent > 1 ? "s" : ""} TikTok publiée${recent > 1 ? "s" : ""} ces 30 derniers jours. TikTok peut devenir ton canal d'acquisition principal hors live.`;
+      }
       return status === "manual"
-        ? "TikTok est ajouté manuellement. Il peut devenir ton canal d'acquisition court format le plus puissant."
-        : "Ajoute ton profil TikTok pour le suivre dans ton écosystème créateur.";
+        ? "TikTok est ajouté manuellement. Connecte-le via OAuth pour récupérer tes vidéos et métriques."
+        : "Connecte TikTok pour mesurer si tes lives se transforment en contenu court découvrable.";
     }
     if (platform === "instagram") {
       return status === "manual"
