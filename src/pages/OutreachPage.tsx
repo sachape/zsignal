@@ -153,14 +153,14 @@ const OutreachPage = () => {
           setRows((prev) =>
             prev.map((r) => {
               if (r.login !== login) return r;
-              if (!result.ok) {
+              if (result.ok === false) {
                 return {
                   ...r,
                   status: result.reason === "not_found" ? "not_found" : "error",
                   error: result.reason === "not_found" ? "Chaîne introuvable" : "Erreur API",
                 };
               }
-              return { ...r, status: "done", report: result.record.report.report };
+              return { ...r, status: "done", report: result.record.report };
             }),
           );
         }),
