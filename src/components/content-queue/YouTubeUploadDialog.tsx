@@ -202,7 +202,9 @@ const YouTubeUploadDialog = ({
         ) : (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Fichier vidéo (.mp4 ou .mov, max {MAX_BYTES / 1024 / 1024} Mo)</Label>
+              <Label className="text-xs">
+                Fichier vidéo (.mp4 ou .mov, max {MAX_BYTES / 1024 / 1024} Mo · recommandé ≤ {RECOMMENDED_BYTES / 1024 / 1024} Mo)
+              </Label>
               <Input
                 type="file"
                 accept={ACCEPT}
@@ -212,6 +214,11 @@ const YouTubeUploadDialog = ({
               {file && (
                 <p className="text-[11px] text-muted-foreground">
                   {file.name} · {formatBytes(file.size)}
+                  {file.size > RECOMMENDED_BYTES && (
+                    <span className="ml-1 text-amber-400">
+                      · Fichier volumineux, le transfert peut être long.
+                    </span>
+                  )}
                 </p>
               )}
             </div>
