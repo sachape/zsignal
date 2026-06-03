@@ -24,6 +24,7 @@ interface Props {
 }
 
 const MAX_BYTES = 128 * 1024 * 1024;
+const RECOMMENDED_BYTES = 50 * 1024 * 1024;
 const ACCEPT = ".mp4,.mov,video/mp4,video/quicktime";
 
 function formatBytes(b: number) {
@@ -67,6 +68,7 @@ const YouTubeUploadDialog = ({
   const [privacy, setPrivacy] = useState<YouTubePrivacyStatus>("private");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<"idle" | "uploading" | "transferring">("idle");
   const [errorReason, setErrorReason] = useState<string | null>(null);
   const [result, setResult] = useState<{ url: string; privacy: string } | null>(null);
 
@@ -74,6 +76,7 @@ const YouTubeUploadDialog = ({
     setFile(null);
     setUploading(false);
     setProgress(0);
+    setPhase("idle");
     setErrorReason(null);
     setResult(null);
   }
@@ -93,6 +96,7 @@ const YouTubeUploadDialog = ({
     setUploading(true);
     setErrorReason(null);
     setProgress(0);
+    setPhase("uploading");
 
     try {
       const { data: session } = await supabase.auth.getSession();
@@ -100,6 +104,7 @@ const YouTubeUploadDialog = ({
       if (!token) {
         setErrorReason("token_expired");
         setUploading(false);
+        setPhase("idle");
         return;
       }
 
@@ -113,13 +118,17 @@ const YouTubeUploadDialog = ({
 
       const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/youtube-upload-video`;
 
-      // XHR so we can track upload progress
+      // XHR so we can track upload progress (frontend -> edge function).
       const xhr = new XMLHttpRequest();
       xhr.open("POST", url, true);
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
       xhr.upload.onprogress = (evt) => {
         if (evt.lengthComputable) {
-          setProgress(Math.round((evt.loaded / evt.total) * 100));
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          setProgress(pct);
+          // Once the file has reached the edge function, we wait for the
+          // edge -> YouTube transfer (no progress event available).
+          if (pct >= 100) setPhase("transferring");
         }
       };
 
@@ -133,17 +142,21 @@ const YouTubeUploadDialog = ({
       let json: { success?: boolean; reason?: string; video_url?: string; privacy?: string } = {};
       try { json = JSON.parse(responseText); } catch { /* */ }
 
-      if (xhr.status >= 200 && xhr.status < 300 && json.success && json.video_url) {
+      // Only treat as success when YouTube actually returned a video URL.
+      if (xhr.status >= 200 && xhr.status < 300 && json.success === true && typeof json.video_url === "string" && json.video_url.length > 0) {
         setResult({ url: json.video_url, privacy: json.privacy ?? privacy });
         setProgress(100);
+        setPhase("idle");
         toast.success("Vidéo uploadée sur YouTube");
         onUploaded();
       } else {
         setErrorReason(json.reason ?? "upload_failed");
+        setPhase("idle");
       }
     } catch (e) {
       console.error("youtube upload error", e);
       setErrorReason("network");
+      setPhase("idle");
     } finally {
       setUploading(false);
     }
@@ -189,7 +202,9 @@ const YouTubeUploadDialog = ({
         ) : (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Fichier vidéo (.mp4 ou .mov, max {MAX_BYTES / 1024 / 1024} Mo)</Label>
+              <Label className="text-xs">
+                Fichier vidéo (.mp4 ou .mov, max {MAX_BYTES / 1024 / 1024} Mo · recommandé ≤ {RECOMMENDED_BYTES / 1024 / 1024} Mo)
+              </Label>
               <Input
                 type="file"
                 accept={ACCEPT}
@@ -199,6 +214,11 @@ const YouTubeUploadDialog = ({
               {file && (
                 <p className="text-[11px] text-muted-foreground">
                   {file.name} · {formatBytes(file.size)}
+                  {file.size > RECOMMENDED_BYTES && (
+                    <span className="ml-1 text-amber-400">
+                      · Fichier volumineux, le transfert peut être long.
+                    </span>
+                  )}
                 </p>
               )}
             </div>
@@ -234,12 +254,24 @@ const YouTubeUploadDialog = ({
             {uploading && (
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span>Envoi en cours…</span>
+                  <span>
+                    {phase === "transferring"
+                      ? "Transfert vers YouTube en cours… (peut prendre 30 s à plusieurs minutes)"
+                      : "Envoi du fichier vers Streamnco…"}
+                  </span>
                   <span className="tabular-nums">{progress}%</span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+                  <div
+                    className={`h-full transition-all ${phase === "transferring" ? "animate-pulse bg-primary/70" : "bg-primary"}`}
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
+                {phase === "transferring" && (
+                  <p className="text-[10px] text-muted-foreground/80">
+                    On attend la confirmation de YouTube. Ne ferme pas cette fenêtre.
+                  </p>
+                )}
               </div>
             )}
 

@@ -48,7 +48,7 @@ const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
   low: { label: "Faible", cls: "border-border bg-muted text-muted-foreground" },
 };
 
-type FilterKey = "all" | ContentPlatform | "high" | "to_produce" | "ready";
+type FilterKey = "all" | ContentPlatform | "high" | "to_produce" | "ready" | "uploaded";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "Tous" },
@@ -60,6 +60,7 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "high", label: "Priorité élevée" },
   { key: "to_produce", label: "À produire" },
   { key: "ready", label: "Prêt" },
+  { key: "uploaded", label: "Uploadé" },
 ];
 
 function copy(value: string) {
@@ -95,6 +96,7 @@ const ContentQueuePage = () => {
       if (filter === "high") return i.priority === "high";
       if (filter === "to_produce") return i.status === "to_produce";
       if (filter === "ready") return i.status === "ready";
+      if (filter === "uploaded") return i.status === "uploaded" || !!i.youtube_video_id;
       return i.platform === filter;
     });
   }, [items, filter, hideIgnored]);

@@ -520,6 +520,44 @@ const LiveSetupPage = () => {
     } finally { setEndingLive(false); }
   }
 
+  async function handleRegenerateBrief() {
+    if (!editingId || !isCompleted) {
+      toast.error("Le brief ne peut être régénéré que sur une session terminée.");
+      return;
+    }
+    if (!confirm("Régénérer le post-live brief ? L'ancien brief sera remplacé.")) return;
+    try {
+      const existing = (editingSession?.generated_metadata ?? {}) as Record<string, unknown>;
+      const prevExtras = (existing.live_setup_v2 ?? {}) as LiveSetupV2Extras;
+      const brief = generatePostLiveBrief({
+        input, metadata,
+        preset: activePreset,
+        twitchPushed: twitchDone,
+        twitchTitle: twitchPush?.title ?? null,
+        youtubeCreated: youtubeDone,
+        youtubeWatchUrl: youtubePush?.youtube_watch_url ?? null,
+      });
+      const extras: LiveSetupV2Extras = {
+        ...prevExtras,
+        post_live_brief: brief, // replaces existing brief, no duplicate
+      };
+      const metaPayload = {
+        ...metadata,
+        ...(existing.twitch_push ? { twitch_push: existing.twitch_push } : {}),
+        ...(existing.youtube_push ? { youtube_push: existing.youtube_push } : {}),
+        live_setup_v2: extras,
+      } as GeneratedMetadata & Record<string, unknown>;
+      await saveSession({
+        id: editingId, input, metadata: metaPayload,
+        checklist: preliveChecklist, status: "completed",
+      });
+      toast.success("Post-live brief régénéré ✅");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur lors de la régénération");
+    }
+  }
+
+
 
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -1011,7 +1049,12 @@ const LiveSetupPage = () => {
 
             {/* Post-live brief */}
             {existingBrief && (
-              <PostLiveBriefCard brief={existingBrief} liveSessionId={editingId} />
+              <PostLiveBriefCard
+                brief={existingBrief}
+                liveSessionId={editingId}
+                canRegenerate={isCompleted}
+                onRegenerate={handleRegenerateBrief}
+              />
             )}
 
             {/* Saved sessions */}
@@ -1285,7 +1328,20 @@ function ContentIdeaRow({ idea }: { idea: ContentIdea }) {
   );
 }
 
-function PostLiveBriefCard({ brief, liveSessionId }: { brief: PostLiveBrief; liveSessionId: string | null }) {
+function PostLiveBriefCard({
+  brief, liveSessionId, canRegenerate = false, onRegenerate,
+}: {
+  brief: PostLiveBrief;
+  liveSessionId: string | null;
+  canRegenerate?: boolean;
+  onRegenerate?: () => Promise<void> | void;
+}) {
+  const [regenerating, setRegenerating] = useState(false);
+  async function handleRegenerate() {
+    if (!onRegenerate) return;
+    setRegenerating(true);
+    try { await onRegenerate(); } finally { setRegenerating(false); }
+  }
   const generated = new Date(brief.generated_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
   const platforms = brief.summary.platforms_used.length > 0
     ? brief.summary.platforms_used.join(", ")
@@ -1331,7 +1387,17 @@ function PostLiveBriefCard({ brief, liveSessionId }: { brief: PostLiveBrief; liv
             <Flame className="h-4 w-4 text-emerald-400" />
             Post-live Brief
           </div>
-          <Badge variant="outline" className="text-xs">Généré le {generated}</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">Généré le {generated}</Badge>
+            {canRegenerate && onRegenerate && (
+              <Button size="sm" variant="outline" onClick={handleRegenerate} disabled={regenerating}>
+                {regenerating
+                  ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  : <Repeat2 className="mr-1.5 h-3.5 w-3.5" />}
+                Régénérer
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 bg-background/40 p-3">
