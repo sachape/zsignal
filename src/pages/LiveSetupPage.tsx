@@ -35,6 +35,11 @@ import {
 import {
   LIVE_PRESETS, getPreset, type LivePresetId, type ObsChecklistItem,
 } from "@/services/obsPresets";
+import {
+  generatePostLiveBrief, PLATFORM_LABEL, PRIORITY_LABEL,
+  type PostLiveBrief, type ContentIdea, type ContentPriority,
+} from "@/services/postLiveBrief";
+import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2 } from "lucide-react";
 
 const TONES: { value: LiveTone; label: string }[] = [
   { value: "chill", label: "Chill" },
