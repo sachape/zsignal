@@ -61,19 +61,22 @@ function reasonMessage(reason: string | undefined): { label: string; reconnect?:
 const YouTubeUploadDialog = ({
   item, open, onOpenChange, youtubeConnected, onReconnect, onUploaded,
 }: Props) => {
+  const hasGeneratedClip = !!item.generated_video_url;
   const [file, setFile] = useState<File | null>(null);
+  const [useGenerated, setUseGenerated] = useState<boolean>(hasGeneratedClip);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
   const [tagsRaw, setTagsRaw] = useState(item.hashtags.join(", "));
   const [privacy, setPrivacy] = useState<YouTubePrivacyStatus>("private");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [phase, setPhase] = useState<"idle" | "uploading" | "transferring">("idle");
+  const [phase, setPhase] = useState<"idle" | "fetching" | "uploading" | "transferring">("idle");
   const [errorReason, setErrorReason] = useState<string | null>(null);
   const [result, setResult] = useState<{ url: string; privacy: string } | null>(null);
 
   function reset() {
     setFile(null);
+    setUseGenerated(hasGeneratedClip);
     setUploading(false);
     setProgress(0);
     setPhase("idle");
@@ -92,10 +95,33 @@ const YouTubeUploadDialog = ({
   }
 
   async function startUpload() {
-    if (!file) { setErrorReason("invalid_file_type"); return; }
-    setUploading(true);
     setErrorReason(null);
     setProgress(0);
+
+    let uploadBlob: Blob | null = null;
+    let uploadName = "clip.mp4";
+
+    if (useGenerated && item.generated_video_url) {
+      setPhase("fetching");
+      setUploading(true);
+      try {
+        const res = await fetch(item.generated_video_url);
+        if (!res.ok) { setErrorReason("network"); setUploading(false); setPhase("idle"); return; }
+        const blob = await res.blob();
+        if (blob.size === 0) { setErrorReason("empty_file"); setUploading(false); setPhase("idle"); return; }
+        if (blob.size > MAX_BYTES) { setErrorReason("file_too_large"); setUploading(false); setPhase("idle"); return; }
+        uploadBlob = blob;
+        uploadName = `clip-${item.id}.mp4`;
+      } catch {
+        setErrorReason("network"); setUploading(false); setPhase("idle"); return;
+      }
+    } else {
+      if (!file) { setErrorReason("invalid_file_type"); return; }
+      uploadBlob = file;
+      uploadName = file.name;
+      setUploading(true);
+    }
+
     setPhase("uploading");
 
     try {
@@ -110,7 +136,7 @@ const YouTubeUploadDialog = ({
 
       const form = new FormData();
       form.append("content_item_id", item.id);
-      form.append("file", file, file.name);
+      form.append("file", uploadBlob, uploadName);
       form.append("title", title.trim().slice(0, 100));
       form.append("description", description);
       form.append("tags", tagsRaw);
@@ -201,27 +227,57 @@ const YouTubeUploadDialog = ({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs">
-                Fichier vidéo (.mp4 ou .mov, max {MAX_BYTES / 1024 / 1024} Mo · recommandé ≤ {RECOMMENDED_BYTES / 1024 / 1024} Mo)
-              </Label>
-              <Input
-                type="file"
-                accept={ACCEPT}
-                disabled={uploading}
-                onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-              />
-              {file && (
-                <p className="text-[11px] text-muted-foreground">
-                  {file.name} · {formatBytes(file.size)}
-                  {file.size > RECOMMENDED_BYTES && (
-                    <span className="ml-1 text-amber-400">
-                      · Fichier volumineux, le transfert peut être long.
-                    </span>
-                  )}
-                </p>
-              )}
-            </div>
+            {hasGeneratedClip && (
+              <div className="space-y-2 rounded-md border border-primary/30 bg-primary/5 p-3">
+                <p className="text-xs font-medium text-foreground">Source de la vidéo</p>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="radio" name="upload-source" className="mt-0.5"
+                    checked={useGenerated} disabled={uploading}
+                    onChange={() => setUseGenerated(true)}
+                  />
+                  <span>
+                    <span className="font-medium text-foreground">Utiliser le clip généré</span>
+                    <span className="block text-[10px] text-muted-foreground/80">Recommandé — clip prêt à publier.</span>
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="radio" name="upload-source" className="mt-0.5"
+                    checked={!useGenerated} disabled={uploading}
+                    onChange={() => setUseGenerated(false)}
+                  />
+                  <span>
+                    <span className="font-medium text-foreground">Uploader un autre fichier</span>
+                    <span className="block text-[10px] text-muted-foreground/80">Fallback — choisis un fichier depuis ton ordinateur.</span>
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {!useGenerated && (
+              <div className="space-y-1.5">
+                <Label className="text-xs">
+                  Fichier vidéo (.mp4 ou .mov, max {MAX_BYTES / 1024 / 1024} Mo · recommandé ≤ {RECOMMENDED_BYTES / 1024 / 1024} Mo)
+                </Label>
+                <Input
+                  type="file"
+                  accept={ACCEPT}
+                  disabled={uploading}
+                  onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+                />
+                {file && (
+                  <p className="text-[11px] text-muted-foreground">
+                    {file.name} · {formatBytes(file.size)}
+                    {file.size > RECOMMENDED_BYTES && (
+                      <span className="ml-1 text-amber-400">
+                        · Fichier volumineux, le transfert peut être long.
+                      </span>
+                    )}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <Label className="text-xs">Titre</Label>
@@ -255,9 +311,11 @@ const YouTubeUploadDialog = ({
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>
-                    {phase === "transferring"
-                      ? "Transfert vers YouTube en cours… (peut prendre 30 s à plusieurs minutes)"
-                      : "Envoi du fichier vers Streamnco…"}
+                    {phase === "fetching"
+                      ? "Récupération du clip généré…"
+                      : phase === "transferring"
+                        ? "Transfert vers YouTube en cours… (peut prendre 30 s à plusieurs minutes)"
+                        : "Envoi du fichier vers Streamnco…"}
                   </span>
                   <span className="tabular-nums">{progress}%</span>
                 </div>
@@ -297,7 +355,7 @@ const YouTubeUploadDialog = ({
             {result ? "Fermer" : "Annuler"}
           </Button>
           {!result && youtubeConnected && (
-            <Button onClick={startUpload} disabled={!file || uploading}>
+            <Button onClick={startUpload} disabled={(!useGenerated && !file) || uploading}>
               {uploading ? (
                 <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> Upload…</>
               ) : (

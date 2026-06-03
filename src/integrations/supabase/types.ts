@@ -601,6 +601,9 @@ export type Database = {
           description: string | null
           duration: string | null
           format: string | null
+          generated_video_url: string | null
+          generation_error: string | null
+          generation_status: string | null
           hashtags: Json
           id: string
           live_session_id: string | null
@@ -610,8 +613,14 @@ export type Database = {
           published_at: string | null
           reason: string | null
           recommended_publish_at: string | null
+          source_duration: number | null
+          source_end_time: number | null
           source_idea_id: string | null
+          source_platform: string | null
+          source_start_time: number | null
+          source_video_url: string | null
           status: string
+          thumbnail_url: string | null
           title: string
           updated_at: string
           user_id: string
@@ -625,6 +634,9 @@ export type Database = {
           description?: string | null
           duration?: string | null
           format?: string | null
+          generated_video_url?: string | null
+          generation_error?: string | null
+          generation_status?: string | null
           hashtags?: Json
           id?: string
           live_session_id?: string | null
@@ -634,8 +646,14 @@ export type Database = {
           published_at?: string | null
           reason?: string | null
           recommended_publish_at?: string | null
+          source_duration?: number | null
+          source_end_time?: number | null
           source_idea_id?: string | null
+          source_platform?: string | null
+          source_start_time?: number | null
+          source_video_url?: string | null
           status?: string
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string
           user_id: string
@@ -649,6 +667,9 @@ export type Database = {
           description?: string | null
           duration?: string | null
           format?: string | null
+          generated_video_url?: string | null
+          generation_error?: string | null
+          generation_status?: string | null
           hashtags?: Json
           id?: string
           live_session_id?: string | null
@@ -658,8 +679,14 @@ export type Database = {
           published_at?: string | null
           reason?: string | null
           recommended_publish_at?: string | null
+          source_duration?: number | null
+          source_end_time?: number | null
           source_idea_id?: string | null
+          source_platform?: string | null
+          source_start_time?: number | null
+          source_video_url?: string | null
           status?: string
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string
           user_id?: string

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
+  Film, Wand2, Clock,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -17,6 +18,9 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   useContentItems, type ContentItem, type ContentPlatform,
@@ -33,13 +37,19 @@ const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ c
   community: { label: "Communauté", Icon: Clapperboard },
 };
 
+const VIDEO_PLATFORMS: ContentPlatform[] = ["youtube_shorts", "tiktok", "instagram", "twitch_clip"];
+
 const STATUS_META: Record<ContentStatus, { label: string; cls: string }> = {
-  idea: { label: "Idée", cls: "border-border bg-muted text-muted-foreground" },
-  to_produce: { label: "À produire", cls: "border-amber-500/40 bg-amber-500/10 text-amber-300" },
-  ready: { label: "Prêt", cls: "border-primary/40 bg-primary/10 text-primary" },
-  uploaded: { label: "Uploadé", cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
-  published: { label: "Publié", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
-  ignored: { label: "Ignoré", cls: "border-border/40 bg-muted/40 text-muted-foreground/60" },
+  idea:               { label: "Idée",              cls: "border-border bg-muted text-muted-foreground" },
+  to_produce:         { label: "À produire",        cls: "border-amber-500/40 bg-amber-500/10 text-amber-300" },
+  to_generate:        { label: "À générer",         cls: "border-violet-500/40 bg-violet-500/10 text-violet-300" },
+  generating:         { label: "Génération…",       cls: "border-violet-500/40 bg-violet-500/15 text-violet-200" },
+  draft_ready:        { label: "Draft prêt",        cls: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300" },
+  ready:              { label: "Prêt à publier",    cls: "border-primary/40 bg-primary/10 text-primary" },
+  uploaded:           { label: "Uploadé",           cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
+  published:          { label: "Publié",            cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
+  published_manually: { label: "Publié (manuel)",   cls: "border-emerald-500/30 bg-emerald-500/5 text-emerald-200" },
+  ignored:            { label: "Ignoré",            cls: "border-border/40 bg-muted/40 text-muted-foreground/60" },
 };
 
 const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
@@ -48,7 +58,7 @@ const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
   low: { label: "Faible", cls: "border-border bg-muted text-muted-foreground" },
 };
 
-type FilterKey = "all" | ContentPlatform | "high" | "to_produce" | "ready" | "uploaded";
+type FilterKey = "all" | ContentPlatform | "high" | "to_generate" | "draft_ready" | "ready" | "uploaded";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "Tous" },
@@ -58,7 +68,8 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "twitch_clip", label: "Twitch" },
   { key: "community", label: "Communauté" },
   { key: "high", label: "Priorité élevée" },
-  { key: "to_produce", label: "À produire" },
+  { key: "to_generate", label: "À générer" },
+  { key: "draft_ready", label: "Draft prêt" },
   { key: "ready", label: "Prêt" },
   { key: "uploaded", label: "Uploadé" },
 ];
@@ -94,7 +105,8 @@ const ContentQueuePage = () => {
       if (hideIgnored && i.status === "ignored") return false;
       if (filter === "all") return true;
       if (filter === "high") return i.priority === "high";
-      if (filter === "to_produce") return i.status === "to_produce";
+      if (filter === "to_generate") return i.status === "to_generate" || i.status === "generating";
+      if (filter === "draft_ready") return i.status === "draft_ready";
       if (filter === "ready") return i.status === "ready";
       if (filter === "uploaded") return i.status === "uploaded" || !!i.youtube_video_id;
       return i.platform === filter;
@@ -103,10 +115,13 @@ const ContentQueuePage = () => {
 
   const counts = useMemo(() => ({
     total: items.length,
-    to_produce: items.filter(i => i.status === "to_produce").length,
+    to_generate: items.filter(i => i.status === "to_generate" || i.status === "generating").length,
+    draft_ready: items.filter(i => i.status === "draft_ready").length,
     ready: items.filter(i => i.status === "ready").length,
-    published: items.filter(i => i.status === "published").length,
+    published: items.filter(i => i.status === "published" || i.status === "published_manually").length,
   }), [items]);
+
+  const [sourceItem, setSourceItem] = useState<ContentItem | null>(null);
 
   return (
     <AppShell>
@@ -114,13 +129,14 @@ const ContentQueuePage = () => {
         <PageHeader
           eyebrow="Cockpit éditorial"
           title="Content Queue"
-          description="Tous les contenus à produire après tes lives, priorisés et prêts à éditer."
+          description="Transforme chaque live en clips courts prêts à publier."
         />
 
         {/* Stats strip */}
-        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <StatCell label="Total" value={counts.total} />
-          <StatCell label="À produire" value={counts.to_produce} accent="amber" />
+          <StatCell label="À générer" value={counts.to_generate} accent="violet" />
+          <StatCell label="Drafts" value={counts.draft_ready} accent="cyan" />
           <StatCell label="Prêts" value={counts.ready} accent="primary" />
           <StatCell label="Publiés" value={counts.published} accent="emerald" />
         </div>
@@ -174,6 +190,24 @@ const ContentQueuePage = () => {
               <ContentRow key={item.id} item={item}
                 youtubeConnected={youtubeConnected}
                 onUpload={() => setUploadItem(item)}
+                onEditSource={() => setSourceItem(item)}
+                onGenerate={async () => {
+                  if (!item.source_video_url || item.source_start_time == null || item.source_end_time == null) {
+                    toast.error("Ajoute d'abord une source vidéo et les timestamps.");
+                    setSourceItem(item);
+                    return;
+                  }
+                  try {
+                    await updateItem(item.id, {
+                      status: "generating",
+                      generation_status: "unavailable",
+                      generation_error: null,
+                    });
+                    toast.info("Génération vidéo bientôt disponible. La source et les timestamps sont sauvegardés.");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Erreur");
+                  }
+                }}
                 onUpdate={(patch) => updateItem(item.id, patch).catch(e => toast.error(e.message))}
                 onDelete={() => {
                   if (confirm("Supprimer ce contenu ?")) {
@@ -195,6 +229,23 @@ const ContentQueuePage = () => {
             onUploaded={() => { refetch(); }}
           />
         )}
+
+        {sourceItem && (
+          <SourceVideoDialog
+            item={sourceItem}
+            open={!!sourceItem}
+            onOpenChange={(o) => { if (!o) setSourceItem(null); }}
+            onSave={async (patch) => {
+              try {
+                await updateItem(sourceItem.id, patch);
+                toast.success("Source vidéo enregistrée");
+                setSourceItem(null);
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Erreur");
+              }
+            }}
+          />
+        )}
       </PageContainer>
     </AppShell>
   );
@@ -202,11 +253,13 @@ const ContentQueuePage = () => {
 
 // ── Sub components ──────────────────────────────────────────────────────────
 
-function StatCell({ label, value, accent }: { label: string; value: number; accent?: "amber" | "primary" | "emerald" }) {
+function StatCell({ label, value, accent }: { label: string; value: number; accent?: "amber" | "primary" | "emerald" | "violet" | "cyan" }) {
   const cls =
     accent === "amber" ? "border-amber-500/30 bg-amber-500/5 text-amber-300"
     : accent === "primary" ? "border-primary/30 bg-primary/5 text-primary"
     : accent === "emerald" ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
+    : accent === "violet" ? "border-violet-500/30 bg-violet-500/5 text-violet-300"
+    : accent === "cyan" ? "border-cyan-500/30 bg-cyan-500/5 text-cyan-300"
     : "border-border/60 bg-card text-foreground";
   return (
     <div className={cn("rounded-md border p-3", cls)}>
@@ -217,14 +270,19 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onEditSource, onGenerate,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
   onDelete: () => void;
   youtubeConnected: boolean;
   onUpload: () => void;
+  onEditSource: () => void;
+  onGenerate: () => void;
 }) {
+  const isVideo = VIDEO_PLATFORMS.includes(item.platform);
+  const hasSource = !!item.source_video_url && item.source_start_time != null && item.source_end_time != null;
+  const hasGeneratedClip = !!item.generated_video_url;
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
@@ -340,6 +398,80 @@ function ContentRow({
           </>
         )}
 
+        {/* V3C — Clip draft block (video platforms only) */}
+        {isVideo && item.status !== "ignored" && (
+          <div className="space-y-2 rounded-md border border-border/60 bg-background/40 p-3">
+            <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
+              <Film className="h-3.5 w-3.5 text-primary" />
+              Clip Draft
+              {item.generation_status === "unavailable" && (
+                <Badge variant="outline" className="text-[9px] uppercase">Bientôt disponible</Badge>
+              )}
+            </div>
+
+            {hasGeneratedClip ? (
+              <div className="space-y-2">
+                <video
+                  src={item.generated_video_url ?? undefined}
+                  poster={item.thumbnail_url ?? undefined}
+                  controls
+                  className="w-full max-w-sm rounded-md border border-border/60 bg-black"
+                />
+                {item.status !== "ready" && (
+                  <Button size="sm" variant="outline" className="h-7 text-[11px]"
+                    onClick={() => onUpdate({ status: "ready" })}>
+                    <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Marquer comme prêt
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-2">
+                <div>
+                  <span className="font-medium text-foreground">Source : </span>
+                  {item.source_video_url
+                    ? <a href={item.source_video_url} target="_blank" rel="noreferrer noopener"
+                        className="text-primary hover:underline break-all">
+                        {item.source_platform ?? "vidéo"} <ExternalLink className="inline h-3 w-3" />
+                      </a>
+                    : <span className="italic">Aucune source</span>}
+                </div>
+                <div>
+                  <span className="font-medium text-foreground">Moment : </span>
+                  {item.source_start_time != null && item.source_end_time != null
+                    ? <>de {formatSeconds(item.source_start_time)} à {formatSeconds(item.source_end_time)} <span className="text-muted-foreground/70">· {item.source_end_time - item.source_start_time}s</span></>
+                    : <span className="italic">Aucun timestamp</span>}
+                </div>
+              </div>
+            )}
+
+            {item.generation_error && (
+              <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-[11px] text-destructive">
+                {item.generation_error}
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onEditSource}>
+                <Clock className="mr-1.5 h-3.5 w-3.5" />
+                {hasSource ? "Modifier la source" : "Ajouter une source vidéo"}
+              </Button>
+              {!hasGeneratedClip && (
+                <Button
+                  size="sm" className="h-7 text-[11px]"
+                  onClick={onGenerate}
+                  disabled={!hasSource || item.status === "generating"}
+                  title={hasSource ? "Lancer la génération" : "Ajoute d'abord une source et des timestamps"}
+                >
+                  {item.status === "generating"
+                    ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    : <Wand2 className="mr-1.5 h-3.5 w-3.5" />}
+                  Générer un clip
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Actions row */}
         <div className="flex flex-wrap items-center gap-2 border-t border-border/40 pt-3">
           <div className="flex items-center gap-1.5">
@@ -391,15 +523,23 @@ function ContentRow({
                 variant={youtubeConnected ? "default" : "outline"}
                 className="h-7 px-2 text-[11px]"
                 onClick={onUpload}
-                title={youtubeConnected ? "Uploader sur YouTube" : "Connecte YouTube pour uploader"}
+                title={
+                  !youtubeConnected ? "Connecte YouTube pour uploader"
+                    : hasGeneratedClip ? "Uploader le clip généré sur YouTube"
+                    : "Uploader un fichier sur YouTube"
+                }
               >
                 <Upload className="mr-1 h-3 w-3" />
-                {item.youtube_video_id ? "Réuploader" : "Uploader sur YouTube"}
+                {item.youtube_video_id
+                  ? "Réuploader"
+                  : hasGeneratedClip
+                    ? "Uploader le clip"
+                    : "Uploader sur YouTube"}
               </Button>
             )}
-            {item.status !== "published" && item.status !== "ignored" && (
+            {item.status !== "published" && item.status !== "published_manually" && item.status !== "ignored" && (
               <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]"
-                onClick={() => onUpdate({ status: "published", published_at: new Date().toISOString() })}>
+                onClick={() => onUpdate({ status: "published_manually", published_at: new Date().toISOString() })}>
                 <Circle className="mr-1 h-3 w-3" />
                 Marquer publié
               </Button>
@@ -415,6 +555,144 @@ function ContentRow({
       </CardContent>
     </Card>
   );
-};
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatSeconds(s: number): string {
+  if (!Number.isFinite(s) || s < 0) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
+function parseTimeInput(value: string): number | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  // Supports mm:ss, hh:mm:ss, or plain seconds.
+  if (/^\d+$/.test(trimmed)) return parseInt(trimmed, 10);
+  const parts = trimmed.split(":").map(p => parseInt(p, 10));
+  if (parts.some(p => Number.isNaN(p) || p < 0)) return null;
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return null;
+}
+
+function detectSourcePlatform(url: string): "twitch" | "youtube" | "manual" {
+  const u = url.toLowerCase();
+  if (u.includes("twitch.tv")) return "twitch";
+  if (u.includes("youtube.com") || u.includes("youtu.be")) return "youtube";
+  return "manual";
+}
+
+// ── SourceVideoDialog ────────────────────────────────────────────────────────
+
+function SourceVideoDialog({
+  item, open, onOpenChange, onSave,
+}: {
+  item: ContentItem;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (patch: Partial<ContentItem>) => Promise<void> | void;
+}) {
+  const [url, setUrl] = useState(item.source_video_url ?? "");
+  const [start, setStart] = useState(
+    item.source_start_time != null ? formatSeconds(item.source_start_time) : "",
+  );
+  const [end, setEnd] = useState(
+    item.source_end_time != null ? formatSeconds(item.source_end_time) : "",
+  );
+  const [saving, setSaving] = useState(false);
+
+  const startSec = parseTimeInput(start);
+  const endSec = parseTimeInput(end);
+  const duration = startSec != null && endSec != null ? endSec - startSec : null;
+
+  const urlOk = (() => {
+    if (!url.trim()) return false;
+    try {
+      const parsed = new URL(url.trim());
+      return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch { return false; }
+  })();
+
+  const durationOk = duration != null && duration >= 5 && duration <= 180;
+  const canSave = urlOk && startSec != null && endSec != null && endSec > startSec && durationOk;
+
+  async function handleSubmit() {
+    if (!canSave) return;
+    setSaving(true);
+    try {
+      await onSave({
+        source_video_url: url.trim(),
+        source_platform: detectSourcePlatform(url),
+        source_start_time: startSec,
+        source_end_time: endSec,
+        source_duration: duration,
+        // Keep status coherent: if it was just an idea, move to to_generate.
+        ...(item.status === "idea" ? { status: "to_generate" as const } : {}),
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Film className="h-5 w-5 text-primary" /> Source vidéo
+          </DialogTitle>
+          <DialogDescription>
+            Colle l'URL de la VOD Twitch / YouTube source, puis indique le moment à clipper.
+            Durée recommandée : 15 à 60 secondes (max 180).
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">URL de la VOD ou de la vidéo</Label>
+            <Input
+              value={url} onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://www.twitch.tv/videos/… ou https://youtu.be/…"
+              maxLength={500}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Début (mm:ss)</Label>
+              <Input value={start} onChange={(e) => setStart(e.target.value)} placeholder="12:34" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Fin (mm:ss)</Label>
+              <Input value={end} onChange={(e) => setEnd(e.target.value)} placeholder="13:10" />
+            </div>
+          </div>
+
+          <div className="rounded-md border border-border/60 bg-muted/20 p-2 text-[11px] text-muted-foreground">
+            {duration == null
+              ? "Indique des timestamps valides."
+              : duration <= 0
+                ? "La fin doit être après le début."
+                : duration < 5
+                  ? `Trop court (${duration}s). Minimum recommandé : 15s.`
+                  : duration > 180
+                    ? `Trop long (${duration}s). Maximum : 180s.`
+                    : `Durée : ${duration}s ${duration < 15 || duration > 60 ? "(hors plage recommandée 15-60s)" : "✓"}`}
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>Annuler</Button>
+          <Button onClick={handleSubmit} disabled={!canSave || saving}>
+            {saving ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Save className="mr-1.5 h-3.5 w-3.5" />}
+            Enregistrer la source
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default ContentQueuePage;
