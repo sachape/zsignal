@@ -529,18 +529,18 @@ const DashboardPage = () => {
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
   const nextAction = report.next_best_action;
   const syncLabel =
-    syncSnapshot?.state === "up_to_date"
+    syncSnapshot?.state === "synchronized"
       ? "Données à jour"
-      : syncSnapshot?.state === "syncing"
+      : syncSnapshot?.state === "update_in_progress" || syncSnapshot?.state === "first_analysis_in_progress"
         ? "Sync en cours"
         : syncSnapshot?.state === "no_analysis"
           ? "Première analyse en attente"
           : "Dernière sync à vérifier";
   const syncDetail = syncSnapshot
-    ? formatSyncRelative(syncSnapshot.lastSyncAt ?? syncSnapshot.lastAnalysisAt ?? currentReport.created_at)
+    ? formatSyncRelative(syncSnapshot.lastJobCompletedAt ?? syncSnapshot.reportCreatedAt ?? currentReport.created_at)
     : `Rapport généré le ${formatDate(currentReport.created_at)}`;
   const liveHeadline = liveSnapshot?.current
-    ? `${liveSnapshot.current.viewer_count ?? 0} viewers en direct`
+    ? `${liveSnapshot.current.peak_viewers ?? 0} viewers en direct`
     : liveSnapshot?.last
       ? "Dernier live disponible"
       : "Aucun live récent";
