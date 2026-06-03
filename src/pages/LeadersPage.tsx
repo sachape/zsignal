@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import {
   fetchCategoryLeadersPage,
   searchCategories,
+  fetchPresetCategories,
   LEADER_CATEGORY_PRESETS,
   LEADER_LANGUAGE_PRESETS,
   type LeaderChannel,
@@ -98,6 +99,7 @@ const LeadersPage = () => {
   const [catQuery, setCatQuery] = useState<string>("");
   const [catSuggestions, setCatSuggestions] = useState<LeaderCategory[]>([]);
   const [catSearching, setCatSearching] = useState(false);
+  const [presetCategoryData, setPresetCategoryData] = useState<LeaderCategory[] | null>(null);
 
   const [rows, setRows] = useState<LeaderChannel[]>([]);
   const [resolvedCategory, setResolvedCategory] = useState<LeaderCategory | null>(null);
@@ -144,12 +146,19 @@ const LeadersPage = () => {
     getLatestReport(user.id).then((r) => setUserReport(r));
   }, [user]);
 
+  useEffect(() => {
+    if (catOpen && presetCategoryData === null) {
+      fetchPresetCategories().then(setPresetCategoryData);
+    }
+  }, [catOpen, presetCategoryData]);
+
   // Debounced category search inside combobox
   useEffect(() => {
     const q = catQuery.trim();
     if (q.length < 2) {
       setCatSuggestions(
-        LEADER_CATEGORY_PRESETS.map((name) => ({ id: name, name, box_art_url: null })),
+        presetCategoryData
+          ?? LEADER_CATEGORY_PRESETS.map((name) => ({ id: name, name, box_art_url: null })),
       );
       setCatSearching(false);
       return;
@@ -161,7 +170,7 @@ const LeadersPage = () => {
       setCatSearching(false);
     }, 250);
     return () => clearTimeout(t);
-  }, [catQuery]);
+  }, [catQuery, presetCategoryData]);
 
   // Initial / filter-change load — first page of 100.
   useEffect(() => {

@@ -257,16 +257,19 @@ export const LEADER_CATEGORY_PRESETS = [
   "Counter-Strike",
 ];
 
-/** Fetch box art for all preset categories in parallel. Falls back to null on failure. */
-export async function fetchPresetCategories(): Promise<LeaderCategory[]> {
-  const results = await Promise.all(
-    LEADER_CATEGORY_PRESETS.map(name => searchCategories(name)),
-  );
+/** Fetch box art for an arbitrary list of category names in parallel. Falls back to null on failure. */
+export async function fetchCategoriesBoxArt(names: string[]): Promise<LeaderCategory[]> {
+  const results = await Promise.all(names.map(name => searchCategories(name)));
   return results.map((cats, i) => {
-    const name = LEADER_CATEGORY_PRESETS[i];
+    const name = names[i];
     const exact = cats.find(c => c.name.toLowerCase() === name.toLowerCase());
     return exact ?? { id: name, name, box_art_url: null };
   });
+}
+
+/** Fetch box art for all preset categories in parallel. Falls back to null on failure. */
+export async function fetchPresetCategories(): Promise<LeaderCategory[]> {
+  return fetchCategoriesBoxArt(LEADER_CATEGORY_PRESETS);
 }
 
 export const LEADER_LANGUAGE_PRESETS = ["fr", "en", "es", "de", "pt", "it"];

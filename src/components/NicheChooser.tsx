@@ -10,7 +10,7 @@ import {
   setPreferredNiche,
   getPreferredNiche,
 } from "@/services/preferredNiche";
-import { fetchCategoryLeaders } from "@/services/leadersService";
+import { fetchCategoryLeaders, fetchCategoriesBoxArt, type LeaderCategory } from "@/services/leadersService";
 
 interface Props {
   userId: string | null | undefined;
@@ -27,6 +27,15 @@ const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
   );
   const [custom, setCustom] = useState("");
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [boxArt, setBoxArt] = useState<Record<string, string | null>>({});
+
+  useEffect(() => {
+    fetchCategoriesBoxArt(NICHE_SUGGESTIONS.map(n => n.category)).then(cats => {
+      const map: Record<string, string | null> = {};
+      cats.forEach((c: LeaderCategory) => { map[c.name] = c.box_art_url; });
+      setBoxArt(map);
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,9 +94,16 @@ const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
                 size="sm"
                 variant={active ? "default" : "outline"}
                 onClick={() => apply(n.category)}
-                className="h-8 text-xs"
+                className="h-8 gap-1.5 text-xs"
               >
-                {active && <Check className="mr-1 h-3 w-3" />}
+                {active && <Check className="h-3 w-3 shrink-0" />}
+                {boxArt[n.category] ? (
+                  <img
+                    src={boxArt[n.category]!.replace("{width}", "30").replace("{height}", "40")}
+                    alt=""
+                    className="h-4 w-3 shrink-0 rounded-[2px] object-cover"
+                  />
+                ) : null}
                 {n.label}
                 {count !== undefined && (
                   <span
