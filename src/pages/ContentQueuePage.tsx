@@ -365,7 +365,13 @@ function ContentRow({
               </SelectContent>
             </Select>
           </div>
-          <div className="ml-auto flex items-center gap-2 text-[10px] text-muted-foreground">
+          <div className="ml-auto flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+            {item.youtube_url && (
+              <a href={item.youtube_url} target="_blank" rel="noreferrer noopener"
+                className="inline-flex items-center gap-1 text-primary hover:underline">
+                Voir sur YouTube <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
             {item.published_at && (
               <span className="inline-flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3 text-emerald-400" />
@@ -376,6 +382,18 @@ function ContentRow({
               <Link to="/live-setup" className="inline-flex items-center gap-1 text-primary hover:underline">
                 Live source <ExternalLink className="h-3 w-3" />
               </Link>
+            )}
+            {item.platform === "youtube_shorts" && item.status !== "ignored" && (
+              <Button
+                size="sm"
+                variant={youtubeConnected ? "default" : "outline"}
+                className="h-7 px-2 text-[11px]"
+                onClick={onUpload}
+                title={youtubeConnected ? "Uploader sur YouTube" : "Connecte YouTube pour uploader"}
+              >
+                <Upload className="mr-1 h-3 w-3" />
+                {item.youtube_video_id ? "Réuploader" : "Uploader sur YouTube"}
+              </Button>
             )}
             {item.status !== "published" && item.status !== "ignored" && (
               <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]"
