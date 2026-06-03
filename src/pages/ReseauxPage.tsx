@@ -194,7 +194,7 @@ function PlatformCard({
           {status === "manual" && (
             <p className="mt-1 text-[10px] text-muted-foreground/60 leading-snug">
               {platform === "tiktok"
-                ? "Connexion API prévue. Profil utilisé pour le score de présence."
+                ? "Ajouté manuellement. Connecte TikTok via OAuth pour récupérer tes vidéos."
                 : "Utilisé comme vitrine créateur. Insights disponibles après connexion Meta."}
             </p>
           )}
