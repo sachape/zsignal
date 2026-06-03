@@ -530,11 +530,17 @@ const LiveSetupPage = () => {
                       icon={<Tv className="h-4 w-4" />}
                       connected={twitchConnected}
                       busy={pushingTwitch || saving}
+                      disabledReason={
+                        !metadata.twitch.title.trim() && !metadata.twitch.category.trim()
+                          ? "Ajoute un titre ou une catégorie pour activer le push."
+                          : undefined
+                      }
                       labelConnected="Mettre à jour Twitch"
                       labelMissing="Connecte Twitch"
                       onPush={handlePushTwitch}
                     />
                     <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.twitch_push} platform="twitch" />
+
                   </TabsContent>
 
                   <TabsContent value="youtube" className="space-y-3 pt-4">
