@@ -99,6 +99,7 @@ const App = () => (
                 <Route path="/connect-twitch" element={<ConnectTwitchPage />} />
                 <Route path="/twitch/callback" element={<TwitchCallbackPage />} />
                 <Route path="/auth/youtube/callback" element={<YouTubeCallbackPage />} />
+                <Route path="/auth/tiktok/callback" element={<TikTokCallbackPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
                 <Route
                   path="/dashboard"
