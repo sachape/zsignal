@@ -110,8 +110,15 @@ const ContentQueuePage = () => {
       if (filter === "ready") return i.status === "ready";
       if (filter === "uploaded") return i.status === "uploaded" || !!i.youtube_video_id;
       return i.platform === filter;
-    });
+    }).sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0));
   }, [items, filter, hideIgnored]);
+
+  const topPriority = useMemo(() => {
+    return [...items]
+      .filter(i => i.status !== "ignored" && i.status !== "published" && i.status !== "published_manually")
+      .sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))
+      .slice(0, 3);
+  }, [items]);
 
   const counts = useMemo(() => ({
     total: items.length,
