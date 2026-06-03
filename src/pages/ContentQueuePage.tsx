@@ -330,7 +330,6 @@ function ContentRow({
   onJobUpdate: () => void;
 }) {
   const isVideo = VIDEO_PLATFORMS.includes(item.platform);
-  const hasSource = !!item.source_video_url && item.source_start_time != null && item.source_end_time != null;
   const hasGeneratedClip = !!item.generated_video_url;
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
