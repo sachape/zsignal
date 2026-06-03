@@ -1387,7 +1387,17 @@ function PostLiveBriefCard({
             <Flame className="h-4 w-4 text-emerald-400" />
             Post-live Brief
           </div>
-          <Badge variant="outline" className="text-xs">Généré le {generated}</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">Généré le {generated}</Badge>
+            {canRegenerate && onRegenerate && (
+              <Button size="sm" variant="outline" onClick={handleRegenerate} disabled={regenerating}>
+                {regenerating
+                  ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  : <Repeat2 className="mr-1.5 h-3.5 w-3.5" />}
+                Régénérer
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 bg-background/40 p-3">
