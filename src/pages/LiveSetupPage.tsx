@@ -39,7 +39,8 @@ import {
   generatePostLiveBrief, PLATFORM_LABEL, PRIORITY_LABEL,
   type PostLiveBrief, type ContentIdea, type ContentPriority,
 } from "@/services/postLiveBrief";
-import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2 } from "lucide-react";
+import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2, Inbox } from "lucide-react";
+import { useContentItems } from "@/hooks/useContentItems";
 
 const TONES: { value: LiveTone; label: string }[] = [
   { value: "chill", label: "Chill" },
