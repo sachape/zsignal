@@ -318,7 +318,7 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload, onEditSource, onGenerate,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onEditSource, onGenerate, onJobUpdate,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
@@ -327,6 +327,7 @@ function ContentRow({
   onUpload: () => void;
   onEditSource: () => void;
   onGenerate: () => void;
+  onJobUpdate: () => void;
 }) {
   const isVideo = VIDEO_PLATFORMS.includes(item.platform);
   const hasSource = !!item.source_video_url && item.source_start_time != null && item.source_end_time != null;
