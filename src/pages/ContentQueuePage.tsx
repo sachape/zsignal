@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -28,6 +28,8 @@ import {
 } from "@/hooks/useContentItems";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
+import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
+import { useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -95,6 +97,7 @@ const ContentQueuePage = () => {
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
   const [uploadItem, setUploadItem] = useState<ContentItem | null>(null);
+  const [generateItem, setGenerateItem] = useState<ContentItem | null>(null);
 
   const youtubeAccount = accounts.find(a => a.platform === "youtube");
   const youtubeConnected = youtubeAccount?.connection_status === "connected";
@@ -235,23 +238,15 @@ const ContentQueuePage = () => {
                 youtubeConnected={youtubeConnected}
                 onUpload={() => setUploadItem(item)}
                 onEditSource={() => setSourceItem(item)}
-                onGenerate={async () => {
-                  if (!item.source_video_url || item.source_start_time == null || item.source_end_time == null) {
-                    toast.error("Ajoute d'abord une source vidéo et les timestamps.");
+                onGenerate={() => {
+                  if (item.source_start_time == null || item.source_end_time == null) {
+                    toast.error("Ajoute d'abord des timestamps valides (5–180 s).");
                     setSourceItem(item);
                     return;
                   }
-                  try {
-                    await updateItem(item.id, {
-                      status: "generating",
-                      generation_status: "unavailable",
-                      generation_error: null,
-                    });
-                    toast.info("Génération vidéo bientôt disponible. La source et les timestamps sont sauvegardés.");
-                  } catch (e) {
-                    toast.error(e instanceof Error ? e.message : "Erreur");
-                  }
+                  setGenerateItem(item);
                 }}
+                onJobUpdate={() => refetch()}
                 onUpdate={(patch) => updateItem(item.id, patch).catch(e => toast.error(e.message))}
                 onDelete={() => {
                   if (confirm("Supprimer ce contenu ?")) {
@@ -290,6 +285,15 @@ const ContentQueuePage = () => {
             }}
           />
         )}
+
+        {generateItem && (
+          <ClipGenerationDialog
+            item={generateItem}
+            open={!!generateItem}
+            onOpenChange={(o) => { if (!o) setGenerateItem(null); }}
+            onLaunched={() => { refetch(); }}
+          />
+        )}
       </PageContainer>
     </AppShell>
   );
@@ -314,7 +318,7 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload, onEditSource, onGenerate,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onEditSource, onGenerate, onJobUpdate,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
@@ -323,9 +327,9 @@ function ContentRow({
   onUpload: () => void;
   onEditSource: () => void;
   onGenerate: () => void;
+  onJobUpdate: () => void;
 }) {
   const isVideo = VIDEO_PLATFORMS.includes(item.platform);
-  const hasSource = !!item.source_video_url && item.source_start_time != null && item.source_end_time != null;
   const hasGeneratedClip = !!item.generated_video_url;
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
@@ -477,15 +481,12 @@ function ContentRow({
           </>
         )}
 
-        {/* V3C — Clip draft block (video platforms only) */}
+        {/* V3D — Clip draft block (video platforms only) */}
         {isVideo && item.status !== "ignored" && (
           <div className="space-y-2 rounded-md border border-border/60 bg-background/40 p-3">
             <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
               <Film className="h-3.5 w-3.5 text-primary" />
               Clip Draft
-              {item.generation_status === "unavailable" && (
-                <Badge variant="outline" className="text-[9px] uppercase">Bientôt disponible</Badge>
-              )}
             </div>
 
             {hasGeneratedClip ? (
@@ -512,7 +513,7 @@ function ContentRow({
                         className="text-primary hover:underline break-all">
                         {item.source_platform ?? "vidéo"} <ExternalLink className="inline h-3 w-3" />
                       </a>
-                    : <span className="italic">Aucune source</span>}
+                    : <span className="italic">Aucune source enregistrée (l'upload se fait à la génération)</span>}
                 </div>
                 <div>
                   <span className="font-medium text-foreground">Moment : </span>
@@ -523,6 +524,8 @@ function ContentRow({
               </div>
             )}
 
+            <ClipJobStatus contentItemId={item.id} onTerminal={onJobUpdate} />
+
             {item.generation_error && (
               <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-[11px] text-destructive">
                 {item.generation_error}
@@ -532,19 +535,19 @@ function ContentRow({
             <div className="flex flex-wrap gap-2">
               <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onEditSource}>
                 <Clock className="mr-1.5 h-3.5 w-3.5" />
-                {hasSource ? "Modifier la source" : "Ajouter une source vidéo"}
+                {item.source_start_time != null ? "Modifier les timestamps" : "Définir les timestamps"}
               </Button>
               {!hasGeneratedClip && (
                 <Button
                   size="sm" className="h-7 text-[11px]"
                   onClick={onGenerate}
-                  disabled={!hasSource || item.status === "generating"}
-                  title={hasSource ? "Lancer la génération" : "Ajoute d'abord une source et des timestamps"}
+                  disabled={item.source_start_time == null || item.source_end_time == null || item.generation_status === "queued" || item.generation_status === "processing"}
+                  title="Lancer la génération du clip"
                 >
-                  {item.status === "generating"
+                  {item.generation_status === "queued" || item.generation_status === "processing"
                     ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     : <Wand2 className="mr-1.5 h-3.5 w-3.5" />}
-                  Générer un clip
+                  {item.generation_status === "failed" ? "Réessayer" : "Générer le clip"}
                 </Button>
               )}
             </div>
@@ -802,6 +805,56 @@ function SourceVideoDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ── ClipJobStatus ────────────────────────────────────────────────────────────
+// Polls the latest video generation job for an item and renders its live state.
+
+const JOB_STATUS_META: Record<VideoJobStatus, { label: string; cls: string }> = {
+  queued:     { label: "En file d'attente",  cls: "border-violet-500/40 bg-violet-500/10 text-violet-200" },
+  processing: { label: "Découpe en cours",   cls: "border-cyan-500/40 bg-cyan-500/10 text-cyan-200" },
+  completed:  { label: "Clip prêt",          cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" },
+  failed:     { label: "Échec",              cls: "border-destructive/40 bg-destructive/10 text-destructive" },
+  cancelled:  { label: "Annulé",             cls: "border-border/40 bg-muted/30 text-muted-foreground" },
+};
+
+function ClipJobStatus({ contentItemId, onTerminal }: { contentItemId: string; onTerminal: () => void }) {
+  const { job } = useVideoJobsForItem(contentItemId);
+  const prevStatus = useRef<VideoJobStatus | null>(null);
+
+  useEffect(() => {
+    if (!job) return;
+    const wasActive = prevStatus.current === "queued" || prevStatus.current === "processing";
+    const isTerminal = job.status === "completed" || job.status === "failed";
+    if (wasActive && isTerminal) onTerminal();
+    prevStatus.current = job.status;
+  }, [job, onTerminal]);
+
+  if (!job) return null;
+  if (job.status === "completed") return null; // success already reflected via item.generated_video_url
+
+  const meta = JOB_STATUS_META[job.status];
+  return (
+    <div className={cn("space-y-1.5 rounded-md border p-2.5 text-[11px]", meta.cls)}>
+      <div className="flex items-center justify-between">
+        <span className="font-semibold">{meta.label}</span>
+        {typeof job.progress === "number" && job.status === "processing" && (
+          <span className="tabular-nums">{job.progress}%</span>
+        )}
+      </div>
+      {job.status === "processing" && typeof job.progress === "number" && (
+        <div className="h-1 w-full overflow-hidden rounded-full bg-background/40">
+          <div className="h-full bg-current opacity-70 transition-all" style={{ width: `${job.progress}%` }} />
+        </div>
+      )}
+      {job.status === "queued" && (
+        <p className="opacity-80">Streamnco découpe ton extrait dès qu'un worker est disponible.</p>
+      )}
+      {job.status === "failed" && job.error_message && (
+        <p className="opacity-90">{job.error_message}</p>
+      )}
+    </div>
   );
 }
 
