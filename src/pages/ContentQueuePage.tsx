@@ -270,14 +270,19 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onEditSource, onGenerate,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
   onDelete: () => void;
   youtubeConnected: boolean;
   onUpload: () => void;
+  onEditSource: () => void;
+  onGenerate: () => void;
 }) {
+  const isVideo = VIDEO_PLATFORMS.includes(item.platform);
+  const hasSource = !!item.source_video_url && item.source_start_time != null && item.source_end_time != null;
+  const hasGeneratedClip = !!item.generated_video_url;
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
