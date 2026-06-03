@@ -26,6 +26,7 @@ const TWITCH_SCOPES = [
   "channel:read:subscriptions",
   "analytics:read:games",
   "moderator:read:followers",
+  "channel:manage:broadcast",
 ].join(" ");
 
 /**

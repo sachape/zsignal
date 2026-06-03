@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   Rocket, Save, Sparkles, Tv, Video, Music2, Camera,
   CheckCircle2, Copy, Trash2, Clock, ChevronRight, ListChecks, Wand2,
+  ExternalLink, AlertTriangle, Loader2,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -20,7 +21,9 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
+import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { useLiveSessions, type LiveSession } from "@/hooks/useLiveSessions";
 import {
   generateMetadata, DEFAULT_CHECKLIST_ITEMS,
@@ -65,21 +68,26 @@ function copy(value: string) {
 
 const LiveSetupPage = () => {
   const { accounts } = useConnectedNetworks();
-  const { sessions, loading, saveSession, deleteSession } = useLiveSessions();
+  const { isConnected: twitchConnected } = useTwitchConnection();
+  const { sessions, loading, saveSession, deleteSession, refetch } = useLiveSessions();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [input, setInput] = useState<LiveSetupInput>(EMPTY_INPUT);
   const [checklist, setChecklist] = useState<Record<string, boolean>>(EMPTY_CHECKLIST);
   const [metadata, setMetadata] = useState<GeneratedMetadata>(() => generateMetadata(EMPTY_INPUT));
   const [saving, setSaving] = useState(false);
+  const [pushingTwitch, setPushingTwitch] = useState(false);
+  const [pushingYouTube, setPushingYouTube] = useState(false);
+  const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
 
-  const twitchConnected = useMemo(
-    () => accounts.some(a => a.platform === "twitch" && a.connection_status === "connected"),
-    [accounts],
-  );
   const youtubeConnected = useMemo(
     () => accounts.some(a => a.platform === "youtube" && a.connection_status === "connected"),
     [accounts],
+  );
+
+  const editingSession = useMemo(
+    () => sessions.find(s => s.id === editingId) ?? null,
+    [sessions, editingId],
   );
 
   useEffect(() => {
@@ -152,6 +160,106 @@ const LiveSetupPage = () => {
         : [...prev.platforms, p],
     }));
   };
+
+  // Persist the current form as a session and return its ID — required by the
+  // push edge functions (they need a live_session_id to record results).
+  async function ensureSavedSession(): Promise<string | null> {
+    if (editingId) return editingId;
+    if (!input.titleRaw.trim() && !input.gameCategory.trim()) {
+      toast.error("Renseigne au moins un titre ou une catégorie");
+      return null;
+    }
+    setSaving(true);
+    try {
+      const created = await saveSession({ input, metadata, checklist, status: "ready" });
+      if (created?.id) { setEditingId(created.id); return created.id; }
+      return null;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur de sauvegarde");
+      return null;
+    } finally { setSaving(false); }
+  }
+
+  function handlePushError(reason: string | undefined, platform: "twitch" | "youtube") {
+    switch (reason) {
+      case "twitch_not_connected":
+        toast.error("Twitch non connecté"); break;
+      case "youtube_not_connected":
+        toast.error("YouTube non connecté"); break;
+      case "missing_scope":
+        toast.error(platform === "twitch"
+          ? "Reconnecte Twitch pour autoriser la mise à jour du titre et de la catégorie."
+          : "Reconnecte YouTube avec l'autorisation de créer des lives.");
+        break;
+      case "token_expired":
+        toast.error(platform === "twitch" ? "Token Twitch expiré, reconnecte." : "Token YouTube expiré, reconnecte.");
+        break;
+      case "category_not_found":
+        toast.error("Catégorie Twitch introuvable. Vérifie le nom exact."); break;
+      case "live_not_enabled":
+        toast.error("Live YouTube non activé sur ce compte (vérification 24h requise)."); break;
+      case "nothing_to_update":
+        toast.error("Rien à pousser : ajoute un titre ou une catégorie."); break;
+      case "server_misconfigured":
+        toast.error("Configuration serveur manquante."); break;
+      default:
+        toast.error(platform === "twitch" ? "Erreur Twitch" : "Erreur YouTube");
+    }
+  }
+
+  async function handlePushTwitch() {
+    if (!twitchConnected) { toast.error("Twitch non connecté"); return; }
+    const sessionId = await ensureSavedSession();
+    if (!sessionId) return;
+    setPushingTwitch(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("twitch-update-channel", {
+        body: {
+          live_session_id: sessionId,
+          title: metadata.twitch.title,
+          category: metadata.twitch.category,
+          language: input.language || undefined,
+        },
+      });
+      if (error || !data?.success) {
+        const reason = (data as { reason?: string } | null)?.reason;
+        handlePushError(reason, "twitch");
+        return;
+      }
+      toast.success("Twitch mis à jour");
+      void refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur Twitch");
+    } finally { setPushingTwitch(false); }
+  }
+
+  async function handlePushYouTube() {
+    if (!youtubeConnected) { toast.error("YouTube non connecté"); return; }
+    const sessionId = await ensureSavedSession();
+    if (!sessionId) return;
+    setPushingYouTube(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("youtube-create-live-broadcast", {
+        body: {
+          live_session_id: sessionId,
+          title: metadata.youtube.title,
+          description: metadata.youtube.description,
+          scheduled_start_time: input.scheduledAt || undefined,
+          privacy_status: ytPrivacy,
+          language: input.language || undefined,
+        },
+      });
+      if (error || !data?.success) {
+        const reason = (data as { reason?: string } | null)?.reason;
+        handlePushError(reason, "youtube");
+        return;
+      }
+      toast.success("Live YouTube créé");
+      void refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur YouTube");
+    } finally { setPushingYouTube(false); }
+  }
 
   return (
     <AppShell>
@@ -371,12 +479,15 @@ const LiveSetupPage = () => {
                   <TabsContent value="twitch" className="space-y-3 pt-4">
                     <PreviewField label="Titre Twitch" value={metadata.twitch.title} />
                     <PreviewField label="Catégorie" value={metadata.twitch.category || "—"} />
-                    <PlatformActionRow
+                    <PushActionRow
                       icon={<Tv className="h-4 w-4" />}
-                      label={twitchConnected ? "Mettre à jour Twitch" : "Connexion Twitch requise"}
                       connected={twitchConnected}
-                      onClick={() => toast.info("L'update Twitch arrive dans une prochaine version.")}
+                      busy={pushingTwitch || saving}
+                      labelConnected="Mettre à jour Twitch"
+                      labelMissing="Connecte Twitch"
+                      onPush={handlePushTwitch}
                     />
+                    <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.twitch_push} platform="twitch" />
                   </TabsContent>
 
                   <TabsContent value="youtube" className="space-y-3 pt-4">
@@ -386,13 +497,28 @@ const LiveSetupPage = () => {
                       label="Tags"
                       value={metadata.youtube.tags.join(", ") || "—"}
                     />
-                    <PlatformActionRow
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Confidentialité</Label>
+                      <Select value={ytPrivacy} onValueChange={(v) => setYtPrivacy(v as typeof ytPrivacy)}>
+                        <SelectTrigger className="h-8 w-[140px] text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="private">Privé</SelectItem>
+                          <SelectItem value="unlisted">Non listé</SelectItem>
+                          <SelectItem value="public">Public</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <PushActionRow
                       icon={<Video className="h-4 w-4" />}
-                      label={youtubeConnected ? "Créer un live YouTube" : "Connexion YouTube requise"}
                       connected={youtubeConnected}
-                      onClick={() => toast.info("La création de live YouTube arrive dans une prochaine version.")}
+                      busy={pushingYouTube || saving}
+                      labelConnected="Créer un live YouTube"
+                      labelMissing="Connecte YouTube"
+                      onPush={handlePushYouTube}
                     />
+                    <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.youtube_push} platform="youtube" />
                   </TabsContent>
+
 
                   <TabsContent value="kick" className="space-y-3 pt-4">
                     <PreviewField label="Titre Kick" value={metadata.kick.title} />
@@ -505,28 +631,77 @@ function PreviewField({ label, value, multiline = false }: { label: string; valu
   );
 }
 
-function PlatformActionRow({
-  icon, label, connected, onClick,
-}: { icon: React.ReactNode; label: string; connected: boolean; onClick: () => void }) {
+interface PushEntry {
+  pushed_at?: string;
+  created_at?: string;
+  status?: string;
+  title?: string;
+  game_name?: string;
+  youtube_broadcast_id?: string;
+  youtube_watch_url?: string;
+  privacy_status?: string;
+}
+
+function PushActionRow({
+  icon, connected, busy, labelConnected, labelMissing, onPush,
+}: {
+  icon: React.ReactNode; connected: boolean; busy: boolean;
+  labelConnected: string; labelMissing: string; onPush: () => void;
+}) {
   return (
     <div className="flex items-center justify-between rounded-md border border-border/60 bg-background/40 p-3">
       <div className="flex items-center gap-2 text-sm">
         {icon}
-        <span>{label}</span>
+        <span>{connected ? labelConnected : labelMissing}</span>
       </div>
       {connected ? (
-        <Button size="sm" variant="outline" onClick={onClick}>
-          <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-primary" />
-          Préparer
+        <Button size="sm" onClick={onPush} disabled={busy}>
+          {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                : <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />}
+          {busy ? "Envoi…" : "Envoyer"}
         </Button>
       ) : (
-        <Button size="sm" variant="ghost" asChild>
+        <Button size="sm" variant="outline" asChild>
           <Link to="/reseaux">Connecter</Link>
         </Button>
       )}
     </div>
   );
 }
+
+function PushHistory({ entry, platform }: { entry?: PushEntry; platform: "twitch" | "youtube" }) {
+  if (!entry) return null;
+  const ts = entry.pushed_at ?? entry.created_at;
+  const date = ts ? new Date(ts).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "";
+  const ok = entry.status === "success";
+  return (
+    <div className={cn(
+      "flex items-start gap-2 rounded-md border p-2.5 text-xs",
+      ok ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
+         : "border-amber-500/30 bg-amber-500/5 text-amber-300",
+    )}>
+      {ok ? <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          : <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="font-medium">
+          {platform === "twitch" ? "Twitch mis à jour" : "Live YouTube créé"} · {date}
+        </p>
+        {platform === "twitch" && entry.game_name && (
+          <p className="text-muted-foreground">Catégorie : {entry.game_name}</p>
+        )}
+        {platform === "youtube" && entry.youtube_watch_url && (
+          <a
+            href={entry.youtube_watch_url} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1 text-primary hover:underline"
+          >
+            Ouvrir dans YouTube <ExternalLink className="h-3 w-3" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {

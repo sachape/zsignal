@@ -68,7 +68,10 @@ Deno.serve(async (req) => {
       client_id:     clientId,
       redirect_uri:  redirectUri,
       response_type: "code",
-      scope:         "https://www.googleapis.com/auth/youtube.readonly",
+      scope: [
+        "https://www.googleapis.com/auth/youtube.readonly",
+        "https://www.googleapis.com/auth/youtube",
+      ].join(" "),
       access_type:   "offline",
       prompt:        "consent",
       state,
