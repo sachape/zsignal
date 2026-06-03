@@ -578,8 +578,8 @@ const DashboardPage = () => {
           <p className="mb-5 text-[32px] font-medium text-foreground">
             {greeting}
           </p>
-          <div className="grid gap-4 xl:grid-cols-[1.35fr_0.9fr]">
-            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_35%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--card)))] p-6 shadow-[0_24px_80px_-28px_hsl(var(--primary)/0.35)]">
+          <div className="grid gap-4 xl:grid-cols-[1.4fr_0.85fr]">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.12),transparent_32%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--card)))] p-6 shadow-[0_18px_40px_-30px_hsl(var(--foreground)/0.3)]">
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,transparent_0%,hsl(var(--primary)/0.04)_55%,transparent_100%)]" />
               <div className="relative flex flex-col gap-6">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -614,17 +614,17 @@ const DashboardPage = () => {
                         </h1>
                         {summary.broadcaster_type === "partner" && (
                           <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-                            Partner
+                            Partenaire
                           </span>
                         )}
                         {summary.broadcaster_type === "affiliate" && (
                           <span className="rounded-full border border-border/50 bg-muted/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                            Affiliate
+                            Affilié
                           </span>
                         )}
                         {summary.is_live && (
                           <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-destructive">
-                            Live now
+                            En live
                           </span>
                         )}
                         <StreakBadge streak={streakData} variant="compact" />
@@ -641,7 +641,7 @@ const DashboardPage = () => {
                         </span>
                         {currentReport.is_demo && (
                           <span className="inline-flex items-center rounded-full border border-border/50 bg-muted/25 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                            Demo
+                            Démo
                           </span>
                         )}
                       </div>
@@ -719,7 +719,7 @@ const DashboardPage = () => {
                         </Button>
                       </div>
                       <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">
-                        Next move
+                        Prochaine action
                       </p>
                       <p className="mt-2 text-base font-semibold leading-tight text-foreground">
                         {nextAction.title}
@@ -731,7 +731,7 @@ const DashboardPage = () => {
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                       <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                          Milestone le plus proche
+                          Prochain palier
                         </p>
                         <p className="mt-2 text-base font-semibold text-foreground">
                           {nextMilestone.label}
@@ -753,7 +753,7 @@ const DashboardPage = () => {
                       </div>
                       <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                          Statut live
+                          Statut du live
                         </p>
                         <p className="mt-2 text-base font-semibold text-foreground">
                           {liveHeadline}
@@ -768,67 +768,62 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            <div className="grid gap-4">
-              <div className="rounded-[24px] border border-white/[0.08] bg-card/50 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
+            <div className="rounded-[24px] border border-white/[0.08] bg-card/55 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+                    Priorités
+                  </p>
+                  <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
+                    Trois portes d'entrée, pas plus
+                  </p>
+                </div>
+                <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
+                  <Link to="/plan">Voir le plan</Link>
+                </Button>
+              </div>
+              <div className="mt-4 space-y-3">
+                <div className="rounded-2xl border border-border/60 bg-background/35 px-4 py-3">
+                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                     <ShieldCheck className="h-4 w-4 text-primary" />
+                    Cette semaine
                   </div>
-                  <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
-                    <Link to="/plan">Voir le plan d'action</Link>
-                  </Button>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Une priorité claire pour faire progresser le score, sans mur de widgets.
+                  </p>
                 </div>
-                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                  This week
-                </p>
-                <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
-                  Une priorité claire pour faire progresser le score
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                  Le cockpit doit te donner une direction nette, pas dix cartes à interpréter.
-                </p>
-              </div>
-              <div className="rounded-[24px] border border-white/[0.08] bg-card/50 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
-                    <Radio className="h-4 w-4 text-primary" />
+                <div className="rounded-2xl border border-border/60 bg-background/35 px-4 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <Radio className="h-4 w-4 text-primary" />
+                      Exécution
+                    </div>
+                    <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-primary hover:bg-transparent">
+                      <Link to={summary.is_live ? "/lives" : "/live-setup"}>
+                        {summary.is_live ? "Voir le live" : "Préparer"}
+                      </Link>
+                    </Button>
                   </div>
-                  <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
-                    <Link to={summary.is_live ? "/lives" : "/live-setup"}>
-                      {summary.is_live ? "Voir le cockpit live" : "Préparer un live"}
-                    </Link>
-                  </Button>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {summary.is_live
+                      ? "Le direct est en cours, les signaux temps réel passent en premier."
+                      : "Le prochain live doit être prêt sans friction avant l'ouverture d'OBS."}
+                  </p>
                 </div>
-                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                  Operate
-                </p>
-                <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
-                  {summary.is_live ? "Tu es actuellement en live" : "Ton prochain live se prépare ici"}
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                  {summary.is_live
-                    ? "Surveille les signaux live, la dérive et les alertes en temps réel."
-                    : "Passe par Live Setup pour arriver prêt à lancer, sans friction avant le direct."}
-                </p>
-              </div>
-              <div className="rounded-[24px] border border-white/[0.08] bg-card/50 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
-                    <Orbit className="h-4 w-4 text-primary" />
+                <div className="rounded-2xl border border-border/60 bg-background/35 px-4 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <Orbit className="h-4 w-4 text-primary" />
+                      Benchmark
+                    </div>
+                    <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-primary hover:bg-transparent">
+                      <Link to="/competitors">Ouvrir</Link>
+                    </Button>
                   </div>
-                  <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
-                    <Link to="/competitors">Ouvrir Benchmark</Link>
-                  </Button>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Garde tes concurrents et ta catégorie à portée, sans polluer le cockpit principal.
+                  </p>
                 </div>
-                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                  Compete
-                </p>
-                <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
-                  Garde un oeil sur ta catégorie et tes concurrents
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                  Benchmark, watchlist et signaux concurrents doivent rester visibles sans noyer le reste.
-                </p>
               </div>
             </div>
           </div>

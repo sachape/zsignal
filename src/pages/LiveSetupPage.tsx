@@ -12,8 +12,17 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,9 +52,14 @@ import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2, Inbox } from "luci
 import { useContentItems } from "@/hooks/useContentItems";
 import { buildQualityPackForIdea } from "@/services/contentQuality";
 import SuggestedTitles from "@/components/live-setup/SuggestedTitles";
+import {
+  LEADER_CATEGORY_PRESETS,
+  searchCategories,
+  type LeaderCategory,
+} from "@/services/leadersService";
 
 const TONES: { value: LiveTone; label: string }[] = [
-  { value: "chill", label: "Chill" },
+  { value: "chill", label: "Détente" },
   { value: "competitive", label: "Compétitif" },
   { value: "educational", label: "Éducatif" },
   { value: "entertainment", label: "Divertissement" },
@@ -131,6 +145,10 @@ const LiveSetupPage = () => {
   const [lastAppliedTitle, setLastAppliedTitle] = useState<string | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(true);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [categoryQuery, setCategoryQuery] = useState("");
+  const [categorySuggestions, setCategorySuggestions] = useState<LeaderCategory[]>([]);
+  const [categorySearching, setCategorySearching] = useState(false);
 
   const youtubeConnected = useMemo(
     () => accounts.some(a => a.platform === "youtube" && a.connection_status === "connected"),
@@ -230,6 +248,24 @@ const LiveSetupPage = () => {
     if (hasAdvancedValues) setAdvancedOpen(true);
   }, [hasAdvancedValues]);
 
+  useEffect(() => {
+    const q = categoryQuery.trim();
+    if (q.length < 2) {
+      setCategorySuggestions(
+        LEADER_CATEGORY_PRESETS.map((name) => ({ id: name, name, box_art_url: null })),
+      );
+      setCategorySearching(false);
+      return;
+    }
+    setCategorySearching(true);
+    const t = setTimeout(async () => {
+      const res = await searchCategories(q);
+      setCategorySuggestions(res);
+      setCategorySearching(false);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [categoryQuery]);
+
   const resetForm = () => {
     setEditingId(null);
     setInput(EMPTY_INPUT);
@@ -271,6 +307,12 @@ const LiveSetupPage = () => {
     const el = document.getElementById(id);
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const pickCategory = (name: string) => {
+    setInput((prev) => ({ ...prev, gameCategory: name }));
+    setCategoryOpen(false);
+    setCategoryQuery("");
   };
 
   const activeWorkflowStep = readyToGo.titleOk
@@ -666,7 +708,7 @@ const LiveSetupPage = () => {
       <PageContainer size="lg">
         <PageHeader
           eyebrow="Cockpit pré-live"
-          title="Live Setup"
+          title="Live Studio"
           description="Passe d'une idée brute à un lancement propre, sans te perdre dans quinze réglages à la fois."
           action={editingId ? (
             <Button variant="outline" size="sm" onClick={resetForm}>Nouvelle session</Button>
@@ -819,12 +861,78 @@ const LiveSetupPage = () => {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="game">Jeu ou catégorie</Label>
-                    <Input
-                      id="game" value={input.gameCategory}
-                      onChange={(e) => setInput({ ...input, gameCategory: e.target.value })}
-                      placeholder="Ex : Valorant" maxLength={80}
-                    />
+                    <Label>Catégorie Twitch</Label>
+                    <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={categoryOpen}
+                          className="h-10 w-full justify-between px-3 text-sm font-normal"
+                        >
+                          <span className={cn("truncate", !input.gameCategory && "text-muted-foreground")}>
+                            {input.gameCategory || "Choisir une catégorie"}
+                          </span>
+                          <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="start"
+                        sideOffset={4}
+                        className="w-[var(--radix-popover-trigger-width)] p-0"
+                      >
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            value={categoryQuery}
+                            onValueChange={setCategoryQuery}
+                            placeholder="Rechercher une catégorie Twitch…"
+                            className="h-9"
+                          />
+                          <CommandList>
+                            {categorySearching && (
+                              <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                Recherche en cours…
+                              </div>
+                            )}
+                            {!categorySearching && categorySuggestions.length === 0 && (
+                              <CommandEmpty>Aucune catégorie trouvée</CommandEmpty>
+                            )}
+                            {!categorySearching && categorySuggestions.length > 0 && (
+                              <CommandGroup heading={categoryQuery.trim().length < 2 ? "Suggestions" : "Résultats"}>
+                                {categorySuggestions.map((category) => (
+                                  <CommandItem
+                                    key={category.id}
+                                    value={category.name}
+                                    onSelect={() => pickCategory(category.name)}
+                                    className="gap-2.5"
+                                  >
+                                    {category.box_art_url ? (
+                                      <img
+                                        src={category.box_art_url
+                                          .replace("{width}", "40")
+                                          .replace("{height}", "54")}
+                                        alt=""
+                                        className="h-7 w-5 shrink-0 rounded-sm border border-border/60 object-cover"
+                                      />
+                                    ) : (
+                                      <div className="h-7 w-5 shrink-0 rounded-sm border border-border/60 bg-muted" />
+                                    )}
+                                    <span className="truncate font-medium">{category.name}</span>
+                                    <CheckCircle2
+                                      className={cn(
+                                        "ml-auto h-3.5 w-3.5 shrink-0 text-primary",
+                                        category.name === input.gameCategory ? "opacity-100" : "opacity-0",
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            )}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="objective">Objectif du live</Label>
@@ -1064,122 +1172,6 @@ const LiveSetupPage = () => {
 
           {/* ── RIGHT: Preview + actions + launch plan + sessions ────────── */}
           <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-            {/* Live Launch Plan */}
-            <Card
-              id="live-launch"
-              className={cn(
-                "border-2 transition",
-                readyToGo.all
-                  ? "border-emerald-500/40 bg-emerald-500/5"
-                  : "border-primary/30 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.1),transparent_35%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--card)))]",
-              )}
-            >
-              <CardContent className="space-y-4 p-6">
-                <StepSectionHeader
-                  step="04"
-                  title="Plan de lancement"
-                  description="Le centre de pilotage de la page. Une seule lecture suffit pour savoir ce qui bloque encore."
-                  icon={<Rocket className="h-4 w-4 text-primary" />}
-                />
-
-                <ul className="space-y-2 text-sm">
-                  <LaunchStep
-                    done={readyToGo.titleOk}
-                    label="Titre final validé"
-                    detail={titleConfirmed
-                      ? "Le titre est verrouillé pour cette session."
-                      : "Valide le titre final avant le push des plateformes."}
-                    action={!titleConfirmed ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-idea")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.twitchOk}
-                    label={twitchDone ? "Twitch configuré" : skipTwitch ? "Twitch ignoré (manuel)" : "Configurer Twitch"}
-                    detail={twitchDone
-                      ? `Titre : ${twitchPush?.title ?? metadata.twitch.title}${twitchPush?.game_name ? ` · ${twitchPush.game_name}` : ""}`
-                      : "Pousse les métadonnées Twitch, ou ignore pour configurer manuellement."}
-                    action={!readyToGo.twitchOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-metadata")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.youtubeOk}
-                    label={youtubeDone ? "Live YouTube créé" : skipYouTube ? "YouTube ignoré (manuel)" : "Créer le live YouTube"}
-                    detail={youtubeDone
-                      ? `Titre : ${metadata.youtube.title}${youtubePush?.privacy_status ? ` · ${youtubePush.privacy_status}` : ""}`
-                      : "Crée le brouillon de live YouTube, ou ignore."}
-                    link={youtubePush?.youtube_watch_url
-                      ? { href: youtubePush.youtube_watch_url, label: "Ouvrir dans YouTube" }
-                      : youtubeDone
-                        ? { href: "https://studio.youtube.com/", label: "Ouvrir YouTube Studio" }
-                        : undefined}
-                    action={!readyToGo.youtubeOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-metadata")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.obsOk}
-                    label={`OBS prêt (${obsProgress.done}/${obsProgress.total})`}
-                    detail="Valide la checklist technique avant le départ."
-                    action={!readyToGo.obsOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-obs")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                </ul>
-
-                <div className="rounded-xl border border-border/60 bg-background/40 p-3 text-sm">
-                  {readyToGo.all ? (
-                    <p className="flex items-start gap-2 text-emerald-300">
-                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-                      <span><strong>Tout est prêt.</strong> Il ne reste qu'à ouvrir OBS et démarrer ton stream.</span>
-                    </p>
-                  ) : (
-                    <p className="flex items-start gap-2 text-muted-foreground">
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-                      <span>Ce panneau centralise le prochain blocage à lever avant le live.</span>
-                    </p>
-                  )}
-                </div>
-
-                <Button
-                  className="w-full"
-                  disabled={!readyToGo.all || markingReady || isCompleted}
-                  onClick={handleMarkReadyToGo}
-                >
-                  {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                                : <Rocket className="mr-1.5 h-4 w-4" />}
-                  Marquer comme « prêt à lancer »
-                </Button>
-
-                {editingId && !isCompleted && (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    disabled={endingLive}
-                    onClick={handleEndLive}
-                  >
-                    {endingLive ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                                : <StopCircle className="mr-1.5 h-4 w-4" />}
-                    Terminer le live & générer le brief
-                  </Button>
-                )}
-                {isCompleted && sessionExtras.ended_at && (
-                  <p className="text-center text-xs text-muted-foreground">
-                    Live terminé le {new Date(sessionExtras.ended_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Generated metadata */}
             <Card id="live-metadata" className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
               <CardContent className="p-6">
@@ -1276,6 +1268,120 @@ const LiveSetupPage = () => {
                     <PreviewField label="Post court" value={metadata.socialSummary} multiline />
                   </TabsContent>
                 </Tabs>
+              </CardContent>
+            </Card>
+
+            {/* Live Launch Plan */}
+            <Card
+              id="live-launch"
+              className={cn(
+                "border transition",
+                readyToGo.all
+                  ? "border-emerald-500/35 bg-emerald-500/[0.04]"
+                  : "border-border/60 bg-card/70",
+              )}
+            >
+              <CardContent className="space-y-4 p-5">
+                <StepSectionHeader
+                  step="04"
+                  title="Plan de lancement"
+                  description="Le dernier contrôle avant le live. Ce bloc doit rester court et actionnable."
+                  icon={<Rocket className="h-4 w-4 text-primary" />}
+                />
+
+                <ul className="space-y-2 text-sm">
+                  <LaunchStep
+                    done={readyToGo.titleOk}
+                    label="Titre validé"
+                    detail={titleConfirmed ? "Le titre est verrouillé." : "Valide le titre final."}
+                    action={!titleConfirmed ? (
+                      <Button size="sm" variant="outline" onClick={() => goToSection("live-idea")}>
+                        Ouvrir
+                      </Button>
+                    ) : undefined}
+                  />
+                  <LaunchStep
+                    done={readyToGo.twitchOk}
+                    label={twitchDone ? "Twitch prêt" : skipTwitch ? "Twitch manuel" : "Configurer Twitch"}
+                    detail={twitchDone
+                      ? `Titre : ${twitchPush?.title ?? metadata.twitch.title}${twitchPush?.game_name ? ` · ${twitchPush.game_name}` : ""}`
+                      : "Pousse les métadonnées Twitch ou ignore pour le faire manuellement."}
+                    action={!readyToGo.twitchOk ? (
+                      <Button size="sm" variant="outline" onClick={() => goToSection("live-metadata")}>
+                        Ouvrir
+                      </Button>
+                    ) : undefined}
+                  />
+                  <LaunchStep
+                    done={readyToGo.youtubeOk}
+                    label={youtubeDone ? "YouTube prêt" : skipYouTube ? "YouTube manuel" : "Créer le live YouTube"}
+                    detail={youtubeDone
+                      ? `Titre : ${metadata.youtube.title}${youtubePush?.privacy_status ? ` · ${youtubePush.privacy_status}` : ""}`
+                      : "Crée le brouillon YouTube ou ignore."}
+                    link={youtubePush?.youtube_watch_url
+                      ? { href: youtubePush.youtube_watch_url, label: "Ouvrir dans YouTube" }
+                      : youtubeDone
+                        ? { href: "https://studio.youtube.com/", label: "Ouvrir YouTube Studio" }
+                        : undefined}
+                    action={!readyToGo.youtubeOk ? (
+                      <Button size="sm" variant="outline" onClick={() => goToSection("live-metadata")}>
+                        Ouvrir
+                      </Button>
+                    ) : undefined}
+                  />
+                  <LaunchStep
+                    done={readyToGo.obsOk}
+                    label={`OBS validé (${obsProgress.done}/${obsProgress.total})`}
+                    detail="Termine la checklist technique."
+                    action={!readyToGo.obsOk ? (
+                      <Button size="sm" variant="outline" onClick={() => goToSection("live-obs")}>
+                        Ouvrir
+                      </Button>
+                    ) : undefined}
+                  />
+                </ul>
+
+                <div className="rounded-xl border border-border/60 bg-background/50 p-3 text-sm">
+                  {readyToGo.all ? (
+                    <p className="flex items-start gap-2 text-emerald-300">
+                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span><strong>Tout est prêt.</strong> Ouvre OBS et lance le direct.</span>
+                    </p>
+                  ) : (
+                    <p className="flex items-start gap-2 text-muted-foreground">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                      <span>Un seul but ici : identifier le prochain blocage avant le départ.</span>
+                    </p>
+                  )}
+                </div>
+
+                <Button
+                  className="w-full"
+                  disabled={!readyToGo.all || markingReady || isCompleted}
+                  onClick={handleMarkReadyToGo}
+                >
+                  {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                : <Rocket className="mr-1.5 h-4 w-4" />}
+                  Marquer comme « prêt à lancer »
+                </Button>
+
+                {editingId && !isCompleted && (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    disabled={endingLive}
+                    onClick={handleEndLive}
+                  >
+                    {endingLive ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                : <StopCircle className="mr-1.5 h-4 w-4" />}
+                    Terminer le live & générer le brief
+                  </Button>
+                )}
+                {isCompleted && sessionExtras.ended_at && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    Live terminé le {new Date(sessionExtras.ended_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+                  </p>
+                )}
               </CardContent>
             </Card>
 
