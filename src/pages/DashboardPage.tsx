@@ -30,6 +30,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 import { validateReportConsistency } from "@/services/reportConsistency";
 import {
   getLatestReport,
@@ -528,18 +529,18 @@ const DashboardPage = () => {
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
   const nextAction = report.next_best_action;
   const syncLabel =
-    syncSnapshot?.state === "up_to_date"
+    syncSnapshot?.state === "synchronized"
       ? "Données à jour"
-      : syncSnapshot?.state === "syncing"
+      : syncSnapshot?.state === "update_in_progress" || syncSnapshot?.state === "first_analysis_in_progress"
         ? "Sync en cours"
         : syncSnapshot?.state === "no_analysis"
           ? "Première analyse en attente"
           : "Dernière sync à vérifier";
   const syncDetail = syncSnapshot
-    ? formatSyncRelative(syncSnapshot.lastSyncAt ?? syncSnapshot.lastAnalysisAt ?? currentReport.created_at)
+    ? formatSyncRelative(syncSnapshot.lastJobCompletedAt ?? syncSnapshot.reportCreatedAt ?? currentReport.created_at)
     : `Rapport généré le ${formatDate(currentReport.created_at)}`;
   const liveHeadline = liveSnapshot?.current
-    ? `${liveSnapshot.current.viewer_count ?? 0} viewers en direct`
+    ? `${liveSnapshot.current.peak_viewers ?? 0} viewers en direct`
     : liveSnapshot?.last
       ? "Dernier live disponible"
       : "Aucun live récent";
@@ -759,7 +760,7 @@ const DashboardPage = () => {
                           {liveHeadline}
                         </p>
                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                          {liveSnapshot?.current?.title || liveSnapshot?.last?.title_raw || "Prépare le prochain live"}
+                          {liveSnapshot?.current?.start_title || liveSnapshot?.last?.start_title || "Prépare le prochain live"}
                         </p>
                       </div>
                     </div>
@@ -806,9 +807,9 @@ const DashboardPage = () => {
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {summary.is_live
-                      ? `${liveSnapshot?.current?.viewer_count ?? 0} viewers · ${liveSnapshot?.current?.title || "Direct en cours"}`
+                      ? `${liveSnapshot?.current?.peak_viewers ?? 0} viewers · ${liveSnapshot?.current?.start_title || "Direct en cours"}`
                       : liveSnapshot?.last
-                        ? `Dernier live : ${liveSnapshot.last.title_raw || liveSnapshot.last.category_name || "sans titre"}`
+                        ? `Dernier live : ${liveSnapshot.last.start_title || liveSnapshot.last.category_name || "sans titre"}`
                         : "Prépare le prochain live en 60 secondes."}
                   </p>
                 </div>
