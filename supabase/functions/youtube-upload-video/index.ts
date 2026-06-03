@@ -272,6 +272,10 @@ Deno.serve(async (req) => {
       youtube_uploaded_at: new Date().toISOString(),
       youtube_privacy_status: privacy,
       status: nextStatus,
+      // V3.5 — generic post-publish fields
+      published_url: videoUrl,
+      published_platform: "youtube",
+      external_platform_id: videoId,
     };
     if (privacy === "public") {
       patch.published_at = new Date().toISOString();
