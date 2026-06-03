@@ -30,6 +30,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 import { validateReportConsistency } from "@/services/reportConsistency";
 import {
   getLatestReport,
