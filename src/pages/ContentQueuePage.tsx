@@ -482,15 +482,12 @@ function ContentRow({
           </>
         )}
 
-        {/* V3C — Clip draft block (video platforms only) */}
+        {/* V3D — Clip draft block (video platforms only) */}
         {isVideo && item.status !== "ignored" && (
           <div className="space-y-2 rounded-md border border-border/60 bg-background/40 p-3">
             <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
               <Film className="h-3.5 w-3.5 text-primary" />
               Clip Draft
-              {item.generation_status === "unavailable" && (
-                <Badge variant="outline" className="text-[9px] uppercase">Bientôt disponible</Badge>
-              )}
             </div>
 
             {hasGeneratedClip ? (
@@ -517,7 +514,7 @@ function ContentRow({
                         className="text-primary hover:underline break-all">
                         {item.source_platform ?? "vidéo"} <ExternalLink className="inline h-3 w-3" />
                       </a>
-                    : <span className="italic">Aucune source</span>}
+                    : <span className="italic">Aucune source enregistrée (l'upload se fait à la génération)</span>}
                 </div>
                 <div>
                   <span className="font-medium text-foreground">Moment : </span>
@@ -528,6 +525,8 @@ function ContentRow({
               </div>
             )}
 
+            <ClipJobStatus contentItemId={item.id} onTerminal={onJobUpdate} />
+
             {item.generation_error && (
               <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-[11px] text-destructive">
                 {item.generation_error}
@@ -537,19 +536,19 @@ function ContentRow({
             <div className="flex flex-wrap gap-2">
               <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onEditSource}>
                 <Clock className="mr-1.5 h-3.5 w-3.5" />
-                {hasSource ? "Modifier la source" : "Ajouter une source vidéo"}
+                {item.source_start_time != null ? "Modifier les timestamps" : "Définir les timestamps"}
               </Button>
               {!hasGeneratedClip && (
                 <Button
                   size="sm" className="h-7 text-[11px]"
                   onClick={onGenerate}
-                  disabled={!hasSource || item.status === "generating"}
-                  title={hasSource ? "Lancer la génération" : "Ajoute d'abord une source et des timestamps"}
+                  disabled={item.source_start_time == null || item.source_end_time == null || item.generation_status === "queued" || item.generation_status === "processing"}
+                  title="Lancer la génération du clip"
                 >
-                  {item.status === "generating"
+                  {item.generation_status === "queued" || item.generation_status === "processing"
                     ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     : <Wand2 className="mr-1.5 h-3.5 w-3.5" />}
-                  Générer un clip
+                  {item.generation_status === "failed" ? "Réessayer" : "Générer le clip"}
                 </Button>
               )}
             </div>
