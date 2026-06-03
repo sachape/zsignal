@@ -1010,7 +1010,7 @@ const LiveSetupPage = () => {
 
             {/* Post-live brief */}
             {existingBrief && (
-              <PostLiveBriefCard brief={existingBrief} />
+              <PostLiveBriefCard brief={existingBrief} liveSessionId={editingId} />
             )}
 
             {/* Saved sessions */}
