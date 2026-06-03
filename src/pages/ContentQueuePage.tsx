@@ -215,11 +215,13 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete,
+  item, onUpdate, onDelete, youtubeConnected, onUpload,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
   onDelete: () => void;
+  youtubeConnected: boolean;
+  onUpload: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
