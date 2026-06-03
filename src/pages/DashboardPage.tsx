@@ -760,7 +760,7 @@ const DashboardPage = () => {
                           {liveHeadline}
                         </p>
                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                          {liveSnapshot?.current?.title || liveSnapshot?.last?.title_raw || "Prépare le prochain live"}
+                          {liveSnapshot?.current?.start_title || liveSnapshot?.last?.start_title || "Prépare le prochain live"}
                         </p>
                       </div>
                     </div>
