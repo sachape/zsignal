@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import { useYouTubeSync } from "@/hooks/useYouTubeSync";
+import { useTikTokSync } from "@/hooks/useTikTokSync";
 import { usePresenceScoreHistory } from "@/hooks/usePresenceScoreHistory";
 import { computePresenceScore, getPlatformScore } from "@/services/presenceScore";
 import { computeRecommendations, computeDiagnostic } from "@/services/networkRecommendations";
