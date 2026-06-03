@@ -96,6 +96,7 @@ const YouTubeUploadDialog = ({
     setUploading(true);
     setErrorReason(null);
     setProgress(0);
+    setPhase("uploading");
 
     try {
       const { data: session } = await supabase.auth.getSession();
@@ -103,6 +104,7 @@ const YouTubeUploadDialog = ({
       if (!token) {
         setErrorReason("token_expired");
         setUploading(false);
+        setPhase("idle");
         return;
       }
 
@@ -116,13 +118,17 @@ const YouTubeUploadDialog = ({
 
       const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/youtube-upload-video`;
 
-      // XHR so we can track upload progress
+      // XHR so we can track upload progress (frontend -> edge function).
       const xhr = new XMLHttpRequest();
       xhr.open("POST", url, true);
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
       xhr.upload.onprogress = (evt) => {
         if (evt.lengthComputable) {
-          setProgress(Math.round((evt.loaded / evt.total) * 100));
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          setProgress(pct);
+          // Once the file has reached the edge function, we wait for the
+          // edge -> YouTube transfer (no progress event available).
+          if (pct >= 100) setPhase("transferring");
         }
       };
 
@@ -136,17 +142,21 @@ const YouTubeUploadDialog = ({
       let json: { success?: boolean; reason?: string; video_url?: string; privacy?: string } = {};
       try { json = JSON.parse(responseText); } catch { /* */ }
 
-      if (xhr.status >= 200 && xhr.status < 300 && json.success && json.video_url) {
+      // Only treat as success when YouTube actually returned a video URL.
+      if (xhr.status >= 200 && xhr.status < 300 && json.success === true && typeof json.video_url === "string" && json.video_url.length > 0) {
         setResult({ url: json.video_url, privacy: json.privacy ?? privacy });
         setProgress(100);
+        setPhase("idle");
         toast.success("Vidéo uploadée sur YouTube");
         onUploaded();
       } else {
         setErrorReason(json.reason ?? "upload_failed");
+        setPhase("idle");
       }
     } catch (e) {
       console.error("youtube upload error", e);
       setErrorReason("network");
+      setPhase("idle");
     } finally {
       setUploading(false);
     }
