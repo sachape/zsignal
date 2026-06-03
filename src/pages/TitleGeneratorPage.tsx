@@ -98,7 +98,7 @@ const TitleGeneratorPage = () => {
   const [generated, setGenerated] = useState(false);
 
   const generate = () => {
-    setTitles(generateTitles(game, angle || null));
+    setTitles(generateTitles(game, angle || null, 8));
     setGenerated(true);
   };
 
@@ -189,14 +189,17 @@ const TitleGeneratorPage = () => {
               <>
                 <div className="flex items-center justify-between px-0.5 pb-1">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    5 titres générés pour {game}
+                    {titles.length} titres générés pour {game}
                   </p>
-                  <button
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={generate}
-                    className="text-xs text-primary hover:underline"
+                    className="h-7 gap-1.5 px-2.5 text-xs"
                   >
+                    <Sparkles className="h-3 w-3" />
                     Regénérer
-                  </button>
+                  </Button>
                 </div>
                 {titles.map((t, i) => (
                   <TitleCard key={i} option={t} rank={i} />
