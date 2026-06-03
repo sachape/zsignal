@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -17,7 +17,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -130,8 +129,6 @@ const LiveSetupPage = () => {
   const [endingLive, setEndingLive] = useState(false);
   const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
   const [lastAppliedTitle, setLastAppliedTitle] = useState<string | null>(null);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [sessionsOpen, setSessionsOpen] = useState(true);
 
   const youtubeConnected = useMemo(
     () => accounts.some(a => a.platform === "youtube" && a.connection_status === "connected"),
@@ -216,21 +213,6 @@ const LiveSetupPage = () => {
     return { twitchOk, youtubeOk, obsOk, titleOk, all: twitchOk && youtubeOk && obsOk && titleOk };
   }, [twitchDone, skipTwitch, youtubeDone, skipYouTube, obsItems, obsChecklist, titleConfirmed, metadata]);
 
-  const hasAdvancedValues = useMemo(
-    () =>
-      !!input.tone ||
-      input.language !== "fr" ||
-      !!input.targetAudience.trim() ||
-      !!input.scheduledAt ||
-      input.platforms.length > 1 ||
-      !input.platforms.includes("twitch"),
-    [input],
-  );
-
-  useEffect(() => {
-    if (hasAdvancedValues) setAdvancedOpen(true);
-  }, [hasAdvancedValues]);
-
   const resetForm = () => {
     setEditingId(null);
     setInput(EMPTY_INPUT);
@@ -240,7 +222,6 @@ const LiveSetupPage = () => {
     setSkipTwitch(false);
     setSkipYouTube(false);
     setTitleConfirmed(false);
-    setAdvancedOpen(false);
   };
 
   const loadSession = (s: LiveSession) => {
@@ -262,85 +243,8 @@ const LiveSetupPage = () => {
     setSkipTwitch(!!extras.skip_twitch);
     setSkipYouTube(!!extras.skip_youtube);
     setTitleConfirmed(!!extras.title_confirmed);
-    setAdvancedOpen(
-      !!(s.tone || (s.language && s.language !== "fr") || s.target_audience || s.scheduled_at || ((s.platforms as LiveTargetPlatform[]) ?? ["twitch"]).length > 1),
-    );
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  const goToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const activeWorkflowStep = readyToGo.titleOk
-    ? !readyToGo.twitchOk
-      ? "push"
-      : !readyToGo.youtubeOk
-        ? "push"
-        : !readyToGo.obsOk
-          ? "obs"
-          : readyToGo.all
-            ? "launch"
-            : "launch"
-    : "idea";
-
-  const workflowSteps = [
-    {
-      id: "idea",
-      number: "01",
-      label: "Préparer l'idée",
-      done: readyToGo.titleOk,
-      current: activeWorkflowStep === "idea",
-      detail: titleConfirmed ? "Titre final validé." : "Choisis un angle, une catégorie et valide le titre.",
-      targetId: "live-idea",
-    },
-    {
-      id: "push",
-      number: "02",
-      label: "Configurer les plateformes",
-      done: readyToGo.twitchOk && readyToGo.youtubeOk,
-      current: activeWorkflowStep === "push",
-      detail: readyToGo.twitchOk && readyToGo.youtubeOk
-        ? "Twitch et YouTube sont prêts ou volontairement ignorés."
-        : "Pousse Twitch et crée le live YouTube, ou marque-les en manuel.",
-      targetId: "live-metadata",
-    },
-    {
-      id: "obs",
-      number: "03",
-      label: "Vérifier le setup",
-      done: readyToGo.obsOk,
-      current: activeWorkflowStep === "obs",
-      detail: readyToGo.obsOk
-        ? "Le setup OBS est validé."
-        : `Checklist OBS à ${obsProgress.done}/${obsProgress.total}.`,
-      targetId: "live-obs",
-    },
-    {
-      id: "launch",
-      number: "04",
-      label: "Lancer le live",
-      done: readyToGo.all,
-      current: activeWorkflowStep === "launch",
-      detail: readyToGo.all
-        ? "Tout est prêt. Tu peux basculer en mode lancement."
-        : "Le plan de lancement centralise ce qu'il reste à terminer.",
-      targetId: "live-launch",
-    },
-  ];
-
-  const selectedMetadataTabs = useMemo(() => {
-    const tabs: Array<"twitch" | "youtube" | "social" | "kick"> = [];
-    if (input.platforms.includes("twitch")) tabs.push("twitch");
-    if (input.platforms.includes("youtube")) tabs.push("youtube");
-    tabs.push("social");
-    if (input.platforms.includes("tiktok") || input.platforms.includes("instagram")) {
-      tabs.push("kick");
-    }
-    return tabs;
-  }, [input.platforms]);
 
   // Build the metadata payload, preserving existing push history so we don't
   // overwrite twitch_push / youtube_push entries with each save.
@@ -680,65 +584,16 @@ const LiveSetupPage = () => {
           ) : null}
         />
 
-        <Card className="mb-6 border-primary/25 bg-gradient-to-br from-primary/8 to-background">
-          <CardContent className="space-y-4 p-5">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-foreground">Parcours guidé avant de passer en live</p>
-                <p className="text-xs text-muted-foreground">
-                  Avance étape par étape. Streamnco te dit ce qu'il reste à faire avant d'ouvrir OBS.
-                </p>
-              </div>
-              <div className="rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs text-muted-foreground">
-                {workflowSteps.filter((step) => step.done).length}/{workflowSteps.length} étapes terminées
-              </div>
-            </div>
-
-            <div className="grid gap-2 md:grid-cols-4">
-              {workflowSteps.map((step) => (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => goToSection(step.targetId)}
-                  className={cn(
-                    "rounded-xl border p-3 text-left transition",
-                    step.done
-                      ? "border-emerald-500/30 bg-emerald-500/8"
-                      : step.current
-                        ? "border-primary/40 bg-primary/10"
-                        : "border-border/60 bg-background/60 hover:border-border",
-                  )}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-semibold tracking-[0.18em] text-muted-foreground">
-                      {step.number}
-                    </span>
-                    {step.done ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
-                  <p className="mt-2 text-sm font-medium text-foreground">{step.label}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.detail}</p>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
           {/* ── LEFT: Form + presets + checklist + OBS assistant ─────────── */}
           <div className="space-y-6">
             {/* Preset selector */}
-            <Card id="live-preset" className="border-border/60 bg-card/60 backdrop-blur">
+            <Card className="border-border/60 bg-card/60 backdrop-blur">
               <CardContent className="space-y-4 p-6">
-                <StepSectionHeader
-                  step="00"
-                  title="Choisis un preset"
-                  description="Un preset t'évite de repartir de zéro et adapte instantanément le ton, la checklist OBS et les types de clips à viser."
-                  icon={<Settings2 className="h-4 w-4 text-primary" />}
-                />
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Settings2 className="h-4 w-4 text-primary" />
+                  Type de live (preset)
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Choisis un preset pour adapter automatiquement la checklist OBS, le ton du titre,
                   les moments à prévoir et les clips à viser.
@@ -769,14 +624,12 @@ const LiveSetupPage = () => {
             </Card>
 
             {/* Idea form */}
-            <Card id="live-idea" className="border-border/60 bg-card/60 backdrop-blur">
+            <Card className="border-border/60 bg-card/60 backdrop-blur">
               <CardContent className="space-y-5 p-6">
-                <StepSectionHeader
-                  step="01"
-                  title="Prépare l'idée du live"
-                  description="Commence par le strict nécessaire: angle, catégorie, objectif. Les options avancées restent disponibles si tu veux affiner."
-                  icon={<Wand2 className="h-4 w-4 text-primary" />}
-                />
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Wand2 className="h-4 w-4 text-primary" />
+                  Idée du live
+                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="titleRaw">Titre brut / idée du live</Label>
@@ -799,30 +652,9 @@ const LiveSetupPage = () => {
                   onApply={(t) => {
                     setInput(prev => ({ ...prev, titleRaw: t }));
                     setLastAppliedTitle(t);
-                    setTitleConfirmed(true);
+                    setTitleConfirmed(false);
                   }}
                 />
-
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border/60 bg-background/40 p-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {titleConfirmed ? "Titre final validé" : "Titre à valider"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {titleConfirmed
-                        ? "Ce titre servira de base pour les variantes plateforme."
-                        : "Confirme le titre quand il te convient, surtout si tu l'as modifié à la main."}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant={titleConfirmed ? "outline" : "default"}
-                    onClick={() => setTitleConfirmed((v) => !v)}
-                    disabled={!input.titleRaw.trim() && !metadata.youtube.title.trim()}
-                  >
-                    {titleConfirmed ? "Annuler la validation" : "Confirmer le titre"}
-                  </Button>
-                </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
@@ -841,100 +673,78 @@ const LiveSetupPage = () => {
                       placeholder="Ex : monter Diamant 2" maxLength={120}
                     />
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="tone">Ton souhaité</Label>
+                    <Select value={input.tone || undefined}
+                      onValueChange={(v) => setInput({ ...input, tone: v as LiveTone })}>
+                      <SelectTrigger id="tone"><SelectValue placeholder="Choisir un ton" /></SelectTrigger>
+                      <SelectContent>
+                        {TONES.map(t => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lang">Langue</Label>
+                    <Select value={input.language}
+                      onValueChange={(v) => setInput({ ...input, language: v })}>
+                      <SelectTrigger id="lang"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fr">Français</SelectItem>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Español</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="audience">Audience cible</Label>
+                    <Input
+                      id="audience" value={input.targetAudience}
+                      onChange={(e) => setInput({ ...input, targetAudience: e.target.value })}
+                      placeholder="Ex : joueurs FR niveau intermédiaire" maxLength={160}
+                    />
+                  </div>
+
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="scheduled">Date / heure (optionnel)</Label>
+                    <Input
+                      id="scheduled" type="datetime-local"
+                      value={input.scheduledAt ? input.scheduledAt.slice(0, 16) : ""}
+                      onChange={(e) => setInput({
+                        ...input,
+                        scheduledAt: e.target.value ? new Date(e.target.value).toISOString() : "",
+                      })}
+                    />
+                  </div>
                 </div>
 
-                <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
-                  <div className="rounded-xl border border-dashed border-border/60 bg-muted/15 p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Options avancées</p>
-                        <p className="text-xs text-muted-foreground">
-                          Langue, ton, audience, horaire et destinations. À compléter seulement si tu en as besoin.
-                        </p>
-                      </div>
-                      <CollapsibleTrigger asChild>
-                        <Button variant="outline" size="sm" className="self-start">
-                          {advancedOpen ? "Masquer" : "Afficher"}
-                        </Button>
-                      </CollapsibleTrigger>
-                    </div>
-
-                    <CollapsibleContent className="pt-4">
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="tone">Ton souhaité</Label>
-                          <Select value={input.tone || undefined}
-                            onValueChange={(v) => setInput({ ...input, tone: v as LiveTone })}>
-                            <SelectTrigger id="tone"><SelectValue placeholder="Choisir un ton" /></SelectTrigger>
-                            <SelectContent>
-                              {TONES.map(t => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="lang">Langue</Label>
-                          <Select value={input.language}
-                            onValueChange={(v) => setInput({ ...input, language: v })}>
-                            <SelectTrigger id="lang"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="fr">Français</SelectItem>
-                              <SelectItem value="en">English</SelectItem>
-                              <SelectItem value="es">Español</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <Label htmlFor="audience">Audience cible</Label>
-                          <Input
-                            id="audience" value={input.targetAudience}
-                            onChange={(e) => setInput({ ...input, targetAudience: e.target.value })}
-                            placeholder="Ex : joueurs FR niveau intermédiaire" maxLength={160}
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <Label htmlFor="scheduled">Date / heure (optionnel)</Label>
-                          <Input
-                            id="scheduled" type="datetime-local"
-                            value={input.scheduledAt ? input.scheduledAt.slice(0, 16) : ""}
-                            onChange={(e) => setInput({
-                              ...input,
-                              scheduledAt: e.target.value ? new Date(e.target.value).toISOString() : "",
-                            })}
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <Label>Plateformes ciblées</Label>
-                          <div className="flex flex-wrap gap-2">
-                            {PLATFORMS.map(({ value, label, Icon, soon }) => {
-                              const active = input.platforms.includes(value);
-                              return (
-                                <button
-                                  key={value} type="button"
-                                  onClick={() => !soon && togglePlatform(value)}
-                                  disabled={soon}
-                                  className={cn(
-                                    "inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
-                                    active
-                                      ? "border-primary bg-primary/10 text-primary"
-                                      : "border-border bg-card hover:border-border/80",
-                                    soon && "cursor-not-allowed opacity-60",
-                                  )}
-                                >
-                                  <Icon className="h-4 w-4" />
-                                  {label}
-                                  {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </CollapsibleContent>
+                <div className="space-y-2">
+                  <Label>Plateformes ciblées</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {PLATFORMS.map(({ value, label, Icon, soon }) => {
+                      const active = input.platforms.includes(value);
+                      return (
+                        <button
+                          key={value} type="button"
+                          onClick={() => !soon && togglePlatform(value)}
+                          disabled={soon}
+                          className={cn(
+                            "inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
+                            active
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border bg-card hover:border-border/80",
+                            soon && "cursor-not-allowed opacity-60",
+                          )}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {label}
+                          {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
+                        </button>
+                      );
+                    })}
                   </div>
-                </Collapsible>
+                </div>
 
                 <div className="flex flex-wrap gap-2 pt-2">
                   <Button onClick={() => handleSave("ready")} disabled={saving}>
@@ -950,15 +760,13 @@ const LiveSetupPage = () => {
             </Card>
 
             {/* OBS Assistant */}
-            <Card id="live-obs" className="border-border/60">
+            <Card className="border-border/60">
               <CardContent className="space-y-5 p-6">
-                <div className="flex items-start justify-between gap-3">
-                  <StepSectionHeader
-                    step="03"
-                    title="Vérifie le setup OBS"
-                    description="Un seul objectif ici: arriver prêt techniquement. Les recommandations stratégiques restent visibles, mais la checklist doit primer."
-                    icon={<MonitorPlay className="h-4 w-4 text-primary" />}
-                  />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <MonitorPlay className="h-4 w-4 text-primary" />
+                    OBS Assistant
+                  </div>
                   <Badge variant="outline" className="text-xs">
                     {obsProgress.done}/{obsProgress.total}
                   </Badge>
@@ -1033,13 +841,11 @@ const LiveSetupPage = () => {
             {/* Pre-live checklist */}
             <Card className="border-border/60">
               <CardContent className="space-y-4 p-6">
-                <div className="flex items-start justify-between gap-3">
-                  <StepSectionHeader
-                    step="03B"
-                    title="Checklist générale"
-                    description="Les indispensables non techniques: eau, transitions, rappel de l'objectif et derniers détails avant le départ."
-                    icon={<ListChecks className="h-4 w-4 text-primary" />}
-                  />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <ListChecks className="h-4 w-4 text-primary" />
+                    Checklist générale
+                  </div>
                   <Badge variant="outline" className="text-xs">
                     {preliveProgress.done}/{preliveProgress.total}
                   </Badge>
@@ -1074,140 +880,20 @@ const LiveSetupPage = () => {
           </div>
 
           {/* ── RIGHT: Preview + actions + launch plan + sessions ────────── */}
-          <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-            {/* Live Launch Plan */}
-            <Card
-              id="live-launch"
-              className={cn(
-                "border-2 transition",
-                readyToGo.all
-                  ? "border-emerald-500/40 bg-emerald-500/5"
-                  : "border-primary/30 bg-gradient-to-br from-primary/5 to-transparent",
-              )}
-            >
-              <CardContent className="space-y-4 p-6">
-                <StepSectionHeader
-                  step="04"
-                  title="Plan de lancement"
-                  description="Ce panneau devient ton centre de pilotage. S'il reste une étape incomplète, clique dessus et termine-la."
-                  icon={<Rocket className="h-4 w-4 text-primary" />}
-                />
-
-                <ul className="space-y-2 text-sm">
-                  <LaunchStep
-                    done={readyToGo.titleOk}
-                    label="Titre final validé"
-                    detail={titleConfirmed
-                      ? "Le titre final est verrouillé pour cette session."
-                      : "Valide le titre après l'avoir choisi ou ajusté."}
-                    action={!titleConfirmed ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-idea")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.twitchOk}
-                    label={twitchDone ? "Twitch configuré" : skipTwitch ? "Twitch ignoré (manuel)" : "Configurer Twitch"}
-                    detail={twitchDone
-                      ? `Titre : ${twitchPush?.title ?? metadata.twitch.title}${twitchPush?.game_name ? ` · ${twitchPush.game_name}` : ""}`
-                      : "Pousse les métadonnées Twitch, ou ignore pour configurer manuellement."}
-                    action={!readyToGo.twitchOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-metadata")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.youtubeOk}
-                    label={youtubeDone ? "Live YouTube créé" : skipYouTube ? "YouTube ignoré (manuel)" : "Créer le live YouTube"}
-                    detail={youtubeDone
-                      ? `Titre : ${metadata.youtube.title}${youtubePush?.privacy_status ? ` · ${youtubePush.privacy_status}` : ""}`
-                      : "Crée le brouillon de live YouTube, ou ignore."}
-                    link={youtubePush?.youtube_watch_url
-                      ? { href: youtubePush.youtube_watch_url, label: "Ouvrir dans YouTube" }
-                      : youtubeDone
-                        ? { href: "https://studio.youtube.com/", label: "Ouvrir YouTube Studio" }
-                        : undefined}
-                    action={!readyToGo.youtubeOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-metadata")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.obsOk}
-                    label={`OBS prêt (${obsProgress.done}/${obsProgress.total})`}
-                    detail="Coche toute la checklist OBS et valide les réglages techniques."
-                    action={!readyToGo.obsOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-obs")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                </ul>
-
-                <div className="rounded-md border border-border/60 bg-background/40 p-3 text-sm">
-                  {readyToGo.all ? (
-                    <p className="flex items-start gap-2 text-emerald-300">
-                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-                      <span><strong>Tout est prêt.</strong> Il ne te reste qu'à ouvrir OBS et démarrer ton stream.</span>
-                    </p>
-                  ) : (
-                    <p className="flex items-start gap-2 text-muted-foreground">
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-                      <span>Termine les étapes ci-dessus pour débloquer « Prêt à lancer ».</span>
-                    </p>
-                  )}
-                </div>
-
-                <Button
-                  className="w-full"
-                  disabled={!readyToGo.all || markingReady || isCompleted}
-                  onClick={handleMarkReadyToGo}
-                >
-                  {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                                : <Rocket className="mr-1.5 h-4 w-4" />}
-                  Marquer comme « prêt à lancer »
-                </Button>
-
-                {editingId && !isCompleted && (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    disabled={endingLive}
-                    onClick={handleEndLive}
-                  >
-                    {endingLive ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                                : <StopCircle className="mr-1.5 h-4 w-4" />}
-                    Terminer le live & générer le brief
-                  </Button>
-                )}
-                {isCompleted && sessionExtras.ended_at && (
-                  <p className="text-center text-xs text-muted-foreground">
-                    Live terminé le {new Date(sessionExtras.ended_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
+          <div className="space-y-6">
             {/* Generated metadata */}
-            <Card id="live-metadata" className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+            <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
               <CardContent className="p-6">
-                <div className="mb-4">
-                  <StepSectionHeader
-                    step="02"
-                    title="Génère puis pousse les métadonnées"
-                    description="Vérifie d'abord le rendu final, puis envoie chaque destination une par une. Les plateformes non ciblées restent cachées pour alléger la lecture."
-                    icon={<Sparkles className="h-4 w-4 text-primary" />}
-                  />
+                <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Métadonnées générées
                 </div>
 
-                <Tabs defaultValue={selectedMetadataTabs[0] ?? "social"}>
-                  <TabsList className={cn("grid w-full", selectedMetadataTabs.length === 2 && "grid-cols-2", selectedMetadataTabs.length === 3 && "grid-cols-3", selectedMetadataTabs.length >= 4 && "grid-cols-4")}>
-                    {selectedMetadataTabs.includes("twitch") && <TabsTrigger value="twitch">Twitch</TabsTrigger>}
-                    {selectedMetadataTabs.includes("youtube") && <TabsTrigger value="youtube">YouTube</TabsTrigger>}
-                    {selectedMetadataTabs.includes("kick") && <TabsTrigger value="kick">Manuel</TabsTrigger>}
+                <Tabs defaultValue="twitch">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="twitch">Twitch</TabsTrigger>
+                    <TabsTrigger value="youtube">YouTube</TabsTrigger>
+                    <TabsTrigger value="kick">Kick</TabsTrigger>
                     <TabsTrigger value="social">Social</TabsTrigger>
                   </TabsList>
 
@@ -1287,6 +973,106 @@ const LiveSetupPage = () => {
               </CardContent>
             </Card>
 
+            {/* Live Launch Plan */}
+            <Card className={cn(
+              "border-2 transition",
+              readyToGo.all
+                ? "border-emerald-500/40 bg-emerald-500/5"
+                : "border-primary/30 bg-gradient-to-br from-primary/5 to-transparent",
+            )}>
+              <CardContent className="space-y-4 p-6">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Rocket className="h-4 w-4 text-primary" />
+                  Plan de lancement
+                </div>
+
+                <ul className="space-y-2 text-sm">
+                  <LaunchStep
+                    done={readyToGo.twitchOk}
+                    label={twitchDone ? "Twitch configuré" : skipTwitch ? "Twitch ignoré (manuel)" : "Configurer Twitch"}
+                    detail={twitchDone
+                      ? `Titre : ${twitchPush?.title ?? metadata.twitch.title}${twitchPush?.game_name ? ` · ${twitchPush.game_name}` : ""}`
+                      : "Pousse les métadonnées Twitch, ou ignore pour configurer manuellement."}
+                  />
+                  <LaunchStep
+                    done={readyToGo.youtubeOk}
+                    label={youtubeDone ? "Live YouTube créé" : skipYouTube ? "YouTube ignoré (manuel)" : "Créer le live YouTube"}
+                    detail={youtubeDone
+                      ? `Titre : ${metadata.youtube.title}${youtubePush?.privacy_status ? ` · ${youtubePush.privacy_status}` : ""}`
+                      : "Crée le brouillon de live YouTube, ou ignore."}
+                    link={youtubePush?.youtube_watch_url
+                      ? { href: youtubePush.youtube_watch_url, label: "Ouvrir dans YouTube" }
+                      : youtubeDone
+                        ? { href: "https://studio.youtube.com/", label: "Ouvrir YouTube Studio" }
+                        : undefined}
+                  />
+                  <LaunchStep
+                    done={readyToGo.obsOk}
+                    label={`OBS prêt (${obsProgress.done}/${obsProgress.total})`}
+                    detail="Coche toute la checklist OBS ci-contre."
+                  />
+                  <LaunchStep
+                    done={readyToGo.titleOk}
+                    label="Titre final confirmé"
+                    detail={titleConfirmed
+                      ? "Tu valides le titre final."
+                      : "Confirme que le titre final est celui que tu veux."}
+                    action={
+                      <Button
+                        size="sm" variant={titleConfirmed ? "outline" : "default"}
+                        onClick={() => setTitleConfirmed(v => !v)}
+                        disabled={!metadata.twitch.title.trim() && !metadata.youtube.title.trim()}
+                      >
+                        {titleConfirmed ? "Annuler" : "Confirmer"}
+                      </Button>
+                    }
+                  />
+                </ul>
+
+                <div className="rounded-md border border-border/60 bg-background/40 p-3 text-sm">
+                  {readyToGo.all ? (
+                    <p className="flex items-start gap-2 text-emerald-300">
+                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span><strong>Tout est prêt.</strong> Il ne te reste qu'à ouvrir OBS et démarrer ton stream.</span>
+                    </p>
+                  ) : (
+                    <p className="flex items-start gap-2 text-muted-foreground">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                      <span>Termine les étapes ci-dessus pour débloquer « Prêt à lancer ».</span>
+                    </p>
+                  )}
+                </div>
+
+                <Button
+                  className="w-full"
+                  disabled={!readyToGo.all || markingReady || isCompleted}
+                  onClick={handleMarkReadyToGo}
+                >
+                  {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                : <Rocket className="mr-1.5 h-4 w-4" />}
+                  Marquer comme « prêt à lancer »
+                </Button>
+
+                {editingId && !isCompleted && (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    disabled={endingLive}
+                    onClick={handleEndLive}
+                  >
+                    {endingLive ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                : <StopCircle className="mr-1.5 h-4 w-4" />}
+                    Terminer le live & générer le brief
+                  </Button>
+                )}
+                {isCompleted && sessionExtras.ended_at && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    Live terminé le {new Date(sessionExtras.ended_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Post-live brief */}
             {existingBrief && (
               <PostLiveBriefCard
@@ -1300,74 +1086,63 @@ const LiveSetupPage = () => {
             {/* Saved sessions */}
             <Card className="border-border/60">
               <CardContent className="p-6">
-                <Collapsible open={sessionsOpen} onOpenChange={setSessionsOpen}>
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                      <Clock className="h-4 w-4 text-primary" />
-                      Sessions sauvegardées
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">{sessions.length}</Badge>
-                      <CollapsibleTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          {sessionsOpen ? "Masquer" : "Afficher"}
-                        </Button>
-                      </CollapsibleTrigger>
-                    </div>
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Clock className="h-4 w-4 text-primary" />
+                    Sessions sauvegardées
                   </div>
-                  <CollapsibleContent>
-                    {loading ? (
-                      <p className="text-sm text-muted-foreground">Chargement…</p>
-                    ) : sessions.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        Aucune session pour l'instant. Remplis le formulaire et sauvegarde un brouillon.
-                      </p>
-                    ) : (
-                      <ul className="space-y-2">
-                        {sessions.map((s) => {
-                          const meta = s.generated_metadata as Record<string, unknown> | undefined;
-                          const tp = meta?.twitch_push as PushEntry | undefined;
-                          const yp = meta?.youtube_push as PushEntry | undefined;
-                          const extras = readExtras(meta);
-                          const actions: string[] = [];
-                          if (tp?.status === "success") actions.push("Twitch ✓");
-                          if (yp?.status === "success") actions.push("YouTube ✓");
-                          if (extras.skip_twitch && !tp) actions.push("Twitch ignoré");
-                          if (extras.skip_youtube && !yp) actions.push("YouTube ignoré");
-                          return (
-                            <li
-                              key={s.id}
-                              className={cn(
-                                "group flex items-center gap-3 rounded-md border p-3 transition",
-                                editingId === s.id
-                                  ? "border-primary bg-primary/5"
-                                  : "border-border/60 hover:border-border",
-                              )}
-                            >
-                              <button type="button" onClick={() => loadSession(s)}
-                                className="min-w-0 flex-1 text-left">
-                                <p className="truncate text-sm font-medium text-foreground">
-                                  {s.title_raw || s.game_category || "Sans titre"}
-                                </p>
-                                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                                  <StatusPill status={s.status} />
-                                  {s.game_category && <span className="truncate">· {s.game_category}</span>}
-                                  {actions.length > 0 && <span>· {actions.join(" · ")}</span>}
-                                </p>
-                              </button>
-                              <Button variant="ghost" size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                                onClick={() => handleDelete(s.id)} aria-label="Supprimer">
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
-                  </CollapsibleContent>
-                </Collapsible>
+                  <Badge variant="outline" className="text-xs">{sessions.length}</Badge>
+                </div>
+                {loading ? (
+                  <p className="text-sm text-muted-foreground">Chargement…</p>
+                ) : sessions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Aucune session pour l'instant. Remplis le formulaire et sauvegarde un brouillon.
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {sessions.map((s) => {
+                      const meta = s.generated_metadata as Record<string, unknown> | undefined;
+                      const tp = meta?.twitch_push as PushEntry | undefined;
+                      const yp = meta?.youtube_push as PushEntry | undefined;
+                      const extras = readExtras(meta);
+                      const actions: string[] = [];
+                      if (tp?.status === "success") actions.push("Twitch ✓");
+                      if (yp?.status === "success") actions.push("YouTube ✓");
+                      if (extras.skip_twitch && !tp) actions.push("Twitch ignoré");
+                      if (extras.skip_youtube && !yp) actions.push("YouTube ignoré");
+                      return (
+                        <li
+                          key={s.id}
+                          className={cn(
+                            "group flex items-center gap-3 rounded-md border p-3 transition",
+                            editingId === s.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border/60 hover:border-border",
+                          )}
+                        >
+                          <button type="button" onClick={() => loadSession(s)}
+                            className="min-w-0 flex-1 text-left">
+                            <p className="truncate text-sm font-medium text-foreground">
+                              {s.title_raw || s.game_category || "Sans titre"}
+                            </p>
+                            <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                              <StatusPill status={s.status} />
+                              {s.game_category && <span className="truncate">· {s.game_category}</span>}
+                              {actions.length > 0 && <span>· {actions.join(" · ")}</span>}
+                            </p>
+                          </button>
+                          <Button variant="ghost" size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDelete(s.id)} aria-label="Supprimer">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </CardContent>
             </Card>
 
@@ -1437,39 +1212,10 @@ function SkipToggle({ label, checked, disabled, onChange }: {
   );
 }
 
-function StepSectionHeader({
-  step,
-  title,
-  description,
-  icon,
-}: {
-  step: string;
-  title: string;
-  description: string;
-  icon: ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        <span className="rounded-full border border-border/60 bg-background/70 px-2 py-0.5">
-          Étape {step}
-        </span>
-      </div>
-      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-        {icon}
-        {title}
-      </div>
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        {description}
-      </p>
-    </div>
-  );
-}
-
 function PushActionRow({
   icon, connected, busy, labelConnected, labelMissing, onPush, disabledReason,
 }: {
-  icon: ReactNode; connected: boolean; busy: boolean;
+  icon: React.ReactNode; connected: boolean; busy: boolean;
   labelConnected: string; labelMissing: string; onPush: () => void;
   disabledReason?: string;
 }) {
@@ -1534,7 +1280,7 @@ function LaunchStep({
 }: {
   done: boolean; label: string; detail?: string;
   link?: { href: string; label: string };
-  action?: ReactNode;
+  action?: React.ReactNode;
 }) {
   return (
     <li className="flex items-start gap-3 rounded-md border border-border/60 bg-background/40 p-3">
