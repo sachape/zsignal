@@ -219,13 +219,13 @@ function PlatformCard({
             </Button>
           ) : isActive ? (
             <>
-              {platform === "youtube" && onSync && (
+              {(platform === "youtube" || platform === "tiktok") && onSync && status === "connected" && (
                 <Button size="sm" variant="outline" className="flex-1 text-xs h-7" disabled={syncLoading} onClick={onSync}>
                   <RefreshCw className={cn("mr-1 h-3 w-3", syncLoading && "animate-spin")} />
                   {syncLoading ? "Synchro…" : "Synchroniser"}
                 </Button>
               )}
-              {(platform === "tiktok" || platform === "instagram") && onEdit && (
+              {((platform === "tiktok" && status === "manual") || platform === "instagram") && onEdit && (
                 <Button size="sm" variant="outline" className="h-7 px-2" onClick={onEdit}>
                   <Pencil className="h-3 w-3" />
                 </Button>
