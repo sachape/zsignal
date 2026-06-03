@@ -61,19 +61,22 @@ function reasonMessage(reason: string | undefined): { label: string; reconnect?:
 const YouTubeUploadDialog = ({
   item, open, onOpenChange, youtubeConnected, onReconnect, onUploaded,
 }: Props) => {
+  const hasGeneratedClip = !!item.generated_video_url;
   const [file, setFile] = useState<File | null>(null);
+  const [useGenerated, setUseGenerated] = useState<boolean>(hasGeneratedClip);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
   const [tagsRaw, setTagsRaw] = useState(item.hashtags.join(", "));
   const [privacy, setPrivacy] = useState<YouTubePrivacyStatus>("private");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [phase, setPhase] = useState<"idle" | "uploading" | "transferring">("idle");
+  const [phase, setPhase] = useState<"idle" | "fetching" | "uploading" | "transferring">("idle");
   const [errorReason, setErrorReason] = useState<string | null>(null);
   const [result, setResult] = useState<{ url: string; privacy: string } | null>(null);
 
   function reset() {
     setFile(null);
+    setUseGenerated(hasGeneratedClip);
     setUploading(false);
     setProgress(0);
     setPhase("idle");
@@ -92,10 +95,33 @@ const YouTubeUploadDialog = ({
   }
 
   async function startUpload() {
-    if (!file) { setErrorReason("invalid_file_type"); return; }
-    setUploading(true);
     setErrorReason(null);
     setProgress(0);
+
+    let uploadBlob: Blob | null = null;
+    let uploadName = "clip.mp4";
+
+    if (useGenerated && item.generated_video_url) {
+      setPhase("fetching");
+      setUploading(true);
+      try {
+        const res = await fetch(item.generated_video_url);
+        if (!res.ok) { setErrorReason("network"); setUploading(false); setPhase("idle"); return; }
+        const blob = await res.blob();
+        if (blob.size === 0) { setErrorReason("empty_file"); setUploading(false); setPhase("idle"); return; }
+        if (blob.size > MAX_BYTES) { setErrorReason("file_too_large"); setUploading(false); setPhase("idle"); return; }
+        uploadBlob = blob;
+        uploadName = `clip-${item.id}.mp4`;
+      } catch {
+        setErrorReason("network"); setUploading(false); setPhase("idle"); return;
+      }
+    } else {
+      if (!file) { setErrorReason("invalid_file_type"); return; }
+      uploadBlob = file;
+      uploadName = file.name;
+      setUploading(true);
+    }
+
     setPhase("uploading");
 
     try {
