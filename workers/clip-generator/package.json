@@ -1,15 +1,14 @@
 {
   "name": "streamnco-clip-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "Streamnco V3D worker: FFmpeg clip generator. Receives a job_id, downloads the source, cuts the segment, uploads the result, calls back the Supabase edge function.",
+  "description": "Streamnco V3D worker: stateless FFmpeg clip generator. Receives a signed source URL and signed upload URL from the Lovable Edge Function, cuts the clip, uploads, calls back.",
   "main": "index.mjs",
   "scripts": {
     "start": "node index.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.0",
     "express": "^4.21.0"
   }
 }
