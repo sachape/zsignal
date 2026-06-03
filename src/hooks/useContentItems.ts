@@ -95,6 +95,16 @@ export interface NewContentItem {
   source_video_url?: string | null;
   source_start_time?: number | null;
   source_end_time?: number | null;
+  // V3.5
+  title_variants?: Array<{ style: string; label: string; value: string }>;
+  selected_title_variant?: string | null;
+  description_variants?: Array<{ style: string; label: string; value: string }>;
+  selected_description_variant?: string | null;
+  hashtag_variants?: Array<{ style: string; label: string; tags: string[] }>;
+  selected_hashtags?: string[];
+  opportunity_score?: number | null;
+  opportunity_label?: string | null;
+  opportunity_reason?: string | null;
 }
 
 export function useContentItems() {
