@@ -30,7 +30,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils";
 import { validateReportConsistency } from "@/services/reportConsistency";
 import {
   getLatestReport,
@@ -529,23 +528,36 @@ const DashboardPage = () => {
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
   const nextAction = report.next_best_action;
   const syncLabel =
-    syncSnapshot?.state === "synchronized"
+    syncSnapshot?.state === "up_to_date"
       ? "Données à jour"
-      : syncSnapshot?.state === "update_in_progress" || syncSnapshot?.state === "first_analysis_in_progress"
+      : syncSnapshot?.state === "syncing"
         ? "Sync en cours"
         : syncSnapshot?.state === "no_analysis"
           ? "Première analyse en attente"
           : "Dernière sync à vérifier";
   const syncDetail = syncSnapshot
-    ? formatSyncRelative(syncSnapshot.lastJobCompletedAt ?? syncSnapshot.reportCreatedAt ?? currentReport.created_at)
+    ? formatSyncRelative(syncSnapshot.lastSyncAt ?? syncSnapshot.lastAnalysisAt ?? currentReport.created_at)
     : `Rapport généré le ${formatDate(currentReport.created_at)}`;
   const liveHeadline = liveSnapshot?.current
-    ? `${liveSnapshot.current.peak_viewers ?? 0} viewers en direct`
+    ? `${liveSnapshot.current.viewer_count ?? 0} viewers en direct`
     : liveSnapshot?.last
       ? "Dernier live disponible"
       : "Aucun live récent";
 
   const endedSessions = allSessions.filter((s) => s.status === "ended").length;
+
+  const sessions30d = allSessions.filter((s) => {
+    const d = new Date(s.started_at ?? "");
+    return !isNaN(d.getTime()) && Date.now() - d.getTime() < 30 * 86_400_000;
+  });
+  const lives30d = sessions30d.length;
+  const viewersMoy =
+    sessions30d.length > 0
+      ? Math.round(
+          sessions30d.reduce((sum, s) => sum + (s.avg_viewers ?? 0), 0) /
+            sessions30d.length,
+        )
+      : null;
 
   return (
     <AppShell>
@@ -557,306 +569,256 @@ const DashboardPage = () => {
               <Sparkles className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-foreground sm:text-[0.95rem]">
+              <p className="text-sm font-semibold text-foreground">
                 Ton diagnostic est prêt.
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 Cette page devient ta home hebdo : un blocage à lever, un objectif à viser, rien de plus.
               </p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={dismissWelcome}
-              aria-label="Fermer le message de bienvenue"
-              className="-mr-1 shrink-0 text-muted-foreground hover:text-foreground"
-            >
+            <Button variant="ghost" size="icon" onClick={dismissWelcome} aria-label="Fermer" className="-mr-1 shrink-0 text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
             </Button>
           </div>
         )}
-        <section className="mb-6">
-          <p className="mb-5 text-[32px] font-medium text-foreground">
-            {greeting}
-          </p>
-          <div className="grid gap-4 xl:grid-cols-[1.4fr_0.85fr]">
-            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.12),transparent_32%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--card)))] p-6 shadow-[0_18px_40px_-30px_hsl(var(--foreground)/0.3)]">
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,transparent_0%,hsl(var(--primary)/0.04)_55%,transparent_100%)]" />
-              <div className="relative flex flex-col gap-6">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="flex min-w-0 items-center gap-4">
-                    <div className="relative shrink-0">
-                      <div className="h-16 w-16 overflow-hidden rounded-2xl bg-muted ring-1 ring-white/10">
-                        {avatarUrl ? (
-                          <img
-                            src={avatarUrl}
-                            alt={headerTitle}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-muted-foreground">
-                            {headerTitle.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      {summary.is_live && (
-                        <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive ring-4 ring-background">
-                          <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground">
-                          {headerTitle}
-                        </h1>
-                        {summary.broadcaster_type === "partner" && (
-                          <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-                            Partenaire
-                          </span>
-                        )}
-                        {summary.broadcaster_type === "affiliate" && (
-                          <span className="rounded-full border border-border/50 bg-muted/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                            Affilié
-                          </span>
-                        )}
-                        {summary.is_live && (
-                          <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-destructive">
-                            En live
-                          </span>
-                        )}
-                        <StreakBadge streak={streakData} variant="compact" />
-                      </div>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                        <span>{platformLogin ? `@${platformLogin}` : "Twitch"}</span>
-                        {displayCategory && <span>· {displayCategory}</span>}
-                        <span
-                          className="inline-flex items-center gap-1 rounded-full border border-border/50 bg-muted/30 px-2 py-0.5 text-[10px] font-medium"
-                          title={maturityData.description}
-                        >
-                          <span aria-hidden>{maturityData.icon}</span>
-                          {maturityData.label}
-                        </span>
-                        {currentReport.is_demo && (
-                          <span className="inline-flex items-center rounded-full border border-border/50 bg-muted/25 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                            Démo
-                          </span>
-                        )}
-                      </div>
-                    </div>
+        {/* ── Profile header ─────────────────────────────────────────── */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="relative shrink-0">
+              <div className="h-11 w-11 overflow-hidden rounded-xl bg-muted ring-1 ring-white/10">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={headerTitle} className="h-full w-full object-cover" loading="lazy" decoding="async" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-lg font-bold text-muted-foreground">
+                    {headerTitle.charAt(0).toUpperCase()}
                   </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <ShareScoreButton
-                      score={score}
-                      displayName={headerTitle}
-                      login={platformLogin}
-                      date={formatDate(currentReport.created_at)}
-                      variant="icon"
-                    />
-                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/30">
-                      <Link to="/analyse">
-                        <FileText className="h-3.5 w-3.5" />
-                        Voir l'analyse
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-                  <div className="rounded-[24px] border border-white/[0.08] bg-background/50 p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/60">
-                      StreamScore
-                    </p>
-                    <div className="mt-4 flex items-end gap-4">
-                      <div className={`inline-flex h-20 w-20 items-center justify-center rounded-[22px] border ${theme.surfaceClass}`}>
-                        <span className={`text-3xl font-semibold tabular-nums ${theme.textClass}`}>
-                          {score.overall}
-                        </span>
-                      </div>
-                      <div className="pb-1">
-                        <p className={`text-sm font-semibold uppercase tracking-[0.18em] ${theme.textClass}`}>
-                          {theme.label}
-                        </p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {delta !== null
-                            ? delta > 0
-                              ? `+${delta} pts depuis le rapport précédent`
-                              : delta < 0
-                                ? `${delta} pts depuis le rapport précédent`
-                                : "Stable depuis le rapport précédent"
-                            : "Premier point de référence disponible"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 rounded-2xl border border-primary/15 bg-primary/[0.05] p-4">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">
-                        Point de blocage principal
-                      </p>
-                      <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
-                        {report.weak_point.label}
-                      </p>
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                        {report.weak_point.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3">
-                    <div className="rounded-[24px] border border-white/[0.08] bg-background/45 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
-                          <Target className="h-4 w-4 text-primary" />
-                        </div>
-                        <Button asChild variant="ghost" size="sm" className="px-2 text-xs text-primary hover:bg-primary/10">
-                          <Link to="/plan">
-                            Ouvrir le plan
-                            <ArrowRight className="h-3 w-3" />
-                          </Link>
-                        </Button>
-                      </div>
-                      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">
-                        Prochaine action
-                      </p>
-                      <p className="mt-2 text-base font-semibold leading-tight text-foreground">
-                        {nextAction.title}
-                      </p>
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                        {nextAction.action || nextAction.reason}
-                      </p>
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                      <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                          Prochain palier
-                        </p>
-                        <p className="mt-2 text-base font-semibold text-foreground">
-                          {nextMilestone.label}
-                        </p>
-                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                          {nextMilestone.current}/{nextMilestone.target} · {nextMilestone.pct}%
-                        </p>
-                      </div>
-                      <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                          Statut des données
-                        </p>
-                        <p className="mt-2 text-base font-semibold text-foreground">
-                          {syncLabel}
-                        </p>
-                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                          {syncDetail}
-                        </p>
-                      </div>
-                      <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                          Statut du live
-                        </p>
-                        <p className="mt-2 text-base font-semibold text-foreground">
-                          {liveHeadline}
-                        </p>
-                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                          {liveSnapshot?.current?.start_title || liveSnapshot?.last?.start_title || "Prépare le prochain live"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
+              {summary.is_live && (
+                <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive ring-2 ring-background">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                </span>
+              )}
             </div>
-
-            <div className="rounded-[24px] border border-white/[0.08] bg-card/55 p-5">
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                  Cette semaine
-                </p>
-                <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
-                  <Link to="/plan">Voir le plan</Link>
-                </Button>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-base font-bold text-foreground">{headerTitle}</h1>
+                {summary.broadcaster_type === "partner" && (
+                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">Partenaire</span>
+                )}
+                {summary.broadcaster_type === "affiliate" && (
+                  <span className="rounded-full border border-border/50 bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Affilié</span>
+                )}
+                {summary.is_live && (
+                  <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">● En live</span>
+                )}
+                <StreakBadge streak={streakData} variant="compact" />
               </div>
-              <div className="space-y-3">
-                {/* Prochaine action — tirée du rapport */}
-                <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-1">
-                    <ShieldCheck className="h-4 w-4 text-primary" />
-                    Priorité principale
-                  </div>
-                  <p className="text-sm font-semibold text-foreground leading-tight">
-                    {nextAction.title}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                    {nextAction.action || nextAction.reason}
-                  </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {platformLogin ? `@${platformLogin}` : "Twitch"}
+                {displayCategory ? ` · ${displayCategory}` : ""}
+                {" · "}
+                <span title={maturityData.description}>{maturityData.icon} {maturityData.label}</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <ShareScoreButton score={score} displayName={headerTitle} login={platformLogin} date={formatDate(currentReport.created_at)} variant="icon" />
+            <Button asChild size="sm" variant="outline" className="border-white/10">
+              <Link to="/analyse"><FileText className="h-3.5 w-3.5" />Voir l'analyse</Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* ── KPI Stats row ───────────────────────────────────────────── */}
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {/* StreamScore */}
+          <Link
+            to="/analyse"
+            className={`group rounded-2xl border border-white/[0.08] bg-card/60 p-4 transition-all hover:border-primary/30 hover:bg-card/80 ${score.overall < 40 ? "border-l-2 border-l-destructive/50" : score.overall < 65 ? "border-l-2 border-l-amber-500/50" : "border-l-2 border-l-primary/50"}`}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">StreamScore</p>
+            <div className="mt-2 flex items-baseline gap-1.5">
+              <span className={`text-3xl font-bold tabular-nums ${theme.textClass}`}>{score.overall}</span>
+              <span className="text-xs text-muted-foreground">/100</span>
+            </div>
+            <p className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider ${theme.textClass}`}>{theme.label}</p>
+            {delta !== null && delta !== 0 && (
+              <p className={`mt-1 text-[11px] font-medium ${delta > 0 ? "text-primary" : "text-destructive"}`}>
+                {delta > 0 ? `+${delta}` : delta} pts
+              </p>
+            )}
+            {delta === 0 && <p className="mt-1 text-[11px] text-muted-foreground">Stable</p>}
+          </Link>
+
+          {/* Lives 30j */}
+          <div className="rounded-2xl border border-white/[0.08] bg-card/60 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Lives (30j)</p>
+            <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">{lives30d}</p>
+            <p className="mt-0.5 text-[10px] text-muted-foreground">
+              {lives30d === 0 ? "Aucun stream récent" : lives30d === 1 ? "session" : "sessions"}
+            </p>
+          </div>
+
+          {/* Viewers moy */}
+          <div className="rounded-2xl border border-white/[0.08] bg-card/60 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Viewers moy.</p>
+            <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
+              {liveSnapshot?.current ? (liveSnapshot.current.viewer_count ?? 0) : (viewersMoy ?? "—")}
+            </p>
+            <p className="mt-0.5 text-[10px] text-muted-foreground">
+              {liveSnapshot?.current ? "en direct" : sessions30d.length > 0 ? "moy. 30j" : "pas de données"}
+            </p>
+          </div>
+
+          {/* Followers */}
+          <div className="rounded-2xl border border-white/[0.08] bg-card/60 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Followers</p>
+            <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
+              {followersAvailable ? (summary.followers_count != null ? summary.followers_count.toLocaleString("fr-FR") : "—") : "—"}
+            </p>
+            {!followersAvailable && (
+              <p className="mt-0.5 text-[10px] text-amber-400">Scope manquant</p>
+            )}
+            {followersAvailable && ap.followers.target && (
+              <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted/60">
+                <div className="h-full rounded-full bg-primary/60 transition-all" style={{ width: `${Math.min(100, Math.round(((ap.followers.current ?? 0) / ap.followers.target) * 100))}%` }} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Main intelligence (2-col) ──────────────────────────────── */}
+        <div className="mb-6 grid gap-4 xl:grid-cols-[1fr_340px]">
+          {/* LEFT: Blocker + Next action + Milestone */}
+          <div className="overflow-hidden rounded-[22px] border border-white/[0.07] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.08),transparent_45%)] bg-card/50 p-5">
+            <div className="space-y-5">
+              {/* Blocker */}
+              <div>
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
+                  Point de blocage principal
+                </p>
+                <div className="rounded-xl border border-primary/15 bg-primary/[0.05] p-4">
+                  <p className="text-base font-bold text-foreground leading-tight">{report.weak_point.label}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{report.weak_point.description}</p>
                 </div>
-                {/* Live */}
-                <div className="rounded-2xl border border-border/60 bg-background/35 px-4 py-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                      <Radio className={cn("h-4 w-4", summary.is_live ? "text-destructive" : "text-primary")} />
-                      {summary.is_live ? "Live en cours" : "Prochain live"}
-                    </div>
-                    <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-primary hover:bg-transparent">
-                      <Link to={summary.is_live ? "/lives" : "/live-setup"}>
-                        {summary.is_live ? "Cockpit" : "Préparer →"}
-                      </Link>
+              </div>
+
+              {/* Next action */}
+              <div>
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
+                  Prochaine action
+                </p>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/[0.06]">
+                    <Target className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground leading-tight">{nextAction.title}</p>
+                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{nextAction.action || nextAction.reason}</p>
+                    <Button asChild variant="ghost" size="sm" className="mt-2 -ml-1.5 h-auto gap-1 px-1.5 text-xs text-primary hover:bg-primary/10">
+                      <Link to="/plan">Voir le plan complet <ArrowRight className="h-3 w-3" /></Link>
                     </Button>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {summary.is_live
-                      ? `${liveSnapshot?.current?.peak_viewers ?? 0} viewers · ${liveSnapshot?.current?.start_title || "Direct en cours"}`
-                      : liveSnapshot?.last
-                        ? `Dernier live : ${liveSnapshot.last.start_title || liveSnapshot.last.category_name || "sans titre"}`
-                        : "Prépare le prochain live en 60 secondes."}
-                  </p>
                 </div>
-                {/* Benchmark */}
-                <div className="rounded-2xl border border-border/60 bg-background/35 px-4 py-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                      <Orbit className="h-4 w-4 text-primary" />
-                      Benchmark
-                    </div>
-                    <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-primary hover:bg-transparent">
-                      <Link to="/competitors">Ouvrir</Link>
-                    </Button>
+              </div>
+
+              {/* Milestone */}
+              <div className="border-t border-border/40 pt-4">
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
+                  Prochain palier
+                </p>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{nextMilestone.label}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{nextMilestone.current}/{nextMilestone.target} · {nextMilestone.pct}%</p>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {displayCategory
-                      ? `Catégorie active : ${displayCategory} · surveille tes concurrents directs.`
-                      : "Analyse tes concurrents pour te positionner dans ta niche."}
-                  </p>
+                  <div className="w-24 shrink-0">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/60">
+                      <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${nextMilestone.pct}%` }} />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
 
+          {/* RIGHT: Status + Priorities */}
+          <div className="flex flex-col gap-3">
+            {/* Sync status */}
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-card/40 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{syncLabel}</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">{syncDetail}</p>
+              </div>
+              <Button asChild size="sm" variant="outline" className="shrink-0 border-white/10 text-xs">
+                <Link to="/analyse">Analyser</Link>
+              </Button>
+            </div>
+
+            {/* Live status */}
+            <div className={`rounded-xl border px-4 py-3 ${summary.is_live ? "border-destructive/25 bg-destructive/[0.04]" : "border-border/50 bg-card/40"}`}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Radio className={`h-3.5 w-3.5 ${summary.is_live ? "text-destructive" : "text-muted-foreground/60"}`} />
+                  <p className="text-sm font-medium text-foreground">
+                    {summary.is_live ? "Live en cours" : "Prochain live"}
+                  </p>
+                </div>
+                <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-xs text-primary hover:bg-transparent">
+                  <Link to={summary.is_live ? "/lives" : "/live-setup"}>
+                    {summary.is_live ? "Cockpit →" : "Préparer →"}
+                  </Link>
+                </Button>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {summary.is_live
+                  ? `${liveSnapshot?.current?.viewer_count ?? 0} viewers · ${liveSnapshot?.current?.title ?? "Direct en cours"}`
+                  : liveSnapshot?.last
+                    ? `Dernier : ${liveSnapshot.last.title_raw || liveSnapshot.last.category_name || "sans titre"}`
+                    : "Prépare le prochain live en 60 secondes."}
+              </p>
+            </div>
+
+            {/* This week */}
+            <div className="flex-1 rounded-xl border border-border/50 bg-card/40 p-4">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Cette semaine</p>
+                <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-xs text-primary hover:bg-transparent">
+                  <Link to="/plan">Plan →</Link>
+                </Button>
+              </div>
+              <div className="space-y-3.5">
+                <div className="flex items-start gap-2.5">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-foreground leading-tight">{nextAction.title}</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug line-clamp-2">{nextAction.action || nextAction.reason}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <Orbit className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/70" />
+                  <div>
+                    <p className="text-xs font-semibold text-foreground leading-tight">Benchmark</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">
+                      {displayCategory ? `Catégorie active : ${displayCategory}` : "Analyse tes concurrents directs."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Actions rapides (inchangé) ──────────────────────────────── */}
         <div className="mb-6">
           <DashboardQuickActions />
         </div>
 
-        {/* Réseaux connectés teaser — affiché tôt, avant le live */}
+        {/* ── Réseaux teaser ─────────────────────────────────────────── */}
         <div className="mb-6">
           <NetworksTeaser />
         </div>
-
-        {/* Weekly digest — after score context, before actions */}
-        <WeeklyDigestCard
-          report={currentReport}
-          userId={user.id}
-          previousScore={previous?.report?.score?.overall ?? null}
-        />
-
-        {/* Foundation weekly sequence — full width if active */}
-        {foundationActive && (
-          <div className="mb-6">
-            <WeeklySequenceCard actions={foundation.sequence} showPlanLink={endedSessions > 0} />
-          </div>
-        )}
 
         {/* Followers scope warning */}
         {!followersAvailable && !currentReport.is_demo && (
@@ -879,126 +841,86 @@ const DashboardPage = () => {
 
         {/* Post generator sheet */}
         {liveSnapshot?.last && (
-          <LivePostGenerator
-            session={liveSnapshot.last}
-            debrief={liveSnapshot.lastDebrief}
-            open={showPostGen}
-            onClose={() => setShowPostGen(false)}
-          />
+          <LivePostGenerator session={liveSnapshot.last} debrief={liveSnapshot.lastDebrief} open={showPostGen} onClose={() => setShowPostGen(false)} />
         )}
 
-        {/* Live stack — action principale, en priorité */}
+        {/* Weekly digest */}
+        <WeeklyDigestCard report={currentReport} userId={user.id} previousScore={previous?.report?.score?.overall ?? null} />
+
+        {/* Foundation weekly sequence */}
+        {foundationActive && (
+          <div className="mb-6">
+            <WeeklySequenceCard actions={foundation.sequence} showPlanLink={endedSessions > 0} />
+          </div>
+        )}
+
+        {/* ── LIVE ───────────────────────────────────────────────────── */}
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">Live</p>
         {isPro ? (
-          <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '120ms' }}>
-            <LiveStatusCard
-              current={liveSnapshot?.current ?? null}
-              last={liveSnapshot?.last ?? null}
-              lastDebrief={liveSnapshot?.lastDebrief ?? null}
-            />
+          <div className="mb-6 space-y-2.5">
+            <LiveStatusCard current={liveSnapshot?.current ?? null} last={liveSnapshot?.last ?? null} lastDebrief={liveSnapshot?.lastDebrief ?? null} />
             <LastVsAverageCard current={liveSnapshot?.current ?? null} />
-            {focusSlot === "milestone" && (
-              <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
-            )}
-            {focusSlot === "inactivity" && (
-              <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
-            )}
-            <PreLiveChecklistCard
-              current={liveSnapshot?.current ?? null}
-              last={liveSnapshot?.last ?? null}
-              lastDebrief={liveSnapshot?.lastDebrief ?? null}
-            />
+            {focusSlot === "milestone" && <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />}
+            {focusSlot === "inactivity" && <InactivityRelanceCard current={liveSnapshot?.current ?? null} />}
+            <PreLiveChecklistCard current={liveSnapshot?.current ?? null} last={liveSnapshot?.last ?? null} lastDebrief={liveSnapshot?.lastDebrief ?? null} />
             <SmartAlertsCard current={liveSnapshot?.current ?? null} />
           </div>
         ) : (
-          <div className="animate-fade-up mb-6" style={{ animationDelay: '120ms' }}>
-            <InlineLock
-              feature="Cockpit Live — Pro"
-              description="Suivi en direct, debrief automatique, alertes intelligentes et checklist pré-live."
-              blurHeight="140px"
-            >
+          <div className="mb-6">
+            <InlineLock feature="Cockpit Live — Pro" description="Suivi en direct, debrief automatique, alertes intelligentes et checklist pré-live." blurHeight="140px">
               <div className="space-y-2.5">
-                <LiveStatusCard
-                  current={liveSnapshot?.current ?? null}
-                  last={liveSnapshot?.last ?? null}
-                  lastDebrief={liveSnapshot?.lastDebrief ?? null}
-                />
+                <LiveStatusCard current={liveSnapshot?.current ?? null} last={liveSnapshot?.last ?? null} lastDebrief={liveSnapshot?.lastDebrief ?? null} />
                 <LastVsAverageCard current={liveSnapshot?.current ?? null} />
               </div>
             </InlineLock>
           </div>
         )}
 
-        {/* Weekly quests — only outside foundation mode */}
+        {/* Quests */}
         {!foundationActive && weeklyQuests && (
-          <div className="animate-fade-up mb-6" style={{ animationDelay: '160ms' }}>
+          <div className="mb-6">
             {isPro ? (
               <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
             ) : (
-              <InlineLock
-                feature="Quêtes hebdomadaires — Pro"
-                description="Suis tes quêtes de la semaine et accumule de l'XP."
-                blurHeight="120px"
-              >
+              <InlineLock feature="Quêtes hebdomadaires — Pro" description="Suis tes quêtes de la semaine et accumule de l'XP." blurHeight="120px">
                 <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
               </InlineLock>
             )}
           </div>
         )}
 
-        {/* EventSub product signals */}
+        {/* EventSub */}
         <div className="mb-6 space-y-3">
-          <ScopeDriftBanner
-            broadcasterUserId={account?.platform_user_id ?? null}
-          />
-          <EventSubCockpitSection
-            broadcasterUserId={account?.platform_user_id ?? null}
-          />
+          <ScopeDriftBanner broadcasterUserId={account?.platform_user_id ?? null} />
+          <EventSubCockpitSection broadcasterUserId={account?.platform_user_id ?? null} />
         </div>
 
-        {/* Post generator trigger — visible 72h after a live with debrief */}
-        {liveSnapshot?.last &&
-          liveSnapshot.lastDebrief &&
-          !liveSnapshot.current &&
-          isSessionRecent(liveSnapshot.last.ended_at) && (
-            <div className="mb-6">
-              <button
-                onClick={() => setShowPostGen(true)}
-                className="group relative w-full overflow-hidden rounded-xl border border-white/[0.06] bg-card/40 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04] hover:shadow-[0_0_32px_-8px_hsl(var(--primary)/0.3)]"
-              >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="relative flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base leading-none">✍️</span>
-                      <span className="text-sm font-semibold text-foreground">
-                        Contenu à publier
-                      </span>
-                      <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">
-                        Nouveau
-                      </span>
-                    </div>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {liveSnapshot.last.category_name
-                        ? `Posts prêts pour ton live ${liveSnapshot.last.category_name} — tweet, discord, caption, annonce`
-                        : "Posts prêts à partir de ton dernier live — tweet, discord, caption, annonce"}
-                    </p>
+        {/* Post generator trigger — 72h après un live */}
+        {liveSnapshot?.last && liveSnapshot.lastDebrief && !liveSnapshot.current && isSessionRecent(liveSnapshot.last.ended_at) && (
+          <div className="mb-6">
+            <button
+              onClick={() => setShowPostGen(true)}
+              className="group relative w-full overflow-hidden rounded-xl border border-white/[0.06] bg-card/40 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04]"
+            >
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="relative flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base leading-none">✍️</span>
+                    <span className="text-sm font-semibold text-foreground">Contenu à publier</span>
+                    <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">Nouveau</span>
                   </div>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {liveSnapshot.last.category_name
+                      ? `Posts prêts pour ton live ${liveSnapshot.last.category_name} — tweet, discord, caption, annonce`
+                      : "Posts prêts à partir de ton dernier live — tweet, discord, caption, annonce"}
+                  </p>
                 </div>
-              </button>
-            </div>
-          )}
-
-        {/* Next milestone */}
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">Progression</p>
-        <div className="mb-4">
-          <NextMilestoneCard
-            milestone={nextMilestone}
-            reportId={currentReport.id}
-            foundationActive={foundationActive}
-          />
-        </div>
+                <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
+              </div>
+            </button>
+          </div>
+        )}
       </PageContainer>
     </AppShell>
   );
