@@ -298,6 +298,14 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                {/* Hub redirects → first tab of each studio */}
+                <Route path="/live-studio" element={<Navigate to="/live-setup" replace />} />
+                <Route path="/content-studio" element={<Navigate to="/content-queue" replace />} />
+                <Route path="/benchmark" element={<Navigate to="/competitors" replace />} />
+                <Route path="/titres" element={<Navigate to="/outils/titres" replace />} />
+                <Route path="/titles" element={<Navigate to="/outils/titres" replace />} />
+                <Route path="/concurrents" element={<Navigate to="/competitors" replace />} />
+                <Route path="/planning" element={<Navigate to="/schedule" replace />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/fonctionnalites" element={<FeaturesPage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
