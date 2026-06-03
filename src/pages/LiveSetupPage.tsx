@@ -182,11 +182,16 @@ const LiveSetupPage = () => {
   // re-applied after.
   useEffect(() => {
     if (activePreset) {
-      setInput(prev =>
-        prev.tone === activePreset.suggestedTone
-          ? prev
-          : { ...prev, tone: activePreset.suggestedTone },
-      );
+      setInput(prev => {
+        const toneChanged = prev.tone !== activePreset.suggestedTone;
+        const objectiveEmpty = !prev.objective.trim();
+        if (!toneChanged && !objectiveEmpty) return prev;
+        return {
+          ...prev,
+          ...(toneChanged ? { tone: activePreset.suggestedTone } : {}),
+          ...(objectiveEmpty ? { objective: activePreset.defaultObjective } : {}),
+        };
+      });
     }
     // Ensure obs checklist contains all expected keys for the active preset.
     setObsChecklist(prev => {
@@ -846,40 +851,6 @@ const LiveSetupPage = () => {
                   description="Commence par l'angle, la catégorie et l'objectif."
                   icon={<Wand2 className="h-4 w-4 text-primary" />}
                 />
-                <div className="space-y-2">
-                  <Label htmlFor="titleRaw">Titre brut / idée du live</Label>
-                  <Input
-                    id="titleRaw" value={input.titleRaw}
-                    onChange={(e) => { setInput({ ...input, titleRaw: e.target.value }); setTitleConfirmed(false); }}
-                    placeholder="Ex : Ranked tryhard jusqu'à Diamant"
-                    maxLength={140}
-                  />
-                </div>
-                <SuggestedTitles
-                  game={input.gameCategory} objective={input.objective} tone={input.tone}
-                  audience={input.targetAudience} presetLabel={activePreset?.label ?? null}
-                  currentTitle={input.titleRaw} lastAppliedTitle={lastAppliedTitle}
-                  onApply={(t) => { setInput(prev => ({ ...prev, titleRaw: t })); setLastAppliedTitle(t); setTitleConfirmed(true); }}
-                />
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/40 p-4">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {titleConfirmed ? "Titre final validé ✓" : "Titre encore à confirmer"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {titleConfirmed
-                        ? "Ce titre servira de base aux variantes Twitch, YouTube et social."
-                        : "Verrouille le titre quand il est bon."}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm" variant={titleConfirmed ? "outline" : "default"}
-                    onClick={() => setTitleConfirmed(v => !v)}
-                    disabled={!input.titleRaw.trim() && !metadata.youtube.title.trim()}
-                  >
-                    {titleConfirmed ? "Annuler la validation" : "Confirmer le titre"}
-                  </Button>
-                </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Catégorie Twitch</Label>
@@ -926,6 +897,41 @@ const LiveSetupPage = () => {
                     <Label htmlFor="objective">Objectif du live</Label>
                     <Input id="objective" value={input.objective} onChange={(e) => setInput({ ...input, objective: e.target.value })} placeholder="Ex : monter Diamant 2" maxLength={120} />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="titleRaw">Titre brut / idée du live</Label>
+                  <Input
+                    id="titleRaw" value={input.titleRaw}
+                    onChange={(e) => { setInput({ ...input, titleRaw: e.target.value }); setTitleConfirmed(false); }}
+                    placeholder="Ex : Ranked tryhard jusqu'à Diamant"
+                    maxLength={140}
+                  />
+                </div>
+                <SuggestedTitles
+                  game={input.gameCategory} objective={input.objective} tone={input.tone}
+                  audience={input.targetAudience} presetLabel={activePreset?.label ?? null}
+                  currentTitle={input.titleRaw} lastAppliedTitle={lastAppliedTitle}
+                  onApply={(t) => { setInput(prev => ({ ...prev, titleRaw: t })); setLastAppliedTitle(t); setTitleConfirmed(true); }}
+                />
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/40 p-4">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {titleConfirmed ? "Titre final validé ✓" : "Titre encore à confirmer"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {titleConfirmed
+                        ? "Ce titre servira de base aux variantes Twitch, YouTube et social."
+                        : "Verrouille le titre quand il est bon."}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm" variant={titleConfirmed ? "outline" : "default"}
+                    onClick={() => setTitleConfirmed(v => !v)}
+                    disabled={!input.titleRaw.trim() && !metadata.youtube.title.trim()}
+                  >
+                    {titleConfirmed ? "Annuler la validation" : "Confirmer le titre"}
+                  </Button>
                 </div>
 
                 {/* Advanced options */}

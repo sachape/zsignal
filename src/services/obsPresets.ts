@@ -30,6 +30,7 @@ export interface LivePreset {
   label: string;
   description: string;
   suggestedTone: LiveTone;
+  defaultObjective: string;
   obsTechnical: ObsTechnicalRecommendation;
   obsChecklist: ObsChecklistItem[];
   momentsToPlan: string[];
@@ -59,6 +60,7 @@ export const LIVE_PRESETS: LivePreset[] = [
     label: "Chill",
     description: "Session détendue, focus discussion et ambiance.",
     suggestedTone: "chill",
+    defaultObjective: "Session chill avec le chat",
     obsTechnical: {
       resolution: "1920x1080",
       fps: "30 fps",
@@ -84,6 +86,7 @@ export const LIVE_PRESETS: LivePreset[] = [
     label: "Ranked / compétitif",
     description: "Tryhard, focus performance, réactivité maximale.",
     suggestedTone: "competitive",
+    defaultObjective: "Monter en ranked",
     obsTechnical: {
       resolution: "1920x1080",
       fps: "60 fps",
@@ -114,6 +117,7 @@ export const LIVE_PRESETS: LivePreset[] = [
     label: "Talk / Just Chatting",
     description: "Discussion, débat, Q&A — pas de jeu en focus.",
     suggestedTone: "entertainment",
+    defaultObjective: "Discuter avec le chat",
     obsTechnical: {
       resolution: "1920x1080",
       fps: "30 fps",
@@ -144,6 +148,7 @@ export const LIVE_PRESETS: LivePreset[] = [
     label: "Découverte jeu",
     description: "Première fois sur un jeu, exploration et réactions.",
     suggestedTone: "entertainment",
+    defaultObjective: "Découvrir le jeu en live",
     obsTechnical: {
       resolution: "1920x1080",
       fps: "60 fps",
@@ -175,6 +180,7 @@ export const LIVE_PRESETS: LivePreset[] = [
     label: "Event communautaire",
     description: "Sub goal, anniversaire, charity, tournoi communautaire.",
     suggestedTone: "entertainment",
+    defaultObjective: "Atteindre l'objectif de la communauté",
     obsTechnical: {
       resolution: "1920x1080",
       fps: "60 fps",
@@ -206,6 +212,7 @@ export const LIVE_PRESETS: LivePreset[] = [
     label: "Sponsorisé",
     description: "Live partenaire, mention obligatoire, contraintes contractuelles.",
     suggestedTone: "entertainment",
+    defaultObjective: "Présenter le partenariat",
     obsTechnical: {
       resolution: "1920x1080",
       fps: "60 fps",
