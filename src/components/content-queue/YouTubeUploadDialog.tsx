@@ -355,7 +355,7 @@ const YouTubeUploadDialog = ({
             {result ? "Fermer" : "Annuler"}
           </Button>
           {!result && youtubeConnected && (
-            <Button onClick={startUpload} disabled={!file || uploading}>
+            <Button onClick={startUpload} disabled={(!useGenerated && !file) || uploading}>
               {uploading ? (
                 <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> Upload…</>
               ) : (
