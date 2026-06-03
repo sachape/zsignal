@@ -68,18 +68,18 @@ function copy(value: string) {
 
 const LiveSetupPage = () => {
   const { accounts } = useConnectedNetworks();
-  const { sessions, loading, saveSession, deleteSession } = useLiveSessions();
+  const { isConnected: twitchConnected } = useTwitchConnection();
+  const { sessions, loading, saveSession, deleteSession, refetch } = useLiveSessions();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [input, setInput] = useState<LiveSetupInput>(EMPTY_INPUT);
   const [checklist, setChecklist] = useState<Record<string, boolean>>(EMPTY_CHECKLIST);
   const [metadata, setMetadata] = useState<GeneratedMetadata>(() => generateMetadata(EMPTY_INPUT));
   const [saving, setSaving] = useState(false);
+  const [pushingTwitch, setPushingTwitch] = useState(false);
+  const [pushingYouTube, setPushingYouTube] = useState(false);
+  const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
 
-  const twitchConnected = useMemo(
-    () => accounts.some(a => a.platform === "twitch" && a.connection_status === "connected"),
-    [accounts],
-  );
   const youtubeConnected = useMemo(
     () => accounts.some(a => a.platform === "youtube" && a.connection_status === "connected"),
     [accounts],
