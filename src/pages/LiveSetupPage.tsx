@@ -803,6 +803,25 @@ const LiveSetupPage = () => {
         {/* ── STEP 0: Préparer l'angle ─── */}
         {currentStep === 0 && (
           <div className="space-y-5">
+            {/* Plateformes ciblées */}
+            <div className="space-y-2">
+              <Label>Plateformes ciblées</Label>
+              <div className="flex flex-wrap gap-2">
+                {PLATFORMS.map(({ value, label, Icon, soon }) => {
+                  const active = input.platforms.includes(value);
+                  return (
+                    <button key={value} type="button" onClick={() => !soon && togglePlatform(value)} disabled={soon}
+                      className={cn("inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
+                        active ? "border-primary bg-primary/10 text-primary" : "border-border bg-card hover:border-border/80",
+                        soon && "cursor-not-allowed opacity-60")}>
+                      <Icon className="h-4 w-4" />{label}
+                      {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Preset */}
             <Card id="live-preset" className="border-border/60 bg-card/60">
               <CardContent className="space-y-4 p-6">
@@ -930,25 +949,6 @@ const LiveSetupPage = () => {
                   >
                     {titleConfirmed ? "Annuler la validation" : "Confirmer le titre"}
                   </Button>
-                </div>
-
-                {/* Plateformes ciblées */}
-                <div className="space-y-2">
-                  <Label>Plateformes ciblées</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {PLATFORMS.map(({ value, label, Icon, soon }) => {
-                      const active = input.platforms.includes(value);
-                      return (
-                        <button key={value} type="button" onClick={() => !soon && togglePlatform(value)} disabled={soon}
-                          className={cn("inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
-                            active ? "border-primary bg-primary/10 text-primary" : "border-border bg-card hover:border-border/80",
-                            soon && "cursor-not-allowed opacity-60")}>
-                          <Icon className="h-4 w-4" />{label}
-                          {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
 
                 {/* Advanced options */}
