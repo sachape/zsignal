@@ -1,67 +1,37 @@
-# V3D — Guide de déploiement du worker FFmpeg
+# V3D — Guide de déploiement du worker FFmpeg (Lovable Cloud)
 
-Ce guide explique étape par étape comment déployer le worker externe nécessaire à la génération réelle des clips, puis comment connecter Streamnco à ce worker.
+Le worker est **stateless** : il ne connaît rien de Supabase / Lovable Cloud. La Edge Function lui envoie une URL signée pour lire la source et une URL signée pour uploader le clip. Le worker n'a donc besoin que d'**un seul secret**.
 
-Tant que ce déploiement n'est pas fait, l'app reste cohérente : le bouton « Générer » répond `worker_not_configured`, le content item passe en `generation_status=unavailable`, **aucun faux clip n'est créé**, aucun `generated_video_url` factice n'est écrit.
+Tant que `WORKER_BASE_URL` n'est pas configuré côté Lovable, l'app reste cohérente : le bouton « Générer » renvoie `worker_not_configured`, le content item passe en `generation_status=unavailable`, **aucun faux clip n'est créé**.
 
 ---
 
-## 1. Préparer les secrets locaux
-
-Sur ta machine, génère un secret partagé fort (utilisé pour authentifier les requêtes Streamnco ↔ worker) :
+## 1. Générer le secret partagé
 
 ```bash
 openssl rand -hex 32
 ```
 
-Garde la valeur de côté — tu en auras besoin **deux fois** : une fois côté worker, une fois côté Lovable.
-
-Récupère aussi :
-- `SUPABASE_URL` : `https://poblhczgdbnfunroshul.supabase.co`
-- `SUPABASE_SERVICE_ROLE_KEY` : depuis **Lovable Cloud → Settings → Secrets** (tu peux la copier sans l'afficher dans le chat).
+Garde la valeur — tu en auras besoin **deux fois** : une fois sur Fly.io, une fois dans Lovable Cloud.
 
 ---
 
-## 2. Choisir un hébergeur
-
-Le worker est un conteneur Docker Node.js avec FFmpeg. N'importe quel hébergeur de containers fonctionne. Recommandation **Fly.io** pour le MVP (gratuit jusqu'à ~3 petites machines, déploiement en 2 commandes).
-
-| Hébergeur | Coût MVP estimé | Difficulté |
-|---|---|---|
-| **Fly.io** | 0–5 €/mois | Facile (recommandé) |
-| Google Cloud Run | 0–10 €/mois (free tier) | Facile |
-| Render | 7 €/mois (instance always-on) | Facile |
-| Railway | ~5 €/mois | Très facile |
-| Modal | À l'usage | Moyen |
-
----
-
-## 3. Déploiement Fly.io (recommandé)
+## 2. Déploiement Fly.io
 
 ```bash
-# Pré-requis : flyctl installé (https://fly.io/docs/hands-on/install-flyctl/)
 cd workers/clip-generator
 
-# Crée l'app (répond non quand il propose Postgres/Redis)
+# Crée l'app si pas déjà fait (réponds non à Postgres/Redis)
 fly launch --no-deploy --name streamnco-clip-gen --region cdg
 
-# Renseigne les secrets
-fly secrets set \
-  SUPABASE_URL="https://poblhczgdbnfunroshul.supabase.co" \
-  SUPABASE_SERVICE_ROLE_KEY="<colle ta service role key>" \
-  WORKER_SHARED_SECRET="<colle le secret généré à l'étape 1>"
+# UN SEUL secret nécessaire
+fly secrets set -a streamnco-clip-gen WORKER_SHARED_SECRET="<colle le secret généré>"
 
 # Déploie
-fly deploy
+fly deploy -a streamnco-clip-gen
 ```
 
-Récupère l'URL publique :
-```bash
-fly status
-# → Hostname: streamnco-clip-gen.fly.dev
-```
-
-Teste le healthcheck :
+Vérifie le healthcheck (aucun secret requis) :
 ```bash
 curl https://streamnco-clip-gen.fly.dev/health
 # → {"ok":true}
@@ -69,89 +39,74 @@ curl https://streamnco-clip-gen.fly.dev/health
 
 ---
 
-## 4. Déploiement Cloud Run (alternative)
+## 3. Connecter Streamnco au worker
 
-```bash
-cd workers/clip-generator
-gcloud run deploy streamnco-clip-gen \
-  --source . \
-  --region europe-west1 \
-  --allow-unauthenticated \
-  --memory 2Gi \
-  --timeout 600 \
-  --set-env-vars "SUPABASE_URL=https://poblhczgdbnfunroshul.supabase.co" \
-  --set-env-vars "SUPABASE_SERVICE_ROLE_KEY=<service-role-key>" \
-  --set-env-vars "WORKER_SHARED_SECRET=<secret>"
-```
-
-L'URL renvoyée ressemble à `https://streamnco-clip-gen-xxxxxxxxx-ew.a.run.app`.
-
----
-
-## 5. Connecter Streamnco au worker
-
-Dans Lovable, dis-moi simplement :
+Dans Lovable, demande :
 
 > « Ajoute les secrets `WORKER_BASE_URL` et `WORKER_SHARED_SECRET` »
 
-Je te générerai le formulaire sécurisé pour saisir :
-- **WORKER_BASE_URL** : l'URL HTTPS du worker (ex : `https://streamnco-clip-gen.fly.dev`) — **sans slash final**
-- **WORKER_SHARED_SECRET** : exactement la même valeur que celle utilisée à l'étape 1
-
-Une fois ajoutés, la prochaine génération sera réelle. Aucun changement de code n'est requis.
+- **WORKER_BASE_URL** : `https://streamnco-clip-gen.fly.dev` (sans slash final)
+- **WORKER_SHARED_SECRET** : **exactement la même valeur** qu'à l'étape 1
 
 ---
 
-## 6. Variables d'environnement — récap
+## 4. Variables d'environnement — récap
 
-### Côté worker (hébergeur)
+### Côté worker (Fly.io)
+| Variable | Obligatoire | Valeur |
+|---|---|---|
+| `WORKER_SHARED_SECRET` | ✅ | Secret généré via `openssl rand -hex 32` |
+| `PORT` | optionnel | défaut `8080` |
+
+Le worker n'a **plus besoin** de `SUPABASE_URL` ni de `SUPABASE_SERVICE_ROLE_KEY`.
+
+### Côté Lovable Cloud (Edge Functions)
 | Variable | Source |
 |---|---|
-| `SUPABASE_URL` | `https://poblhczgdbnfunroshul.supabase.co` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Lovable Cloud Settings → Secrets |
-| `WORKER_SHARED_SECRET` | Généré via `openssl rand -hex 32` |
-| `PORT` | Optionnel, défaut `8080` |
+| `WORKER_BASE_URL` | URL Fly publique |
+| `WORKER_SHARED_SECRET` | Même valeur qu'au-dessus |
 
-### Côté Lovable Cloud (Supabase Edge Functions)
-| Variable | Source |
-|---|---|
-| `WORKER_BASE_URL` | URL publique du worker déployé |
-| `WORKER_SHARED_SECRET` | **Même valeur** qu'au-dessus |
-
-Les autres (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`) sont déjà fournis automatiquement aux edge functions par Lovable Cloud.
+`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY` sont fournis automatiquement aux edge functions par Lovable Cloud.
 
 ---
 
-## 7. Test bout en bout
+## 5. Flow technique
 
-1. Va dans **Content Queue**, sur un item vidéo (YouTube Shorts / TikTok / Twitch Clip).
-2. Clique **Définir les timestamps** → renseigne une URL VOD + début/fin (5–180 s).
-3. Clique **Générer le clip**.
-4. Choisis « Upload source » et envoie un .mp4 court.
-5. Suis l'état dans la card : `En file d'attente` → `Découpe en cours XX%` → `Clip prêt`.
-6. Le `<video>` apparaît, tu peux le prévisualiser.
-7. Clique **Uploader le clip** → il est envoyé vers YouTube via l'edge function existante.
+1. Frontend appelle `clip-job-create` (JWT user).
+2. `clip-job-create` :
+   - crée le job (`status=queued`)
+   - signe une URL de lecture (1h) sur `creator-source-videos`
+   - signe une URL d'upload (PUT) sur `creator-generated-clips`
+   - appelle `POST <WORKER_BASE_URL>/generate` avec source_url + output_upload_url + timestamps + callback_url + secret
+3. Worker Fly :
+   - vérifie `X-Worker-Secret`
+   - télécharge la source via `source_url`
+   - exécute FFmpeg
+   - PUT le clip vers `output_upload_url`
+   - POST `clip-job-callback` avec `status=completed` + `output_storage_path`
+4. `clip-job-callback` :
+   - vérifie `X-Worker-Secret`
+   - signe une URL de lecture 7j pour preview
+   - met à jour `creator_video_generation_jobs` + `creator_content_items.generated_video_url`
+
+Aucun fichier ni URL fake : si le worker échoue, l'item revient en `to_generate` avec `generation_status=failed`.
 
 ---
 
-## 8. Sécurité
+## 6. Sécurité
 
-- `SUPABASE_SERVICE_ROLE_KEY` ne quitte **jamais** ton hébergeur worker. Elle n'est jamais exposée au frontend.
-- `WORKER_SHARED_SECRET` protège l'edge function `clip-job-callback` : sans ce header, toute requête est rejetée en 403.
-- Les buckets `creator-source-videos` et `creator-generated-clips` sont **privés**. Les URLs sont signées (durée limitée : 30 min pour le téléchargement source côté worker, 7 jours pour la preview/upload côté frontend).
-- Aucune URL signée n'est loggée intégralement.
-- Le worker supprime systématiquement ses fichiers temporaires (`/tmp/clip-{job_id}-*`) après chaque job, même en cas d'échec.
+- Le worker n'a aucun accès Supabase — impossible pour lui d'écrire ailleurs que dans la signed URL fournie.
+- `WORKER_SHARED_SECRET` protège les deux sens : edge → worker (`X-Worker-Secret`) et worker → edge (`X-Worker-Secret` côté callback).
+- Buckets `creator-source-videos` et `creator-generated-clips` privés. URLs signées (1h lecture source, 7j lecture preview).
+- Le worker supprime ses fichiers temporaires après chaque job.
 
 ---
 
-## 9. Limites assumées V3D MVP
+## 7. Limites V3D MVP
 
-- Découpe simple `start → end`, encodage H.264 / AAC, MP4, max 1080p
-- Durée clip : 5 à 180 secondes
-- Taille source max : 500 Mo
-- Pas de sous-titres auto
-- Pas de crop vertical intelligent
-- Pas de face tracking
-- Pas de détection automatique des best-of
-- VOD Twitch / YouTube non téléchargeables directement (upload reste le parcours fiable)
-- Pas de publication TikTok / Instagram (YouTube uniquement)
+- Découpe simple `start → end`, encodage H.264/AAC, MP4 max 1080p
+- Durée clip : 5 à 180 s
+- Source max 500 Mo
+- Pas de sous-titres auto, pas de crop vertical, pas de face tracking, pas de best-of auto
+- VOD Twitch/YouTube non téléchargeables directement (upload reste fiable)
+- Publication YouTube uniquement
