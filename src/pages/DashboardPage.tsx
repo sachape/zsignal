@@ -745,17 +745,6 @@ const DashboardPage = () => {
 
           {/* RIGHT: Status + Priorities */}
           <div className="flex flex-col gap-3">
-            {/* Sync status */}
-            <div className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-card/40 px-4 py-3">
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{syncLabel}</p>
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">{syncDetail}</p>
-              </div>
-              <Button asChild size="sm" variant="outline" className="shrink-0 border-white/10 text-xs">
-                <Link to="/analyse">Analyser</Link>
-              </Button>
-            </div>
-
             {/* Live status */}
             <div className={`rounded-xl border px-4 py-3 ${summary.is_live ? "border-destructive/25 bg-destructive/[0.04]" : "border-border/50 bg-card/40"}`}>
               <div className="flex items-center justify-between gap-2">
