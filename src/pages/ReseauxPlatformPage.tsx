@@ -119,11 +119,18 @@ export default function ReseauxPlatformPage() {
   }, [user, platform, account?.last_synced_at]);
 
   const { state: syncState, errorMessage: syncError, sync: syncYouTube } = useYouTubeSync(refetch);
+  const { state: ttSyncState, errorMessage: ttSyncError, sync: syncTikTok } = useTikTokSync(refetch);
 
   const handleReconnectYouTube = async () => {
     const { data } = await supabase.functions.invoke("youtube-auth-start");
     if (data?.url) window.location.href = data.url;
     else toast.error(data?.configured === false ? "YouTube non configuré côté serveur." : "Erreur OAuth.");
+  };
+
+  const handleConnectTikTok = async () => {
+    const { data } = await supabase.functions.invoke("tiktok-auth-start");
+    if (data?.url) window.location.href = data.url;
+    else toast.error(data?.configured === false ? "TikTok non configuré côté serveur." : "Erreur OAuth.");
   };
 
   // Diagnostics
