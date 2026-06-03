@@ -55,6 +55,7 @@ import SuggestedTitles from "@/components/live-setup/SuggestedTitles";
 import {
   LEADER_CATEGORY_PRESETS,
   searchCategories,
+  fetchPresetCategories,
   type LeaderCategory,
 } from "@/services/leadersService";
 
@@ -150,6 +151,7 @@ const LiveSetupPage = () => {
   const [categoryQuery, setCategoryQuery] = useState("");
   const [categorySuggestions, setCategorySuggestions] = useState<LeaderCategory[]>([]);
   const [categorySearching, setCategorySearching] = useState(false);
+  const [presetCategoryData, setPresetCategoryData] = useState<LeaderCategory[] | null>(null);
 
   const youtubeConnected = useMemo(
     () => accounts.some(a => a.platform === "youtube" && a.connection_status === "connected"),
@@ -253,10 +255,17 @@ const LiveSetupPage = () => {
   }, [hasAdvancedValues]);
 
   useEffect(() => {
+    if (categoryOpen && presetCategoryData === null) {
+      fetchPresetCategories().then(setPresetCategoryData);
+    }
+  }, [categoryOpen, presetCategoryData]);
+
+  useEffect(() => {
     const q = categoryQuery.trim();
     if (q.length < 2) {
       setCategorySuggestions(
-        LEADER_CATEGORY_PRESETS.map((name) => ({ id: name, name, box_art_url: null })),
+        presetCategoryData
+          ?? LEADER_CATEGORY_PRESETS.map((name) => ({ id: name, name, box_art_url: null })),
       );
       setCategorySearching(false);
       return;
@@ -268,7 +277,7 @@ const LiveSetupPage = () => {
       setCategorySearching(false);
     }, 250);
     return () => clearTimeout(t);
-  }, [categoryQuery]);
+  }, [categoryQuery, presetCategoryData]);
 
   const resetForm = () => {
     setEditingId(null);
