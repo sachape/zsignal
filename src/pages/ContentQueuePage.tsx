@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
+  Film, Wand2, Clock,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -17,6 +18,9 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   useContentItems, type ContentItem, type ContentPlatform,
@@ -33,13 +37,19 @@ const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ c
   community: { label: "Communauté", Icon: Clapperboard },
 };
 
+const VIDEO_PLATFORMS: ContentPlatform[] = ["youtube_shorts", "tiktok", "instagram", "twitch_clip"];
+
 const STATUS_META: Record<ContentStatus, { label: string; cls: string }> = {
-  idea: { label: "Idée", cls: "border-border bg-muted text-muted-foreground" },
-  to_produce: { label: "À produire", cls: "border-amber-500/40 bg-amber-500/10 text-amber-300" },
-  ready: { label: "Prêt", cls: "border-primary/40 bg-primary/10 text-primary" },
-  uploaded: { label: "Uploadé", cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
-  published: { label: "Publié", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
-  ignored: { label: "Ignoré", cls: "border-border/40 bg-muted/40 text-muted-foreground/60" },
+  idea:               { label: "Idée",              cls: "border-border bg-muted text-muted-foreground" },
+  to_produce:         { label: "À produire",        cls: "border-amber-500/40 bg-amber-500/10 text-amber-300" },
+  to_generate:        { label: "À générer",         cls: "border-violet-500/40 bg-violet-500/10 text-violet-300" },
+  generating:         { label: "Génération…",       cls: "border-violet-500/40 bg-violet-500/15 text-violet-200" },
+  draft_ready:        { label: "Draft prêt",        cls: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300" },
+  ready:              { label: "Prêt à publier",    cls: "border-primary/40 bg-primary/10 text-primary" },
+  uploaded:           { label: "Uploadé",           cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
+  published:          { label: "Publié",            cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
+  published_manually: { label: "Publié (manuel)",   cls: "border-emerald-500/30 bg-emerald-500/5 text-emerald-200" },
+  ignored:            { label: "Ignoré",            cls: "border-border/40 bg-muted/40 text-muted-foreground/60" },
 };
 
 const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
