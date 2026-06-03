@@ -42,6 +42,7 @@ import {
 import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2, Inbox } from "lucide-react";
 import { useContentItems } from "@/hooks/useContentItems";
 import { buildQualityPackForIdea } from "@/services/contentQuality";
+import SuggestedTitles from "@/components/live-setup/SuggestedTitles";
 
 const TONES: { value: LiveTone; label: string }[] = [
   { value: "chill", label: "Chill" },
