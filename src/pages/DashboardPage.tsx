@@ -14,6 +14,7 @@ import {
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
+import DashboardQuickActions from "@/components/DashboardQuickActions";
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
