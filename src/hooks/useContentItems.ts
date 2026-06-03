@@ -119,6 +119,10 @@ export function useContentItems() {
       format: r.format ?? null,
       duration: r.duration ?? null,
       reason: r.reason ?? null,
+      source_platform: r.source_platform ?? null,
+      source_video_url: r.source_video_url ?? null,
+      source_start_time: r.source_start_time ?? null,
+      source_end_time: r.source_end_time ?? null,
     }));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error: err } = await (supabase as any)
