@@ -144,7 +144,8 @@ const LiveSetupPage = () => {
   const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
   const [lastAppliedTitle, setLastAppliedTitle] = useState<string | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [sessionsOpen, setSessionsOpen] = useState(true);
+  const [sessionsOpen, setSessionsOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0); // 0=idea 1=push 2=obs 3=launch
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryQuery, setCategoryQuery] = useState("");
   const [categorySuggestions, setCategorySuggestions] = useState<LeaderCategory[]>([]);
@@ -276,6 +277,7 @@ const LiveSetupPage = () => {
     setSkipYouTube(false);
     setTitleConfirmed(false);
     setAdvancedOpen(false);
+    setCurrentStep(0);
   };
 
   const loadSession = (s: LiveSession) => {
@@ -300,13 +302,25 @@ const LiveSetupPage = () => {
     setAdvancedOpen(
       !!(s.tone || (s.language && s.language !== "fr") || s.target_audience || s.scheduled_at || ((s.platforms as LiveTargetPlatform[]) ?? ["twitch"]).length > 1),
     );
+    setCurrentStep(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const goToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    const idx = workflowStepsIds.indexOf(id);
+    if (idx >= 0) setCurrentStep(idx);
+  };
+
+  const checkAllObs = () => {
+    const all: Record<string, boolean> = {};
+    obsItems.forEach(i => { all[i.id] = true; });
+    setObsChecklist(all);
+  };
+
+  const checkAllPrelive = () => {
+    const all: Record<string, boolean> = {};
+    DEFAULT_CHECKLIST_ITEMS.forEach(i => { all[i.id] = true; });
+    setPreliveChecklist(all);
   };
 
   const pickCategory = (name: string) => {
@@ -314,6 +328,8 @@ const LiveSetupPage = () => {
     setCategoryOpen(false);
     setCategoryQuery("");
   };
+
+  const workflowStepsIds = ["live-idea", "live-metadata", "live-obs", "live-launch"];
 
   const activeWorkflowStep = readyToGo.titleOk
     ? !readyToGo.twitchOk || !readyToGo.youtubeOk
@@ -737,18 +753,18 @@ const LiveSetupPage = () => {
             <div className="relative">
               <div className="absolute top-[18px] left-[calc(12.5%+4px)] right-[calc(12.5%+4px)] h-px bg-border/50" />
               <div className="grid grid-cols-4 gap-1">
-                {workflowSteps.map((step) => (
+                {workflowSteps.map((step, idx) => (
                   <button
                     key={step.id}
                     type="button"
-                    onClick={() => goToSection(step.targetId)}
+                    onClick={() => setCurrentStep(idx)}
                     className="group flex flex-col items-center gap-3 px-1 text-center"
                   >
                     <div className={cn(
                       "relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200",
                       step.done
                         ? "border-emerald-500/60 bg-emerald-500/15 text-emerald-400"
-                        : step.current
+                        : currentStep === idx
                           ? "border-primary bg-primary/10 text-primary shadow-[0_0_14px_hsl(var(--primary)/0.35)]"
                           : "border-border/50 bg-background/60 text-muted-foreground/40",
                     )}>
@@ -760,13 +776,13 @@ const LiveSetupPage = () => {
                       <p className={cn(
                         "text-xs font-semibold leading-tight",
                         step.done ? "text-emerald-400" :
-                        step.current ? "text-foreground" : "text-muted-foreground/50",
+                        currentStep === idx ? "text-foreground" : "text-muted-foreground/50",
                       )}>
                         {step.label}
                       </p>
                       <p className={cn(
                         "mt-0.5 hidden text-[10px] leading-snug sm:block",
-                        step.done || step.current ? "text-muted-foreground" : "text-muted-foreground/35",
+                        step.done || currentStep === idx ? "text-muted-foreground" : "text-muted-foreground/35",
                       )}>
                         {step.detail}
                       </p>
@@ -778,21 +794,20 @@ const LiveSetupPage = () => {
           </CardContent>
         </Card>
 
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          {/* ── LEFT: Form + presets + checklist + OBS assistant ─────────── */}
-          <div className="space-y-6">
-            {/* Preset selector */}
-            <Card id="live-preset" className="border-border/60 bg-card/60 backdrop-blur">
+
+        {/* ── Wizard step content ─────────────────────────────────────── */}
+
+        {/* ── STEP 0: Préparer l'angle ─── */}
+        {currentStep === 0 && (
+          <div className="space-y-5">
+            {/* Preset */}
+            <Card id="live-preset" className="border-border/60 bg-card/60">
               <CardContent className="space-y-4 p-6">
                 <StepSectionHeader
                   title="Pré-configuration"
                   description="Un preset adapte automatiquement le ton, la checklist OBS, les moments à provoquer et les clips à viser."
                   icon={<Settings2 className="h-4 w-4 text-primary" />}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Choisis un preset pour adapter automatiquement la checklist OBS, le ton du titre,
-                  les moments à prévoir et les clips à viser.
-                </p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {LIVE_PRESETS.map((p) => {
                     const active = presetId === p.id;
@@ -814,9 +829,7 @@ const LiveSetupPage = () => {
                           </div>
                         )}
                         <div className={cn("text-sm font-semibold", active ? "text-foreground" : "text-foreground/90")}>{p.label}</div>
-                        <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                          {p.description}
-                        </div>
+                        <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">{p.description}</div>
                       </button>
                     );
                   })}
@@ -825,15 +838,14 @@ const LiveSetupPage = () => {
             </Card>
 
             {/* Idea form */}
-            <Card id="live-idea" className="border-border/60 bg-card/60 backdrop-blur">
+            <Card id="live-idea" className="border-border/60 bg-card/60">
               <CardContent className="space-y-5 p-6">
                 <StepSectionHeader
                   step="01"
                   title="Prépare l'idée du live"
-                  description="Commence par l'angle, la catégorie et l'objectif. Les options avancées restent disponibles, mais elles ne doivent pas ralentir le départ."
+                  description="Commence par l'angle, la catégorie et l'objectif."
                   icon={<Wand2 className="h-4 w-4 text-primary" />}
                 />
-
                 <div className="space-y-2">
                   <Label htmlFor="titleRaw">Titre brut / idée du live</Label>
                   <Input
@@ -843,109 +855,64 @@ const LiveSetupPage = () => {
                     maxLength={140}
                   />
                 </div>
-
                 <SuggestedTitles
-                  game={input.gameCategory}
-                  objective={input.objective}
-                  tone={input.tone}
-                  audience={input.targetAudience}
-                  presetLabel={activePreset?.label ?? null}
-                  currentTitle={input.titleRaw}
-                  lastAppliedTitle={lastAppliedTitle}
-                  onApply={(t) => {
-                    setInput(prev => ({ ...prev, titleRaw: t }));
-                    setLastAppliedTitle(t);
-                    setTitleConfirmed(true);
-                  }}
+                  game={input.gameCategory} objective={input.objective} tone={input.tone}
+                  audience={input.targetAudience} presetLabel={activePreset?.label ?? null}
+                  currentTitle={input.titleRaw} lastAppliedTitle={lastAppliedTitle}
+                  onApply={(t) => { setInput(prev => ({ ...prev, titleRaw: t })); setLastAppliedTitle(t); setTitleConfirmed(true); }}
                 />
-
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/40 p-4">
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {titleConfirmed ? "Titre final validé" : "Titre encore à confirmer"}
+                      {titleConfirmed ? "Titre final validé ✓" : "Titre encore à confirmer"}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {titleConfirmed
                         ? "Ce titre servira de base aux variantes Twitch, YouTube et social."
-                        : "Verrouille le titre quand il est bon. C'est le point de départ du reste."}
+                        : "Verrouille le titre quand il est bon."}
                     </p>
                   </div>
                   <Button
-                    size="sm"
-                    variant={titleConfirmed ? "outline" : "default"}
-                    onClick={() => setTitleConfirmed((value) => !value)}
+                    size="sm" variant={titleConfirmed ? "outline" : "default"}
+                    onClick={() => setTitleConfirmed(v => !v)}
                     disabled={!input.titleRaw.trim() && !metadata.youtube.title.trim()}
                   >
                     {titleConfirmed ? "Annuler la validation" : "Confirmer le titre"}
                   </Button>
                 </div>
-
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Catégorie Twitch</Label>
                     <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
                       <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={categoryOpen}
-                          className="h-10 w-full justify-between px-3 text-sm font-normal"
-                        >
+                        <Button variant="outline" role="combobox" className="h-10 w-full justify-between px-3 text-sm font-normal">
                           <span className={cn("truncate", !input.gameCategory && "text-muted-foreground")}>
                             {input.gameCategory || "Choisir une catégorie"}
                           </span>
                           <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-60" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent
-                        align="start"
-                        sideOffset={4}
-                        className="w-[var(--radix-popover-trigger-width)] p-0"
-                      >
+                      <PopoverContent align="start" sideOffset={4} className="w-[var(--radix-popover-trigger-width)] p-0">
                         <Command shouldFilter={false}>
-                          <CommandInput
-                            value={categoryQuery}
-                            onValueChange={setCategoryQuery}
-                            placeholder="Rechercher une catégorie Twitch…"
-                            className="h-9"
-                          />
+                          <CommandInput value={categoryQuery} onValueChange={setCategoryQuery} placeholder="Rechercher…" className="h-9" />
                           <CommandList>
                             {categorySearching && (
                               <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                Recherche en cours…
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />Recherche en cours…
                               </div>
                             )}
-                            {!categorySearching && categorySuggestions.length === 0 && (
-                              <CommandEmpty>Aucune catégorie trouvée</CommandEmpty>
-                            )}
+                            {!categorySearching && categorySuggestions.length === 0 && <CommandEmpty>Aucune catégorie trouvée</CommandEmpty>}
                             {!categorySearching && categorySuggestions.length > 0 && (
                               <CommandGroup heading={categoryQuery.trim().length < 2 ? "Suggestions" : "Résultats"}>
                                 {categorySuggestions.map((category) => (
-                                  <CommandItem
-                                    key={category.id}
-                                    value={category.name}
-                                    onSelect={() => pickCategory(category.name)}
-                                    className="gap-2.5"
-                                  >
+                                  <CommandItem key={category.id} value={category.name} onSelect={() => pickCategory(category.name)} className="gap-2.5">
                                     {category.box_art_url ? (
-                                      <img
-                                        src={category.box_art_url
-                                          .replace("{width}", "40")
-                                          .replace("{height}", "54")}
-                                        alt=""
-                                        className="h-7 w-5 shrink-0 rounded-sm border border-border/60 object-cover"
-                                      />
+                                      <img src={category.box_art_url.replace("{width}", "40").replace("{height}", "54")} alt="" className="h-7 w-5 shrink-0 rounded-sm border border-border/60 object-cover" />
                                     ) : (
                                       <div className="h-7 w-5 shrink-0 rounded-sm border border-border/60 bg-muted" />
                                     )}
                                     <span className="truncate font-medium">{category.name}</span>
-                                    <CheckCircle2
-                                      className={cn(
-                                        "ml-auto h-3.5 w-3.5 shrink-0 text-primary",
-                                        category.name === input.gameCategory ? "opacity-100" : "opacity-0",
-                                      )}
-                                    />
+                                    <CheckCircle2 className={cn("ml-auto h-3.5 w-3.5 shrink-0 text-primary", category.name === input.gameCategory ? "opacity-100" : "opacity-0")} />
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
@@ -957,44 +924,31 @@ const LiveSetupPage = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="objective">Objectif du live</Label>
-                    <Input
-                      id="objective" value={input.objective}
-                      onChange={(e) => setInput({ ...input, objective: e.target.value })}
-                      placeholder="Ex : monter Diamant 2" maxLength={120}
-                    />
+                    <Input id="objective" value={input.objective} onChange={(e) => setInput({ ...input, objective: e.target.value })} placeholder="Ex : monter Diamant 2" maxLength={120} />
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-dashed border-border/60 bg-muted/15 p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Options avancées</p>
-                      <p className="text-xs text-muted-foreground">
-                        Langue, ton, audience, horaire et destinations supplémentaires. À ouvrir seulement si ça t'aide.
-                      </p>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => setAdvancedOpen((value) => !value)}>
+                {/* Advanced options */}
+                <div className="rounded-xl border border-dashed border-border/60 bg-muted/15 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-foreground">Options avancées</p>
+                    <Button variant="outline" size="sm" onClick={() => setAdvancedOpen(v => !v)}>
                       {advancedOpen ? "Masquer" : "Afficher"}
                     </Button>
                   </div>
-
                   {advancedOpen && (
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="tone">Ton souhaité</Label>
-                        <Select value={input.tone || undefined}
-                          onValueChange={(v) => setInput({ ...input, tone: v as LiveTone })}>
-                          <SelectTrigger id="tone"><SelectValue placeholder="Choisir un ton" /></SelectTrigger>
-                          <SelectContent>
-                            {TONES.map(t => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
-                          </SelectContent>
+                        <Label>Ton souhaité</Label>
+                        <Select value={input.tone || undefined} onValueChange={(v) => setInput({ ...input, tone: v as LiveTone })}>
+                          <SelectTrigger><SelectValue placeholder="Choisir un ton" /></SelectTrigger>
+                          <SelectContent>{TONES.map(t => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}</SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="lang">Langue</Label>
-                        <Select value={input.language}
-                          onValueChange={(v) => setInput({ ...input, language: v })}>
-                          <SelectTrigger id="lang"><SelectValue /></SelectTrigger>
+                        <Label>Langue</Label>
+                        <Select value={input.language} onValueChange={(v) => setInput({ ...input, language: v })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="fr">Français</SelectItem>
                             <SelectItem value="en">English</SelectItem>
@@ -1002,48 +956,26 @@ const LiveSetupPage = () => {
                           </SelectContent>
                         </Select>
                       </div>
-
                       <div className="space-y-2 sm:col-span-2">
-                        <Label htmlFor="audience">Audience cible</Label>
-                        <Input
-                          id="audience" value={input.targetAudience}
-                          onChange={(e) => setInput({ ...input, targetAudience: e.target.value })}
-                          placeholder="Ex : joueurs FR niveau intermédiaire" maxLength={160}
-                        />
+                        <Label>Audience cible</Label>
+                        <Input value={input.targetAudience} onChange={(e) => setInput({ ...input, targetAudience: e.target.value })} placeholder="Ex : joueurs FR niveau intermédiaire" maxLength={160} />
                       </div>
-
                       <div className="space-y-2 sm:col-span-2">
-                        <Label htmlFor="scheduled">Date / heure (optionnel)</Label>
-                        <Input
-                          id="scheduled" type="datetime-local"
-                          value={input.scheduledAt ? input.scheduledAt.slice(0, 16) : ""}
-                          onChange={(e) => setInput({
-                            ...input,
-                            scheduledAt: e.target.value ? new Date(e.target.value).toISOString() : "",
-                          })}
-                        />
+                        <Label>Date / heure (optionnel)</Label>
+                        <Input type="datetime-local" value={input.scheduledAt ? input.scheduledAt.slice(0, 16) : ""}
+                          onChange={(e) => setInput({ ...input, scheduledAt: e.target.value ? new Date(e.target.value).toISOString() : "" })} />
                       </div>
-
                       <div className="space-y-2 sm:col-span-2">
                         <Label>Plateformes ciblées</Label>
                         <div className="flex flex-wrap gap-2">
                           {PLATFORMS.map(({ value, label, Icon, soon }) => {
                             const active = input.platforms.includes(value);
                             return (
-                              <button
-                                key={value} type="button"
-                                onClick={() => !soon && togglePlatform(value)}
-                                disabled={soon}
-                                className={cn(
-                                  "inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
-                                  active
-                                    ? "border-primary bg-primary/10 text-primary"
-                                    : "border-border bg-card hover:border-border/80",
-                                  soon && "cursor-not-allowed opacity-60",
-                                )}
-                              >
-                                <Icon className="h-4 w-4" />
-                                {label}
+                              <button key={value} type="button" onClick={() => !soon && togglePlatform(value)} disabled={soon}
+                                className={cn("inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
+                                  active ? "border-primary bg-primary/10 text-primary" : "border-border bg-card hover:border-border/80",
+                                  soon && "cursor-not-allowed opacity-60")}>
+                                <Icon className="h-4 w-4" />{label}
                                 {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
                               </button>
                             );
@@ -1053,194 +985,51 @@ const LiveSetupPage = () => {
                     </div>
                   )}
                 </div>
-
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <Button onClick={() => handleSave("ready")} disabled={saving}>
-                    <Sparkles className="mr-1.5 h-4 w-4" />
-                    Marquer comme prêt
-                  </Button>
-                  <Button variant="outline" onClick={() => handleSave("draft")} disabled={saving}>
-                    <Save className="mr-1.5 h-4 w-4" />
-                    Sauvegarder le brouillon
-                  </Button>
-                </div>
               </CardContent>
             </Card>
 
-            {/* OBS Assistant */}
-            <Card id="live-obs" className="border-border/60">
-              <CardContent className="space-y-5 p-6">
-                <div className="flex items-start justify-between gap-3">
-                  <StepSectionHeader
-                    step="03"
-                    title="Valide le setup OBS"
-                    description="La partie technique doit être rapide à relire: réglages, checklist et moments à provoquer."
-                    icon={<MonitorPlay className="h-4 w-4 text-primary" />}
-                  />
-                  <Badge variant="outline" className="text-xs">
-                    {obsProgress.done}/{obsProgress.total}
-                  </Badge>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <TechBlock label="Résolution" value={activePreset?.obsTechnical.resolution ?? "1920x1080"} />
-                  <TechBlock label="FPS" value={activePreset?.obsTechnical.fps ?? "60 fps"} />
-                  <TechBlock label="Bitrate" value={activePreset?.obsTechnical.bitrateKbps ?? "6000 kbps"} />
-                  <TechBlock label="Encodeur" value={activePreset?.obsTechnical.encoder ?? "NVENC (recommandé)"} />
-                </div>
-                {activePreset?.obsTechnical.notes && (
-                  <p className="rounded-md border border-border/60 bg-muted/30 p-2.5 text-xs text-muted-foreground">
-                    {activePreset.obsTechnical.notes}
-                  </p>
-                )}
-
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-primary transition-all"
-                    style={{ width: `${obsProgress.pct}%` }} />
-                </div>
-
-                <ul className="grid gap-2 sm:grid-cols-2">
-                  {obsItems.map((item) => (
-                    <li key={item.id} className="flex items-start gap-2">
-                      <Checkbox
-                        id={`obs-${item.id}`}
-                        checked={!!obsChecklist[item.id]}
-                        onCheckedChange={(v) =>
-                          setObsChecklist((prev) => ({ ...prev, [item.id]: v === true }))
-                        }
-                      />
-                      <Label htmlFor={`obs-${item.id}`}
-                        className={cn(
-                          "cursor-pointer text-xs leading-tight",
-                          obsChecklist[item.id] ? "text-muted-foreground line-through" : "text-foreground",
-                        )}
-                      >
-                        {item.label}
-                      </Label>
-                    </li>
-                  ))}
-                </ul>
-
-                {activePreset && (
-                  <div className="grid gap-4 pt-2 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                        <Flag className="h-3.5 w-3.5 text-primary" /> Moments à prévoir
-                      </div>
-                      <ul className="space-y-1 text-xs text-muted-foreground">
-                        {activePreset.momentsToPlan.map((m, i) => (
-                          <li key={i} className="flex gap-1.5"><span>•</span><span>{m}</span></li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                        <Film className="h-3.5 w-3.5 text-primary" /> Clips à viser
-                      </div>
-                      <ul className="space-y-1 text-xs text-muted-foreground">
-                        {activePreset.clipRecommendations.map((c, i) => (
-                          <li key={i} className="flex gap-1.5"><span>•</span><span>{c}</span></li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Pre-live checklist */}
-            <Card className="border-border/60">
-              <CardContent className="space-y-4 p-6">
-                <div className="flex items-start justify-between gap-3">
-                  <StepSectionHeader
-                    step="03"
-                    title="Checklist générale"
-                    description="Les derniers points non techniques : eau, transitions, rappel de l'objectif, avant le départ."
-                    icon={<ListChecks className="h-4 w-4 text-primary" />}
-                  />
-                  <Badge variant="outline" className="text-xs">
-                    {preliveProgress.done}/{preliveProgress.total}
-                  </Badge>
-                </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-primary transition-all"
-                    style={{ width: `${preliveProgress.pct}%` }} />
-                </div>
-                <ul className="space-y-2">
-                  {DEFAULT_CHECKLIST_ITEMS.map((item) => (
-                    <li key={item.id} className="flex items-center gap-3">
-                      <Checkbox
-                        id={`chk-${item.id}`}
-                        checked={!!preliveChecklist[item.id]}
-                        onCheckedChange={(v) =>
-                          setPreliveChecklist((prev) => ({ ...prev, [item.id]: v === true }))
-                        }
-                      />
-                      <Label htmlFor={`chk-${item.id}`}
-                        className={cn(
-                          "cursor-pointer text-sm",
-                          preliveChecklist[item.id] ? "text-muted-foreground line-through" : "text-foreground",
-                        )}
-                      >
-                        {item.label}
-                      </Label>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            {/* Step 0 navigation */}
+            <div className="flex items-center justify-between gap-3">
+              <Button variant="outline" onClick={() => handleSave("draft")} disabled={saving}>
+                <Save className="mr-1.5 h-4 w-4" />Sauvegarder le brouillon
+              </Button>
+              <Button onClick={() => setCurrentStep(1)} disabled={!input.titleRaw.trim() && !input.gameCategory.trim()}>
+                Configurer les plateformes →
+              </Button>
+            </div>
           </div>
+        )}
 
-          {/* ── RIGHT: Preview + actions + launch plan + sessions ────────── */}
-          <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-            {/* Generated metadata */}
-            <Card id="live-metadata" className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+        {/* ── STEP 1: Configurer les plateformes ─── */}
+        {currentStep === 1 && (
+          <div className="space-y-5">
+            <Card id="live-metadata" className="border-primary/25 bg-gradient-to-br from-primary/5 to-transparent">
               <CardContent className="p-6">
                 <StepSectionHeader
                   step="02"
                   title="Génère puis pousse les métadonnées"
-                  description="Affiche uniquement les destinations utiles pour alléger la lecture et garder le focus sur le lancement."
+                  description="Affiche uniquement les destinations utiles pour alléger la lecture."
                   icon={<Sparkles className="h-4 w-4 text-primary" />}
                 />
-
-                <Tabs defaultValue={selectedMetadataTabs[0] ?? "social"} className="mt-4">
-                  <TabsList className={cn(
-                    "grid w-full",
+                <Tabs defaultValue={selectedMetadataTabs[0] ?? "social"} className="mt-5">
+                  <TabsList className={cn("grid w-full",
                     selectedMetadataTabs.length === 2 && "grid-cols-2",
                     selectedMetadataTabs.length === 3 && "grid-cols-3",
-                    selectedMetadataTabs.length >= 4 && "grid-cols-4",
-                  )}>
+                    selectedMetadataTabs.length >= 4 && "grid-cols-4")}>
                     {selectedMetadataTabs.includes("twitch") && <TabsTrigger value="twitch">Twitch</TabsTrigger>}
                     {selectedMetadataTabs.includes("youtube") && <TabsTrigger value="youtube">YouTube</TabsTrigger>}
                     {selectedMetadataTabs.includes("kick") && <TabsTrigger value="kick">Manuel</TabsTrigger>}
                     <TabsTrigger value="social">Social</TabsTrigger>
                   </TabsList>
-
                   <TabsContent value="twitch" className="space-y-3 pt-4">
                     <PreviewField label="Titre Twitch" value={metadata.twitch.title} />
                     <PreviewField label="Catégorie" value={metadata.twitch.category || "—"} />
-                    <PushActionRow
-                      icon={<Tv className="h-4 w-4" />}
-                      connected={twitchConnected}
-                      busy={pushingTwitch || saving}
-                      disabledReason={
-                        !metadata.twitch.title.trim() && !metadata.twitch.category.trim()
-                          ? "Ajoute un titre ou une catégorie pour activer le push."
-                          : undefined
-                      }
-                      labelConnected="Mettre à jour Twitch"
-                      labelMissing="Connecte Twitch"
-                      onPush={handlePushTwitch}
-                    />
-                    <SkipToggle
-                      label="Je préfère configurer Twitch manuellement"
-                      checked={skipTwitch}
-                      disabled={twitchDone}
-                      onChange={setSkipTwitch}
-                    />
+                    <PushActionRow icon={<Tv className="h-4 w-4" />} connected={twitchConnected} busy={pushingTwitch || saving}
+                      disabledReason={!metadata.twitch.title.trim() && !metadata.twitch.category.trim() ? "Ajoute un titre ou une catégorie." : undefined}
+                      labelConnected="Mettre à jour Twitch" labelMissing="Connecte Twitch" onPush={handlePushTwitch} />
+                    <SkipToggle label="Je préfère configurer Twitch manuellement" checked={skipTwitch} disabled={twitchDone} onChange={setSkipTwitch} />
                     <PushHistory entry={twitchPush} platform="twitch" />
                   </TabsContent>
-
                   <TabsContent value="youtube" className="space-y-3 pt-4">
                     <PreviewField label="Titre YouTube" value={metadata.youtube.title} />
                     <PreviewField label="Description" value={metadata.youtube.description} multiline />
@@ -1256,35 +1045,16 @@ const LiveSetupPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <PushActionRow
-                      icon={<Video className="h-4 w-4" />}
-                      connected={youtubeConnected}
-                      busy={pushingYouTube || saving}
-                      disabledReason={
-                        !metadata.youtube.title.trim()
-                          ? "Ajoute un titre pour activer la création du live."
-                          : undefined
-                      }
-                      labelConnected="Créer un live YouTube"
-                      labelMissing="Connecte YouTube"
-                      onPush={handlePushYouTube}
-                    />
-                    <SkipToggle
-                      label="Je préfère configurer YouTube manuellement"
-                      checked={skipYouTube}
-                      disabled={youtubeDone}
-                      onChange={setSkipYouTube}
-                    />
+                    <PushActionRow icon={<Video className="h-4 w-4" />} connected={youtubeConnected} busy={pushingYouTube || saving}
+                      disabledReason={!metadata.youtube.title.trim() ? "Ajoute un titre pour activer la création du live." : undefined}
+                      labelConnected="Créer un live YouTube" labelMissing="Connecte YouTube" onPush={handlePushYouTube} />
+                    <SkipToggle label="Je préfère configurer YouTube manuellement" checked={skipYouTube} disabled={youtubeDone} onChange={setSkipYouTube} />
                     <PushHistory entry={youtubePush} platform="youtube" />
                   </TabsContent>
-
                   <TabsContent value="kick" className="space-y-3 pt-4">
                     <PreviewField label="Titre Kick" value={metadata.kick.title} />
-                    <p className="text-xs text-muted-foreground">
-                      L'intégration directe n'est pas disponible ici. Copie le titre si tu fais la configuration manuellement.
-                    </p>
+                    <p className="text-xs text-muted-foreground">L'intégration directe n'est pas disponible ici. Copie le titre si tu fais la configuration manuellement.</p>
                   </TabsContent>
-
                   <TabsContent value="social" className="space-y-3 pt-4">
                     <PreviewField label="Post court" value={metadata.socialSummary} multiline />
                   </TabsContent>
@@ -1292,76 +1062,156 @@ const LiveSetupPage = () => {
               </CardContent>
             </Card>
 
-            {/* Live Launch Plan */}
-            <Card
-              id="live-launch"
-              className={cn(
-                "border transition",
-                readyToGo.all
-                  ? "border-emerald-500/35 bg-emerald-500/[0.04]"
-                  : "border-border/60 bg-card/70",
-              )}
-            >
+            <div className="flex items-center justify-between gap-3">
+              <Button variant="outline" onClick={() => setCurrentStep(0)}>← Précédent</Button>
+              <Button onClick={() => setCurrentStep(2)}>Valider le setup OBS →</Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── STEP 2: Valider le setup OBS ─── */}
+        {currentStep === 2 && (
+          <div className="space-y-5">
+            {/* OBS checklist */}
+            <Card id="live-obs" className="border-border/60">
+              <CardContent className="space-y-5 p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <StepSectionHeader
+                    step="03"
+                    title="Valide le setup OBS"
+                    description="La partie technique doit être rapide à relire."
+                    icon={<MonitorPlay className="h-4 w-4 text-primary" />}
+                  />
+                  <Badge variant="outline" className="shrink-0 text-xs">{obsProgress.done}/{obsProgress.total}</Badge>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <TechBlock label="Résolution" value={activePreset?.obsTechnical.resolution ?? "1920x1080"} />
+                  <TechBlock label="FPS" value={activePreset?.obsTechnical.fps ?? "60 fps"} />
+                  <TechBlock label="Bitrate" value={activePreset?.obsTechnical.bitrateKbps ?? "6000 kbps"} />
+                  <TechBlock label="Encodeur" value={activePreset?.obsTechnical.encoder ?? "NVENC (recommandé)"} />
+                </div>
+                {activePreset?.obsTechnical.notes && (
+                  <p className="rounded-md border border-border/60 bg-muted/30 p-2.5 text-xs text-muted-foreground">{activePreset.obsTechnical.notes}</p>
+                )}
+
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="h-full bg-primary transition-all" style={{ width: `${obsProgress.pct}%` }} />
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pb-1">
+                  <p className="text-xs font-medium text-muted-foreground">Checklist OBS</p>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-primary hover:bg-primary/10" onClick={checkAllObs}>
+                    Tout cocher
+                  </Button>
+                </div>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {obsItems.map((item) => (
+                    <li key={item.id} className="flex items-start gap-2">
+                      <Checkbox id={`obs-${item.id}`} checked={!!obsChecklist[item.id]}
+                        onCheckedChange={(v) => setObsChecklist(prev => ({ ...prev, [item.id]: v === true }))} />
+                      <Label htmlFor={`obs-${item.id}`} className={cn("cursor-pointer text-xs leading-tight",
+                        obsChecklist[item.id] ? "text-muted-foreground line-through" : "text-foreground")}>
+                        {item.label}
+                      </Label>
+                    </li>
+                  ))}
+                </ul>
+
+                {activePreset && (
+                  <div className="grid gap-4 pt-2 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <Flag className="h-3.5 w-3.5 text-primary" /> Moments à prévoir
+                      </div>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        {activePreset.momentsToPlan.map((m, i) => (<li key={i} className="flex gap-1.5"><span>•</span><span>{m}</span></li>))}
+                      </ul>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <Film className="h-3.5 w-3.5 text-primary" /> Clips à viser
+                      </div>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        {activePreset.clipRecommendations.map((c, i) => (<li key={i} className="flex gap-1.5"><span>•</span><span>{c}</span></li>))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* General pre-live checklist */}
+            <Card className="border-border/60">
+              <CardContent className="space-y-4 p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <StepSectionHeader
+                    step="03"
+                    title="Checklist générale"
+                    description="Les derniers points non techniques avant le départ."
+                    icon={<ListChecks className="h-4 w-4 text-primary" />}
+                  />
+                  <Badge variant="outline" className="shrink-0 text-xs">{preliveProgress.done}/{preliveProgress.total}</Badge>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="h-full bg-primary transition-all" style={{ width: `${preliveProgress.pct}%` }} />
+                </div>
+                <div className="flex items-center justify-between gap-2 pb-1">
+                  <p className="text-xs font-medium text-muted-foreground">Points à valider</p>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-primary hover:bg-primary/10" onClick={checkAllPrelive}>
+                    Tout cocher
+                  </Button>
+                </div>
+                <ul className="space-y-2">
+                  {DEFAULT_CHECKLIST_ITEMS.map((item) => (
+                    <li key={item.id} className="flex items-center gap-3">
+                      <Checkbox id={`chk-${item.id}`} checked={!!preliveChecklist[item.id]}
+                        onCheckedChange={(v) => setPreliveChecklist(prev => ({ ...prev, [item.id]: v === true }))} />
+                      <Label htmlFor={`chk-${item.id}`} className={cn("cursor-pointer text-sm",
+                        preliveChecklist[item.id] ? "text-muted-foreground line-through" : "text-foreground")}>
+                        {item.label}
+                      </Label>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <div className="flex items-center justify-between gap-3">
+              <Button variant="outline" onClick={() => setCurrentStep(1)}>← Précédent</Button>
+              <Button onClick={() => setCurrentStep(3)}>Passer au lancement →</Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── STEP 3: Lancement ─── */}
+        {currentStep === 3 && (
+          <div className="space-y-5">
+            <Card id="live-launch" className={cn("border transition", readyToGo.all ? "border-emerald-500/35 bg-emerald-500/[0.04]" : "border-border/60 bg-card/70")}>
               <CardContent className="space-y-4 p-5">
                 <StepSectionHeader
                   step="04"
                   title="Plan de lancement"
-                  description="Le dernier contrôle avant le live. Ce bloc doit rester court et actionnable."
+                  description="Le dernier contrôle avant le live."
                   icon={<Rocket className="h-4 w-4 text-primary" />}
                 />
-
                 <ul className="space-y-2 text-sm">
-                  <LaunchStep
-                    done={readyToGo.titleOk}
-                    label="Titre validé"
+                  <LaunchStep done={readyToGo.titleOk} label="Titre validé"
                     detail={titleConfirmed ? "Le titre est verrouillé." : "Valide le titre final."}
-                    action={!titleConfirmed ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-idea")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.twitchOk}
+                    action={!titleConfirmed ? <Button size="sm" variant="outline" onClick={() => setCurrentStep(0)}>Ouvrir</Button> : undefined} />
+                  <LaunchStep done={readyToGo.twitchOk}
                     label={twitchDone ? "Twitch prêt" : skipTwitch ? "Twitch manuel" : "Configurer Twitch"}
-                    detail={twitchDone
-                      ? `Titre : ${twitchPush?.title ?? metadata.twitch.title}${twitchPush?.game_name ? ` · ${twitchPush.game_name}` : ""}`
-                      : "Pousse les métadonnées Twitch ou ignore pour le faire manuellement."}
-                    action={!readyToGo.twitchOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-metadata")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.youtubeOk}
+                    detail={twitchDone ? `Titre : ${twitchPush?.title ?? metadata.twitch.title}${twitchPush?.game_name ? ` · ${twitchPush.game_name}` : ""}` : "Pousse les métadonnées Twitch."}
+                    action={!readyToGo.twitchOk ? <Button size="sm" variant="outline" onClick={() => setCurrentStep(1)}>Ouvrir</Button> : undefined} />
+                  <LaunchStep done={readyToGo.youtubeOk}
                     label={youtubeDone ? "YouTube prêt" : skipYouTube ? "YouTube manuel" : "Créer le live YouTube"}
-                    detail={youtubeDone
-                      ? `Titre : ${metadata.youtube.title}${youtubePush?.privacy_status ? ` · ${youtubePush.privacy_status}` : ""}`
-                      : "Crée le brouillon YouTube ou ignore."}
-                    link={youtubePush?.youtube_watch_url
-                      ? { href: youtubePush.youtube_watch_url, label: "Ouvrir dans YouTube" }
-                      : youtubeDone
-                        ? { href: "https://studio.youtube.com/", label: "Ouvrir YouTube Studio" }
-                        : undefined}
-                    action={!readyToGo.youtubeOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-metadata")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
-                  <LaunchStep
-                    done={readyToGo.obsOk}
-                    label={`OBS validé (${obsProgress.done}/${obsProgress.total})`}
+                    detail={youtubeDone ? `Titre : ${metadata.youtube.title}` : "Crée le brouillon YouTube."}
+                    link={youtubePush?.youtube_watch_url ? { href: youtubePush.youtube_watch_url, label: "Ouvrir dans YouTube" } : youtubeDone ? { href: "https://studio.youtube.com/", label: "Ouvrir YouTube Studio" } : undefined}
+                    action={!readyToGo.youtubeOk ? <Button size="sm" variant="outline" onClick={() => setCurrentStep(1)}>Ouvrir</Button> : undefined} />
+                  <LaunchStep done={readyToGo.obsOk} label={`OBS validé (${obsProgress.done}/${obsProgress.total})`}
                     detail="Termine la checklist technique."
-                    action={!readyToGo.obsOk ? (
-                      <Button size="sm" variant="outline" onClick={() => goToSection("live-obs")}>
-                        Ouvrir
-                      </Button>
-                    ) : undefined}
-                  />
+                    action={!readyToGo.obsOk ? <Button size="sm" variant="outline" onClick={() => setCurrentStep(2)}>Ouvrir</Button> : undefined} />
                 </ul>
-
                 <div className="rounded-xl border border-border/60 bg-background/50 p-3 text-sm">
                   {readyToGo.all ? (
                     <p className="flex items-start gap-2 text-emerald-300">
@@ -1371,30 +1221,17 @@ const LiveSetupPage = () => {
                   ) : (
                     <p className="flex items-start gap-2 text-muted-foreground">
                       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-                      <span>Un seul but ici : identifier le prochain blocage avant le départ.</span>
+                      <span>Un seul but : identifier le prochain blocage avant le départ.</span>
                     </p>
                   )}
                 </div>
-
-                <Button
-                  className="w-full"
-                  disabled={!readyToGo.all || markingReady || isCompleted}
-                  onClick={handleMarkReadyToGo}
-                >
-                  {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                                : <Rocket className="mr-1.5 h-4 w-4" />}
+                <Button className="w-full" disabled={!readyToGo.all || markingReady || isCompleted} onClick={handleMarkReadyToGo}>
+                  {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Rocket className="mr-1.5 h-4 w-4" />}
                   Marquer comme « prêt à lancer »
                 </Button>
-
                 {editingId && !isCompleted && (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    disabled={endingLive}
-                    onClick={handleEndLive}
-                  >
-                    {endingLive ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                                : <StopCircle className="mr-1.5 h-4 w-4" />}
+                  <Button variant="outline" className="w-full" disabled={endingLive} onClick={handleEndLive}>
+                    {endingLive ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <StopCircle className="mr-1.5 h-4 w-4" />}
                     Terminer le live & générer le brief
                   </Button>
                 )}
@@ -1406,97 +1243,66 @@ const LiveSetupPage = () => {
               </CardContent>
             </Card>
 
-            {/* Post-live brief */}
             {existingBrief && (
-              <PostLiveBriefCard
-                brief={existingBrief}
-                liveSessionId={editingId}
-                canRegenerate={isCompleted}
-                onRegenerate={handleRegenerateBrief}
-              />
+              <PostLiveBriefCard brief={existingBrief} liveSessionId={editingId} canRegenerate={isCompleted} onRegenerate={handleRegenerateBrief} />
             )}
 
-            {/* Saved sessions */}
-            <Card className="border-border/60">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <Clock className="h-4 w-4 text-primary" />
-                    Sessions sauvegardées
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">{sessions.length}</Badge>
-                    <Button variant="outline" size="sm" onClick={() => setSessionsOpen((value) => !value)}>
-                      {sessionsOpen ? "Masquer" : "Afficher"}
-                    </Button>
-                  </div>
-                </div>
-                {sessionsOpen && (loading ? (
-                  <p className="text-sm text-muted-foreground">Chargement…</p>
-                ) : sessions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Aucune session pour l'instant. Remplis le formulaire et sauvegarde un brouillon.
-                  </p>
-                ) : (
-                  <ul className="space-y-2">
-                    {sessions.map((s) => {
-                      const meta = s.generated_metadata as Record<string, unknown> | undefined;
-                      const tp = meta?.twitch_push as PushEntry | undefined;
-                      const yp = meta?.youtube_push as PushEntry | undefined;
-                      const extras = readExtras(meta);
-                      const actions: string[] = [];
-                      if (tp?.status === "success") actions.push("Twitch ✓");
-                      if (yp?.status === "success") actions.push("YouTube ✓");
-                      if (extras.skip_twitch && !tp) actions.push("Twitch ignoré");
-                      if (extras.skip_youtube && !yp) actions.push("YouTube ignoré");
-                      return (
-                        <li
-                          key={s.id}
-                          className={cn(
-                            "group flex items-center gap-3 rounded-md border p-3 transition",
-                            editingId === s.id
-                              ? "border-primary bg-primary/5"
-                              : "border-border/60 hover:border-border",
-                          )}
-                        >
-                          <button type="button" onClick={() => loadSession(s)}
-                            className="min-w-0 flex-1 text-left">
-                            <p className="truncate text-sm font-medium text-foreground">
-                              {s.title_raw || s.game_category || "Sans titre"}
-                            </p>
-                            <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                              <StatusPill status={s.status} />
-                              {s.game_category && <span className="truncate">· {s.game_category}</span>}
-                              {actions.length > 0 && <span>· {actions.join(" · ")}</span>}
-                            </p>
-                          </button>
-                          <Button variant="ghost" size="icon"
-                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                            onClick={() => handleDelete(s.id)} aria-label="Supprimer">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="border-dashed border-border/60 bg-muted/20">
-              <CardContent className="p-4 text-xs text-muted-foreground">
-                <Rocket className="mb-1.5 inline h-3.5 w-3.5 text-primary" />{" "}
-                Streamnco ne contrôle pas OBS et ne fait pas de multistreaming.
-                Cette page t'aide à arriver « prêt à lancer » avant d'ouvrir OBS.
-                Connecte tes plateformes depuis{" "}
-                <Link to="/reseaux" className="text-primary underline-offset-2 hover:underline">
-                  Réseaux
-                </Link>.
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-between gap-3">
+              <Button variant="outline" onClick={() => setCurrentStep(2)}>← Précédent</Button>
+            </div>
           </div>
+        )}
+
+        {/* ── Sessions sauvegardées ────────────────────────────────────── */}
+        <div className="mt-8 border-t border-border/40 pt-6">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Clock className="h-4 w-4 text-primary" />
+              Sessions sauvegardées
+              <Badge variant="outline" className="text-xs">{sessions.length}</Badge>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setSessionsOpen(v => !v)}>
+              {sessionsOpen ? "Masquer" : "Afficher"}
+            </Button>
+          </div>
+          {sessionsOpen && (loading ? (
+            <p className="text-sm text-muted-foreground">Chargement…</p>
+          ) : sessions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucune session pour l'instant.</p>
+          ) : (
+            <ul className="space-y-2">
+              {sessions.map((s) => {
+                const meta = s.generated_metadata as Record<string, unknown> | undefined;
+                const tp = meta?.twitch_push as PushEntry | undefined;
+                const yp = meta?.youtube_push as PushEntry | undefined;
+                const extras = readExtras(meta);
+                const actions: string[] = [];
+                if (tp?.status === "success") actions.push("Twitch ✓");
+                if (yp?.status === "success") actions.push("YouTube ✓");
+                if (extras.skip_twitch && !tp) actions.push("Twitch ignoré");
+                if (extras.skip_youtube && !yp) actions.push("YouTube ignoré");
+                return (
+                  <li key={s.id} className={cn("group flex items-center gap-3 rounded-xl border p-3 transition",
+                    editingId === s.id ? "border-primary bg-primary/5" : "border-border/60 hover:border-border")}>
+                    <button type="button" onClick={() => loadSession(s)} className="min-w-0 flex-1 text-left">
+                      <p className="truncate text-sm font-medium text-foreground">{s.title_raw || s.game_category || "Sans titre"}</p>
+                      <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                        <StatusPill status={s.status} />
+                        {s.game_category && <span>· {s.game_category}</span>}
+                        {actions.length > 0 && <span>· {actions.join(" · ")}</span>}
+                      </p>
+                    </button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(s.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </li>
+                );
+              })}
+            </ul>
+          ))}
         </div>
+
       </PageContainer>
     </AppShell>
   );
