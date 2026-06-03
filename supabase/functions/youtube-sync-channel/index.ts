@@ -1,8 +1,10 @@
 // youtube-sync-channel
 // Fetches YouTube channel metrics for the authenticated user and persists them.
-// Access/refresh tokens are handled server-side only.
+// Tokens are decrypted server-side only (AES-GCM, TOKEN_ENCRYPTION_KEY) and
+// never returned to the client. Refreshes the access token transparently.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { encryptToken, decryptToken } from "../_shared/youtube-crypto.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,13 +42,17 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const clientId     = Deno.env.get("YOUTUBE_CLIENT_ID");
-    const clientSecret = Deno.env.get("YOUTUBE_CLIENT_SECRET");
-    if (!clientId || !clientSecret) {
-      return json({ error: "YouTube credentials not configured." }, 500);
+    const clientId      = Deno.env.get("YOUTUBE_CLIENT_ID");
+    const clientSecret  = Deno.env.get("YOUTUBE_CLIENT_SECRET");
+    const encryptionKey = Deno.env.get("TOKEN_ENCRYPTION_KEY");
+
+    if (!clientId || !clientSecret || !encryptionKey) {
+      return json(
+        { error: "Connexion YouTube non configurée côté serveur.", configured: false },
+        500,
+      );
     }
 
-    // Authenticate caller
     const authHeader = req.headers.get("Authorization") ?? "";
     if (!authHeader.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
 
@@ -63,7 +69,6 @@ Deno.serve(async (req) => {
 
     const db = createClient(supabaseUrl, serviceRoleKey);
 
-    // Load stored account (tokens are server-side only)
     const { data: row } = await db
       .from("creator_connected_accounts")
       .select("*")
@@ -73,33 +78,35 @@ Deno.serve(async (req) => {
 
     if (!row) return json({ error: "YouTube account not connected." }, 404);
 
-    let accessToken: string = row.access_token_encrypted ?? "";
-    const storedRefresh: string | null = row.refresh_token_encrypted ?? null;
+    let accessToken = await decryptToken(row.access_token_encrypted, encryptionKey);
+    const refreshToken = await decryptToken(row.refresh_token_encrypted, encryptionKey);
 
-    // Refresh if expired
     const expiresAt  = row.token_expires_at ? new Date(row.token_expires_at).getTime() : 0;
     const needsRefresh = !accessToken || (expiresAt > 0 && expiresAt - 60_000 < Date.now());
 
     if (needsRefresh) {
-      if (!storedRefresh) {
+      if (!refreshToken) {
         await db.from("creator_connected_accounts")
-          .update({ connection_status: "expired" })
-          .eq("id", row.id);
+          .update({ connection_status: "expired" }).eq("id", row.id);
         return json({ error: "Token expired. Please reconnect YouTube.", expired: true }, 401);
       }
-      const refreshed = await tryRefreshToken(clientId, clientSecret, storedRefresh);
+      const refreshed = await tryRefreshToken(clientId, clientSecret, refreshToken);
       if (!refreshed) {
         await db.from("creator_connected_accounts")
-          .update({ connection_status: "expired" })
-          .eq("id", row.id);
+          .update({ connection_status: "expired" }).eq("id", row.id);
         return json({ error: "Could not refresh token. Please reconnect.", expired: true }, 401);
       }
       accessToken = refreshed.access_token;
+      const encAccess = await encryptToken(accessToken, encryptionKey);
       await db.from("creator_connected_accounts").update({
-        access_token_encrypted: accessToken,
+        access_token_encrypted: encAccess,
         token_expires_at: new Date(Date.now() + refreshed.expires_in * 1000).toISOString(),
         connection_status: "connected",
       }).eq("id", row.id);
+    }
+
+    if (!accessToken) {
+      return json({ error: "Token unavailable. Please reconnect.", expired: true }, 401);
     }
 
     // ── Channel identity + stats ──────────────────────────────────────────────
@@ -111,8 +118,7 @@ Deno.serve(async (req) => {
     if (!channelRes.ok) {
       if (channelRes.status === 401) {
         await db.from("creator_connected_accounts")
-          .update({ connection_status: "expired" })
-          .eq("id", row.id);
+          .update({ connection_status: "expired" }).eq("id", row.id);
         return json({ error: "Token invalid. Please reconnect.", expired: true }, 401);
       }
       return json({ error: `YouTube API error ${channelRes.status}` }, 502);
@@ -133,6 +139,7 @@ Deno.serve(async (req) => {
       ?? null;
     const profileUrl  = `https://www.youtube.com/channel/${channelId}`;
 
+    // Honest metric handling: keep null when missing, never fall back to 0.
     const subscriberCount = stats.hiddenSubscriberCount
       ? null
       : (parseInt(stats.subscriberCount as string) || null);
@@ -153,7 +160,6 @@ Deno.serve(async (req) => {
       ? Math.min(100, recentVideoCount * 10)
       : null;
 
-    // ── Persist ───────────────────────────────────────────────────────────────
     const now   = new Date().toISOString();
     const today = now.slice(0, 10);
 
