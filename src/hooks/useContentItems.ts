@@ -56,6 +56,23 @@ export interface ContentItem {
   thumbnail_url: string | null;
   generation_status: GenerationStatus | null;
   generation_error: string | null;
+  // V3.5 — Editorial variants & opportunity scoring
+  title_variants: Array<{ style: string; label: string; value: string }>;
+  selected_title_variant: string | null;
+  description_variants: Array<{ style: string; label: string; value: string }>;
+  selected_description_variant: string | null;
+  hashtag_variants: Array<{ style: string; label: string; tags: string[] }>;
+  selected_hashtags: string[];
+  opportunity_score: number | null;
+  opportunity_label: string | null;
+  opportunity_reason: string | null;
+  // V3.5 — Post-publish metrics
+  published_url: string | null;
+  published_platform: string | null;
+  external_platform_id: string | null;
+  last_metrics_sync_at: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  post_publish_metrics: any | null;
   created_at: string;
   updated_at: string;
 }
