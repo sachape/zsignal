@@ -107,7 +107,7 @@ const TwitchAccountsPage = () => {
 
   const handleAdd = () => {
     if (!isGrowth && count >= 1) {
-      navigate("/pricing");
+      navigate("/billing");
       return;
     }
     if (atLimit) return;
@@ -315,7 +315,7 @@ const TwitchAccountsPage = () => {
                   {atLimit ? "3/3" : "Ajouter une chaîne"}
                 </Button>
               ) : count >= 1 ? (
-                <Button size="sm" className="gap-1.5" onClick={() => navigate("/pricing")}>
+                <Button size="sm" className="gap-1.5" onClick={() => navigate("/billing")}>
                   <Sparkles className="h-3.5 w-3.5" />
                   Passer à Growth
                 </Button>

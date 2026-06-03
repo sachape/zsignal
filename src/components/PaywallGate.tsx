@@ -47,7 +47,7 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
 
       {/* CTA */}
       <Button asChild className="relative mt-6 w-full" size="sm">
-        <Link to="/pricing" onClick={() => analytics.upgradeClicked(feature, "full_page")}>
+        <Link to="/billing" onClick={() => analytics.upgradeClicked(feature, "full_page")}>
           Passer au Pro
           <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
         </Link>
@@ -103,7 +103,7 @@ export const InlineLock = ({
         )}
       </div>
       <Button asChild size="sm" variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
-        <Link to="/pricing" onClick={() => analytics.upgradeClicked(feature, "inline")}>
+        <Link to="/billing" onClick={() => analytics.upgradeClicked(feature, "inline")}>
           <Sparkles className="mr-1.5 h-3 w-3" />
           Passer au Pro
         </Link>
@@ -133,7 +133,7 @@ export const LimitBanner = ({ current, max, label }: LimitBannerProps) => {
       </p>
     </div>
     <Button asChild size="sm" variant="outline" className="shrink-0 border-primary/30 text-primary hover:bg-primary/10">
-      <Link to="/pricing" onClick={() => analytics.upgradeClicked(label, "limit_banner")}>
+      <Link to="/billing" onClick={() => analytics.upgradeClicked(label, "limit_banner")}>
         <Sparkles className="mr-1 h-3 w-3" />
         Pro
       </Link>

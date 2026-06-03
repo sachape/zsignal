@@ -97,7 +97,7 @@ const SettingsPage = () => {
                   </p>
                 </div>
                 <Button asChild size="sm" className="text-xs">
-                  <Link to="/pricing">Passer au Pro</Link>
+                  <Link to="/billing">Passer au Pro</Link>
                 </Button>
               </div>
             </CardContent>

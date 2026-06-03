@@ -378,7 +378,7 @@ const StreamScoreHistoryPage = () => {
                   <div className="mt-4 rounded-md border border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground flex items-center justify-between gap-3">
                     <span>Passe à Pro pour débloquer 60 et 90 jours d'historique.</span>
                     <Button size="sm" asChild>
-                      <Link to="/pricing">Voir Pro</Link>
+                      <Link to="/billing">Voir Pro</Link>
                     </Button>
                   </div>
                 )}

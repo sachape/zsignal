@@ -183,7 +183,7 @@ const AppSidebar = () => {
 
         {user && !isPro && (
           <Link
-            to="/pricing"
+            to="/billing"
             className={cn(
               "mb-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-primary-foreground transition-opacity hover:opacity-90",
               collapsed ? "px-2" : "px-4",

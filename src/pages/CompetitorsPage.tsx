@@ -767,7 +767,7 @@ const CompetitorsPage = () => {
                               </span>
                             </div>
                             <Button asChild size="sm" variant="outline" className="h-7 text-[10px]">
-                              <Link to="/pricing">Débloquer</Link>
+                              <Link to="/billing">Débloquer</Link>
                             </Button>
                           </div>
                         )}
@@ -810,7 +810,7 @@ const CompetitorsPage = () => {
                 Passe au plan Pro pour voir toutes tes opportunités de croissance et les mettre en place cette semaine.
               </p>
               <Button asChild size="sm" className="mt-1 h-8 text-xs">
-                <Link to="/pricing">Voir le plan Pro</Link>
+                <Link to="/billing">Voir le plan Pro</Link>
               </Button>
             </div>
           )}

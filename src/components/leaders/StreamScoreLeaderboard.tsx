@@ -278,7 +278,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
             className="border-primary/30 text-primary hover:bg-primary/10"
           >
             <Link
-              to="/pricing"
+              to="/billing"
               onClick={() => analytics.upgradeClicked("streamscore_leaderboard", "inline")}
             >
               <Sparkles className="mr-1.5 h-3 w-3" />
