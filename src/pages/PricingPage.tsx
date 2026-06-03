@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { startCheckout } from "@/services/billingService";
 import { Loader2 } from "lucide-react";
 import {
