@@ -21,7 +21,7 @@ const ADMIN_EMAIL = "perathonersacha@gmail.com";
 type DmTone = "soft" | "direct" | "curious";
 
 function getMainBlocker(report: AnalysisReport): { label: string; key: string } {
-  const score = report.stream_score;
+  const score = report.score;
   if (!score) return { label: "la progression", key: "general" };
   const dims = [
     { key: "regularity", label: "la régularité", score: score.regularity },
