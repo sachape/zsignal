@@ -71,6 +71,7 @@ Deno.serve(async (req) => {
       scope: [
         "https://www.googleapis.com/auth/youtube.readonly",
         "https://www.googleapis.com/auth/youtube",
+        "https://www.googleapis.com/auth/youtube.upload",
       ].join(" "),
       access_type:   "offline",
       prompt:        "consent",
