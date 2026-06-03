@@ -21,6 +21,7 @@ import {
   Clapperboard,
   CalendarDays,
   Type,
+  Network,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -54,6 +55,7 @@ const cockpitItems = [
   { title: "Lives", url: "/lives", icon: Radio, end: false, secondary: false },
   { title: "Feuille de route", url: "/plan", icon: CalendarCheck, end: false, secondary: false },
   { title: "Progression", url: "/progression", icon: Star, end: false, secondary: false },
+  { title: "Réseaux", url: "/reseaux", icon: Network, end: false, secondary: false },
   { title: "Clips", url: "/clips", icon: Clapperboard, end: false, secondary: true },
   { title: "Planning", url: "/schedule", icon: CalendarDays, end: false, secondary: true },
   { title: "Simulateur", url: "/simulator", icon: TrendingUp, end: false, secondary: true },

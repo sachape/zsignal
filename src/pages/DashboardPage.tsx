@@ -73,6 +73,7 @@ import ShareScoreButton from "@/components/ShareScoreButton";
 import WeeklyDigestCard from "@/components/WeeklyDigestCard";
 import OnboardingGuide from "@/components/OnboardingGuide";
 import { getOnboardingState } from "@/services/onboardingState";
+import NetworksTeaser from "@/components/NetworksTeaser";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
@@ -821,6 +822,11 @@ const DashboardPage = () => {
               </button>
             </div>
           )}
+
+        {/* Réseaux connectés teaser */}
+        <div className="mb-6">
+          <NetworksTeaser />
+        </div>
 
         {/* Next milestone */}
         <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">Progression</p>

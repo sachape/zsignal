@@ -53,6 +53,8 @@ const BlogPage = lazy(() => import("./pages/BlogPage.tsx"));
 const BlogArticlePage = lazy(() => import("./pages/BlogArticlePage.tsx"));
 const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage.tsx"));
 const HelpPage = lazy(() => import("./pages/HelpPage.tsx"));
+const ReseauxPage = lazy(() => import("./pages/ReseauxPage.tsx"));
+const ReseauxPlatformPage = lazy(() => import("./pages/ReseauxPlatformPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -247,6 +249,22 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <SchedulePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reseaux"
+                  element={
+                    <ProtectedRoute>
+                      <ReseauxPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reseaux/:platform"
+                  element={
+                    <ProtectedRoute>
+                      <ReseauxPlatformPage />
                     </ProtectedRoute>
                   }
                 />
