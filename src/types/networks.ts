@@ -28,6 +28,8 @@ export interface PlatformMetrics {
   posts_count: number | null;
   views_count: number | null;
   likes_count: number | null;
+  comments_count: number | null;
+  shares_count: number | null;
   recent_posts_count: number | null;
   recent_activity_score: number | null;
   raw_metrics: Record<string, unknown> | null;
