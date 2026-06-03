@@ -435,16 +435,27 @@ export default function ReseauxPage() {
                       const acc = accounts.find((a) => a.platform === platform);
                       setEditDialog({ platform, username: acc?.username ?? "", profileUrl: acc?.profile_url ?? "" });
                     } : undefined}
-                    onSync={platform === "youtube" ? async () => {
-                      await syncYouTube();
-                      if (syncState === "success") refetch();
-                    } : undefined}
-                    syncLoading={platform === "youtube" && syncState === "loading"}
-                    onReconnect={platform === "youtube" ? handleReconnectYouTube : undefined}
+                    onSync={
+                      platform === "youtube"
+                        ? async () => { await syncYouTube(); if (syncState === "success") refetch(); }
+                        : platform === "tiktok"
+                          ? async () => { await syncTikTok(); if (ttSyncState === "success") refetch(); }
+                          : undefined
+                    }
+                    syncLoading={
+                      (platform === "youtube" && syncState === "loading") ||
+                      (platform === "tiktok" && ttSyncState === "loading")
+                    }
+                    onReconnect={
+                      platform === "youtube" ? handleReconnectYouTube
+                        : platform === "tiktok" ? handleReconnectTikTok
+                        : undefined
+                    }
                   />
                 ))}
               </div>
-              {syncError && <p className="mt-2 text-xs text-destructive">{syncError}</p>}
+              {syncError && <p className="mt-2 text-xs text-destructive">YouTube : {syncError}</p>}
+              {ttSyncError && <p className="mt-2 text-xs text-destructive">TikTok : {ttSyncError}</p>}
             </div>
 
             {/* ── Diagnostic ── */}
