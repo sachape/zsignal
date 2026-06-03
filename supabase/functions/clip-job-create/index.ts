@@ -127,6 +127,29 @@ Deno.serve(async (req) => {
     })
     .eq("id", contentItemId);
 
+  // Resolve source URL (signed for storage, direct otherwise).
+  let resolvedSourceUrl: string | null = null;
+  if (sourceType === "upload" || sourceType === "storage_url") {
+    const { data: signed, error: sErr } = await admin.storage
+      .from("creator-source-videos")
+      .createSignedUrl(sourceStoragePath!, 60 * 60); // 1h
+    if (sErr || !signed?.signedUrl) {
+      return json({ error: "source_sign_failed", detail: sErr?.message }, 500);
+    }
+    resolvedSourceUrl = signed.signedUrl;
+  } else {
+    resolvedSourceUrl = sourceUrl;
+  }
+
+  // Pre-create signed upload URL for the output clip.
+  const outputStoragePath = `${userId}/${contentItemId}/${job.id}.mp4`;
+  const { data: upload, error: upSignErr } = await admin.storage
+    .from("creator-generated-clips")
+    .createSignedUploadUrl(outputStoragePath);
+  if (upSignErr || !upload?.signedUrl) {
+    return json({ error: "output_sign_failed", detail: upSignErr?.message }, 500);
+  }
+
   // Dispatch to worker (fire-and-forget).
   const callbackUrl = `${SUPABASE_URL}/functions/v1/clip-job-callback`;
   try {
@@ -138,6 +161,11 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         job_id: job.id,
+        source_url: resolvedSourceUrl,
+        output_upload_url: upload.signedUrl,
+        output_storage_path: outputStoragePath,
+        start_time_seconds: Math.round(startTime),
+        end_time_seconds: Math.round(endTime),
         callback_url: callbackUrl,
         callback_secret: WORKER_SHARED_SECRET,
       }),
