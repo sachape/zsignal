@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import { useYouTubeSync } from "@/hooks/useYouTubeSync";
+import { useTikTokSync } from "@/hooks/useTikTokSync";
 import { supabase } from "@/integrations/supabase/client";
 import type { Platform, PlatformMetrics } from "@/types/networks";
 
