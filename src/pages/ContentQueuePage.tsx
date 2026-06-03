@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
-  Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard,
+  Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -22,6 +22,8 @@ import {
   useContentItems, type ContentItem, type ContentPlatform,
   type ContentPriority, type ContentStatus,
 } from "@/hooks/useContentItems";
+import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
+import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -35,6 +37,7 @@ const STATUS_META: Record<ContentStatus, { label: string; cls: string }> = {
   idea: { label: "Idée", cls: "border-border bg-muted text-muted-foreground" },
   to_produce: { label: "À produire", cls: "border-amber-500/40 bg-amber-500/10 text-amber-300" },
   ready: { label: "Prêt", cls: "border-primary/40 bg-primary/10 text-primary" },
+  uploaded: { label: "Uploadé", cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
   published: { label: "Publié", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
   ignored: { label: "Ignoré", cls: "border-border/40 bg-muted/40 text-muted-foreground/60" },
 };
