@@ -769,47 +769,50 @@ const DashboardPage = () => {
             </div>
 
             <div className="rounded-[24px] border border-white/[0.08] bg-card/55 p-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
-                    Priorités
-                  </p>
-                  <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
-                    Trois portes d'entrée, pas plus
-                  </p>
-                </div>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+                  Cette semaine
+                </p>
                 <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
                   <Link to="/plan">Voir le plan</Link>
                 </Button>
               </div>
-              <div className="mt-4 space-y-3">
-                <div className="rounded-2xl border border-border/60 bg-background/35 px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <div className="space-y-3">
+                {/* Prochaine action — tirée du rapport */}
+                <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] px-4 py-3">
+                  <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-1">
                     <ShieldCheck className="h-4 w-4 text-primary" />
-                    Cette semaine
+                    Priorité principale
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Une priorité claire pour faire progresser le score, sans mur de widgets.
+                  <p className="text-sm font-semibold text-foreground leading-tight">
+                    {nextAction.title}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                    {nextAction.action || nextAction.reason}
                   </p>
                 </div>
+                {/* Live */}
                 <div className="rounded-2xl border border-border/60 bg-background/35 px-4 py-3">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                      <Radio className="h-4 w-4 text-primary" />
-                      Exécution
+                      <Radio className={cn("h-4 w-4", summary.is_live ? "text-destructive" : "text-primary")} />
+                      {summary.is_live ? "Live en cours" : "Prochain live"}
                     </div>
                     <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-primary hover:bg-transparent">
                       <Link to={summary.is_live ? "/lives" : "/live-setup"}>
-                        {summary.is_live ? "Voir le live" : "Préparer"}
+                        {summary.is_live ? "Cockpit" : "Préparer →"}
                       </Link>
                     </Button>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {summary.is_live
-                      ? "Le direct est en cours, les signaux temps réel passent en premier."
-                      : "Le prochain live doit être prêt sans friction avant l'ouverture d'OBS."}
+                      ? `${liveSnapshot?.current?.viewer_count ?? 0} viewers · ${liveSnapshot?.current?.title || "Direct en cours"}`
+                      : liveSnapshot?.last
+                        ? `Dernier live : ${liveSnapshot.last.title_raw || liveSnapshot.last.category_name || "sans titre"}`
+                        : "Prépare le prochain live en 60 secondes."}
                   </p>
                 </div>
+                {/* Benchmark */}
                 <div className="rounded-2xl border border-border/60 bg-background/35 px-4 py-3">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -820,8 +823,10 @@ const DashboardPage = () => {
                       <Link to="/competitors">Ouvrir</Link>
                     </Button>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Garde tes concurrents et ta catégorie à portée, sans polluer le cockpit principal.
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {displayCategory
+                      ? `Catégorie active : ${displayCategory} · surveille tes concurrents directs.`
+                      : "Analyse tes concurrents pour te positionner dans ta niche."}
                   </p>
                 </div>
               </div>
@@ -831,6 +836,11 @@ const DashboardPage = () => {
 
         <div className="mb-6">
           <DashboardQuickActions />
+        </div>
+
+        {/* Réseaux connectés teaser — affiché tôt, avant le live */}
+        <div className="mb-6">
+          <NetworksTeaser />
         </div>
 
         {/* Weekly digest — after score context, before actions */}
@@ -877,7 +887,7 @@ const DashboardPage = () => {
         )}
 
         {/* Live stack — action principale, en priorité */}
-        <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">Live</p>
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">Live</p>
         {isPro ? (
           <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '120ms' }}>
             <LiveStatusCard
@@ -979,13 +989,8 @@ const DashboardPage = () => {
             </div>
           )}
 
-        {/* Réseaux connectés teaser */}
-        <div className="mb-6">
-          <NetworksTeaser />
-        </div>
-
         {/* Next milestone */}
-        <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">Progression</p>
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">Progression</p>
         <div className="mb-4">
           <NextMilestoneCard
             milestone={nextMilestone}

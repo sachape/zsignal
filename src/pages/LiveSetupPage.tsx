@@ -715,49 +715,65 @@ const LiveSetupPage = () => {
           ) : null}
         />
 
-        <Card className="mb-6 overflow-hidden border-primary/20 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.14),transparent_35%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--card)))]">
-          <CardContent className="space-y-5 p-6">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-sm font-semibold text-foreground">Parcours de lancement guidé</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Le but n'est pas de tout montrer. Le but est de savoir exactement ce qu'il reste à faire avant d'ouvrir OBS.
+        <Card className="mb-6 overflow-hidden border-border/60 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.07),transparent_55%)]">
+          <CardContent className="p-6">
+            <div className="mb-7 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Parcours de lancement</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Savoir exactement ce qu'il reste à faire avant d'ouvrir OBS.
                 </p>
               </div>
-              <div className="rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs text-muted-foreground">
-                {workflowSteps.filter((step) => step.done).length}/{workflowSteps.length} étapes validées
-              </div>
+              <span className={cn(
+                "self-start rounded-full border px-3 py-1 text-[11px] font-semibold sm:self-auto",
+                workflowSteps.every(s => s.done)
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                  : "border-border/50 bg-muted/40 text-muted-foreground",
+              )}>
+                {workflowSteps.filter(s => s.done).length}/{workflowSteps.length} validées
+              </span>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-4">
-              {workflowSteps.map((step) => (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => goToSection(step.targetId)}
-                  className={cn(
-                    "rounded-2xl border p-4 text-left transition",
-                    step.done
-                      ? "border-emerald-500/30 bg-emerald-500/8"
-                      : step.current
-                        ? "border-primary/40 bg-primary/10 shadow-[0_0_0_1px_hsl(var(--primary)/0.08)]"
-                        : "border-border/60 bg-background/60 hover:border-border",
-                  )}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      {step.number}
-                    </span>
-                    {step.done ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
-                  <p className="mt-3 text-sm font-medium text-foreground">{step.label}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.detail}</p>
-                </button>
-              ))}
+            <div className="relative">
+              <div className="absolute top-[18px] left-[calc(12.5%+4px)] right-[calc(12.5%+4px)] h-px bg-border/50" />
+              <div className="grid grid-cols-4 gap-1">
+                {workflowSteps.map((step) => (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => goToSection(step.targetId)}
+                    className="group flex flex-col items-center gap-3 px-1 text-center"
+                  >
+                    <div className={cn(
+                      "relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200",
+                      step.done
+                        ? "border-emerald-500/60 bg-emerald-500/15 text-emerald-400"
+                        : step.current
+                          ? "border-primary bg-primary/10 text-primary shadow-[0_0_14px_hsl(var(--primary)/0.35)]"
+                          : "border-border/50 bg-background/60 text-muted-foreground/40",
+                    )}>
+                      {step.done
+                        ? <CheckCircle2 className="h-4 w-4" />
+                        : <span className="text-xs font-bold">{step.number}</span>}
+                    </div>
+                    <div>
+                      <p className={cn(
+                        "text-xs font-semibold leading-tight",
+                        step.done ? "text-emerald-400" :
+                        step.current ? "text-foreground" : "text-muted-foreground/50",
+                      )}>
+                        {step.label}
+                      </p>
+                      <p className={cn(
+                        "mt-0.5 hidden text-[10px] leading-snug sm:block",
+                        step.done || step.current ? "text-muted-foreground" : "text-muted-foreground/35",
+                      )}>
+                        {step.detail}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -769,9 +785,8 @@ const LiveSetupPage = () => {
             <Card id="live-preset" className="border-border/60 bg-card/60 backdrop-blur">
               <CardContent className="space-y-4 p-6">
                 <StepSectionHeader
-                  step="00"
-                  title="Choisis un preset"
-                  description="Un preset donne immédiatement un cadre: ton, checklist OBS, moments à provoquer et type de clips à viser."
+                  title="Pré-configuration"
+                  description="Un preset adapte automatiquement le ton, la checklist OBS, les moments à provoquer et les clips à viser."
                   icon={<Settings2 className="h-4 w-4 text-primary" />}
                 />
                 <p className="text-xs text-muted-foreground">
@@ -786,13 +801,19 @@ const LiveSetupPage = () => {
                         key={p.id} type="button"
                         onClick={() => setPresetId(active ? null : p.id)}
                         className={cn(
-                          "rounded-md border p-3 text-left transition",
+                          "group rounded-xl border p-3.5 text-left transition-all duration-150",
                           active
-                            ? "border-primary bg-primary/10"
-                            : "border-border/60 bg-card hover:border-border",
+                            ? "border-primary/50 bg-primary/8 shadow-[0_0_0_1px_hsl(var(--primary)/0.15)]"
+                            : "border-border/50 bg-background/60 hover:border-border hover:bg-muted/30",
                         )}
                       >
-                        <div className="text-sm font-medium text-foreground">{p.label}</div>
+                        {active && (
+                          <div className="mb-2 flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3 text-primary" />
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Actif</span>
+                          </div>
+                        )}
+                        <div className={cn("text-sm font-semibold", active ? "text-foreground" : "text-foreground/90")}>{p.label}</div>
                         <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                           {p.description}
                         </div>
@@ -1132,9 +1153,9 @@ const LiveSetupPage = () => {
               <CardContent className="space-y-4 p-6">
                 <div className="flex items-start justify-between gap-3">
                   <StepSectionHeader
-                    step="03B"
+                    step="03"
                     title="Checklist générale"
-                    description="Les derniers points non techniques: eau, transitions, rappel de l'objectif et petits détails avant le départ."
+                    description="Les derniers points non techniques : eau, transitions, rappel de l'objectif, avant le départ."
                     icon={<ListChecks className="h-4 w-4 text-primary" />}
                   />
                   <Badge variant="outline" className="text-xs">
@@ -1535,25 +1556,25 @@ function StepSectionHeader({
   description,
   icon,
 }: {
-  step: string;
+  step?: string;
   title: string;
   description: string;
   icon: ReactNode;
 }) {
   return (
-    <div className="space-y-1.5">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        <span className="rounded-full border border-border/60 bg-background/70 px-2 py-0.5">
-          Étape {step}
-        </span>
-      </div>
-      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+    <div className="flex items-start gap-3.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
         {icon}
-        {title}
       </div>
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        {description}
-      </p>
+      <div className="min-w-0 flex-1 pt-0.5">
+        {step && (
+          <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary/60">
+            Étape {step}
+          </p>
+        )}
+        <p className="text-sm font-semibold leading-tight text-foreground">{title}</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
+      </div>
     </div>
   );
 }
@@ -1567,24 +1588,29 @@ function PushActionRow({
 }) {
   const disabled = !!disabledReason;
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-border/60 bg-background/40 p-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2 text-sm">
-        {icon}
-        <span>{connected ? labelConnected : labelMissing}</span>
-      </div>
+    <div className="space-y-2">
       {connected ? (
-        <Button size="sm" onClick={onPush} disabled={busy || disabled} title={disabledReason}>
-          {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                : <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />}
-          {busy ? "Envoi…" : "Envoyer"}
+        <Button
+          className="w-full gap-2"
+          onClick={onPush}
+          disabled={busy || disabled}
+          title={disabledReason}
+        >
+          {busy
+            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            : icon}
+          {busy ? "Publication en cours…" : labelConnected}
         </Button>
       ) : (
-        <Button size="sm" variant="outline" asChild>
-          <Link to="/reseaux">Connecter</Link>
+        <Button variant="outline" className="w-full gap-2" asChild>
+          <Link to="/reseaux">
+            {icon}
+            {labelMissing} →
+          </Link>
         </Button>
       )}
       {connected && disabled && (
-        <p className="text-xs text-muted-foreground sm:basis-full">{disabledReason}</p>
+        <p className="text-[11px] text-muted-foreground">{disabledReason}</p>
       )}
     </div>
   );
