@@ -152,10 +152,18 @@ const LiveSetupPage = () => {
     setMetadata(generateMetadata(input));
   }, [input]);
 
-  // When a preset is selected, suggest its tone if user hasn't set one yet.
+  // When the preset changes, align the live tone on the preset's suggested
+  // tone so every downstream metadata (Twitch/YouTube/Kick/social) regenerates
+  // through the [input] effect below. Switching preset is a deliberate
+  // structural change, so we overwrite tone — manual tone tweaks can be
+  // re-applied after.
   useEffect(() => {
-    if (activePreset && !input.tone) {
-      setInput(prev => ({ ...prev, tone: activePreset.suggestedTone }));
+    if (activePreset) {
+      setInput(prev =>
+        prev.tone === activePreset.suggestedTone
+          ? prev
+          : { ...prev, tone: activePreset.suggestedTone },
+      );
     }
     // Ensure obs checklist contains all expected keys for the active preset.
     setObsChecklist(prev => {
