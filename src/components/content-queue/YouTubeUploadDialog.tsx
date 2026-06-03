@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Upload, ExternalLink, AlertCircle, Youtube, RefreshCw } from "lucide-react";
+import { Loader2, Upload, ExternalLink, AlertCircle, Video, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
