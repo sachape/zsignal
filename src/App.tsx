@@ -300,6 +300,8 @@ const App = () => (
                 <Route path="/benchmark" element={<Navigate to="/competitors" replace />} />
                 <Route path="/titres" element={<Navigate to="/outils/titres" replace />} />
                 <Route path="/titles" element={<Navigate to="/outils/titres" replace />} />
+                <Route path="/resources" element={<Navigate to="/outils/titres" replace />} />
+                <Route path="/ressources" element={<Navigate to="/outils/titres" replace />} />
                 <Route path="/concurrents" element={<Navigate to="/competitors" replace />} />
                 <Route path="/planning" element={<Navigate to="/schedule" replace />} />
                 <Route path="/pricing" element={<PricingPage />} />

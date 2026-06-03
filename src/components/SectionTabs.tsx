@@ -12,7 +12,6 @@ const SECTIONS: Section[] = [
     label: "Live Studio",
     tabs: [
       { label: "Setup", to: "/live-setup", matches: ["/live-setup", "/live-studio"] },
-      { label: "Titres", to: "/outils/titres", matches: ["/outils/titres"] },
       { label: "Historique", to: "/lives", matches: ["/lives"] },
       { label: "Planning", to: "/schedule", matches: ["/schedule"] },
       { label: "Simulateur", to: "/simulator", matches: ["/simulator"] },
@@ -25,7 +24,6 @@ const SECTIONS: Section[] = [
     tabs: [
       { label: "Queue", to: "/content-queue", matches: ["/content-queue", "/content-studio"] },
       { label: "Clips", to: "/clips", matches: ["/clips"] },
-      { label: "Playbooks", to: "/playbooks", matches: ["/playbooks"] },
     ],
   },
   {
@@ -35,6 +33,14 @@ const SECTIONS: Section[] = [
       { label: "Concurrents", to: "/competitors", matches: ["/competitors", "/benchmark"] },
       { label: "Classements", to: "/classements", matches: ["/classements"] },
       { label: "Watchlist", to: "/watchlist", matches: ["/watchlist"] },
+    ],
+  },
+  {
+    id: "resources",
+    label: "Ressources",
+    tabs: [
+      { label: "Titres", to: "/outils/titres", matches: ["/outils/titres", "/resources", "/ressources"] },
+      { label: "Playbooks", to: "/playbooks", matches: ["/playbooks"] },
     ],
   },
 ];

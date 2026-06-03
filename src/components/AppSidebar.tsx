@@ -46,7 +46,7 @@ type NavEntry = {
   icon: typeof LayoutDashboard;
   end?: boolean;
   // Extra paths under which this entry should be highlighted as active.
-  matchSection?: "live-studio" | "content-studio" | "benchmark";
+  matchSection?: "live-studio" | "content-studio" | "benchmark" | "resources";
 };
 
 const primaryItems: NavEntry[] = [
@@ -56,6 +56,7 @@ const primaryItems: NavEntry[] = [
   { title: "Content Studio", url: "/content-queue", icon: Inbox, matchSection: "content-studio" },
   { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark" },
   { title: "Réseaux", url: "/reseaux", icon: Network },
+  { title: "Ressources", url: "/outils/titres", icon: BookOpen, matchSection: "resources" },
 ];
 
 const AppSidebar = () => {
