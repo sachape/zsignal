@@ -554,34 +554,9 @@ function ContentRow({
           </div>
         )}
 
-        {/* V3.5 — Après publication */}
-        {(item.published_url || item.published_at) && (
-          <div className="space-y-1 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-[11px]">
-            <div className="flex items-center gap-2 font-semibold text-emerald-300">
-              <BarChart3 className="h-3.5 w-3.5" />
-              Après publication
-            </div>
-            <div className="grid gap-1 text-muted-foreground sm:grid-cols-2">
-              {item.published_url && (
-                <div>
-                  <span className="font-medium text-foreground">URL : </span>
-                  <a href={item.published_url} target="_blank" rel="noreferrer noopener"
-                    className="text-primary hover:underline break-all">
-                    {item.published_platform ?? "lien"} <ExternalLink className="inline h-3 w-3" />
-                  </a>
-                </div>
-              )}
-              {item.published_at && (
-                <div>
-                  <span className="font-medium text-foreground">Publié : </span>
-                  {new Date(item.published_at).toLocaleDateString("fr-FR")}
-                </div>
-              )}
-              <div className="sm:col-span-2 italic text-muted-foreground/80">
-                Analytics bientôt disponibles — Streamnco ne montre jamais de chiffres inventés.
-              </div>
-            </div>
-          </div>
+        {/* V3.7 — Après publication (analytics YouTube réels) */}
+        {(item.published_url || item.published_at || item.youtube_video_id || item.youtube_url) && (
+          <AfterPublishPanel item={item} onSynced={onJobUpdate} />
         )}
 
 
