@@ -35,10 +35,10 @@ const TONES: { value: LiveTone; label: string }[] = [
 ];
 
 const PLATFORMS: { value: LiveTargetPlatform; label: string; Icon: React.FC<{ className?: string }>; soon?: boolean }[] = [
-  { value: "twitch", label: "Twitch", Icon: Twitch },
-  { value: "youtube", label: "YouTube", Icon: Youtube },
+  { value: "twitch", label: "Twitch", Icon: Tv },
+  { value: "youtube", label: "YouTube", Icon: Video },
   { value: "tiktok", label: "TikTok Live", Icon: Music2, soon: true },
-  { value: "instagram", label: "Instagram Live", Icon: Instagram, soon: true },
+  { value: "instagram", label: "Instagram Live", Icon: Camera, soon: true },
 ];
 
 const EMPTY_INPUT: LiveSetupInput = {
