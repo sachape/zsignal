@@ -473,6 +473,50 @@ const LiveSetupPage = () => {
     } finally { setMarkingReady(false); }
   }
 
+  async function handleEndLive() {
+    if (!editingId) {
+      toast.error("Sauvegarde d'abord la session.");
+      return;
+    }
+    if (!confirm("Marquer ce live comme terminé et générer le post-live brief ?")) return;
+    setEndingLive(true);
+    try {
+      const existing = (editingSession?.generated_metadata ?? {}) as Record<string, unknown>;
+      const prevExtras = (existing.live_setup_v2 ?? {}) as LiveSetupV2Extras;
+      const brief = generatePostLiveBrief({
+        input, metadata,
+        preset: activePreset,
+        twitchPushed: twitchDone,
+        twitchTitle: twitchPush?.title ?? null,
+        youtubeCreated: youtubeDone,
+        youtubeWatchUrl: youtubePush?.youtube_watch_url ?? null,
+      });
+      const extras: LiveSetupV2Extras = {
+        ...prevExtras,
+        preset: presetId, obs_checklist: obsChecklist,
+        skip_twitch: skipTwitch, skip_youtube: skipYouTube,
+        title_confirmed: titleConfirmed,
+        ended_at: new Date().toISOString(),
+        post_live_brief: brief,
+      };
+      const metaPayload = {
+        ...metadata,
+        ...(existing.twitch_push ? { twitch_push: existing.twitch_push } : {}),
+        ...(existing.youtube_push ? { youtube_push: existing.youtube_push } : {}),
+        live_setup_v2: extras,
+      } as GeneratedMetadata & Record<string, unknown>;
+      await saveSession({
+        id: editingId, input, metadata: metaPayload,
+        checklist: preliveChecklist, status: "completed",
+      });
+      toast.success("Live terminé ✅ Brief post-live généré.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally { setEndingLive(false); }
+  }
+
+
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <AppShell>
