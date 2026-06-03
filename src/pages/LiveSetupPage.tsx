@@ -180,7 +180,7 @@ const LiveSetupPage = () => {
     } finally { setSaving(false); }
   }
 
-  function handlePushError(reason: string | undefined, platform: "twitch" | "youtube") {
+  function handlePushError(reason: string | undefined, platform: "twitch" | "youtube", category?: string) {
     switch (reason) {
       case "twitch_not_connected":
         toast.error("Twitch non connecté"); break;
@@ -192,23 +192,62 @@ const LiveSetupPage = () => {
           : "Reconnecte YouTube avec l'autorisation de créer des lives.");
         break;
       case "token_expired":
+      case "token_unavailable":
         toast.error(platform === "twitch" ? "Token Twitch expiré, reconnecte." : "Token YouTube expiré, reconnecte.");
         break;
       case "category_not_found":
-        toast.error("Catégorie Twitch introuvable. Vérifie le nom exact."); break;
+        toast.error(category
+          ? `Catégorie Twitch « ${category} » introuvable. Vérifie l'orthographe exacte.`
+          : "Catégorie Twitch introuvable.");
+        break;
       case "live_not_enabled":
         toast.error("Live YouTube non activé sur ce compte (vérification 24h requise)."); break;
       case "nothing_to_update":
         toast.error("Rien à pousser : ajoute un titre ou une catégorie."); break;
+      case "missing_params":
+      case "missing_session":
+      case "invalid_body":
+        toast.error("Requête invalide."); break;
       case "server_misconfigured":
         toast.error("Configuration serveur manquante."); break;
+      case "twitch_error":
+        toast.error("Twitch a rejeté la mise à jour."); break;
+      case "youtube_error":
+        toast.error("YouTube a rejeté la création du live."); break;
       default:
         toast.error(platform === "twitch" ? "Erreur Twitch" : "Erreur YouTube");
     }
   }
 
+  // Extract { success, reason } from a supabase.functions.invoke result —
+  // when the edge function returns non-2xx, supabase-js sets `data: null`
+  // and stores the body on `error.context`. Read it so we never silently
+  // claim success and always surface the real reason.
+  async function readInvokeOutcome(
+    data: unknown, error: unknown,
+  ): Promise<{ success: boolean; reason?: string }> {
+    if (data && typeof data === "object") {
+      const d = data as { success?: boolean; reason?: string };
+      if (typeof d.success === "boolean") return { success: d.success, reason: d.reason };
+    }
+    if (error) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const body = await (error as any).context?.json?.();
+        if (body && typeof body === "object") {
+          return { success: !!body.success, reason: body.reason as string | undefined };
+        }
+      } catch { /* ignore */ }
+      return { success: false, reason: undefined };
+    }
+    return { success: false, reason: undefined };
+  }
+
   async function handlePushTwitch() {
     if (!twitchConnected) { toast.error("Twitch non connecté"); return; }
+    const title = metadata.twitch.title.trim();
+    const category = metadata.twitch.category.trim();
+    if (!title && !category) { toast.error("Renseigne au moins un titre ou une catégorie"); return; }
     const sessionId = await ensureSavedSession();
     if (!sessionId) return;
     setPushingTwitch(true);
@@ -216,16 +255,13 @@ const LiveSetupPage = () => {
       const { data, error } = await supabase.functions.invoke("twitch-update-channel", {
         body: {
           live_session_id: sessionId,
-          title: metadata.twitch.title,
-          category: metadata.twitch.category,
+          title,
+          category,
           language: input.language || undefined,
         },
       });
-      if (error || !data?.success) {
-        const reason = (data as { reason?: string } | null)?.reason;
-        handlePushError(reason, "twitch");
-        return;
-      }
+      const outcome = await readInvokeOutcome(data, error);
+      if (!outcome.success) { handlePushError(outcome.reason, "twitch", category); return; }
       toast.success("Twitch mis à jour");
       void refetch();
     } catch (e) {
@@ -235,6 +271,16 @@ const LiveSetupPage = () => {
 
   async function handlePushYouTube() {
     if (!youtubeConnected) { toast.error("YouTube non connecté"); return; }
+    const title = metadata.youtube.title.trim();
+    if (!title) { toast.error("Renseigne un titre pour créer le live YouTube"); return; }
+    // YouTube rejects scheduled times in the past — validate before invoking.
+    if (input.scheduledAt) {
+      const t = Date.parse(input.scheduledAt);
+      if (!Number.isFinite(t) || t < Date.now() - 60_000) {
+        toast.error("La date programmée doit être dans le futur.");
+        return;
+      }
+    }
     const sessionId = await ensureSavedSession();
     if (!sessionId) return;
     setPushingYouTube(true);
@@ -242,19 +288,20 @@ const LiveSetupPage = () => {
       const { data, error } = await supabase.functions.invoke("youtube-create-live-broadcast", {
         body: {
           live_session_id: sessionId,
-          title: metadata.youtube.title,
+          title,
           description: metadata.youtube.description,
           scheduled_start_time: input.scheduledAt || undefined,
           privacy_status: ytPrivacy,
           language: input.language || undefined,
         },
       });
-      if (error || !data?.success) {
-        const reason = (data as { reason?: string } | null)?.reason;
-        handlePushError(reason, "youtube");
-        return;
-      }
-      toast.success("Live YouTube créé");
+      const outcome = await readInvokeOutcome(data, error);
+      if (!outcome.success) { handlePushError(outcome.reason, "youtube"); return; }
+      toast.success(
+        ytPrivacy === "private" ? "Live YouTube créé (privé)"
+        : ytPrivacy === "unlisted" ? "Live YouTube créé (non listé)"
+        : "Live YouTube créé (public)",
+      );
       void refetch();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur YouTube");
@@ -483,11 +530,17 @@ const LiveSetupPage = () => {
                       icon={<Tv className="h-4 w-4" />}
                       connected={twitchConnected}
                       busy={pushingTwitch || saving}
+                      disabledReason={
+                        !metadata.twitch.title.trim() && !metadata.twitch.category.trim()
+                          ? "Ajoute un titre ou une catégorie pour activer le push."
+                          : undefined
+                      }
                       labelConnected="Mettre à jour Twitch"
                       labelMissing="Connecte Twitch"
                       onPush={handlePushTwitch}
                     />
                     <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.twitch_push} platform="twitch" />
+
                   </TabsContent>
 
                   <TabsContent value="youtube" className="space-y-3 pt-4">
@@ -512,10 +565,16 @@ const LiveSetupPage = () => {
                       icon={<Video className="h-4 w-4" />}
                       connected={youtubeConnected}
                       busy={pushingYouTube || saving}
+                      disabledReason={
+                        !metadata.youtube.title.trim()
+                          ? "Ajoute un titre pour activer la création du live."
+                          : undefined
+                      }
                       labelConnected="Créer un live YouTube"
                       labelMissing="Connecte YouTube"
                       onPush={handlePushYouTube}
                     />
+
                     <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.youtube_push} platform="youtube" />
                   </TabsContent>
 
@@ -643,19 +702,26 @@ interface PushEntry {
 }
 
 function PushActionRow({
-  icon, connected, busy, labelConnected, labelMissing, onPush,
+  icon, connected, busy, labelConnected, labelMissing, onPush, disabledReason,
 }: {
   icon: React.ReactNode; connected: boolean; busy: boolean;
   labelConnected: string; labelMissing: string; onPush: () => void;
+  disabledReason?: string;
 }) {
+  const disabled = !!disabledReason;
   return (
-    <div className="flex items-center justify-between rounded-md border border-border/60 bg-background/40 p-3">
+    <div className="flex flex-col gap-2 rounded-md border border-border/60 bg-background/40 p-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-2 text-sm">
         {icon}
         <span>{connected ? labelConnected : labelMissing}</span>
       </div>
       {connected ? (
-        <Button size="sm" onClick={onPush} disabled={busy}>
+        <Button
+          size="sm"
+          onClick={onPush}
+          disabled={busy || disabled}
+          title={disabledReason}
+        >
           {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                 : <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />}
           {busy ? "Envoi…" : "Envoyer"}
@@ -665,9 +731,13 @@ function PushActionRow({
           <Link to="/reseaux">Connecter</Link>
         </Button>
       )}
+      {connected && disabled && (
+        <p className="text-xs text-muted-foreground sm:basis-full">{disabledReason}</p>
+      )}
     </div>
   );
 }
+
 
 function PushHistory({ entry, platform }: { entry?: PushEntry; platform: "twitch" | "youtube" }) {
   if (!entry) return null;
