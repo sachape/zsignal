@@ -237,7 +237,31 @@ export default function ReseauxPlatformPage() {
                 Reconnecter
               </Button>
             )}
-            {(platform === "tiktok" || platform === "instagram") && status === "manual" && (
+            {platform === "tiktok" && status === "connected" && (
+              <>
+                <Button size="sm" variant="outline" onClick={syncTikTok} disabled={ttSyncState === "loading"} className="gap-1.5">
+                  <RefreshCw className={cn("h-3.5 w-3.5", ttSyncState === "loading" && "animate-spin")} />
+                  {ttSyncState === "loading" ? "Synchro…" : "Synchroniser"}
+                </Button>
+                <Button size="sm" variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/5" onClick={async () => {
+                  if (!confirm("Déconnecter TikTok ?")) return;
+                  await removeAccount("tiktok");
+                  toast.success("TikTok déconnecté.");
+                  navigate("/reseaux");
+                }}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
+            {platform === "tiktok" && status === "expired" && (
+              <Button size="sm" variant="outline" className="border-amber-400/30 text-amber-400 hover:bg-amber-400/5" onClick={handleConnectTikTok}>
+                Reconnecter
+              </Button>
+            )}
+            {platform === "tiktok" && status === "disconnected" && (
+              <Button size="sm" onClick={handleConnectTikTok}>Connecter TikTok</Button>
+            )}
+            {platform === "instagram" && status === "manual" && (
               <>
                 <Button size="sm" variant="outline" className="gap-1.5" onClick={async () => {
                   const name = prompt("Nouveau nom d'utilisateur :", username ?? "");
@@ -258,20 +282,36 @@ export default function ReseauxPlatformPage() {
                 </Button>
               </>
             )}
+            {platform === "tiktok" && status === "manual" && (
+              <>
+                <Button size="sm" onClick={handleConnectTikTok} className="gap-1.5">
+                  Connecter TikTok
+                </Button>
+                <Button size="sm" variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/5" onClick={async () => {
+                  if (!confirm(`Supprimer ${meta.label} ?`)) return;
+                  await removeAccount(platform);
+                  toast.success(`${meta.label} supprimé.`);
+                  navigate("/reseaux");
+                }}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
             {platform === "twitch" && !hasTwitchOAuth && (
               <Button size="sm" asChild><Link to="/connect-twitch">Connecter Twitch</Link></Button>
             )}
-            {!isActive && platform !== "twitch" && (
+            {!isActive && platform !== "twitch" && platform !== "tiktok" && (
               <Button size="sm" asChild><Link to="/reseaux">Ajouter</Link></Button>
             )}
           </div>
         </div>
 
-        {syncError && (
+        {(syncError || ttSyncError) && (
           <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4 shrink-0" />{syncError}
+            <AlertCircle className="h-4 w-4 shrink-0" />{syncError ?? ttSyncError}
           </div>
         )}
+
 
         {/* ── Metrics ── */}
         {isActive && (
