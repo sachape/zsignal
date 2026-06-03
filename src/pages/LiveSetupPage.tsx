@@ -35,6 +35,11 @@ import {
 import {
   LIVE_PRESETS, getPreset, type LivePresetId, type ObsChecklistItem,
 } from "@/services/obsPresets";
+import {
+  generatePostLiveBrief, PLATFORM_LABEL, PRIORITY_LABEL,
+  type PostLiveBrief, type ContentIdea, type ContentPriority,
+} from "@/services/postLiveBrief";
+import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2 } from "lucide-react";
 
 const TONES: { value: LiveTone; label: string }[] = [
   { value: "chill", label: "Chill" },
@@ -79,6 +84,8 @@ interface LiveSetupV2Extras {
   skip_youtube?: boolean;
   title_confirmed?: boolean;
   ready_to_go_at?: string;
+  ended_at?: string;
+  post_live_brief?: PostLiveBrief;
 }
 
 interface PushEntry {
@@ -116,6 +123,7 @@ const LiveSetupPage = () => {
   const [pushingTwitch, setPushingTwitch] = useState(false);
   const [pushingYouTube, setPushingYouTube] = useState(false);
   const [markingReady, setMarkingReady] = useState(false);
+  const [endingLive, setEndingLive] = useState(false);
   const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
 
   const youtubeConnected = useMemo(
@@ -172,6 +180,9 @@ const LiveSetupPage = () => {
 
   // Push state — derived from persisted session metadata.
   const sessionMeta = editingSession?.generated_metadata as Record<string, unknown> | undefined;
+  const sessionExtras = readExtras(sessionMeta);
+  const existingBrief: PostLiveBrief | null = sessionExtras.post_live_brief ?? null;
+  const isCompleted = editingSession?.status === "completed";
   const twitchPush = sessionMeta?.twitch_push as PushEntry | undefined;
   const youtubePush = sessionMeta?.youtube_push as PushEntry | undefined;
   const twitchDone = !!twitchPush && twitchPush.status === "success";
@@ -465,6 +476,50 @@ const LiveSetupPage = () => {
       toast.error(e instanceof Error ? e.message : "Erreur");
     } finally { setMarkingReady(false); }
   }
+
+  async function handleEndLive() {
+    if (!editingId) {
+      toast.error("Sauvegarde d'abord la session.");
+      return;
+    }
+    if (!confirm("Marquer ce live comme terminé et générer le post-live brief ?")) return;
+    setEndingLive(true);
+    try {
+      const existing = (editingSession?.generated_metadata ?? {}) as Record<string, unknown>;
+      const prevExtras = (existing.live_setup_v2 ?? {}) as LiveSetupV2Extras;
+      const brief = generatePostLiveBrief({
+        input, metadata,
+        preset: activePreset,
+        twitchPushed: twitchDone,
+        twitchTitle: twitchPush?.title ?? null,
+        youtubeCreated: youtubeDone,
+        youtubeWatchUrl: youtubePush?.youtube_watch_url ?? null,
+      });
+      const extras: LiveSetupV2Extras = {
+        ...prevExtras,
+        preset: presetId, obs_checklist: obsChecklist,
+        skip_twitch: skipTwitch, skip_youtube: skipYouTube,
+        title_confirmed: titleConfirmed,
+        ended_at: new Date().toISOString(),
+        post_live_brief: brief,
+      };
+      const metaPayload = {
+        ...metadata,
+        ...(existing.twitch_push ? { twitch_push: existing.twitch_push } : {}),
+        ...(existing.youtube_push ? { youtube_push: existing.youtube_push } : {}),
+        live_setup_v2: extras,
+      } as GeneratedMetadata & Record<string, unknown>;
+      await saveSession({
+        id: editingId, input, metadata: metaPayload,
+        checklist: preliveChecklist, status: "completed",
+      });
+      toast.success("Live terminé ✅ Brief post-live généré.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally { setEndingLive(false); }
+  }
+
+
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -925,15 +980,38 @@ const LiveSetupPage = () => {
 
                 <Button
                   className="w-full"
-                  disabled={!readyToGo.all || markingReady}
+                  disabled={!readyToGo.all || markingReady || isCompleted}
                   onClick={handleMarkReadyToGo}
                 >
                   {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
                                 : <Rocket className="mr-1.5 h-4 w-4" />}
                   Marquer comme « prêt à lancer »
                 </Button>
+
+                {editingId && !isCompleted && (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    disabled={endingLive}
+                    onClick={handleEndLive}
+                  >
+                    {endingLive ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                : <StopCircle className="mr-1.5 h-4 w-4" />}
+                    Terminer le live & générer le brief
+                  </Button>
+                )}
+                {isCompleted && sessionExtras.ended_at && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    Live terminé le {new Date(sessionExtras.ended_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+                  </p>
+                )}
               </CardContent>
             </Card>
+
+            {/* Post-live brief */}
+            {existingBrief && (
+              <PostLiveBriefCard brief={existingBrief} />
+            )}
 
             {/* Saved sessions */}
             <Card className="border-border/60">
@@ -1169,6 +1247,139 @@ function StatusPill({ status }: { status: string }) {
     <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", s.cls)}>
       {s.label}
     </span>
+  );
+}
+
+function PriorityBadge({ priority }: { priority: ContentPriority }) {
+  const cls = priority === "high"
+    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+    : priority === "medium"
+      ? "border-primary/40 bg-primary/10 text-primary"
+      : "border-border bg-muted text-muted-foreground";
+  return (
+    <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", cls)}>
+      {PRIORITY_LABEL[priority]}
+    </span>
+  );
+}
+
+function ContentIdeaRow({ idea }: { idea: ContentIdea }) {
+  return (
+    <li className="rounded-md border border-border/60 bg-background/40 p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-foreground">{idea.title}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{PLATFORM_LABEL[idea.platform]} · {idea.format}{idea.duration ? ` · ${idea.duration}` : ""}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <PriorityBadge priority={idea.priority} />
+          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground"
+            onClick={() => copy(idea.title)} aria-label="Copier le titre">
+            <Copy className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+      <p className="mt-1.5 text-xs text-muted-foreground/90">{idea.reason}</p>
+    </li>
+  );
+}
+
+function PostLiveBriefCard({ brief }: { brief: PostLiveBrief }) {
+  const generated = new Date(brief.generated_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+  const platforms = brief.summary.platforms_used.length > 0
+    ? brief.summary.platforms_used.join(", ")
+    : "—";
+  return (
+    <Card className="border-emerald-500/30 bg-emerald-500/5">
+      <CardContent className="space-y-5 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Flame className="h-4 w-4 text-emerald-400" />
+            Post-live Brief
+          </div>
+          <Badge variant="outline" className="text-xs">Généré le {generated}</Badge>
+        </div>
+
+        {/* Summary */}
+        <div className="grid gap-2 sm:grid-cols-2">
+          <SummaryRow label="Plateformes" value={platforms} />
+          <SummaryRow label="Angle principal" value={brief.summary.main_angle} />
+          <SummaryRow label="Titre Twitch final" value={brief.summary.twitch_title || "—"} />
+          <SummaryRow
+            label="Live YouTube"
+            value={brief.summary.youtube_created ? "Créé" : "Non créé"}
+            link={brief.summary.youtube_watch_url || undefined}
+          />
+          {brief.summary.game_category && <SummaryRow label="Catégorie" value={brief.summary.game_category} />}
+          {brief.summary.objective && <SummaryRow label="Objectif" value={brief.summary.objective} />}
+        </div>
+
+        {/* Content opportunities */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+            <Lightbulb className="h-3.5 w-3.5 text-primary" /> Opportunités de contenu
+          </div>
+          <ul className="space-y-1 text-xs text-muted-foreground">
+            {brief.content_opportunities.map((o, i) => (
+              <li key={i} className="flex gap-1.5"><span>•</span><span>{o}</span></li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Recommended actions */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+            <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Actions recommandées
+          </div>
+          <ul className="space-y-1 text-xs text-muted-foreground">
+            {brief.recommended_actions.map((a, i) => (
+              <li key={i} className="flex gap-1.5"><span>•</span><span>{a}</span></li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Content ideas */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+            <Film className="h-3.5 w-3.5 text-primary" /> Moments à produire
+          </div>
+          <ul className="space-y-2">
+            {brief.content_ideas.map((idea) => (<ContentIdeaRow key={idea.id} idea={idea} />))}
+          </ul>
+        </div>
+
+        {/* Recycling plan */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+            <Repeat2 className="h-3.5 w-3.5 text-primary" /> Plan de recyclage 48h
+          </div>
+          <ul className="space-y-1.5">
+            {brief.recycling_plan.map((step, i) => (
+              <li key={i} className="flex items-start gap-2 rounded-md border border-border/60 bg-background/40 p-2 text-xs">
+                <CalendarDays className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                <span className="font-medium text-foreground">{step.day}</span>
+                <span className="text-muted-foreground">{step.action}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SummaryRow({ label, value, link }: { label: string; value: string; link?: string }) {
+  return (
+    <div className="rounded-md border border-border/60 bg-background/40 p-2.5">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-0.5 truncate text-sm font-medium text-foreground">{value}</div>
+      {link && (
+        <a href={link} target="_blank" rel="noreferrer"
+          className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+          Ouvrir <ExternalLink className="h-3 w-3" />
+        </a>
+      )}
+    </div>
   );
 }
 
