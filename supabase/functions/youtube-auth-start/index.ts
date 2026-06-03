@@ -2,6 +2,10 @@
 // Returns a Google OAuth URL for YouTube authorisation.
 // Called from the frontend (authenticated); never exposes client_secret.
 // State is HMAC-signed (OAUTH_STATE_SECRET) with a 10-minute expiration.
+//
+// The redirect_uri points to the Streamnco frontend (/auth/youtube/callback),
+// not directly to the Supabase function — Google's consent screen then
+// displays "streamnco.fr" instead of the raw Supabase project domain.
 
 import { signOAuthState } from "../_shared/youtube-crypto.ts";
 
@@ -31,7 +35,6 @@ Deno.serve(async (req) => {
       return json({ configured: false, reason: "missing_client_credentials" });
     }
     if (!stateSecret || !encryptionKey) {
-      // We refuse to start an OAuth flow we can't securely complete.
       return json({
         configured: false,
         reason: "missing_server_secrets",
@@ -55,9 +58,11 @@ Deno.serve(async (req) => {
 
     const state = await signOAuthState(userData.id, stateSecret);
 
+    // Frontend-hosted redirect (so Google shows "streamnco.fr" on consent screen).
+    const frontendUrl = Deno.env.get("FRONTEND_URL") ?? "https://streamnco.fr";
     const redirectUri =
       Deno.env.get("YOUTUBE_REDIRECT_URI") ??
-      `${supabaseUrl}/functions/v1/youtube-auth-callback`;
+      `${frontendUrl}/auth/youtube/callback`;
 
     const params = new URLSearchParams({
       client_id:     clientId,

@@ -55,6 +55,7 @@ const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage.tsx"));
 const HelpPage = lazy(() => import("./pages/HelpPage.tsx"));
 const ReseauxPage = lazy(() => import("./pages/ReseauxPage.tsx"));
 const ReseauxPlatformPage = lazy(() => import("./pages/ReseauxPlatformPage.tsx"));
+const YouTubeCallbackPage = lazy(() => import("./pages/YouTubeCallbackPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => (
                 <Route path="/result" element={<ResultPage />} />
                 <Route path="/connect-twitch" element={<ConnectTwitchPage />} />
                 <Route path="/twitch/callback" element={<TwitchCallbackPage />} />
+                <Route path="/auth/youtube/callback" element={<YouTubeCallbackPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
                 <Route
                   path="/dashboard"
