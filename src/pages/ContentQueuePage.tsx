@@ -148,6 +148,43 @@ const ContentQueuePage = () => {
           <StatCell label="Publiés" value={counts.published} accent="emerald" />
         </div>
 
+        {/* Top priority cockpit */}
+        {topPriority.length > 0 && (
+          <Card className="mb-5 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+            <CardContent className="space-y-3 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Flame className="h-4 w-4 text-primary" />
+                À traiter en priorité
+                <span className="ml-auto text-[10px] font-normal text-muted-foreground">
+                  Score éditorial — pas une prédiction de performance
+                </span>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {topPriority.map(i => {
+                  const meta = PLATFORM_META[i.platform];
+                  const Ico = meta.Icon;
+                  return (
+                    <div key={i.id} className="rounded-md border border-border/60 bg-background/60 p-3">
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        <Ico className="h-3 w-3 text-primary" />
+                        {meta.label}
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-semibold text-primary">
+                          <TrendingUp className="h-2.5 w-2.5" />
+                          {i.opportunity_score ?? "—"}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 line-clamp-2 text-xs font-medium text-foreground">{i.title}</p>
+                      {i.opportunity_label && (
+                        <p className="mt-1 text-[10px] text-primary/80">{i.opportunity_label}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Filters */}
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
