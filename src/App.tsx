@@ -283,6 +283,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/content-queue"
+                  element={
+                    <ProtectedRoute>
+                      <ContentQueuePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/billing"
                   element={
                     <ProtectedRoute>
