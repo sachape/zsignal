@@ -68,6 +68,7 @@ const YouTubeUploadDialog = ({
   const [privacy, setPrivacy] = useState<YouTubePrivacyStatus>("private");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<"idle" | "uploading" | "transferring">("idle");
   const [errorReason, setErrorReason] = useState<string | null>(null);
   const [result, setResult] = useState<{ url: string; privacy: string } | null>(null);
 
@@ -75,6 +76,7 @@ const YouTubeUploadDialog = ({
     setFile(null);
     setUploading(false);
     setProgress(0);
+    setPhase("idle");
     setErrorReason(null);
     setResult(null);
   }
