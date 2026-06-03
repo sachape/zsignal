@@ -980,15 +980,38 @@ const LiveSetupPage = () => {
 
                 <Button
                   className="w-full"
-                  disabled={!readyToGo.all || markingReady}
+                  disabled={!readyToGo.all || markingReady || isCompleted}
                   onClick={handleMarkReadyToGo}
                 >
                   {markingReady ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
                                 : <Rocket className="mr-1.5 h-4 w-4" />}
                   Marquer comme « prêt à lancer »
                 </Button>
+
+                {editingId && !isCompleted && (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    disabled={endingLive}
+                    onClick={handleEndLive}
+                  >
+                    {endingLive ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                : <StopCircle className="mr-1.5 h-4 w-4" />}
+                    Terminer le live & générer le brief
+                  </Button>
+                )}
+                {isCompleted && sessionExtras.ended_at && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    Live terminé le {new Date(sessionExtras.ended_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+                  </p>
+                )}
               </CardContent>
             </Card>
+
+            {/* Post-live brief */}
+            {existingBrief && (
+              <PostLiveBriefCard brief={existingBrief} />
+            )}
 
             {/* Saved sessions */}
             <Card className="border-border/60">
