@@ -520,6 +520,44 @@ const LiveSetupPage = () => {
     } finally { setEndingLive(false); }
   }
 
+  async function handleRegenerateBrief() {
+    if (!editingId || !isCompleted) {
+      toast.error("Le brief ne peut être régénéré que sur une session terminée.");
+      return;
+    }
+    if (!confirm("Régénérer le post-live brief ? L'ancien brief sera remplacé.")) return;
+    try {
+      const existing = (editingSession?.generated_metadata ?? {}) as Record<string, unknown>;
+      const prevExtras = (existing.live_setup_v2 ?? {}) as LiveSetupV2Extras;
+      const brief = generatePostLiveBrief({
+        input, metadata,
+        preset: activePreset,
+        twitchPushed: twitchDone,
+        twitchTitle: twitchPush?.title ?? null,
+        youtubeCreated: youtubeDone,
+        youtubeWatchUrl: youtubePush?.youtube_watch_url ?? null,
+      });
+      const extras: LiveSetupV2Extras = {
+        ...prevExtras,
+        post_live_brief: brief, // replaces existing brief, no duplicate
+      };
+      const metaPayload = {
+        ...metadata,
+        ...(existing.twitch_push ? { twitch_push: existing.twitch_push } : {}),
+        ...(existing.youtube_push ? { youtube_push: existing.youtube_push } : {}),
+        live_setup_v2: extras,
+      } as GeneratedMetadata & Record<string, unknown>;
+      await saveSession({
+        id: editingId, input, metadata: metaPayload,
+        checklist: preliveChecklist, status: "completed",
+      });
+      toast.success("Post-live brief régénéré ✅");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur lors de la régénération");
+    }
+  }
+
+
 
 
   // ── Render ────────────────────────────────────────────────────────────────
