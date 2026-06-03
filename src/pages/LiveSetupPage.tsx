@@ -42,6 +42,7 @@ import {
 import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2, Inbox } from "lucide-react";
 import { useContentItems } from "@/hooks/useContentItems";
 import { buildQualityPackForIdea } from "@/services/contentQuality";
+import SuggestedTitles from "@/components/live-setup/SuggestedTitles";
 
 const TONES: { value: LiveTone; label: string }[] = [
   { value: "chill", label: "Chill" },
@@ -127,6 +128,7 @@ const LiveSetupPage = () => {
   const [markingReady, setMarkingReady] = useState(false);
   const [endingLive, setEndingLive] = useState(false);
   const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
+  const [lastAppliedTitle, setLastAppliedTitle] = useState<string | null>(null);
 
   const youtubeConnected = useMemo(
     () => accounts.some(a => a.platform === "youtube" && a.connection_status === "connected"),
@@ -638,6 +640,21 @@ const LiveSetupPage = () => {
                     maxLength={140}
                   />
                 </div>
+
+                <SuggestedTitles
+                  game={input.gameCategory}
+                  objective={input.objective}
+                  tone={input.tone}
+                  audience={input.targetAudience}
+                  presetLabel={activePreset?.label ?? null}
+                  currentTitle={input.titleRaw}
+                  lastAppliedTitle={lastAppliedTitle}
+                  onApply={(t) => {
+                    setInput(prev => ({ ...prev, titleRaw: t }));
+                    setLastAppliedTitle(t);
+                    setTitleConfirmed(false);
+                  }}
+                />
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
