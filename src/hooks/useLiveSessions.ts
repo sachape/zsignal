@@ -26,7 +26,7 @@ export interface LiveSession {
 export interface SaveLiveSessionPayload {
   id?: string;
   input: LiveSetupInput;
-  metadata: GeneratedMetadata;
+  metadata: GeneratedMetadata & Record<string, unknown>;
   checklist: Record<string, boolean>;
   status: LiveSessionStatus;
 }
