@@ -670,7 +670,7 @@ const DashboardPage = () => {
           <div className="rounded-2xl border border-white/[0.08] bg-card/60 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Viewers moy.</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
-              {liveSnapshot?.current ? (liveSnapshot.current.viewer_count ?? 0) : (viewersMoy ?? "—")}
+              {liveSnapshot?.current ? (liveSnapshot.current.peak_viewers ?? "—") : (viewersMoy ?? "—")}
             </p>
             <p className="mt-0.5 text-[10px] text-muted-foreground">
               {liveSnapshot?.current ? "en direct" : sessions30d.length > 0 ? "moy. 30j" : "pas de données"}
