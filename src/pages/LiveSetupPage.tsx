@@ -123,6 +123,7 @@ const LiveSetupPage = () => {
   const [pushingTwitch, setPushingTwitch] = useState(false);
   const [pushingYouTube, setPushingYouTube] = useState(false);
   const [markingReady, setMarkingReady] = useState(false);
+  const [endingLive, setEndingLive] = useState(false);
   const [ytPrivacy, setYtPrivacy] = useState<"private" | "unlisted" | "public">("private");
 
   const youtubeConnected = useMemo(
