@@ -105,7 +105,8 @@ const ContentQueuePage = () => {
       if (hideIgnored && i.status === "ignored") return false;
       if (filter === "all") return true;
       if (filter === "high") return i.priority === "high";
-      if (filter === "to_produce") return i.status === "to_produce";
+      if (filter === "to_generate") return i.status === "to_generate" || i.status === "generating";
+      if (filter === "draft_ready") return i.status === "draft_ready";
       if (filter === "ready") return i.status === "ready";
       if (filter === "uploaded") return i.status === "uploaded" || !!i.youtube_video_id;
       return i.platform === filter;
