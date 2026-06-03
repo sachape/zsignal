@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Rocket, Save, Sparkles, Twitch, Youtube, Music2, Instagram,
+  Rocket, Save, Sparkles, Tv, Video, Music2, Camera,
   CheckCircle2, Copy, Trash2, Clock, ChevronRight, ListChecks, Wand2,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
