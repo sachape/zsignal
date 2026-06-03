@@ -218,11 +218,13 @@ const ContentQueuePage = () => {
 
 // ── Sub components ──────────────────────────────────────────────────────────
 
-function StatCell({ label, value, accent }: { label: string; value: number; accent?: "amber" | "primary" | "emerald" }) {
+function StatCell({ label, value, accent }: { label: string; value: number; accent?: "amber" | "primary" | "emerald" | "violet" | "cyan" }) {
   const cls =
     accent === "amber" ? "border-amber-500/30 bg-amber-500/5 text-amber-300"
     : accent === "primary" ? "border-primary/30 bg-primary/5 text-primary"
     : accent === "emerald" ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
+    : accent === "violet" ? "border-violet-500/30 bg-violet-500/5 text-violet-300"
+    : accent === "cyan" ? "border-cyan-500/30 bg-cyan-500/5 text-cyan-300"
     : "border-border/60 bg-card text-foreground";
   return (
     <div className={cn("rounded-md border p-3", cls)}>
