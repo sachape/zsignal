@@ -474,12 +474,15 @@ const LiveSetupPage = () => {
                   <TabsContent value="twitch" className="space-y-3 pt-4">
                     <PreviewField label="Titre Twitch" value={metadata.twitch.title} />
                     <PreviewField label="Catégorie" value={metadata.twitch.category || "—"} />
-                    <PlatformActionRow
+                    <PushActionRow
                       icon={<Tv className="h-4 w-4" />}
-                      label={twitchConnected ? "Mettre à jour Twitch" : "Connexion Twitch requise"}
                       connected={twitchConnected}
-                      onClick={() => toast.info("L'update Twitch arrive dans une prochaine version.")}
+                      busy={pushingTwitch || saving}
+                      labelConnected="Mettre à jour Twitch"
+                      labelMissing="Connecte Twitch"
+                      onPush={handlePushTwitch}
                     />
+                    <PushHistory entry={editingSession?.generated_metadata?.twitch_push} platform="twitch" />
                   </TabsContent>
 
                   <TabsContent value="youtube" className="space-y-3 pt-4">
@@ -489,13 +492,28 @@ const LiveSetupPage = () => {
                       label="Tags"
                       value={metadata.youtube.tags.join(", ") || "—"}
                     />
-                    <PlatformActionRow
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Confidentialité</Label>
+                      <Select value={ytPrivacy} onValueChange={(v) => setYtPrivacy(v as typeof ytPrivacy)}>
+                        <SelectTrigger className="h-8 w-[140px] text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="private">Privé</SelectItem>
+                          <SelectItem value="unlisted">Non listé</SelectItem>
+                          <SelectItem value="public">Public</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <PushActionRow
                       icon={<Video className="h-4 w-4" />}
-                      label={youtubeConnected ? "Créer un live YouTube" : "Connexion YouTube requise"}
                       connected={youtubeConnected}
-                      onClick={() => toast.info("La création de live YouTube arrive dans une prochaine version.")}
+                      busy={pushingYouTube || saving}
+                      labelConnected="Créer un live YouTube"
+                      labelMissing="Connecte YouTube"
+                      onPush={handlePushYouTube}
                     />
+                    <PushHistory entry={editingSession?.generated_metadata?.youtube_push} platform="youtube" />
                   </TabsContent>
+
 
                   <TabsContent value="kick" className="space-y-3 pt-4">
                     <PreviewField label="Titre Kick" value={metadata.kick.title} />
