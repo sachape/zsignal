@@ -290,21 +290,39 @@ interface CategoryAllResponse {
     includes_offline?: boolean;
     live_enriched?: boolean;
     indexed_count?: number;
+    returned_count?: number;
+    visible_count?: number;
+    locked_count?: number;
+    limit?: number;
+    offset?: number;
+    has_more?: boolean;
+    next_offset?: number | null;
+    is_pro?: boolean;
+    plan_limit?: number | null;
   };
+}
+
+export interface StreamScoreLeadersResult {
+  category: LeaderCategory | null;
+  channels: StreamScoreLeaderChannel[];
+  indexedCount: number;
+  returnedCount: number;
+  visibleCount: number;
+  lockedCount: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+  nextOffset: number | null;
+  isPro: boolean;
+  planLimit: number | null;
 }
 
 export async function fetchCategoryStreamScoreLeaders(opts: {
   category: string;
   language?: string;
   limit?: number;
-}): Promise<{
-  category: LeaderCategory | null;
-  channels: StreamScoreLeaderChannel[];
-  isExhaustive: boolean;
-  indexedCount: number;
-  includesOffline: boolean;
-  liveEnriched: boolean;
-}> {
+  offset?: number;
+}): Promise<StreamScoreLeadersResult> {
   const { data, error } = await supabase.functions.invoke<CategoryAllResponse>(
     "twitch-public-lookup",
     {
@@ -312,6 +330,7 @@ export async function fetchCategoryStreamScoreLeaders(opts: {
         input: opts.category,
         mode: "category_all",
         limit: opts.limit ?? 50,
+        offset: opts.offset ?? 0,
         language: opts.language ?? "all",
       },
     },
@@ -320,20 +339,33 @@ export async function fetchCategoryStreamScoreLeaders(opts: {
     return {
       category: data?.category ?? null,
       channels: [],
-      isExhaustive: false,
       indexedCount: 0,
-      includesOffline: true,
-      liveEnriched: false,
+      returnedCount: 0,
+      visibleCount: 0,
+      lockedCount: 0,
+      limit: opts.limit ?? 50,
+      offset: opts.offset ?? 0,
+      hasMore: false,
+      nextOffset: null,
+      isPro: false,
+      planLimit: null,
     };
   }
-  const channels = data.channels.map((c, i) => ({ ...c, rank: i + 1 }));
+  const baseOffset = data.meta?.offset ?? opts.offset ?? 0;
+  const channels = data.channels.map((c, i) => ({ ...c, rank: baseOffset + i + 1 }));
   return {
     category: data.category ?? null,
     channels,
-    isExhaustive: data.meta?.is_exhaustive ?? false,
     indexedCount: data.meta?.indexed_count ?? channels.length,
-    includesOffline: data.meta?.includes_offline ?? true,
-    liveEnriched: data.meta?.live_enriched ?? false,
+    returnedCount: data.meta?.returned_count ?? channels.length,
+    visibleCount: data.meta?.visible_count ?? channels.length,
+    lockedCount: data.meta?.locked_count ?? 0,
+    limit: data.meta?.limit ?? (opts.limit ?? 50),
+    offset: baseOffset,
+    hasMore: data.meta?.has_more ?? false,
+    nextOffset: data.meta?.next_offset ?? null,
+    isPro: data.meta?.is_pro ?? false,
+    planLimit: data.meta?.plan_limit ?? null,
   };
 }
 
