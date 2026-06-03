@@ -170,6 +170,8 @@ const ContentQueuePage = () => {
           <div className="space-y-3">
             {filtered.map(item => (
               <ContentRow key={item.id} item={item}
+                youtubeConnected={youtubeConnected}
+                onUpload={() => setUploadItem(item)}
                 onUpdate={(patch) => updateItem(item.id, patch).catch(e => toast.error(e.message))}
                 onDelete={() => {
                   if (confirm("Supprimer ce contenu ?")) {
@@ -179,6 +181,17 @@ const ContentQueuePage = () => {
               />
             ))}
           </div>
+        )}
+
+        {uploadItem && (
+          <YouTubeUploadDialog
+            item={uploadItem}
+            open={!!uploadItem}
+            onOpenChange={(o) => { if (!o) setUploadItem(null); }}
+            youtubeConnected={youtubeConnected}
+            onReconnect={goReconnectYouTube}
+            onUploaded={() => { refetch(); }}
+          />
         )}
       </PageContainer>
     </AppShell>
