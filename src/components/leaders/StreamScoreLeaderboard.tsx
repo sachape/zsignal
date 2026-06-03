@@ -1,12 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, Radio, Trophy } from "lucide-react";
+import { Eye, Lock, Radio, Sparkles, Trophy } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { LoadingState } from "@/components/StateView";
-import { InlineLock } from "@/components/PaywallGate";
 import { cn } from "@/lib/utils";
+import { analytics } from "@/services/analytics";
 import { getScoreTier, getTierTheme } from "@/services/streamScoreTier";
 import {
   fetchCategoryStreamScoreLeaders,
@@ -19,7 +20,7 @@ interface Props {
   isPro: boolean;
 }
 
-const FREE_LIMIT = 3;
+const PAGE_SIZE = 50;
 const LOW_INDEXED_THRESHOLD = 10;
 
 const formatViewers = (n: number | null): string => {
@@ -27,7 +28,6 @@ const formatViewers = (n: number | null): string => {
   if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k`;
   return String(n);
 };
-
 
 const COPY_DEFAULT =
   "Classement Streamnco basé sur les chaînes déjà indexées dans cette catégorie. Les chaînes live sont enrichies en temps réel, mais le classement reste trié par StreamScore.";
@@ -39,23 +39,53 @@ const COPY_EMPTY =
 export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, isPro }) => {
   const [rows, setRows] = useState<StreamScoreLeaderChannel[]>([]);
   const [indexedCount, setIndexedCount] = useState(0);
+  const [lockedCount, setLockedCount] = useState(0);
+  const [nextOffset, setNextOffset] = useState<number | null>(null);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
+  // Initial / category-change load
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setRows([]);
     (async () => {
-      const res = await fetchCategoryStreamScoreLeaders({ category, language, limit: 50 });
+      const res = await fetchCategoryStreamScoreLeaders({
+        category,
+        language,
+        limit: isPro ? PAGE_SIZE : 3,
+        offset: 0,
+      });
       if (cancelled) return;
-      // Backend already orders by stream_score desc — do not re-sort by is_live.
       setRows(res.channels);
       setIndexedCount(res.indexedCount);
+      setLockedCount(res.lockedCount);
+      setNextOffset(res.nextOffset);
+      setHasMore(res.hasMore);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [category, language]);
+  }, [category, language, isPro]);
+
+  const loadMore = useCallback(async () => {
+    if (!hasMore || nextOffset == null || loadingMore) return;
+    setLoadingMore(true);
+    const res = await fetchCategoryStreamScoreLeaders({
+      category,
+      language,
+      limit: PAGE_SIZE,
+      offset: nextOffset,
+    });
+    setRows((prev) => [...prev, ...res.channels]);
+    setIndexedCount(res.indexedCount);
+    setLockedCount(res.lockedCount);
+    setNextOffset(res.nextOffset);
+    setHasMore(res.hasMore);
+    setLoadingMore(false);
+  }, [category, language, hasMore, nextOffset, loadingMore]);
 
   const helperCopy = useMemo(() => {
     if (rows.length === 0) return null;
@@ -78,8 +108,8 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
     );
   }
 
-  const visibleRows = isPro ? rows : rows.slice(0, FREE_LIMIT);
-  const lockedRows = isPro ? [] : rows.slice(FREE_LIMIT);
+  const visibleCount = rows.length;
+  const showFreePaywall = !isPro && lockedCount > 0;
 
   const renderRow = (c: StreamScoreLeaderChannel) => {
     const tier = getTierTheme(getScoreTier(c.stream_score));
@@ -210,6 +240,10 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
     );
   };
 
+  const footerText = isPro
+    ? `${visibleCount} chaîne${visibleCount > 1 ? "s" : ""} affichée${visibleCount > 1 ? "s" : ""} sur ${indexedCount} chaîne${indexedCount > 1 ? "s" : ""} indexée${indexedCount > 1 ? "s" : ""}`
+    : `${visibleCount} chaîne${visibleCount > 1 ? "s" : ""} affichée${visibleCount > 1 ? "s" : ""} sur ${indexedCount} chaîne${indexedCount > 1 ? "s" : ""} indexée${indexedCount > 1 ? "s" : ""}${lockedCount > 0 ? ` · ${lockedCount} verrouillée${lockedCount > 1 ? "s" : ""}` : ""}`;
+
   return (
     <div className="grid gap-3">
       {helperCopy && (
@@ -218,24 +252,63 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
         </p>
       )}
 
-      <div className="grid gap-2">
-        {visibleRows.map(renderRow)}
-        {lockedRows.length > 0 && (
-          <div className="mt-2">
-            <InlineLock
-              feature={`${lockedRows.length} chaîne${lockedRows.length > 1 ? "s" : ""} supplémentaire${lockedRows.length > 1 ? "s" : ""} — Pro`}
-              description="Accède à l'intégralité du classement indexé."
-              blurHeight="200px"
-            >
-              <div className="grid gap-2">{lockedRows.map(renderRow)}</div>
-            </InlineLock>
+      <div className="grid gap-2">{rows.map(renderRow)}</div>
+
+      {showFreePaywall && (
+        <div className="mt-2 flex flex-col items-center gap-3 rounded-xl border border-primary/20 bg-card/60 px-5 py-5 text-center">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+            <Lock className="h-4 w-4 text-primary" />
           </div>
-        )}
-      </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              Classement complet réservé au Pro
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Tu vois les {visibleCount} premières chaînes. Passe Pro pour débloquer
+              {" "}les {lockedCount} autres chaînes indexées dans cette catégorie.
+            </p>
+            <p className="mt-2 text-[11px] text-muted-foreground/80">
+              {visibleCount} visible{visibleCount > 1 ? "s" : ""} · {lockedCount} verrouillée{lockedCount > 1 ? "s" : ""}
+            </p>
+          </div>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="border-primary/30 text-primary hover:bg-primary/10"
+          >
+            <Link
+              to="/pricing"
+              onClick={() => analytics.upgradeClicked("streamscore_leaderboard", "inline")}
+            >
+              <Sparkles className="mr-1.5 h-3 w-3" />
+              Débloquer le classement complet
+            </Link>
+          </Button>
+        </div>
+      )}
+
+      {isPro && hasMore && (
+        <div className="mt-2 flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadMore}
+            disabled={loadingMore}
+          >
+            {loadingMore ? "Chargement…" : "Charger plus"}
+          </Button>
+        </div>
+      )}
+
+      {isPro && !hasMore && rows.length > 0 && indexedCount > PAGE_SIZE && (
+        <p className="mt-1 text-center text-[11px] text-muted-foreground/80">
+          Tous les résultats sont affichés
+        </p>
+      )}
 
       <p className="mt-2 text-[11px] text-muted-foreground">
-        {indexedCount} chaîne{indexedCount > 1 ? "s" : ""} indexée{indexedCount > 1 ? "s" : ""} ·
-        Classement non exhaustif · Source : Streamnco (channel_stream_scores)
+        {footerText} · Classement non exhaustif · Source : Streamnco
       </p>
     </div>
   );
