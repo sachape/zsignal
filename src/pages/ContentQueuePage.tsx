@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
-  Film, Wand2, Clock,
+  Film, Wand2, Clock, Flame, TrendingUp, BarChart3,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -110,8 +110,15 @@ const ContentQueuePage = () => {
       if (filter === "ready") return i.status === "ready";
       if (filter === "uploaded") return i.status === "uploaded" || !!i.youtube_video_id;
       return i.platform === filter;
-    });
+    }).sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0));
   }, [items, filter, hideIgnored]);
+
+  const topPriority = useMemo(() => {
+    return [...items]
+      .filter(i => i.status !== "ignored" && i.status !== "published" && i.status !== "published_manually")
+      .sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0))
+      .slice(0, 3);
+  }, [items]);
 
   const counts = useMemo(() => ({
     total: items.length,
@@ -140,6 +147,43 @@ const ContentQueuePage = () => {
           <StatCell label="Prêts" value={counts.ready} accent="primary" />
           <StatCell label="Publiés" value={counts.published} accent="emerald" />
         </div>
+
+        {/* Top priority cockpit */}
+        {topPriority.length > 0 && (
+          <Card className="mb-5 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+            <CardContent className="space-y-3 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Flame className="h-4 w-4 text-primary" />
+                À traiter en priorité
+                <span className="ml-auto text-[10px] font-normal text-muted-foreground">
+                  Score éditorial — pas une prédiction de performance
+                </span>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {topPriority.map(i => {
+                  const meta = PLATFORM_META[i.platform];
+                  const Ico = meta.Icon;
+                  return (
+                    <div key={i.id} className="rounded-md border border-border/60 bg-background/60 p-3">
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        <Ico className="h-3 w-3 text-primary" />
+                        {meta.label}
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-semibold text-primary">
+                          <TrendingUp className="h-2.5 w-2.5" />
+                          {i.opportunity_score ?? "—"}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 line-clamp-2 text-xs font-medium text-foreground">{i.title}</p>
+                      {i.opportunity_label && (
+                        <p className="mt-1 text-[10px] text-primary/80">{i.opportunity_label}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Filters */}
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -331,9 +375,44 @@ function ContentRow({
               <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", priority.cls)}>
                 Priorité {priority.label}
               </span>
+              {typeof item.opportunity_score === "number" && (
+                <span
+                  title={item.opportunity_reason ?? undefined}
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary"
+                >
+                  <TrendingUp className="h-2.5 w-2.5" />
+                  {item.opportunity_score}
+                  {item.opportunity_label && <span className="font-normal opacity-80">· {item.opportunity_label}</span>}
+                </span>
+              )}
               {item.format && <span className="text-[10px] text-muted-foreground">· {item.format}</span>}
               {item.duration && <span className="text-[10px] text-muted-foreground">· {item.duration}</span>}
             </div>
+            {/* Title variant picker */}
+            {item.title_variants && item.title_variants.length > 1 && !editing && (
+              <div className="mt-2 flex flex-wrap items-center gap-1">
+                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Variantes :</span>
+                {item.title_variants.map(v => {
+                  const active = v.value === item.title;
+                  return (
+                    <button
+                      key={v.style}
+                      type="button"
+                      onClick={() => onUpdate({ title: v.value, selected_title_variant: v.style })}
+                      className={cn(
+                        "rounded-full border px-2 py-0.5 text-[10px] transition",
+                        active
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card text-muted-foreground hover:border-border/80",
+                      )}
+                      title={v.value}
+                    >
+                      {v.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground"
@@ -471,6 +550,37 @@ function ContentRow({
             </div>
           </div>
         )}
+
+        {/* V3.5 — Après publication */}
+        {(item.published_url || item.published_at) && (
+          <div className="space-y-1 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-[11px]">
+            <div className="flex items-center gap-2 font-semibold text-emerald-300">
+              <BarChart3 className="h-3.5 w-3.5" />
+              Après publication
+            </div>
+            <div className="grid gap-1 text-muted-foreground sm:grid-cols-2">
+              {item.published_url && (
+                <div>
+                  <span className="font-medium text-foreground">URL : </span>
+                  <a href={item.published_url} target="_blank" rel="noreferrer noopener"
+                    className="text-primary hover:underline break-all">
+                    {item.published_platform ?? "lien"} <ExternalLink className="inline h-3 w-3" />
+                  </a>
+                </div>
+              )}
+              {item.published_at && (
+                <div>
+                  <span className="font-medium text-foreground">Publié : </span>
+                  {new Date(item.published_at).toLocaleDateString("fr-FR")}
+                </div>
+              )}
+              <div className="sm:col-span-2 italic text-muted-foreground/80">
+                Analytics bientôt disponibles — Streamnco ne montre jamais de chiffres inventés.
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Actions row */}
         <div className="flex flex-wrap items-center gap-2 border-t border-border/40 pt-3">

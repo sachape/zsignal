@@ -56,6 +56,23 @@ export interface ContentItem {
   thumbnail_url: string | null;
   generation_status: GenerationStatus | null;
   generation_error: string | null;
+  // V3.5 — Editorial variants & opportunity scoring
+  title_variants: Array<{ style: string; label: string; value: string }>;
+  selected_title_variant: string | null;
+  description_variants: Array<{ style: string; label: string; value: string }>;
+  selected_description_variant: string | null;
+  hashtag_variants: Array<{ style: string; label: string; tags: string[] }>;
+  selected_hashtags: string[];
+  opportunity_score: number | null;
+  opportunity_label: string | null;
+  opportunity_reason: string | null;
+  // V3.5 — Post-publish metrics
+  published_url: string | null;
+  published_platform: string | null;
+  external_platform_id: string | null;
+  last_metrics_sync_at: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  post_publish_metrics: any | null;
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +95,16 @@ export interface NewContentItem {
   source_video_url?: string | null;
   source_start_time?: number | null;
   source_end_time?: number | null;
+  // V3.5
+  title_variants?: Array<{ style: string; label: string; value: string }>;
+  selected_title_variant?: string | null;
+  description_variants?: Array<{ style: string; label: string; value: string }>;
+  selected_description_variant?: string | null;
+  hashtag_variants?: Array<{ style: string; label: string; tags: string[] }>;
+  selected_hashtags?: string[];
+  opportunity_score?: number | null;
+  opportunity_label?: string | null;
+  opportunity_reason?: string | null;
 }
 
 export function useContentItems() {
@@ -123,6 +150,15 @@ export function useContentItems() {
       source_video_url: r.source_video_url ?? null,
       source_start_time: r.source_start_time ?? null,
       source_end_time: r.source_end_time ?? null,
+      title_variants: r.title_variants ?? [],
+      selected_title_variant: r.selected_title_variant ?? null,
+      description_variants: r.description_variants ?? [],
+      selected_description_variant: r.selected_description_variant ?? null,
+      hashtag_variants: r.hashtag_variants ?? [],
+      selected_hashtags: r.selected_hashtags ?? [],
+      opportunity_score: r.opportunity_score ?? null,
+      opportunity_label: r.opportunity_label ?? null,
+      opportunity_reason: r.opportunity_reason ?? null,
     }));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error: err } = await (supabase as any)

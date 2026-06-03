@@ -599,20 +599,33 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          description_variants: Json
           duration: string | null
+          external_platform_id: string | null
           format: string | null
           generated_video_url: string | null
           generation_error: string | null
           generation_status: string | null
+          hashtag_variants: Json
           hashtags: Json
           id: string
+          last_metrics_sync_at: string | null
           live_session_id: string | null
           notes: string | null
+          opportunity_label: string | null
+          opportunity_reason: string | null
+          opportunity_score: number | null
           platform: string
+          post_publish_metrics: Json | null
           priority: string
           published_at: string | null
+          published_platform: string | null
+          published_url: string | null
           reason: string | null
           recommended_publish_at: string | null
+          selected_description_variant: string | null
+          selected_hashtags: Json
+          selected_title_variant: string | null
           source_duration: number | null
           source_end_time: number | null
           source_idea_id: string | null
@@ -622,6 +635,7 @@ export type Database = {
           status: string
           thumbnail_url: string | null
           title: string
+          title_variants: Json
           updated_at: string
           user_id: string
           youtube_privacy_status: string | null
@@ -632,20 +646,33 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          description_variants?: Json
           duration?: string | null
+          external_platform_id?: string | null
           format?: string | null
           generated_video_url?: string | null
           generation_error?: string | null
           generation_status?: string | null
+          hashtag_variants?: Json
           hashtags?: Json
           id?: string
+          last_metrics_sync_at?: string | null
           live_session_id?: string | null
           notes?: string | null
+          opportunity_label?: string | null
+          opportunity_reason?: string | null
+          opportunity_score?: number | null
           platform: string
+          post_publish_metrics?: Json | null
           priority?: string
           published_at?: string | null
+          published_platform?: string | null
+          published_url?: string | null
           reason?: string | null
           recommended_publish_at?: string | null
+          selected_description_variant?: string | null
+          selected_hashtags?: Json
+          selected_title_variant?: string | null
           source_duration?: number | null
           source_end_time?: number | null
           source_idea_id?: string | null
@@ -655,6 +682,7 @@ export type Database = {
           status?: string
           thumbnail_url?: string | null
           title?: string
+          title_variants?: Json
           updated_at?: string
           user_id: string
           youtube_privacy_status?: string | null
@@ -665,20 +693,33 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          description_variants?: Json
           duration?: string | null
+          external_platform_id?: string | null
           format?: string | null
           generated_video_url?: string | null
           generation_error?: string | null
           generation_status?: string | null
+          hashtag_variants?: Json
           hashtags?: Json
           id?: string
+          last_metrics_sync_at?: string | null
           live_session_id?: string | null
           notes?: string | null
+          opportunity_label?: string | null
+          opportunity_reason?: string | null
+          opportunity_score?: number | null
           platform?: string
+          post_publish_metrics?: Json | null
           priority?: string
           published_at?: string | null
+          published_platform?: string | null
+          published_url?: string | null
           reason?: string | null
           recommended_publish_at?: string | null
+          selected_description_variant?: string | null
+          selected_hashtags?: Json
+          selected_title_variant?: string | null
           source_duration?: number | null
           source_end_time?: number | null
           source_idea_id?: string | null
@@ -688,6 +729,7 @@ export type Database = {
           status?: string
           thumbnail_url?: string | null
           title?: string
+          title_variants?: Json
           updated_at?: string
           user_id?: string
           youtube_privacy_status?: string | null

@@ -41,6 +41,7 @@ import {
 } from "@/services/postLiveBrief";
 import { Flame, StopCircle, Lightbulb, CalendarDays, Repeat2, Inbox } from "lucide-react";
 import { useContentItems } from "@/hooks/useContentItems";
+import { buildQualityPackForIdea } from "@/services/contentQuality";
 
 const TONES: { value: LiveTone; label: string }[] = [
   { value: "chill", label: "Chill" },
@@ -1360,21 +1361,40 @@ function PostLiveBriefCard({
     setSending(true);
     try {
       const VIDEO_PLATFORMS = ["youtube_shorts", "tiktok", "instagram", "twitch_clip"];
-      const rows = brief.content_ideas.map((idea) => ({
-        live_session_id: liveSessionId,
-        platform: idea.platform,
-        title: idea.title,
-        description: undefined,
-        hashtags: [],
-        // Video ideas land as "to_generate" (need a clip). Community stays "idea".
-        status: (VIDEO_PLATFORMS.includes(idea.platform) ? "to_generate" : "idea") as
-          "to_generate" | "idea",
-        priority: idea.priority,
-        source_idea_id: idea.id,
-        format: idea.format,
-        duration: idea.duration ?? null,
-        reason: idea.reason,
-      }));
+      const liveAgeHours = brief.generated_at
+        ? Math.max(0, (Date.now() - new Date(brief.generated_at).getTime()) / 3_600_000)
+        : null;
+      const rows = brief.content_ideas.map((idea) => {
+        const pack = buildQualityPackForIdea({
+          idea,
+          gameCategory: brief.summary.game_category,
+          mainAngle: brief.summary.main_angle,
+          liveAgeHours,
+        });
+        return {
+          live_session_id: liveSessionId,
+          platform: idea.platform,
+          title: pack.title,
+          description: pack.description || undefined,
+          hashtags: pack.hashtags,
+          status: (VIDEO_PLATFORMS.includes(idea.platform) ? "to_generate" : "idea") as
+            "to_generate" | "idea",
+          priority: idea.priority,
+          source_idea_id: idea.id,
+          format: idea.format,
+          duration: idea.duration ?? null,
+          reason: idea.reason,
+          title_variants: pack.title_variants,
+          selected_title_variant: pack.selected_title_variant,
+          description_variants: pack.description_variants,
+          selected_description_variant: pack.selected_description_variant,
+          hashtag_variants: pack.hashtag_variants,
+          selected_hashtags: pack.selected_hashtags,
+          opportunity_score: pack.opportunity_score,
+          opportunity_label: pack.opportunity_label,
+          opportunity_reason: pack.opportunity_reason,
+        };
+      });
       const count = await createMany(rows);
       toast.success(`${count} idée${count > 1 ? "s" : ""} envoyée${count > 1 ? "s" : ""} dans Content Queue`);
     } catch (e) {
