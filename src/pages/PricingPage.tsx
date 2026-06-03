@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { startCheckout } from "@/services/billingService";
 import { Loader2 } from "lucide-react";
 import {
@@ -238,6 +238,12 @@ const PricingPage = () => {
   const { openAuthModal } = useAuthModal();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  // Authenticated users should manage their plan from the in-app billing page,
+  // not the public marketing pricing page.
+  if (user) {
+    return <Navigate to="/billing" replace />;
+  }
 
   const handleCheckout = async (plan: "pro" | "growth") => {
     if (!user) {

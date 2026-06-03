@@ -293,6 +293,7 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/upgrade" element={<Navigate to="/billing" replace />} />
                 {/* Hub redirects → first tab of each studio */}
                 <Route path="/live-studio" element={<Navigate to="/live-setup" replace />} />
                 <Route path="/content-studio" element={<Navigate to="/content-queue" replace />} />

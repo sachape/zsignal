@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
-  ArrowRight,
+  
   Calendar,
   CheckCircle2,
   CreditCard,
@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useSubscription } from "@/hooks/useSubscription";
-import { openBillingPortal } from "@/services/billingService";
+import { openBillingPortal, startCheckout } from "@/services/billingService";
 import { toast } from "sonner";
 
 const PLAN_META: Record<
@@ -61,6 +61,19 @@ const BillingPage = () => {
   usePageMeta({ title: "Facturation", description: "Gérez votre abonnement et vos paiements." });
   const sub = useSubscription();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "growth" | null>(null);
+
+  const handleCheckout = async (plan: "pro" | "growth") => {
+    if (checkoutLoading) return;
+    try {
+      setCheckoutLoading(plan);
+      await startCheckout(plan, "monthly");
+    } catch {
+      toast.error("Impossible de lancer le paiement. Réessaie dans un instant.");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
 
   const handlePortal = async () => {
     if (portalLoading) return;
@@ -223,11 +236,33 @@ const BillingPage = () => {
                   <p className="mb-3 text-xs text-muted-foreground">
                     Live cockpit, débrief post-live, plan de la semaine, simulator — à partir de 7,99 €/mois.
                   </p>
-                  <Button asChild size="sm">
-                    <Link to="/pricing">
-                      Voir les offres <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleCheckout("pro")}
+                      disabled={checkoutLoading !== null}
+                    >
+                      {checkoutLoading === "pro" ? (
+                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                      )}
+                      Passer au Pro — 7,99 €/mois
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleCheckout("growth")}
+                      disabled={checkoutLoading !== null}
+                    >
+                      {checkoutLoading === "growth" ? (
+                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Crown className="mr-1.5 h-3.5 w-3.5" />
+                      )}
+                      Passer au Growth — 14,99 €/mois
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -126,7 +126,7 @@ const OpportunityCard = ({ opportunity, index, locked = false }: Props) => {
             </p>
           </div>
           <Button asChild size="sm" className="h-8 text-xs">
-            <Link to="/pricing">Passer au Pro</Link>
+            <Link to="/billing">Passer au Pro</Link>
           </Button>
         </div>
       )}

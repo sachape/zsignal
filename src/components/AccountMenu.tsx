@@ -55,7 +55,7 @@ const AccountMenu = () => {
 
   const handleAddAccount = () => {
     if (!isGrowth) {
-      navigate("/pricing");
+      navigate("/billing");
       return;
     }
     if (atLimit) return;
@@ -157,7 +157,7 @@ const AccountMenu = () => {
         {!isGrowth && atLimit ? (
           <DropdownMenuItem
             className="gap-2.5 px-2.5 py-2 text-xs"
-            onClick={() => navigate("/pricing")}
+            onClick={() => navigate("/billing")}
           >
             <PlusCircle className="h-3.5 w-3.5 shrink-0 text-primary" />
             <span className="flex-1">Passe à Growth pour connecter jusqu’à 3 chaînes</span>
