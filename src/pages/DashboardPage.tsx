@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { usePlan, invalidatePlanCache, triggerPlanRefresh } from "@/hooks/usePlan";
 import { toast } from "sonner";
@@ -10,6 +10,10 @@ import {
   AlertCircle,
   Sparkles,
   X,
+  Target,
+  Radio,
+  Orbit,
+  ShieldCheck,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -17,7 +21,7 @@ import PageHeader from "@/components/PageHeader";
 import DashboardQuickActions from "@/components/DashboardQuickActions";
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
-import SyncStatusCard, { formatSyncRelative, type SyncState } from "@/components/SyncStatusCard";
+import { formatSyncRelative } from "@/components/SyncStatusCard";
 import WeeklySequenceCard from "@/components/WeeklySequenceCard";
 import NextMilestoneCard from "@/components/NextMilestoneCard";
 import { diagnoseFoundationMode } from "@/services/foundationMode";
@@ -522,6 +526,23 @@ const DashboardPage = () => {
     ? (report.facts.find((f) => f.key === "dominant_category")?.value as string | undefined)
     : undefined;
   const displayCategory = (categoryFact?.trim() && categoryFact.trim() !== "unknown") ? categoryFact.trim() : null;
+  const nextAction = report.next_best_action;
+  const syncLabel =
+    syncSnapshot?.state === "up_to_date"
+      ? "Données à jour"
+      : syncSnapshot?.state === "syncing"
+        ? "Sync en cours"
+        : syncSnapshot?.state === "no_analysis"
+          ? "Première analyse en attente"
+          : "Dernière sync à vérifier";
+  const syncDetail = syncSnapshot
+    ? formatSyncRelative(syncSnapshot.lastSyncAt ?? syncSnapshot.lastAnalysisAt ?? currentReport.created_at)
+    : `Rapport généré le ${formatDate(currentReport.created_at)}`;
+  const liveHeadline = liveSnapshot?.current
+    ? `${liveSnapshot.current.viewer_count ?? 0} viewers en direct`
+    : liveSnapshot?.last
+      ? "Dernier live disponible"
+      : "Aucun live récent";
 
   const endedSessions = allSessions.filter((s) => s.status === "ended").length;
 
@@ -553,297 +574,502 @@ const DashboardPage = () => {
             </Button>
           </div>
         )}
+        <section className="mb-6">
+          <p className="mb-5 text-[32px] font-medium text-foreground">
+            {greeting}
+          </p>
+
+          <div className="grid gap-4 xl:grid-cols-[1.35fr_0.9fr]">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_35%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--card)))] p-6 shadow-[0_24px_80px_-28px_hsl(var(--primary)/0.35)]">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,transparent_0%,hsl(var(--primary)/0.04)_55%,transparent_100%)]" />
+              <div className="relative flex flex-col gap-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <div className="relative shrink-0">
+                      <div className="h-16 w-16 overflow-hidden rounded-2xl bg-muted ring-1 ring-white/10">
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt={headerTitle}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-muted-foreground">
+                            {headerTitle.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      {summary.is_live && (
+                        <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive ring-4 ring-background">
+                          <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground">
+                          {headerTitle}
+                        </h1>
+                        {summary.broadcaster_type === "partner" && (
+                          <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                            Partner
+                          </span>
+                        )}
+                        {summary.broadcaster_type === "affiliate" && (
+                          <span className="rounded-full border border-border/50 bg-muted/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                            Affiliate
+                          </span>
+                        )}
+                        {summary.is_live && (
+                          <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-destructive">
+                            Live now
+                          </span>
+                        )}
+                        <StreakBadge streak={streakData} variant="compact" />
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        <span>{platformLogin ? `@${platformLogin}` : "Twitch"}</span>
+                        {displayCategory && <span>· {displayCategory}</span>}
+                        {currentReport.is_demo && (
+                          <span className="inline-flex items-center rounded-full border border-border/50 bg-muted/25 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                            Demo
+                          </span>
+                        )}
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full border border-border/50 bg-muted/30 px-2 py-0.5 text-[10px] font-medium"
+                          title={maturityData.description}
+                        >
+                          <span aria-hidden>{maturityData.icon}</span>
+                          {maturityData.label}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ShareScoreButton
+                      score={score}
+                      displayName={headerTitle}
+                      login={platformLogin}
+                      date={formatDate(currentReport.created_at)}
+                      variant="icon"
+                    />
+                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/30">
+                      <Link to="/analyse">
+                        <FileText className="h-3.5 w-3.5" />
+                        Voir l'analyse
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div className="rounded-[24px] border border-white/[0.08] bg-background/50 p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/60">
+                      StreamScore
+                    </p>
+                    <div className="mt-4 flex items-end gap-4">
+                      <div className={`inline-flex h-20 w-20 items-center justify-center rounded-[22px] border ${theme.surfaceClass}`}>
+                        <span className={`text-3xl font-semibold tabular-nums ${theme.textClass}`}>
+                          {score.overall}
+                        </span>
+                      </div>
+                      <div className="pb-1">
+                        <p className={`text-sm font-semibold uppercase tracking-[0.18em] ${theme.textClass}`}>
+                          {theme.label}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {delta !== null
+                            ? delta > 0
+                              ? `+${delta} pts depuis le rapport précédent`
+                              : delta < 0
+                                ? `${delta} pts depuis le rapport précédent`
+                                : "Stable depuis le rapport précédent"
+                            : "Premier point de référence disponible"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 rounded-2xl border border-primary/15 bg-primary/[0.05] p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">
+                        Point de blocage principal
+                      </p>
+                      <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
+                        {report.weak_point.label}
+                      </p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                        {report.weak_point.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3">
+                    <HeroSignalCard
+                      eyebrow="Next move"
+                      title={nextAction.title}
+                      description={nextAction.action || nextAction.reason}
+                      icon={<Target className="h-4 w-4 text-primary" />}
+                      actionLabel="Ouvrir le plan"
+                      actionHref="/plan"
+                    />
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                      <HeroMetricCard
+                        label="Milestone le plus proche"
+                        value={nextMilestone.label}
+                        detail={`${nextMilestone.current}/${nextMilestone.target} · ${nextMilestone.pct}%`}
+                      />
+                      <HeroMetricCard
+                        label="Statut des données"
+                        value={syncLabel}
+                        detail={syncDetail}
+                      />
+                      <HeroMetricCard
+                        label="Statut live"
+                        value={liveHeadline}
+                        detail={liveSnapshot?.current?.title || liveSnapshot?.last?.title_raw || "Prépare le prochain live"}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <ActionSummaryCard
+                eyebrow="This week"
+                title="Fais progresser le score avec une seule priorité"
+                description="Le cockpit doit te donner une direction unique, pas dix widgets à interpréter."
+                actionLabel="Voir le plan d'action"
+                actionHref="/plan"
+                icon={<ShieldCheck className="h-4 w-4 text-primary" />}
+              />
+              <ActionSummaryCard
+                eyebrow="Operate"
+                title={summary.is_live ? "Tu es actuellement en live" : "Ton prochain live se prépare ici"}
+                description={summary.is_live
+                  ? "Surveille les signaux live, la dérive et les alertes en temps réel."
+                  : "Passe par Live Setup pour arriver prêt à lancer, sans friction avant le direct."}
+                actionLabel={summary.is_live ? "Voir le cockpit live" : "Préparer un live"}
+                actionHref={summary.is_live ? "/lives" : "/live-setup"}
+                icon={<Radio className="h-4 w-4 text-primary" />}
+              />
+              <ActionSummaryCard
+                eyebrow="Compete"
+                title="Garde un oeil sur ta catégorie et tes concurrents"
+                description="Benchmark, watchlist et signaux concurrents doivent être visibles sans détour."
+                actionLabel="Ouvrir Benchmark"
+                actionHref="/competitors"
+                icon={<Orbit className="h-4 w-4 text-primary" />}
+              />
+            </div>
+          </div>
+        </section>
+
         <div className="mb-6">
           <DashboardQuickActions />
         </div>
 
-        {/* Identity strip */}
-        <div className="animate-fade-up mb-6">
-          <p className="mb-5 sm:mb-7 text-[32px] font-medium text-foreground">
-            {greeting}
-          </p>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Avatar + name */}
-            <div className="flex items-center gap-4">
-              <div className="relative shrink-0">
-                <div className="h-14 w-14 overflow-hidden rounded-full bg-muted ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={headerTitle}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xl font-bold text-muted-foreground">
-                      {headerTitle.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                {summary.is_live && (
-                  <span
-                    className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive ring-2 ring-background"
-                    aria-hidden
-                  >
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-                  </span>
-                )}
-              </div>
+        <div className="mb-6 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+          <div className="space-y-6">
+            <WeeklyDigestCard
+              report={currentReport}
+              userId={user.id}
+              previousScore={previous?.report?.score?.overall ?? null}
+            />
 
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="truncate text-lg font-bold tracking-tight text-foreground">
-                    {headerTitle}
-                  </h1>
-                  {summary.broadcaster_type === "partner" && (
-                    <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                      Partenaire
-                    </span>
-                  )}
-                  {summary.broadcaster_type === "affiliate" && (
-                    <span className="shrink-0 rounded-full border border-border/50 bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Affilié
-                    </span>
-                  )}
-                  {summary.is_live && (
-                    <span className="shrink-0 rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
-                      En live
-                    </span>
-                  )}
-                  <StreakBadge streak={streakData} variant="compact" />
-                </div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                  <p className="truncate text-sm text-muted-foreground">
-                    {platformLogin ? `@${platformLogin}` : "Twitch"}
-                    {displayCategory ? ` · ${displayCategory}` : ""}
+            {foundationActive && (
+              <WeeklySequenceCard actions={foundation.sequence} showPlanLink={endedSessions > 0} />
+            )}
+
+            {!followersAvailable && !currentReport.is_demo && (
+              <Card className="border-warning/30 bg-warning/5">
+                <CardContent className="flex flex-wrap items-center gap-3 p-3">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
+                  <p className="min-w-0 flex-1 text-xs text-foreground">
+                    {followersMissingScope
+                      ? "Ton total de followers n'est pas encore lisible. Reconnecte Twitch pour l'afficher avec précision."
+                      : "Ton total de followers n'a pas pu être lu lors de cette analyse. Relance une analyse pour réessayer."}
                   </p>
-                  <span
-                    className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border/40 bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
-                    title={maturityData.description}
-                  >
-                    <span aria-hidden>{maturityData.icon}</span>
-                    {maturityData.label}
-                  </span>
-                </div>
-                {currentReport.is_demo && (
-                  <span className="mt-1 inline-flex rounded-sm bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">
-                    démo
-                  </span>
-                )}
-              </div>
-            </div>
+                  {followersMissingScope && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/connect-twitch">Reconnecter Twitch</Link>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Actions */}
-            <div className="flex shrink-0 items-center gap-2">
-              <ShareScoreButton
-                score={score}
-                displayName={headerTitle}
-                login={platformLogin}
-                date={formatDate(currentReport.created_at)}
-                variant="icon"
+            {liveSnapshot?.last && (
+              <LivePostGenerator
+                session={liveSnapshot.last}
+                debrief={liveSnapshot.lastDebrief}
+                open={showPostGen}
+                onClose={() => setShowPostGen(false)}
               />
-              <Button asChild size="sm" variant="outline">
-                <Link to="/analyse">
-                  <FileText className="h-3.5 w-3.5" />
-                  Voir l'analyse
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* StreamScore compact status */}
-        <Link
-          to="/analyse"
-          className="group animate-fade-up mb-6 flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-white/[0.07] bg-card/40 px-4 py-3 backdrop-blur-xl transition-all hover:border-primary/25 hover:shadow-[0_0_30px_hsl(var(--primary)/0.08)]"
-          style={{ animationDelay: "80ms" }}
-        >
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${theme.surfaceClass}`}>
-              <span className={`text-base font-bold tabular-nums ${theme.textClass}`}>{score.overall}</span>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">StreamScore</p>
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-semibold uppercase tracking-wider ${theme.textClass}`}>{theme.label}</span>
-                {delta !== null && (delta !== 0 || score.overall >= 40) && (
-                  <span className={`text-[10px] font-semibold tabular-nums ${delta > 0 ? "text-primary" : delta < 0 ? "text-destructive" : "text-muted-foreground/50"}`}>
-                    {delta > 0 ? `+${delta} pts` : delta < 0 ? `${delta} pts` : "stable"}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex shrink-0 items-center gap-1.5 rounded-md border border-border/40 bg-muted/30 px-2.5 py-1 text-xs font-medium text-foreground transition-colors group-hover:bg-muted/60">
-            Voir l'analyse
-            <ArrowRight className="h-3 w-3" />
-          </div>
-        </Link>
-
-        {/* Weekly digest — after score context, before actions */}
-        <WeeklyDigestCard
-          report={currentReport}
-          userId={user.id}
-          previousScore={previous?.report?.score?.overall ?? null}
-        />
-
-        {/* Foundation weekly sequence — full width if active */}
-        {foundationActive && (
-          <div className="mb-6">
-            <WeeklySequenceCard actions={foundation.sequence} showPlanLink={endedSessions > 0} />
-          </div>
-        )}
-
-        {/* Followers scope warning */}
-        {!followersAvailable && !currentReport.is_demo && (
-          <Card className="mb-6 border-warning/30 bg-warning/5">
-            <CardContent className="flex flex-wrap items-center gap-3 p-3">
-              <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
-              <p className="min-w-0 flex-1 text-xs text-foreground">
-                {followersMissingScope
-                  ? "Ton total de followers n'est pas encore lisible. Reconnecte Twitch pour l'afficher avec précision."
-                  : "Ton total de followers n'a pas pu être lu lors de cette analyse. Relance une analyse pour réessayer."}
-              </p>
-              {followersMissingScope && (
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/connect-twitch">Reconnecter Twitch</Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Post generator sheet */}
-        {liveSnapshot?.last && (
-          <LivePostGenerator
-            session={liveSnapshot.last}
-            debrief={liveSnapshot.lastDebrief}
-            open={showPostGen}
-            onClose={() => setShowPostGen(false)}
-          />
-        )}
-
-        {/* Live stack — action principale, en priorité */}
-        <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">Live</p>
-        {isPro ? (
-          <div className="animate-fade-up mb-6 space-y-2.5" style={{ animationDelay: '120ms' }}>
-            <LiveStatusCard
-              current={liveSnapshot?.current ?? null}
-              last={liveSnapshot?.last ?? null}
-              lastDebrief={liveSnapshot?.lastDebrief ?? null}
-            />
-            <LastVsAverageCard current={liveSnapshot?.current ?? null} />
-            {focusSlot === "milestone" && (
-              <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
             )}
-            {focusSlot === "inactivity" && (
-              <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
-            )}
-            <PreLiveChecklistCard
-              current={liveSnapshot?.current ?? null}
-              last={liveSnapshot?.last ?? null}
-              lastDebrief={liveSnapshot?.lastDebrief ?? null}
+
+            <DashboardSectionTitle
+              eyebrow="Operate"
+              title="Live cockpit"
+              description="Suivi temps réel, préparation pré-live et alertes, regroupés au même endroit."
             />
-            <SmartAlertsCard current={liveSnapshot?.current ?? null} />
-          </div>
-        ) : (
-          <div className="animate-fade-up mb-6" style={{ animationDelay: '120ms' }}>
-            <InlineLock
-              feature="Cockpit Live — Pro"
-              description="Suivi en direct, debrief automatique, alertes intelligentes et checklist pré-live."
-              blurHeight="140px"
-            >
-              <div className="space-y-2.5">
+            {isPro ? (
+              <div className="grid gap-3">
                 <LiveStatusCard
                   current={liveSnapshot?.current ?? null}
                   last={liveSnapshot?.last ?? null}
                   lastDebrief={liveSnapshot?.lastDebrief ?? null}
                 />
-                <LastVsAverageCard current={liveSnapshot?.current ?? null} />
+                <div className="grid gap-3 xl:grid-cols-2">
+                  <LastVsAverageCard current={liveSnapshot?.current ?? null} />
+                  {focusSlot === "milestone" ? (
+                    <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />
+                  ) : focusSlot === "inactivity" ? (
+                    <InactivityRelanceCard current={liveSnapshot?.current ?? null} />
+                  ) : (
+                    <SmartAlertsCard current={liveSnapshot?.current ?? null} />
+                  )}
+                </div>
+                <PreLiveChecklistCard
+                  current={liveSnapshot?.current ?? null}
+                  last={liveSnapshot?.last ?? null}
+                  lastDebrief={liveSnapshot?.lastDebrief ?? null}
+                />
+                {(focusSlot === "milestone" || focusSlot === "inactivity") && (
+                  <SmartAlertsCard current={liveSnapshot?.current ?? null} />
+                )}
               </div>
-            </InlineLock>
-          </div>
-        )}
-
-        {/* Weekly quests — only outside foundation mode */}
-        {!foundationActive && weeklyQuests && (
-          <div className="animate-fade-up mb-6" style={{ animationDelay: '160ms' }}>
-            {isPro ? (
-              <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
             ) : (
               <InlineLock
-                feature="Quêtes hebdomadaires — Pro"
-                description="Suis tes quêtes de la semaine et accumule de l'XP."
-                blurHeight="120px"
+                feature="Cockpit Live — Pro"
+                description="Suivi en direct, debrief automatique, alertes intelligentes et checklist pré-live."
+                blurHeight="160px"
               >
-                <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
+                <div className="space-y-3">
+                  <LiveStatusCard
+                    current={liveSnapshot?.current ?? null}
+                    last={liveSnapshot?.last ?? null}
+                    lastDebrief={liveSnapshot?.lastDebrief ?? null}
+                  />
+                  <LastVsAverageCard current={liveSnapshot?.current ?? null} />
+                </div>
               </InlineLock>
             )}
-          </div>
-        )}
 
-        {/* EventSub product signals */}
-        <div className="mb-6 space-y-3">
-          <ScopeDriftBanner
-            broadcasterUserId={account?.platform_user_id ?? null}
-          />
-          <EventSubCockpitSection
-            broadcasterUserId={account?.platform_user_id ?? null}
-          />
-        </div>
-
-        {/* Post generator trigger — visible 72h after a live with debrief */}
-        {liveSnapshot?.last &&
-          liveSnapshot.lastDebrief &&
-          !liveSnapshot.current &&
-          isSessionRecent(liveSnapshot.last.ended_at) && (
-            <div className="mb-6">
-              <button
-                onClick={() => setShowPostGen(true)}
-                className="group relative w-full overflow-hidden rounded-xl border border-white/[0.06] bg-card/40 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04] hover:shadow-[0_0_32px_-8px_hsl(var(--primary)/0.3)]"
-              >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="relative flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base leading-none">✍️</span>
-                      <span className="text-sm font-semibold text-foreground">
-                        Contenu à publier
-                      </span>
-                      <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">
-                        Nouveau
-                      </span>
-                    </div>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {liveSnapshot.last.category_name
-                        ? `Posts prêts pour ton live ${liveSnapshot.last.category_name} — tweet, discord, caption, annonce`
-                        : "Posts prêts à partir de ton dernier live — tweet, discord, caption, annonce"}
-                    </p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
+            {!foundationActive && weeklyQuests && (
+              <div>
+                <DashboardSectionTitle
+                  eyebrow="Engage"
+                  title="Momentum de la semaine"
+                  description="Quêtes, streak et micro-victoires pour garder la progression visible."
+                />
+                <div className="mt-3">
+                  {isPro ? (
+                    <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
+                  ) : (
+                    <InlineLock
+                      feature="Quêtes hebdomadaires — Pro"
+                      description="Suis tes quêtes de la semaine et accumule de l'XP."
+                      blurHeight="120px"
+                    >
+                      <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
+                    </InlineLock>
+                  )}
                 </div>
-              </button>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-6">
+            <DashboardSectionTitle
+              eyebrow="Grow"
+              title="Progression & benchmark"
+              description="Les signaux de croissance restent visibles, mais ne polluent plus le cockpit principal."
+            />
+            <NextMilestoneCard
+              milestone={nextMilestone}
+              reportId={currentReport.id}
+              foundationActive={foundationActive}
+            />
+
+            <div className="space-y-3">
+              <ScopeDriftBanner
+                broadcasterUserId={account?.platform_user_id ?? null}
+              />
+              <EventSubCockpitSection
+                broadcasterUserId={account?.platform_user_id ?? null}
+              />
             </div>
-          )}
 
-        {/* Réseaux connectés teaser */}
-        <div className="mb-6">
-          <NetworksTeaser />
-        </div>
+            {liveSnapshot?.last &&
+              liveSnapshot.lastDebrief &&
+              !liveSnapshot.current &&
+              isSessionRecent(liveSnapshot.last.ended_at) && (
+                <button
+                  onClick={() => setShowPostGen(true)}
+                  className="group relative w-full overflow-hidden rounded-2xl border border-white/[0.06] bg-card/40 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04] hover:shadow-[0_0_32px_-8px_hsl(var(--primary)/0.3)]"
+                >
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="relative flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base leading-none">✍️</span>
+                        <span className="text-sm font-semibold text-foreground">
+                          Contenu à publier
+                        </span>
+                        <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">
+                          Nouveau
+                        </span>
+                      </div>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {liveSnapshot.last.category_name
+                          ? `Posts prêts pour ton live ${liveSnapshot.last.category_name} — tweet, discord, caption, annonce`
+                          : "Posts prêts à partir de ton dernier live — tweet, discord, caption, annonce"}
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </div>
+                </button>
+              )}
 
-        {/* Next milestone */}
-        <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/40">Progression</p>
-        <div className="mb-4">
-          <NextMilestoneCard
-            milestone={nextMilestone}
-            reportId={currentReport.id}
-            foundationActive={foundationActive}
-          />
+            <NetworksTeaser />
+          </div>
         </div>
       </PageContainer>
     </AppShell>
   );
 };
+
+function DashboardSectionTitle({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/45">
+        {eyebrow}
+      </p>
+      <h2 className="mt-2 text-xl font-semibold tracking-tight text-foreground">
+        {title}
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function HeroSignalCard({
+  eyebrow,
+  title,
+  description,
+  icon,
+  actionLabel,
+  actionHref,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  icon: ReactNode;
+  actionLabel: string;
+  actionHref: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-white/[0.08] bg-background/45 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
+          {icon}
+        </div>
+        <Button asChild variant="ghost" size="sm" className="px-2 text-xs text-primary hover:bg-primary/10">
+          <Link to={actionHref}>
+            {actionLabel}
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </Button>
+      </div>
+      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">
+        {eyebrow}
+      </p>
+      <p className="mt-2 text-base font-semibold leading-tight text-foreground">
+        {title}
+      </p>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function HeroMetricCard({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-background/35 px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+        {label}
+      </p>
+      <p className="mt-2 text-base font-semibold text-foreground">
+        {value}
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+        {detail}
+      </p>
+    </div>
+  );
+}
+
+function ActionSummaryCard({
+  eyebrow,
+  title,
+  description,
+  icon,
+  actionLabel,
+  actionHref,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  icon: ReactNode;
+  actionLabel: string;
+  actionHref: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-white/[0.08] bg-card/50 p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.06]">
+          {icon}
+        </div>
+        <Button asChild size="sm" variant="outline" className="border-white/10 bg-background/35">
+          <Link to={actionHref}>
+            {actionLabel}
+          </Link>
+        </Button>
+      </div>
+      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55">
+        {eyebrow}
+      </p>
+      <p className="mt-2 text-lg font-semibold leading-tight text-foreground">
+        {title}
+      </p>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  );
+}
 
 export default DashboardPage;
