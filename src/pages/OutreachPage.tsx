@@ -322,7 +322,7 @@ const OutreachPage = () => {
 
             {rows.map((row) => {
               const report = row.report;
-              const score = report?.stream_score?.overall;
+              const score = report?.score?.overall;
               const name = report?.channel_summary?.display_name ?? row.login;
               const category = report?.channel_summary?.category ?? null;
               const followers = report?.channel_summary?.follower_count ?? null;
