@@ -1,6 +1,9 @@
 // youtube-auth-start
 // Returns a Google OAuth URL for YouTube authorisation.
 // Called from the frontend (authenticated); never exposes client_secret.
+// State is HMAC-signed (OAUTH_STATE_SECRET) with a 10-minute expiration.
+
+import { signOAuthState } from "../_shared/youtube-crypto.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,14 +22,23 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const clientId     = Deno.env.get("YOUTUBE_CLIENT_ID");
-    const clientSecret = Deno.env.get("YOUTUBE_CLIENT_SECRET");
+    const clientId      = Deno.env.get("YOUTUBE_CLIENT_ID");
+    const clientSecret  = Deno.env.get("YOUTUBE_CLIENT_SECRET");
+    const stateSecret   = Deno.env.get("OAUTH_STATE_SECRET");
+    const encryptionKey = Deno.env.get("TOKEN_ENCRYPTION_KEY");
 
     if (!clientId || !clientSecret) {
-      return json({ configured: false });
+      return json({ configured: false, reason: "missing_client_credentials" });
+    }
+    if (!stateSecret || !encryptionKey) {
+      // We refuse to start an OAuth flow we can't securely complete.
+      return json({
+        configured: false,
+        reason: "missing_server_secrets",
+        message: "Connexion YouTube non configurée côté serveur.",
+      });
     }
 
-    // Authenticate caller
     const authHeader = req.headers.get("Authorization") ?? "";
     if (!authHeader.startsWith("Bearer ")) {
       return json({ error: "Unauthorized" }, 401);
@@ -41,9 +53,7 @@ Deno.serve(async (req) => {
     const userData = await userRes.json();
     if (!userData?.id) return json({ error: "Unauthorized" }, 401);
 
-    // State = base64(userId) — stateless for V1.
-    // TODO: add HMAC signature before production.
-    const state = btoa(userData.id);
+    const state = await signOAuthState(userData.id, stateSecret);
 
     const redirectUri =
       Deno.env.get("YOUTUBE_REDIRECT_URI") ??

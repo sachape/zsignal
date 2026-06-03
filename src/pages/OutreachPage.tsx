@@ -21,7 +21,7 @@ const ADMIN_EMAIL = "perathonersacha@gmail.com";
 type DmTone = "soft" | "direct" | "curious";
 
 function getMainBlocker(report: AnalysisReport): { label: string; key: string } {
-  const score = report.stream_score;
+  const score = report.score;
   if (!score) return { label: "la progression", key: "general" };
   const dims = [
     { key: "regularity", label: "la régularité", score: score.regularity },
@@ -50,7 +50,7 @@ function generateDm(
   report: AnalysisReport,
   tone: DmTone,
 ): string {
-  const score = report.stream_score?.overall ?? 0;
+  const score = report.score?.overall ?? 0;
   const name = report.channel_summary?.display_name ?? login;
   const category = report.channel_summary?.category ?? "Twitch";
   const blocker = getMainBlocker(report);
@@ -153,14 +153,14 @@ const OutreachPage = () => {
           setRows((prev) =>
             prev.map((r) => {
               if (r.login !== login) return r;
-              if (!result.ok) {
+              if (result.ok === false) {
                 return {
                   ...r,
                   status: result.reason === "not_found" ? "not_found" : "error",
                   error: result.reason === "not_found" ? "Chaîne introuvable" : "Erreur API",
                 };
               }
-              return { ...r, status: "done", report: result.record.report.report };
+              return { ...r, status: "done", report: result.record.report };
             }),
           );
         }),
@@ -200,7 +200,7 @@ const OutreachPage = () => {
       "login,display_name,score,blocage,categorie,dm",
       ...done.map((r) => {
         const report = r.report!;
-        const score = report.stream_score?.overall ?? "";
+        const score = report.score?.overall ?? "";
         const name = report.channel_summary?.display_name ?? r.login;
         const blocker = getMainBlocker(report);
         const cat = report.channel_summary?.category ?? "";
@@ -322,7 +322,7 @@ const OutreachPage = () => {
 
             {rows.map((row) => {
               const report = row.report;
-              const score = report?.stream_score?.overall;
+              const score = report?.score?.overall;
               const name = report?.channel_summary?.display_name ?? row.login;
               const category = report?.channel_summary?.category ?? null;
               const followers = report?.channel_summary?.follower_count ?? null;

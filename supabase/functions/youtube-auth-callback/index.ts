@@ -1,8 +1,9 @@
 // youtube-auth-callback
-// Handles the Google OAuth redirect: exchanges code → tokens, persists account,
-// then redirects user back to the frontend. Tokens are never returned to the client.
+// Handles the Google OAuth redirect: verifies HMAC state, exchanges code → tokens,
+// encrypts tokens (AES-GCM) and persists the account. Tokens never reach the client.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyOAuthState, encryptToken } from "../_shared/youtube-crypto.ts";
 
 Deno.serve(async (req) => {
   const url          = new URL(req.url);
@@ -13,7 +14,6 @@ Deno.serve(async (req) => {
   const frontendUrl  = Deno.env.get("FRONTEND_URL") ?? "https://streamnco.fr";
   const base         = `${frontendUrl}/reseaux`;
 
-  // User cancelled or Google returned an error
   if (oauthError) {
     const dest = oauthError === "access_denied"
       ? `${base}?youtube=cancelled`
@@ -26,19 +26,23 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Decode userId from state
-    let userId: string;
-    try {
-      userId = atob(state);
-      if (!/^[0-9a-f-]{36}$/.test(userId)) throw new Error("invalid uuid");
-    } catch {
-      return Response.redirect(`${base}?youtube=error&reason=invalid_state`, 302);
+    const stateSecret   = Deno.env.get("OAUTH_STATE_SECRET");
+    const encryptionKey = Deno.env.get("TOKEN_ENCRYPTION_KEY");
+    const clientId      = Deno.env.get("YOUTUBE_CLIENT_ID");
+    const clientSecret  = Deno.env.get("YOUTUBE_CLIENT_SECRET");
+    const supabaseUrl   = Deno.env.get("SUPABASE_URL")!;
+
+    if (!stateSecret || !encryptionKey || !clientId || !clientSecret) {
+      return Response.redirect(`${base}?youtube=error&reason=server_misconfigured`, 302);
     }
 
-    const clientId    = Deno.env.get("YOUTUBE_CLIENT_ID")!;
-    const clientSecret = Deno.env.get("YOUTUBE_CLIENT_SECRET")!;
-    const supabaseUrl  = Deno.env.get("SUPABASE_URL")!;
-    const redirectUri  =
+    const verified = await verifyOAuthState(state, stateSecret);
+    if (!verified) {
+      return Response.redirect(`${base}?youtube=error&reason=invalid_state`, 302);
+    }
+    const userId = verified.userId;
+
+    const redirectUri =
       Deno.env.get("YOUTUBE_REDIRECT_URI") ??
       `${supabaseUrl}/functions/v1/youtube-auth-callback`;
 
@@ -61,11 +65,11 @@ Deno.serve(async (req) => {
       return Response.redirect(`${base}?youtube=error&reason=token_exchange`, 302);
     }
 
-    const accessToken   = tokenData.access_token as string;
-    const refreshToken  = (tokenData.refresh_token as string | undefined) ?? null;
-    const expiresAt     = new Date(Date.now() + (tokenData.expires_in ?? 3600) * 1000).toISOString();
+    const accessToken  = tokenData.access_token as string;
+    const refreshToken = (tokenData.refresh_token as string | undefined) ?? null;
+    const expiresAt    = new Date(Date.now() + (tokenData.expires_in ?? 3600) * 1000).toISOString();
 
-    // Fetch YouTube channel identity
+    // Fetch YouTube channel identity (read-only, no PII written back to client)
     const channelRes = await fetch(
       "https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&mine=true",
       { headers: { Authorization: `Bearer ${accessToken}` } },
@@ -77,11 +81,12 @@ Deno.serve(async (req) => {
     const displayName = channel?.snippet?.title ?? null;
     const username    = channel?.snippet?.customUrl?.replace(/^@/, "") ?? null;
     const avatarUrl   = channel?.snippet?.thumbnails?.default?.url ?? null;
-    const profileUrl  = channelId
-      ? `https://www.youtube.com/channel/${channelId}`
-      : null;
+    const profileUrl  = channelId ? `https://www.youtube.com/channel/${channelId}` : null;
 
-    // Persist — tokens stored server-side only, never returned to client
+    // Encrypt tokens (AES-GCM with TOKEN_ENCRYPTION_KEY) before persisting.
+    const encAccess  = await encryptToken(accessToken, encryptionKey);
+    const encRefresh = refreshToken ? await encryptToken(refreshToken, encryptionKey) : null;
+
     const db = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
     const { error: upsertErr } = await db
@@ -94,8 +99,8 @@ Deno.serve(async (req) => {
         display_name:            displayName,
         profile_url:             profileUrl,
         avatar_url:              avatarUrl,
-        access_token_encrypted:  accessToken,
-        refresh_token_encrypted: refreshToken,
+        access_token_encrypted:  encAccess,
+        refresh_token_encrypted: encRefresh,
         token_expires_at:        expiresAt,
         connection_status:       "connected",
         last_synced_at:          new Date().toISOString(),

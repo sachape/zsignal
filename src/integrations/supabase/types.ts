@@ -541,6 +541,182 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_connected_accounts: {
+        Row: {
+          access_token_encrypted: string | null
+          avatar_url: string | null
+          connection_status: string
+          created_at: string
+          display_name: string | null
+          id: string
+          last_synced_at: string | null
+          platform: string
+          platform_user_id: string | null
+          profile_url: string | null
+          refresh_token_encrypted: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          avatar_url?: string | null
+          connection_status?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          last_synced_at?: string | null
+          platform: string
+          platform_user_id?: string | null
+          profile_url?: string | null
+          refresh_token_encrypted?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          avatar_url?: string | null
+          connection_status?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          last_synced_at?: string | null
+          platform?: string
+          platform_user_id?: string | null
+          profile_url?: string | null
+          refresh_token_encrypted?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      creator_platform_metrics: {
+        Row: {
+          comments_count: number | null
+          connected_account_id: string | null
+          created_at: string
+          followers_count: number | null
+          id: string
+          likes_count: number | null
+          platform: string
+          posts_count: number | null
+          raw_metrics: Json | null
+          recent_activity_score: number | null
+          recent_posts_count: number | null
+          shares_count: number | null
+          snapshot_date: string
+          subscribers_count: number | null
+          user_id: string
+          videos_count: number | null
+          views_count: number | null
+        }
+        Insert: {
+          comments_count?: number | null
+          connected_account_id?: string | null
+          created_at?: string
+          followers_count?: number | null
+          id?: string
+          likes_count?: number | null
+          platform: string
+          posts_count?: number | null
+          raw_metrics?: Json | null
+          recent_activity_score?: number | null
+          recent_posts_count?: number | null
+          shares_count?: number | null
+          snapshot_date: string
+          subscribers_count?: number | null
+          user_id: string
+          videos_count?: number | null
+          views_count?: number | null
+        }
+        Update: {
+          comments_count?: number | null
+          connected_account_id?: string | null
+          created_at?: string
+          followers_count?: number | null
+          id?: string
+          likes_count?: number | null
+          platform?: string
+          posts_count?: number | null
+          raw_metrics?: Json | null
+          recent_activity_score?: number | null
+          recent_posts_count?: number | null
+          shares_count?: number | null
+          snapshot_date?: string
+          subscribers_count?: number | null
+          user_id?: string
+          videos_count?: number | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_platform_metrics_connected_account_id_fkey"
+            columns: ["connected_account_id"]
+            isOneToOne: false
+            referencedRelation: "creator_connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creator_presence_scores: {
+        Row: {
+          consistency_score: number | null
+          content_recycling_score: number | null
+          created_at: string
+          diagnosis: string | null
+          diversification_score: number | null
+          id: string
+          instagram_score: number | null
+          presence_score: number | null
+          recommendations: Json | null
+          score: number
+          snapshot_date: string
+          tiktok_score: number | null
+          twitch_score: number | null
+          user_id: string
+          youtube_score: number | null
+        }
+        Insert: {
+          consistency_score?: number | null
+          content_recycling_score?: number | null
+          created_at?: string
+          diagnosis?: string | null
+          diversification_score?: number | null
+          id?: string
+          instagram_score?: number | null
+          presence_score?: number | null
+          recommendations?: Json | null
+          score: number
+          snapshot_date: string
+          tiktok_score?: number | null
+          twitch_score?: number | null
+          user_id: string
+          youtube_score?: number | null
+        }
+        Update: {
+          consistency_score?: number | null
+          content_recycling_score?: number | null
+          created_at?: string
+          diagnosis?: string | null
+          diversification_score?: number | null
+          id?: string
+          instagram_score?: number | null
+          presence_score?: number | null
+          recommendations?: Json | null
+          score?: number
+          snapshot_date?: string
+          tiktok_score?: number | null
+          twitch_score?: number | null
+          user_id?: string
+          youtube_score?: number | null
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
