@@ -75,7 +75,6 @@ function copy(value: string) {
     () => toast.success("Copié"),
     () => toast.error("Copie impossible"),
   );
-  ended_at?: string;
 }
 
 interface LiveSetupV2Extras {
@@ -85,6 +84,8 @@ interface LiveSetupV2Extras {
   skip_youtube?: boolean;
   title_confirmed?: boolean;
   ready_to_go_at?: string;
+  ended_at?: string;
+  post_live_brief?: PostLiveBrief;
 }
 
 interface PushEntry {
