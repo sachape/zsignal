@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, RefreshCw, ExternalLink, Pencil, Trash2,
   AlertCircle, CheckCircle2, Clock, Users, PlaySquare, Eye,
+  Heart, MessageCircle, Share2,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -15,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import { useYouTubeSync } from "@/hooks/useYouTubeSync";
+import { useTikTokSync } from "@/hooks/useTikTokSync";
 import { supabase } from "@/integrations/supabase/client";
 import type { Platform, PlatformMetrics } from "@/types/networks";
 
@@ -118,11 +120,18 @@ export default function ReseauxPlatformPage() {
   }, [user, platform, account?.last_synced_at]);
 
   const { state: syncState, errorMessage: syncError, sync: syncYouTube } = useYouTubeSync(refetch);
+  const { state: ttSyncState, errorMessage: ttSyncError, sync: syncTikTok } = useTikTokSync(refetch);
 
   const handleReconnectYouTube = async () => {
     const { data } = await supabase.functions.invoke("youtube-auth-start");
     if (data?.url) window.location.href = data.url;
     else toast.error(data?.configured === false ? "YouTube non configuré côté serveur." : "Erreur OAuth.");
+  };
+
+  const handleConnectTikTok = async () => {
+    const { data } = await supabase.functions.invoke("tiktok-auth-start");
+    if (data?.url) window.location.href = data.url;
+    else toast.error(data?.configured === false ? "TikTok non configuré côté serveur." : "Erreur OAuth.");
   };
 
   // Diagnostics
@@ -141,9 +150,17 @@ export default function ReseauxPlatformPage() {
           : `${recent} vidéo${recent > 1 ? "s" : ""} publiée${recent > 1 ? "s" : ""} ces 30 derniers jours. Continue sur cette lancée.`;
     }
     if (platform === "tiktok") {
+      if (status === "connected") {
+        const recent = metrics?.recent_posts_count;
+        return recent == null
+          ? "TikTok est connecté. Synchronise pour voir tes vidéos récentes."
+          : recent === 0
+            ? "Ton TikTok est connecté, mais ton contenu court est sous-exploité. Priorité : publier 2 à 3 vidéos issues de tes meilleurs lives."
+            : `${recent} vidéo${recent > 1 ? "s" : ""} TikTok publiée${recent > 1 ? "s" : ""} ces 30 derniers jours. TikTok peut devenir ton canal d'acquisition principal hors live.`;
+      }
       return status === "manual"
-        ? "TikTok est ajouté manuellement. Il peut devenir ton canal d'acquisition court format le plus puissant."
-        : "Ajoute ton profil TikTok pour le suivre dans ton écosystème créateur.";
+        ? "TikTok est ajouté manuellement. Connecte-le via OAuth pour récupérer tes vidéos et métriques."
+        : "Connecte TikTok pour mesurer si tes lives se transforment en contenu court découvrable.";
     }
     if (platform === "instagram") {
       return status === "manual"
@@ -221,7 +238,31 @@ export default function ReseauxPlatformPage() {
                 Reconnecter
               </Button>
             )}
-            {(platform === "tiktok" || platform === "instagram") && status === "manual" && (
+            {platform === "tiktok" && status === "connected" && (
+              <>
+                <Button size="sm" variant="outline" onClick={syncTikTok} disabled={ttSyncState === "loading"} className="gap-1.5">
+                  <RefreshCw className={cn("h-3.5 w-3.5", ttSyncState === "loading" && "animate-spin")} />
+                  {ttSyncState === "loading" ? "Synchro…" : "Synchroniser"}
+                </Button>
+                <Button size="sm" variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/5" onClick={async () => {
+                  if (!confirm("Déconnecter TikTok ?")) return;
+                  await removeAccount("tiktok");
+                  toast.success("TikTok déconnecté.");
+                  navigate("/reseaux");
+                }}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
+            {platform === "tiktok" && status === "expired" && (
+              <Button size="sm" variant="outline" className="border-amber-400/30 text-amber-400 hover:bg-amber-400/5" onClick={handleConnectTikTok}>
+                Reconnecter
+              </Button>
+            )}
+            {platform === "tiktok" && status === "disconnected" && (
+              <Button size="sm" onClick={handleConnectTikTok}>Connecter TikTok</Button>
+            )}
+            {platform === "instagram" && status === "manual" && (
               <>
                 <Button size="sm" variant="outline" className="gap-1.5" onClick={async () => {
                   const name = prompt("Nouveau nom d'utilisateur :", username ?? "");
@@ -242,20 +283,36 @@ export default function ReseauxPlatformPage() {
                 </Button>
               </>
             )}
+            {platform === "tiktok" && status === "manual" && (
+              <>
+                <Button size="sm" onClick={handleConnectTikTok} className="gap-1.5">
+                  Connecter TikTok
+                </Button>
+                <Button size="sm" variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/5" onClick={async () => {
+                  if (!confirm(`Supprimer ${meta.label} ?`)) return;
+                  await removeAccount(platform);
+                  toast.success(`${meta.label} supprimé.`);
+                  navigate("/reseaux");
+                }}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
             {platform === "twitch" && !hasTwitchOAuth && (
               <Button size="sm" asChild><Link to="/connect-twitch">Connecter Twitch</Link></Button>
             )}
-            {!isActive && platform !== "twitch" && (
+            {!isActive && platform !== "twitch" && platform !== "tiktok" && (
               <Button size="sm" asChild><Link to="/reseaux">Ajouter</Link></Button>
             )}
           </div>
         </div>
 
-        {syncError && (
+        {(syncError || ttSyncError) && (
           <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4 shrink-0" />{syncError}
+            <AlertCircle className="h-4 w-4 shrink-0" />{syncError ?? ttSyncError}
           </div>
         )}
+
 
         {/* ── Metrics ── */}
         {isActive && (
@@ -281,17 +338,26 @@ export default function ReseauxPlatformPage() {
                       <MetricCard icon={PlaySquare}   label="Vidéos (30 jours)" value={metrics.recent_posts_count} />
                     </>
                   )}
-                  {(platform === "tiktok" || platform === "instagram") && (
+                  {platform === "tiktok" && (
+                    <>
+                      <MetricCard icon={PlaySquare}    label="Vidéos récupérées"  value={metrics.videos_count} />
+                      <MetricCard icon={PlaySquare}    label="Vidéos (30 jours)"  value={metrics.recent_posts_count} />
+                      <MetricCard icon={Eye}           label="Vues totales"       value={fmt(metrics.views_count)} />
+                      <MetricCard icon={Heart}         label="J'aime"             value={fmt(metrics.likes_count)} />
+                      <MetricCard icon={MessageCircle} label="Commentaires"       value={fmt(metrics.comments_count)} />
+                      <MetricCard icon={Share2}        label="Partages"           value={fmt(metrics.shares_count)} />
+                    </>
+                  )}
+                  {platform === "instagram" && (
                     <div className="col-span-full rounded-xl border border-border bg-muted/20 p-4 text-sm text-muted-foreground">
-                      Aucune métrique disponible — l'intégration API{" "}
-                      {platform === "tiktok" ? "TikTok" : "Instagram"} n'est pas encore active.
+                      Aucune métrique disponible — l'intégration API Instagram n'est pas encore active.
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="rounded-xl border border-border bg-muted/20 p-4">
                   <p className="text-sm text-muted-foreground">
-                    {platform === "youtube"
+                    {(platform === "youtube" || platform === "tiktok")
                       ? "Aucune donnée synchronisée. Clique sur \"Synchroniser\" pour récupérer tes métriques."
                       : `Aucune métrique disponible — l'intégration API ${meta.label} n'est pas encore active.`}
                   </p>

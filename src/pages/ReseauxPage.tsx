@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import { useYouTubeSync } from "@/hooks/useYouTubeSync";
+import { useTikTokSync } from "@/hooks/useTikTokSync";
 import { usePresenceScoreHistory } from "@/hooks/usePresenceScoreHistory";
 import { computePresenceScore, getPlatformScore } from "@/services/presenceScore";
 import { computeRecommendations, computeDiagnostic } from "@/services/networkRecommendations";
@@ -193,7 +194,7 @@ function PlatformCard({
           {status === "manual" && (
             <p className="mt-1 text-[10px] text-muted-foreground/60 leading-snug">
               {platform === "tiktok"
-                ? "Connexion API prévue. Profil utilisé pour le score de présence."
+                ? "Ajouté manuellement. Connecte TikTok via OAuth pour récupérer tes vidéos."
                 : "Utilisé comme vitrine créateur. Insights disponibles après connexion Meta."}
             </p>
           )}
@@ -218,13 +219,13 @@ function PlatformCard({
             </Button>
           ) : isActive ? (
             <>
-              {platform === "youtube" && onSync && (
+              {(platform === "youtube" || platform === "tiktok") && onSync && status === "connected" && (
                 <Button size="sm" variant="outline" className="flex-1 text-xs h-7" disabled={syncLoading} onClick={onSync}>
                   <RefreshCw className={cn("mr-1 h-3 w-3", syncLoading && "animate-spin")} />
                   {syncLoading ? "Synchro…" : "Synchroniser"}
                 </Button>
               )}
-              {(platform === "tiktok" || platform === "instagram") && onEdit && (
+              {((platform === "tiktok" && status === "manual") || platform === "instagram") && onEdit && (
                 <Button size="sm" variant="outline" className="h-7 px-2" onClick={onEdit}>
                   <Pencil className="h-3 w-3" />
                 </Button>
@@ -276,11 +277,13 @@ export default function ReseauxPage() {
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
 
   const { state: syncState, errorMessage: syncError, sync: syncYouTube } = useYouTubeSync(refetch);
+  const { state: ttSyncState, errorMessage: ttSyncError, sync: syncTikTok } = useTikTokSync(refetch);
 
   // Handle OAuth result from URL
   useEffect(() => {
     const ytResult = searchParams.get("youtube");
-    if (!ytResult) return;
+    const ttResult = searchParams.get("tiktok");
+    if (!ytResult && !ttResult) return;
     if (ytResult === "connected") {
       toast.success("YouTube connecté avec succès !");
       refetch();
@@ -290,7 +293,16 @@ export default function ReseauxPage() {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion YouTube (${reason}).`);
     }
-    setSearchParams((p) => { p.delete("youtube"); p.delete("reason"); return p; }, { replace: true });
+    if (ttResult === "connected") {
+      toast.success("TikTok connecté avec succès !");
+      refetch();
+    } else if (ttResult === "cancelled") {
+      toast.info("Connexion TikTok annulée.");
+    } else if (ttResult === "error") {
+      const reason = searchParams.get("reason") ?? "inconnue";
+      toast.error(`Erreur de connexion TikTok (${reason}).`);
+    }
+    setSearchParams((p) => { p.delete("youtube"); p.delete("tiktok"); p.delete("reason"); return p; }, { replace: true });
   }, [searchParams, setSearchParams, refetch]);
 
   // Save presence snapshot when accounts or Twitch connection change
@@ -327,6 +339,15 @@ export default function ReseauxPage() {
     const { data, error } = await supabase.functions.invoke("youtube-auth-start");
     if (error || !data?.url) {
       toast.error(data?.configured === false ? "Connexion YouTube non configurée côté serveur." : "Erreur lors de l'initialisation OAuth.");
+      return;
+    }
+    window.location.href = data.url;
+  }, []);
+
+  const handleReconnectTikTok = useCallback(async () => {
+    const { data, error } = await supabase.functions.invoke("tiktok-auth-start");
+    if (error || !data?.url) {
+      toast.error(data?.configured === false ? "Connexion TikTok non configurée côté serveur." : "Erreur lors de l'initialisation OAuth.");
       return;
     }
     window.location.href = data.url;
@@ -414,16 +435,27 @@ export default function ReseauxPage() {
                       const acc = accounts.find((a) => a.platform === platform);
                       setEditDialog({ platform, username: acc?.username ?? "", profileUrl: acc?.profile_url ?? "" });
                     } : undefined}
-                    onSync={platform === "youtube" ? async () => {
-                      await syncYouTube();
-                      if (syncState === "success") refetch();
-                    } : undefined}
-                    syncLoading={platform === "youtube" && syncState === "loading"}
-                    onReconnect={platform === "youtube" ? handleReconnectYouTube : undefined}
+                    onSync={
+                      platform === "youtube"
+                        ? async () => { await syncYouTube(); if (syncState === "success") refetch(); }
+                        : platform === "tiktok"
+                          ? async () => { await syncTikTok(); if (ttSyncState === "success") refetch(); }
+                          : undefined
+                    }
+                    syncLoading={
+                      (platform === "youtube" && syncState === "loading") ||
+                      (platform === "tiktok" && ttSyncState === "loading")
+                    }
+                    onReconnect={
+                      platform === "youtube" ? handleReconnectYouTube
+                        : platform === "tiktok" ? handleReconnectTikTok
+                        : undefined
+                    }
                   />
                 ))}
               </div>
-              {syncError && <p className="mt-2 text-xs text-destructive">{syncError}</p>}
+              {syncError && <p className="mt-2 text-xs text-destructive">YouTube : {syncError}</p>}
+              {ttSyncError && <p className="mt-2 text-xs text-destructive">TikTok : {ttSyncError}</p>}
             </div>
 
             {/* ── Diagnostic ── */}

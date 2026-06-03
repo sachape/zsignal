@@ -55,10 +55,11 @@ export default function ConnectNetworkModal({
   const [profileUrl, setProfileUrl] = useState("");
   const [saving, setSaving]     = useState(false);
   const [ytLoading, setYtLoading] = useState(false);
+  const [ttLoading, setTtLoading] = useState(false);
 
   function reset() {
     setSelected(null); setUsername(""); setProfileUrl("");
-    setSaving(false); setYtLoading(false);
+    setSaving(false); setYtLoading(false); setTtLoading(false);
   }
 
   function handleClose(v: boolean) {
@@ -100,6 +101,28 @@ export default function ConnectNetworkModal({
     } catch {
       toast.error("Erreur réseau. Réessaie.");
     } finally { setYtLoading(false); }
+  }, []);
+
+  const handleConnectTikTok = useCallback(async () => {
+    setTtLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("tiktok-auth-start");
+      if (error || !data) {
+        toast.error("Impossible de contacter le serveur. Réessaie.");
+        return;
+      }
+      if (data.configured === false) {
+        toast.error("Connexion TikTok non configurée côté serveur. Contacte le support.");
+        return;
+      }
+      if (!data.url) {
+        toast.error("Erreur lors de la génération du lien OAuth.");
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      toast.error("Erreur réseau. Réessaie.");
+    } finally { setTtLoading(false); }
   }, []);
 
   const selectedConfig = selected ? PLATFORMS.find((p) => p.id === selected) : null;
@@ -148,17 +171,37 @@ export default function ConnectNetworkModal({
       );
     }
 
-    // TikTok & Instagram — manual entry
-    const placeholder = selected === "tiktok"
-      ? { user: "@monpseudo", url: "https://www.tiktok.com/@monpseudo" }
-      : { user: "@monpseudo", url: "https://www.instagram.com/monpseudo" };
+    if (selected === "tiktok") {
+      return (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Autorise Streamnco à lire ton profil TikTok et tes vidéos publiques (lecture seule). Tes tokens sont stockés uniquement côté serveur.
+          </p>
+          <Button
+            className="w-full gap-2"
+            onClick={handleConnectTikTok}
+            disabled={ttLoading}
+          >
+            {ttLoading ? (
+              <><Loader2 className="h-4 w-4 animate-spin" />Connexion en cours…</>
+            ) : (
+              <><TikTokIcon className="h-4 w-4" />Connecter TikTok</>
+            )}
+          </Button>
+          <p className="text-[11px] text-center text-muted-foreground/60">
+            Tu seras redirigé vers TikTok pour autoriser l'accès.
+          </p>
+        </div>
+      );
+    }
+
+    // Instagram — manual entry (intégration API ultérieure)
+    const placeholder = { user: "@monpseudo", url: "https://www.instagram.com/monpseudo" };
 
     return (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Ajoute ton {selectedConfig?.label} manuellement.
-          {selected === "tiktok" && " L'intégration API TikTok sera disponible prochainement."}
-          {selected === "instagram" && " Les insights seront disponibles après connexion Meta."}
+          Ajoute ton {selectedConfig?.label} manuellement. Les insights seront disponibles après connexion Meta.
         </p>
         <div className="space-y-2">
           <Label htmlFor="cn-username">Nom d'utilisateur</Label>
