@@ -372,7 +372,7 @@ const LiveSetupPage = () => {
                     <PreviewField label="Titre Twitch" value={metadata.twitch.title} />
                     <PreviewField label="Catégorie" value={metadata.twitch.category || "—"} />
                     <PlatformActionRow
-                      icon={<Twitch className="h-4 w-4" />}
+                      icon={<Tv className="h-4 w-4" />}
                       label={twitchConnected ? "Mettre à jour Twitch" : "Connexion Twitch requise"}
                       connected={twitchConnected}
                       onClick={() => toast.info("L'update Twitch arrive dans une prochaine version.")}
@@ -387,7 +387,7 @@ const LiveSetupPage = () => {
                       value={metadata.youtube.tags.join(", ") || "—"}
                     />
                     <PlatformActionRow
-                      icon={<Youtube className="h-4 w-4" />}
+                      icon={<Video className="h-4 w-4" />}
                       label={youtubeConnected ? "Créer un live YouTube" : "Connexion YouTube requise"}
                       connected={youtubeConnected}
                       onClick={() => toast.info("La création de live YouTube arrive dans une prochaine version.")}
