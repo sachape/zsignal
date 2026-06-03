@@ -487,7 +487,7 @@ const LiveSetupPage = () => {
                       labelMissing="Connecte Twitch"
                       onPush={handlePushTwitch}
                     />
-                    <PushHistory entry={editingSession?.generated_metadata?.twitch_push} platform="twitch" />
+                    <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.twitch_push} platform="twitch" />
                   </TabsContent>
 
                   <TabsContent value="youtube" className="space-y-3 pt-4">
@@ -516,7 +516,7 @@ const LiveSetupPage = () => {
                       labelMissing="Connecte YouTube"
                       onPush={handlePushYouTube}
                     />
-                    <PushHistory entry={editingSession?.generated_metadata?.youtube_push} platform="youtube" />
+                    <PushHistory entry={(editingSession?.generated_metadata as Record<string, PushEntry> | undefined)?.youtube_push} platform="youtube" />
                   </TabsContent>
 
 
