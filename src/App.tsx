@@ -242,14 +242,9 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path="/clips"
-                  element={
-                    <ProtectedRoute>
-                      <ClipAnalyticsPage />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* /clips canonical route is declared above (ClipsPage). The legacy
+                    ClipAnalyticsPage was masked here and has been removed to avoid the
+                    duplicate route conflict flagged by the Codex audit. */}
                 <Route
                   path="/schedule"
                   element={
