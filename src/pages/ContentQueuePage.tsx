@@ -58,7 +58,7 @@ const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
   low: { label: "Faible", cls: "border-border bg-muted text-muted-foreground" },
 };
 
-type FilterKey = "all" | ContentPlatform | "high" | "to_produce" | "ready" | "uploaded";
+type FilterKey = "all" | ContentPlatform | "high" | "to_generate" | "draft_ready" | "ready" | "uploaded";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "Tous" },
@@ -68,7 +68,8 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "twitch_clip", label: "Twitch" },
   { key: "community", label: "Communauté" },
   { key: "high", label: "Priorité élevée" },
-  { key: "to_produce", label: "À produire" },
+  { key: "to_generate", label: "À générer" },
+  { key: "draft_ready", label: "Draft prêt" },
   { key: "ready", label: "Prêt" },
   { key: "uploaded", label: "Uploadé" },
 ];
