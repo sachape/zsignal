@@ -244,9 +244,7 @@ const LiveSetupPage = () => {
       !!input.tone ||
       input.language !== "fr" ||
       !!input.targetAudience.trim() ||
-      !!input.scheduledAt ||
-      input.platforms.length > 1 ||
-      !input.platforms.includes("twitch"),
+      !!input.scheduledAt,
     [input],
   );
 
@@ -934,6 +932,25 @@ const LiveSetupPage = () => {
                   </Button>
                 </div>
 
+                {/* Plateformes ciblées */}
+                <div className="space-y-2">
+                  <Label>Plateformes ciblées</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {PLATFORMS.map(({ value, label, Icon, soon }) => {
+                      const active = input.platforms.includes(value);
+                      return (
+                        <button key={value} type="button" onClick={() => !soon && togglePlatform(value)} disabled={soon}
+                          className={cn("inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
+                            active ? "border-primary bg-primary/10 text-primary" : "border-border bg-card hover:border-border/80",
+                            soon && "cursor-not-allowed opacity-60")}>
+                          <Icon className="h-4 w-4" />{label}
+                          {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* Advanced options */}
                 <div className="rounded-xl border border-dashed border-border/60 bg-muted/15 p-4">
                   <div className="flex items-center justify-between gap-3">
@@ -970,23 +987,6 @@ const LiveSetupPage = () => {
                         <Label>Date / heure (optionnel)</Label>
                         <Input type="datetime-local" value={input.scheduledAt ? input.scheduledAt.slice(0, 16) : ""}
                           onChange={(e) => setInput({ ...input, scheduledAt: e.target.value ? new Date(e.target.value).toISOString() : "" })} />
-                      </div>
-                      <div className="space-y-2 sm:col-span-2">
-                        <Label>Plateformes ciblées</Label>
-                        <div className="flex flex-wrap gap-2">
-                          {PLATFORMS.map(({ value, label, Icon, soon }) => {
-                            const active = input.platforms.includes(value);
-                            return (
-                              <button key={value} type="button" onClick={() => !soon && togglePlatform(value)} disabled={soon}
-                                className={cn("inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
-                                  active ? "border-primary bg-primary/10 text-primary" : "border-border bg-card hover:border-border/80",
-                                  soon && "cursor-not-allowed opacity-60")}>
-                                <Icon className="h-4 w-4" />{label}
-                                {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
-                              </button>
-                            );
-                          })}
-                        </div>
                       </div>
                     </div>
                   )}
