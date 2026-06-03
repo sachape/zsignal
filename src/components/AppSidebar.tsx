@@ -38,6 +38,7 @@ import { analytics } from "@/services/analytics";
 import { cn } from "@/lib/utils";
 import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
 import { findActiveSection } from "@/components/SectionTabs";
+import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 
 type NavEntry = {
   title: string;
