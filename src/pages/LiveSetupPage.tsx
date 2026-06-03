@@ -1328,7 +1328,20 @@ function ContentIdeaRow({ idea }: { idea: ContentIdea }) {
   );
 }
 
-function PostLiveBriefCard({ brief, liveSessionId }: { brief: PostLiveBrief; liveSessionId: string | null }) {
+function PostLiveBriefCard({
+  brief, liveSessionId, canRegenerate = false, onRegenerate,
+}: {
+  brief: PostLiveBrief;
+  liveSessionId: string | null;
+  canRegenerate?: boolean;
+  onRegenerate?: () => Promise<void> | void;
+}) {
+  const [regenerating, setRegenerating] = useState(false);
+  async function handleRegenerate() {
+    if (!onRegenerate) return;
+    setRegenerating(true);
+    try { await onRegenerate(); } finally { setRegenerating(false); }
+  }
   const generated = new Date(brief.generated_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
   const platforms = brief.summary.platforms_used.length > 0
     ? brief.summary.platforms_used.join(", ")
