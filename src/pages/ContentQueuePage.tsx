@@ -96,6 +96,7 @@ const ContentQueuePage = () => {
       if (filter === "high") return i.priority === "high";
       if (filter === "to_produce") return i.status === "to_produce";
       if (filter === "ready") return i.status === "ready";
+      if (filter === "uploaded") return i.status === "uploaded" || !!i.youtube_video_id;
       return i.platform === filter;
     });
   }, [items, filter, hideIgnored]);
