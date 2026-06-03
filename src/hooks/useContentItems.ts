@@ -150,6 +150,15 @@ export function useContentItems() {
       source_video_url: r.source_video_url ?? null,
       source_start_time: r.source_start_time ?? null,
       source_end_time: r.source_end_time ?? null,
+      title_variants: r.title_variants ?? [],
+      selected_title_variant: r.selected_title_variant ?? null,
+      description_variants: r.description_variants ?? [],
+      selected_description_variant: r.selected_description_variant ?? null,
+      hashtag_variants: r.hashtag_variants ?? [],
+      selected_hashtags: r.selected_hashtags ?? [],
+      opportunity_score: r.opportunity_score ?? null,
+      opportunity_label: r.opportunity_label ?? null,
+      opportunity_reason: r.opportunity_reason ?? null,
     }));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error: err } = await (supabase as any)
