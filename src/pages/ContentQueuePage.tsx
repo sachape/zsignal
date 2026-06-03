@@ -77,9 +77,16 @@ function buildCopyPayload(item: ContentItem): string {
 }
 
 const ContentQueuePage = () => {
-  const { items, loading, updateItem, deleteItem } = useContentItems();
+  const { items, loading, updateItem, deleteItem, refetch } = useContentItems();
+  const { accounts } = useConnectedNetworks();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
+  const [uploadItem, setUploadItem] = useState<ContentItem | null>(null);
+
+  const youtubeAccount = accounts.find(a => a.platform === "youtube");
+  const youtubeConnected = youtubeAccount?.connection_status === "connected";
+  const goReconnectYouTube = () => navigate("/reseaux");
 
   const filtered = useMemo(() => {
     return items.filter(i => {
