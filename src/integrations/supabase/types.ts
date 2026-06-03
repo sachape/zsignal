@@ -595,6 +595,60 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_live_sessions: {
+        Row: {
+          checklist: Json
+          created_at: string
+          game_category: string | null
+          generated_metadata: Json
+          id: string
+          language: string | null
+          objective: string | null
+          platforms: Json
+          scheduled_at: string | null
+          status: string
+          target_audience: string | null
+          title_raw: string
+          tone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checklist?: Json
+          created_at?: string
+          game_category?: string | null
+          generated_metadata?: Json
+          id?: string
+          language?: string | null
+          objective?: string | null
+          platforms?: Json
+          scheduled_at?: string | null
+          status?: string
+          target_audience?: string | null
+          title_raw?: string
+          tone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checklist?: Json
+          created_at?: string
+          game_category?: string | null
+          generated_metadata?: Json
+          id?: string
+          language?: string | null
+          objective?: string | null
+          platforms?: Json
+          scheduled_at?: string | null
+          status?: string
+          target_audience?: string | null
+          title_raw?: string
+          tone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       creator_platform_metrics: {
         Row: {
           comments_count: number | null

@@ -57,6 +57,7 @@ const ReseauxPage = lazy(() => import("./pages/ReseauxPage.tsx"));
 const ReseauxPlatformPage = lazy(() => import("./pages/ReseauxPlatformPage.tsx"));
 const YouTubeCallbackPage = lazy(() => import("./pages/YouTubeCallbackPage.tsx"));
 const TikTokCallbackPage = lazy(() => import("./pages/TikTokCallbackPage.tsx"));
+const LiveSetupPage = lazy(() => import("./pages/LiveSetupPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -269,6 +270,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <ReseauxPlatformPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/live-setup"
+                  element={
+                    <ProtectedRoute>
+                      <LiveSetupPage />
                     </ProtectedRoute>
                   }
                 />
