@@ -681,7 +681,7 @@ const DashboardPage = () => {
           <div className="rounded-2xl border border-white/[0.08] bg-card/60 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Followers</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
-              {followersAvailable ? (summary.followers_count != null ? summary.followers_count.toLocaleString("fr-FR") : "—") : "—"}
+              {followersAvailable ? (summary.follower_count != null ? summary.follower_count.toLocaleString("fr-FR") : "—") : "—"}
             </p>
             {!followersAvailable && (
               <p className="mt-0.5 text-[10px] text-amber-400">Scope manquant</p>
