@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   Rocket, Save, Sparkles, Tv, Video, Music2, Camera,
   CheckCircle2, Copy, Trash2, Clock, ChevronRight, ListChecks, Wand2,
+  ExternalLink, AlertTriangle, Loader2,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -20,7 +21,9 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
+import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { useLiveSessions, type LiveSession } from "@/hooks/useLiveSessions";
 import {
   generateMetadata, DEFAULT_CHECKLIST_ITEMS,
