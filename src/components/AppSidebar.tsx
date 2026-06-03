@@ -38,6 +38,7 @@ import { analytics } from "@/services/analytics";
 import { cn } from "@/lib/utils";
 import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
 import { findActiveSection } from "@/components/SectionTabs";
+import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 
 type NavEntry = {
   title: string;
@@ -86,7 +87,7 @@ const AppSidebar = () => {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="pb-3">
+      <SidebarHeader className="pb-1">
         <NavLink
           to={user ? "/dashboard" : "/"}
           className="flex h-10 items-center px-2"
@@ -99,6 +100,8 @@ const AppSidebar = () => {
           )}
         </NavLink>
       </SidebarHeader>
+
+      <SidebarStreamerSearch collapsed={collapsed} />
 
       <SidebarContent>
         <SidebarGroup>
