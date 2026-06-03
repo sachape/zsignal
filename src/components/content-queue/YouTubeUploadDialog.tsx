@@ -254,12 +254,24 @@ const YouTubeUploadDialog = ({
             {uploading && (
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span>Envoi en cours…</span>
+                  <span>
+                    {phase === "transferring"
+                      ? "Transfert vers YouTube en cours… (peut prendre 30 s à plusieurs minutes)"
+                      : "Envoi du fichier vers Streamnco…"}
+                  </span>
                   <span className="tabular-nums">{progress}%</span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+                  <div
+                    className={`h-full transition-all ${phase === "transferring" ? "animate-pulse bg-primary/70" : "bg-primary"}`}
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
+                {phase === "transferring" && (
+                  <p className="text-[10px] text-muted-foreground/80">
+                    On attend la confirmation de YouTube. Ne ferme pas cette fenêtre.
+                  </p>
+                )}
               </div>
             )}
 
