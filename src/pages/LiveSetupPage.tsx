@@ -1359,13 +1359,16 @@ function PostLiveBriefCard({
     if (!liveSessionId) { toast.error("Sauvegarde la session avant."); return; }
     setSending(true);
     try {
+      const VIDEO_PLATFORMS = ["youtube_shorts", "tiktok", "instagram", "twitch_clip"];
       const rows = brief.content_ideas.map((idea) => ({
         live_session_id: liveSessionId,
         platform: idea.platform,
         title: idea.title,
         description: undefined,
         hashtags: [],
-        status: "idea" as const,
+        // Video ideas land as "to_generate" (need a clip). Community stays "idea".
+        status: (VIDEO_PLATFORMS.includes(idea.platform) ? "to_generate" : "idea") as
+          "to_generate" | "idea",
         priority: idea.priority,
         source_idea_id: idea.id,
         format: idea.format,
