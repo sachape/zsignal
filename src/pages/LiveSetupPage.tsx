@@ -85,6 +85,11 @@ const LiveSetupPage = () => {
     [accounts],
   );
 
+  const editingSession = useMemo(
+    () => sessions.find(s => s.id === editingId) ?? null,
+    [sessions, editingId],
+  );
+
   useEffect(() => {
     setMetadata(generateMetadata(input));
   }, [input]);
