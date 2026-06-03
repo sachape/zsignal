@@ -55,10 +55,11 @@ export default function ConnectNetworkModal({
   const [profileUrl, setProfileUrl] = useState("");
   const [saving, setSaving]     = useState(false);
   const [ytLoading, setYtLoading] = useState(false);
+  const [ttLoading, setTtLoading] = useState(false);
 
   function reset() {
     setSelected(null); setUsername(""); setProfileUrl("");
-    setSaving(false); setYtLoading(false);
+    setSaving(false); setYtLoading(false); setTtLoading(false);
   }
 
   function handleClose(v: boolean) {
