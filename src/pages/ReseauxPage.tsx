@@ -392,6 +392,7 @@ export default function ReseauxPage() {
     setIgActionLoading(true);
     try {
       setCurrentInstagramCallbackError(null);
+      setIgDebug(null);
       if (user) {
         await supabase
           .from("creator_meta_connections")
