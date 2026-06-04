@@ -275,7 +275,11 @@ export default function ReseauxPage() {
   const { accounts, loading, upsertAccount, removeAccount, refetch } = useConnectedNetworks();
   const { history, saveSnapshot } = usePresenceScoreHistory();
   const { connection: metaConnection, refetch: refetchMeta } = useInstagramConnection();
-  const { oauth_enabled: igOAuthEnabled } = useInstagramOAuthStatus();
+  const { oauth_enabled: igOAuthEnabled, configured: igConfigured } = useInstagramOAuthStatus();
+  // OAuth CTA must be available whenever Meta secrets are wired up, even if the
+  // explicit INSTAGRAM_OAUTH_ENABLED flag is not set. Publish is a SEPARATE flag
+  // (INSTAGRAM_PUBLISH_ENABLED) and must NOT hide the connect button.
+  const igOAuthAvailable = igOAuthEnabled || igConfigured;
   const [igActionLoading, setIgActionLoading] = useState(false);
   const [currentInstagramCallbackError, setCurrentInstagramCallbackError] = useState<string | null>(null);
   const [igDebug, setIgDebug] = useState<{
