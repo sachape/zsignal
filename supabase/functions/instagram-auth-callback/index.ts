@@ -359,7 +359,7 @@ Deno.serve(async (req) => {
     let warningCode: string | null = null;
     let warningMessage: string | null = null;
     try {
-      const longResp = await fetch(longUrl.toString(), { method: "GET", redirect: "manual" });
+      const longResp = await fetch(longUrl.toString()); // bare fetch — no method, no headers, no redirect option
       const longText = await longResp.text();
       let longJson: LongTokenResp = {};
       try { longJson = JSON.parse(longText) as LongTokenResp; } catch { /* not JSON */ }
