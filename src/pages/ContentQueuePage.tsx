@@ -626,6 +626,31 @@ function ContentRow({
                     : "Uploader sur YouTube"}
               </Button>
             )}
+            {item.platform === "instagram" && item.status !== "ignored" && (
+              <Link
+                to={(() => {
+                  const fmt = (item.format || "").toLowerCase();
+                  const igFormat = fmt.includes("reel") ? "reel" : fmt.includes("story") ? "story" : "post";
+                  const caption = item.description || item.title || "";
+                  const tags = (item.selected_hashtags && item.selected_hashtags.length > 0
+                    ? item.selected_hashtags
+                    : item.hashtags || []).join(" ");
+                  const params = new URLSearchParams({ format: igFormat });
+                  if (caption) params.set("caption", caption);
+                  if (tags) params.set("hashtags", tags);
+                  if (item.generated_video_url) {
+                    params.set("media", item.generated_video_url);
+                    params.set("mime", "video/mp4");
+                  }
+                  return `/composer?${params.toString()}`;
+                })()}
+                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary hover:bg-primary/20"
+                title="Créer une publication Instagram à partir de cet item"
+              >
+                <Camera className="h-3 w-3" />
+                Créer une publication Instagram
+              </Link>
+            )}
             {item.status !== "published" && item.status !== "published_manually" && item.status !== "ignored" && (
               <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]"
                 onClick={() => onUpdate({ status: "published_manually", published_at: new Date().toISOString() })}>
