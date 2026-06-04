@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
     .update({
       status: "failed",
       error_code: errorCode,
-      error_message: errorMessage,
+      error_message: rawMessage || errorMessage,
       completed_at: new Date().toISOString(),
     })
     .eq("id", jobId);
