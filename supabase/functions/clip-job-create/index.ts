@@ -18,11 +18,42 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const WORKER_BASE_URL = Deno.env.get("WORKER_BASE_URL") ?? "";
 const WORKER_SHARED_SECRET = Deno.env.get("WORKER_SHARED_SECRET") ?? "";
 
+const ACTIVE_JOB_MESSAGE = "Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.";
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+async function failJob(
+  admin: ReturnType<typeof createClient>,
+  jobId: string,
+  contentItemId: string,
+  errorCode: string,
+  errorMessage: string,
+) {
+  await admin
+    .from("creator_video_generation_jobs")
+    .update({
+      status: "failed",
+      generation_stage: "failed",
+      progress: 0,
+      error_code: errorCode,
+      error_message: errorMessage,
+      completed_at: new Date().toISOString(),
+      worker_completed_at: new Date().toISOString(),
+    })
+    .eq("id", jobId);
+  await admin
+    .from("creator_content_items")
+    .update({
+      status: "to_generate",
+      generation_status: "failed",
+      generation_error: errorMessage,
+    })
+    .eq("id", contentItemId);
 }
 
 Deno.serve(async (req) => {
@@ -102,6 +133,24 @@ Deno.serve(async (req) => {
 
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+  const { data: activeJob } = await admin
+    .from("creator_video_generation_jobs")
+    .select("id, content_item_id, status, generation_stage, created_at")
+    .eq("user_id", userId)
+    .in("status", ["queued", "processing"])
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (activeJob) {
+    return json({
+      success: false,
+      reason: "active_job_exists",
+      error: "active_job_exists",
+      message: ACTIVE_JOB_MESSAGE,
+      active_job_id: activeJob.id,
+    }, 409);
+  }
+
   // ── Worker availability check ──
   // If the external FFmpeg worker is not configured, we MUST NOT create a fake
   // job or fake clip. Surface a clear "unavailable" state to the user.
@@ -134,6 +183,17 @@ Deno.serve(async (req) => {
       output_format: "mp4_16_9",
       status: "queued",
       progress: 0,
+      generation_stage: "queued",
+      callback_status: null,
+      metadata: {
+        create_payload: {
+          content_item_id: contentItemId,
+          source_type: sourceType,
+          start_time_seconds: Math.round(startTime),
+          end_time_seconds: Math.round(endTime),
+          duration_seconds: duration,
+        },
+      },
     })
     .select()
     .single();
@@ -156,6 +216,7 @@ Deno.serve(async (req) => {
       .from("creator-source-videos")
       .createSignedUrl(sourceStoragePath!, 60 * 60); // 1h
     if (sErr || !signed?.signedUrl) {
+      await failJob(admin, job.id, contentItemId, "source_sign_failed", "Impossible de préparer la source vidéo.");
       return json({ error: "source_sign_failed", detail: sErr?.message }, 500);
     }
     resolvedSourceUrl = signed.signedUrl;
@@ -169,14 +230,16 @@ Deno.serve(async (req) => {
     .from("creator-generated-clips")
     .createSignedUploadUrl(outputStoragePath);
   if (upSignErr || !upload?.signedUrl) {
+    await failJob(admin, job.id, contentItemId, "output_sign_failed", "Impossible de préparer l’import du MP4.");
     return json({ error: "output_sign_failed", detail: upSignErr?.message }, 500);
   }
 
   // Dispatch to worker (fire-and-forget).
   const callbackUrl = `${SUPABASE_URL}/functions/v1/clip-job-callback`;
   try {
-    await fetch(`${WORKER_BASE_URL.replace(/\/$/, "")}/generate`, {
+    const workerRes = await fetch(`${WORKER_BASE_URL.replace(/\/$/, "")}/generate`, {
       method: "POST",
+      signal: AbortSignal.timeout(20_000),
       headers: {
         "Content-Type": "application/json",
         "X-Worker-Secret": WORKER_SHARED_SECRET,
@@ -195,9 +258,37 @@ Deno.serve(async (req) => {
         callback_secret: WORKER_SHARED_SECRET,
       }),
     });
+    const workerBody = await workerRes.text().catch(() => "");
+    await admin
+      .from("creator_video_generation_jobs")
+      .update({
+        metadata: {
+          create_payload: {
+            content_item_id: contentItemId,
+            source_type: sourceType,
+            start_time_seconds: Math.round(startTime),
+            end_time_seconds: Math.round(endTime),
+            duration_seconds: duration,
+          },
+          worker_dispatch: {
+            status: workerRes.status,
+            ok: workerRes.ok,
+            body: workerBody.slice(0, 500),
+            at: new Date().toISOString(),
+          },
+        },
+      })
+      .eq("id", job.id);
+    console.info(JSON.stringify({ event: "clip_job_worker_dispatch", job_id: job.id, status: workerRes.status, ok: workerRes.ok }));
+    if (!workerRes.ok) {
+      await failJob(admin, job.id, contentItemId, "worker_no_callback", "Le worker vidéo n’a pas répondu.");
+      return json({ success: false, reason: "worker_no_callback", message: "Le worker vidéo n’a pas répondu." }, 502);
+    }
   } catch (e) {
-    console.error("worker dispatch failed", e instanceof Error ? e.message : "unknown");
-    // Don't fail the request — the job is queued; admin can retry dispatch.
+    const message = e instanceof Error ? e.message : "unknown";
+    console.error(JSON.stringify({ event: "clip_job_worker_dispatch_failed", job_id: job.id, message }));
+    await failJob(admin, job.id, contentItemId, "worker_no_callback", "Le worker vidéo n’a pas répondu.");
+    return json({ success: false, reason: "worker_no_callback", message: "Le worker vidéo n’a pas répondu." }, 502);
   }
 
   return json({ success: true, job_id: job.id, status: job.status });
