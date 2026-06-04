@@ -38,6 +38,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useSocialPosts, type SocialFormat, type SocialPost } from "@/hooks/useSocialPosts";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
+import { useInstagramConnection } from "@/hooks/useInstagramConnection";
+import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import InstagramPreview from "@/components/composer/InstagramPreview";
 
 const FORMATS: Array<{ id: SocialFormat; label: string; icon: typeof Camera; hint: string }> = [
