@@ -504,38 +504,66 @@ export default function ReseauxPage() {
 
               {/* ── Instagram / Meta integration status (honest) ── */}
               <div className="mt-3 rounded-lg border border-border bg-card/40 p-3 text-xs">
-                <div className="flex items-start gap-2">
-                  <InstagramIcon className="h-4 w-4 mt-0.5 shrink-0 text-[#E1306C]" />
-                  <div className="space-y-0.5">
-                    <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
-                    {(() => {
-                      if (metaConnection?.connection_status === "connected") {
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2 min-w-0">
+                    <InstagramIcon className="h-4 w-4 mt-0.5 shrink-0 text-[#E1306C]" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
+                      {(() => {
+                        if (metaConnection?.connection_status === "connected") {
+                          return (
+                            <p className="text-muted-foreground">
+                              Connecté en tant que <span className="text-foreground">@{metaConnection.instagram_username}</span>
+                              {metaConnection.account_type ? ` · ${metaConnection.account_type}` : ""}.
+                              <span className="block mt-0.5 text-muted-foreground/70">
+                                Publication Instagram en attente de validation Meta — l'envoi sera activé une fois l'App Review approuvée.
+                              </span>
+                            </p>
+                          );
+                        }
+                        if (!FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED) {
+                          return (
+                            <p className="text-muted-foreground">
+                              Connexion Meta en préparation. La publication officielle Post / Reel / Story
+                              arrivera après validation de notre App Meta. Ajouter Instagram manuellement
+                              sert uniquement à compléter ton profil — ce n'est pas suffisant pour publier.
+                            </p>
+                          );
+                        }
+                        if (metaConnection?.connection_status === "pending_review") {
+                          return <p className="text-amber-300/90">Connexion Meta en cours de validation.</p>;
+                        }
+                        if (metaConnection?.connection_status === "error") {
+                          return (
+                            <p className="text-destructive/90">
+                              {metaConnection.error_message ?? "Erreur de connexion Instagram."}
+                            </p>
+                          );
+                        }
                         return (
                           <p className="text-muted-foreground">
-                            Connecté en tant que <span className="text-foreground">@{metaConnection.instagram_username}</span>
-                            {metaConnection.account_type ? ` · ${metaConnection.account_type}` : ""}.
+                            Connecte ton compte Instagram Business / Creator officiellement via Meta.
+                            Un compte Instagram professionnel lié à une Page Facebook est requis.
                           </p>
                         );
-                      }
-                      if (!FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED) {
-                        return (
-                          <p className="text-muted-foreground">
-                            Connexion Meta en préparation. La publication officielle Post / Reel / Story
-                            arrivera après validation de notre App Meta. Ajouter Instagram manuellement
-                            sert uniquement à compléter ton profil — ce n'est pas suffisant pour publier.
-                          </p>
-                        );
-                      }
-                      if (metaConnection?.connection_status === "pending_review") {
-                        return <p className="text-amber-300/90">Connexion Meta en cours de validation.</p>;
-                      }
-                      return (
-                        <p className="text-muted-foreground">
-                          Tu peux connecter ton compte Instagram Business / Creator officiellement via Meta.
-                        </p>
-                      );
-                    })()}
+                      })()}
+                    </div>
                   </div>
+                  {FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED && (
+                    <div className="shrink-0">
+                      {metaConnection?.connection_status === "connected" ? (
+                        <Button size="sm" variant="outline" className="h-7 text-xs"
+                          disabled={igActionLoading} onClick={handleDisconnectInstagram}>
+                          Déconnecter
+                        </Button>
+                      ) : (
+                        <Button size="sm" className="h-7 text-xs"
+                          disabled={igActionLoading} onClick={handleConnectInstagram}>
+                          {igActionLoading ? "…" : "Connecter Instagram"}
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
