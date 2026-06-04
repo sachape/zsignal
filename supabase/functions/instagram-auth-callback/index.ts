@@ -18,13 +18,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-profile-username-only-v6";
-const GRAPH_VERSION = "v21.0";
+const CALLBACK_VERSION = "instagram-callback-bare-fetch-v7";
+const GRAPH_VERSION = "v23.0";
 
 type ProfileVariant =
-  | "me_user_id_username"
-  | "me_id_username"
-  | "user_id_path_username";
+  | "me_user_id_username_unversioned"
+  | "me_id_username_unversioned"
+  | "me_user_id_username_v23"
+  | "me_id_username_v23"
+  | "user_id_path_username_unversioned"
+  | "user_id_path_username_v23";
+
 
 
 interface ProfileAttempt {
@@ -209,6 +213,16 @@ Deno.serve(async (req) => {
       location: shortResp.headers.get("location"),
     });
     const shortJson = (await shortResp.json().catch(() => ({}))) as ShortTokenResp;
+    log("short_token_payload_keys", {
+      keys: Object.keys(shortJson ?? {}),
+      has_access_token: !!shortJson.access_token,
+      has_user_id: !!shortJson.user_id,
+      // @ts-ignore — log diagnostic fields if Meta returns them
+      token_type: (shortJson as Record<string, unknown>).token_type ?? null,
+      // @ts-ignore
+      expires_in: (shortJson as Record<string, unknown>).expires_in ?? null,
+      permissions: shortJson.permissions ?? null,
+    });
     if (!shortResp.ok || !shortJson.access_token) {
       const msg = shortJson.error_message ?? shortJson.error?.message ?? "token_exchange_failed";
       const metaError = extractMetaError(shortJson);
@@ -223,10 +237,12 @@ Deno.serve(async (req) => {
     }
     const shortToken = shortJson.access_token;
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
-    log("short_token_ok", { has_user_id: !!igUserIdFromToken });
+    log("short_token_ok", { has_user_id: !!igUserIdFromToken, access_token_prefix: shortToken.slice(0, 6) });
 
-    // 2. Fetch IG profile — minimal fields only (username). No account_type/picture (cause errors).
-    //    Endpoint must be UNVERSIONED on graph.instagram.com for Instagram Login.
+
+    // 2. Fetch IG profile — BARE fetch (no method, no headers, no body, no redirect option).
+    //    Per user instruction: do not pass method:"GET" (Meta sometimes logs "method type: get"
+    //    in errors which may indicate the request line is malformed by some wrapper).
     const tryProfile = async (variant: ProfileVariant, path: string, fields: string): Promise<{ attempt: ProfileAttempt; data: IgMeResp }> => {
       const url = new URL(`https://graph.instagram.com${path}`);
       url.searchParams.set("fields", fields);
@@ -235,14 +251,14 @@ Deno.serve(async (req) => {
         profile_variant: variant,
         endpoint_host: "graph.instagram.com",
         endpoint_path: path,
-        method: "GET",
+        method: "GET (default, not explicit)",
         fields,
         token_type: "short_lived",
         has_access_token: !!shortToken,
         access_token_prefix: shortToken ? shortToken.slice(0, 6) : null,
         user_id_from_token: igUserIdFromToken,
       });
-      const resp = await fetch(url.toString(), { method: "GET", redirect: "manual" });
+      const resp = await fetch(url.toString()); // bare fetch
       const data = (await resp.json().catch(() => ({}))) as IgMeResp;
       const metaError = extractMetaError(data);
       const attempt: ProfileAttempt = {
@@ -263,14 +279,17 @@ Deno.serve(async (req) => {
     let profileData: IgMeResp = {};
     let successVariant: ProfileVariant | null = null;
 
-    // Unversioned /me with minimal fields (Instagram Login docs).
     const variants: Array<{ v: ProfileVariant; path: string; fields: string }> = [
-      { v: "me_user_id_username", path: `/me`, fields: "user_id,username" },
-      { v: "me_id_username", path: `/me`, fields: "id,username" },
+      { v: "me_user_id_username_unversioned", path: `/me`, fields: "user_id,username" },
+      { v: "me_id_username_unversioned", path: `/me`, fields: "id,username" },
+      { v: "me_user_id_username_v23", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
+      { v: "me_id_username_v23", path: `/${GRAPH_VERSION}/me`, fields: "id,username" },
     ];
     if (igUserIdFromToken) {
-      variants.push({ v: "user_id_path_username", path: `/${igUserIdFromToken}`, fields: "username" });
+      variants.push({ v: "user_id_path_username_unversioned", path: `/${igUserIdFromToken}`, fields: "username" });
+      variants.push({ v: "user_id_path_username_v23", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "username" });
     }
+
 
 
     for (const { v, path, fields } of variants) {
@@ -340,7 +359,7 @@ Deno.serve(async (req) => {
     let warningCode: string | null = null;
     let warningMessage: string | null = null;
     try {
-      const longResp = await fetch(longUrl.toString(), { method: "GET", redirect: "manual" });
+      const longResp = await fetch(longUrl.toString()); // bare fetch — no method, no headers, no redirect option
       const longText = await longResp.text();
       let longJson: LongTokenResp = {};
       try { longJson = JSON.parse(longText) as LongTokenResp; } catch { /* not JSON */ }
