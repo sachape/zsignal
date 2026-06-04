@@ -204,7 +204,7 @@ const ComposerPage = () => {
           <div className="font-semibold mb-0.5">Publication Instagram bientôt disponible</div>
           <div className="text-amber-200/80">
             La connexion Meta est en cours de validation. Tu peux préparer tes contenus en brouillon et
-            planifier — ils seront publiés automatiquement une fois la validation terminée.
+            les dater pour ton calendrier éditorial. L'envoi automatique arrivera après l'activation Meta + scheduler.
           </div>
         </div>
       </div>
