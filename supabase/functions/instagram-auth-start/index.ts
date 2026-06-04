@@ -65,18 +65,33 @@ Deno.serve(async (req) => {
 
     // Instagram Login direct — minimal scopes for V1.
     // No pages_*, no business_management, no Facebook Page required.
+    // Match EXACTLY the official Meta-provided authorize URL (param order + full scopes).
     const scopes = [
       "instagram_business_basic",
+      "instagram_business_manage_messages",
+      "instagram_business_manage_comments",
       "instagram_business_content_publish",
+      "instagram_business_manage_insights",
     ].join(",");
 
-    // Instagram Login authorize endpoint (NOT facebook.com/dialog/oauth).
     const authorizeUrl = new URL("https://www.instagram.com/oauth/authorize");
+    authorizeUrl.searchParams.set("force_reauth", "true");
     authorizeUrl.searchParams.set("client_id", cfg.appId);
     authorizeUrl.searchParams.set("redirect_uri", cfg.redirectUri);
-    authorizeUrl.searchParams.set("state", state);
-    authorizeUrl.searchParams.set("scope", scopes);
     authorizeUrl.searchParams.set("response_type", "code");
+    authorizeUrl.searchParams.set("scope", scopes);
+    authorizeUrl.searchParams.set("state", state);
+
+    console.log(JSON.stringify({
+      step: "authorize_url_built",
+      base: "https://www.instagram.com/oauth/authorize",
+      client_id: cfg.appId,
+      redirect_uri: cfg.redirectUri,
+      response_type: "code",
+      force_reauth: "true",
+      scopes,
+      has_state: true,
+    }));
 
     return json(200, { authorize_url: authorizeUrl.toString() });
   } catch (e) {
