@@ -125,7 +125,7 @@ const VOD_REASONS = new Set([
 const VodImportPage = () => {
   usePageMeta({
     title: "Créer depuis une VOD · Streamnco",
-    description: "Colle une VOD Twitch ou YouTube et génère des clips prêts pour Shorts, Reels et TikTok.",
+    description: "Colle une VOD Twitch et génère des clips prêts pour Shorts, Reels et TikTok.",
   });
 
   const { items, refetch, updateItem } = useContentItems();
