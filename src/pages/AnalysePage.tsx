@@ -580,7 +580,7 @@ const AnalysePage = () => {
         {((isReconstruction || isExploration) || nextAction) && (
           <div style={anim(280)} className="mb-4">
             <div className="rounded-2xl border border-primary/20 bg-primary/[0.04] p-5 shadow-[inset_0_1px_0_hsl(var(--primary)/0.10)]">
-              {/* Header row: mode chip + signals */}
+              {/* Header row: mode chip only — no technical signal chips. */}
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 {(isReconstruction || isExploration) && (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
@@ -588,11 +588,6 @@ const AnalysePage = () => {
                     {isReconstruction ? "Mode structuration" : "Mode exploration"}
                   </span>
                 )}
-                {displayMode.reasons.slice(0, 2).map((r) => (
-                  <span key={r} className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 text-[10px] text-muted-foreground">
-                    {r}
-                  </span>
-                ))}
               </div>
               {/* Priority action */}
               {nextAction && (

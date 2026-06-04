@@ -371,11 +371,6 @@ const TeaserResultLayout = ({
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   L'objectif des prochaines semaines : créer un signal de croissance lisible. On avance étape par étape, pas métrique par métrique.
                 </p>
-                {displayMode.reasons.length > 0 && (
-                  <p className="mt-2 text-[11px] text-muted-foreground">
-                    Signaux détectés : {displayMode.reasons.slice(0, 3).join(" · ")}
-                  </p>
-                )}
               </div>
             </div>
           </div>

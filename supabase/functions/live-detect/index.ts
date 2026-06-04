@@ -14,6 +14,7 @@
 // app-level credentials for read-only stream status, which is sufficient.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enqueueAnalysisJobForConnectedAccount } from "../_shared/enqueueAnalysisJob.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -227,6 +228,24 @@ async function processAccount(
       await attachVodToSession(admin, open.id, headers);
     } catch (err) {
       console.error("[live-detect] vod attach error", err);
+    }
+    // Auto-enqueue a StreamScore refresh so the dashboard/analyse pages
+    // reflect the just-closed session without waiting for the next cron
+    // or a manual click. The shared helper handles dedup + throttle.
+    try {
+      await enqueueAnalysisJobForConnectedAccount(
+        admin,
+        {
+          user_id: account.user_id,
+          platform_user_id: account.platform_user_id,
+          platform_login: account.platform_login,
+          platform_display_name: account.platform_display_name,
+        },
+        "auto_scheduled",
+        { throttleHours: 1, bumpLastAutoRefresh: true },
+      );
+    } catch (err) {
+      console.error("[live-detect] enqueue analysis error", err);
     }
     return { login: account.platform_login ?? "?", action: "closed_session" };
   }

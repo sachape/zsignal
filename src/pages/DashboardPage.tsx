@@ -357,6 +357,7 @@ const DashboardPage = () => {
     }
     await loadDashboardState();
     setManualRefreshing(false);
+    toast.success("Analyse mise à jour");
   }, [manualRefreshing, loadDashboardState, user, account, syncSnapshot]);
 
   // Sprint 1 — gamification derived state. Hooks must run unconditionally,

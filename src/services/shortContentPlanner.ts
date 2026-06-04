@@ -67,7 +67,7 @@ export const POTENTIAL_LABEL_FR: Record<PotentialLabel, string> = {
   high: "Potentiel élevé",
   good: "Potentiel correct",
   rework: "À retravailler",
-  weak: "Signal faible",
+  weak: "Peu d'impact",
 };
 
 export interface ClipInsight {
