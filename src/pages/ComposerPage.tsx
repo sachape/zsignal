@@ -174,7 +174,8 @@ const ComposerPage = () => {
     try {
       await persist({ status: "scheduled", scheduled_at: scheduledAt.toISOString() });
       toast.message("Planification enregistrée", {
-        description: "La publication automatique sera activée dès la validation Meta.",
+        description:
+          "Ta publication est préparée et datée. L'envoi automatique sera disponible quand la connexion Meta et le scheduler seront activés.",
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
