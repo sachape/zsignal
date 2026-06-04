@@ -307,7 +307,7 @@ export default function ReseauxPage() {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion TikTok (${reason}).`);
     }
-    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); setCurrentInstagramCallbackError(null); refetchMeta(); }
+    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); setCurrentInstagramCallbackError(null); setIgDebug(null); refetchMeta(); }
     else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
     else if (igResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
