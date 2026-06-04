@@ -6,7 +6,7 @@ import type {
   ReportIdentity,
   CompetitorGroup,
 } from "@/types/analysis";
-import { extractChannelFacts } from "./factsEngine";
+import { extractChannelFacts, type LiveSessionFact } from "./factsEngine";
 import { computeStreamScore } from "./streamScoreEngine";
 import { generateRecommendations } from "./recommendationEngine";
 import { findCompetitors } from "./competitorEngine";
