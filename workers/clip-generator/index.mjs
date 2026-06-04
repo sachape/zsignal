@@ -165,10 +165,13 @@ async function processJob({
     const duration = Math.max(1, Math.round(endSeconds - startSeconds));
 
     // 1) Acquire source segment.
-    if (sourceKind === "twitch_vod") {
-      // yt-dlp pulls only the requested section from the Twitch VOD HLS.
+    if (sourceKind === "twitch_vod" || sourceKind === "youtube_vod") {
+      // yt-dlp pulls only the requested section from the VOD HLS / formats.
       // --download-sections accepts "*START-END" in seconds.
       const section = `*${Math.max(0, Math.floor(startSeconds))}-${Math.ceil(endSeconds)}`;
+      const ytFormat = sourceKind === "youtube_vod"
+        ? "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best"
+        : "best";
       await runCommand("yt-dlp", [
         "--no-warnings",
         "--no-playlist",
@@ -177,7 +180,8 @@ async function processJob({
         "--retries", "3",
         "--fragment-retries", "5",
         "--download-sections", section,
-        "-f", "best",
+        "-f", ytFormat,
+        "--merge-output-format", "mp4",
         "-o", sourcePath,
         sourceUrl,
       ]);
@@ -194,9 +198,9 @@ async function processJob({
     });
 
     // 2) FFmpeg cut + scale + re-encode for clean Shorts/Reels output.
-    // For twitch_vod, yt-dlp already trimmed roughly; we still re-cut to be
-    // exact and to normalize the codec.
-    const ffArgs = sourceKind === "twitch_vod"
+    // For twitch_vod / youtube_vod, yt-dlp already trimmed roughly; we still
+    // re-cut to be exact and to normalize the codec.
+    const ffArgs = (sourceKind === "twitch_vod" || sourceKind === "youtube_vod")
       ? [
           "-y",
           "-i", sourcePath,
