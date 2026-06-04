@@ -278,6 +278,10 @@ export default function ReseauxPage() {
   const { oauth_enabled: igOAuthEnabled } = useInstagramOAuthStatus();
   const [igActionLoading, setIgActionLoading] = useState(false);
   const [currentInstagramCallbackError, setCurrentInstagramCallbackError] = useState<string | null>(null);
+  const [igDebug, setIgDebug] = useState<{
+    reason?: string; step?: string; meta_error?: string; meta_type?: string;
+    http_status?: string; message?: string; callback_version?: string;
+  } | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
@@ -303,14 +307,18 @@ export default function ReseauxPage() {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion TikTok (${reason}).`);
     }
-    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); setCurrentInstagramCallbackError(null); refetchMeta(); }
+    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); setCurrentInstagramCallbackError(null); setIgDebug(null); refetchMeta(); }
     else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
     else if (igResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
-      const step = searchParams.get("step");
-      const metaError = searchParams.get("meta_error");
-      const callbackVersion = searchParams.get("callback_version");
-      if (callbackVersion) console.debug("instagram callback version", callbackVersion);
+      const step = searchParams.get("step") ?? undefined;
+      const metaError = searchParams.get("meta_error") ?? undefined;
+      const metaType = searchParams.get("meta_type") ?? undefined;
+      const httpStatus = searchParams.get("http_status") ?? undefined;
+      const message = searchParams.get("message") ?? undefined;
+      const callbackVersion = searchParams.get("callback_version") ?? undefined;
+      console.debug("[reseaux] instagram callback error", { reason, step, metaError, metaType, httpStatus, message, callbackVersion });
+      setIgDebug({ reason, step, meta_error: metaError, meta_type: metaType, http_status: httpStatus, message, callback_version: callbackVersion });
       const msg = reason === "ig_account_not_professional"
         ? "Compte Instagram professionnel (Business ou Creator) requis."
         : reason === "instagram_oauth_disabled"
@@ -318,7 +326,7 @@ export default function ReseauxPage() {
           : reason === "meta_not_configured"
             ? "Connexion Meta non configurée."
             : metaError
-              ? `Erreur Instagram (${step ?? reason}) : ${metaError}`
+              ? `Instagram OAuth failed — step: ${step ?? "?"} — error: ${metaError}`
               : `Erreur de connexion Instagram (${reason}${step ? ` · ${step}` : ""}).`;
       setCurrentInstagramCallbackError(msg);
       toast.error(msg);
@@ -326,7 +334,8 @@ export default function ReseauxPage() {
     }
     setSearchParams((p) => {
       p.delete("youtube"); p.delete("tiktok"); p.delete("instagram"); p.delete("reason");
-      p.delete("step"); p.delete("meta_error"); p.delete("callback_version");
+      p.delete("step"); p.delete("meta_error"); p.delete("meta_type"); p.delete("http_status");
+      p.delete("message"); p.delete("callback_version");
       return p;
     }, { replace: true });
   }, [searchParams, setSearchParams, refetch, refetchMeta]);
@@ -383,6 +392,7 @@ export default function ReseauxPage() {
     setIgActionLoading(true);
     try {
       setCurrentInstagramCallbackError(null);
+      setIgDebug(null);
       if (user) {
         await supabase
           .from("creator_meta_connections")
@@ -599,6 +609,18 @@ export default function ReseauxPage() {
                     </div>
                   )}
                 </div>
+                {igDebug && (
+                  <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-2.5 font-mono text-[10px] text-destructive/90 space-y-0.5">
+                    <p className="font-semibold text-destructive">Debug Instagram OAuth (temporaire)</p>
+                    {igDebug.callback_version && <p>callback_version: {igDebug.callback_version}</p>}
+                    {igDebug.reason && <p>error_code: {igDebug.reason}</p>}
+                    {igDebug.step && <p>error_step: {igDebug.step}</p>}
+                    {igDebug.http_status && <p>http_status: {igDebug.http_status}</p>}
+                    {igDebug.meta_type && <p>meta_error_type: {igDebug.meta_type}</p>}
+                    {igDebug.meta_error && <p>meta_error_message: {igDebug.meta_error}</p>}
+                    {igDebug.message && <p>message: {igDebug.message}</p>}
+                  </div>
+                )}
               </div>
             </div>
 
