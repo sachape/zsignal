@@ -5,7 +5,7 @@
 //      → returns short-lived IG user access token + user_id
 //   2. GET https://graph.instagram.com/access_token?grant_type=ig_exchange_token
 //      → long-lived token (~60 days)
-//   3. GET https://graph.instagram.com/v{ver}/me?fields=user_id,username,account_type,profile_picture_url
+//   3. GET https://graph.instagram.com/me?fields=user_id,username,account_type,profile_picture_url
 //   4. Encrypt token & upsert row in creator_meta_connections.
 // No token value ever leaves the server. No Facebook Page required.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -18,11 +18,27 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const json = (status: number, body: unknown) =>
-  new Response(JSON.stringify(body), {
+const CALLBACK_VERSION = "instagram-callback-no-versioned-me-v2";
+
+type CallbackStep =
+  | "validate_input"
+  | "verify_state"
+  | "exchange_short_token"
+  | "exchange_long_token"
+  | "fetch_profile"
+  | "encrypt_token"
+  | "upsert_connection";
+
+const json = (status: number, body: Record<string, unknown>) =>
+  new Response(JSON.stringify({ callback_version: CALLBACK_VERSION, ...body }), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+
+const cleanMessage = (value: unknown): string | undefined => {
+  if (typeof value !== "string") return undefined;
+  return value.replace(/[\r\n\t]+/g, " ").slice(0, 240);
+};
 
 interface ShortTokenResp {
   access_token?: string;
@@ -36,7 +52,7 @@ interface LongTokenResp {
   access_token?: string;
   token_type?: string;
   expires_in?: number;
-  error?: { message?: string; code?: number };
+  error?: { message?: string; code?: number; type?: string };
 }
 interface IgMeResp {
   id?: string;
@@ -44,7 +60,37 @@ interface IgMeResp {
   username?: string;
   account_type?: string;
   profile_picture_url?: string;
-  error?: { message?: string; code?: number };
+  error?: { message?: string; code?: number; type?: string };
+}
+
+function extractMetaError(payload: ShortTokenResp | LongTokenResp | IgMeResp) {
+  const metaError = payload.error;
+  return {
+    meta_error_type: cleanMessage("error_type" in payload ? payload.error_type : metaError?.type),
+    meta_error_message: cleanMessage("error_message" in payload ? payload.error_message : metaError?.message),
+  };
+}
+
+function fail(
+  status: number,
+  errorCode: string,
+  errorStep: CallbackStep,
+  details: {
+    message?: string;
+    httpStatus?: number;
+    metaErrorType?: string;
+    metaErrorMessage?: string;
+  } = {},
+) {
+  return json(status, {
+    error: errorCode,
+    error_code: errorCode,
+    error_step: errorStep,
+    ...(details.httpStatus ? { http_status: details.httpStatus } : {}),
+    ...(details.message ? { message: cleanMessage(details.message) } : {}),
+    ...(details.metaErrorType ? { meta_error_type: cleanMessage(details.metaErrorType) } : {}),
+    ...(details.metaErrorMessage ? { meta_error_message: cleanMessage(details.metaErrorMessage) } : {}),
+  });
 }
 
 async function upsertError(
@@ -60,6 +106,7 @@ async function upsertError(
     connection_status: status,
     error_code: code,
     error_message: message,
+    updated_at: new Date().toISOString(),
   }, { onConflict: "user_id,platform" });
 }
 
@@ -68,10 +115,10 @@ Deno.serve(async (req) => {
 
   try {
     if (!isOAuthEnabled()) {
-      return json(503, { error: "instagram_oauth_disabled", message: "Connexion Meta non activée." });
+      return fail(503, "instagram_oauth_disabled", "validate_input", { message: "Connexion Meta non activée." });
     }
     const cfg = getMetaConfig();
-    if (!cfg) return json(503, { error: "meta_not_configured" });
+    if (!cfg) return fail(503, "meta_not_configured", "validate_input", { message: "Configuration Meta incomplète." });
 
     const authHeader = req.headers.get("Authorization") ?? "";
     const supabase = createClient(
@@ -80,22 +127,22 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } },
     );
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return json(401, { error: "unauthorized" });
+    if (!user) return fail(401, "unauthorized", "validate_input");
 
     const body = await req.json().catch(() => ({} as Record<string, unknown>));
     const code = typeof body.code === "string" ? body.code : null;
     const state = typeof body.state === "string" ? body.state : null;
-    if (!code) return json(400, { error: "missing_code" });
-    if (!state) return json(400, { error: "missing_state" });
+    if (!code) return fail(400, "missing_code", "validate_input");
+    if (!state) return fail(400, "missing_state", "validate_input");
 
     let statePayload;
     try {
       statePayload = await verifyState(state, "instagram");
     } catch (e) {
-      return json(400, { error: "invalid_state", message: e instanceof Error ? e.message : "unknown" });
+      return fail(400, "invalid_state", "verify_state", { message: e instanceof Error ? e.message : "unknown" });
     }
     if (statePayload.u !== user.id) {
-      return json(403, { error: "state_user_mismatch" });
+      return fail(403, "state_user_mismatch", "verify_state");
     }
 
     const admin = createClient(
@@ -120,8 +167,14 @@ Deno.serve(async (req) => {
     const shortJson = (await shortResp.json()) as ShortTokenResp;
     if (!shortResp.ok || !shortJson.access_token) {
       const msg = shortJson.error_message ?? shortJson.error?.message ?? "token_exchange_failed";
+      const metaError = extractMetaError(shortJson);
       await upsertError(admin, user.id, "error", "token_exchange_failed", msg);
-      return json(400, { error: "token_exchange_failed", message: msg });
+      return fail(400, "token_exchange_failed", "exchange_short_token", {
+        message: msg,
+        httpStatus: shortResp.status,
+        metaErrorType: metaError.meta_error_type,
+        metaErrorMessage: metaError.meta_error_message,
+      });
     }
     const shortToken = shortJson.access_token;
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
@@ -133,7 +186,18 @@ Deno.serve(async (req) => {
     longUrl.searchParams.set("access_token", shortToken);
     const longResp = await fetch(longUrl.toString(), { method: "GET" });
     const longJson = (await longResp.json()) as LongTokenResp;
-    const accessToken = longJson.access_token ?? shortToken;
+    if (!longResp.ok || !longJson.access_token) {
+      const msg = longJson.error?.message ?? "long_token_exchange_failed";
+      const metaError = extractMetaError(longJson);
+      await upsertError(admin, user.id, "error", "long_token_exchange_failed", msg);
+      return fail(400, "long_token_exchange_failed", "exchange_long_token", {
+        message: msg,
+        httpStatus: longResp.status,
+        metaErrorType: metaError.meta_error_type,
+        metaErrorMessage: metaError.meta_error_message,
+      });
+    }
+    const accessToken = longJson.access_token;
     const expiresIn = longJson.expires_in ?? null;
     const tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
 
@@ -147,13 +211,19 @@ Deno.serve(async (req) => {
     const meJson = (await meResp.json()) as IgMeResp;
     if (!meResp.ok) {
       const msg = meJson.error?.message ?? "ig_me_fetch_failed";
+      const metaError = extractMetaError(meJson);
       await upsertError(admin, user.id, "error", "ig_me_fetch_failed", msg);
-      return json(400, { error: "ig_me_fetch_failed", message: msg });
+      return fail(400, "ig_me_fetch_failed", "fetch_profile", {
+        message: msg,
+        httpStatus: meResp.status,
+        metaErrorType: metaError.meta_error_type,
+        metaErrorMessage: metaError.meta_error_message,
+      });
     }
     const igAccountId = meJson.user_id ?? meJson.id ?? igUserIdFromToken;
     if (!igAccountId) {
       await upsertError(admin, user.id, "error", "ig_account_id_missing", "ID Instagram introuvable.");
-      return json(400, { error: "ig_account_id_missing" });
+      return fail(400, "ig_account_id_missing", "fetch_profile", { message: "ID Instagram introuvable." });
     }
 
     // Optional sanity check: account_type must be BUSINESS or MEDIA_CREATOR / CREATOR.
@@ -166,15 +236,21 @@ Deno.serve(async (req) => {
         "ig_account_not_professional",
         "Compte Instagram professionnel (Business ou Creator) requis.",
       );
-      return json(400, {
-        error: "ig_account_not_professional",
+      return fail(400, "ig_account_not_professional", "fetch_profile", {
         message: "Compte Instagram professionnel requis.",
       });
     }
 
     // 4. Encrypt token & upsert. page_id / page_name intentionally left null
     //    (legacy columns kept for backward compat; Instagram Login flow does not use them).
-    const encrypted = await encryptToken(accessToken);
+    let encrypted: string;
+    try {
+      encrypted = await encryptToken(accessToken);
+    } catch {
+      const msg = "Échec du chiffrement du token Instagram.";
+      await upsertError(admin, user.id, "error", "token_encryption_failed", msg);
+      return fail(500, "token_encryption_failed", "encrypt_token", { message: msg });
+    }
 
     const { error: upsertErr } = await admin.from("creator_meta_connections").upsert({
       user_id: user.id,
@@ -200,7 +276,7 @@ Deno.serve(async (req) => {
     }, { onConflict: "user_id,platform" });
 
     if (upsertErr) {
-      return json(500, { error: "db_upsert_failed", message: upsertErr.message });
+      return fail(500, "db_upsert_failed", "upsert_connection", { message: upsertErr.message });
     }
 
     return json(200, {
@@ -209,6 +285,6 @@ Deno.serve(async (req) => {
       account_type: meJson.account_type,
     });
   } catch (e) {
-    return json(500, { error: "internal_error", message: e instanceof Error ? e.message : "unknown" });
+    return fail(500, "internal_error", "validate_input", { message: e instanceof Error ? e.message : "unknown" });
   }
 });
