@@ -137,11 +137,13 @@ Deno.serve(async (req) => {
     const expiresIn = longJson.expires_in ?? null;
     const tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
 
-    // 3. Fetch IG account info via graph.instagram.com /me (no Facebook Page lookup).
-    const meUrl = new URL(`https://graph.instagram.com/${cfg.graphApiVersion}/me`);
+    // 3. Fetch IG account info via graph.instagram.com /me (Instagram Login is unversioned).
+    //    NOTE: do NOT prefix with /v{ver}/ — Instagram Login /me rejects versioned paths
+    //    with "Unsupported request - method type: get".
+    const meUrl = new URL("https://graph.instagram.com/me");
     meUrl.searchParams.set("fields", "user_id,username,account_type,profile_picture_url");
     meUrl.searchParams.set("access_token", accessToken);
-    const meResp = await fetch(meUrl.toString());
+    const meResp = await fetch(meUrl.toString(), { method: "GET" });
     const meJson = (await meResp.json()) as IgMeResp;
     if (!meResp.ok) {
       const msg = meJson.error?.message ?? "ig_me_fetch_failed";
