@@ -135,13 +135,18 @@ Deno.serve(async (req) => {
 
   const { data: activeJob } = await admin
     .from("creator_video_generation_jobs")
-    .select("id, content_item_id, status, generation_stage, created_at")
+    .select("id, content_item_id, status, generation_stage, created_at, updated_at, worker_last_seen_at")
     .eq("user_id", userId)
     .in("status", ["queued", "processing"])
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
   if (activeJob) {
+    const lastSeen = new Date(String(activeJob.worker_last_seen_at ?? activeJob.updated_at ?? activeJob.created_at)).getTime();
+    const staleAfterMs = 10 * 60 * 1000;
+    if (Number.isFinite(lastSeen) && Date.now() - lastSeen > staleAfterMs) {
+      await failJob(admin, activeJob.id, activeJob.content_item_id, "worker_timeout", "La génération a pris trop de temps. Réessaie avec un autre moment.");
+    } else {
     return json({
       success: false,
       reason: "active_job_exists",
@@ -149,6 +154,7 @@ Deno.serve(async (req) => {
       message: ACTIVE_JOB_MESSAGE,
       active_job_id: activeJob.id,
     }, 409);
+    }
   }
 
   // ── Worker availability check ──
