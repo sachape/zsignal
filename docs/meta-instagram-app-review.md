@@ -1,7 +1,7 @@
 # Meta / Instagram App Review — Streamnco
 
 > Document de préparation pour la soumission App Review (Meta for Developers).
-> Tant que la review n'est pas validée : OAuth et publication restent désactivés via feature flags.
+> Les secrets Meta peuvent être ajoutés dès la phase test/dev pour valider le flow OAuth avec des utilisateurs testeurs déclarés dans la Meta Developer Console. L'App Review est nécessaire avant d'ouvrir l'intégration en production à des utilisateurs réels (et avant que la publication Post/Reel/Story soit activée pour tous).
 
 ## 1. Objectif de l'intégration
 
@@ -114,12 +114,21 @@ RLS stricte : `user_id = auth.uid()`. Les tokens ne sont jamais retournés au fr
 - Pas d'A/B testing de captions
 - Scheduler automatique non livré (status `scheduled` = repère éditorial uniquement)
 
-## 13. Étapes manuelles côté Meta Developer Console
+## 13. Étapes manuelles côté Meta Developer Console (mode test / dev)
 
-1. Créer une **Meta App** type **Business**
-2. Ajouter le produit **Instagram → Instagram API with Instagram Login**
-3. Configurer **Valid OAuth Redirect URIs** = `META_REDIRECT_URI`
-4. Renseigner les **Privacy Policy URL** et **Data Deletion** côté Streamnco
-5. Soumettre App Review pour `instagram_business_basic` + `instagram_business_content_publish`
-6. Une fois validé : ajouter `META_APP_ID`, `META_APP_SECRET`, `META_REDIRECT_URI`, `META_GRAPH_API_VERSION` dans Lovable Cloud secrets
-7. Basculer `INSTAGRAM_OAUTH_ENABLED=true` puis `INSTAGRAM_PUBLISH_ENABLED=true`
+1. Créer une **Meta App** type **Business** dans https://developers.facebook.com/
+2. Ajouter le produit **Facebook Login for Business** (et/ou **Instagram → Instagram API with Facebook Login**)
+3. Dans **App Settings → Basic** : récupérer `App ID` et `App Secret`
+4. Dans **Facebook Login → Settings** : ajouter dans **Valid OAuth Redirect URIs** :
+   `https://streamnco.com/auth/instagram/callback` (et l'URL de preview Lovable si test depuis preview)
+5. Dans **App Roles** : ajouter les utilisateurs testeurs (compte Instagram Business/Creator + Page Facebook liée requis)
+6. Renseigner **Privacy Policy URL** : `/legal/privacy` et **Data Deletion** côté Streamnco
+7. Ajouter dans **Lovable Cloud Secrets** :
+   - `META_APP_ID`
+   - `META_APP_SECRET`
+   - `META_REDIRECT_URI` (la même URL que ci-dessus)
+   - `META_GRAPH_API_VERSION` (défaut `v21.0`)
+   - `INSTAGRAM_OAUTH_ENABLED=true` (active le flow côté edge functions)
+8. Côté frontend, mettre `VITE_INSTAGRAM_OAUTH_ENABLED=true` pour afficher le bouton Connecter Instagram
+9. Tester le flow avec un compte testeur. Tant que l'App Review n'est pas validée, seuls les rôles déclarés dans la console peuvent compléter le flow.
+10. Pour ouvrir à tous les utilisateurs : soumettre l'App Review pour `instagram_basic` + `instagram_content_publish` (+ `pages_show_list`, `business_management`), puis activer `INSTAGRAM_PUBLISH_ENABLED=true`.
