@@ -194,6 +194,7 @@ Deno.serve(async (req) => {
     if (!shortResp.ok || !shortJson.access_token) {
       const msg = shortJson.error_message ?? shortJson.error?.message ?? "token_exchange_failed";
       const metaError = extractMetaError(shortJson);
+      log("short_token_failed", { http_status: shortResp.status, meta_error_type: metaError.meta_error_type, meta_error_message: metaError.meta_error_message });
       await upsertError(admin, user.id, "error", "token_exchange_failed", msg);
       return fail(400, "token_exchange_failed", "exchange_short_token", {
         message: msg,
@@ -204,17 +205,21 @@ Deno.serve(async (req) => {
     }
     const shortToken = shortJson.access_token;
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
+    log("short_token_ok", { has_user_id: !!igUserIdFromToken });
 
     // 2. Exchange short-lived → long-lived (~60d) via graph.instagram.com (GET, unversioned).
     const longUrl = new URL("https://graph.instagram.com/access_token");
     longUrl.searchParams.set("grant_type", "ig_exchange_token");
     longUrl.searchParams.set("client_secret", cfg.appSecret);
     longUrl.searchParams.set("access_token", shortToken);
-    const longResp = await fetch(longUrl.toString(), { method: "GET" });
-    const longJson = (await longResp.json()) as LongTokenResp;
+    log("long_token_request", { endpoint: "https://graph.instagram.com/access_token", method: "GET" });
+    const longResp = await fetch(longUrl.toString(), { method: "GET", redirect: "manual" });
+    log("long_token_response", { http_status: longResp.status, redirected: longResp.redirected, type: longResp.type, location: longResp.headers.get("location") });
+    const longJson = (await longResp.json().catch(() => ({}))) as LongTokenResp;
     if (!longResp.ok || !longJson.access_token) {
       const msg = longJson.error?.message ?? "long_token_exchange_failed";
       const metaError = extractMetaError(longJson);
+      log("long_token_failed", { http_status: longResp.status, meta_error_message: metaError.meta_error_message });
       await upsertError(admin, user.id, "error", "long_token_exchange_failed", msg);
       return fail(400, "long_token_exchange_failed", "exchange_long_token", {
         message: msg,
@@ -226,6 +231,7 @@ Deno.serve(async (req) => {
     const accessToken = longJson.access_token;
     const expiresIn = longJson.expires_in ?? null;
     const tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
+    log("long_token_ok", { expires_in: expiresIn });
 
     // 3. Fetch IG account info via graph.instagram.com /me (Instagram Login is unversioned).
     //    NOTE: do NOT prefix with /v{ver}/ — Instagram Login /me rejects versioned paths
@@ -233,11 +239,14 @@ Deno.serve(async (req) => {
     const meUrl = new URL("https://graph.instagram.com/me");
     meUrl.searchParams.set("fields", "user_id,username,account_type,profile_picture_url");
     meUrl.searchParams.set("access_token", accessToken);
-    const meResp = await fetch(meUrl.toString(), { method: "GET" });
-    const meJson = (await meResp.json()) as IgMeResp;
+    log("me_request", { endpoint: "https://graph.instagram.com/me", method: "GET" });
+    const meResp = await fetch(meUrl.toString(), { method: "GET", redirect: "manual" });
+    log("me_response", { http_status: meResp.status, redirected: meResp.redirected, type: meResp.type, location: meResp.headers.get("location") });
+    const meJson = (await meResp.json().catch(() => ({}))) as IgMeResp;
     if (!meResp.ok) {
       const msg = meJson.error?.message ?? "ig_me_fetch_failed";
       const metaError = extractMetaError(meJson);
+      log("me_failed", { http_status: meResp.status, meta_error_message: metaError.meta_error_message });
       await upsertError(admin, user.id, "error", "ig_me_fetch_failed", msg);
       return fail(400, "ig_me_fetch_failed", "fetch_profile", {
         message: msg,
@@ -248,9 +257,11 @@ Deno.serve(async (req) => {
     }
     const igAccountId = meJson.user_id ?? meJson.id ?? igUserIdFromToken;
     if (!igAccountId) {
+      log("me_no_account_id");
       await upsertError(admin, user.id, "error", "ig_account_id_missing", "ID Instagram introuvable.");
       return fail(400, "ig_account_id_missing", "fetch_profile", { message: "ID Instagram introuvable." });
     }
+    log("me_ok", { account_type: meJson.account_type, has_username: !!meJson.username });
 
     // Optional sanity check: account_type must be BUSINESS or MEDIA_CREATOR / CREATOR.
     const acctType = (meJson.account_type ?? "").toUpperCase();
