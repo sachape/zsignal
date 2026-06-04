@@ -365,6 +365,39 @@ export default function ReseauxPage() {
     window.location.href = data.url;
   }, []);
 
+  const handleConnectInstagram = useCallback(async () => {
+    setIgActionLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("instagram-auth-start");
+      const url = (data as { authorize_url?: string } | null)?.authorize_url;
+      if (error || !url) {
+        const code = (data as { error?: string } | null)?.error;
+        const msg = code === "instagram_oauth_disabled"
+          ? "Connexion Meta non encore activée."
+          : code === "meta_not_configured"
+            ? "Connexion Meta non configurée."
+            : "Erreur lors de l'initialisation OAuth Instagram.";
+        toast.error(msg);
+        return;
+      }
+      window.location.href = url;
+    } finally {
+      setIgActionLoading(false);
+    }
+  }, []);
+
+  const handleDisconnectInstagram = useCallback(async () => {
+    setIgActionLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke("instagram-disconnect");
+      if (error) { toast.error("Échec de la déconnexion Instagram."); return; }
+      toast.success("Instagram déconnecté.");
+      await refetchMeta();
+    } finally {
+      setIgActionLoading(false);
+    }
+  }, [refetchMeta]);
+
   const PLATFORMS: Platform[] = ["twitch", "youtube", "tiktok", "instagram"];
 
   if (!user) return null;
