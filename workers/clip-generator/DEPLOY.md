@@ -16,26 +16,40 @@ Garde la valeur — tu en auras besoin **deux fois** : une fois sur Fly.io, une 
 
 ---
 
-## 2. Déploiement Fly.io
+## 2. Déploiement Fly.io (initial OU redéploiement après changement Dockerfile)
 
 ```bash
 cd workers/clip-generator
 
-# Crée l'app si pas déjà fait (réponds non à Postgres/Redis)
+# Première fois uniquement :
 fly launch --no-deploy --name streamnco-clip-gen --region cdg
-
-# UN SEUL secret nécessaire
 fly secrets set -a streamnco-clip-gen WORKER_SHARED_SECRET="<colle le secret généré>"
 
-# Déploie
+# À chaque mise à jour du Dockerfile / index.mjs (ex: ajout yt-dlp v1.1.0) :
 fly deploy -a streamnco-clip-gen
 ```
 
-Vérifie le healthcheck (aucun secret requis) :
+> ⚠️ **Le worker tourne sur Fly.io, pas sur Lovable Cloud.** Toute modification de `workers/clip-generator/` nécessite un `fly deploy` manuel depuis ta machine. Lovable ne peut pas redéployer Fly à ta place.
+
+Vérifie le healthcheck **après redéploiement v1.1.0** :
 ```bash
 curl https://streamnco-clip-gen.fly.dev/health
-# → {"ok":true}
 ```
+
+Réponse attendue :
+```json
+{
+  "ok": true,
+  "worker_version": "1.1.0",
+  "ffmpeg_available": true,
+  "ffmpeg_version": "ffmpeg version 5.x ...",
+  "yt_dlp_available": true,
+  "yt_dlp_version": "2024.xx.xx"
+}
+```
+
+Si `yt_dlp_available: false` ou `ok: false` → le redéploiement n'a pas pris, refais `fly deploy -a streamnco-clip-gen`.
+
 
 ---
 
