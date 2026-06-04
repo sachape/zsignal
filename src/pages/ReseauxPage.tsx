@@ -626,8 +626,7 @@ export default function ReseauxPage() {
                           disabled={igActionLoading} onClick={handleConnectInstagram}>
                           {igActionLoading
                             ? "…"
-                            : (metaConnection?.connection_status === "error"
-                                || (metaConnection?.connection_status === "connected" && !metaConnection.instagram_username))
+                            : metaConnection?.connection_status === "error"
                               ? "Réessayer la connexion"
                               : "Connecter Instagram"}
                         </Button>
