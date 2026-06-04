@@ -278,6 +278,10 @@ export default function ReseauxPage() {
   const { oauth_enabled: igOAuthEnabled } = useInstagramOAuthStatus();
   const [igActionLoading, setIgActionLoading] = useState(false);
   const [currentInstagramCallbackError, setCurrentInstagramCallbackError] = useState<string | null>(null);
+  const [igDebug, setIgDebug] = useState<{
+    reason?: string; step?: string; meta_error?: string; meta_type?: string;
+    http_status?: string; message?: string; callback_version?: string;
+  } | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
