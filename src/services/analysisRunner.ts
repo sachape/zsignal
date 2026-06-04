@@ -182,7 +182,7 @@ export async function runAnalysis({
         ? competitorGroups
         : [],
       dominant_category_override: liveProfile?.dominant_category ?? null,
-    } : undefined);
+    } : undefined, liveSessions);
 
     onStage?.("saving");
     const { data: saved, error: repErr } = await supabase
