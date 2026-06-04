@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { format as formatDate } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Camera, Clock, Loader2, Plus, Send, AlertTriangle, FileText } from "lucide-react";
+import { Camera, Clock, Loader2, Plus, Send, AlertTriangle, FileText, ExternalLink, CheckCircle2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useSocialPosts, type SocialStatus } from "@/hooks/useSocialPosts";
+import { useContentItems } from "@/hooks/useContentItems";
 
 const STATUS_META: Record<SocialStatus, { label: string; cls: string }> = {
   draft:      { label: "Brouillon",  cls: "border-border bg-muted text-muted-foreground" },
