@@ -113,12 +113,20 @@ async function upsertError(
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  const log = (step: string, extra: Record<string, unknown> = {}) =>
+    console.log(JSON.stringify({ callback_version: CALLBACK_VERSION, step, ...extra }));
+
   try {
+    log("start");
     if (!isOAuthEnabled()) {
+      log("oauth_disabled");
       return fail(503, "instagram_oauth_disabled", "validate_input", { message: "Connexion Meta non activée." });
     }
     const cfg = getMetaConfig();
-    if (!cfg) return fail(503, "meta_not_configured", "validate_input", { message: "Configuration Meta incomplète." });
+    if (!cfg) {
+      log("meta_not_configured");
+      return fail(503, "meta_not_configured", "validate_input", { message: "Configuration Meta incomplète." });
+    }
 
     const authHeader = req.headers.get("Authorization") ?? "";
     const supabase = createClient(
@@ -127,21 +135,27 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } },
     );
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return fail(401, "unauthorized", "validate_input");
+    if (!user) {
+      log("unauthorized", { has_auth_header: authHeader.length > 0 });
+      return fail(401, "unauthorized", "validate_input");
+    }
+    log("authenticated", { user_id: user.id });
 
     const body = await req.json().catch(() => ({} as Record<string, unknown>));
     const code = typeof body.code === "string" ? body.code : null;
     const state = typeof body.state === "string" ? body.state : null;
-    if (!code) return fail(400, "missing_code", "validate_input");
-    if (!state) return fail(400, "missing_state", "validate_input");
+    if (!code) { log("missing_code"); return fail(400, "missing_code", "validate_input"); }
+    if (!state) { log("missing_state"); return fail(400, "missing_state", "validate_input"); }
 
     let statePayload;
     try {
       statePayload = await verifyState(state, "instagram");
     } catch (e) {
+      log("state_invalid", { reason: e instanceof Error ? e.message : "unknown" });
       return fail(400, "invalid_state", "verify_state", { message: e instanceof Error ? e.message : "unknown" });
     }
     if (statePayload.u !== user.id) {
+      log("state_user_mismatch", { state_user: statePayload.u, current_user: user.id });
       return fail(403, "state_user_mismatch", "verify_state");
     }
 
@@ -159,12 +173,24 @@ Deno.serve(async (req) => {
       redirect_uri: cfg.redirectUri,
       code,
     });
+    log("short_token_request", {
+      endpoint: "https://api.instagram.com/oauth/access_token",
+      method: "POST",
+      redirect_uri: cfg.redirectUri,
+    });
     const shortResp = await fetch("https://api.instagram.com/oauth/access_token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: formBody.toString(),
+      redirect: "manual",
     });
-    const shortJson = (await shortResp.json()) as ShortTokenResp;
+    log("short_token_response", {
+      http_status: shortResp.status,
+      redirected: shortResp.redirected,
+      type: shortResp.type,
+      location: shortResp.headers.get("location"),
+    });
+    const shortJson = (await shortResp.json().catch(() => ({}))) as ShortTokenResp;
     if (!shortResp.ok || !shortJson.access_token) {
       const msg = shortJson.error_message ?? shortJson.error?.message ?? "token_exchange_failed";
       const metaError = extractMetaError(shortJson);
