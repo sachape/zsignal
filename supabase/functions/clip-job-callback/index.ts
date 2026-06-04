@@ -90,6 +90,8 @@ Deno.serve(async (req) => {
         generation_status: "succeeded",
         generation_error: null,
         generated_video_url: signed.signedUrl,
+        generated_video_storage_bucket: "creator-generated-clips",
+        generated_video_storage_path: outputStoragePath,
       })
       .eq("id", job.content_item_id);
 
