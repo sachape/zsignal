@@ -537,6 +537,8 @@ const VodImportPage = () => {
                   const isReady = item.generation_status === "succeeded";
                   const deepLink = buildVodDeepLink(item.source_video_url, item.source_start_time);
                   const isError = item.generation_status === "failed";
+                  const startedAt = processingSince[item.id];
+                  const isStuck = isProcessing && !!startedAt && now - startedAt > 5 * 60 * 1000;
 
                   return (
                     <div key={item.id} className="rounded-lg border border-border/60 bg-card/60 p-3">
