@@ -18,7 +18,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-no-versioned-me-v2";
+const CALLBACK_VERSION = "instagram-callback-me-first-longlived-fallback-v3";
 
 type CallbackStep =
   | "validate_input"
