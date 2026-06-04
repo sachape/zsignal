@@ -12,7 +12,8 @@ Deno.serve((req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const cfg = getMetaConfig();
   const body = {
-    oauth_enabled: isOAuthEnabled() && cfg !== null,
+    // OAuth is available whenever Meta secrets are wired up; the explicit flag is optional.
+    oauth_enabled: (isOAuthEnabled() || cfg !== null) && cfg !== null,
     publish_enabled: isPublishEnabled(),
     configured: cfg !== null,
   };

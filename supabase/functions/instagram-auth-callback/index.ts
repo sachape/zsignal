@@ -140,7 +140,8 @@ Deno.serve(async (req) => {
 
   try {
     log("start");
-    if (!isOAuthEnabled()) {
+    const cfgPreflight = getMetaConfig();
+    if (!isOAuthEnabled() && !cfgPreflight) {
       log("oauth_disabled");
       return fail(503, "instagram_oauth_disabled", "validate_input", { message: "Connexion Meta non activée." });
     }
