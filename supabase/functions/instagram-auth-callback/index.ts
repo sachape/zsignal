@@ -69,6 +69,7 @@ interface ShortTokenResp {
   access_token?: string;
   user_id?: number | string;
   permissions?: string[];
+  data?: ShortTokenResp[];
   error_type?: string;
   error_message?: string;
   error?: { message?: string; code?: number; type?: string };
@@ -98,6 +99,11 @@ function extractMetaError(payload: ShortTokenResp | LongTokenResp | IgMeResp) {
 }
 
 function normalizeIgMe(payload: IgMeResp): IgMeResp {
+  const first = Array.isArray(payload.data) ? payload.data[0] : undefined;
+  return first ? { ...payload, ...first } : payload;
+}
+
+function normalizeShortToken(payload: ShortTokenResp): ShortTokenResp {
   const first = Array.isArray(payload.data) ? payload.data[0] : undefined;
   return first ? { ...payload, ...first } : payload;
 }
@@ -222,7 +228,7 @@ Deno.serve(async (req) => {
       type: shortResp.type,
       location: shortResp.headers.get("location"),
     });
-    const shortJson = (await shortResp.json().catch(() => ({}))) as ShortTokenResp;
+    const shortJson = normalizeShortToken((await shortResp.json().catch(() => ({}))) as ShortTokenResp);
     log("short_token_payload_keys", {
       keys: Object.keys(shortJson ?? {}),
       has_access_token: !!shortJson.access_token,
@@ -461,8 +467,7 @@ Deno.serve(async (req) => {
       page_id: null,
       page_name: null,
       scopes_granted: [
-        "instagram_business_basic",
-        "instagram_business_content_publish",
+        ...(shortJson.permissions ?? ["instagram_business_basic"]),
       ],
       access_token_encrypted: encrypted,
       refresh_token_encrypted: null,
