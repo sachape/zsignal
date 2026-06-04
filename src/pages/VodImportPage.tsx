@@ -42,12 +42,14 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 
 import { useContentItems, type ContentItem } from "@/hooks/useContentItems";
+import { useActiveVideoJob } from "@/hooks/useVideoJobs";
 import {
   getContentStatusBadge,
   getConfidenceLabel,
   formatVodTimestamp,
   buildVodDeepLink,
 } from "@/services/contentStatusLabels";
+import { getGenerationErrorMessage, getGenerationStageLabel } from "@/services/videoGeneration";
 
 const PLATFORM_LABEL: Record<string, string> = {
   youtube_shorts: "YouTube Shorts",
@@ -129,6 +131,7 @@ const VodImportPage = () => {
   });
 
   const { items, refetch, updateItem } = useContentItems();
+  const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const [url, setUrl] = useState("");
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("");
@@ -268,6 +271,14 @@ const VodImportPage = () => {
       toast({ title: "Données manquantes", description: "Modifie le moment du clip.", variant: "destructive" });
       return;
     }
+    if (activeJob && activeJob.content_item_id !== item.id) {
+      toast({
+        title: "Génération déjà en cours",
+        description: "Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.",
+        variant: "destructive",
+      });
+      return;
+    }
     const source = detectSourceClient(item.source_video_url);
     const sourceType =
       source === "twitch" ? "twitch_vod" :
@@ -290,10 +301,14 @@ const VodImportPage = () => {
       }
       toast({ title: "Génération lancée", description: "Le clip est en cours de génération." });
       await refetch();
+      await refetchActiveJob();
     } catch (err) {
+      const message = err instanceof Error && err.message.includes("non-2xx")
+        ? getGenerationErrorMessage("active_job_exists")
+        : err instanceof Error ? err.message : "Réessaie avec un autre moment.";
       toast({
         title: "Impossible de lancer la génération",
-        description: err instanceof Error ? err.message : "Réessaie ou modifie le timestamp.",
+        description: message,
         variant: "destructive",
       });
     } finally {
