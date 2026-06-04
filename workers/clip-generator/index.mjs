@@ -3,17 +3,17 @@
 //   POST /generate
 //   Headers: X-Worker-Secret: <WORKER_SHARED_SECRET>
 //   Body: {
-//     job_id: string,
-//     source_url: string,             // signed read URL (Storage) or public URL
-//     output_upload_url: string,      // signed PUT URL (Supabase Storage signed upload)
-//     output_storage_path: string,    // path inside the destination bucket (echoed back in callback)
-//     start_time_seconds: number,
-//     end_time_seconds: number,
-//     callback_url: string,           // Lovable edge function URL
-//     callback_secret: string         // = WORKER_SHARED_SECRET (echoed back as header)
+//     job_id, source_url, source_kind?,        // source_kind: "twitch_vod" | "direct"
+//     output_upload_url, output_storage_path,
+//     start_time_seconds, end_time_seconds,
+//     callback_url, callback_secret
 //   }
 //
-// The worker has NO Supabase credentials. It cannot list/sign anything itself.
+// Source kinds:
+//   - "direct"     → fetch(source_url) and pipe to ffmpeg (existing behavior).
+//   - "twitch_vod" → use yt-dlp to download just the requested section from a
+//                    https://www.twitch.tv/videos/<id> URL, then ffmpeg-trim.
+//
 // Env required: WORKER_SHARED_SECRET. PORT optional (default 8080).
 
 import express from "express";
@@ -35,7 +35,6 @@ if (!WORKER_SHARED_SECRET) {
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
-// Health check — no secret required, responds immediately.
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.post("/generate", async (req, res) => {
@@ -45,6 +44,7 @@ app.post("/generate", async (req, res) => {
   const {
     job_id,
     source_url,
+    source_kind,
     output_upload_url,
     output_storage_path,
     start_time_seconds,
@@ -65,12 +65,12 @@ app.post("/generate", async (req, res) => {
     return res.status(400).json({ error: "missing_fields" });
   }
 
-  // Ack immediately; process async.
   res.status(202).json({ accepted: true, job_id });
 
   processJob({
     jobId: job_id,
     sourceUrl: source_url,
+    sourceKind: source_kind === "twitch_vod" ? "twitch_vod" : "direct",
     outputUploadUrl: output_upload_url,
     outputStoragePath: output_storage_path,
     startSeconds: start_time_seconds,
@@ -97,6 +97,7 @@ async function postCallback(callbackUrl, secret, payload) {
 async function processJob({
   jobId,
   sourceUrl,
+  sourceKind,
   outputUploadUrl,
   outputStoragePath,
   startSeconds,
@@ -115,33 +116,63 @@ async function processJob({
       progress: 5,
     });
 
-    // 1) Download source.
-    const resp = await fetch(sourceUrl);
-    if (!resp.ok || !resp.body) throw new Error(`download_failed_${resp.status}`);
-    await pipeline(resp.body, createWriteStream(sourcePath));
+    const duration = Math.max(1, Math.round(endSeconds - startSeconds));
+
+    // 1) Acquire source segment.
+    if (sourceKind === "twitch_vod") {
+      // yt-dlp pulls only the requested section from the Twitch VOD HLS.
+      // --download-sections accepts "*START-END" in seconds.
+      const section = `*${Math.max(0, Math.floor(startSeconds))}-${Math.ceil(endSeconds)}`;
+      await runCommand("yt-dlp", [
+        "--no-warnings",
+        "--no-playlist",
+        "--no-part",
+        "--force-overwrites",
+        "--retries", "3",
+        "--fragment-retries", "5",
+        "--download-sections", section,
+        "-f", "best",
+        "-o", sourcePath,
+        sourceUrl,
+      ]);
+    } else {
+      const resp = await fetch(sourceUrl);
+      if (!resp.ok || !resp.body) throw new Error(`download_failed_${resp.status}`);
+      await pipeline(resp.body, createWriteStream(sourcePath));
+    }
 
     await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
       status: "processing",
-      progress: 35,
+      progress: 45,
     });
 
-    // 2) FFmpeg cut.
-    const duration = Math.max(1, Math.round(endSeconds - startSeconds));
-    await runFfmpeg([
-      "-y",
-      "-ss", String(startSeconds),
-      "-i", sourcePath,
-      "-t", String(duration),
-      "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
-      "-c:v", "libx264",
-      "-preset", "veryfast",
-      "-crf", "23",
-      "-c:a", "aac",
-      "-b:a", "128k",
-      "-movflags", "+faststart",
-      outputPath,
-    ]);
+    // 2) FFmpeg cut + scale + re-encode for clean Shorts/Reels output.
+    // For twitch_vod, yt-dlp already trimmed roughly; we still re-cut to be
+    // exact and to normalize the codec.
+    const ffArgs = sourceKind === "twitch_vod"
+      ? [
+          "-y",
+          "-i", sourcePath,
+          "-t", String(duration),
+          "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
+          "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+          "-c:a", "aac", "-b:a", "128k",
+          "-movflags", "+faststart",
+          outputPath,
+        ]
+      : [
+          "-y",
+          "-ss", String(startSeconds),
+          "-i", sourcePath,
+          "-t", String(duration),
+          "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
+          "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+          "-c:a", "aac", "-b:a", "128k",
+          "-movflags", "+faststart",
+          outputPath,
+        ];
+    await runCommand("ffmpeg", ffArgs);
 
     const outStat = await stat(outputPath);
     if (outStat.size === 0) throw new Error("empty_output");
@@ -152,7 +183,7 @@ async function processJob({
       progress: 80,
     });
 
-    // 3) Upload result via the signed PUT URL provided by the edge function.
+    // 3) Upload via signed PUT URL.
     const buf = await readFile(outputPath);
     const upRes = await fetch(outputUploadUrl, {
       method: "PUT",
@@ -173,10 +204,15 @@ async function processJob({
   } catch (err) {
     const message = err?.message ?? "unknown_error";
     console.error("job failed", jobId, message);
+    const code = message.startsWith("yt-dlp")
+      ? "twitch_vod_unavailable"
+      : message.startsWith("ffmpeg")
+        ? "ffmpeg_error"
+        : "worker_error";
     await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
       status: "failed",
-      error_code: "ffmpeg_or_io_error",
+      error_code: code,
       error_message: message.slice(0, 500),
     });
   } finally {
@@ -184,15 +220,15 @@ async function processJob({
   }
 }
 
-function runFfmpeg(args) {
+function runCommand(cmd, args) {
   return new Promise((resolve, reject) => {
-    const proc = spawn("ffmpeg", args, { stdio: ["ignore", "pipe", "pipe"] });
+    const proc = spawn(cmd, args, { stdio: ["ignore", "pipe", "pipe"] });
     let stderr = "";
     proc.stderr.on("data", (d) => { stderr += d.toString(); });
-    proc.on("error", reject);
+    proc.on("error", (err) => reject(new Error(`${cmd}_spawn_error: ${err.message}`)));
     proc.on("close", (code) => {
       if (code === 0) resolve();
-      else reject(new Error(`ffmpeg_exit_${code}: ${stderr.slice(-300)}`));
+      else reject(new Error(`${cmd}_exit_${code}: ${stderr.slice(-400)}`));
     });
   });
 }

@@ -101,6 +101,8 @@ async function fetchLive(
 
 // ---- Debrief generation (shared) ---------------------------------------
 import { generateDebrief } from "../_shared/debrief.ts";
+import { generateClipCandidates } from "../_shared/clipCandidates.ts";
+import { attachVodToSession } from "../_shared/twitchVod.ts";
 
 // ---- Per-account processing --------------------------------------------
 async function processAccount(
@@ -215,6 +217,17 @@ async function processAccount(
       .eq("id", open.id);
 
     await generateDebrief(admin, open.id);
+    // Auto-clip candidates + VOD attach (best-effort, never blocks closing).
+    try {
+      await generateClipCandidates(admin, open.id);
+    } catch (err) {
+      console.error("[live-detect] clip candidates error", err);
+    }
+    try {
+      await attachVodToSession(admin, open.id, headers);
+    } catch (err) {
+      console.error("[live-detect] vod attach error", err);
+    }
     return { login: account.platform_login ?? "?", action: "closed_session" };
   }
 

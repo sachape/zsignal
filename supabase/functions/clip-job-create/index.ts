@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
   const endTime = Number(body.end_time_seconds);
 
   if (!contentItemId) return json({ error: "missing_content_item_id" }, 400);
-  if (!["upload", "storage_url", "direct_url"].includes(sourceType)) return json({ error: "invalid_source_type" }, 400);
+  if (!["upload", "storage_url", "direct_url", "twitch_vod"].includes(sourceType)) return json({ error: "invalid_source_type" }, 400);
   if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) return json({ error: "invalid_timestamps" }, 400);
   if (startTime < 0 || endTime <= startTime) return json({ error: "invalid_range" }, 400);
   const duration = Math.round(endTime - startTime);
@@ -62,6 +62,17 @@ Deno.serve(async (req) => {
     if (!sourceStoragePath) return json({ error: "missing_source_storage_path" }, 400);
     // Defense in depth: path must be in user's folder.
     if (!sourceStoragePath.startsWith(`${userId}/`)) return json({ error: "forbidden_path" }, 403);
+  } else if (sourceType === "twitch_vod") {
+    if (!sourceUrl) return json({ error: "missing_source_url" }, 400);
+    try {
+      const u = new URL(sourceUrl);
+      if (u.hostname !== "www.twitch.tv" && u.hostname !== "twitch.tv") {
+        return json({ error: "invalid_twitch_vod_url" }, 400);
+      }
+      if (!/^\/videos\/\d+/.test(u.pathname)) {
+        return json({ error: "invalid_twitch_vod_url" }, 400);
+      }
+    } catch { return json({ error: "invalid_source_url" }, 400); }
   } else {
     if (!sourceUrl) return json({ error: "missing_source_url" }, 400);
     try {
@@ -162,6 +173,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         job_id: job.id,
         source_url: resolvedSourceUrl,
+        source_kind: sourceType === "twitch_vod" ? "twitch_vod" : "direct",
         output_upload_url: upload.signedUrl,
         output_storage_path: outputStoragePath,
         start_time_seconds: Math.round(startTime),

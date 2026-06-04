@@ -18,6 +18,7 @@ import {
   type LiveSession,
 } from "@/services/liveSessions";
 import AssistedDebriefPanel from "@/components/live/AssistedDebriefPanel";
+import AutoClipCandidatesPanel from "@/components/live/AutoClipCandidatesPanel";
 
 const SubScore = ({ label, value }: { label: string; value: number | null }) => (
   <div className="rounded-lg border border-border/60 bg-card/40 p-3">
@@ -212,6 +213,7 @@ const LiveDetailPage = () => {
 
         {/* Assisted debrief — always available, even when the auto-analysis is partial */}
         <AssistedDebriefPanel session={session} signalLimited={!enough} />
+        <AutoClipCandidatesPanel session={session} />
 
         {enough ? (
           <div className="mb-4 grid grid-cols-3 gap-2">
