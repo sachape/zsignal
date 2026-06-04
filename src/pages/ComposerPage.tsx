@@ -455,9 +455,17 @@ const ComposerPage = () => {
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <Button disabled title="Publication Instagram bientôt disponible">
+                    <Button
+                      disabled
+                      variant="outline"
+                      title="Publication automatique bientôt disponible après validation des plateformes."
+                      className="gap-1.5"
+                    >
                       <Send className="h-4 w-4" />
-                      Publier
+                      Publier automatiquement
+                      <span className="ml-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-1.5 py-0 text-[10px] font-semibold text-amber-300">
+                        Bientôt
+                      </span>
                     </Button>
                   </div>
                   {draftId && (
