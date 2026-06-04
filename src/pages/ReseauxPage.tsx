@@ -459,6 +459,43 @@ export default function ReseauxPage() {
               </div>
               {syncError && <p className="mt-2 text-xs text-destructive">YouTube : {syncError}</p>}
               {ttSyncError && <p className="mt-2 text-xs text-destructive">TikTok : {ttSyncError}</p>}
+
+              {/* ── Instagram / Meta integration status (honest) ── */}
+              <div className="mt-3 rounded-lg border border-border bg-card/40 p-3 text-xs">
+                <div className="flex items-start gap-2">
+                  <InstagramIcon className="h-4 w-4 mt-0.5 shrink-0 text-[#E1306C]" />
+                  <div className="space-y-0.5">
+                    <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
+                    {(() => {
+                      if (metaConnection?.connection_status === "connected") {
+                        return (
+                          <p className="text-muted-foreground">
+                            Connecté en tant que <span className="text-foreground">@{metaConnection.instagram_username}</span>
+                            {metaConnection.account_type ? ` · ${metaConnection.account_type}` : ""}.
+                          </p>
+                        );
+                      }
+                      if (!FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED) {
+                        return (
+                          <p className="text-muted-foreground">
+                            Connexion Meta en préparation. La publication officielle Post / Reel / Story
+                            arrivera après validation de notre App Meta. Ajouter Instagram manuellement
+                            sert uniquement à compléter ton profil — ce n'est pas suffisant pour publier.
+                          </p>
+                        );
+                      }
+                      if (metaConnection?.connection_status === "pending_review") {
+                        return <p className="text-amber-300/90">Connexion Meta en cours de validation.</p>;
+                      }
+                      return (
+                        <p className="text-muted-foreground">
+                          Tu peux connecter ton compte Instagram Business / Creator officiellement via Meta.
+                        </p>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* ── Diagnostic ── */}
