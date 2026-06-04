@@ -5,7 +5,7 @@
 //      → returns short-lived IG user access token + user_id
 //   2. GET https://graph.instagram.com/access_token?grant_type=ig_exchange_token
 //      → long-lived token (~60 days)
-//   3. GET https://graph.instagram.com/me?fields=user_id,username,account_type,profile_picture_url
+//   3. GET https://graph.instagram.com/v25.0/me?fields=user_id,username,account_type,profile_picture_url
 //   4. Encrypt token & upsert row in creator_meta_connections.
 // No token value ever leaves the server. No Facebook Page required.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -18,16 +18,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-username-required-v8";
-const GRAPH_VERSION = "v23.0";
+const CALLBACK_VERSION = "instagram-callback-graph-v25-v9";
+const GRAPH_VERSION = "v25.0";
 
 type ProfileVariant =
+  | "me_user_id_username_v25_query"
+  | "me_user_id_username_account_v25_query"
+  | "me_user_id_username_v25_bearer"
   | "me_user_id_username_unversioned"
   | "me_id_username_unversioned"
-  | "me_user_id_username_v23"
-  | "me_id_username_v23"
+  | "me_user_id_username_versioned"
+  | "me_id_username_versioned"
   | "user_id_path_username_unversioned"
-  | "user_id_path_username_v23";
+  | "user_id_path_username_versioned";
 
 
 
@@ -66,6 +69,7 @@ interface ShortTokenResp {
   access_token?: string;
   user_id?: number | string;
   permissions?: string[];
+  data?: ShortTokenResp[];
   error_type?: string;
   error_message?: string;
   error?: { message?: string; code?: number; type?: string };
@@ -82,6 +86,7 @@ interface IgMeResp {
   username?: string;
   account_type?: string;
   profile_picture_url?: string;
+  data?: IgMeResp[];
   error?: { message?: string; code?: number; type?: string };
 }
 
@@ -91,6 +96,16 @@ function extractMetaError(payload: ShortTokenResp | LongTokenResp | IgMeResp) {
     meta_error_type: cleanMessage("error_type" in payload ? payload.error_type : metaError?.type),
     meta_error_message: cleanMessage("error_message" in payload ? payload.error_message : metaError?.message),
   };
+}
+
+function normalizeIgMe(payload: IgMeResp): IgMeResp {
+  const first = Array.isArray(payload.data) ? payload.data[0] : undefined;
+  return first ? { ...payload, ...first } : payload;
+}
+
+function normalizeShortToken(payload: ShortTokenResp): ShortTokenResp {
+  const first = Array.isArray(payload.data) ? payload.data[0] : undefined;
+  return first ? { ...payload, ...first } : payload;
 }
 
 function fail(
@@ -213,7 +228,7 @@ Deno.serve(async (req) => {
       type: shortResp.type,
       location: shortResp.headers.get("location"),
     });
-    const shortJson = (await shortResp.json().catch(() => ({}))) as ShortTokenResp;
+    const shortJson = normalizeShortToken((await shortResp.json().catch(() => ({}))) as ShortTokenResp);
     log("short_token_payload_keys", {
       keys: Object.keys(shortJson ?? {}),
       has_access_token: !!shortJson.access_token,
@@ -255,11 +270,11 @@ Deno.serve(async (req) => {
     // (not the endpoint, not the fetch, not the fields).
     try {
       const twinUrl =
-        `https://graph.instagram.com/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}`;
+        `https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}`;
       const twinResp = await fetch(twinUrl);
-      const twinData = await twinResp.json().catch(() => ({}));
+      const twinData = normalizeIgMe(await twinResp.json().catch(() => ({})));
       log("twin_me_call", {
-        endpoint: "GET https://graph.instagram.com/me?fields=user_id,username (encodeURIComponent on token)",
+        endpoint: `GET https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username (encodeURIComponent on token)`,
         http_status: twinResp.status,
         meta_error_type: twinData?.error?.type ?? null,
         meta_error_message: twinData?.error?.message ?? null,
@@ -276,10 +291,15 @@ Deno.serve(async (req) => {
     // 2. Fetch IG profile — BARE fetch (no method, no headers, no body, no redirect option).
     //    Per user instruction: do not pass method:"GET" (Meta sometimes logs "method type: get"
     //    in errors which may indicate the request line is malformed by some wrapper).
-    const tryProfile = async (variant: ProfileVariant, path: string, fields: string): Promise<{ attempt: ProfileAttempt; data: IgMeResp }> => {
+    const tryProfile = async (
+      variant: ProfileVariant,
+      path: string,
+      fields: string,
+      authMode: "query" | "bearer" = "query",
+    ): Promise<{ attempt: ProfileAttempt; data: IgMeResp }> => {
       const url = new URL(`https://graph.instagram.com${path}`);
       url.searchParams.set("fields", fields);
-      url.searchParams.set("access_token", shortToken);
+      if (authMode === "query") url.searchParams.set("access_token", shortToken);
       log("me_request", {
         profile_variant: variant,
         endpoint_host: "graph.instagram.com",
@@ -287,12 +307,16 @@ Deno.serve(async (req) => {
         method: "GET (default, not explicit)",
         fields,
         token_type: "short_lived",
+        auth_mode: authMode,
         has_access_token: !!shortToken,
         access_token_prefix: shortToken ? shortToken.slice(0, 6) : null,
         user_id_from_token: igUserIdFromToken,
       });
-      const resp = await fetch(url.toString()); // bare fetch
-      const data = (await resp.json().catch(() => ({}))) as IgMeResp;
+      const resp = await fetch(
+        url.toString(),
+        authMode === "bearer" ? { headers: { Authorization: `Bearer ${shortToken}` } } : undefined,
+      );
+      const data = normalizeIgMe((await resp.json().catch(() => ({}))) as IgMeResp);
       const metaError = extractMetaError(data);
       const attempt: ProfileAttempt = {
         variant,
@@ -312,21 +336,24 @@ Deno.serve(async (req) => {
     let profileData: IgMeResp = {};
     let successVariant: ProfileVariant | null = null;
 
-    const variants: Array<{ v: ProfileVariant; path: string; fields: string }> = [
+    const variants: Array<{ v: ProfileVariant; path: string; fields: string; authMode?: "query" | "bearer" }> = [
+      { v: "me_user_id_username_v25_query", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
+      { v: "me_user_id_username_account_v25_query", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username,account_type,profile_picture_url" },
+      { v: "me_user_id_username_v25_bearer", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username", authMode: "bearer" },
       { v: "me_user_id_username_unversioned", path: `/me`, fields: "user_id,username" },
       { v: "me_id_username_unversioned", path: `/me`, fields: "id,username" },
-      { v: "me_user_id_username_v23", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
-      { v: "me_id_username_v23", path: `/${GRAPH_VERSION}/me`, fields: "id,username" },
+      { v: "me_user_id_username_versioned", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
+      { v: "me_id_username_versioned", path: `/${GRAPH_VERSION}/me`, fields: "id,username" },
     ];
     if (igUserIdFromToken) {
       variants.push({ v: "user_id_path_username_unversioned", path: `/${igUserIdFromToken}`, fields: "username" });
-      variants.push({ v: "user_id_path_username_v23", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "username" });
+      variants.push({ v: "user_id_path_username_versioned", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "username" });
     }
 
 
 
-    for (const { v, path, fields } of variants) {
-      const { attempt, data } = await tryProfile(v, path, fields);
+    for (const { v, path, fields, authMode } of variants) {
+      const { attempt, data } = await tryProfile(v, path, fields, authMode);
       attempts.push(attempt);
       if (attempt.ok) {
         profileData = data;
@@ -440,8 +467,7 @@ Deno.serve(async (req) => {
       page_id: null,
       page_name: null,
       scopes_granted: [
-        "instagram_business_basic",
-        "instagram_business_content_publish",
+        ...(shortJson.permissions ?? ["instagram_business_basic"]),
       ],
       access_token_encrypted: encrypted,
       refresh_token_encrypted: null,
