@@ -42,12 +42,14 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 
 import { useContentItems, type ContentItem } from "@/hooks/useContentItems";
+import { useActiveVideoJob } from "@/hooks/useVideoJobs";
 import {
   getContentStatusBadge,
   getConfidenceLabel,
   formatVodTimestamp,
   buildVodDeepLink,
 } from "@/services/contentStatusLabels";
+import { getGenerationErrorMessage, getGenerationStageLabel } from "@/services/videoGeneration";
 
 const PLATFORM_LABEL: Record<string, string> = {
   youtube_shorts: "YouTube Shorts",
@@ -129,6 +131,7 @@ const VodImportPage = () => {
   });
 
   const { items, refetch, updateItem } = useContentItems();
+  const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const [url, setUrl] = useState("");
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("");
@@ -268,6 +271,14 @@ const VodImportPage = () => {
       toast({ title: "Données manquantes", description: "Modifie le moment du clip.", variant: "destructive" });
       return;
     }
+    if (activeJob && activeJob.content_item_id !== item.id) {
+      toast({
+        title: "Génération déjà en cours",
+        description: "Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.",
+        variant: "destructive",
+      });
+      return;
+    }
     const source = detectSourceClient(item.source_video_url);
     const sourceType =
       source === "twitch" ? "twitch_vod" :
@@ -290,10 +301,14 @@ const VodImportPage = () => {
       }
       toast({ title: "Génération lancée", description: "Le clip est en cours de génération." });
       await refetch();
+      await refetchActiveJob();
     } catch (err) {
+      const message = err instanceof Error && err.message.includes("non-2xx")
+        ? getGenerationErrorMessage("active_job_exists")
+        : err instanceof Error ? err.message : "Réessaie avec un autre moment.";
       toast({
         title: "Impossible de lancer la génération",
-        description: err instanceof Error ? err.message : "Réessaie ou modifie le timestamp.",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -538,7 +553,11 @@ const VodImportPage = () => {
                   const deepLink = buildVodDeepLink(item.source_video_url, item.source_start_time);
                   const isError = item.generation_status === "failed";
                   const startedAt = processingSince[item.id];
-                  const isStuck = isProcessing && !!startedAt && now - startedAt > 5 * 60 * 1000;
+                  const anotherJobIsActive = !!activeJob && activeJob.content_item_id !== item.id;
+                  const activeStageLabel = activeJob?.content_item_id === item.id
+                    ? getGenerationStageLabel(activeJob.generation_stage)
+                    : null;
+                  const isLongRunning = isProcessing && !!startedAt && now - startedAt > 3 * 60 * 1000;
 
                   return (
                     <div key={item.id} className="rounded-lg border border-border/60 bg-card/60 p-3">
@@ -573,7 +592,7 @@ const VodImportPage = () => {
                           <Button
                             size="sm"
                             onClick={() => handleGenerate(item)}
-                            disabled={isProcessing}
+                            disabled={isProcessing || anotherJobIsActive}
                           >
                             {isProcessing ? (
                               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -617,9 +636,19 @@ const VodImportPage = () => {
                         )}
                       </div>
 
-                      {isStuck && (
+                      {activeStageLabel && isProcessing && (
+                        <p className="mt-2 text-[11px] text-primary">
+                          {activeStageLabel}
+                        </p>
+                      )}
+                      {anotherJobIsActive && !isReady && (
                         <p className="mt-2 text-[11px] text-warning">
-                          La génération prend plus de temps que prévu. Tu peux attendre ou réessayer.
+                          Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.
+                        </p>
+                      )}
+                      {isLongRunning && (
+                        <p className="mt-2 text-[11px] text-warning">
+                          La génération est plus longue que prévu, mais elle continue.
                         </p>
                       )}
                       {isError && item.generation_error && (

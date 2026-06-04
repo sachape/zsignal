@@ -38,6 +38,8 @@ function reasonLabel(reason: string): string {
     case "sign_failed": return "Impossible de préparer l'upload.";
     case "upload_failed": return "Échec de l'upload de la source.";
     case "job_insert_failed": return "Échec de création du job. Réessaie.";
+    case "active_job_exists": return "Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.";
+    case "worker_no_callback": return "Le worker vidéo n’a pas répondu.";
     default: return "Échec. Réessaie.";
   }
 }
@@ -180,8 +182,7 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
       onLaunched();
       onOpenChange(false);
       reset();
-    } catch (e) {
-      console.error("clip generation error", e);
+    } catch {
       setError("network");
       setBusy(false); setPhase("idle");
     }

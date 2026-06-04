@@ -29,13 +29,14 @@ import {
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
 import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
-import { useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
+import { useActiveVideoJob, useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
 import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
 import ManualPublishPanel from "@/components/content-queue/ManualPublishPanel";
 import NewContentDialog from "@/components/content-queue/NewContentDialog";
 import ManualMediaUploadDialog from "@/components/content-queue/ManualMediaUploadDialog";
 import { useFreshMediaUrl } from "@/services/mediaStorage";
 import { isAdminMode } from "@/lib/featureFlags";
+import { getGenerationErrorMessage, getGenerationStageLabel } from "@/services/videoGeneration";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -99,6 +100,7 @@ function buildCopyPayload(item: ContentItem): string {
 const ContentQueuePage = () => {
   const { items, loading, updateItem, deleteItem, refetch, createMany } = useContentItems();
   const { accounts } = useConnectedNetworks();
+  const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
@@ -277,6 +279,10 @@ const ContentQueuePage = () => {
                 onManualUpload={() => setManualUploadItem(item)}
                 onEditSource={() => setSourceItem(item)}
                 onGenerate={() => {
+                  if (activeJob && activeJob.content_item_id !== item.id) {
+                    toast.error("Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.");
+                    return;
+                  }
                   if (item.source_start_time == null || item.source_end_time == null) {
                     toast.error("Ajoute d'abord des timestamps valides (5–180 s).");
                     setSourceItem(item);
@@ -284,7 +290,8 @@ const ContentQueuePage = () => {
                   }
                   setGenerateItem(item);
                 }}
-                onJobUpdate={() => refetch()}
+                activeJobContentItemId={activeJob?.content_item_id ?? null}
+                onJobUpdate={() => { refetch(); refetchActiveJob(); }}
                 onUpdate={(patch) => updateItem(item.id, patch).catch(e => toast.error(e.message))}
                 onDelete={() => {
                   if (confirm("Supprimer ce contenu ?")) {
@@ -373,7 +380,7 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload, onManualUpload, onEditSource, onGenerate, onJobUpdate,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onManualUpload, onEditSource, onGenerate, onJobUpdate, activeJobContentItemId,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
@@ -384,6 +391,7 @@ function ContentRow({
   onEditSource: () => void;
   onGenerate: () => void;
   onJobUpdate: () => void;
+  activeJobContentItemId: string | null;
 }) {
   const isVideo = VIDEO_PLATFORMS.includes(item.platform);
   const hasGeneratedClip = !!item.generated_video_url || !!item.generated_video_storage_path;
@@ -391,6 +399,7 @@ function ContentRow({
   // Always resolve a fresh signed URL when the item has a permanent storage
   // pointer — otherwise fall back to whatever URL the item already carries.
   const freshMediaUrl = useFreshMediaUrl(item);
+  const anotherJobIsActive = activeJobContentItemId !== null && activeJobContentItemId !== item.id;
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
@@ -601,14 +610,19 @@ function ContentRow({
                 <Button
                   size="sm" className="h-7 text-[11px]"
                   onClick={onGenerate}
-                  disabled={item.source_start_time == null || item.source_end_time == null || item.generation_status === "queued" || item.generation_status === "processing"}
-                  title="Lancer la génération du clip"
+                  disabled={item.source_start_time == null || item.source_end_time == null || item.generation_status === "queued" || item.generation_status === "processing" || anotherJobIsActive}
+                  title={anotherJobIsActive ? "Une génération est déjà en cours" : "Lancer la génération du clip"}
                 >
                   {item.generation_status === "queued" || item.generation_status === "processing"
                     ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     : <Wand2 className="mr-1.5 h-3.5 w-3.5" />}
                   {item.generation_status === "failed" ? "Réessayer" : "Générer le clip"}
                 </Button>
+              )}
+              {anotherJobIsActive && !hasGeneratedClip && (
+                <p className="basis-full text-[11px] text-warning">
+                  Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.
+                </p>
               )}
               <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onManualUpload}
                 title="J'ai déjà mon clip, je l'importe directement">
@@ -919,24 +933,25 @@ function ClipJobStatus({ contentItemId, onTerminal }: { contentItemId: string; o
   if (job.status === "completed") return null; // success already reflected via item.generated_video_url
 
   const meta = JOB_STATUS_META[job.status];
+  const stageLabel = getGenerationStageLabel(job.generation_stage);
+  const lastSeen = new Date(job.worker_last_seen_at ?? job.updated_at).getTime();
+  const isLongRunning = job.status === "processing" && Number.isFinite(lastSeen) && Date.now() - lastSeen > 3 * 60 * 1000;
+  const errorMessage = job.status === "failed"
+    ? getGenerationErrorMessage(job.error_code)
+    : null;
   return (
     <div className={cn("space-y-1.5 rounded-md border p-2.5 text-[11px]", meta.cls)}>
       <div className="flex items-center justify-between">
-        <span className="font-semibold">{meta.label}</span>
-        {typeof job.progress === "number" && job.status === "processing" && (
-          <span className="tabular-nums">{job.progress}%</span>
-        )}
+        <span className="font-semibold">{job.status === "processing" ? stageLabel : meta.label}</span>
       </div>
-      {job.status === "processing" && typeof job.progress === "number" && (
-        <div className="h-1 w-full overflow-hidden rounded-full bg-background/40">
-          <div className="h-full bg-current opacity-70 transition-all" style={{ width: `${job.progress}%` }} />
-        </div>
-      )}
       {job.status === "queued" && (
         <p className="opacity-80">Streamnco découpe ton extrait dès qu'un worker est disponible.</p>
       )}
-      {job.status === "failed" && job.error_message && (
-        <p className="opacity-90">{job.error_message}</p>
+      {isLongRunning && (
+        <p className="opacity-90">La génération est plus longue que prévu, mais elle continue.</p>
+      )}
+      {job.status === "failed" && errorMessage && (
+        <p className="opacity-90">{errorMessage}</p>
       )}
     </div>
   );

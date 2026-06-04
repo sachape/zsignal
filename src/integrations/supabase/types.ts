@@ -1058,6 +1058,7 @@ export type Database = {
       }
       creator_video_generation_jobs: {
         Row: {
+          callback_status: string | null
           completed_at: string | null
           content_item_id: string
           created_at: string
@@ -1065,6 +1066,7 @@ export type Database = {
           end_time_seconds: number
           error_code: string | null
           error_message: string | null
+          generation_stage: string
           id: string
           metadata: Json | null
           output_format: string
@@ -1078,8 +1080,12 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          worker_completed_at: string | null
+          worker_last_seen_at: string | null
+          worker_started_at: string | null
         }
         Insert: {
+          callback_status?: string | null
           completed_at?: string | null
           content_item_id: string
           created_at?: string
@@ -1087,6 +1093,7 @@ export type Database = {
           end_time_seconds: number
           error_code?: string | null
           error_message?: string | null
+          generation_stage?: string
           id?: string
           metadata?: Json | null
           output_format?: string
@@ -1100,8 +1107,12 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          worker_completed_at?: string | null
+          worker_last_seen_at?: string | null
+          worker_started_at?: string | null
         }
         Update: {
+          callback_status?: string | null
           completed_at?: string | null
           content_item_id?: string
           created_at?: string
@@ -1109,6 +1120,7 @@ export type Database = {
           end_time_seconds?: number
           error_code?: string | null
           error_message?: string | null
+          generation_stage?: string
           id?: string
           metadata?: Json | null
           output_format?: string
@@ -1122,6 +1134,9 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          worker_completed_at?: string | null
+          worker_last_seen_at?: string | null
+          worker_started_at?: string | null
         }
         Relationships: [
           {

@@ -13,6 +13,17 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const WORKER_SHARED_SECRET = Deno.env.get("WORKER_SHARED_SECRET") ?? "";
 
+const VALID_STAGES = new Set([
+  "queued",
+  "worker_started",
+  "downloading",
+  "cutting",
+  "uploading",
+  "completed",
+  "failed",
+  "cancelled",
+]);
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -36,6 +47,8 @@ Deno.serve(async (req) => {
   const status = String(body.status ?? "");
   if (!jobId) return json({ error: "missing_job_id" }, 400);
   if (!["processing", "completed", "failed"].includes(status)) return json({ error: "invalid_status" }, 400);
+  const rawStage = body.stage ? String(body.stage) : null;
+  const stage = rawStage && VALID_STAGES.has(rawStage) ? rawStage : null;
 
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -48,14 +61,23 @@ Deno.serve(async (req) => {
 
   if (status === "processing") {
     const progress = typeof body.progress === "number" ? Math.max(0, Math.min(100, Math.round(body.progress))) : null;
+    const generationStage = stage ?? (progress !== null && progress >= 80 ? "uploading" : progress !== null && progress >= 45 ? "cutting" : progress !== null && progress >= 5 ? "downloading" : "worker_started");
     await admin
       .from("creator_video_generation_jobs")
-      .update({ status: "processing", progress })
+      .update({
+        status: "processing",
+        progress,
+        generation_stage: generationStage,
+        callback_status: "accepted",
+        worker_started_at: job.worker_started_at ?? new Date().toISOString(),
+        worker_last_seen_at: new Date().toISOString(),
+      })
       .eq("id", jobId);
     await admin
       .from("creator_content_items")
-      .update({ generation_status: "processing" })
+      .update({ generation_status: "processing", generation_error: null })
       .eq("id", job.content_item_id);
+    console.info(JSON.stringify({ event: "clip_job_callback_processing", job_id: jobId, stage: generationStage, progress }));
     return json({ success: true });
   }
 
@@ -77,6 +99,10 @@ Deno.serve(async (req) => {
       .update({
         status: "completed",
         progress: 100,
+        generation_stage: "completed",
+        callback_status: "accepted",
+        worker_last_seen_at: new Date().toISOString(),
+        worker_completed_at: new Date().toISOString(),
         output_storage_path: outputStoragePath,
         output_url: signed.signedUrl,
         completed_at: new Date().toISOString(),
@@ -95,6 +121,7 @@ Deno.serve(async (req) => {
       })
       .eq("id", job.content_item_id);
 
+    console.info(JSON.stringify({ event: "clip_job_callback_completed", job_id: jobId, output_storage_path: outputStoragePath }));
     return json({ success: true });
   }
 
@@ -109,10 +136,14 @@ Deno.serve(async (req) => {
       case "vod_unavailable":
         return "Cette VOD n'est pas accessible. Utilise une vidéo publique ou importe un fichier.";
       case "ffmpeg_error":
-        return "Erreur lors du découpage vidéo. Essaie un autre intervalle de temps.";
+        return "Le découpage vidéo a échoué. Réessaie avec un autre moment.";
+      case "worker_timeout":
+        return "La génération a pris trop de temps. Réessaie avec un autre moment.";
+      case "worker_no_callback":
+        return "Le worker vidéo n’a pas répondu. Réessaie avec un autre moment.";
       case "worker_error":
       default:
-        return "Échec de génération. Réessaie ou modifie le timestamp du clip.";
+        return "Réessaie avec un autre moment.";
     }
   })();
 
@@ -120,9 +151,13 @@ Deno.serve(async (req) => {
     .from("creator_video_generation_jobs")
     .update({
       status: "failed",
+      generation_stage: "failed",
+      callback_status: "accepted",
       error_code: errorCode,
       error_message: rawMessage || errorMessage,
       completed_at: new Date().toISOString(),
+      worker_last_seen_at: new Date().toISOString(),
+      worker_completed_at: new Date().toISOString(),
     })
     .eq("id", jobId);
 
@@ -135,5 +170,6 @@ Deno.serve(async (req) => {
     })
     .eq("id", job.content_item_id);
 
+  console.info(JSON.stringify({ event: "clip_job_callback_failed", job_id: jobId, error_code: errorCode }));
   return json({ success: true });
 });
