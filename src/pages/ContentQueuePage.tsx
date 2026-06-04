@@ -29,13 +29,14 @@ import {
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
 import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
-import { useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
+import { useActiveVideoJob, useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
 import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
 import ManualPublishPanel from "@/components/content-queue/ManualPublishPanel";
 import NewContentDialog from "@/components/content-queue/NewContentDialog";
 import ManualMediaUploadDialog from "@/components/content-queue/ManualMediaUploadDialog";
 import { useFreshMediaUrl } from "@/services/mediaStorage";
 import { isAdminMode } from "@/lib/featureFlags";
+import { getGenerationErrorMessage, getGenerationStageLabel } from "@/services/videoGeneration";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -99,6 +100,7 @@ function buildCopyPayload(item: ContentItem): string {
 const ContentQueuePage = () => {
   const { items, loading, updateItem, deleteItem, refetch, createMany } = useContentItems();
   const { accounts } = useConnectedNetworks();
+  const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
@@ -277,6 +279,10 @@ const ContentQueuePage = () => {
                 onManualUpload={() => setManualUploadItem(item)}
                 onEditSource={() => setSourceItem(item)}
                 onGenerate={() => {
+                  if (activeJob && activeJob.content_item_id !== item.id) {
+                    toast.error("Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.");
+                    return;
+                  }
                   if (item.source_start_time == null || item.source_end_time == null) {
                     toast.error("Ajoute d'abord des timestamps valides (5–180 s).");
                     setSourceItem(item);
@@ -284,7 +290,8 @@ const ContentQueuePage = () => {
                   }
                   setGenerateItem(item);
                 }}
-                onJobUpdate={() => refetch()}
+                activeJobContentItemId={activeJob?.content_item_id ?? null}
+                onJobUpdate={() => { refetch(); refetchActiveJob(); }}
                 onUpdate={(patch) => updateItem(item.id, patch).catch(e => toast.error(e.message))}
                 onDelete={() => {
                   if (confirm("Supprimer ce contenu ?")) {
