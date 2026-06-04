@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 /**
  * /auth/instagram/callback
  *
- * Meta redirects here after Facebook Login consent. The page:
+ * Instagram redirects here after Instagram Login consent (direct Instagram OAuth,
+ * no Facebook Page required). The page:
  *   1. reads code/state/error from the URL
  *   2. POSTs { code, state } to the edge function instagram-auth-callback
  *   3. redirects to /reseaux?instagram=connected|error|cancelled
