@@ -200,34 +200,55 @@ const ComposerPage = () => {
     }
   };
 
-  const PublishLockedNotice = (
-    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+  // Compute the most truthful publish-state message
+  const publishState = (() => {
+    if (!isInstagramConnected) {
+      return {
+        title: "Instagram non connecté",
+        body: "Connecte Instagram pour publier depuis Streamnco. En attendant, tes brouillons et plannings restent enregistrés.",
+        tone: "muted" as const,
+      };
+    }
+    if (!FEATURE_FLAGS.INSTAGRAM_PUBLISH_ENABLED) {
+      return {
+        title: "Publication Instagram en attente de validation Meta",
+        body: "Ton compte est connecté. L'envoi automatique sera activé une fois la validation Meta et le scheduler en place.",
+        tone: "warning" as const,
+      };
+    }
+    return null;
+  })();
+
+  const PublishLockedNotice = publishState && (
+    <div
+      className={cn(
+        "rounded-lg border p-3 text-xs",
+        publishState.tone === "warning"
+          ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+          : "border-border bg-card/50 text-muted-foreground",
+      )}
+    >
       <div className="flex items-start gap-2">
         <Info className="h-4 w-4 mt-0.5 shrink-0" />
         <div>
-          <div className="font-semibold mb-0.5">Publication Instagram bientôt disponible</div>
-          <div className="text-amber-200/80">
-            La connexion Meta est en cours de validation. Tu peux préparer tes contenus en brouillon et
-            les dater pour ton calendrier éditorial. L'envoi automatique arrivera après l'activation Meta + scheduler.
+          <div className="font-semibold mb-0.5">{publishState.title}</div>
+          <div className={publishState.tone === "warning" ? "text-amber-200/80" : ""}>
+            {publishState.body}
+            {!isInstagramConnected && (
+              <>
+                {" "}
+                <Link to="/reseaux/instagram" className="text-primary underline">
+                  Aller dans Réseaux
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 
-  const InstagramNotConnected = !instagramAccount && (
-    <div className="rounded-lg border border-border bg-card/50 p-3 text-xs text-muted-foreground">
-      <div className="flex items-start gap-2">
-        <Camera className="h-4 w-4 mt-0.5 shrink-0" />
-        <div>
-          Connecte Instagram pour publier directement depuis Streamnco.{" "}
-          <Link to="/reseaux/instagram" className="text-primary underline">
-            Connecter
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+  const InstagramNotConnected = null;
 
   return (
     <AppShell>
