@@ -126,12 +126,12 @@ Deno.serve(async (req) => {
     const shortToken = shortJson.access_token;
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
 
-    // 2. Exchange short-lived → long-lived (~60d) via graph.instagram.com.
+    // 2. Exchange short-lived → long-lived (~60d) via graph.instagram.com (GET, unversioned).
     const longUrl = new URL("https://graph.instagram.com/access_token");
     longUrl.searchParams.set("grant_type", "ig_exchange_token");
     longUrl.searchParams.set("client_secret", cfg.appSecret);
     longUrl.searchParams.set("access_token", shortToken);
-    const longResp = await fetch(longUrl.toString());
+    const longResp = await fetch(longUrl.toString(), { method: "GET" });
     const longJson = (await longResp.json()) as LongTokenResp;
     const accessToken = longJson.access_token ?? shortToken;
     const expiresIn = longJson.expires_in ?? null;
