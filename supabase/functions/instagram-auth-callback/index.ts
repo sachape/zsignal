@@ -338,6 +338,8 @@ Deno.serve(async (req) => {
       success: true,
       instagram_username: meJson.username,
       account_type: meJson.account_type,
+      warning_code: warningCode,
+      warning_message: warningMessage,
     });
   } catch (e) {
     return fail(500, "internal_error", "validate_input", { message: e instanceof Error ? e.message : "unknown" });
