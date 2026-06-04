@@ -1,15 +1,25 @@
 import { Compass } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { getLiveProgressionCopy } from "@/services/liveProgressionCopy";
 
 interface Props {
-  reasons: string[];
+  /**
+   * Number of live sessions detected on the last 30 days.
+   * Drives the user-facing microcopy (0 / 1 / multiple lives).
+   */
+  streams30d: number;
 }
 
 /**
  * Compact banner that reframes the product as a structuring coach when
  * foundation mode is active. Sits at the top of the dashboard.
+ *
+ * Intentionally avoids any technical wording (signal/confidence/snapshots/
+ * fallback) — the message is always positive and oriented toward the next
+ * action the streamer can take.
  */
-const FoundationModeBanner = ({ reasons }: Props) => {
+const FoundationModeBanner = ({ streams30d }: Props) => {
+  const copy = getLiveProgressionCopy(streams30d, true);
   return (
     <Card className="mb-4 border-primary/30 bg-primary/5">
       <CardContent className="flex flex-wrap items-start gap-3 p-4">
@@ -21,17 +31,11 @@ const FoundationModeBanner = ({ reasons }: Props) => {
             Mode structuration
           </p>
           <p className="mt-1 text-sm font-semibold text-foreground">
-            Tu n'es pas encore en phase d'optimisation.
+            {copy.headline}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            L'objectif des prochaines semaines : créer un signal de croissance lisible. On
-            avance étape par étape, pas métrique par métrique.
+            {copy.helper}
           </p>
-          {reasons.length > 0 && (
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Signaux détectés : {reasons.slice(0, 3).join(" · ")}
-            </p>
-          )}
         </div>
       </CardContent>
     </Card>
