@@ -27,10 +27,12 @@ import { usePresenceScoreHistory } from "@/hooks/usePresenceScoreHistory";
 import { computePresenceScore, getPlatformScore } from "@/services/presenceScore";
 import { computeRecommendations, computeDiagnostic } from "@/services/networkRecommendations";
 import ConnectNetworkModal from "@/components/ConnectNetworkModal";
+import PlatformValidationNotice from "@/components/PlatformValidationNotice";
 import type { Platform } from "@/types/networks";
 import { supabase } from "@/integrations/supabase/client";
 import { useInstagramConnection } from "@/hooks/useInstagramConnection";
 import { useInstagramOAuthStatus } from "@/hooks/useInstagramOAuthStatus";
+import { isAdminMode } from "@/lib/featureFlags";
 
 // ── Platform icons ────────────────────────────────────────────────────────────
 function TwitchIcon({ className }: { className?: string }) {
