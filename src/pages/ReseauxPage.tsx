@@ -30,7 +30,7 @@ import ConnectNetworkModal from "@/components/ConnectNetworkModal";
 import type { Platform } from "@/types/networks";
 import { supabase } from "@/integrations/supabase/client";
 import { useInstagramConnection } from "@/hooks/useInstagramConnection";
-import { FEATURE_FLAGS } from "@/lib/featureFlags";
+import { useInstagramOAuthStatus } from "@/hooks/useInstagramOAuthStatus";
 
 // ── Platform icons ────────────────────────────────────────────────────────────
 function TwitchIcon({ className }: { className?: string }) {
