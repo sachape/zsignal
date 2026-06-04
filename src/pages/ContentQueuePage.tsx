@@ -596,8 +596,25 @@ function ContentRow({
                   {item.generation_status === "failed" ? "Réessayer" : "Générer le clip"}
                 </Button>
               )}
+              <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onManualUpload}
+                title="J'ai déjà mon clip, je l'importe directement">
+                <FileUp className="mr-1.5 h-3.5 w-3.5" />
+                {hasGeneratedClip ? "Remplacer le média" : "Importer un média"}
+              </Button>
             </div>
           </div>
+        )}
+
+        {/* Manual publish workflow — visible as soon as we have something to share */}
+        {item.status !== "ignored" && item.status !== "published" && (
+          (item.generated_video_url ||
+            ["draft_ready", "ready", "uploaded", "published_manually"].includes(item.status)) ? (
+            <ManualPublishPanel
+              item={item}
+              mediaUrl={item.generated_video_url}
+              onUpdate={onUpdate}
+            />
+          ) : null
         )}
 
         {/* V3.7 — Après publication (analytics YouTube réels) */}
