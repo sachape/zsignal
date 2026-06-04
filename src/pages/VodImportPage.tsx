@@ -617,6 +617,11 @@ const VodImportPage = () => {
                         )}
                       </div>
 
+                      {isStuck && (
+                        <p className="mt-2 text-[11px] text-warning">
+                          La génération prend plus de temps que prévu. Tu peux attendre ou réessayer.
+                        </p>
+                      )}
                       {isError && item.generation_error && (
                         <p className="mt-2 text-[11px] text-destructive">
                           {item.generation_error}
