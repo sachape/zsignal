@@ -317,6 +317,7 @@ Deno.serve(async (req) => {
       const url = new URL(`https://graph.instagram.com${path}`);
       url.searchParams.set("fields", fields);
       if (authMode === "query") url.searchParams.set("access_token", shortToken);
+      url.searchParams.set("appsecret_proof", proofShort);
       log("me_request", {
         profile_variant: variant,
         endpoint_host: "graph.instagram.com",
