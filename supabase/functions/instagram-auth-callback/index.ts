@@ -18,7 +18,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-me-variants-cascade-v4";
+const CALLBACK_VERSION = "instagram-callback-profile-best-effort-v5";
 const GRAPH_VERSION = "v21.0";
 
 type ProfileVariant =
