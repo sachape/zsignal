@@ -43,13 +43,18 @@ export default function ManualMediaUploadDialog({ item, open, onOpenChange, onUp
         .upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) throw new Error(upErr.message);
 
+      // Short-lived signed URL just for the immediate preview. The permanent
+      // pointer is the (bucket, path) tuple — a fresh signed URL is generated
+      // on-demand later via resolveFreshMediaUrl().
       const { data: signed, error: sErr } = await supabase.storage
         .from(BUCKET)
-        .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 jours
+        .createSignedUrl(path, 60 * 60); // 1h preview
       if (sErr) throw new Error(sErr.message);
 
       await onUploaded({
         generated_video_url: signed.signedUrl,
+        generated_video_storage_bucket: BUCKET,
+        generated_video_storage_path: path,
         generation_status: "succeeded",
         generation_error: null,
         source_platform: "manual",
