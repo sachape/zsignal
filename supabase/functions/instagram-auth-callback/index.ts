@@ -18,7 +18,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-appsecret-proof-v11";
+const CALLBACK_VERSION = "instagram-callback-graph-host-fallback-v12";
 const GRAPH_VERSION = "v25.0";
 
 // Meta's "Require App Secret Proof for Server API calls" returns the misleading
@@ -46,7 +46,11 @@ type ProfileVariant =
   | "me_user_id_username_versioned"
   | "me_id_username_versioned"
   | "user_id_path_username_unversioned"
-  | "user_id_path_username_versioned";
+  | "user_id_path_username_versioned"
+  | "user_id_path_details_instagram_versioned"
+  | "user_id_path_details_facebook_versioned"
+  | "user_id_path_details_facebook_no_proof"
+  | "me_details_facebook_versioned";
 
 
 
@@ -99,6 +103,7 @@ interface LongTokenResp {
 interface IgMeResp {
   id?: string;
   user_id?: string;
+  name?: string;
   username?: string;
   account_type?: string;
   profile_picture_url?: string;
