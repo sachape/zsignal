@@ -21,6 +21,11 @@ export const FEATURE_FLAGS = {
   INSTAGRAM_PUBLISH_ENABLED: readBoolFlag(import.meta.env.VITE_INSTAGRAM_PUBLISH_ENABLED, false),
   YOUTUBE_PUBLISH_ENABLED: readBoolFlag(import.meta.env.VITE_YOUTUBE_PUBLISH_ENABLED, false),
   TIKTOK_PUBLISH_ENABLED: readBoolFlag(import.meta.env.VITE_TIKTOK_PUBLISH_ENABLED, false),
+  /** Allows the "Générer le clip" button to dispatch a real worker job from a Twitch VOD URL. */
+  TWITCH_AUTO_CLIP_GENERATION_ENABLED: readBoolFlag(
+    import.meta.env.VITE_TWITCH_AUTO_CLIP_GENERATION_ENABLED,
+    true,
+  ),
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;
