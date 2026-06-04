@@ -24,7 +24,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "1.2.0";
+const WORKER_VERSION = "1.3.0";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -130,13 +130,26 @@ app.post("/generate", async (req, res) => {
 
 async function postCallback(callbackUrl, secret, payload) {
   try {
-    await fetch(callbackUrl, {
+    const startedAt = Date.now();
+    const res = await fetch(callbackUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Worker-Secret": secret },
       body: JSON.stringify(payload),
     });
+    const text = await res.text().catch(() => "");
+    console.log("[callback]", JSON.stringify({
+      job_id: payload.job_id,
+      status: payload.status,
+      stage: payload.stage,
+      accepted: res.ok,
+      http_status: res.status,
+      duration_ms: Date.now() - startedAt,
+      body: text.slice(0, 300),
+    }));
+    return res.ok;
   } catch (err) {
-    console.error("callback failed", err?.message);
+    console.error("[callback_failed]", JSON.stringify({ job_id: payload.job_id, stage: payload.stage, message: err?.message }));
+    return false;
   }
 }
 
@@ -154,11 +167,14 @@ async function processJob({
   const workDir = await mkdtemp(join(tmpdir(), `clip-${jobId}-`));
   const sourcePath = join(workDir, "source.mp4");
   const outputPath = join(workDir, "output.mp4");
+  const startedAt = Date.now();
 
   try {
+    console.log("[job_started]", JSON.stringify({ job_id: jobId, source_kind: sourceKind, start_seconds: startSeconds, end_seconds: endSeconds }));
     await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
       status: "processing",
+      stage: "worker_started",
       progress: 5,
     });
 
@@ -166,6 +182,13 @@ async function processJob({
 
     // 1) Acquire source segment.
     if (sourceKind === "twitch_vod" || sourceKind === "youtube_vod") {
+      await postCallback(callbackUrl, callbackSecret, {
+        job_id: jobId,
+        status: "processing",
+        stage: "downloading",
+        progress: 15,
+      });
+      console.log("[yt_dlp_started]", JSON.stringify({ job_id: jobId, section: `*${Math.max(0, Math.floor(startSeconds))}-${Math.ceil(endSeconds)}` }));
       // yt-dlp pulls only the requested section from the VOD HLS / formats.
       // --download-sections accepts "*START-END" in seconds.
       const section = `*${Math.max(0, Math.floor(startSeconds))}-${Math.ceil(endSeconds)}`;
@@ -184,18 +207,31 @@ async function processJob({
         "--merge-output-format", "mp4",
         "-o", sourcePath,
         sourceUrl,
-      ]);
+      ], 8 * 60 * 1000);
+      const sourceStat = await stat(sourcePath);
+      console.log("[yt_dlp_completed]", JSON.stringify({ job_id: jobId, size_bytes: sourceStat.size, duration_ms: Date.now() - startedAt }));
     } else {
+      await postCallback(callbackUrl, callbackSecret, {
+        job_id: jobId,
+        status: "processing",
+        stage: "downloading",
+        progress: 15,
+      });
+      console.log("[download_started]", JSON.stringify({ job_id: jobId }));
       const resp = await fetch(sourceUrl);
       if (!resp.ok || !resp.body) throw new Error(`download_failed_${resp.status}`);
       await pipeline(resp.body, createWriteStream(sourcePath));
+      const sourceStat = await stat(sourcePath);
+      console.log("[download_completed]", JSON.stringify({ job_id: jobId, size_bytes: sourceStat.size, duration_ms: Date.now() - startedAt }));
     }
 
     await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
       status: "processing",
+      stage: "cutting",
       progress: 45,
     });
+    console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, duration }));
 
     // 2) FFmpeg cut + scale + re-encode for clean Shorts/Reels output.
     // For twitch_vod / youtube_vod, yt-dlp already trimmed roughly; we still
@@ -222,16 +258,19 @@ async function processJob({
           "-movflags", "+faststart",
           outputPath,
         ];
-    await runCommand("ffmpeg", ffArgs);
+    await runCommand("ffmpeg", ffArgs, 3 * 60 * 1000);
 
     const outStat = await stat(outputPath);
     if (outStat.size === 0) throw new Error("empty_output");
+    console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
 
     await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
       status: "processing",
+      stage: "uploading",
       progress: 80,
     });
+    console.log("[upload_started]", JSON.stringify({ job_id: jobId, output_storage_path: outputStoragePath }));
 
     // 3) Upload via signed PUT URL.
     const buf = await readFile(outputPath);
@@ -244,17 +283,22 @@ async function processJob({
       const detail = await upRes.text().catch(() => "");
       throw new Error(`upload_failed_${upRes.status}:${detail.slice(0, 200)}`);
     }
+    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: Date.now() - startedAt }));
 
     // 4) Final callback.
-    await postCallback(callbackUrl, callbackSecret, {
+    const callbackAccepted = await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
       status: "completed",
+      stage: "completed",
       output_storage_path: outputStoragePath,
     });
+    console.log("[job_completed]", JSON.stringify({ job_id: jobId, callback_accepted: callbackAccepted, duration_ms: Date.now() - startedAt }));
   } catch (err) {
     const message = err?.message ?? "unknown_error";
-    console.error("job failed", jobId, message);
-    const code = message.startsWith("yt-dlp")
+    console.error("[job_failed]", JSON.stringify({ job_id: jobId, message, duration_ms: Date.now() - startedAt }));
+    const code = message.includes("_timeout")
+      ? "worker_timeout"
+      : message.startsWith("yt-dlp")
       ? "vod_unavailable"
       : message.startsWith("ffmpeg")
         ? "ffmpeg_error"
@@ -262,6 +306,7 @@ async function processJob({
     await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
       status: "failed",
+      stage: "failed",
       error_code: code,
       error_message: message.slice(0, 500),
     });
@@ -270,13 +315,18 @@ async function processJob({
   }
 }
 
-function runCommand(cmd, args) {
+function runCommand(cmd, args, timeoutMs = 10 * 60 * 1000) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, { stdio: ["ignore", "pipe", "pipe"] });
     let stderr = "";
+    const timer = setTimeout(() => {
+      proc.kill("SIGTERM");
+      reject(new Error(`${cmd}_timeout`));
+    }, timeoutMs);
     proc.stderr.on("data", (d) => { stderr += d.toString(); });
     proc.on("error", (err) => reject(new Error(`${cmd}_spawn_error: ${err.message}`)));
     proc.on("close", (code) => {
+      clearTimeout(timer);
       if (code === 0) resolve();
       else reject(new Error(`${cmd}_exit_${code}: ${stderr.slice(-400)}`));
     });
