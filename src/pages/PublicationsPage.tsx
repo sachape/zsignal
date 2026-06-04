@@ -27,9 +27,28 @@ const FORMAT_LABEL: Record<string, string> = {
   story: "Story",
 };
 
+const PLATFORM_LABEL_MANUAL: Record<string, string> = {
+  instagram: "Instagram",
+  youtube: "YouTube",
+  tiktok: "TikTok",
+  other: "Autre",
+};
+
 const PublicationsPage = () => {
   const navigate = useNavigate();
   const { posts, loading } = useSocialPosts();
+  const { items: contentItems, loading: loadingItems } = useContentItems();
+
+  const manualPublished = useMemo(
+    () => contentItems
+      .filter((i) => i.status === "published_manually")
+      .sort((a, b) => {
+        const da = a.published_at ? new Date(a.published_at).getTime() : 0;
+        const db = b.published_at ? new Date(b.published_at).getTime() : 0;
+        return db - da;
+      }),
+    [contentItems],
+  );
 
   const grouped = useMemo(() => {
     return {
@@ -39,6 +58,8 @@ const PublicationsPage = () => {
       failed: posts.filter((p) => p.status === "failed"),
     };
   }, [posts]);
+
+  const isEmpty = !loading && !loadingItems && posts.length === 0 && manualPublished.length === 0;
 
   return (
     <AppShell>
