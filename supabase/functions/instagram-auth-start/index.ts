@@ -1,6 +1,9 @@
-// SCAFFOLD — disabled by default. See docs/meta-instagram-app-review.md
-// Returns 503 unless INSTAGRAM_OAUTH_ENABLED=true AND Meta secrets exist.
+// Real OAuth start for Instagram Business via Meta (Facebook) Login.
+// Gated by INSTAGRAM_OAUTH_ENABLED + presence of META_APP_ID/META_REDIRECT_URI.
+// Never exposes META_APP_SECRET to the frontend. State is HMAC-signed.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { isOAuthEnabled, getMetaConfig } from "../_shared/metaFlags.ts";
+import { signState } from "../_shared/oauthState.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,24 +20,20 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { isOAuthEnabled, getMetaConfig } = await import("../_shared/metaFlags.ts");
-
     if (!isOAuthEnabled()) {
       return json(503, {
         error: "instagram_oauth_disabled",
-        message: "Connexion Meta en préparation. OAuth Instagram non encore activé.",
+        message: "Connexion Meta non encore activée.",
       });
     }
-
     const cfg = getMetaConfig();
     if (!cfg) {
       return json(503, {
         error: "meta_not_configured",
-        message: "Meta non configuré (META_APP_ID / META_APP_SECRET / META_REDIRECT_URI manquants).",
+        message: "Connexion Meta non configurée (secrets manquants).",
       });
     }
 
-    // Auth: identify user calling start
     const authHeader = req.headers.get("Authorization") ?? "";
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -44,19 +43,17 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return json(401, { error: "unauthorized" });
 
-    // CSRF state — signed with OAUTH_STATE_SECRET in a future iteration.
-    const state = crypto.randomUUID();
+    const state = await signState(user.id, "instagram", 600);
 
-    // Permissions minimales pour publication Instagram via Graph API
-    // (Instagram Login for Business / Instagram Graph API).
     const scopes = [
-      "instagram_business_basic",
-      "instagram_business_content_publish",
-      "instagram_business_manage_comments",
-      "instagram_business_manage_messages",
+      "instagram_basic",
+      "instagram_content_publish",
+      "pages_show_list",
+      "pages_read_engagement",
+      "business_management",
     ].join(",");
 
-    const authorizeUrl = new URL("https://www.facebook.com/" + cfg.graphApiVersion + "/dialog/oauth");
+    const authorizeUrl = new URL(`https://www.facebook.com/${cfg.graphApiVersion}/dialog/oauth`);
     authorizeUrl.searchParams.set("client_id", cfg.appId);
     authorizeUrl.searchParams.set("redirect_uri", cfg.redirectUri);
     authorizeUrl.searchParams.set("state", state);
@@ -64,7 +61,7 @@ Deno.serve(async (req) => {
     authorizeUrl.searchParams.set("response_type", "code");
     if (cfg.businessConfigId) authorizeUrl.searchParams.set("config_id", cfg.businessConfigId);
 
-    return json(200, { authorize_url: authorizeUrl.toString(), state });
+    return json(200, { authorize_url: authorizeUrl.toString() });
   } catch (e) {
     return json(500, { error: "internal_error", message: e instanceof Error ? e.message : "unknown" });
   }
