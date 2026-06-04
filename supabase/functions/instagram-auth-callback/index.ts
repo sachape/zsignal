@@ -440,7 +440,6 @@ Deno.serve(async (req) => {
     longUrl.searchParams.set("grant_type", "ig_exchange_token");
     longUrl.searchParams.set("client_secret", cfg.appSecret);
     longUrl.searchParams.set("access_token", shortToken);
-    longUrl.searchParams.set("appsecret_proof", proofShort);
     log("long_token_request", {
       endpoint_host: "graph.instagram.com",
       endpoint_path: "/access_token",
@@ -449,6 +448,7 @@ Deno.serve(async (req) => {
       has_access_token: !!shortToken,
       access_token_prefix: shortToken ? shortToken.slice(0, 6) : null,
       has_client_secret: !!cfg.appSecret,
+      has_appsecret_proof: false,
     });
     let accessToken = shortToken;
     let tokenExpiresAt: string | null = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // short-lived ~1h fallback
