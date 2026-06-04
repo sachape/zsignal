@@ -285,10 +285,15 @@ Deno.serve(async (req) => {
     // 2. Fetch IG profile — BARE fetch (no method, no headers, no body, no redirect option).
     //    Per user instruction: do not pass method:"GET" (Meta sometimes logs "method type: get"
     //    in errors which may indicate the request line is malformed by some wrapper).
-    const tryProfile = async (variant: ProfileVariant, path: string, fields: string): Promise<{ attempt: ProfileAttempt; data: IgMeResp }> => {
+    const tryProfile = async (
+      variant: ProfileVariant,
+      path: string,
+      fields: string,
+      authMode: "query" | "bearer" = "query",
+    ): Promise<{ attempt: ProfileAttempt; data: IgMeResp }> => {
       const url = new URL(`https://graph.instagram.com${path}`);
       url.searchParams.set("fields", fields);
-      url.searchParams.set("access_token", shortToken);
+      if (authMode === "query") url.searchParams.set("access_token", shortToken);
       log("me_request", {
         profile_variant: variant,
         endpoint_host: "graph.instagram.com",
@@ -296,12 +301,16 @@ Deno.serve(async (req) => {
         method: "GET (default, not explicit)",
         fields,
         token_type: "short_lived",
+        auth_mode: authMode,
         has_access_token: !!shortToken,
         access_token_prefix: shortToken ? shortToken.slice(0, 6) : null,
         user_id_from_token: igUserIdFromToken,
       });
-      const resp = await fetch(url.toString()); // bare fetch
-      const data = (await resp.json().catch(() => ({}))) as IgMeResp;
+      const resp = await fetch(
+        url.toString(),
+        authMode === "bearer" ? { headers: { Authorization: `Bearer ${shortToken}` } } : undefined,
+      );
+      const data = normalizeIgMe((await resp.json().catch(() => ({}))) as IgMeResp);
       const metaError = extractMetaError(data);
       const attempt: ProfileAttempt = {
         variant,
@@ -321,21 +330,24 @@ Deno.serve(async (req) => {
     let profileData: IgMeResp = {};
     let successVariant: ProfileVariant | null = null;
 
-    const variants: Array<{ v: ProfileVariant; path: string; fields: string }> = [
+    const variants: Array<{ v: ProfileVariant; path: string; fields: string; authMode?: "query" | "bearer" }> = [
+      { v: "me_user_id_username_v25_query", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
+      { v: "me_user_id_username_account_v25_query", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username,account_type,profile_picture_url" },
+      { v: "me_user_id_username_v25_bearer", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username", authMode: "bearer" },
       { v: "me_user_id_username_unversioned", path: `/me`, fields: "user_id,username" },
       { v: "me_id_username_unversioned", path: `/me`, fields: "id,username" },
-      { v: "me_user_id_username_v23", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
-      { v: "me_id_username_v23", path: `/${GRAPH_VERSION}/me`, fields: "id,username" },
+      { v: "me_user_id_username_versioned", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
+      { v: "me_id_username_versioned", path: `/${GRAPH_VERSION}/me`, fields: "id,username" },
     ];
     if (igUserIdFromToken) {
       variants.push({ v: "user_id_path_username_unversioned", path: `/${igUserIdFromToken}`, fields: "username" });
-      variants.push({ v: "user_id_path_username_v23", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "username" });
+      variants.push({ v: "user_id_path_username_versioned", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "username" });
     }
 
 
 
-    for (const { v, path, fields } of variants) {
-      const { attempt, data } = await tryProfile(v, path, fields);
+    for (const { v, path, fields, authMode } of variants) {
+      const { attempt, data } = await tryProfile(v, path, fields, authMode);
       attempts.push(attempt);
       if (attempt.ok) {
         profileData = data;
