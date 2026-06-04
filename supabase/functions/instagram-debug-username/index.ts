@@ -8,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const DEBUG_VERSION = "instagram-debug-username-v2";
+const DEBUG_VERSION = "instagram-debug-username-v3";
 
 interface ConnectionRow {
   instagram_account_id: string | null;
@@ -88,8 +88,6 @@ Deno.serve(async (req) => {
   if (!token) return json(409, { success: false, error: "stored_token_empty" });
 
   const endpoints = [
-    { endpoint: "https://graph.instagram.com/v25.0/me", fields: "user_id,username" },
-    { endpoint: "https://graph.instagram.com/v25.0/me", fields: "id,username" },
     { endpoint: "https://graph.instagram.com/me", fields: "user_id,username" },
     { endpoint: "https://graph.instagram.com/me", fields: "id,username" },
     ...(data.instagram_account_id
