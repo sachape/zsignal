@@ -17,6 +17,7 @@ import {
   type LiveDebrief,
   type LiveSession,
 } from "@/services/liveSessions";
+import AssistedDebriefPanel from "@/components/live/AssistedDebriefPanel";
 
 const SubScore = ({ label, value }: { label: string; value: number | null }) => (
   <div className="rounded-lg border border-border/60 bg-card/40 p-3">
@@ -197,17 +198,20 @@ const LiveDetailPage = () => {
                   Score du live
                 </p>
                 <p className="mt-0.5 text-sm font-semibold text-foreground">
-                  {debrief?.verdict ?? "Pas encore assez de signal sur ce live."}
+                  {debrief?.verdict ?? "Analyse automatique limitée sur ce live."}
                 </p>
               </div>
             </div>
             {!enough && (
               <Badge variant="muted" className="self-start sm:self-auto">
-                Signal limité
+                Analyse limitée
               </Badge>
             )}
           </CardContent>
         </Card>
+
+        {/* Assisted debrief — always available, even when the auto-analysis is partial */}
+        <AssistedDebriefPanel session={session} signalLimited={!enough} />
 
         {enough ? (
           <div className="mb-4 grid grid-cols-3 gap-2">
@@ -219,10 +223,10 @@ const LiveDetailPage = () => {
           <Card className="mb-4 border-border/60 bg-card/60">
             <CardContent className="p-4">
               <p className="text-sm font-semibold text-foreground">
-                Pas encore assez de signal pour un débrief complet.
+                Analyse automatique limitée sur ce live.
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Ce live était trop court ou trop peu documenté pour produire une lecture fiable.
+                On n'a pas encore assez de signal pour produire un score fiable, mais tu peux préparer tes contenus juste au-dessus.
               </p>
             </CardContent>
           </Card>
