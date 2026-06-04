@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
-  Film, Wand2, Clock, Flame, TrendingUp, BarChart3,
+  Film, Wand2, Clock, Flame, TrendingUp, BarChart3, Plus, Info, FileUp,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -31,6 +31,9 @@ import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog"
 import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
 import { useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
 import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
+import ManualPublishPanel from "@/components/content-queue/ManualPublishPanel";
+import NewContentDialog from "@/components/content-queue/NewContentDialog";
+import ManualMediaUploadDialog from "@/components/content-queue/ManualMediaUploadDialog";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -43,16 +46,16 @@ const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ c
 const VIDEO_PLATFORMS: ContentPlatform[] = ["youtube_shorts", "tiktok", "instagram", "twitch_clip"];
 
 const STATUS_META: Record<ContentStatus, { label: string; cls: string }> = {
-  idea:               { label: "Idée",              cls: "border-border bg-muted text-muted-foreground" },
-  to_produce:         { label: "À produire",        cls: "border-amber-500/40 bg-amber-500/10 text-amber-300" },
-  to_generate:        { label: "À générer",         cls: "border-violet-500/40 bg-violet-500/10 text-violet-300" },
-  generating:         { label: "Génération…",       cls: "border-violet-500/40 bg-violet-500/15 text-violet-200" },
-  draft_ready:        { label: "Draft prêt",        cls: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300" },
-  ready:              { label: "Prêt à publier",    cls: "border-primary/40 bg-primary/10 text-primary" },
-  uploaded:           { label: "Uploadé",           cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
-  published:          { label: "Publié",            cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
-  published_manually: { label: "Publié (manuel)",   cls: "border-emerald-500/30 bg-emerald-500/5 text-emerald-200" },
-  ignored:            { label: "Ignoré",            cls: "border-border/40 bg-muted/40 text-muted-foreground/60" },
+  idea:               { label: "Idée",                cls: "border-border bg-muted text-muted-foreground" },
+  to_produce:         { label: "À préparer",          cls: "border-amber-500/40 bg-amber-500/10 text-amber-300" },
+  to_generate:        { label: "À générer",           cls: "border-violet-500/40 bg-violet-500/10 text-violet-300" },
+  generating:         { label: "Génération en cours", cls: "border-violet-500/40 bg-violet-500/15 text-violet-200" },
+  draft_ready:        { label: "Brouillon prêt",      cls: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300" },
+  ready:              { label: "Prêt à publier",      cls: "border-primary/40 bg-primary/10 text-primary" },
+  uploaded:           { label: "Importé",             cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
+  published:          { label: "Publié",              cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
+  published_manually: { label: "Publié manuellement", cls: "border-emerald-500/30 bg-emerald-500/5 text-emerald-200" },
+  ignored:            { label: "Ignoré",              cls: "border-border/40 bg-muted/40 text-muted-foreground/60" },
 };
 
 const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
@@ -92,13 +95,15 @@ function buildCopyPayload(item: ContentItem): string {
 }
 
 const ContentQueuePage = () => {
-  const { items, loading, updateItem, deleteItem, refetch } = useContentItems();
+  const { items, loading, updateItem, deleteItem, refetch, createMany } = useContentItems();
   const { accounts } = useConnectedNetworks();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
   const [uploadItem, setUploadItem] = useState<ContentItem | null>(null);
   const [generateItem, setGenerateItem] = useState<ContentItem | null>(null);
+  const [newOpen, setNewOpen] = useState(false);
+  const [manualUploadItem, setManualUploadItem] = useState<ContentItem | null>(null);
 
   const youtubeAccount = accounts.find(a => a.platform === "youtube");
   const youtubeConnected = youtubeAccount?.connection_status === "connected";
@@ -140,8 +145,24 @@ const ContentQueuePage = () => {
         <PageHeader
           eyebrow="Cockpit éditorial"
           title="Content Queue"
-          description="Transforme chaque live en clips courts prêts à publier."
+          description="Prépare, télécharge et publie tes contenus en quelques clics."
+          action={
+            <Button onClick={() => setNewOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Nouveau contenu
+            </Button>
+          }
         />
+
+        {/* Banner — manual publish info */}
+        <div className="mb-4 flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2.5 text-[12px] text-foreground/90">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <p>
+            Publication automatique bientôt disponible après validation des plateformes.
+            En attendant, tu peux télécharger tes médias, copier tes textes et publier manuellement
+            depuis Instagram, YouTube Studio ou TikTok.
+          </p>
+        </div>
 
         {/* Stats strip */}
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -227,9 +248,14 @@ const ContentQueuePage = () => {
               <Inbox className="mx-auto h-8 w-8 text-muted-foreground/60" />
               <p className="text-sm font-medium text-foreground">Aucun contenu dans cette vue</p>
               <p className="text-xs text-muted-foreground">
-                Termine un live depuis <Link to="/live-setup" className="text-primary underline-offset-2 hover:underline">Live Setup</Link>
-                {" "}et envoie les idées du brief dans la queue.
+                Crée un contenu manuellement ou termine un live depuis{" "}
+                <Link to="/live-setup" className="text-primary underline-offset-2 hover:underline">Live Setup</Link>.
               </p>
+              <div className="flex justify-center gap-2 pt-2">
+                <Button size="sm" onClick={() => setNewOpen(true)}>
+                  <Plus className="h-4 w-4" /> Nouveau contenu
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (
@@ -238,6 +264,7 @@ const ContentQueuePage = () => {
               <ContentRow key={item.id} item={item}
                 youtubeConnected={youtubeConnected}
                 onUpload={() => setUploadItem(item)}
+                onManualUpload={() => setManualUploadItem(item)}
                 onEditSource={() => setSourceItem(item)}
                 onGenerate={() => {
                   if (item.source_start_time == null || item.source_end_time == null) {
@@ -257,6 +284,23 @@ const ContentQueuePage = () => {
               />
             ))}
           </div>
+        )}
+
+        <NewContentDialog
+          open={newOpen}
+          onOpenChange={setNewOpen}
+          onCreate={(row) => createMany([row])}
+        />
+
+        {manualUploadItem && (
+          <ManualMediaUploadDialog
+            item={manualUploadItem}
+            open={!!manualUploadItem}
+            onOpenChange={(o) => { if (!o) setManualUploadItem(null); }}
+            onUploaded={async (patch) => {
+              await updateItem(manualUploadItem.id, patch);
+            }}
+          />
         )}
 
         {uploadItem && (
@@ -319,13 +363,14 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload, onEditSource, onGenerate, onJobUpdate,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onManualUpload, onEditSource, onGenerate, onJobUpdate,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
   onDelete: () => void;
   youtubeConnected: boolean;
   onUpload: () => void;
+  onManualUpload: () => void;
   onEditSource: () => void;
   onGenerate: () => void;
   onJobUpdate: () => void;
@@ -551,8 +596,25 @@ function ContentRow({
                   {item.generation_status === "failed" ? "Réessayer" : "Générer le clip"}
                 </Button>
               )}
+              <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onManualUpload}
+                title="J'ai déjà mon clip, je l'importe directement">
+                <FileUp className="mr-1.5 h-3.5 w-3.5" />
+                {hasGeneratedClip ? "Remplacer le média" : "Importer un média"}
+              </Button>
             </div>
           </div>
+        )}
+
+        {/* Manual publish workflow — visible as soon as we have something to share */}
+        {item.status !== "ignored" && item.status !== "published" && (
+          (item.generated_video_url ||
+            ["draft_ready", "ready", "uploaded", "published_manually"].includes(item.status)) ? (
+            <ManualPublishPanel
+              item={item}
+              mediaUrl={item.generated_video_url}
+              onUpdate={onUpdate}
+            />
+          ) : null
         )}
 
         {/* V3.7 — Après publication (analytics YouTube réels) */}

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { format as formatDate } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Camera, Clock, Loader2, Plus, Send, AlertTriangle, FileText } from "lucide-react";
+import { Camera, Clock, Loader2, Plus, Send, AlertTriangle, FileText, ExternalLink, CheckCircle2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useSocialPosts, type SocialStatus } from "@/hooks/useSocialPosts";
+import { useContentItems } from "@/hooks/useContentItems";
 
 const STATUS_META: Record<SocialStatus, { label: string; cls: string }> = {
   draft:      { label: "Brouillon",  cls: "border-border bg-muted text-muted-foreground" },
@@ -26,9 +27,28 @@ const FORMAT_LABEL: Record<string, string> = {
   story: "Story",
 };
 
+const PLATFORM_LABEL_MANUAL: Record<string, string> = {
+  instagram: "Instagram",
+  youtube: "YouTube",
+  tiktok: "TikTok",
+  other: "Autre",
+};
+
 const PublicationsPage = () => {
   const navigate = useNavigate();
   const { posts, loading } = useSocialPosts();
+  const { items: contentItems, loading: loadingItems } = useContentItems();
+
+  const manualPublished = useMemo(
+    () => contentItems
+      .filter((i) => i.status === "published_manually")
+      .sort((a, b) => {
+        const da = a.published_at ? new Date(a.published_at).getTime() : 0;
+        const db = b.published_at ? new Date(b.published_at).getTime() : 0;
+        return db - da;
+      }),
+    [contentItems],
+  );
 
   const grouped = useMemo(() => {
     return {
@@ -38,6 +58,8 @@ const PublicationsPage = () => {
       failed: posts.filter((p) => p.status === "failed"),
     };
   }, [posts]);
+
+  const isEmpty = !loading && !loadingItems && posts.length === 0 && manualPublished.length === 0;
 
   return (
     <AppShell>
@@ -54,18 +76,18 @@ const PublicationsPage = () => {
           }
         />
 
-        {loading ? (
+        {loading || loadingItems ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
-        ) : posts.length === 0 ? (
+        ) : isEmpty ? (
           <Card className="mt-6">
             <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
               <Camera className="h-8 w-8 text-muted-foreground" />
               <div>
                 <div className="font-semibold">Aucune publication pour l'instant</div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Crée ta première publication Instagram depuis le Composer.
+                  Crée ta première publication depuis le Composer ou prépare un contenu dans la Content Queue.
                 </p>
               </div>
               <Button onClick={() => navigate("/composer")}>
@@ -80,10 +102,82 @@ const PublicationsPage = () => {
             <Section title="Planifiés" icon={Clock} items={grouped.scheduled} />
             <Section title="Publiés" icon={Send} items={grouped.published} />
             <Section title="Échecs" icon={AlertTriangle} items={grouped.failed} />
+            <ManualSection items={manualPublished} />
           </div>
         )}
       </PageContainer>
     </AppShell>
+  );
+};
+
+interface ManualSectionProps {
+  items: ReturnType<typeof useContentItems>["items"];
+}
+
+const ManualSection = ({ items }: ManualSectionProps) => {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <CheckCircle2 className="h-3.5 w-3.5" />
+        Publications manuelles
+        <span className="rounded-full bg-muted/60 px-1.5 py-0.5 text-[10px]">{items.length}</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {items.map((i) => {
+          const platform = (i.published_platform ?? "other").toLowerCase();
+          const platformLabel = PLATFORM_LABEL_MANUAL[platform] ?? "Autre";
+          return (
+            <div key={i.id} className="rounded-lg border border-border bg-card overflow-hidden">
+              <div className="aspect-[4/5] bg-muted/30 relative">
+                {i.generated_video_url ? (
+                  <video src={i.generated_video_url} className="h-full w-full object-cover" muted />
+                ) : i.thumbnail_url ? (
+                  <img src={i.thumbnail_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                    Sans média
+                  </div>
+                )}
+                <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">
+                  <Badge variant="outline" className="text-[10px] border-emerald-500/30 bg-emerald-500/10 text-emerald-200">
+                    Publié manuellement
+                  </Badge>
+                  <Badge variant="outline" className="text-[10px] bg-background/80">
+                    {platformLabel}
+                  </Badge>
+                  {i.format && (
+                    <Badge variant="outline" className="text-[10px] bg-background/80">
+                      {i.format}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <div className="p-3 space-y-2">
+                <div className="line-clamp-2 text-xs font-medium text-foreground">
+                  {i.title}
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  {i.published_at
+                    ? `Publié le ${formatDate(new Date(i.published_at), "dd MMM yyyy", { locale: fr })}`
+                    : "Date inconnue"}
+                </div>
+                {i.published_url && (
+                  <a
+                    href={i.published_url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                  >
+                    Ouvrir le post <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
