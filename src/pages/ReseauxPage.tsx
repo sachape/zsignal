@@ -561,10 +561,13 @@ export default function ReseauxPage() {
                         if (metaConnection?.connection_status === "pending_review") {
                           return <p className="text-amber-300/90">Connexion Meta en cours de validation.</p>;
                         }
-                        if (metaConnection?.connection_status === "error") {
+                        const currentInstagramError = metaConnection?.error_message === ignoredInstagramError
+                          ? null
+                          : metaConnection?.error_message;
+                        if (metaConnection?.connection_status === "error" && currentInstagramError) {
                           return (
                             <p className="text-destructive/90">
-                              {metaConnection.error_message ?? "Erreur de connexion Instagram."}
+                              {currentInstagramError}
                             </p>
                           );
                         }
@@ -588,7 +591,7 @@ export default function ReseauxPage() {
                       ) : (
                         <Button size="sm" className="h-7 text-xs"
                           disabled={igActionLoading} onClick={handleConnectInstagram}>
-                          {igActionLoading ? "…" : "Connecter Instagram"}
+                          {igActionLoading ? "…" : metaConnection?.connection_status === "error" ? "Réessayer" : "Connecter Instagram"}
                         </Button>
                       )}
                     </div>
