@@ -274,7 +274,8 @@ export default function ReseauxPage() {
   const { isConnected: hasTwitchOAuth, account: twitchAccount } = useTwitchConnection();
   const { accounts, loading, upsertAccount, removeAccount, refetch } = useConnectedNetworks();
   const { history, saveSnapshot } = usePresenceScoreHistory();
-  const { connection: metaConnection } = useInstagramConnection();
+  const { connection: metaConnection, refetch: refetchMeta } = useInstagramConnection();
+  const [igActionLoading, setIgActionLoading] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
@@ -286,27 +287,35 @@ export default function ReseauxPage() {
   useEffect(() => {
     const ytResult = searchParams.get("youtube");
     const ttResult = searchParams.get("tiktok");
-    if (!ytResult && !ttResult) return;
-    if (ytResult === "connected") {
-      toast.success("YouTube connecté avec succès !");
-      refetch();
-    } else if (ytResult === "cancelled") {
-      toast.info("Connexion YouTube annulée.");
-    } else if (ytResult === "error") {
+    const igResult = searchParams.get("instagram");
+    if (!ytResult && !ttResult && !igResult) return;
+    if (ytResult === "connected") { toast.success("YouTube connecté avec succès !"); refetch(); }
+    else if (ytResult === "cancelled") { toast.info("Connexion YouTube annulée."); }
+    else if (ytResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion YouTube (${reason}).`);
     }
-    if (ttResult === "connected") {
-      toast.success("TikTok connecté avec succès !");
-      refetch();
-    } else if (ttResult === "cancelled") {
-      toast.info("Connexion TikTok annulée.");
-    } else if (ttResult === "error") {
+    if (ttResult === "connected") { toast.success("TikTok connecté avec succès !"); refetch(); }
+    else if (ttResult === "cancelled") { toast.info("Connexion TikTok annulée."); }
+    else if (ttResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion TikTok (${reason}).`);
     }
-    setSearchParams((p) => { p.delete("youtube"); p.delete("tiktok"); p.delete("reason"); return p; }, { replace: true });
-  }, [searchParams, setSearchParams, refetch]);
+    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); refetchMeta(); }
+    else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
+    else if (igResult === "error") {
+      const reason = searchParams.get("reason") ?? "inconnue";
+      const msg = reason === "no_ig_business_account"
+        ? "Compte Instagram professionnel (Business/Creator) requis."
+        : reason === "instagram_oauth_disabled"
+          ? "Connexion Meta non encore activée."
+          : reason === "meta_not_configured"
+            ? "Connexion Meta non configurée."
+            : `Erreur de connexion Instagram (${reason}).`;
+      toast.error(msg);
+    }
+    setSearchParams((p) => { p.delete("youtube"); p.delete("tiktok"); p.delete("instagram"); p.delete("reason"); return p; }, { replace: true });
+  }, [searchParams, setSearchParams, refetch, refetchMeta]);
 
   // Save presence snapshot when accounts or Twitch connection change
   useEffect(() => {
