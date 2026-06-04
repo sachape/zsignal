@@ -126,22 +126,24 @@ Deno.serve(async (req) => {
     const shortToken = shortJson.access_token;
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
 
-    // 2. Exchange short-lived → long-lived (~60d) via graph.instagram.com.
+    // 2. Exchange short-lived → long-lived (~60d) via graph.instagram.com (GET, unversioned).
     const longUrl = new URL("https://graph.instagram.com/access_token");
     longUrl.searchParams.set("grant_type", "ig_exchange_token");
     longUrl.searchParams.set("client_secret", cfg.appSecret);
     longUrl.searchParams.set("access_token", shortToken);
-    const longResp = await fetch(longUrl.toString());
+    const longResp = await fetch(longUrl.toString(), { method: "GET" });
     const longJson = (await longResp.json()) as LongTokenResp;
     const accessToken = longJson.access_token ?? shortToken;
     const expiresIn = longJson.expires_in ?? null;
     const tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
 
-    // 3. Fetch IG account info via graph.instagram.com /me (no Facebook Page lookup).
-    const meUrl = new URL(`https://graph.instagram.com/${cfg.graphApiVersion}/me`);
+    // 3. Fetch IG account info via graph.instagram.com /me (Instagram Login is unversioned).
+    //    NOTE: do NOT prefix with /v{ver}/ — Instagram Login /me rejects versioned paths
+    //    with "Unsupported request - method type: get".
+    const meUrl = new URL("https://graph.instagram.com/me");
     meUrl.searchParams.set("fields", "user_id,username,account_type,profile_picture_url");
     meUrl.searchParams.set("access_token", accessToken);
-    const meResp = await fetch(meUrl.toString());
+    const meResp = await fetch(meUrl.toString(), { method: "GET" });
     const meJson = (await meResp.json()) as IgMeResp;
     if (!meResp.ok) {
       const msg = meJson.error?.message ?? "ig_me_fetch_failed";
