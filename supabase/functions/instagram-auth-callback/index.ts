@@ -97,6 +97,11 @@ function extractMetaError(payload: ShortTokenResp | LongTokenResp | IgMeResp) {
   };
 }
 
+function normalizeIgMe(payload: IgMeResp): IgMeResp {
+  const first = Array.isArray(payload.data) ? payload.data[0] : undefined;
+  return first ? { ...payload, ...first } : payload;
+}
+
 function fail(
   status: number,
   errorCode: string,
@@ -259,11 +264,11 @@ Deno.serve(async (req) => {
     // (not the endpoint, not the fetch, not the fields).
     try {
       const twinUrl =
-        `https://graph.instagram.com/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}`;
+        `https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}`;
       const twinResp = await fetch(twinUrl);
-      const twinData = await twinResp.json().catch(() => ({}));
+      const twinData = normalizeIgMe(await twinResp.json().catch(() => ({})));
       log("twin_me_call", {
-        endpoint: "GET https://graph.instagram.com/me?fields=user_id,username (encodeURIComponent on token)",
+        endpoint: `GET https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username (encodeURIComponent on token)`,
         http_status: twinResp.status,
         meta_error_type: twinData?.error?.type ?? null,
         meta_error_message: twinData?.error?.message ?? null,
