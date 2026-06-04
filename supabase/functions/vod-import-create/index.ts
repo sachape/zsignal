@@ -255,21 +255,46 @@ Deno.serve(async (req) => {
     opportunity_reason: c.reason_label,
   }));
 
-  const { data: inserted, error } = await admin
+  // Dedup: skip rows that already exist for the same user/url/start/end/platform/format
+  // (active candidates only — ignored/published rows don't block re-creation).
+  const { data: existing, error: existingErr } = await admin
     .from("creator_content_items")
-    .insert(rows)
-    .select();
-
-  if (error) {
-    console.error("[vod-import-create] insert error", error);
-    return json({ error: "insert_failed", detail: error.message }, 500);
+    .select("id, source_start_time, source_end_time, platform, format, status, generated_video_storage_path")
+    .eq("user_id", userId)
+    .eq("source_video_url", url)
+    .not("status", "in", "(ignored,published)");
+  if (existingErr) {
+    console.error("[vod-import-create] dedup lookup error", existingErr);
   }
+  const existingKeys = new Set(
+    (existing ?? []).map((r) =>
+      `${r.source_start_time}|${r.source_end_time}|${r.platform}|${r.format}`,
+    ),
+  );
+  const newRows = rows.filter(
+    (r) => !existingKeys.has(`${r.source_start_time}|${r.source_end_time}|${r.platform}|${r.format}`),
+  );
+
+  let inserted: unknown[] = [];
+  if (newRows.length > 0) {
+    const { data, error } = await admin
+      .from("creator_content_items")
+      .insert(newRows)
+      .select();
+    if (error) {
+      console.error("[vod-import-create] insert error", error);
+      return json({ error: "insert_failed", detail: error.message }, 500);
+    }
+    inserted = data ?? [];
+  }
+  const skipped = rows.length - newRows.length;
 
   return json({
     success: true,
     source,
     reason: candidates[0].reason_code,
-    count: inserted?.length ?? 0,
-    items: inserted ?? [],
+    count: (inserted as unknown[]).length,
+    skipped,
+    items: inserted,
   });
 });

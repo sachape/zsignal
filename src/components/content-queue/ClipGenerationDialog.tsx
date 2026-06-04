@@ -136,8 +136,16 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
         try {
           const u = new URL(trimmed);
           if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error();
+          const host = u.hostname.replace(/^www\./, "");
+          // Detect Twitch VOD URLs and route them through the twitch_vod path
+          // (yt-dlp on the worker). Otherwise they would be fetched as a raw
+          // HTML page and ffmpeg would fail with "moov atom not found".
+          if ((host === "twitch.tv") && /^\/videos\/\d+/.test(u.pathname)) {
+            sourcePayload = { source_type: "twitch_vod", source_url: trimmed };
+          } else {
+            sourcePayload = { source_type: "direct_url", source_url: trimmed };
+          }
         } catch { setError("invalid_source_url"); setBusy(false); return; }
-        sourcePayload = { source_type: "direct_url", source_url: trimmed };
       }
 
       setPhase("creating");
