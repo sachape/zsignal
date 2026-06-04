@@ -57,6 +57,7 @@ const ReseauxPage = lazy(() => import("./pages/ReseauxPage.tsx"));
 const ReseauxPlatformPage = lazy(() => import("./pages/ReseauxPlatformPage.tsx"));
 const YouTubeCallbackPage = lazy(() => import("./pages/YouTubeCallbackPage.tsx"));
 const TikTokCallbackPage = lazy(() => import("./pages/TikTokCallbackPage.tsx"));
+const InstagramCallbackPage = lazy(() => import("./pages/InstagramCallbackPage.tsx"));
 const LiveSetupPage = lazy(() => import("./pages/LiveSetupPage.tsx"));
 const ContentQueuePage = lazy(() => import("./pages/ContentQueuePage.tsx"));
 const ComposerPage = lazy(() => import("./pages/ComposerPage.tsx"));
@@ -104,6 +105,7 @@ const App = () => (
                 <Route path="/twitch/callback" element={<TwitchCallbackPage />} />
                 <Route path="/auth/youtube/callback" element={<YouTubeCallbackPage />} />
                 <Route path="/auth/tiktok/callback" element={<TikTokCallbackPage />} />
+                <Route path="/auth/instagram/callback" element={<InstagramCallbackPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
                 <Route
                   path="/dashboard"

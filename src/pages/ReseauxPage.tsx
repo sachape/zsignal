@@ -274,7 +274,8 @@ export default function ReseauxPage() {
   const { isConnected: hasTwitchOAuth, account: twitchAccount } = useTwitchConnection();
   const { accounts, loading, upsertAccount, removeAccount, refetch } = useConnectedNetworks();
   const { history, saveSnapshot } = usePresenceScoreHistory();
-  const { connection: metaConnection } = useInstagramConnection();
+  const { connection: metaConnection, refetch: refetchMeta } = useInstagramConnection();
+  const [igActionLoading, setIgActionLoading] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
@@ -286,27 +287,35 @@ export default function ReseauxPage() {
   useEffect(() => {
     const ytResult = searchParams.get("youtube");
     const ttResult = searchParams.get("tiktok");
-    if (!ytResult && !ttResult) return;
-    if (ytResult === "connected") {
-      toast.success("YouTube connecté avec succès !");
-      refetch();
-    } else if (ytResult === "cancelled") {
-      toast.info("Connexion YouTube annulée.");
-    } else if (ytResult === "error") {
+    const igResult = searchParams.get("instagram");
+    if (!ytResult && !ttResult && !igResult) return;
+    if (ytResult === "connected") { toast.success("YouTube connecté avec succès !"); refetch(); }
+    else if (ytResult === "cancelled") { toast.info("Connexion YouTube annulée."); }
+    else if (ytResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion YouTube (${reason}).`);
     }
-    if (ttResult === "connected") {
-      toast.success("TikTok connecté avec succès !");
-      refetch();
-    } else if (ttResult === "cancelled") {
-      toast.info("Connexion TikTok annulée.");
-    } else if (ttResult === "error") {
+    if (ttResult === "connected") { toast.success("TikTok connecté avec succès !"); refetch(); }
+    else if (ttResult === "cancelled") { toast.info("Connexion TikTok annulée."); }
+    else if (ttResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion TikTok (${reason}).`);
     }
-    setSearchParams((p) => { p.delete("youtube"); p.delete("tiktok"); p.delete("reason"); return p; }, { replace: true });
-  }, [searchParams, setSearchParams, refetch]);
+    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); refetchMeta(); }
+    else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
+    else if (igResult === "error") {
+      const reason = searchParams.get("reason") ?? "inconnue";
+      const msg = reason === "no_ig_business_account"
+        ? "Compte Instagram professionnel (Business/Creator) requis."
+        : reason === "instagram_oauth_disabled"
+          ? "Connexion Meta non encore activée."
+          : reason === "meta_not_configured"
+            ? "Connexion Meta non configurée."
+            : `Erreur de connexion Instagram (${reason}).`;
+      toast.error(msg);
+    }
+    setSearchParams((p) => { p.delete("youtube"); p.delete("tiktok"); p.delete("instagram"); p.delete("reason"); return p; }, { replace: true });
+  }, [searchParams, setSearchParams, refetch, refetchMeta]);
 
   // Save presence snapshot when accounts or Twitch connection change
   useEffect(() => {
@@ -355,6 +364,39 @@ export default function ReseauxPage() {
     }
     window.location.href = data.url;
   }, []);
+
+  const handleConnectInstagram = useCallback(async () => {
+    setIgActionLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("instagram-auth-start");
+      const url = (data as { authorize_url?: string } | null)?.authorize_url;
+      if (error || !url) {
+        const code = (data as { error?: string } | null)?.error;
+        const msg = code === "instagram_oauth_disabled"
+          ? "Connexion Meta non encore activée."
+          : code === "meta_not_configured"
+            ? "Connexion Meta non configurée."
+            : "Erreur lors de l'initialisation OAuth Instagram.";
+        toast.error(msg);
+        return;
+      }
+      window.location.href = url;
+    } finally {
+      setIgActionLoading(false);
+    }
+  }, []);
+
+  const handleDisconnectInstagram = useCallback(async () => {
+    setIgActionLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke("instagram-disconnect");
+      if (error) { toast.error("Échec de la déconnexion Instagram."); return; }
+      toast.success("Instagram déconnecté.");
+      await refetchMeta();
+    } finally {
+      setIgActionLoading(false);
+    }
+  }, [refetchMeta]);
 
   const PLATFORMS: Platform[] = ["twitch", "youtube", "tiktok", "instagram"];
 
@@ -462,38 +504,66 @@ export default function ReseauxPage() {
 
               {/* ── Instagram / Meta integration status (honest) ── */}
               <div className="mt-3 rounded-lg border border-border bg-card/40 p-3 text-xs">
-                <div className="flex items-start gap-2">
-                  <InstagramIcon className="h-4 w-4 mt-0.5 shrink-0 text-[#E1306C]" />
-                  <div className="space-y-0.5">
-                    <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
-                    {(() => {
-                      if (metaConnection?.connection_status === "connected") {
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2 min-w-0">
+                    <InstagramIcon className="h-4 w-4 mt-0.5 shrink-0 text-[#E1306C]" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
+                      {(() => {
+                        if (metaConnection?.connection_status === "connected") {
+                          return (
+                            <p className="text-muted-foreground">
+                              Connecté en tant que <span className="text-foreground">@{metaConnection.instagram_username}</span>
+                              {metaConnection.account_type ? ` · ${metaConnection.account_type}` : ""}.
+                              <span className="block mt-0.5 text-muted-foreground/70">
+                                Publication Instagram en attente de validation Meta — l'envoi sera activé une fois l'App Review approuvée.
+                              </span>
+                            </p>
+                          );
+                        }
+                        if (!FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED) {
+                          return (
+                            <p className="text-muted-foreground">
+                              Connexion Meta en préparation. La publication officielle Post / Reel / Story
+                              arrivera après validation de notre App Meta. Ajouter Instagram manuellement
+                              sert uniquement à compléter ton profil — ce n'est pas suffisant pour publier.
+                            </p>
+                          );
+                        }
+                        if (metaConnection?.connection_status === "pending_review") {
+                          return <p className="text-amber-300/90">Connexion Meta en cours de validation.</p>;
+                        }
+                        if (metaConnection?.connection_status === "error") {
+                          return (
+                            <p className="text-destructive/90">
+                              {metaConnection.error_message ?? "Erreur de connexion Instagram."}
+                            </p>
+                          );
+                        }
                         return (
                           <p className="text-muted-foreground">
-                            Connecté en tant que <span className="text-foreground">@{metaConnection.instagram_username}</span>
-                            {metaConnection.account_type ? ` · ${metaConnection.account_type}` : ""}.
+                            Connecte ton compte Instagram Business / Creator officiellement via Meta.
+                            Un compte Instagram professionnel lié à une Page Facebook est requis.
                           </p>
                         );
-                      }
-                      if (!FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED) {
-                        return (
-                          <p className="text-muted-foreground">
-                            Connexion Meta en préparation. La publication officielle Post / Reel / Story
-                            arrivera après validation de notre App Meta. Ajouter Instagram manuellement
-                            sert uniquement à compléter ton profil — ce n'est pas suffisant pour publier.
-                          </p>
-                        );
-                      }
-                      if (metaConnection?.connection_status === "pending_review") {
-                        return <p className="text-amber-300/90">Connexion Meta en cours de validation.</p>;
-                      }
-                      return (
-                        <p className="text-muted-foreground">
-                          Tu peux connecter ton compte Instagram Business / Creator officiellement via Meta.
-                        </p>
-                      );
-                    })()}
+                      })()}
+                    </div>
                   </div>
+                  {FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED && (
+                    <div className="shrink-0">
+                      {metaConnection?.connection_status === "connected" ? (
+                        <Button size="sm" variant="outline" className="h-7 text-xs"
+                          disabled={igActionLoading} onClick={handleDisconnectInstagram}>
+                          Déconnecter
+                        </Button>
+                      ) : (
+                        <Button size="sm" className="h-7 text-xs"
+                          disabled={igActionLoading} onClick={handleConnectInstagram}>
+                          {igActionLoading ? "…" : "Connecter Instagram"}
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
