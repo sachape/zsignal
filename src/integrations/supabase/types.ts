@@ -603,6 +603,8 @@ export type Database = {
           duration: string | null
           external_platform_id: string | null
           format: string | null
+          generated_video_storage_bucket: string | null
+          generated_video_storage_path: string | null
           generated_video_url: string | null
           generation_error: string | null
           generation_status: string | null
@@ -650,6 +652,8 @@ export type Database = {
           duration?: string | null
           external_platform_id?: string | null
           format?: string | null
+          generated_video_storage_bucket?: string | null
+          generated_video_storage_path?: string | null
           generated_video_url?: string | null
           generation_error?: string | null
           generation_status?: string | null
@@ -697,6 +701,8 @@ export type Database = {
           duration?: string | null
           external_platform_id?: string | null
           format?: string | null
+          generated_video_storage_bucket?: string | null
+          generated_video_storage_path?: string | null
           generated_video_url?: string | null
           generation_error?: string | null
           generation_status?: string | null
