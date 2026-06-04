@@ -16,6 +16,7 @@ import {
   type LiveDebrief,
   type LiveSession,
 } from "@/services/liveSessions";
+import AssistedDebriefPanel from "@/components/live/AssistedDebriefPanel";
 
 const SubScore = ({ label, value }: { label: string; value: number | null }) => (
   <div className="rounded-lg border border-border/60 bg-card/40 p-3">
@@ -200,17 +201,20 @@ const LastLivePage = () => {
                   Score du live
                 </p>
                 <p className="mt-0.5 text-sm font-semibold text-foreground">
-                  {debrief?.verdict ?? "Pas encore assez de signal sur ce live."}
+                  {debrief?.verdict ?? "Analyse automatique limitée sur ce live."}
                 </p>
               </div>
             </div>
             {!enough && (
               <Badge variant="muted" className="self-start sm:self-auto">
-                Signal limité
+                Analyse limitée
               </Badge>
             )}
           </CardContent>
         </Card>
+
+        {/* Assisted debrief — always available so the user leaves with content */}
+        <AssistedDebriefPanel session={last} signalLimited={!enough} />
 
         {/* Sub-scores */}
         {enough && (

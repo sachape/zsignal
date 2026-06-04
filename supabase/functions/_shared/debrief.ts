@@ -47,7 +47,9 @@ export function computeDebrief(
 ): DebriefV2 {
   const duration = session.duration_minutes ?? 0;
   const generated_at = new Date().toISOString();
-  const enough = duration >= 15 && snapshots.length >= 2;
+  // Relaxed: a 30+ min live always yields a debrief, even if snapshots
+  // collection lagged. We fall back on session-level peak/avg in that case.
+  const enough = (duration >= 30) || (duration >= 15 && snapshots.length >= 2);
 
   if (!enough) {
     const isComeback = daysSincePrev !== null && daysSincePrev >= 14;
