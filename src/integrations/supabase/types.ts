@@ -915,6 +915,72 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_social_posts: {
+        Row: {
+          caption: string | null
+          created_at: string
+          error_code: string | null
+          error_message: string | null
+          external_platform_id: string | null
+          format: string
+          hashtags: string[]
+          id: string
+          media_mime_type: string | null
+          media_storage_path: string | null
+          media_url: string | null
+          platform: string
+          published_at: string | null
+          published_url: string | null
+          scheduled_at: string | null
+          source_content_item_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          external_platform_id?: string | null
+          format: string
+          hashtags?: string[]
+          id?: string
+          media_mime_type?: string | null
+          media_storage_path?: string | null
+          media_url?: string | null
+          platform?: string
+          published_at?: string | null
+          published_url?: string | null
+          scheduled_at?: string | null
+          source_content_item_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          external_platform_id?: string | null
+          format?: string
+          hashtags?: string[]
+          id?: string
+          media_mime_type?: string | null
+          media_storage_path?: string | null
+          media_url?: string | null
+          platform?: string
+          published_at?: string | null
+          published_url?: string | null
+          scheduled_at?: string | null
+          source_content_item_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       creator_video_generation_jobs: {
         Row: {
           completed_at: string | null
