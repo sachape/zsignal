@@ -106,7 +106,8 @@ Deno.serve(async (req) => {
   const errorMessage = (() => {
     switch (errorCode) {
       case "twitch_vod_unavailable":
-        return "VOD Twitch indisponible. Vérifie que la VOD est publique et que « Stocker les vidéos passées » est activé sur ta chaîne.";
+      case "vod_unavailable":
+        return "Cette VOD n'est pas accessible. Utilise une vidéo publique ou importe un fichier.";
       case "ffmpeg_error":
         return "Erreur lors du découpage vidéo. Essaie un autre intervalle de temps.";
       case "worker_error":
