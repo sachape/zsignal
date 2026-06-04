@@ -933,24 +933,25 @@ function ClipJobStatus({ contentItemId, onTerminal }: { contentItemId: string; o
   if (job.status === "completed") return null; // success already reflected via item.generated_video_url
 
   const meta = JOB_STATUS_META[job.status];
+  const stageLabel = getGenerationStageLabel(job.generation_stage);
+  const lastSeen = new Date(job.worker_last_seen_at ?? job.updated_at).getTime();
+  const isLongRunning = job.status === "processing" && Number.isFinite(lastSeen) && Date.now() - lastSeen > 3 * 60 * 1000;
+  const errorMessage = job.status === "failed"
+    ? getGenerationErrorMessage(job.error_code)
+    : null;
   return (
     <div className={cn("space-y-1.5 rounded-md border p-2.5 text-[11px]", meta.cls)}>
       <div className="flex items-center justify-between">
-        <span className="font-semibold">{meta.label}</span>
-        {typeof job.progress === "number" && job.status === "processing" && (
-          <span className="tabular-nums">{job.progress}%</span>
-        )}
+        <span className="font-semibold">{job.status === "processing" ? stageLabel : meta.label}</span>
       </div>
-      {job.status === "processing" && typeof job.progress === "number" && (
-        <div className="h-1 w-full overflow-hidden rounded-full bg-background/40">
-          <div className="h-full bg-current opacity-70 transition-all" style={{ width: `${job.progress}%` }} />
-        </div>
-      )}
       {job.status === "queued" && (
         <p className="opacity-80">Streamnco découpe ton extrait dès qu'un worker est disponible.</p>
       )}
-      {job.status === "failed" && job.error_message && (
-        <p className="opacity-90">{job.error_message}</p>
+      {isLongRunning && (
+        <p className="opacity-90">La génération est plus longue que prévu, mais elle continue.</p>
+      )}
+      {job.status === "failed" && errorMessage && (
+        <p className="opacity-90">{errorMessage}</p>
       )}
     </div>
   );
