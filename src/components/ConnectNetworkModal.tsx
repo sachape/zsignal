@@ -149,26 +149,31 @@ export default function ConnectNetworkModal({
       );
     }
 
+    const adminMode = isAdminMode();
+
     if (selected === "youtube") {
       return (
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Autorise Streamnco à lire tes données de chaîne YouTube (lecture seule). Tes tokens sont stockés uniquement côté serveur.
-          </p>
-          <Button
-            className="w-full gap-2"
-            onClick={handleConnectYouTube}
-            disabled={ytLoading}
-          >
-            {ytLoading ? (
-              <><Loader2 className="h-4 w-4 animate-spin" />Connexion en cours…</>
-            ) : (
-              <><YouTubeIcon className="h-4 w-4" />Connecter YouTube</>
-            )}
-          </Button>
-          <p className="text-[11px] text-center text-muted-foreground/60">
-            Tu seras redirigé vers Google pour autoriser l'accès.
-          </p>
+          <PlatformValidationNotice platform="youtube" />
+          {adminMode && (
+            <>
+              <Button
+                className="w-full gap-2"
+                variant="outline"
+                onClick={handleConnectYouTube}
+                disabled={ytLoading}
+              >
+                {ytLoading ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" />Connexion en cours…</>
+                ) : (
+                  <><YouTubeIcon className="h-4 w-4" />Connecter YouTube (admin)</>
+                )}
+              </Button>
+              <p className="text-[11px] text-center text-muted-foreground/60">
+                Mode admin — flux OAuth visible uniquement pour les testeurs.
+              </p>
+            </>
+          )}
         </div>
       );
     }
@@ -176,23 +181,26 @@ export default function ConnectNetworkModal({
     if (selected === "tiktok") {
       return (
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Autorise Streamnco à lire ton profil TikTok et tes vidéos publiques (lecture seule). Tes tokens sont stockés uniquement côté serveur.
-          </p>
-          <Button
-            className="w-full gap-2"
-            onClick={handleConnectTikTok}
-            disabled={ttLoading}
-          >
-            {ttLoading ? (
-              <><Loader2 className="h-4 w-4 animate-spin" />Connexion en cours…</>
-            ) : (
-              <><TikTokIcon className="h-4 w-4" />Connecter TikTok</>
-            )}
-          </Button>
-          <p className="text-[11px] text-center text-muted-foreground/60">
-            Tu seras redirigé vers TikTok pour autoriser l'accès.
-          </p>
+          <PlatformValidationNotice platform="tiktok" />
+          {adminMode && (
+            <>
+              <Button
+                className="w-full gap-2"
+                variant="outline"
+                onClick={handleConnectTikTok}
+                disabled={ttLoading}
+              >
+                {ttLoading ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" />Connexion en cours…</>
+                ) : (
+                  <><TikTokIcon className="h-4 w-4" />Connecter TikTok (admin)</>
+                )}
+              </Button>
+              <p className="text-[11px] text-center text-muted-foreground/60">
+                Mode admin — flux OAuth visible uniquement pour les testeurs.
+              </p>
+            </>
+          )}
         </div>
       );
     }
