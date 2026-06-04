@@ -62,10 +62,12 @@ const ComposerPage = () => {
 
   const { posts, createDraft, updatePost, uploadMedia, removePost } = useSocialPosts();
   const { accounts } = useConnectedNetworks();
+  const { connection: metaConnection } = useInstagramConnection();
   const instagramAccount = useMemo(
     () => accounts.find((a) => a.platform === "instagram"),
     [accounts],
   );
+  const isInstagramConnected = metaConnection?.connection_status === "connected";
 
   const [draftId, setDraftId] = useState<string | null>(editId);
   const [pickedFormat, setPickedFormat] = useState<SocialFormat>(initialFormat);
