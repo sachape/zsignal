@@ -87,6 +87,18 @@ Deno.serve(async (req) => {
   const token = await decryptToken(data.access_token_encrypted);
   if (!token) return json(409, { success: false, error: "stored_token_empty" });
 
+  const appSecret = Deno.env.get("META_APP_SECRET") ?? "";
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(appSecret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(token));
+  const proof = Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+
   const endpoints = [
     { endpoint: "https://graph.instagram.com/me", fields: "user_id,username" },
     { endpoint: "https://graph.instagram.com/me", fields: "id,username" },
@@ -103,6 +115,7 @@ Deno.serve(async (req) => {
     const url = new URL(item.endpoint);
     url.searchParams.set("fields", item.fields);
     url.searchParams.set("access_token", token);
+    url.searchParams.set("appsecret_proof", proof);
 
     const response = await fetch(url.toString(), { method: "GET" });
     const payload = (await response.json().catch(() => ({}))) as MetaUsernameResponse;
