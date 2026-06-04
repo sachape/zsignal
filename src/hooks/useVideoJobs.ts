@@ -95,6 +95,7 @@ export function useActiveVideoJob() {
   const { user } = useAuth();
   const [activeJob, setActiveJob] = useState<VideoGenerationJob | null>(null);
   const [loading, setLoading] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchActive = useCallback(async () => {
     if (!user) { setActiveJob(null); return; }
@@ -118,12 +119,14 @@ export function useActiveVideoJob() {
       if (cancelled) return;
       await fetchActive();
       if (cancelled) return;
-      const timer = window.setTimeout(loop, activeJob ? 4000 : 8000);
-      return () => window.clearTimeout(timer);
+      timerRef.current = setTimeout(loop, 4000);
     }
     loop();
-    return () => { cancelled = true; };
-  }, [fetchActive, activeJob]);
+    return () => {
+      cancelled = true;
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [fetchActive]);
 
   return { activeJob, loading, refetch: fetchActive };
 }
