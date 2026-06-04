@@ -157,16 +157,40 @@ const VodImportPage = () => {
       .sort((a, b) => (a.source_start_time ?? 0) - (b.source_start_time ?? 0));
   }, [items, lastImportedUrl]);
 
-  // Poll while jobs are processing.
+  // Poll while jobs are processing + drive a clock for stuck-job detection.
+  const [now, setNow] = useState(() => Date.now());
+  const [processingSince, setProcessingSince] = useState<Record<string, number>>({});
   useEffect(() => {
     const inFlight = candidates.some(
       (c) =>
         c.generation_status === "queued" || c.generation_status === "processing",
     );
     if (!inFlight) return;
-    const id = window.setInterval(() => refetch(), 5000);
+    const id = window.setInterval(() => {
+      setNow(Date.now());
+      refetch();
+    }, 5000);
     return () => window.clearInterval(id);
   }, [candidates, refetch]);
+  // Record when each item first entered processing so we can detect stuck jobs.
+  useEffect(() => {
+    setProcessingSince((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const c of candidates) {
+        const inFlight =
+          c.generation_status === "queued" || c.generation_status === "processing";
+        if (inFlight && !next[c.id]) {
+          next[c.id] = Date.now();
+          changed = true;
+        } else if (!inFlight && next[c.id]) {
+          delete next[c.id];
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [candidates]);
 
   const handleSubmit = async () => {
     if (!url.trim()) {
