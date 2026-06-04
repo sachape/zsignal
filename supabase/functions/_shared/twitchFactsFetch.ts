@@ -35,6 +35,14 @@ export interface ServerTwitchFacts {
     view_count: number;
     created_at: string;
   }>;
+  live_sessions: Array<{
+    started_at: string;
+    ended_at: string | null;
+    duration_minutes: number | null;
+    avg_viewers: number | null;
+    peak_viewers: number | null;
+    snapshots_count: number | null;
+  }>;
 }
 
 export type FetchTwitchFactsError =
