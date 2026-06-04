@@ -248,9 +248,14 @@ const ContentQueuePage = () => {
               <Inbox className="mx-auto h-8 w-8 text-muted-foreground/60" />
               <p className="text-sm font-medium text-foreground">Aucun contenu dans cette vue</p>
               <p className="text-xs text-muted-foreground">
-                Termine un live depuis <Link to="/live-setup" className="text-primary underline-offset-2 hover:underline">Live Setup</Link>
-                {" "}et envoie les idées du brief dans la queue.
+                Crée un contenu manuellement ou termine un live depuis{" "}
+                <Link to="/live-setup" className="text-primary underline-offset-2 hover:underline">Live Setup</Link>.
               </p>
+              <div className="flex justify-center gap-2 pt-2">
+                <Button size="sm" onClick={() => setNewOpen(true)}>
+                  <Plus className="h-4 w-4" /> Nouveau contenu
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (
@@ -259,6 +264,7 @@ const ContentQueuePage = () => {
               <ContentRow key={item.id} item={item}
                 youtubeConnected={youtubeConnected}
                 onUpload={() => setUploadItem(item)}
+                onManualUpload={() => setManualUploadItem(item)}
                 onEditSource={() => setSourceItem(item)}
                 onGenerate={() => {
                   if (item.source_start_time == null || item.source_end_time == null) {
@@ -278,6 +284,23 @@ const ContentQueuePage = () => {
               />
             ))}
           </div>
+        )}
+
+        <NewContentDialog
+          open={newOpen}
+          onOpenChange={setNewOpen}
+          onCreate={(row) => createMany([row])}
+        />
+
+        {manualUploadItem && (
+          <ManualMediaUploadDialog
+            item={manualUploadItem}
+            open={!!manualUploadItem}
+            onOpenChange={(o) => { if (!o) setManualUploadItem(null); }}
+            onUploaded={async (patch) => {
+              await updateItem(manualUploadItem.id, patch);
+            }}
+          />
         )}
 
         {uploadItem && (
