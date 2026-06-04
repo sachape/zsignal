@@ -609,6 +609,18 @@ export default function ReseauxPage() {
                     </div>
                   )}
                 </div>
+                {igDebug && (
+                  <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-2.5 font-mono text-[10px] text-destructive/90 space-y-0.5">
+                    <p className="font-semibold text-destructive">Debug Instagram OAuth (temporaire)</p>
+                    {igDebug.callback_version && <p>callback_version: {igDebug.callback_version}</p>}
+                    {igDebug.reason && <p>error_code: {igDebug.reason}</p>}
+                    {igDebug.step && <p>error_step: {igDebug.step}</p>}
+                    {igDebug.http_status && <p>http_status: {igDebug.http_status}</p>}
+                    {igDebug.meta_type && <p>meta_error_type: {igDebug.meta_type}</p>}
+                    {igDebug.meta_error && <p>meta_error_message: {igDebug.meta_error}</p>}
+                    {igDebug.message && <p>message: {igDebug.message}</p>}
+                  </div>
+                )}
               </div>
             </div>
 
