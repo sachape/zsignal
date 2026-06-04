@@ -18,7 +18,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-me-first-longlived-fallback-v3";
+const CALLBACK_VERSION = "instagram-callback-me-variants-cascade-v4";
+const GRAPH_VERSION = "v21.0";
+
+type ProfileVariant =
+  | "versioned_me_business_fields"
+  | "versioned_me_basic_fields"
+  | "user_id_direct"
+  | "user_id_minimal";
+
+interface ProfileAttempt {
+  variant: ProfileVariant;
+  endpoint_host: string;
+  endpoint_path: string;
+  fields: string;
+  http_status?: number;
+  meta_error_type?: string;
+  meta_error_message?: string;
+  ok: boolean;
+}
 
 type CallbackStep =
   | "validate_input"
@@ -207,47 +225,74 @@ Deno.serve(async (req) => {
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
     log("short_token_ok", { has_user_id: !!igUserIdFromToken });
 
-    // 2. Fetch IG account info FIRST with short-lived token via graph.instagram.com /me
-    //    (Instagram Login is unversioned). This is the critical step — long-lived exchange
-    //    is best-effort and falls back to short-lived if it fails.
-    const meUrl = new URL("https://graph.instagram.com/me");
-    meUrl.searchParams.set("fields", "user_id,username,account_type,profile_picture_url");
-    meUrl.searchParams.set("access_token", shortToken);
-    log("me_request", { endpoint: "https://graph.instagram.com/me", method: "GET", token_kind: "short_lived" });
-    const meResp = await fetch(meUrl.toString(), { method: "GET", redirect: "manual" });
-    log("me_response", { http_status: meResp.status, redirected: meResp.redirected, type: meResp.type });
-    const meJson = (await meResp.json().catch(() => ({}))) as IgMeResp;
-    if (!meResp.ok) {
-      const msg = meJson.error?.message ?? "ig_me_fetch_failed";
-      const metaError = extractMetaError(meJson);
-      log("me_failed", { http_status: meResp.status, meta_error_message: metaError.meta_error_message });
-      await upsertError(admin, user.id, "error", "ig_me_fetch_failed", msg);
-      return fail(400, "ig_me_fetch_failed", "fetch_profile", {
-        message: msg,
-        httpStatus: meResp.status,
-        metaErrorType: metaError.meta_error_type,
-        metaErrorMessage: metaError.meta_error_message,
-      });
-    }
-    const igAccountId = meJson.user_id ?? meJson.id ?? igUserIdFromToken;
-    if (!igAccountId) {
-      log("me_no_account_id");
-      await upsertError(admin, user.id, "error", "ig_account_id_missing", "ID Instagram introuvable.");
-      return fail(400, "ig_account_id_missing", "fetch_profile", { message: "ID Instagram introuvable." });
-    }
-    log("me_ok", { account_type: meJson.account_type, has_username: !!meJson.username });
+    // 2. Fetch IG profile — cascade of variants. Minimum success: id/user_id + username.
+    const tryProfile = async (variant: ProfileVariant, path: string, fields: string): Promise<{ attempt: ProfileAttempt; data: IgMeResp }> => {
+      const url = new URL(`https://graph.instagram.com${path}`);
+      url.searchParams.set("fields", fields);
+      url.searchParams.set("access_token", shortToken);
+      log("me_request", { profile_variant: variant, endpoint_host: "graph.instagram.com", endpoint_path: path, method: "GET", fields });
+      const resp = await fetch(url.toString(), { method: "GET", redirect: "manual" });
+      const data = (await resp.json().catch(() => ({}))) as IgMeResp;
+      const metaError = extractMetaError(data);
+      const attempt: ProfileAttempt = {
+        variant,
+        endpoint_host: "graph.instagram.com",
+        endpoint_path: path,
+        fields,
+        http_status: resp.status,
+        meta_error_type: metaError.meta_error_type,
+        meta_error_message: metaError.meta_error_message,
+        ok: resp.ok && !!(data.id ?? data.user_id ?? igUserIdFromToken) && !!data.username,
+      };
+      log("me_response", attempt);
+      return { attempt, data };
+    };
 
-    // Optional sanity check: account_type must be BUSINESS or MEDIA_CREATOR / CREATOR.
-    const acctType = (meJson.account_type ?? "").toUpperCase();
-    if (acctType && acctType !== "BUSINESS" && acctType !== "CREATOR" && acctType !== "MEDIA_CREATOR") {
-      await upsertError(
-        admin, user.id, "error", "ig_account_not_professional",
-        "Compte Instagram professionnel (Business ou Creator) requis.",
-      );
-      return fail(400, "ig_account_not_professional", "fetch_profile", {
-        message: "Compte Instagram professionnel requis.",
+    const attempts: ProfileAttempt[] = [];
+    let profileData: IgMeResp = {};
+    let successVariant: ProfileVariant | null = null;
+
+    const variants: Array<{ v: ProfileVariant; path: string; fields: string }> = [
+      { v: "versioned_me_business_fields", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username,account_type,profile_picture_url" },
+      { v: "versioned_me_basic_fields", path: `/${GRAPH_VERSION}/me`, fields: "id,username,account_type" },
+    ];
+    if (igUserIdFromToken) {
+      variants.push({ v: "user_id_direct", path: `/${igUserIdFromToken}`, fields: "username,account_type,profile_picture_url" });
+      variants.push({ v: "user_id_minimal", path: `/${igUserIdFromToken}`, fields: "username" });
+    }
+
+    for (const { v, path, fields } of variants) {
+      const { attempt, data } = await tryProfile(v, path, fields);
+      attempts.push(attempt);
+      if (attempt.ok) {
+        profileData = data;
+        successVariant = v;
+        break;
+      }
+      if (data.username && !profileData.username) profileData.username = data.username;
+      if ((data.id || data.user_id) && !(profileData.id || profileData.user_id)) {
+        profileData.id = data.id;
+        profileData.user_id = data.user_id;
+      }
+    }
+
+    const igAccountId = profileData.user_id ?? profileData.id ?? igUserIdFromToken;
+    const igUsername = profileData.username;
+
+    if (!successVariant || !igAccountId || !igUsername) {
+      const last = attempts[attempts.length - 1];
+      log("me_all_variants_failed", { attempts });
+      await upsertError(admin, user.id, "error", "ig_me_fetch_failed", last?.meta_error_message ?? "ig_me_fetch_failed");
+      return fail(400, "ig_me_fetch_failed", "fetch_profile", {
+        message: last?.meta_error_message ?? "Profil Instagram introuvable après plusieurs tentatives.",
+        httpStatus: last?.http_status,
+        metaErrorType: last?.meta_error_type,
+        metaErrorMessage: last?.meta_error_message,
       });
     }
+    log("me_ok", { profile_variant: successVariant, has_account_type: !!profileData.account_type });
+
+    const accountType = profileData.account_type ?? "unknown";
 
     // 3. Best-effort: exchange short-lived → long-lived (~60d) via graph.instagram.com
     //    Endpoint: GET https://graph.instagram.com/access_token (unversioned)
@@ -313,9 +358,9 @@ Deno.serve(async (req) => {
       connection_status: "connected",
       meta_user_id: null,
       instagram_account_id: igAccountId,
-      instagram_username: meJson.username ?? null,
-      instagram_profile_picture_url: meJson.profile_picture_url ?? null,
-      account_type: meJson.account_type ?? null,
+      instagram_username: igUsername,
+      instagram_profile_picture_url: profileData.profile_picture_url ?? null,
+      account_type: accountType,
       page_id: null,
       page_name: null,
       scopes_granted: [
@@ -336,8 +381,9 @@ Deno.serve(async (req) => {
 
     return json(200, {
       success: true,
-      instagram_username: meJson.username,
-      account_type: meJson.account_type,
+      instagram_username: igUsername,
+      account_type: accountType,
+      profile_variant: successVariant,
       warning_code: warningCode,
       warning_message: warningMessage,
     });
