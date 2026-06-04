@@ -277,7 +277,7 @@ export default function ReseauxPage() {
   const { connection: metaConnection, refetch: refetchMeta } = useInstagramConnection();
   const { oauth_enabled: igOAuthEnabled } = useInstagramOAuthStatus();
   const [igActionLoading, setIgActionLoading] = useState(false);
-  const [ignoredInstagramError, setIgnoredInstagramError] = useState<string | null>(null);
+  const [ignoredInstagramErrorAt, setIgnoredInstagramErrorAt] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
@@ -303,7 +303,7 @@ export default function ReseauxPage() {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion TikTok (${reason}).`);
     }
-    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); setIgnoredInstagramError(null); refetchMeta(); }
+    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); setIgnoredInstagramErrorAt(null); refetchMeta(); }
     else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
     else if (igResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
@@ -311,7 +311,7 @@ export default function ReseauxPage() {
       const metaError = searchParams.get("meta_error");
       const callbackVersion = searchParams.get("callback_version");
       if (callbackVersion) console.debug("instagram callback version", callbackVersion);
-      setIgnoredInstagramError(metaConnection?.error_message ?? null);
+      setIgnoredInstagramErrorAt(metaConnection?.updated_at ?? null);
       const msg = reason === "ig_account_not_professional"
         ? "Compte Instagram professionnel (Business ou Creator) requis."
         : reason === "instagram_oauth_disabled"
@@ -329,7 +329,7 @@ export default function ReseauxPage() {
       p.delete("step"); p.delete("meta_error"); p.delete("callback_version");
       return p;
     }, { replace: true });
-  }, [searchParams, setSearchParams, refetch, refetchMeta, metaConnection?.error_message]);
+  }, [searchParams, setSearchParams, refetch, refetchMeta, metaConnection?.updated_at]);
 
   // Save presence snapshot when accounts or Twitch connection change
   useEffect(() => {
@@ -382,7 +382,7 @@ export default function ReseauxPage() {
   const handleConnectInstagram = useCallback(async () => {
     setIgActionLoading(true);
     try {
-      setIgnoredInstagramError(null);
+      setIgnoredInstagramErrorAt(null);
       if (user) {
         await supabase
           .from("creator_meta_connections")
@@ -564,7 +564,7 @@ export default function ReseauxPage() {
                         const isRecentInstagramError = metaConnection?.updated_at
                           ? Date.now() - new Date(metaConnection.updated_at).getTime() < 15 * 60 * 1000
                           : false;
-                        const currentInstagramError = isRecentInstagramError && metaConnection?.error_message !== ignoredInstagramError
+                        const currentInstagramError = isRecentInstagramError && metaConnection?.updated_at !== ignoredInstagramErrorAt
                           ? metaConnection?.error_message
                           : null;
                         if (metaConnection?.connection_status === "error" && currentInstagramError) {
