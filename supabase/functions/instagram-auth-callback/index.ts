@@ -207,41 +207,15 @@ Deno.serve(async (req) => {
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
     log("short_token_ok", { has_user_id: !!igUserIdFromToken });
 
-    // 2. Exchange short-lived → long-lived (~60d) via graph.instagram.com (GET, unversioned).
-    const longUrl = new URL("https://graph.instagram.com/access_token");
-    longUrl.searchParams.set("grant_type", "ig_exchange_token");
-    longUrl.searchParams.set("client_secret", cfg.appSecret);
-    longUrl.searchParams.set("access_token", shortToken);
-    log("long_token_request", { endpoint: "https://graph.instagram.com/access_token", method: "GET" });
-    const longResp = await fetch(longUrl.toString(), { method: "GET", redirect: "manual" });
-    log("long_token_response", { http_status: longResp.status, redirected: longResp.redirected, type: longResp.type, location: longResp.headers.get("location") });
-    const longJson = (await longResp.json().catch(() => ({}))) as LongTokenResp;
-    if (!longResp.ok || !longJson.access_token) {
-      const msg = longJson.error?.message ?? "long_token_exchange_failed";
-      const metaError = extractMetaError(longJson);
-      log("long_token_failed", { http_status: longResp.status, meta_error_message: metaError.meta_error_message });
-      await upsertError(admin, user.id, "error", "long_token_exchange_failed", msg);
-      return fail(400, "long_token_exchange_failed", "exchange_long_token", {
-        message: msg,
-        httpStatus: longResp.status,
-        metaErrorType: metaError.meta_error_type,
-        metaErrorMessage: metaError.meta_error_message,
-      });
-    }
-    const accessToken = longJson.access_token;
-    const expiresIn = longJson.expires_in ?? null;
-    const tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
-    log("long_token_ok", { expires_in: expiresIn });
-
-    // 3. Fetch IG account info via graph.instagram.com /me (Instagram Login is unversioned).
-    //    NOTE: do NOT prefix with /v{ver}/ — Instagram Login /me rejects versioned paths
-    //    with "Unsupported request - method type: get".
+    // 2. Fetch IG account info FIRST with short-lived token via graph.instagram.com /me
+    //    (Instagram Login is unversioned). This is the critical step — long-lived exchange
+    //    is best-effort and falls back to short-lived if it fails.
     const meUrl = new URL("https://graph.instagram.com/me");
     meUrl.searchParams.set("fields", "user_id,username,account_type,profile_picture_url");
-    meUrl.searchParams.set("access_token", accessToken);
-    log("me_request", { endpoint: "https://graph.instagram.com/me", method: "GET" });
+    meUrl.searchParams.set("access_token", shortToken);
+    log("me_request", { endpoint: "https://graph.instagram.com/me", method: "GET", token_kind: "short_lived" });
     const meResp = await fetch(meUrl.toString(), { method: "GET", redirect: "manual" });
-    log("me_response", { http_status: meResp.status, redirected: meResp.redirected, type: meResp.type, location: meResp.headers.get("location") });
+    log("me_response", { http_status: meResp.status, redirected: meResp.redirected, type: meResp.type });
     const meJson = (await meResp.json().catch(() => ({}))) as IgMeResp;
     if (!meResp.ok) {
       const msg = meJson.error?.message ?? "ig_me_fetch_failed";
@@ -267,10 +241,7 @@ Deno.serve(async (req) => {
     const acctType = (meJson.account_type ?? "").toUpperCase();
     if (acctType && acctType !== "BUSINESS" && acctType !== "CREATOR" && acctType !== "MEDIA_CREATOR") {
       await upsertError(
-        admin,
-        user.id,
-        "error",
-        "ig_account_not_professional",
+        admin, user.id, "error", "ig_account_not_professional",
         "Compte Instagram professionnel (Business ou Creator) requis.",
       );
       return fail(400, "ig_account_not_professional", "fetch_profile", {
@@ -278,8 +249,55 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 4. Encrypt token & upsert. page_id / page_name intentionally left null
-    //    (legacy columns kept for backward compat; Instagram Login flow does not use them).
+    // 3. Best-effort: exchange short-lived → long-lived (~60d) via graph.instagram.com
+    //    Endpoint: GET https://graph.instagram.com/access_token (unversioned)
+    //    Query: grant_type=ig_exchange_token, client_secret=..., access_token=<short_lived>
+    //    NO client_id, NO redirect_uri, NO code.
+    const longUrl = new URL("https://graph.instagram.com/access_token");
+    longUrl.searchParams.set("grant_type", "ig_exchange_token");
+    longUrl.searchParams.set("client_secret", cfg.appSecret);
+    longUrl.searchParams.set("access_token", shortToken);
+    log("long_token_request", {
+      endpoint_host: "graph.instagram.com",
+      endpoint_path: "/access_token",
+      method: "GET",
+      grant_type: "ig_exchange_token",
+      has_access_token: !!shortToken,
+      access_token_prefix: shortToken ? shortToken.slice(0, 6) : null,
+      has_client_secret: !!cfg.appSecret,
+    });
+    let accessToken = shortToken;
+    let tokenExpiresAt: string | null = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // short-lived ~1h fallback
+    let warningCode: string | null = null;
+    let warningMessage: string | null = null;
+    try {
+      const longResp = await fetch(longUrl.toString(), { method: "GET", redirect: "manual" });
+      const longText = await longResp.text();
+      let longJson: LongTokenResp = {};
+      try { longJson = JSON.parse(longText) as LongTokenResp; } catch { /* not JSON */ }
+      log("long_token_response", {
+        http_status: longResp.status,
+        redirected: longResp.redirected,
+        type: longResp.type,
+        meta_error_message: longJson.error?.message ?? null,
+      });
+      if (longResp.ok && longJson.access_token) {
+        accessToken = longJson.access_token;
+        const expiresIn = longJson.expires_in ?? null;
+        tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
+        log("long_token_ok", { expires_in: expiresIn });
+      } else {
+        warningCode = "token_long_lived_exchange_failed";
+        warningMessage = `Token court utilisé temporairement — échange long-lived à corriger (${longJson.error?.message ?? `HTTP ${longResp.status}`}).`;
+        log("long_token_fallback_short", { http_status: longResp.status, meta_error_message: longJson.error?.message ?? null });
+      }
+    } catch (e) {
+      warningCode = "token_long_lived_exchange_failed";
+      warningMessage = `Token court utilisé temporairement — échange long-lived a planté (${e instanceof Error ? e.message : "unknown"}).`;
+      log("long_token_throw", { reason: e instanceof Error ? e.message : "unknown" });
+    }
+
+    // 4. Encrypt token (long-lived if we got one, otherwise short-lived) & upsert.
     let encrypted: string;
     try {
       encrypted = await encryptToken(accessToken);
@@ -308,8 +326,8 @@ Deno.serve(async (req) => {
       refresh_token_encrypted: null,
       token_expires_at: tokenExpiresAt,
       last_sync_at: new Date().toISOString(),
-      error_code: null,
-      error_message: null,
+      error_code: warningCode,
+      error_message: warningMessage,
     }, { onConflict: "user_id,platform" });
 
     if (upsertErr) {
