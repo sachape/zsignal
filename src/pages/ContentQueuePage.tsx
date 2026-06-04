@@ -613,11 +613,11 @@ function ContentRow({
 
         {/* Manual publish workflow — visible as soon as we have something to share */}
         {item.status !== "ignored" && item.status !== "published" && (
-          (item.generated_video_url ||
+          (hasGeneratedClip ||
             ["draft_ready", "ready", "uploaded", "published_manually"].includes(item.status)) ? (
             <ManualPublishPanel
               item={item}
-              mediaUrl={item.generated_video_url}
+              mediaUrl={freshMediaUrl}
               onUpdate={onUpdate}
             />
           ) : null
