@@ -85,9 +85,11 @@ export function extractChannelFacts(
   const uniqueCategories = uniqueValues(categories);
   const switchRate = uniqueCategories.length > 1 ? (uniqueCategories.length - 1) / Math.max(categories.length - 1, 1) : 0;
 
-  // Consistency: days between consecutive streams in last 30d
+  // Consistency: days between consecutive streams in last 30d.
+  // Days come from the union of VOD created_at + live_session started_at,
+  // so a live with no VOD still counts.
   const streamDates = videos30d.map((v) => new Date(v.created_at).toISOString().slice(0, 10));
-  const uniqueDays = uniqueValues(streamDates).sort();
+  const uniqueDays = uniqueValues([...streamDates, ...liveDays30d]).sort();
   let consistencyScore = 0;
   if (uniqueDays.length >= 2) {
     const gaps = [];
@@ -100,14 +102,27 @@ export function extractChannelFacts(
     consistencyScore = Math.max(0, Math.min(100, Math.round(100 - stdDev * 15)));
   }
 
-  // VOD-derived avg view metric. NOT a live concurrent viewers count.
-  // The label is intentionally honest: "Vues moyennes par VOD (30j)".
-  // Influenced by rebroadcasts, raids, events. Confidence is low when the
-  // VOD pool is small.
+  // Effective stream counts: lives are source of truth, VODs are fallback.
+  const effectiveStreams30d = Math.max(videos30d.length, lives30d.length);
+  const effectiveStreams7d = Math.max(videos7d.length, lives7d.length);
+
+  // Viewers metric: prefer real live_sessions avg/peak when at least one
+  // session has snapshot-backed data. Otherwise fall back to the legacy
+  // VOD view_count proxy (honestly labeled). Never show 0 as a real value
+  // when the underlying source is missing.
+  const hasLiveViewerSignal =
+    lives30d.some((s) => (s.snapshots_count ?? 0) > 0 && typeof s.avg_viewers === "number");
   const avgVodViews = videos30d.length
     ? Math.round(videos30d.reduce((a, v) => a + v.view_count, 0) / videos30d.length)
     : 0;
   const vodViewsConfidence = videos30d.length >= 6 ? 0.6 : videos30d.length >= 3 ? 0.4 : 0.2;
+  const avgViewersValue = hasLiveViewerSignal && liveAvgViewers !== null
+    ? liveAvgViewers
+    : avgVodViews;
+  const avgViewersConfidence = hasLiveViewerSignal ? 0.9 : vodViewsConfidence;
+  const avgViewersLabel = hasLiveViewerSignal
+    ? "Viewers moyens (sessions live)"
+    : "Vues moyennes par VOD (30j)";
 
   const followersAvailable = profile.followers_available ?? true;
   const followersValue = followersAvailable ? profile.follower_count : 0;
@@ -116,23 +131,25 @@ export function extractChannelFacts(
   const AFFILIATE = { followers: 50, avg_viewers: 3, stream_days_30d: 7, stream_hours_30d: 8 };
 
   const facts: ChannelFact[] = [
-    { key: "streams_7d", value: videos7d.length, label: "Streams (7 derniers jours)", confidence: 1 },
-    { key: "streams_30d", value: videos30d.length, label: "Streams (30 derniers jours)", confidence: 1 },
+    { key: "streams_7d", value: effectiveStreams7d, label: "Streams (7 derniers jours)", confidence: 1 },
+    { key: "streams_30d", value: effectiveStreams30d, label: "Streams (30 derniers jours)", confidence: 1 },
+    { key: "lives_30d", value: lives30d.length, label: "Lives détectés (30j)", confidence: 1 },
+    { key: "lives_7d", value: lives7d.length, label: "Lives détectés (7j)", confidence: 1 },
+    { key: "vods_30d", value: videos30d.length, label: "VODs publiées (30j)", confidence: 1 },
     { key: "clips_30d", value: clips30d.length, label: "Clips (30 derniers jours)", confidence: 1 },
     { key: "avg_duration_minutes", value: Math.round(avgDuration), label: "Durée moyenne (min)", confidence: 1 },
     { key: "total_hours_30d", value: Math.round(totalHours30d * 10) / 10, label: "Heures streamées (30j)", confidence: 1 },
     { key: "dominant_category", value: dominantCategory, label: "Catégorie dominante", confidence: dominant ? 0.9 : 0.3 },
     { key: "category_switch_rate", value: Math.round(switchRate * 100), label: "Taux de changement de catégorie (%)", confidence: 0.8 },
     { key: "posting_consistency_score", value: consistencyScore, label: "Score de régularité", confidence: uniqueDays.length >= 3 ? 0.9 : 0.5 },
-    // Honest naming: this is the average view_count of recent VODs, not a
-    // live concurrent viewer count. The legacy `avg_viewers` key is kept
-    // for backward compatibility in the report payload.
     { key: "avg_vod_views_30d", value: avgVodViews, label: "Vues moyennes par VOD (30j)", confidence: vodViewsConfidence },
-    { key: "avg_viewers", value: avgVodViews, label: "Vues moyennes par VOD (30j)", confidence: vodViewsConfidence },
+    { key: "avg_viewers", value: avgViewersValue, label: avgViewersLabel, confidence: avgViewersConfidence },
+    { key: "live_avg_viewers", value: liveAvgViewers ?? 0, label: "Viewers moyens (live)", confidence: hasLiveViewerSignal ? 0.9 : 0 },
+    { key: "live_peak_viewers", value: livePeakViewers ?? 0, label: "Pic de viewers (live)", confidence: livePeakViewers !== null ? 0.9 : 0 },
     { key: "follower_count", value: followersValue, label: "Followers", confidence: followersAvailable ? 1 : 0 },
     { key: "followers_available", value: followersAvailable ? 1 : 0, label: "Followers disponibles", confidence: 1 },
     { key: "followers_remaining", value: followersAvailable ? Math.max(0, AFFILIATE.followers - followersValue) : 0, label: "Followers restants (affilié)", confidence: followersAvailable ? 1 : 0 },
-    { key: "avg_viewers_remaining", value: Math.max(0, AFFILIATE.avg_viewers - avgVodViews), label: "Viewers moyens restants (affilié)", confidence: vodViewsConfidence },
+    { key: "avg_viewers_remaining", value: Math.max(0, AFFILIATE.avg_viewers - avgViewersValue), label: "Viewers moyens restants (affilié)", confidence: avgViewersConfidence },
     { key: "stream_days_remaining", value: Math.max(0, AFFILIATE.stream_days_30d - uniqueDays.length), label: "Jours de stream restants (affilié)", confidence: 1 },
     { key: "stream_hours_remaining", value: Math.max(0, Math.round((AFFILIATE.stream_hours_30d - totalHours30d) * 10) / 10), label: "Heures restantes (affilié)", confidence: 1 },
     { key: "unique_stream_days_30d", value: uniqueDays.length, label: "Jours uniques streamés (30j)", confidence: 1 },
