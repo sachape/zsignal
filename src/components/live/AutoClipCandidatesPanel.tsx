@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { useContentItems, type ContentItem } from "@/hooks/useContentItems";
 import {
   getContentStatusBadge,
@@ -57,7 +57,6 @@ const TONE_CLASS: Record<string, string> = {
 };
 
 const AutoClipCandidatesPanel = ({ session }: Props) => {
-  const { user } = useAuth();
   const { items, refetch, updateItem } = useContentItems();
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [retryingVod, setRetryingVod] = useState(false);
