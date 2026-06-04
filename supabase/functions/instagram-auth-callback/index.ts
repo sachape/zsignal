@@ -18,7 +18,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-me-first-longlived-fallback-v3";
+const CALLBACK_VERSION = "instagram-callback-me-variants-cascade-v4";
+const GRAPH_VERSION = "v21.0";
+
+type ProfileVariant =
+  | "versioned_me_business_fields"
+  | "versioned_me_basic_fields"
+  | "user_id_direct"
+  | "user_id_minimal";
+
+interface ProfileAttempt {
+  variant: ProfileVariant;
+  endpoint_host: string;
+  endpoint_path: string;
+  fields: string;
+  http_status?: number;
+  meta_error_type?: string;
+  meta_error_message?: string;
+  ok: boolean;
+}
 
 type CallbackStep =
   | "validate_input"
