@@ -549,6 +549,7 @@ export default function ReseauxPage() {
                       <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
                       {(() => {
                         if (metaConnection?.connection_status === "connected") {
+                          const hasWarning = metaConnection.error_code === "token_long_lived_exchange_failed";
                           return (
                             <p className="text-muted-foreground">
                               Connecté en tant que <span className="text-foreground">@{metaConnection.instagram_username}</span>
@@ -556,6 +557,11 @@ export default function ReseauxPage() {
                               <span className="block mt-0.5 text-muted-foreground/70">
                                 Publication Instagram en attente de validation Meta — l'envoi sera activé une fois l'App Review approuvée.
                               </span>
+                              {hasWarning && (
+                                <span className="block mt-1 text-amber-300/90">
+                                  Instagram connecté — token temporaire, renouvellement long-lived à finaliser.
+                                </span>
+                              )}
                             </p>
                           );
                         }
