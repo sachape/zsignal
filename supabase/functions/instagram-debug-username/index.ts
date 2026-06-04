@@ -8,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const DEBUG_VERSION = "instagram-debug-username-v1";
+const DEBUG_VERSION = "instagram-debug-username-v2";
 
 interface ConnectionRow {
   instagram_account_id: string | null;
