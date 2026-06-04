@@ -82,9 +82,10 @@ const InstagramCallbackPage = () => {
           { body: { code, state } },
         );
         const payload = ((data as InstagramCallbackResponse | null) ?? await readInvokeErrorBody(invokeErr)) ?? {};
-        if (payload.callback_version) {
-          console.debug("instagram callback version", payload.callback_version);
-        }
+        console.debug("[instagram-callback] payload", payload);
+        if (payload.callback_version) console.debug("[instagram-callback] version", payload.callback_version);
+        if (payload.error_step) console.debug("[instagram-callback] error_step", payload.error_step);
+        if (payload.meta_error_message) console.debug("[instagram-callback] meta_error_message", payload.meta_error_message);
 
         if (invokeErr || !payload.success) {
           setMessage("Échec de la connexion. Redirection…");
