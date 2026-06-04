@@ -793,6 +793,75 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_meta_connections: {
+        Row: {
+          access_token_encrypted: string | null
+          account_type: string | null
+          connection_status: string
+          created_at: string
+          error_code: string | null
+          error_message: string | null
+          id: string
+          instagram_account_id: string | null
+          instagram_profile_picture_url: string | null
+          instagram_username: string | null
+          last_sync_at: string | null
+          meta_user_id: string | null
+          page_id: string | null
+          page_name: string | null
+          platform: string
+          refresh_token_encrypted: string | null
+          scopes_granted: string[] | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          account_type?: string | null
+          connection_status?: string
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          instagram_account_id?: string | null
+          instagram_profile_picture_url?: string | null
+          instagram_username?: string | null
+          last_sync_at?: string | null
+          meta_user_id?: string | null
+          page_id?: string | null
+          page_name?: string | null
+          platform?: string
+          refresh_token_encrypted?: string | null
+          scopes_granted?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          account_type?: string | null
+          connection_status?: string
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          instagram_account_id?: string | null
+          instagram_profile_picture_url?: string | null
+          instagram_username?: string | null
+          last_sync_at?: string | null
+          meta_user_id?: string | null
+          page_id?: string | null
+          page_name?: string | null
+          platform?: string
+          refresh_token_encrypted?: string | null
+          scopes_granted?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       creator_platform_metrics: {
         Row: {
           comments_count: number | null
