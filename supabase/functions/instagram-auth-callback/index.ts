@@ -310,27 +310,31 @@ Deno.serve(async (req) => {
 
 
 
-    // 2. Fetch IG profile — BARE fetch (no method, no headers, no body, no redirect option).
-    //    Per user instruction: do not pass method:"GET" (Meta sometimes logs "method type: get"
-    //    in errors which may indicate the request line is malformed by some wrapper).
+    // 2. Fetch IG profile. The new Instagram Login docs expose /me on graph.instagram.com,
+    //    while the IG User reference still documents /<IG_USER_ID> on graph.facebook.com.
+    //    Try both hosts so test/app-review limitations are explicit in logs.
     const tryProfile = async (
       variant: ProfileVariant,
+      host: "graph.instagram.com" | "graph.facebook.com",
       path: string,
       fields: string,
-      authMode: "query" | "bearer" = "query",
+      options: { authMode?: "query" | "bearer"; includeProof?: boolean } = {},
     ): Promise<{ attempt: ProfileAttempt; data: IgMeResp }> => {
-      const url = new URL(`https://graph.instagram.com${path}`);
+      const authMode = options.authMode ?? "query";
+      const includeProof = options.includeProof ?? true;
+      const url = new URL(`https://${host}${path}`);
       url.searchParams.set("fields", fields);
       if (authMode === "query") url.searchParams.set("access_token", shortToken);
-      url.searchParams.set("appsecret_proof", proofShort);
+      if (includeProof) url.searchParams.set("appsecret_proof", proofShort);
       log("me_request", {
         profile_variant: variant,
-        endpoint_host: "graph.instagram.com",
+        endpoint_host: host,
         endpoint_path: path,
         method: "GET (default, not explicit)",
         fields,
         token_type: "short_lived",
         auth_mode: authMode,
+        has_appsecret_proof: includeProof,
         has_access_token: !!shortToken,
         access_token_prefix: shortToken ? shortToken.slice(0, 6) : null,
         user_id_from_token: igUserIdFromToken,
@@ -343,13 +347,13 @@ Deno.serve(async (req) => {
       const metaError = extractMetaError(data);
       const attempt: ProfileAttempt = {
         variant,
-        endpoint_host: "graph.instagram.com",
+        endpoint_host: host,
         endpoint_path: path,
         fields,
         http_status: resp.status,
         meta_error_type: metaError.meta_error_type,
         meta_error_message: metaError.meta_error_message,
-        ok: resp.ok && !!data.username,
+        ok: resp.ok && (!!data.username || !!data.name || !!data.profile_picture_url),
       };
       log("me_response", attempt);
       return { attempt, data };
@@ -359,31 +363,39 @@ Deno.serve(async (req) => {
     let profileData: IgMeResp = {};
     let successVariant: ProfileVariant | null = null;
 
-    const variants: Array<{ v: ProfileVariant; path: string; fields: string; authMode?: "query" | "bearer" }> = [
-      { v: "me_user_id_username_v25_query", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
-      { v: "me_user_id_username_account_v25_query", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username,account_type,profile_picture_url" },
-      { v: "me_user_id_username_v25_bearer", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username", authMode: "bearer" },
-      { v: "me_user_id_username_unversioned", path: `/me`, fields: "user_id,username" },
-      { v: "me_id_username_unversioned", path: `/me`, fields: "id,username" },
-      { v: "me_user_id_username_versioned", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
-      { v: "me_id_username_versioned", path: `/${GRAPH_VERSION}/me`, fields: "id,username" },
+    const variants: Array<{
+      v: ProfileVariant;
+      host: "graph.instagram.com" | "graph.facebook.com";
+      path: string;
+      fields: string;
+      authMode?: "query" | "bearer";
+      includeProof?: boolean;
+    }> = [
+      { v: "me_user_id_username_account_v25_query", host: "graph.instagram.com", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username,name,account_type,profile_picture_url" },
+      { v: "me_user_id_username_v25_query", host: "graph.instagram.com", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username" },
+      { v: "me_user_id_username_v25_bearer", host: "graph.instagram.com", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username", authMode: "bearer" },
     ];
     if (igUserIdFromToken) {
-      variants.push({ v: "user_id_path_username_unversioned", path: `/${igUserIdFromToken}`, fields: "username" });
-      variants.push({ v: "user_id_path_username_versioned", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "username" });
+      variants.push({ v: "user_id_path_details_instagram_versioned", host: "graph.instagram.com", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "user_id,username,name,account_type,profile_picture_url" });
+      variants.push({ v: "user_id_path_details_facebook_versioned", host: "graph.facebook.com", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "id,username,name,account_type,profile_picture_url" });
+      variants.push({ v: "user_id_path_details_facebook_no_proof", host: "graph.facebook.com", path: `/${GRAPH_VERSION}/${igUserIdFromToken}`, fields: "id,username,name,account_type,profile_picture_url", includeProof: false });
     }
+    variants.push({ v: "me_details_facebook_versioned", host: "graph.facebook.com", path: `/${GRAPH_VERSION}/me`, fields: "id,username,name,account_type,profile_picture_url", includeProof: false });
 
 
 
-    for (const { v, path, fields, authMode } of variants) {
-      const { attempt, data } = await tryProfile(v, path, fields, authMode);
+    for (const { v, host, path, fields, authMode, includeProof } of variants) {
+      const { attempt, data } = await tryProfile(v, host, path, fields, { authMode, includeProof });
       attempts.push(attempt);
       if (attempt.ok) {
-        profileData = data;
+        profileData = { ...profileData, ...data };
         successVariant = v;
         break;
       }
       if (data.username && !profileData.username) profileData.username = data.username;
+      if (data.name && !profileData.name) profileData.name = data.name;
+      if (data.profile_picture_url && !profileData.profile_picture_url) profileData.profile_picture_url = data.profile_picture_url;
+      if (data.account_type && !profileData.account_type) profileData.account_type = data.account_type;
       if ((data.id || data.user_id) && !(profileData.id || profileData.user_id)) {
         profileData.id = data.id;
         profileData.user_id = data.user_id;
