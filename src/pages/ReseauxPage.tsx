@@ -359,9 +359,6 @@ export default function ReseauxPage() {
 
   const getPlatformStatus = (platform: Platform): string => {
     if (platform === "twitch") return hasTwitchOAuth ? "connected" : "disconnected";
-    if (platform === "instagram" && metaConnection?.connection_status === "connected" && !metaConnection.instagram_username) {
-      return "error";
-    }
     return accounts.find((a) => a.platform === platform)?.connection_status ?? "disconnected";
   };
   const getPlatformUsername = (platform: Platform): string | null => {
@@ -562,10 +559,10 @@ export default function ReseauxPage() {
                           const username = metaConnection.instagram_username;
                           if (!username) {
                             return (
-                              <p className="text-destructive/90">
-                                Connexion Instagram incomplète : le nom d'utilisateur officiel n'a pas été récupéré.
+                              <p className="text-amber-300/90">
+                                Instagram connecté — le nom d'utilisateur officiel n'a pas encore été récupéré par Meta.
                                 <span className="block mt-0.5 text-muted-foreground/70">
-                                  Dernière erreur Meta : {metaConnection.error_message ?? "username indisponible"}
+                                  Dernière réponse Meta : {metaConnection.error_message ?? "username indisponible"}
                                 </span>
                               </p>
                             );
@@ -619,7 +616,7 @@ export default function ReseauxPage() {
                   </div>
                   {igOAuthAvailable && (
                     <div className="shrink-0">
-                      {metaConnection?.connection_status === "connected" && metaConnection.instagram_username ? (
+                      {metaConnection?.connection_status === "connected" ? (
                         <Button size="sm" variant="outline" className="h-7 text-xs"
                           disabled={igActionLoading} onClick={handleDisconnectInstagram}>
                           Déconnecter
@@ -629,8 +626,7 @@ export default function ReseauxPage() {
                           disabled={igActionLoading} onClick={handleConnectInstagram}>
                           {igActionLoading
                             ? "…"
-                            : (metaConnection?.connection_status === "error"
-                                || (metaConnection?.connection_status === "connected" && !metaConnection.instagram_username))
+                            : metaConnection?.connection_status === "error"
                               ? "Réessayer la connexion"
                               : "Connecter Instagram"}
                         </Button>
