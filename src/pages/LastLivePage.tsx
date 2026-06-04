@@ -17,6 +17,7 @@ import {
   type LiveSession,
 } from "@/services/liveSessions";
 import AssistedDebriefPanel from "@/components/live/AssistedDebriefPanel";
+import AutoClipCandidatesPanel from "@/components/live/AutoClipCandidatesPanel";
 
 const SubScore = ({ label, value }: { label: string; value: number | null }) => (
   <div className="rounded-lg border border-border/60 bg-card/40 p-3">
@@ -215,6 +216,7 @@ const LastLivePage = () => {
 
         {/* Assisted debrief — always available so the user leaves with content */}
         <AssistedDebriefPanel session={last} signalLimited={!enough} />
+        <AutoClipCandidatesPanel session={last} />
 
         {/* Sub-scores */}
         {enough && (
