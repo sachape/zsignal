@@ -5,7 +5,7 @@
 //      → returns short-lived IG user access token + user_id
 //   2. GET https://graph.instagram.com/access_token?grant_type=ig_exchange_token
 //      → long-lived token (~60 days)
-//   3. GET https://graph.instagram.com/me?fields=user_id,username,account_type,profile_picture_url
+//   3. GET https://graph.instagram.com/v25.0/me?fields=user_id,username,account_type,profile_picture_url
 //   4. Encrypt token & upsert row in creator_meta_connections.
 // No token value ever leaves the server. No Facebook Page required.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -18,16 +18,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-username-required-v8";
-const GRAPH_VERSION = "v23.0";
+const CALLBACK_VERSION = "instagram-callback-graph-v25-v9";
+const GRAPH_VERSION = "v25.0";
 
 type ProfileVariant =
+  | "me_user_id_username_v25_query"
+  | "me_user_id_username_account_v25_query"
+  | "me_user_id_username_v25_bearer"
   | "me_user_id_username_unversioned"
   | "me_id_username_unversioned"
-  | "me_user_id_username_v23"
-  | "me_id_username_v23"
+  | "me_user_id_username_versioned"
+  | "me_id_username_versioned"
   | "user_id_path_username_unversioned"
-  | "user_id_path_username_v23";
+  | "user_id_path_username_versioned";
 
 
 
@@ -82,6 +85,7 @@ interface IgMeResp {
   username?: string;
   account_type?: string;
   profile_picture_url?: string;
+  data?: IgMeResp[];
   error?: { message?: string; code?: number; type?: string };
 }
 
