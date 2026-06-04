@@ -378,7 +378,11 @@ function ContentRow({
   onJobUpdate: () => void;
 }) {
   const isVideo = VIDEO_PLATFORMS.includes(item.platform);
-  const hasGeneratedClip = !!item.generated_video_url;
+  const hasGeneratedClip = !!item.generated_video_url || !!item.generated_video_storage_path;
+  const adminMode = isAdminMode();
+  // Always resolve a fresh signed URL when the item has a permanent storage
+  // pointer — otherwise fall back to whatever URL the item already carries.
+  const freshMediaUrl = useFreshMediaUrl(item);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
