@@ -23,7 +23,10 @@ const SECTIONS: Section[] = [
     label: "Content Studio",
     tabs: [
       { label: "Queue", to: "/content-queue", matches: ["/content-queue", "/content-studio"] },
+      { label: "Composer", to: "/composer", matches: ["/composer"] },
       { label: "Clips", to: "/clips", matches: ["/clips"] },
+      { label: "Publications", to: "/publications", matches: ["/publications"] },
+      { label: "Analytics", to: "#", soon: true },
     ],
   },
   {
