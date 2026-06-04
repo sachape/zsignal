@@ -34,6 +34,8 @@ import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
 import ManualPublishPanel from "@/components/content-queue/ManualPublishPanel";
 import NewContentDialog from "@/components/content-queue/NewContentDialog";
 import ManualMediaUploadDialog from "@/components/content-queue/ManualMediaUploadDialog";
+import { useFreshMediaUrl } from "@/services/mediaStorage";
+import { isAdminMode } from "@/lib/featureFlags";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
