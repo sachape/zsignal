@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  Copy, Download, ExternalLink, CheckCircle2, Link2, Youtube, Camera, Send,
+  Copy, Download, ExternalLink, CheckCircle2, Link2, Video, Camera, Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
