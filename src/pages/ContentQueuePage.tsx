@@ -544,7 +544,7 @@ function ContentRow({
             {hasGeneratedClip ? (
               <div className="space-y-2">
                 <video
-                  src={item.generated_video_url ?? undefined}
+                  src={freshMediaUrl ?? undefined}
                   poster={item.thumbnail_url ?? undefined}
                   controls
                   className="w-full max-w-sm rounded-md border border-border/60 bg-black"
