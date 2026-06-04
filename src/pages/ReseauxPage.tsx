@@ -278,10 +278,11 @@ export default function ReseauxPage() {
   const { history, saveSnapshot } = usePresenceScoreHistory();
   const { connection: metaConnection, refetch: refetchMeta } = useInstagramConnection();
   const { oauth_enabled: igOAuthEnabled, configured: igConfigured } = useInstagramOAuthStatus();
-  // OAuth CTA must be available whenever Meta secrets are wired up, even if the
-  // explicit INSTAGRAM_OAUTH_ENABLED flag is not set. Publish is a SEPARATE flag
-  // (INSTAGRAM_PUBLISH_ENABLED) and must NOT hide the connect button.
-  const igOAuthAvailable = igOAuthEnabled || igConfigured;
+  const adminMode = useMemo(() => isAdminMode(), []);
+  // Standard users never see the IG OAuth CTA while Meta validation is pending —
+  // we surface a friendly "En validation Meta" notice instead. Admin/dev mode
+  // still exposes the Connect button so testers can run the OAuth flow.
+  const igOAuthAvailableForUI = adminMode && (igOAuthEnabled || igConfigured);
   const [igActionLoading, setIgActionLoading] = useState(false);
   const [currentInstagramCallbackError, setCurrentInstagramCallbackError] = useState<string | null>(null);
   const [igDebug, setIgDebug] = useState<{
