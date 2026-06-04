@@ -25,6 +25,15 @@ export interface SharedChannelFactFull {
   confidence: number;
 }
 
+export interface SharedLiveSessionFact {
+  started_at: string;
+  ended_at?: string | null;
+  duration_minutes?: number | null;
+  avg_viewers?: number | null;
+  peak_viewers?: number | null;
+  snapshots_count?: number | null;
+}
+
 function parseDuration(d: string): number {
   if (!d) return 0;
   const h = d.match(/(\d+)h/);
@@ -49,6 +58,7 @@ export function extractChannelFacts(
   profile: SharedTwitchProfile,
   videos: SharedTwitchVideo[],
   clips: SharedTwitchClip[],
+  liveSessions: SharedLiveSessionFact[] = [],
 ): SharedChannelFactFull[] {
   const now = new Date();
   const d7 = new Date(now.getTime() - 7 * 86400000);
@@ -58,11 +68,34 @@ export function extractChannelFacts(
   const videos30d = videos.filter((v) => new Date(v.created_at) >= d30);
   const clips30d = clips.filter((c) => new Date(c.created_at) >= d30);
 
-  const durations = videos30d.map((v) => parseDuration(v.duration));
-  const avgDuration = durations.length
-    ? durations.reduce((a, b) => a + b, 0) / durations.length
+  const lives7d = liveSessions.filter((s) => new Date(s.started_at) >= d7);
+  const lives30d = liveSessions.filter((s) => new Date(s.started_at) >= d30);
+  const liveHours30d =
+    lives30d.reduce((sum, s) => sum + (s.duration_minutes ?? 0), 0) / 60;
+  const liveDays30d = uniqueValues(
+    lives30d.map((s) => new Date(s.started_at).toISOString().slice(0, 10)),
+  );
+  const liveAvgSamples = lives30d
+    .filter((s) => (s.snapshots_count ?? 0) > 0 && typeof s.avg_viewers === "number")
+    .map((s) => s.avg_viewers as number);
+  const livePeakSamples = lives30d
+    .map((s) => s.peak_viewers)
+    .filter((v): v is number => typeof v === "number" && v >= 0);
+  const liveAvgViewers = liveAvgSamples.length
+    ? Math.round(liveAvgSamples.reduce((a, b) => a + b, 0) / liveAvgSamples.length)
+    : null;
+  const livePeakViewers = livePeakSamples.length ? Math.max(...livePeakSamples) : null;
+
+  const vodDurations = videos30d.map((v) => parseDuration(v.duration));
+  const avgDurationVod = vodDurations.length
+    ? vodDurations.reduce((a, b) => a + b, 0) / vodDurations.length
     : 0;
-  const totalHours30d = durations.reduce((a, b) => a + b, 0) / 60;
+  const totalHoursVod30d = vodDurations.reduce((a, b) => a + b, 0) / 60;
+  const avgDurationLive = lives30d.length
+    ? lives30d.reduce((a, s) => a + (s.duration_minutes ?? 0), 0) / lives30d.length
+    : 0;
+  const avgDuration = Math.max(avgDurationVod, avgDurationLive);
+  const totalHours30d = Math.max(totalHoursVod30d, liveHours30d);
 
   const categories = clips.map((c) => c.game_id).filter(Boolean);
   const catCounts: Record<string, number> = {};
@@ -79,7 +112,7 @@ export function extractChannelFacts(
   const streamDates = videos30d.map((v) =>
     new Date(v.created_at).toISOString().slice(0, 10)
   );
-  const uniqueDays = uniqueValues(streamDates).sort();
+  const uniqueDays = uniqueValues([...streamDates, ...liveDays30d]).sort();
   let consistencyScore = 0;
   if (uniqueDays.length >= 2) {
     const gaps: number[] = [];
@@ -93,11 +126,22 @@ export function extractChannelFacts(
     consistencyScore = Math.max(0, Math.min(100, Math.round(100 - stdDev * 15)));
   }
 
+  const effectiveStreams30d = Math.max(videos30d.length, lives30d.length);
+  const effectiveStreams7d = Math.max(videos7d.length, lives7d.length);
+
+  const hasLiveViewerSignal = liveAvgSamples.length > 0;
   const avgVodViews = videos30d.length
     ? Math.round(videos30d.reduce((a, v) => a + v.view_count, 0) / videos30d.length)
     : 0;
   const vodViewsConfidence =
     videos30d.length >= 6 ? 0.6 : videos30d.length >= 3 ? 0.4 : 0.2;
+  const avgViewersValue = hasLiveViewerSignal && liveAvgViewers !== null
+    ? liveAvgViewers
+    : avgVodViews;
+  const avgViewersConfidence = hasLiveViewerSignal ? 0.9 : vodViewsConfidence;
+  const avgViewersLabel = hasLiveViewerSignal
+    ? "Viewers moyens (sessions live)"
+    : "Vues moyennes par VOD (30j)";
 
   const followersAvailable = profile.followers_available ?? true;
   const followersValue = followersAvailable ? (profile.follower_count ?? 0) : 0;
@@ -110,8 +154,11 @@ export function extractChannelFacts(
   };
 
   return [
-    { key: "streams_7d", value: videos7d.length, label: "Streams (7 derniers jours)", confidence: 1 },
-    { key: "streams_30d", value: videos30d.length, label: "Streams (30 derniers jours)", confidence: 1 },
+    { key: "streams_7d", value: effectiveStreams7d, label: "Streams (7 derniers jours)", confidence: 1 },
+    { key: "streams_30d", value: effectiveStreams30d, label: "Streams (30 derniers jours)", confidence: 1 },
+    { key: "lives_30d", value: lives30d.length, label: "Lives détectés (30j)", confidence: 1 },
+    { key: "lives_7d", value: lives7d.length, label: "Lives détectés (7j)", confidence: 1 },
+    { key: "vods_30d", value: videos30d.length, label: "VODs publiées (30j)", confidence: 1 },
     { key: "clips_30d", value: clips30d.length, label: "Clips (30 derniers jours)", confidence: 1 },
     { key: "avg_duration_minutes", value: Math.round(avgDuration), label: "Durée moyenne (min)", confidence: 1 },
     { key: "total_hours_30d", value: Math.round(totalHours30d * 10) / 10, label: "Heures streamées (30j)", confidence: 1 },
@@ -119,11 +166,13 @@ export function extractChannelFacts(
     { key: "category_switch_rate", value: Math.round(switchRate * 100), label: "Taux de changement de catégorie (%)", confidence: 0.8 },
     { key: "posting_consistency_score", value: consistencyScore, label: "Score de régularité", confidence: uniqueDays.length >= 3 ? 0.9 : 0.5 },
     { key: "avg_vod_views_30d", value: avgVodViews, label: "Vues moyennes par VOD (30j)", confidence: vodViewsConfidence },
-    { key: "avg_viewers", value: avgVodViews, label: "Vues moyennes par VOD (30j)", confidence: vodViewsConfidence },
+    { key: "avg_viewers", value: avgViewersValue, label: avgViewersLabel, confidence: avgViewersConfidence },
+    { key: "live_avg_viewers", value: liveAvgViewers ?? 0, label: "Viewers moyens (live)", confidence: hasLiveViewerSignal ? 0.9 : 0 },
+    { key: "live_peak_viewers", value: livePeakViewers ?? 0, label: "Pic de viewers (live)", confidence: livePeakViewers !== null ? 0.9 : 0 },
     { key: "follower_count", value: followersValue, label: "Followers", confidence: followersAvailable ? 1 : 0 },
     { key: "followers_available", value: followersAvailable ? 1 : 0, label: "Followers disponibles", confidence: 1 },
     { key: "followers_remaining", value: followersAvailable ? Math.max(0, AFFILIATE.followers - followersValue) : 0, label: "Followers restants (affilié)", confidence: followersAvailable ? 1 : 0 },
-    { key: "avg_viewers_remaining", value: Math.max(0, AFFILIATE.avg_viewers - avgVodViews), label: "Viewers moyens restants (affilié)", confidence: vodViewsConfidence },
+    { key: "avg_viewers_remaining", value: Math.max(0, AFFILIATE.avg_viewers - avgViewersValue), label: "Viewers moyens restants (affilié)", confidence: avgViewersConfidence },
     { key: "stream_days_remaining", value: Math.max(0, AFFILIATE.stream_days_30d - uniqueDays.length), label: "Jours de stream restants (affilié)", confidence: 1 },
     { key: "stream_hours_remaining", value: Math.max(0, Math.round((AFFILIATE.stream_hours_30d - totalHours30d) * 10) / 10), label: "Heures restantes (affilié)", confidence: 1 },
     { key: "unique_stream_days_30d", value: uniqueDays.length, label: "Jours uniques streamés (30j)", confidence: 1 },

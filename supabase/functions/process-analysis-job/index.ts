@@ -193,6 +193,7 @@ async function processOneJob(args: {
     },
     facts.videos,
     facts.clips,
+    facts.live_sessions,
   );
   const normalized: SharedChannelFact[] = normalizeChannelFacts(channelFacts);
   if (normalized.length === 0) {

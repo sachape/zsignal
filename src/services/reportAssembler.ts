@@ -6,7 +6,7 @@ import type {
   ReportIdentity,
   CompetitorGroup,
 } from "@/types/analysis";
-import { extractChannelFacts } from "./factsEngine";
+import { extractChannelFacts, type LiveSessionFact } from "./factsEngine";
 import { computeStreamScore } from "./streamScoreEngine";
 import { generateRecommendations } from "./recommendationEngine";
 import { findCompetitors } from "./competitorEngine";
@@ -47,6 +47,7 @@ export function assembleReport(
   jobId: string,
   identityOverrides?: ReportIdentityOverrides,
   teaserOverrides?: TeaserOverrides,
+  liveSessions: LiveSessionFact[] = [],
 ): AnalysisReport {
   const { profile, videos, clips } = data;
 
@@ -60,7 +61,7 @@ export function assembleReport(
     is_demo: identityOverrides?.is_demo ?? false,
   };
 
-  const facts = extractChannelFacts(profile, videos, clips);
+  const facts = extractChannelFacts(profile, videos, clips, liveSessions);
   const score = computeStreamScore(facts);
   const recommendations = generateRecommendations(score, facts);
   const competitor_groups =

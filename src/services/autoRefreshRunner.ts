@@ -50,6 +50,24 @@ export async function processQueuedJob(
   try {
     const liveProfile = await fetchLiveTwitchProfile();
 
+    // Lives 30j come from live_sessions (source of truth), not Twitch VODs.
+    const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data: liveSessionsRows } = await supabase
+      .from("live_sessions")
+      .select("started_at, ended_at, duration_minutes, avg_viewers, peak_viewers, snapshots_count")
+      .eq("user_id", userId)
+      .eq("platform", "twitch")
+      .eq("platform_user_id", platformUserId)
+      .gte("started_at", since30);
+    const liveSessions = (liveSessionsRows ?? []) as Array<{
+      started_at: string;
+      ended_at?: string | null;
+      duration_minutes?: number | null;
+      avg_viewers?: number | null;
+      peak_viewers?: number | null;
+      snapshots_count?: number | null;
+    }>;
+
     const data = resolveAnalysisDataset({
       login: platformLogin,
       displayName: platformDisplayName ?? platformLogin,
@@ -118,7 +136,7 @@ export async function processQueuedJob(
         : null,
       competitor_groups: competitorGroups,
       dominant_category_override: liveProfile?.dominant_category ?? null,
-    });
+    }, liveSessions);
 
     const { data: saved, error: repErr } = await supabase
       .from("analysis_reports")
