@@ -21,10 +21,20 @@ function uniqueValues<T>(arr: T[]): T[] {
   return [...new Set(arr)];
 }
 
+export interface LiveSessionFact {
+  started_at: string;
+  ended_at?: string | null;
+  duration_minutes?: number | null;
+  avg_viewers?: number | null;
+  peak_viewers?: number | null;
+  snapshots_count?: number | null;
+}
+
 export function extractChannelFacts(
   profile: TwitchProfile,
   videos: TwitchVideo[],
-  clips: TwitchClip[]
+  clips: TwitchClip[],
+  liveSessions: LiveSessionFact[] = []
 ): ChannelFact[] {
   const now = new Date();
   const d7 = new Date(now.getTime() - 7 * 86400000);
@@ -34,9 +44,37 @@ export function extractChannelFacts(
   const videos30d = videos.filter((v) => new Date(v.created_at) >= d30);
   const clips30d = clips.filter((c) => new Date(c.created_at) >= d30);
 
-  const durations = videos30d.map((v) => parseDuration(v.duration));
-  const avgDuration = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
-  const totalHours30d = durations.reduce((a, b) => a + b, 0) / 60;
+  // Source of truth for "lives / sessions" is live_sessions when present.
+  // VODs are a fallback: a streamer may have VOD storage disabled or the
+  // VOD may not be published yet right after a live ends.
+  const lives7d = liveSessions.filter((s) => new Date(s.started_at) >= d7);
+  const lives30d = liveSessions.filter((s) => new Date(s.started_at) >= d30);
+  const liveHours30d =
+    lives30d.reduce((sum, s) => sum + (s.duration_minutes ?? 0), 0) / 60;
+  const liveDays30d = uniqueValues(
+    lives30d.map((s) => new Date(s.started_at).toISOString().slice(0, 10)),
+  );
+  const liveAvgViewersSamples = lives30d
+    .map((s) => s.avg_viewers)
+    .filter((v): v is number => typeof v === "number" && v >= 0 && (v > 0 || (lives30d.find((x) => x.avg_viewers === v)?.snapshots_count ?? 0) > 0));
+  const livePeakViewersSamples = lives30d
+    .map((s) => s.peak_viewers)
+    .filter((v): v is number => typeof v === "number" && v >= 0);
+  const liveAvgViewers = liveAvgViewersSamples.length
+    ? Math.round(liveAvgViewersSamples.reduce((a, b) => a + b, 0) / liveAvgViewersSamples.length)
+    : null;
+  const livePeakViewers = livePeakViewersSamples.length
+    ? Math.max(...livePeakViewersSamples)
+    : null;
+
+  const vodDurations = videos30d.map((v) => parseDuration(v.duration));
+  const avgDurationVod = vodDurations.length ? vodDurations.reduce((a, b) => a + b, 0) / vodDurations.length : 0;
+  const totalHoursVod30d = vodDurations.reduce((a, b) => a + b, 0) / 60;
+  const avgDurationLive = lives30d.length
+    ? lives30d.reduce((a, s) => a + (s.duration_minutes ?? 0), 0) / lives30d.length
+    : 0;
+  const avgDuration = Math.max(avgDurationVod, avgDurationLive);
+  const totalHours30d = Math.max(totalHoursVod30d, liveHours30d);
 
   // Category analysis from clip game_ids
   const categories = clips.map((c) => c.game_id).filter(Boolean);
