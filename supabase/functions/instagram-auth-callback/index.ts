@@ -18,14 +18,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-profile-best-effort-v5";
+const CALLBACK_VERSION = "instagram-callback-profile-username-only-v6";
 const GRAPH_VERSION = "v21.0";
 
 type ProfileVariant =
-  | "versioned_me_business_fields"
-  | "versioned_me_basic_fields"
-  | "user_id_direct"
-  | "user_id_minimal";
+  | "me_user_id_username"
+  | "me_id_username"
+  | "user_id_path_username";
+
 
 interface ProfileAttempt {
   variant: ProfileVariant;
