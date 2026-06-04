@@ -553,7 +553,11 @@ const VodImportPage = () => {
                   const deepLink = buildVodDeepLink(item.source_video_url, item.source_start_time);
                   const isError = item.generation_status === "failed";
                   const startedAt = processingSince[item.id];
-                  const isStuck = isProcessing && !!startedAt && now - startedAt > 5 * 60 * 1000;
+                  const anotherJobIsActive = !!activeJob && activeJob.content_item_id !== item.id;
+                  const activeStageLabel = activeJob?.content_item_id === item.id
+                    ? getGenerationStageLabel(activeJob.generation_stage)
+                    : null;
+                  const isLongRunning = isProcessing && !!startedAt && now - startedAt > 3 * 60 * 1000;
 
                   return (
                     <div key={item.id} className="rounded-lg border border-border/60 bg-card/60 p-3">
@@ -588,7 +592,7 @@ const VodImportPage = () => {
                           <Button
                             size="sm"
                             onClick={() => handleGenerate(item)}
-                            disabled={isProcessing}
+                            disabled={isProcessing || anotherJobIsActive}
                           >
                             {isProcessing ? (
                               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -632,9 +636,19 @@ const VodImportPage = () => {
                         )}
                       </div>
 
-                      {isStuck && (
+                      {activeStageLabel && isProcessing && (
+                        <p className="mt-2 text-[11px] text-primary">
+                          {activeStageLabel}
+                        </p>
+                      )}
+                      {anotherJobIsActive && !isReady && (
                         <p className="mt-2 text-[11px] text-warning">
-                          La génération prend plus de temps que prévu. Tu peux attendre ou réessayer.
+                          Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.
+                        </p>
+                      )}
+                      {isLongRunning && (
+                        <p className="mt-2 text-[11px] text-warning">
+                          La génération est plus longue que prévu, mais elle continue.
                         </p>
                       )}
                       {isError && item.generation_error && (
