@@ -590,13 +590,6 @@ export default function ReseauxPage() {
                           );
 
                         }
-                        if (!igOAuthAvailable) {
-                          return (
-                            <p className="text-muted-foreground">
-                              Connexion Meta en préparation — secrets backend manquants.
-                            </p>
-                          );
-                        }
                         if (metaConnection?.connection_status === "pending_review") {
                           return <p className="text-amber-300/90">Connexion Instagram en attente de finalisation.</p>;
                         }
@@ -605,7 +598,7 @@ export default function ReseauxPage() {
                           : false;
                         const currentInstagramError = currentInstagramCallbackError
                           ?? (isRecentInstagramError ? metaConnection?.error_message : null);
-                        if (metaConnection?.connection_status === "error" && currentInstagramError) {
+                        if (adminMode && metaConnection?.connection_status === "error" && currentInstagramError) {
                           return (
                             <p className="text-destructive/90">
                               {currentInstagramError}
@@ -614,15 +607,15 @@ export default function ReseauxPage() {
                         }
                         return (
                           <p className="text-muted-foreground">
-                            Streamnco utilise la connexion officielle Instagram. Un compte Instagram
-                            professionnel <span className="text-foreground">Business ou Creator</span> est nécessaire.
-                            Aucune Page Facebook requise.
+                            Connexion officielle Instagram en cours de validation Meta.
+                            Tu peux déjà préparer tes contenus et publier manuellement —
+                            la publication automatique s’activera après approbation.
                           </p>
                         );
                       })()}
                     </div>
                   </div>
-                  {igOAuthAvailable && (
+                  {igOAuthAvailableForUI && (
                     <div className="shrink-0">
                       {metaConnection?.connection_status === "connected" ? (
                         <Button size="sm" variant="outline" className="h-7 text-xs"
@@ -630,19 +623,19 @@ export default function ReseauxPage() {
                           Déconnecter
                         </Button>
                       ) : (
-                        <Button size="sm" className="h-7 text-xs"
+                        <Button size="sm" variant="outline" className="h-7 text-xs"
                           disabled={igActionLoading} onClick={handleConnectInstagram}>
                           {igActionLoading
                             ? "…"
                             : metaConnection?.connection_status === "error"
-                              ? "Réessayer la connexion"
-                              : "Connecter Instagram"}
+                              ? "Réessayer (admin)"
+                              : "Connecter Instagram (admin)"}
                         </Button>
                       )}
                     </div>
                   )}
                 </div>
-                {igDebug && (
+                {adminMode && igDebug && (
                   <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-2.5 font-mono text-[10px] text-destructive/90 space-y-0.5">
                     <p className="font-semibold text-destructive">Debug Instagram OAuth (temporaire)</p>
                     {igDebug.callback_version && <p>callback_version: {igDebug.callback_version}</p>}
