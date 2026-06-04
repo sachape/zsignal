@@ -674,25 +674,32 @@ function ContentRow({
                 Live source <ExternalLink className="h-3 w-3" />
               </Link>
             )}
-            {item.platform === "youtube_shorts" && item.status !== "ignored" && (
+            {item.platform === "youtube_shorts" && item.status !== "ignored" && adminMode && (
               <Button
                 size="sm"
-                variant={youtubeConnected ? "default" : "outline"}
+                variant="outline"
                 className="h-7 px-2 text-[11px]"
                 onClick={onUpload}
                 title={
-                  !youtubeConnected ? "Connecte YouTube pour uploader"
-                    : hasGeneratedClip ? "Uploader le clip généré sur YouTube"
-                    : "Uploader un fichier sur YouTube"
+                  !youtubeConnected ? "Connecte YouTube pour uploader (mode admin)"
+                    : hasGeneratedClip ? "Uploader le clip généré sur YouTube (mode admin)"
+                    : "Uploader un fichier sur YouTube (mode admin)"
                 }
               >
                 <Upload className="mr-1 h-3 w-3" />
                 {item.youtube_video_id
-                  ? "Réuploader"
-                  : hasGeneratedClip
-                    ? "Uploader le clip"
-                    : "Uploader sur YouTube"}
+                  ? "Réuploader (admin)"
+                  : "Upload YouTube (admin)"}
               </Button>
+            )}
+            {item.platform === "youtube_shorts" && item.status !== "ignored" && !adminMode && (
+              <span
+                className="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/5 px-2 py-1 text-[10px] font-medium text-amber-300"
+                title="Publication directe bientôt disponible après validation Google. En attendant, publie manuellement avec les éléments préparés par Streamnco."
+              >
+                <Upload className="h-3 w-3" />
+                Upload YouTube — Bientôt
+              </span>
             )}
             {item.platform === "instagram" && item.status !== "ignored" && (
               <Link
