@@ -542,8 +542,9 @@ export default function ReseauxPage() {
                         }
                         return (
                           <p className="text-muted-foreground">
-                            Connecte ton compte Instagram Business / Creator officiellement via Meta.
-                            Un compte Instagram professionnel lié à une Page Facebook est requis.
+                            Streamnco utilise la connexion officielle Instagram. Un compte Instagram
+                            professionnel <span className="text-foreground">Business ou Creator</span> est nécessaire.
+                            Aucune Page Facebook requise.
                           </p>
                         );
                       })()}
