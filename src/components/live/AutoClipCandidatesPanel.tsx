@@ -58,7 +58,7 @@ const TONE_CLASS: Record<string, string> = {
 
 const AutoClipCandidatesPanel = ({ session }: Props) => {
   const { user } = useAuth();
-  const { items, refresh, updateItem } = useContentItems(user?.id);
+  const { items, refetch, updateItem } = useContentItems();
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [retryingVod, setRetryingVod] = useState(false);
   const [editing, setEditing] = useState<ContentItem | null>(null);
@@ -92,7 +92,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
         c.generation_status === "queued" || c.generation_status === "processing",
     );
     if (!inFlight) return;
-    const id = window.setInterval(() => refresh(), 5000);
+    const id = window.setInterval(() => refetch(), 5000);
     return () => window.clearInterval(id);
   }, [candidates, refresh]);
 
@@ -141,7 +141,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
         title: "Génération lancée",
         description: "Le clip est en cours de génération. Tu seras notifié.",
       });
-      await refresh();
+      await refetch();
     } catch (err) {
       toast({
         title: "Impossible de lancer la génération",
@@ -188,7 +188,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
           description: "Réessaie dans quelques minutes ou ajoute une VOD manuellement.",
         });
       }
-      await refresh();
+      await refetch();
     } catch (err) {
       toast({
         title: "Erreur",
