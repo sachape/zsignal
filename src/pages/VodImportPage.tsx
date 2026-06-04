@@ -463,7 +463,11 @@ const VodImportPage = () => {
                   ? "Tes timestamps seront utilisés pour créer les clips."
                   : "Sans timestamps : Streamnco propose 3 fenêtres réparties dans la VOD à ajuster avant génération."}
               </p>
-              <Button onClick={handleSubmit} disabled={submitting} className="gap-2">
+              <Button
+                onClick={handleSubmit}
+                disabled={submitting || detectedSource === "youtube"}
+                className="gap-2"
+              >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
                 Analyser la VOD
               </Button>
