@@ -194,6 +194,7 @@ Deno.serve(async (req) => {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       payment_method_types: paymentMethodTypes,
+      allow_promotion_codes: true,
       success_url: `${siteUrl}/dashboard?checkout=success`,
       cancel_url: `${siteUrl}/pricing?checkout=cancel`,
       metadata: {
