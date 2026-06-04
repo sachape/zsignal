@@ -275,7 +275,11 @@ export default function ReseauxPage() {
   const { accounts, loading, upsertAccount, removeAccount, refetch } = useConnectedNetworks();
   const { history, saveSnapshot } = usePresenceScoreHistory();
   const { connection: metaConnection, refetch: refetchMeta } = useInstagramConnection();
-  const { oauth_enabled: igOAuthEnabled } = useInstagramOAuthStatus();
+  const { oauth_enabled: igOAuthEnabled, configured: igConfigured } = useInstagramOAuthStatus();
+  // OAuth CTA must be available whenever Meta secrets are wired up, even if the
+  // explicit INSTAGRAM_OAUTH_ENABLED flag is not set. Publish is a SEPARATE flag
+  // (INSTAGRAM_PUBLISH_ENABLED) and must NOT hide the connect button.
+  const igOAuthAvailable = igOAuthEnabled || igConfigured;
   const [igActionLoading, setIgActionLoading] = useState(false);
   const [currentInstagramCallbackError, setCurrentInstagramCallbackError] = useState<string | null>(null);
   const [igDebug, setIgDebug] = useState<{
@@ -581,12 +585,10 @@ export default function ReseauxPage() {
                           );
 
                         }
-                        if (!igOAuthEnabled) {
+                        if (!igOAuthAvailable) {
                           return (
                             <p className="text-muted-foreground">
-                              Connexion Meta en préparation. La publication officielle Post / Reel / Story
-                              arrivera après validation de notre App Meta. Ajouter Instagram manuellement
-                              sert uniquement à compléter ton profil — ce n'est pas suffisant pour publier.
+                              Connexion Meta en préparation — secrets backend manquants.
                             </p>
                           );
                         }
@@ -615,9 +617,9 @@ export default function ReseauxPage() {
                       })()}
                     </div>
                   </div>
-                  {igOAuthEnabled && (
+                  {igOAuthAvailable && (
                     <div className="shrink-0">
-                      {metaConnection?.connection_status === "connected" ? (
+                      {metaConnection?.connection_status === "connected" && metaConnection.instagram_username ? (
                         <Button size="sm" variant="outline" className="h-7 text-xs"
                           disabled={igActionLoading} onClick={handleDisconnectInstagram}>
                           Déconnecter
@@ -625,7 +627,12 @@ export default function ReseauxPage() {
                       ) : (
                         <Button size="sm" className="h-7 text-xs"
                           disabled={igActionLoading} onClick={handleConnectInstagram}>
-                          {igActionLoading ? "…" : metaConnection?.connection_status === "error" ? "Réessayer" : "Connecter Instagram"}
+                          {igActionLoading
+                            ? "…"
+                            : (metaConnection?.connection_status === "error"
+                                || (metaConnection?.connection_status === "connected" && !metaConnection.instagram_username))
+                              ? "Réessayer la connexion"
+                              : "Connecter Instagram"}
                         </Button>
                       )}
                     </div>
