@@ -140,10 +140,19 @@ Deno.serve(async (req) => {
     return json({
       success: false,
       reason: "invalid_url",
-      message: "URL non reconnue. Utilise une VOD Twitch ou YouTube publique.",
+      message: "URL non reconnue. Utilise une VOD Twitch (twitch.tv/videos/…) pour le moment.",
     }, 400);
   }
   const { source, url } = detected;
+
+  // V1: YouTube est désactivé côté produit. On rejette proprement.
+  if (source === "youtube") {
+    return json({
+      success: false,
+      reason: "youtube_not_enabled",
+      message: "YouTube VOD sera bientôt disponible. Pour le moment, utilise une VOD Twitch ou importe un fichier.",
+    }, 400);
+  }
 
   const subject = (typeof body.subject === "string" ? body.subject.trim() : "") || "ta VOD";
   const category = typeof body.category === "string" && body.category.trim()
