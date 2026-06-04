@@ -25,6 +25,7 @@ export interface MetaConnection {
   last_sync_at: string | null;
   error_code: string | null;
   error_message: string | null;
+  updated_at: string;
 }
 
 /**
@@ -50,6 +51,7 @@ export function useInstagramConnection() {
       .from("creator_meta_connections")
       .select(
         "id, platform, connection_status, instagram_account_id, instagram_username, instagram_profile_picture_url, account_type, page_id, page_name, scopes_granted, token_expires_at, last_sync_at, error_code, error_message",
+        "id, platform, connection_status, instagram_account_id, instagram_username, instagram_profile_picture_url, account_type, page_id, page_name, scopes_granted, token_expires_at, last_sync_at, error_code, error_message, updated_at",
       )
       .eq("user_id", user.id)
       .eq("platform", "instagram")
