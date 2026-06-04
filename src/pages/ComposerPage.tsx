@@ -174,7 +174,8 @@ const ComposerPage = () => {
     try {
       await persist({ status: "scheduled", scheduled_at: scheduledAt.toISOString() });
       toast.message("Planification enregistrée", {
-        description: "La publication automatique sera activée dès la validation Meta.",
+        description:
+          "Ta publication est préparée et datée. L'envoi automatique sera disponible quand la connexion Meta et le scheduler seront activés.",
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
@@ -203,7 +204,7 @@ const ComposerPage = () => {
           <div className="font-semibold mb-0.5">Publication Instagram bientôt disponible</div>
           <div className="text-amber-200/80">
             La connexion Meta est en cours de validation. Tu peux préparer tes contenus en brouillon et
-            planifier — ils seront publiés automatiquement une fois la validation terminée.
+            les dater pour ton calendrier éditorial. L'envoi automatique arrivera après l'activation Meta + scheduler.
           </div>
         </div>
       </div>
