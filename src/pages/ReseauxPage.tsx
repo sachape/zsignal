@@ -557,17 +557,16 @@ export default function ReseauxPage() {
                           return (
                             <p className="text-muted-foreground">
                               {username ? (
-                                <>Connecté en tant que <span className="text-foreground">@{username}</span>
-                                {metaConnection.account_type && metaConnection.account_type !== "unknown" ? ` · ${metaConnection.account_type}` : ""}.</>
+                                <>Connecté en tant que <span className="text-foreground">@{username}</span>.</>
                               ) : (
-                                <>Instagram connecté. <span className="text-foreground">Compte : ID {metaConnection.instagram_account_id}</span>.</>
+                                <><span className="text-foreground">Instagram connecté.</span> Profil en cours de synchronisation…</>
                               )}
                               <span className="block mt-0.5 text-muted-foreground/70">
                                 Publication Instagram en attente de validation Meta — l'envoi sera activé une fois l'App Review approuvée.
                               </span>
-                              {hasProfileWarning && (
+                              {hasProfileWarning && !username && (
                                 <span className="block mt-1 text-amber-300/90">
-                                  Instagram connecté — profil détaillé indisponible pour le moment.
+                                  Nom d'utilisateur Instagram pas encore disponible — réessaie dans quelques instants.
                                 </span>
                               )}
                               {hasTokenWarning && (
@@ -577,6 +576,7 @@ export default function ReseauxPage() {
                               )}
                             </p>
                           );
+
                         }
                         if (!igOAuthEnabled) {
                           return (
