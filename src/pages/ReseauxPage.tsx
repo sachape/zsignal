@@ -305,8 +305,8 @@ export default function ReseauxPage() {
     else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
     else if (igResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
-      const msg = reason === "no_ig_business_account"
-        ? "Compte Instagram professionnel (Business/Creator) requis."
+      const msg = reason === "ig_account_not_professional"
+        ? "Compte Instagram professionnel (Business ou Creator) requis."
         : reason === "instagram_oauth_disabled"
           ? "Connexion Meta non encore activée."
           : reason === "meta_not_configured"
@@ -542,8 +542,9 @@ export default function ReseauxPage() {
                         }
                         return (
                           <p className="text-muted-foreground">
-                            Connecte ton compte Instagram Business / Creator officiellement via Meta.
-                            Un compte Instagram professionnel lié à une Page Facebook est requis.
+                            Streamnco utilise la connexion officielle Instagram. Un compte Instagram
+                            professionnel <span className="text-foreground">Business ou Creator</span> est nécessaire.
+                            Aucune Page Facebook requise.
                           </p>
                         );
                       })()}

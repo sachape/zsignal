@@ -1,7 +1,13 @@
-// Real OAuth callback for Instagram Business via Meta (Facebook) Login.
-// Exchanges code → short-lived token → long-lived token, discovers the IG
-// Business Account, encrypts the access token, and upserts the row.
-// No token value ever leaves the server.
+// Real OAuth callback for Instagram — flow "Instagram API with Instagram Login".
+// Direct Instagram Login (NOT Facebook Login / /me/accounts).
+// Steps:
+//   1. POST code to https://api.instagram.com/oauth/access_token
+//      → returns short-lived IG user access token + user_id
+//   2. GET https://graph.instagram.com/access_token?grant_type=ig_exchange_token
+//      → long-lived token (~60 days)
+//   3. GET https://graph.instagram.com/v{ver}/me?fields=user_id,username,account_type,profile_picture_url
+//   4. Encrypt token & upsert row in creator_meta_connections.
+// No token value ever leaves the server. No Facebook Page required.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { isOAuthEnabled, getMetaConfig } from "../_shared/metaFlags.ts";
 import { verifyState } from "../_shared/oauthState.ts";
@@ -18,17 +24,27 @@ const json = (status: number, body: unknown) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-interface FbTokenResp { access_token?: string; expires_in?: number; error?: { message: string; code?: number } }
-interface FbAccountsResp {
-  data?: Array<{ id: string; name: string; access_token?: string; instagram_business_account?: { id: string } }>;
-  error?: { message: string; code?: number };
+interface ShortTokenResp {
+  access_token?: string;
+  user_id?: number | string;
+  permissions?: string[];
+  error_type?: string;
+  error_message?: string;
+  error?: { message?: string; code?: number; type?: string };
 }
-interface IgAccountResp {
+interface LongTokenResp {
+  access_token?: string;
+  token_type?: string;
+  expires_in?: number;
+  error?: { message?: string; code?: number };
+}
+interface IgMeResp {
   id?: string;
+  user_id?: string;
   username?: string;
   account_type?: string;
   profile_picture_url?: string;
-  error?: { message: string; code?: number };
+  error?: { message?: string; code?: number };
 }
 
 async function upsertError(
@@ -72,7 +88,6 @@ Deno.serve(async (req) => {
     if (!code) return json(400, { error: "missing_code" });
     if (!state) return json(400, { error: "missing_state" });
 
-    // Verify HMAC-signed state & user match
     let statePayload;
     try {
       statePayload = await verifyState(state, "instagram");
@@ -88,95 +103,91 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const base = `https://graph.facebook.com/${cfg.graphApiVersion}`;
-
-    // 1. Exchange code → short-lived token
-    const shortUrl = new URL(`${base}/oauth/access_token`);
-    shortUrl.searchParams.set("client_id", cfg.appId);
-    shortUrl.searchParams.set("client_secret", cfg.appSecret);
-    shortUrl.searchParams.set("redirect_uri", cfg.redirectUri);
-    shortUrl.searchParams.set("code", code);
-    const shortResp = await fetch(shortUrl.toString());
-    const shortJson = (await shortResp.json()) as FbTokenResp;
+    // 1. Exchange code → short-lived IG user access token via Instagram OAuth endpoint.
+    //    NOTE: this is api.instagram.com (Instagram Login), NOT graph.facebook.com.
+    const formBody = new URLSearchParams({
+      client_id: cfg.appId,
+      client_secret: cfg.appSecret,
+      grant_type: "authorization_code",
+      redirect_uri: cfg.redirectUri,
+      code,
+    });
+    const shortResp = await fetch("https://api.instagram.com/oauth/access_token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formBody.toString(),
+    });
+    const shortJson = (await shortResp.json()) as ShortTokenResp;
     if (!shortResp.ok || !shortJson.access_token) {
-      const msg = shortJson.error?.message ?? "token_exchange_failed";
+      const msg = shortJson.error_message ?? shortJson.error?.message ?? "token_exchange_failed";
       await upsertError(admin, user.id, "error", "token_exchange_failed", msg);
       return json(400, { error: "token_exchange_failed", message: msg });
     }
+    const shortToken = shortJson.access_token;
+    const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
 
-    // 2. Exchange short-lived → long-lived (~60d)
-    const longUrl = new URL(`${base}/oauth/access_token`);
-    longUrl.searchParams.set("grant_type", "fb_exchange_token");
-    longUrl.searchParams.set("client_id", cfg.appId);
+    // 2. Exchange short-lived → long-lived (~60d) via graph.instagram.com.
+    const longUrl = new URL("https://graph.instagram.com/access_token");
+    longUrl.searchParams.set("grant_type", "ig_exchange_token");
     longUrl.searchParams.set("client_secret", cfg.appSecret);
-    longUrl.searchParams.set("fb_exchange_token", shortJson.access_token);
+    longUrl.searchParams.set("access_token", shortToken);
     const longResp = await fetch(longUrl.toString());
-    const longJson = (await longResp.json()) as FbTokenResp;
-    const accessToken = longJson.access_token ?? shortJson.access_token;
-    const expiresIn = longJson.expires_in ?? shortJson.expires_in ?? null;
+    const longJson = (await longResp.json()) as LongTokenResp;
+    const accessToken = longJson.access_token ?? shortToken;
+    const expiresIn = longJson.expires_in ?? null;
     const tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
 
-    // 3. Resolve IG Business Account via /me/accounts
-    const pagesUrl = new URL(`${base}/me/accounts`);
-    pagesUrl.searchParams.set("fields", "id,name,instagram_business_account,access_token");
-    pagesUrl.searchParams.set("access_token", accessToken);
-    const pagesResp = await fetch(pagesUrl.toString());
-    const pagesJson = (await pagesResp.json()) as FbAccountsResp;
-    if (!pagesResp.ok || !pagesJson.data) {
-      const msg = pagesJson.error?.message ?? "pages_lookup_failed";
-      await upsertError(admin, user.id, "error", "pages_lookup_failed", msg);
-      return json(400, { error: "pages_lookup_failed", message: msg });
+    // 3. Fetch IG account info via graph.instagram.com /me (no Facebook Page lookup).
+    const meUrl = new URL(`https://graph.instagram.com/${cfg.graphApiVersion}/me`);
+    meUrl.searchParams.set("fields", "user_id,username,account_type,profile_picture_url");
+    meUrl.searchParams.set("access_token", accessToken);
+    const meResp = await fetch(meUrl.toString());
+    const meJson = (await meResp.json()) as IgMeResp;
+    if (!meResp.ok) {
+      const msg = meJson.error?.message ?? "ig_me_fetch_failed";
+      await upsertError(admin, user.id, "error", "ig_me_fetch_failed", msg);
+      return json(400, { error: "ig_me_fetch_failed", message: msg });
+    }
+    const igAccountId = meJson.user_id ?? meJson.id ?? igUserIdFromToken;
+    if (!igAccountId) {
+      await upsertError(admin, user.id, "error", "ig_account_id_missing", "ID Instagram introuvable.");
+      return json(400, { error: "ig_account_id_missing" });
     }
 
-    const pageWithIg = pagesJson.data.find((p) => p.instagram_business_account?.id);
-    if (!pageWithIg || !pageWithIg.instagram_business_account) {
+    // Optional sanity check: account_type must be BUSINESS or MEDIA_CREATOR / CREATOR.
+    const acctType = (meJson.account_type ?? "").toUpperCase();
+    if (acctType && acctType !== "BUSINESS" && acctType !== "CREATOR" && acctType !== "MEDIA_CREATOR") {
       await upsertError(
         admin,
         user.id,
         "error",
-        "no_ig_business_account",
-        "Aucun compte Instagram professionnel (Business/Creator) lié à une Page Facebook n'a été trouvé.",
+        "ig_account_not_professional",
+        "Compte Instagram professionnel (Business ou Creator) requis.",
       );
       return json(400, {
-        error: "no_ig_business_account",
+        error: "ig_account_not_professional",
         message: "Compte Instagram professionnel requis.",
       });
     }
 
-    const igId = pageWithIg.instagram_business_account.id;
-
-    // 4. Fetch IG account info
-    const igUrl = new URL(`${base}/${igId}`);
-    igUrl.searchParams.set("fields", "id,username,account_type,profile_picture_url");
-    igUrl.searchParams.set("access_token", accessToken);
-    const igResp = await fetch(igUrl.toString());
-    const igJson = (await igResp.json()) as IgAccountResp;
-    if (!igResp.ok || !igJson.id) {
-      const msg = igJson.error?.message ?? "ig_account_fetch_failed";
-      await upsertError(admin, user.id, "error", "ig_account_fetch_failed", msg);
-      return json(400, { error: "ig_account_fetch_failed", message: msg });
-    }
-
-    // 5. Encrypt token & upsert
+    // 4. Encrypt token & upsert. page_id / page_name intentionally left null
+    //    (legacy columns kept for backward compat; Instagram Login flow does not use them).
     const encrypted = await encryptToken(accessToken);
 
     const { error: upsertErr } = await admin.from("creator_meta_connections").upsert({
       user_id: user.id,
       platform: "instagram",
       connection_status: "connected",
-      meta_user_id: null, // can be fetched via /me if needed
-      instagram_account_id: igJson.id,
-      instagram_username: igJson.username ?? null,
-      instagram_profile_picture_url: igJson.profile_picture_url ?? null,
-      account_type: igJson.account_type ?? null,
-      page_id: pageWithIg.id,
-      page_name: pageWithIg.name,
+      meta_user_id: null,
+      instagram_account_id: igAccountId,
+      instagram_username: meJson.username ?? null,
+      instagram_profile_picture_url: meJson.profile_picture_url ?? null,
+      account_type: meJson.account_type ?? null,
+      page_id: null,
+      page_name: null,
       scopes_granted: [
-        "instagram_basic",
-        "instagram_content_publish",
-        "pages_show_list",
-        "pages_read_engagement",
-        "business_management",
+        "instagram_business_basic",
+        "instagram_business_content_publish",
       ],
       access_token_encrypted: encrypted,
       refresh_token_encrypted: null,
@@ -192,8 +203,8 @@ Deno.serve(async (req) => {
 
     return json(200, {
       success: true,
-      instagram_username: igJson.username,
-      account_type: igJson.account_type,
+      instagram_username: meJson.username,
+      account_type: meJson.account_type,
     });
   } catch (e) {
     return json(500, { error: "internal_error", message: e instanceof Error ? e.message : "unknown" });

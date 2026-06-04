@@ -1,4 +1,6 @@
-// Real OAuth start for Instagram Business via Meta (Facebook) Login.
+// Real OAuth start for Instagram — flow "Instagram API with Instagram Login".
+// Direct Instagram Login (NOT Facebook Login). No Facebook Page required.
+// Scopes V1: instagram_business_basic, instagram_business_content_publish.
 // Gated by INSTAGRAM_OAUTH_ENABLED + presence of META_APP_ID/META_REDIRECT_URI.
 // Never exposes META_APP_SECRET to the frontend. State is HMAC-signed.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -45,21 +47,20 @@ Deno.serve(async (req) => {
 
     const state = await signState(user.id, "instagram", 600);
 
+    // Instagram Login direct — minimal scopes for V1.
+    // No pages_*, no business_management, no Facebook Page required.
     const scopes = [
-      "instagram_basic",
-      "instagram_content_publish",
-      "pages_show_list",
-      "pages_read_engagement",
-      "business_management",
+      "instagram_business_basic",
+      "instagram_business_content_publish",
     ].join(",");
 
-    const authorizeUrl = new URL(`https://www.facebook.com/${cfg.graphApiVersion}/dialog/oauth`);
+    // Instagram Login authorize endpoint (NOT facebook.com/dialog/oauth).
+    const authorizeUrl = new URL("https://www.instagram.com/oauth/authorize");
     authorizeUrl.searchParams.set("client_id", cfg.appId);
     authorizeUrl.searchParams.set("redirect_uri", cfg.redirectUri);
     authorizeUrl.searchParams.set("state", state);
     authorizeUrl.searchParams.set("scope", scopes);
     authorizeUrl.searchParams.set("response_type", "code");
-    if (cfg.businessConfigId) authorizeUrl.searchParams.set("config_id", cfg.businessConfigId);
 
     return json(200, { authorize_url: authorizeUrl.toString() });
   } catch (e) {
