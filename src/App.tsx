@@ -192,6 +192,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/clips/vod-import"
+                  element={
+                    <ProtectedRoute>
+                      <VodImportPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/progression"
                   element={
                     <ProtectedRoute>
