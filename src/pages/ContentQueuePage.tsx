@@ -363,13 +363,14 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload, onEditSource, onGenerate, onJobUpdate,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onManualUpload, onEditSource, onGenerate, onJobUpdate,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
   onDelete: () => void;
   youtubeConnected: boolean;
   onUpload: () => void;
+  onManualUpload: () => void;
   onEditSource: () => void;
   onGenerate: () => void;
   onJobUpdate: () => void;
