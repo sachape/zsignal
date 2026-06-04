@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import type { Platform } from "@/types/networks";
+import PlatformValidationNotice from "@/components/PlatformValidationNotice";
+import { isAdminMode } from "@/lib/featureFlags";
 
 // ── Platform icons ────────────────────────────────────────────────────────────
 function TwitchIcon({ className }: { className?: string }) {
