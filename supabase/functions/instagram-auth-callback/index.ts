@@ -237,7 +237,39 @@ Deno.serve(async (req) => {
     }
     const shortToken = shortJson.access_token;
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
-    log("short_token_ok", { has_user_id: !!igUserIdFromToken, access_token_prefix: shortToken.slice(0, 6) });
+    log("short_token_ok", {
+      has_user_id: !!igUserIdFromToken,
+      access_token_prefix: shortToken.slice(0, 6),
+      access_token_suffix: shortToken.slice(-6),
+      access_token_length: shortToken.length,
+      starts_with_IGAA: shortToken.startsWith("IGAA"),
+      contains_pipe: shortToken.includes("|"),
+      contains_dot: shortToken.includes("."),
+      contains_whitespace: /\s/.test(shortToken),
+    });
+
+    // === DIAGNOSTIC TWIN CALL ===
+    // Reproduce EXACTLY what instagram-debug-token-compare does with a Meta-generated token.
+    // If this fails while the Meta-dashboard token succeeds, the bug is in the token itself
+    // (not the endpoint, not the fetch, not the fields).
+    try {
+      const twinUrl =
+        `https://graph.instagram.com/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}`;
+      const twinResp = await fetch(twinUrl);
+      const twinData = await twinResp.json().catch(() => ({}));
+      log("twin_me_call", {
+        endpoint: "GET https://graph.instagram.com/me?fields=user_id,username (encodeURIComponent on token)",
+        http_status: twinResp.status,
+        meta_error_type: twinData?.error?.type ?? null,
+        meta_error_message: twinData?.error?.message ?? null,
+        user_id: twinData?.user_id ?? twinData?.id ?? null,
+        username: twinData?.username ?? null,
+      });
+    } catch (e) {
+      log("twin_me_call_throw", { reason: e instanceof Error ? e.message : "unknown" });
+    }
+
+
 
 
     // 2. Fetch IG profile — BARE fetch (no method, no headers, no body, no redirect option).
