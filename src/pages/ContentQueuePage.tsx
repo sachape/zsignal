@@ -713,8 +713,8 @@ function ContentRow({
                   const params = new URLSearchParams({ format: igFormat });
                   if (caption) params.set("caption", caption);
                   if (tags) params.set("hashtags", tags);
-                  if (item.generated_video_url) {
-                    params.set("media", item.generated_video_url);
+                  if (freshMediaUrl) {
+                    params.set("media", freshMediaUrl);
                     params.set("mime", "video/mp4");
                   }
                   return `/composer?${params.toString()}`;
