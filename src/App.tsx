@@ -59,6 +59,8 @@ const YouTubeCallbackPage = lazy(() => import("./pages/YouTubeCallbackPage.tsx")
 const TikTokCallbackPage = lazy(() => import("./pages/TikTokCallbackPage.tsx"));
 const LiveSetupPage = lazy(() => import("./pages/LiveSetupPage.tsx"));
 const ContentQueuePage = lazy(() => import("./pages/ContentQueuePage.tsx"));
+const ComposerPage = lazy(() => import("./pages/ComposerPage.tsx"));
+const PublicationsPage = lazy(() => import("./pages/PublicationsPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -282,6 +284,22 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <ContentQueuePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/composer"
+                  element={
+                    <ProtectedRoute>
+                      <ComposerPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/publications"
+                  element={
+                    <ProtectedRoute>
+                      <PublicationsPage />
                     </ProtectedRoute>
                   }
                 />
