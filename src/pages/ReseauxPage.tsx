@@ -326,7 +326,7 @@ export default function ReseauxPage() {
       const callbackVersion = searchParams.get("callback_version") ?? undefined;
       console.debug("[reseaux] instagram callback error", { reason, step, metaError, metaType, httpStatus, message, callbackVersion });
       setIgDebug({ reason, step, meta_error: metaError, meta_type: metaType, http_status: httpStatus, message, callback_version: callbackVersion });
-      const msg = reason === "ig_account_not_professional"
+      const rawMsg = reason === "ig_account_not_professional"
         ? "Compte Instagram professionnel (Business ou Creator) requis."
         : reason === "instagram_oauth_disabled"
           ? "Connexion Meta non encore activée."
@@ -335,8 +335,11 @@ export default function ReseauxPage() {
             : metaError
               ? `Instagram OAuth failed — step: ${step ?? "?"} — error: ${metaError}`
               : `Erreur de connexion Instagram (${reason}${step ? ` · ${step}` : ""}).`;
-      setCurrentInstagramCallbackError(msg);
-      toast.error(msg);
+      const friendlyMsg = "Connexion Instagram en validation Meta — utilise le mode manuel en attendant.";
+      const userMsg = isAdminMode() ? rawMsg : friendlyMsg;
+      setCurrentInstagramCallbackError(userMsg);
+      if (isAdminMode()) toast.error(rawMsg);
+      else toast.message("Connexion Instagram en validation Meta", { description: "Tu peux préparer tes contenus et publier manuellement en attendant." });
       refetchMeta();
     }
     setSearchParams((p) => {
