@@ -610,14 +610,19 @@ function ContentRow({
                 <Button
                   size="sm" className="h-7 text-[11px]"
                   onClick={onGenerate}
-                  disabled={item.source_start_time == null || item.source_end_time == null || item.generation_status === "queued" || item.generation_status === "processing"}
-                  title="Lancer la génération du clip"
+                  disabled={item.source_start_time == null || item.source_end_time == null || item.generation_status === "queued" || item.generation_status === "processing" || anotherJobIsActive}
+                  title={anotherJobIsActive ? "Une génération est déjà en cours" : "Lancer la génération du clip"}
                 >
                   {item.generation_status === "queued" || item.generation_status === "processing"
                     ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     : <Wand2 className="mr-1.5 h-3.5 w-3.5" />}
                   {item.generation_status === "failed" ? "Réessayer" : "Générer le clip"}
                 </Button>
+              )}
+              {anotherJobIsActive && !hasGeneratedClip && (
+                <p className="basis-full text-[11px] text-warning">
+                  Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.
+                </p>
               )}
               <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onManualUpload}
                 title="J'ai déjà mon clip, je l'importe directement">
