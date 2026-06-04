@@ -18,8 +18,24 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-profile-non-blocking-v10";
+const CALLBACK_VERSION = "instagram-callback-appsecret-proof-v11";
 const GRAPH_VERSION = "v25.0";
+
+// Meta's "Require App Secret Proof for Server API calls" returns the misleading
+// error "Unsupported request - method type: get" when appsecret_proof is missing.
+// proof = HMAC-SHA256(access_token, app_secret), hex-encoded.
+async function appSecretProof(token: string, secret: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(token));
+  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 type ProfileVariant =
   | "me_user_id_username_v25_query"
@@ -264,17 +280,18 @@ Deno.serve(async (req) => {
       contains_whitespace: /\s/.test(shortToken),
     });
 
+    // Compute appsecret_proof once for the short-lived token.
+    const proofShort = await appSecretProof(shortToken, cfg.appSecret);
+    log("appsecret_proof_ready", { proof_prefix: proofShort.slice(0, 8), proof_length: proofShort.length });
+
     // === DIAGNOSTIC TWIN CALL ===
-    // Reproduce EXACTLY what instagram-debug-token-compare does with a Meta-generated token.
-    // If this fails while the Meta-dashboard token succeeds, the bug is in the token itself
-    // (not the endpoint, not the fetch, not the fields).
     try {
       const twinUrl =
-        `https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}`;
+        `https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}&appsecret_proof=${proofShort}`;
       const twinResp = await fetch(twinUrl);
       const twinData = normalizeIgMe(await twinResp.json().catch(() => ({})));
       log("twin_me_call", {
-        endpoint: `GET https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username (encodeURIComponent on token)`,
+        endpoint: `GET https://graph.instagram.com/${GRAPH_VERSION}/me (with appsecret_proof)`,
         http_status: twinResp.status,
         meta_error_type: twinData?.error?.type ?? null,
         meta_error_message: twinData?.error?.message ?? null,
@@ -300,6 +317,7 @@ Deno.serve(async (req) => {
       const url = new URL(`https://graph.instagram.com${path}`);
       url.searchParams.set("fields", fields);
       if (authMode === "query") url.searchParams.set("access_token", shortToken);
+      url.searchParams.set("appsecret_proof", proofShort);
       log("me_request", {
         profile_variant: variant,
         endpoint_host: "graph.instagram.com",
@@ -405,6 +423,7 @@ Deno.serve(async (req) => {
     longUrl.searchParams.set("grant_type", "ig_exchange_token");
     longUrl.searchParams.set("client_secret", cfg.appSecret);
     longUrl.searchParams.set("access_token", shortToken);
+    longUrl.searchParams.set("appsecret_proof", proofShort);
     log("long_token_request", {
       endpoint_host: "graph.instagram.com",
       endpoint_path: "/access_token",

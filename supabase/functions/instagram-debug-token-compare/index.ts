@@ -18,8 +18,22 @@ interface TestResult {
   long_lived_expires_in: number | null;
 }
 
+async function appSecretProof(token: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(META_APP_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(token));
+  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 async function callMe(token: string): Promise<TestResult> {
-  const url = `https://graph.instagram.com/me?fields=user_id,username&access_token=${encodeURIComponent(token)}`;
+  const proof = await appSecretProof(token);
+  const url = `https://graph.instagram.com/me?fields=user_id,username&access_token=${encodeURIComponent(token)}&appsecret_proof=${proof}`;
   const resp = await fetch(url);
   const data = await resp.json().catch(() => ({}));
   return {
@@ -35,7 +49,8 @@ async function callMe(token: string): Promise<TestResult> {
 }
 
 async function callExchange(token: string): Promise<TestResult> {
-  const url = `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${encodeURIComponent(META_APP_SECRET)}&access_token=${encodeURIComponent(token)}`;
+  const proof = await appSecretProof(token);
+  const url = `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${encodeURIComponent(META_APP_SECRET)}&access_token=${encodeURIComponent(token)}&appsecret_proof=${proof}`;
   const resp = await fetch(url);
   const data = await resp.json().catch(() => ({}));
   return {
