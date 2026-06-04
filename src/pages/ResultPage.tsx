@@ -776,7 +776,7 @@ const ResultPage = () => {
         )}
 
         {(isReconstruction || isExploration) && (
-          <FoundationModeBanner reasons={displayMode.reasons} />
+          <FoundationModeBanner streams30d={displayMode.streams30d} />
         )}
 
         {/* Signal bento */}
