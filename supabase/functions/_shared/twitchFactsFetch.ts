@@ -211,6 +211,18 @@ export async function fetchTwitchFactsForAccount(args: {
   const followerCount =
     followers && typeof followers.total === "number" ? (followers.total as number) : null;
 
+  // Lives 30j: source of truth is live_sessions, NOT Twitch VOD archive.
+  // A streamer with VOD storage disabled or a freshly-ended live still
+  // shows up here.
+  const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
+  const { data: liveRows } = await admin
+    .from("live_sessions")
+    .select("started_at, ended_at, duration_minutes, avg_viewers, peak_viewers, snapshots_count")
+    .eq("user_id", args.user_id)
+    .eq("platform", "twitch")
+    .eq("platform_user_id", args.platform_user_id)
+    .gte("started_at", since30);
+
   return {
     ok: true,
     facts: {
@@ -231,6 +243,14 @@ export async function fetchTwitchFactsForAccount(args: {
         game_id: String(c.game_id ?? ""),
         view_count: Number(c.view_count ?? 0),
         created_at: String(c.created_at ?? ""),
+      })),
+      live_sessions: ((liveRows ?? []) as Array<Record<string, unknown>>).map((s) => ({
+        started_at: String(s.started_at ?? ""),
+        ended_at: s.ended_at ? String(s.ended_at) : null,
+        duration_minutes: s.duration_minutes != null ? Number(s.duration_minutes) : null,
+        avg_viewers: s.avg_viewers != null ? Number(s.avg_viewers) : null,
+        peak_viewers: s.peak_viewers != null ? Number(s.peak_viewers) : null,
+        snapshots_count: s.snapshots_count != null ? Number(s.snapshots_count) : null,
       })),
     },
   };
