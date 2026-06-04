@@ -355,10 +355,14 @@ export default function ReseauxPage() {
 
   const getPlatformStatus = (platform: Platform): string => {
     if (platform === "twitch") return hasTwitchOAuth ? "connected" : "disconnected";
+    if (platform === "instagram" && metaConnection?.connection_status === "connected" && !metaConnection.instagram_username) {
+      return "error";
+    }
     return accounts.find((a) => a.platform === platform)?.connection_status ?? "disconnected";
   };
   const getPlatformUsername = (platform: Platform): string | null => {
     if (platform === "twitch") return twitchAccount?.platform_login ?? null;
+    if (platform === "instagram") return metaConnection?.instagram_username ?? accounts.find((a) => a.platform === platform)?.username ?? null;
     return accounts.find((a) => a.platform === platform)?.username ?? null;
   };
   const getPlatformLastSync = (platform: Platform): string | null => {
@@ -551,24 +555,23 @@ export default function ReseauxPage() {
                         if (metaConnection?.connection_status === "connected") {
                           const hasTokenWarning = metaConnection.error_code === "token_long_lived_exchange_failed"
                             || (metaConnection.error_message?.includes("Token court") ?? false);
-                          const hasProfileWarning = metaConnection.error_code === "profile_fetch_failed"
-                            || (metaConnection.error_message?.includes("Profil Instagram détaillé indisponible") ?? false);
                           const username = metaConnection.instagram_username;
+                          if (!username) {
+                            return (
+                              <p className="text-destructive/90">
+                                Connexion Instagram incomplète : le nom d'utilisateur officiel n'a pas été récupéré.
+                                <span className="block mt-0.5 text-muted-foreground/70">
+                                  Dernière erreur Meta : {metaConnection.error_message ?? "username indisponible"}
+                                </span>
+                              </p>
+                            );
+                          }
                           return (
                             <p className="text-muted-foreground">
-                              {username ? (
-                                <>Connecté en tant que <span className="text-foreground">@{username}</span>.</>
-                              ) : (
-                                <><span className="text-foreground">Instagram connecté.</span> Profil en cours de synchronisation…</>
-                              )}
+                              Connecté en tant que <span className="text-foreground">@{username}</span>.
                               <span className="block mt-0.5 text-muted-foreground/70">
                                 Publication Instagram en attente de validation Meta — l'envoi sera activé une fois l'App Review approuvée.
                               </span>
-                              {hasProfileWarning && !username && (
-                                <span className="block mt-1 text-amber-300/90">
-                                  Nom d'utilisateur Instagram pas encore disponible — réessaie dans quelques instants.
-                                </span>
-                              )}
                               {hasTokenWarning && (
                                 <span className="block mt-1 text-amber-300/90">
                                   Instagram connecté — token temporaire, renouvellement long-lived à finaliser.

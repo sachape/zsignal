@@ -18,7 +18,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-bare-fetch-v7";
+const CALLBACK_VERSION = "instagram-callback-username-required-v8";
 const GRAPH_VERSION = "v23.0";
 
 type ProfileVariant =
@@ -310,7 +310,7 @@ Deno.serve(async (req) => {
     const igAccountId = profileData.user_id ?? profileData.id ?? igUserIdFromToken;
     const igUsername = profileData.username ?? null;
 
-    // Profile fetch is BEST-EFFORT. Connection requires only short-lived token + user_id.
+    // Product validation requires a real Instagram username.
     let profileWarningCode: string | null = null;
     let profileWarningMessage: string | null = null;
     if (!igAccountId) {
@@ -330,7 +330,7 @@ Deno.serve(async (req) => {
       const last = attempts[attempts.length - 1];
       profileWarningCode = "profile_fetch_failed";
       profileWarningMessage = `Profil Instagram détaillé indisponible (${last?.meta_error_message ?? "raison inconnue"}).`;
-      log("profile_fetch_failed_non_blocking", { attempts, ig_account_id: igAccountId });
+      log("profile_fetch_failed_blocking", { attempts, ig_account_id: igAccountId });
     } else {
       log("me_ok", { profile_variant: successVariant, has_account_type: !!profileData.account_type });
     }
@@ -398,7 +398,7 @@ Deno.serve(async (req) => {
     const { error: upsertErr } = await admin.from("creator_meta_connections").upsert({
       user_id: user.id,
       platform: "instagram",
-      connection_status: "connected",
+      connection_status: igUsername ? "connected" : "error",
       meta_user_id: null,
       instagram_account_id: igAccountId,
       instagram_username: igUsername,
@@ -420,6 +420,16 @@ Deno.serve(async (req) => {
 
     if (upsertErr) {
       return fail(500, "db_upsert_failed", "upsert_connection", { message: upsertErr.message });
+    }
+
+    if (!igUsername) {
+      const last = attempts[attempts.length - 1];
+      return fail(400, "profile_fetch_failed", "fetch_profile", {
+        message: profileWarningMessage ?? "Nom d'utilisateur Instagram non récupéré.",
+        httpStatus: last?.http_status,
+        metaErrorType: last?.meta_error_type,
+        metaErrorMessage: last?.meta_error_message,
+      });
     }
 
     return json(200, {
