@@ -274,6 +274,7 @@ export default function ReseauxPage() {
   const { isConnected: hasTwitchOAuth, account: twitchAccount } = useTwitchConnection();
   const { accounts, loading, upsertAccount, removeAccount, refetch } = useConnectedNetworks();
   const { history, saveSnapshot } = usePresenceScoreHistory();
+  const { connection: metaConnection } = useInstagramConnection();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
