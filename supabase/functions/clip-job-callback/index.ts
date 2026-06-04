@@ -100,14 +100,27 @@ Deno.serve(async (req) => {
 
   // failed
   const errorCode = body.error_code ? String(body.error_code) : "worker_error";
-  const errorMessage = body.error_message ? String(body.error_message).slice(0, 500) : "Échec de génération.";
+  const rawMessage = body.error_message ? String(body.error_message).slice(0, 500) : "";
+  // Translate worker error codes to user-friendly French messages.
+  // The raw English message is kept in the job row for debugging.
+  const errorMessage = (() => {
+    switch (errorCode) {
+      case "twitch_vod_unavailable":
+        return "VOD Twitch indisponible. Vérifie que la VOD est publique et que « Stocker les vidéos passées » est activé sur ta chaîne.";
+      case "ffmpeg_error":
+        return "Erreur lors du découpage vidéo. Essaie un autre intervalle de temps.";
+      case "worker_error":
+      default:
+        return "Échec de génération. Réessaie ou modifie le timestamp du clip.";
+    }
+  })();
 
   await admin
     .from("creator_video_generation_jobs")
     .update({
       status: "failed",
       error_code: errorCode,
-      error_message: errorMessage,
+      error_message: rawMessage || errorMessage,
       completed_at: new Date().toISOString(),
     })
     .eq("id", jobId);
