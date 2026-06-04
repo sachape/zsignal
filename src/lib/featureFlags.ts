@@ -1,14 +1,16 @@
 /**
- * Feature flags.
+ * Frontend feature flags.
  *
- * IMPORTANT: Meta/Instagram integration is intentionally disabled by default.
- * It will only be turned on after:
- *   1. Meta App Review is approved
- *   2. META_APP_ID / META_APP_SECRET / META_REDIRECT_URI secrets are configured
- *   3. The publishing pipeline + scheduler are validated end-to-end
+ * NOTE on Instagram OAuth availability:
+ * Lovable Secrets does not accept VITE_ variables, so the OAuth availability
+ * is NOT read from a build-time flag here. Instead the frontend asks the
+ * backend via the `instagram-oauth-status` edge function (see
+ * `useInstagramOAuthStatus`). The single source of truth is the backend env
+ * INSTAGRAM_OAUTH_ENABLED + presence of META_APP_ID/SECRET/REDIRECT_URI.
  *
- * Frontend flags are read from VITE_* env vars (build-time, never secrets).
- * Backend (edge functions) reads its own counterparts via Deno.env.get(...).
+ * INSTAGRAM_PUBLISH_ENABLED stays here as a hard client-side kill switch,
+ * defaulting to false until Meta App Review is approved and the publishing
+ * pipeline is fully validated end-to-end.
  */
 
 function readBoolFlag(value: string | undefined, fallback = false): boolean {
@@ -17,7 +19,6 @@ function readBoolFlag(value: string | undefined, fallback = false): boolean {
 }
 
 export const FEATURE_FLAGS = {
-  INSTAGRAM_OAUTH_ENABLED: readBoolFlag(import.meta.env.VITE_INSTAGRAM_OAUTH_ENABLED, false),
   INSTAGRAM_PUBLISH_ENABLED: readBoolFlag(import.meta.env.VITE_INSTAGRAM_PUBLISH_ENABLED, false),
 } as const;
 
