@@ -18,8 +18,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-graph-host-fallback-v12";
+const CALLBACK_VERSION = "instagram-callback-meta-access-diagnostic-v13";
 const GRAPH_VERSION = "v25.0";
+
+const META_UNSUPPORTED_GET_MESSAGE = "Unsupported request - method type: get";
+const META_ACCESS_BLOCKED_CODE = "meta_graph_access_blocked";
+const META_ACCESS_BLOCKED_MESSAGE =
+  "Meta a bien émis un token court, mais bloque les appels Graph avec ce token. Vérifiez que le compte Instagram est ajouté comme testeur/rôle de l’app Meta, ou que l’app a l’Advanced Access/App Review approuvé pour Instagram Business Login.";
 
 // Meta's "Require App Secret Proof for Server API calls" returns the misleading
 // error "Unsupported request - method type: get" when appsecret_proof is missing.
@@ -419,10 +424,13 @@ Deno.serve(async (req) => {
         metaErrorMessage: last?.meta_error_message,
       });
     }
+    const graphAccessBlocked = attempts.some((attempt) => attempt.meta_error_message === META_UNSUPPORTED_GET_MESSAGE);
     if (!successVariant || !igUsername) {
       const last = attempts[attempts.length - 1];
-      profileWarningCode = "profile_fetch_failed";
-      profileWarningMessage = `Profil Instagram détaillé indisponible (${last?.meta_error_message ?? "raison inconnue"}).`;
+      profileWarningCode = graphAccessBlocked ? META_ACCESS_BLOCKED_CODE : "profile_fetch_failed";
+      profileWarningMessage = graphAccessBlocked
+        ? META_ACCESS_BLOCKED_MESSAGE
+        : `Profil Instagram détaillé indisponible (${last?.meta_error_message ?? "raison inconnue"}).`;
       log("profile_fetch_failed_non_blocking", { attempts, ig_account_id: igAccountId });
     } else {
       log("me_ok", { profile_variant: successVariant, has_account_type: !!profileData.account_type });
@@ -469,8 +477,11 @@ Deno.serve(async (req) => {
         tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
         log("long_token_ok", { expires_in: expiresIn });
       } else {
-        warningCode = "token_long_lived_exchange_failed";
-        warningMessage = `Token court utilisé temporairement — échange long-lived à corriger (${longJson.error?.message ?? `HTTP ${longResp.status}`}).`;
+        const isMetaAccessBlocked = longJson.error?.message === META_UNSUPPORTED_GET_MESSAGE;
+        warningCode = isMetaAccessBlocked ? META_ACCESS_BLOCKED_CODE : "token_long_lived_exchange_failed";
+        warningMessage = isMetaAccessBlocked
+          ? META_ACCESS_BLOCKED_MESSAGE
+          : `Token court utilisé temporairement — échange long-lived indisponible (${longJson.error?.message ?? `HTTP ${longResp.status}`}).`;
         log("long_token_fallback_short", { http_status: longResp.status, meta_error_message: longJson.error?.message ?? null });
       }
     } catch (e) {
