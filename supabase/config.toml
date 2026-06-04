@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.clip-source-upload-url]
 verify_jwt = false
+
+[functions.instagram-debug-token-compare]
+verify_jwt = false
