@@ -184,7 +184,9 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         job_id: job.id,
         source_url: resolvedSourceUrl,
-        source_kind: sourceType === "twitch_vod" ? "twitch_vod" : "direct",
+        source_kind:
+          sourceType === "twitch_vod" ? "twitch_vod" :
+          sourceType === "youtube_vod" ? "youtube_vod" : "direct",
         output_upload_url: upload.signedUrl,
         output_storage_path: outputStoragePath,
         start_time_seconds: Math.round(startTime),
