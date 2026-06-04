@@ -548,8 +548,14 @@ export default function ReseauxPage() {
                   />
                 ))}
               </div>
-              {syncError && <p className="mt-2 text-xs text-destructive">YouTube : {syncError}</p>}
-              {ttSyncError && <p className="mt-2 text-xs text-destructive">TikTok : {ttSyncError}</p>}
+              {adminMode && syncError && <p className="mt-2 text-xs text-destructive">YouTube : {syncError}</p>}
+              {adminMode && ttSyncError && <p className="mt-2 text-xs text-destructive">TikTok : {ttSyncError}</p>}
+
+              {/* ── Platform validation notices (visible to all users) ── */}
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <PlatformValidationNotice platform="youtube" showLong={false} />
+                <PlatformValidationNotice platform="tiktok" showLong={false} />
+              </div>
 
               {/* ── Instagram / Meta integration status (honest) ── */}
               <div className="mt-3 rounded-lg border border-border bg-card/40 p-3 text-xs">
