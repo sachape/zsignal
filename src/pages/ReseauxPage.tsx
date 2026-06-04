@@ -305,8 +305,8 @@ export default function ReseauxPage() {
     else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
     else if (igResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
-      const msg = reason === "no_ig_business_account"
-        ? "Compte Instagram professionnel (Business/Creator) requis."
+      const msg = reason === "ig_account_not_professional"
+        ? "Compte Instagram professionnel (Business ou Creator) requis."
         : reason === "instagram_oauth_disabled"
           ? "Connexion Meta non encore activée."
           : reason === "meta_not_configured"
