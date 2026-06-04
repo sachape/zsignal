@@ -34,6 +34,8 @@ import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
 import ManualPublishPanel from "@/components/content-queue/ManualPublishPanel";
 import NewContentDialog from "@/components/content-queue/NewContentDialog";
 import ManualMediaUploadDialog from "@/components/content-queue/ManualMediaUploadDialog";
+import { useFreshMediaUrl } from "@/services/mediaStorage";
+import { isAdminMode } from "@/lib/featureFlags";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -376,7 +378,11 @@ function ContentRow({
   onJobUpdate: () => void;
 }) {
   const isVideo = VIDEO_PLATFORMS.includes(item.platform);
-  const hasGeneratedClip = !!item.generated_video_url;
+  const hasGeneratedClip = !!item.generated_video_url || !!item.generated_video_storage_path;
+  const adminMode = isAdminMode();
+  // Always resolve a fresh signed URL when the item has a permanent storage
+  // pointer — otherwise fall back to whatever URL the item already carries.
+  const freshMediaUrl = useFreshMediaUrl(item);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
@@ -538,7 +544,7 @@ function ContentRow({
             {hasGeneratedClip ? (
               <div className="space-y-2">
                 <video
-                  src={item.generated_video_url ?? undefined}
+                  src={freshMediaUrl ?? undefined}
                   poster={item.thumbnail_url ?? undefined}
                   controls
                   className="w-full max-w-sm rounded-md border border-border/60 bg-black"
@@ -607,11 +613,11 @@ function ContentRow({
 
         {/* Manual publish workflow — visible as soon as we have something to share */}
         {item.status !== "ignored" && item.status !== "published" && (
-          (item.generated_video_url ||
+          (hasGeneratedClip ||
             ["draft_ready", "ready", "uploaded", "published_manually"].includes(item.status)) ? (
             <ManualPublishPanel
               item={item}
-              mediaUrl={item.generated_video_url}
+              mediaUrl={freshMediaUrl}
               onUpdate={onUpdate}
             />
           ) : null
@@ -668,25 +674,32 @@ function ContentRow({
                 Live source <ExternalLink className="h-3 w-3" />
               </Link>
             )}
-            {item.platform === "youtube_shorts" && item.status !== "ignored" && (
+            {item.platform === "youtube_shorts" && item.status !== "ignored" && adminMode && (
               <Button
                 size="sm"
-                variant={youtubeConnected ? "default" : "outline"}
+                variant="outline"
                 className="h-7 px-2 text-[11px]"
                 onClick={onUpload}
                 title={
-                  !youtubeConnected ? "Connecte YouTube pour uploader"
-                    : hasGeneratedClip ? "Uploader le clip généré sur YouTube"
-                    : "Uploader un fichier sur YouTube"
+                  !youtubeConnected ? "Connecte YouTube pour uploader (mode admin)"
+                    : hasGeneratedClip ? "Uploader le clip généré sur YouTube (mode admin)"
+                    : "Uploader un fichier sur YouTube (mode admin)"
                 }
               >
                 <Upload className="mr-1 h-3 w-3" />
                 {item.youtube_video_id
-                  ? "Réuploader"
-                  : hasGeneratedClip
-                    ? "Uploader le clip"
-                    : "Uploader sur YouTube"}
+                  ? "Réuploader (admin)"
+                  : "Upload YouTube (admin)"}
               </Button>
+            )}
+            {item.platform === "youtube_shorts" && item.status !== "ignored" && !adminMode && (
+              <span
+                className="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/5 px-2 py-1 text-[10px] font-medium text-amber-300"
+                title="Publication directe bientôt disponible après validation Google. En attendant, publie manuellement avec les éléments préparés par Streamnco."
+              >
+                <Upload className="h-3 w-3" />
+                Upload YouTube — Bientôt
+              </span>
             )}
             {item.platform === "instagram" && item.status !== "ignored" && (
               <Link
@@ -700,8 +713,8 @@ function ContentRow({
                   const params = new URLSearchParams({ format: igFormat });
                   if (caption) params.set("caption", caption);
                   if (tags) params.set("hashtags", tags);
-                  if (item.generated_video_url) {
-                    params.set("media", item.generated_video_url);
+                  if (freshMediaUrl) {
+                    params.set("media", freshMediaUrl);
                     params.set("mime", "video/mp4");
                   }
                   return `/composer?${params.toString()}`;

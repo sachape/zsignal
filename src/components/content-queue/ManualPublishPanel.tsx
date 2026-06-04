@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ContentItem } from "@/hooks/useContentItems";
+import { resolveFreshMediaUrl } from "@/services/mediaStorage";
 
 interface Props {
   item: ContentItem;
@@ -50,9 +51,16 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
   const detectedPlatform = item.published_platform ?? (item.published_url ? detectPlatform(item.published_url) : null);
 
   async function downloadMedia() {
-    if (!mediaUrl) return;
+    // Always try to resolve a fresh signed URL first when the item has a
+    // permanent storage pointer — the URL passed in might already be stale.
+    const url = (await resolveFreshMediaUrl(item).catch(() => null)) ?? mediaUrl;
+    if (!url) {
+      toast.error("Aucun média disponible");
+      return;
+    }
     try {
-      const res = await fetch(mediaUrl);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("fetch failed");
       const blob = await res.blob();
       const a = document.createElement("a");
       const ext = (blob.type.split("/")[1] || "mp4").split(";")[0];
@@ -63,7 +71,7 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
       a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     } catch {
-      window.open(mediaUrl, "_blank", "noopener,noreferrer");
+      window.open(url, "_blank", "noopener,noreferrer");
     }
   }
 
