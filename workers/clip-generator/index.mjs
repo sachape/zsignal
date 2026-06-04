@@ -24,7 +24,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "1.1.0";
+const WORKER_VERSION = "1.2.0";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -113,7 +113,10 @@ app.post("/generate", async (req, res) => {
   processJob({
     jobId: job_id,
     sourceUrl: source_url,
-    sourceKind: source_kind === "twitch_vod" ? "twitch_vod" : "direct",
+    sourceKind:
+      source_kind === "twitch_vod" || source_kind === "youtube_vod"
+        ? source_kind
+        : "direct",
     outputUploadUrl: output_upload_url,
     outputStoragePath: output_storage_path,
     startSeconds: start_time_seconds,
@@ -162,10 +165,13 @@ async function processJob({
     const duration = Math.max(1, Math.round(endSeconds - startSeconds));
 
     // 1) Acquire source segment.
-    if (sourceKind === "twitch_vod") {
-      // yt-dlp pulls only the requested section from the Twitch VOD HLS.
+    if (sourceKind === "twitch_vod" || sourceKind === "youtube_vod") {
+      // yt-dlp pulls only the requested section from the VOD HLS / formats.
       // --download-sections accepts "*START-END" in seconds.
       const section = `*${Math.max(0, Math.floor(startSeconds))}-${Math.ceil(endSeconds)}`;
+      const ytFormat = sourceKind === "youtube_vod"
+        ? "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best"
+        : "best";
       await runCommand("yt-dlp", [
         "--no-warnings",
         "--no-playlist",
@@ -174,7 +180,8 @@ async function processJob({
         "--retries", "3",
         "--fragment-retries", "5",
         "--download-sections", section,
-        "-f", "best",
+        "-f", ytFormat,
+        "--merge-output-format", "mp4",
         "-o", sourcePath,
         sourceUrl,
       ]);
@@ -191,9 +198,9 @@ async function processJob({
     });
 
     // 2) FFmpeg cut + scale + re-encode for clean Shorts/Reels output.
-    // For twitch_vod, yt-dlp already trimmed roughly; we still re-cut to be
-    // exact and to normalize the codec.
-    const ffArgs = sourceKind === "twitch_vod"
+    // For twitch_vod / youtube_vod, yt-dlp already trimmed roughly; we still
+    // re-cut to be exact and to normalize the codec.
+    const ffArgs = (sourceKind === "twitch_vod" || sourceKind === "youtube_vod")
       ? [
           "-y",
           "-i", sourcePath,
@@ -248,7 +255,7 @@ async function processJob({
     const message = err?.message ?? "unknown_error";
     console.error("job failed", jobId, message);
     const code = message.startsWith("yt-dlp")
-      ? "twitch_vod_unavailable"
+      ? "vod_unavailable"
       : message.startsWith("ffmpeg")
         ? "ffmpeg_error"
         : "worker_error";

@@ -392,10 +392,18 @@ const ClipsPage = () => {
   }, [result, filter, sort]);
 
   const action = (
-    <Button onClick={refresh} disabled={refreshing} className="gap-2">
-      <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
-      {refreshing ? "Synchronisation…" : "Rafraîchir mes clips"}
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      <Button asChild className="gap-2">
+        <a href="/clips/vod-import">
+          <Scissors className="h-4 w-4" />
+          Créer depuis une VOD
+        </a>
+      </Button>
+      <Button onClick={refresh} disabled={refreshing} variant="outline" className="gap-2">
+        <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+        {refreshing ? "Synchronisation…" : "Rafraîchir mes clips"}
+      </Button>
+    </div>
   );
 
   return (

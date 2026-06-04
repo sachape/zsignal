@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
-  Film, Wand2, Clock, Flame, TrendingUp, BarChart3, Plus, Info, FileUp,
+  Film, Wand2, Clock, Flame, TrendingUp, BarChart3, Plus, Info, FileUp, Scissors,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -149,10 +149,18 @@ const ContentQueuePage = () => {
           title="Content Queue"
           description="Prépare, télécharge et publie tes contenus en quelques clics."
           action={
-            <Button onClick={() => setNewOpen(true)}>
-              <Plus className="h-4 w-4" />
-              Nouveau contenu
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild variant="outline">
+                <a href="/clips/vod-import">
+                  <Scissors className="h-4 w-4" />
+                  Importer une VOD
+                </a>
+              </Button>
+              <Button onClick={() => setNewOpen(true)}>
+                <Plus className="h-4 w-4" />
+                Nouveau contenu
+              </Button>
+            </div>
           }
         />
 
