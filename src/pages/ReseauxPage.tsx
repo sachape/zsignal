@@ -565,8 +565,8 @@ export default function ReseauxPage() {
                           ? Date.now() - new Date(metaConnection.updated_at).getTime() < 15 * 60 * 1000
                           : false;
                         const currentInstagramError = isRecentInstagramError && metaConnection?.error_message !== ignoredInstagramError
-                          ? null
-                          : metaConnection?.error_message;
+                          ? metaConnection?.error_message
+                          : null;
                         if (metaConnection?.connection_status === "error" && currentInstagramError) {
                           return (
                             <p className="text-destructive/90">
