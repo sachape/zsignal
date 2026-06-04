@@ -585,12 +585,10 @@ export default function ReseauxPage() {
                           );
 
                         }
-                        if (!igOAuthEnabled) {
+                        if (!igOAuthAvailable) {
                           return (
                             <p className="text-muted-foreground">
-                              Connexion Meta en préparation. La publication officielle Post / Reel / Story
-                              arrivera après validation de notre App Meta. Ajouter Instagram manuellement
-                              sert uniquement à compléter ton profil — ce n'est pas suffisant pour publier.
+                              Connexion Meta en préparation — secrets backend manquants.
                             </p>
                           );
                         }
