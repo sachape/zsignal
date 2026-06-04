@@ -617,9 +617,9 @@ export default function ReseauxPage() {
                       })()}
                     </div>
                   </div>
-                  {igOAuthEnabled && (
+                  {igOAuthAvailable && (
                     <div className="shrink-0">
-                      {metaConnection?.connection_status === "connected" ? (
+                      {metaConnection?.connection_status === "connected" && metaConnection.instagram_username ? (
                         <Button size="sm" variant="outline" className="h-7 text-xs"
                           disabled={igActionLoading} onClick={handleDisconnectInstagram}>
                           Déconnecter
@@ -627,7 +627,12 @@ export default function ReseauxPage() {
                       ) : (
                         <Button size="sm" className="h-7 text-xs"
                           disabled={igActionLoading} onClick={handleConnectInstagram}>
-                          {igActionLoading ? "…" : metaConnection?.connection_status === "error" ? "Réessayer" : "Connecter Instagram"}
+                          {igActionLoading
+                            ? "…"
+                            : (metaConnection?.connection_status === "error"
+                                || (metaConnection?.connection_status === "connected" && !metaConnection.instagram_username))
+                              ? "Réessayer la connexion"
+                              : "Connecter Instagram"}
                         </Button>
                       )}
                     </div>
