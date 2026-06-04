@@ -18,8 +18,24 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-profile-non-blocking-v10";
+const CALLBACK_VERSION = "instagram-callback-appsecret-proof-v11";
 const GRAPH_VERSION = "v25.0";
+
+// Meta's "Require App Secret Proof for Server API calls" returns the misleading
+// error "Unsupported request - method type: get" when appsecret_proof is missing.
+// proof = HMAC-SHA256(access_token, app_secret), hex-encoded.
+async function appSecretProof(token: string, secret: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(token));
+  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 type ProfileVariant =
   | "me_user_id_username_v25_query"
