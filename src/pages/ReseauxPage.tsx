@@ -554,15 +554,20 @@ export default function ReseauxPage() {
                       <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
                       {(() => {
                         if (metaConnection?.connection_status === "connected") {
+                          const hasMetaAccessBlocked = metaConnection.error_code === "meta_graph_access_blocked";
                           const hasTokenWarning = metaConnection.error_code === "token_long_lived_exchange_failed"
                             || (metaConnection.error_message?.includes("Token court") ?? false);
                           const username = metaConnection.instagram_username;
                           if (!username) {
                             return (
                               <p className="text-amber-300/90">
-                                Instagram connecté — le nom d'utilisateur officiel n'a pas encore été récupéré par Meta.
+                                {hasMetaAccessBlocked
+                                  ? "Instagram connecté, mais Meta bloque l’accès Graph pour ce compte."
+                                  : "Instagram connecté — le nom d'utilisateur officiel n'a pas encore été récupéré par Meta."}
                                 <span className="block mt-0.5 text-muted-foreground/70">
-                                  Dernière réponse Meta : {metaConnection.error_message ?? "username indisponible"}
+                                  {hasMetaAccessBlocked
+                                    ? "À vérifier côté Meta : compte ajouté comme testeur/rôle de l’app, ou Advanced Access/App Review approuvé pour Instagram Business Login."
+                                    : `Dernière réponse Meta : ${metaConnection.error_message ?? "username indisponible"}`}
                                 </span>
                               </p>
                             );
