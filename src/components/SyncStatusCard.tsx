@@ -66,10 +66,10 @@ const STATE_META: Record<
     tone: "border-primary/30 bg-primary/5",
   },
   partial_refresh: {
-    icon: AlertCircle,
-    iconClass: "text-warning",
-    title: "Synchronisé · données partielles",
-    tone: "border-warning/30 bg-warning/5",
+    icon: CheckCircle2,
+    iconClass: "text-success",
+    title: "Synchronisé",
+    tone: "border-border",
   },
   refresh_failed: {
     icon: AlertCircle,
