@@ -53,6 +53,9 @@ export interface ContentItem {
   source_end_time: number | null;
   source_duration: number | null;
   generated_video_url: string | null;
+  /** Permanent pointer for media uploaded manually (or by the worker into our bucket). */
+  generated_video_storage_bucket: string | null;
+  generated_video_storage_path: string | null;
   thumbnail_url: string | null;
   generation_status: GenerationStatus | null;
   generation_error: string | null;
