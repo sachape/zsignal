@@ -31,6 +31,9 @@ const buildInstagramErrorUrl = (payload: InstagramCallbackResponse) => {
   query.set("reason", payload.error_code ?? payload.error ?? "callback_failed");
   if (payload.error_step) query.set("step", payload.error_step);
   if (payload.meta_error_message) query.set("meta_error", payload.meta_error_message);
+  if (payload.meta_error_type) query.set("meta_type", payload.meta_error_type);
+  if (payload.http_status) query.set("http_status", String(payload.http_status));
+  if (payload.message) query.set("message", payload.message);
   if (payload.callback_version) query.set("callback_version", payload.callback_version);
   return `/reseaux?${query.toString()}`;
 };
