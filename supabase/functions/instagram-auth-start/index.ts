@@ -45,6 +45,19 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return json(401, { error: "unauthorized" });
 
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    await admin.from("creator_meta_connections").upsert({
+      user_id: user.id,
+      platform: "instagram",
+      connection_status: "pending_review",
+      error_code: null,
+      error_message: null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,platform" });
+
     const state = await signState(user.id, "instagram", 600);
 
     // Instagram Login direct — minimal scopes for V1.
