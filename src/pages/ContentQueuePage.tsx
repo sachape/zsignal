@@ -149,10 +149,18 @@ const ContentQueuePage = () => {
           title="Content Queue"
           description="Prépare, télécharge et publie tes contenus en quelques clics."
           action={
-            <Button onClick={() => setNewOpen(true)}>
-              <Plus className="h-4 w-4" />
-              Nouveau contenu
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild variant="outline">
+                <a href="/clips/vod-import">
+                  <Scissors className="h-4 w-4" />
+                  Importer une VOD
+                </a>
+              </Button>
+              <Button onClick={() => setNewOpen(true)}>
+                <Plus className="h-4 w-4" />
+                Nouveau contenu
+              </Button>
+            </div>
           }
         />
 
