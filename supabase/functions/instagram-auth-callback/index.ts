@@ -423,6 +423,7 @@ Deno.serve(async (req) => {
     longUrl.searchParams.set("grant_type", "ig_exchange_token");
     longUrl.searchParams.set("client_secret", cfg.appSecret);
     longUrl.searchParams.set("access_token", shortToken);
+    longUrl.searchParams.set("appsecret_proof", proofShort);
     log("long_token_request", {
       endpoint_host: "graph.instagram.com",
       endpoint_path: "/access_token",
