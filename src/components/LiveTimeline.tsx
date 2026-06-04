@@ -139,11 +139,11 @@ const LiveTimeline = ({ session }: Props) => {
           <p className="mt-2 text-sm text-foreground">
             {isLive
               ? "La timeline se construit pendant le live."
-              : "Pas encore assez de signal pour afficher une timeline exploitable."}
+              : "On n'a pas pu reconstituer une courbe viewers pour ce live."}
           </p>
           {!isLive && (
             <p className="mt-1 text-xs text-muted-foreground">
-              Cette session est trop courte ou trop peu documentée pour une lecture détaillée.
+              La collecte de snapshots a manqué de données — tu peux quand même préparer tes contenus depuis le débrief assisté.
             </p>
           )}
         </CardContent>

@@ -201,7 +201,7 @@ const LastLivePage = () => {
                   Score du live
                 </p>
                 <p className="mt-0.5 text-sm font-semibold text-foreground">
-                  {debrief?.verdict ?? "Pas encore assez de signal sur ce live."}
+                  {debrief?.verdict ?? "Analyse automatique limitée sur ce live."}
                 </p>
               </div>
             </div>
