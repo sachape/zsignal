@@ -383,8 +383,8 @@ Deno.serve(async (req) => {
       refresh_token_encrypted: null,
       token_expires_at: tokenExpiresAt,
       last_sync_at: new Date().toISOString(),
-      error_code: warningCode,
-      error_message: warningMessage,
+      error_code: profileWarningCode ?? warningCode,
+      error_message: [profileWarningMessage, warningMessage].filter(Boolean).join(" | ") || null,
     }, { onConflict: "user_id,platform" });
 
     if (upsertErr) {
@@ -393,11 +393,12 @@ Deno.serve(async (req) => {
 
     return json(200, {
       success: true,
+      instagram_account_id: igAccountId,
       instagram_username: igUsername,
       account_type: accountType,
       profile_variant: successVariant,
-      warning_code: warningCode,
-      warning_message: warningMessage,
+      warning_code: profileWarningCode ?? warningCode,
+      warning_message: [profileWarningMessage, warningMessage].filter(Boolean).join(" | ") || null,
     });
   } catch (e) {
     return fail(500, "internal_error", "validate_input", { message: e instanceof Error ? e.message : "unknown" });
