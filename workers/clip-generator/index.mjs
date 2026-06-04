@@ -24,6 +24,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
+const WORKER_VERSION = "1.1.0";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -32,10 +33,52 @@ if (!WORKER_SHARED_SECRET) {
   process.exit(1);
 }
 
+// ── Capability probes (run at boot, refreshed on /health) ─────────────────
+async function probeBinary(cmd, args) {
+  try {
+    const out = await new Promise((resolve) => {
+      const p = spawn(cmd, args, { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.on("data", (d) => { buf += d.toString(); });
+      p.stderr.on("data", (d) => { buf += d.toString(); });
+      p.on("error", () => resolve({ ok: false, version: null }));
+      p.on("close", (code) => {
+        if (code !== 0) resolve({ ok: false, version: null });
+        else resolve({ ok: true, version: buf.split("\n")[0].trim().slice(0, 120) });
+      });
+    });
+    return out;
+  } catch {
+    return { ok: false, version: null };
+  }
+}
+
+async function capabilities() {
+  const [ff, yt] = await Promise.all([
+    probeBinary("ffmpeg", ["-version"]),
+    probeBinary("yt-dlp", ["--version"]),
+  ]);
+  return {
+    worker_version: WORKER_VERSION,
+    ffmpeg_available: ff.ok,
+    ffmpeg_version: ff.version,
+    yt_dlp_available: yt.ok,
+    yt_dlp_version: yt.version,
+  };
+}
+
+// Boot-time log so a `fly logs` after deploy immediately shows capabilities.
+capabilities().then((c) => {
+  console.log("[boot] capabilities", JSON.stringify(c));
+}).catch(() => {});
+
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
-app.get("/health", (_req, res) => res.json({ ok: true }));
+app.get("/health", async (_req, res) => {
+  const caps = await capabilities();
+  res.json({ ok: caps.ffmpeg_available && caps.yt_dlp_available, ...caps });
+});
 
 app.post("/generate", async (req, res) => {
   const secret = req.header("X-Worker-Secret") ?? "";
@@ -234,5 +277,5 @@ function runCommand(cmd, args) {
 }
 
 app.listen(PORT, () => {
-  console.log(`Clip generator worker listening on :${PORT}`);
+  console.log(`Clip generator worker v${WORKER_VERSION} listening on :${PORT}`);
 });
