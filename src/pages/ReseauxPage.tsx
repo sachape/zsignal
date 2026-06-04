@@ -277,6 +277,7 @@ export default function ReseauxPage() {
   const { connection: metaConnection, refetch: refetchMeta } = useInstagramConnection();
   const { oauth_enabled: igOAuthEnabled } = useInstagramOAuthStatus();
   const [igActionLoading, setIgActionLoading] = useState(false);
+  const [ignoredInstagramError, setIgnoredInstagramError] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editDialog, setEditDialog] = useState<{ platform: Platform; username: string; profileUrl: string } | null>(null);
@@ -302,21 +303,33 @@ export default function ReseauxPage() {
       const reason = searchParams.get("reason") ?? "inconnue";
       toast.error(`Erreur de connexion TikTok (${reason}).`);
     }
-    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); refetchMeta(); }
+    if (igResult === "connected") { toast.success("Instagram connecté avec succès !"); setIgnoredInstagramError(null); refetchMeta(); }
     else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
     else if (igResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
+      const step = searchParams.get("step");
+      const metaError = searchParams.get("meta_error");
+      const callbackVersion = searchParams.get("callback_version");
+      if (callbackVersion) console.debug("instagram callback version", callbackVersion);
+      setIgnoredInstagramError(metaConnection?.error_message ?? null);
       const msg = reason === "ig_account_not_professional"
         ? "Compte Instagram professionnel (Business ou Creator) requis."
         : reason === "instagram_oauth_disabled"
           ? "Connexion Meta non encore activée."
           : reason === "meta_not_configured"
             ? "Connexion Meta non configurée."
-            : `Erreur de connexion Instagram (${reason}).`;
+            : metaError
+              ? `Erreur Instagram (${step ?? reason}) : ${metaError}`
+              : `Erreur de connexion Instagram (${reason}${step ? ` · ${step}` : ""}).`;
       toast.error(msg);
+      refetchMeta();
     }
-    setSearchParams((p) => { p.delete("youtube"); p.delete("tiktok"); p.delete("instagram"); p.delete("reason"); return p; }, { replace: true });
-  }, [searchParams, setSearchParams, refetch, refetchMeta]);
+    setSearchParams((p) => {
+      p.delete("youtube"); p.delete("tiktok"); p.delete("instagram"); p.delete("reason");
+      p.delete("step"); p.delete("meta_error"); p.delete("callback_version");
+      return p;
+    }, { replace: true });
+  }, [searchParams, setSearchParams, refetch, refetchMeta, metaConnection?.error_message]);
 
   // Save presence snapshot when accounts or Twitch connection change
   useEffect(() => {
@@ -369,6 +382,20 @@ export default function ReseauxPage() {
   const handleConnectInstagram = useCallback(async () => {
     setIgActionLoading(true);
     try {
+      setIgnoredInstagramError(null);
+      if (user) {
+        await supabase
+          .from("creator_meta_connections")
+          .update({
+            connection_status: "pending_review",
+            error_code: null,
+            error_message: null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", user.id)
+          .eq("platform", "instagram");
+        await refetchMeta();
+      }
       const { data, error } = await supabase.functions.invoke("instagram-auth-start");
       const url = (data as { authorize_url?: string } | null)?.authorize_url;
       if (error || !url) {
@@ -385,7 +412,7 @@ export default function ReseauxPage() {
     } finally {
       setIgActionLoading(false);
     }
-  }, []);
+  }, [refetchMeta, user]);
 
   const handleDisconnectInstagram = useCallback(async () => {
     setIgActionLoading(true);
