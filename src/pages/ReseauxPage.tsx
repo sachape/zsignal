@@ -30,7 +30,7 @@ import ConnectNetworkModal from "@/components/ConnectNetworkModal";
 import type { Platform } from "@/types/networks";
 import { supabase } from "@/integrations/supabase/client";
 import { useInstagramConnection } from "@/hooks/useInstagramConnection";
-import { FEATURE_FLAGS } from "@/lib/featureFlags";
+import { useInstagramOAuthStatus } from "@/hooks/useInstagramOAuthStatus";
 
 // ── Platform icons ────────────────────────────────────────────────────────────
 function TwitchIcon({ className }: { className?: string }) {
@@ -275,6 +275,7 @@ export default function ReseauxPage() {
   const { accounts, loading, upsertAccount, removeAccount, refetch } = useConnectedNetworks();
   const { history, saveSnapshot } = usePresenceScoreHistory();
   const { connection: metaConnection, refetch: refetchMeta } = useInstagramConnection();
+  const { oauth_enabled: igOAuthEnabled } = useInstagramOAuthStatus();
   const [igActionLoading, setIgActionLoading] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -521,7 +522,7 @@ export default function ReseauxPage() {
                             </p>
                           );
                         }
-                        if (!FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED) {
+                        if (!igOAuthEnabled) {
                           return (
                             <p className="text-muted-foreground">
                               Connexion Meta en préparation. La publication officielle Post / Reel / Story
@@ -550,7 +551,7 @@ export default function ReseauxPage() {
                       })()}
                     </div>
                   </div>
-                  {FEATURE_FLAGS.INSTAGRAM_OAUTH_ENABLED && (
+                  {igOAuthEnabled && (
                     <div className="shrink-0">
                       {metaConnection?.connection_status === "connected" ? (
                         <Button size="sm" variant="outline" className="h-7 text-xs"
