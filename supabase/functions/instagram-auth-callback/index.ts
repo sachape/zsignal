@@ -358,9 +358,9 @@ Deno.serve(async (req) => {
       connection_status: "connected",
       meta_user_id: null,
       instagram_account_id: igAccountId,
-      instagram_username: meJson.username ?? null,
-      instagram_profile_picture_url: meJson.profile_picture_url ?? null,
-      account_type: meJson.account_type ?? null,
+      instagram_username: igUsername,
+      instagram_profile_picture_url: profileData.profile_picture_url ?? null,
+      account_type: accountType,
       page_id: null,
       page_name: null,
       scopes_granted: [
