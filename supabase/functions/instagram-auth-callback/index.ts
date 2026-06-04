@@ -5,7 +5,7 @@
 //      → returns short-lived IG user access token + user_id
 //   2. GET https://graph.instagram.com/access_token?grant_type=ig_exchange_token
 //      → long-lived token (~60 days)
-//   3. GET https://graph.instagram.com/v{ver}/me?fields=user_id,username,account_type,profile_picture_url
+//   3. GET https://graph.instagram.com/me?fields=user_id,username,account_type,profile_picture_url
 //   4. Encrypt token & upsert row in creator_meta_connections.
 // No token value ever leaves the server. No Facebook Page required.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -18,11 +18,27 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const json = (status: number, body: unknown) =>
-  new Response(JSON.stringify(body), {
+const CALLBACK_VERSION = "instagram-callback-no-versioned-me-v2";
+
+type CallbackStep =
+  | "validate_input"
+  | "verify_state"
+  | "exchange_short_token"
+  | "exchange_long_token"
+  | "fetch_profile"
+  | "encrypt_token"
+  | "upsert_connection";
+
+const json = (status: number, body: Record<string, unknown>) =>
+  new Response(JSON.stringify({ callback_version: CALLBACK_VERSION, ...body }), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+
+const cleanMessage = (value: unknown): string | undefined => {
+  if (typeof value !== "string") return undefined;
+  return value.replace(/[\r\n\t]+/g, " ").slice(0, 240);
+};
 
 interface ShortTokenResp {
   access_token?: string;
@@ -36,7 +52,7 @@ interface LongTokenResp {
   access_token?: string;
   token_type?: string;
   expires_in?: number;
-  error?: { message?: string; code?: number };
+  error?: { message?: string; code?: number; type?: string };
 }
 interface IgMeResp {
   id?: string;
@@ -44,7 +60,37 @@ interface IgMeResp {
   username?: string;
   account_type?: string;
   profile_picture_url?: string;
-  error?: { message?: string; code?: number };
+  error?: { message?: string; code?: number; type?: string };
+}
+
+function extractMetaError(payload: ShortTokenResp | LongTokenResp | IgMeResp) {
+  const metaError = payload.error;
+  return {
+    meta_error_type: cleanMessage("error_type" in payload ? payload.error_type : metaError?.type),
+    meta_error_message: cleanMessage("error_message" in payload ? payload.error_message : metaError?.message),
+  };
+}
+
+function fail(
+  status: number,
+  errorCode: string,
+  errorStep: CallbackStep,
+  details: {
+    message?: string;
+    httpStatus?: number;
+    metaErrorType?: string;
+    metaErrorMessage?: string;
+  } = {},
+) {
+  return json(status, {
+    error: errorCode,
+    error_code: errorCode,
+    error_step: errorStep,
+    ...(details.httpStatus ? { http_status: details.httpStatus } : {}),
+    ...(details.message ? { message: cleanMessage(details.message) } : {}),
+    ...(details.metaErrorType ? { meta_error_type: cleanMessage(details.metaErrorType) } : {}),
+    ...(details.metaErrorMessage ? { meta_error_message: cleanMessage(details.metaErrorMessage) } : {}),
+  });
 }
 
 async function upsertError(
@@ -60,6 +106,7 @@ async function upsertError(
     connection_status: status,
     error_code: code,
     error_message: message,
+    updated_at: new Date().toISOString(),
   }, { onConflict: "user_id,platform" });
 }
 
