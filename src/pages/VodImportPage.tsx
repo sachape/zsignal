@@ -374,18 +374,28 @@ const VodImportPage = () => {
                   id="vod-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="Colle un lien Twitch ou YouTube"
+                  placeholder="https://www.twitch.tv/videos/..."
                   className="pl-9"
                 />
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <span>Formats acceptés : twitch.tv/videos/… · youtube.com/watch?v=… · youtu.be/…</span>
-                {detectedSource && (
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span>YouTube arrive bientôt. Pour l'instant, utilise une VOD Twitch ou importe un fichier vidéo.</span>
+                {detectedSource === "twitch" && (
                   <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
-                    {detectedSource === "twitch" ? "Twitch VOD" : "YouTube"}
+                    Twitch VOD
+                  </Badge>
+                )}
+                {detectedSource === "youtube" && (
+                  <Badge variant="outline" className="border-muted bg-muted/30 text-muted-foreground text-[10px]">
+                    YouTube — Bientôt
                   </Badge>
                 )}
               </div>
+              {detectedSource === "youtube" && (
+                <p className="text-[11px] text-warning">
+                  YouTube arrive bientôt. Utilise une VOD Twitch ou importe un fichier vidéo pour le moment.
+                </p>
+              )}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
