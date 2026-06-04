@@ -246,8 +246,8 @@ Deno.serve(async (req) => {
     let encrypted: string;
     try {
       encrypted = await encryptToken(accessToken);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "token_encryption_failed";
+    } catch {
+      const msg = "Échec du chiffrement du token Instagram.";
       await upsertError(admin, user.id, "error", "token_encryption_failed", msg);
       return fail(500, "token_encryption_failed", "encrypt_token", { message: msg });
     }
