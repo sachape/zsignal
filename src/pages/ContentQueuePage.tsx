@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
-  Film, Wand2, Clock, Flame, TrendingUp, BarChart3,
+  Film, Wand2, Clock, Flame, TrendingUp, BarChart3, Plus, Info, FileUp,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -31,6 +31,9 @@ import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog"
 import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
 import { useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
 import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
+import ManualPublishPanel from "@/components/content-queue/ManualPublishPanel";
+import NewContentDialog from "@/components/content-queue/NewContentDialog";
+import ManualMediaUploadDialog from "@/components/content-queue/ManualMediaUploadDialog";
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
