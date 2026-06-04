@@ -549,15 +549,28 @@ export default function ReseauxPage() {
                       <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
                       {(() => {
                         if (metaConnection?.connection_status === "connected") {
-                          const hasWarning = metaConnection.error_code === "token_long_lived_exchange_failed";
+                          const hasTokenWarning = metaConnection.error_code === "token_long_lived_exchange_failed"
+                            || (metaConnection.error_message?.includes("Token court") ?? false);
+                          const hasProfileWarning = metaConnection.error_code === "profile_fetch_failed"
+                            || (metaConnection.error_message?.includes("Profil Instagram détaillé indisponible") ?? false);
+                          const username = metaConnection.instagram_username;
                           return (
                             <p className="text-muted-foreground">
-                              Connecté en tant que <span className="text-foreground">@{metaConnection.instagram_username}</span>
-                              {metaConnection.account_type ? ` · ${metaConnection.account_type}` : ""}.
+                              {username ? (
+                                <>Connecté en tant que <span className="text-foreground">@{username}</span>
+                                {metaConnection.account_type && metaConnection.account_type !== "unknown" ? ` · ${metaConnection.account_type}` : ""}.</>
+                              ) : (
+                                <>Instagram connecté. <span className="text-foreground">Compte : ID {metaConnection.instagram_account_id}</span>.</>
+                              )}
                               <span className="block mt-0.5 text-muted-foreground/70">
                                 Publication Instagram en attente de validation Meta — l'envoi sera activé une fois l'App Review approuvée.
                               </span>
-                              {hasWarning && (
+                              {hasProfileWarning && (
+                                <span className="block mt-1 text-amber-300/90">
+                                  Instagram connecté — profil détaillé indisponible pour le moment.
+                                </span>
+                              )}
+                              {hasTokenWarning && (
                                 <span className="block mt-1 text-amber-300/90">
                                   Instagram connecté — token temporaire, renouvellement long-lived à finaliser.
                                 </span>

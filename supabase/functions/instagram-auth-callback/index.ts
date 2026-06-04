@@ -18,7 +18,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CALLBACK_VERSION = "instagram-callback-me-variants-cascade-v4";
+const CALLBACK_VERSION = "instagram-callback-profile-best-effort-v5";
 const GRAPH_VERSION = "v21.0";
 
 type ProfileVariant =
@@ -277,20 +277,32 @@ Deno.serve(async (req) => {
     }
 
     const igAccountId = profileData.user_id ?? profileData.id ?? igUserIdFromToken;
-    const igUsername = profileData.username;
+    const igUsername = profileData.username ?? null;
 
-    if (!successVariant || !igAccountId || !igUsername) {
+    // Profile fetch is BEST-EFFORT. Connection requires only short-lived token + user_id.
+    let profileWarningCode: string | null = null;
+    let profileWarningMessage: string | null = null;
+    if (!igAccountId) {
+      // This should never happen because short_token_ok guarantees igUserIdFromToken,
+      // but guard anyway: without any account id we genuinely cannot persist a row.
       const last = attempts[attempts.length - 1];
-      log("me_all_variants_failed", { attempts });
-      await upsertError(admin, user.id, "error", "ig_me_fetch_failed", last?.meta_error_message ?? "ig_me_fetch_failed");
-      return fail(400, "ig_me_fetch_failed", "fetch_profile", {
-        message: last?.meta_error_message ?? "Profil Instagram introuvable après plusieurs tentatives.",
+      log("no_account_id_available", { attempts });
+      await upsertError(admin, user.id, "error", "ig_account_id_missing", "user_id manquant après échange short-lived");
+      return fail(400, "ig_account_id_missing", "fetch_profile", {
+        message: "user_id Instagram manquant.",
         httpStatus: last?.http_status,
         metaErrorType: last?.meta_error_type,
         metaErrorMessage: last?.meta_error_message,
       });
     }
-    log("me_ok", { profile_variant: successVariant, has_account_type: !!profileData.account_type });
+    if (!successVariant || !igUsername) {
+      const last = attempts[attempts.length - 1];
+      profileWarningCode = "profile_fetch_failed";
+      profileWarningMessage = `Profil Instagram détaillé indisponible (${last?.meta_error_message ?? "raison inconnue"}).`;
+      log("profile_fetch_failed_non_blocking", { attempts, ig_account_id: igAccountId });
+    } else {
+      log("me_ok", { profile_variant: successVariant, has_account_type: !!profileData.account_type });
+    }
 
     const accountType = profileData.account_type ?? "unknown";
 
@@ -371,8 +383,8 @@ Deno.serve(async (req) => {
       refresh_token_encrypted: null,
       token_expires_at: tokenExpiresAt,
       last_sync_at: new Date().toISOString(),
-      error_code: warningCode,
-      error_message: warningMessage,
+      error_code: profileWarningCode ?? warningCode,
+      error_message: [profileWarningMessage, warningMessage].filter(Boolean).join(" | ") || null,
     }, { onConflict: "user_id,platform" });
 
     if (upsertErr) {
@@ -381,11 +393,12 @@ Deno.serve(async (req) => {
 
     return json(200, {
       success: true,
+      instagram_account_id: igAccountId,
       instagram_username: igUsername,
       account_type: accountType,
       profile_variant: successVariant,
-      warning_code: warningCode,
-      warning_message: warningMessage,
+      warning_code: profileWarningCode ?? warningCode,
+      warning_message: [profileWarningMessage, warningMessage].filter(Boolean).join(" | ") || null,
     });
   } catch (e) {
     return fail(500, "internal_error", "validate_input", { message: e instanceof Error ? e.message : "unknown" });
