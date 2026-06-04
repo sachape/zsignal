@@ -95,13 +95,15 @@ function buildCopyPayload(item: ContentItem): string {
 }
 
 const ContentQueuePage = () => {
-  const { items, loading, updateItem, deleteItem, refetch } = useContentItems();
+  const { items, loading, updateItem, deleteItem, refetch, createMany } = useContentItems();
   const { accounts } = useConnectedNetworks();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
   const [uploadItem, setUploadItem] = useState<ContentItem | null>(null);
   const [generateItem, setGenerateItem] = useState<ContentItem | null>(null);
+  const [newOpen, setNewOpen] = useState(false);
+  const [manualUploadItem, setManualUploadItem] = useState<ContentItem | null>(null);
 
   const youtubeAccount = accounts.find(a => a.platform === "youtube");
   const youtubeConnected = youtubeAccount?.connection_status === "connected";
@@ -143,8 +145,24 @@ const ContentQueuePage = () => {
         <PageHeader
           eyebrow="Cockpit éditorial"
           title="Content Queue"
-          description="Transforme chaque live en clips courts prêts à publier."
+          description="Prépare, télécharge et publie tes contenus en quelques clics."
+          action={
+            <Button onClick={() => setNewOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Nouveau contenu
+            </Button>
+          }
         />
+
+        {/* Banner — manual publish info */}
+        <div className="mb-4 flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2.5 text-[12px] text-foreground/90">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <p>
+            Publication automatique bientôt disponible après validation des plateformes.
+            En attendant, tu peux télécharger tes médias, copier tes textes et publier manuellement
+            depuis Instagram, YouTube Studio ou TikTok.
+          </p>
+        </div>
 
         {/* Stats strip */}
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
