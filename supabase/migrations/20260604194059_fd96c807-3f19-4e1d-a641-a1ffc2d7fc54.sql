@@ -1,0 +1,1 @@
+ALTER TABLE public.creator_video_generation_jobs DROP CONSTRAINT IF EXISTS creator_video_generation_jobs_source_type_check; ALTER TABLE public.creator_video_generation_jobs ADD CONSTRAINT creator_video_generation_jobs_source_type_check CHECK (source_type = ANY (ARRAY['upload'::text, 'storage_url'::text, 'direct_url'::text, 'twitch_vod'::text, 'youtube_vod'::text]));
