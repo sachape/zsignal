@@ -555,8 +555,6 @@ export default function ReseauxPage() {
                         if (metaConnection?.connection_status === "connected") {
                           const hasTokenWarning = metaConnection.error_code === "token_long_lived_exchange_failed"
                             || (metaConnection.error_message?.includes("Token court") ?? false);
-                          const hasProfileWarning = metaConnection.error_code === "profile_fetch_failed"
-                            || (metaConnection.error_message?.includes("Profil Instagram détaillé indisponible") ?? false);
                           const username = metaConnection.instagram_username;
                           if (!username) {
                             return (
@@ -574,7 +572,6 @@ export default function ReseauxPage() {
                               <span className="block mt-0.5 text-muted-foreground/70">
                                 Publication Instagram en attente de validation Meta — l'envoi sera activé une fois l'App Review approuvée.
                               </span>
-                              {hasProfileWarning && null}
                               {hasTokenWarning && (
                                 <span className="block mt-1 text-amber-300/90">
                                   Instagram connecté — token temporaire, renouvellement long-lived à finaliser.
