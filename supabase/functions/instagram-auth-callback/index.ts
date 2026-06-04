@@ -254,9 +254,7 @@ Deno.serve(async (req) => {
       keys: Object.keys(shortJson ?? {}),
       has_access_token: !!shortJson.access_token,
       has_user_id: !!shortJson.user_id,
-      // @ts-ignore — log diagnostic fields if Meta returns them
       token_type: (shortJson as Record<string, unknown>).token_type ?? null,
-      // @ts-ignore
       expires_in: (shortJson as Record<string, unknown>).expires_in ?? null,
       permissions: shortJson.permissions ?? null,
     });
