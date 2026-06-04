@@ -102,7 +102,7 @@ async function fetchLive(
 // ---- Debrief generation (shared) ---------------------------------------
 import { generateDebrief } from "../_shared/debrief.ts";
 import { generateClipCandidates } from "../_shared/clipCandidates.ts";
-import { attachVodToSession } from "../twitch-fetch-last-vod/index.ts";
+import { attachVodToSession } from "../_shared/twitchVod.ts";
 
 // ---- Per-account processing --------------------------------------------
 async function processAccount(
