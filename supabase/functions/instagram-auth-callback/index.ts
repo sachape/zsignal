@@ -280,17 +280,18 @@ Deno.serve(async (req) => {
       contains_whitespace: /\s/.test(shortToken),
     });
 
+    // Compute appsecret_proof once for the short-lived token.
+    const proofShort = await appSecretProof(shortToken, cfg.appSecret);
+    log("appsecret_proof_ready", { proof_prefix: proofShort.slice(0, 8), proof_length: proofShort.length });
+
     // === DIAGNOSTIC TWIN CALL ===
-    // Reproduce EXACTLY what instagram-debug-token-compare does with a Meta-generated token.
-    // If this fails while the Meta-dashboard token succeeds, the bug is in the token itself
-    // (not the endpoint, not the fetch, not the fields).
     try {
       const twinUrl =
-        `https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}`;
+        `https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username&access_token=${encodeURIComponent(shortToken)}&appsecret_proof=${proofShort}`;
       const twinResp = await fetch(twinUrl);
       const twinData = normalizeIgMe(await twinResp.json().catch(() => ({})));
       log("twin_me_call", {
-        endpoint: `GET https://graph.instagram.com/${GRAPH_VERSION}/me?fields=user_id,username (encodeURIComponent on token)`,
+        endpoint: `GET https://graph.instagram.com/${GRAPH_VERSION}/me (with appsecret_proof)`,
         http_status: twinResp.status,
         meta_error_type: twinData?.error?.type ?? null,
         meta_error_message: twinData?.error?.message ?? null,
