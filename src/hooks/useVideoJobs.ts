@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { VideoGenerationStage } from "@/services/videoGeneration";
 
 export type VideoJobStatus = "queued" | "processing" | "completed" | "failed" | "cancelled";
 
@@ -9,7 +10,7 @@ export interface VideoGenerationJob {
   id: string;
   user_id: string;
   content_item_id: string;
-  source_type: "upload" | "storage_url" | "direct_url";
+  source_type: "upload" | "storage_url" | "direct_url" | "twitch_vod" | "youtube_vod";
   source_url: string | null;
   source_storage_path: string | null;
   start_time_seconds: number;
@@ -22,6 +23,11 @@ export interface VideoGenerationJob {
   error_code: string | null;
   error_message: string | null;
   progress: number | null;
+  generation_stage: VideoGenerationStage;
+  callback_status: "received" | "accepted" | "rejected" | null;
+  worker_started_at: string | null;
+  worker_last_seen_at: string | null;
+  worker_completed_at: string | null;
   metadata: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
@@ -83,4 +89,41 @@ export function useVideoJobsForItem(contentItemId: string | null) {
   }, [job]);
 
   return { job, loading, refetch: fetchLatest };
+}
+
+export function useActiveVideoJob() {
+  const { user } = useAuth();
+  const [activeJob, setActiveJob] = useState<VideoGenerationJob | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchActive = useCallback(async () => {
+    if (!user) { setActiveJob(null); return; }
+    setLoading(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from("creator_video_generation_jobs")
+      .select("*")
+      .eq("user_id", user.id)
+      .in("status", ["queued", "processing"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setActiveJob(error ? null : ((data as VideoGenerationJob | null) ?? null));
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loop() {
+      if (cancelled) return;
+      await fetchActive();
+      if (cancelled) return;
+      const timer = window.setTimeout(loop, activeJob ? 4000 : 8000);
+      return () => window.clearTimeout(timer);
+    }
+    loop();
+    return () => { cancelled = true; };
+  }, [fetchActive, activeJob]);
+
+  return { activeJob, loading, refetch: fetchActive };
 }
