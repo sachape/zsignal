@@ -210,8 +210,9 @@ export default function ConnectNetworkModal({
 
     return (
       <div className="space-y-4">
+        <PlatformValidationNotice platform="instagram" />
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Ajoute ton {selectedConfig?.label} manuellement. Les insights seront disponibles après connexion Meta.
+          Ajoute ton {selectedConfig?.label} manuellement pour préparer tes contenus dès maintenant. La connexion officielle s’activera dès la validation Meta.
         </p>
         <div className="space-y-2">
           <Label htmlFor="cn-username">Nom d'utilisateur</Label>
