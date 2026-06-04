@@ -311,10 +311,14 @@ export default function ReseauxPage() {
     else if (igResult === "cancelled") { toast.info("Connexion Instagram annulée."); }
     else if (igResult === "error") {
       const reason = searchParams.get("reason") ?? "inconnue";
-      const step = searchParams.get("step");
-      const metaError = searchParams.get("meta_error");
-      const callbackVersion = searchParams.get("callback_version");
-      if (callbackVersion) console.debug("instagram callback version", callbackVersion);
+      const step = searchParams.get("step") ?? undefined;
+      const metaError = searchParams.get("meta_error") ?? undefined;
+      const metaType = searchParams.get("meta_type") ?? undefined;
+      const httpStatus = searchParams.get("http_status") ?? undefined;
+      const message = searchParams.get("message") ?? undefined;
+      const callbackVersion = searchParams.get("callback_version") ?? undefined;
+      console.debug("[reseaux] instagram callback error", { reason, step, metaError, metaType, httpStatus, message, callbackVersion });
+      setIgDebug({ reason, step, meta_error: metaError, meta_type: metaType, http_status: httpStatus, message, callback_version: callbackVersion });
       const msg = reason === "ig_account_not_professional"
         ? "Compte Instagram professionnel (Business ou Creator) requis."
         : reason === "instagram_oauth_disabled"
@@ -322,7 +326,7 @@ export default function ReseauxPage() {
           : reason === "meta_not_configured"
             ? "Connexion Meta non configurée."
             : metaError
-              ? `Erreur Instagram (${step ?? reason}) : ${metaError}`
+              ? `Instagram OAuth failed — step: ${step ?? "?"} — error: ${metaError}`
               : `Erreur de connexion Instagram (${reason}${step ? ` · ${step}` : ""}).`;
       setCurrentInstagramCallbackError(msg);
       toast.error(msg);
@@ -330,7 +334,8 @@ export default function ReseauxPage() {
     }
     setSearchParams((p) => {
       p.delete("youtube"); p.delete("tiktok"); p.delete("instagram"); p.delete("reason");
-      p.delete("step"); p.delete("meta_error"); p.delete("callback_version");
+      p.delete("step"); p.delete("meta_error"); p.delete("meta_type"); p.delete("http_status");
+      p.delete("message"); p.delete("callback_version");
       return p;
     }, { replace: true });
   }, [searchParams, setSearchParams, refetch, refetchMeta]);
