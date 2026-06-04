@@ -225,12 +225,23 @@ Deno.serve(async (req) => {
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
     log("short_token_ok", { has_user_id: !!igUserIdFromToken });
 
-    // 2. Fetch IG profile — cascade of variants. Minimum success: id/user_id + username.
+    // 2. Fetch IG profile — minimal fields only (username). No account_type/picture (cause errors).
+    //    Endpoint must be UNVERSIONED on graph.instagram.com for Instagram Login.
     const tryProfile = async (variant: ProfileVariant, path: string, fields: string): Promise<{ attempt: ProfileAttempt; data: IgMeResp }> => {
       const url = new URL(`https://graph.instagram.com${path}`);
       url.searchParams.set("fields", fields);
       url.searchParams.set("access_token", shortToken);
-      log("me_request", { profile_variant: variant, endpoint_host: "graph.instagram.com", endpoint_path: path, method: "GET", fields });
+      log("me_request", {
+        profile_variant: variant,
+        endpoint_host: "graph.instagram.com",
+        endpoint_path: path,
+        method: "GET",
+        fields,
+        token_type: "short_lived",
+        has_access_token: !!shortToken,
+        access_token_prefix: shortToken ? shortToken.slice(0, 6) : null,
+        user_id_from_token: igUserIdFromToken,
+      });
       const resp = await fetch(url.toString(), { method: "GET", redirect: "manual" });
       const data = (await resp.json().catch(() => ({}))) as IgMeResp;
       const metaError = extractMetaError(data);
@@ -242,7 +253,7 @@ Deno.serve(async (req) => {
         http_status: resp.status,
         meta_error_type: metaError.meta_error_type,
         meta_error_message: metaError.meta_error_message,
-        ok: resp.ok && !!(data.id ?? data.user_id ?? igUserIdFromToken) && !!data.username,
+        ok: resp.ok && !!data.username,
       };
       log("me_response", attempt);
       return { attempt, data };
@@ -252,14 +263,15 @@ Deno.serve(async (req) => {
     let profileData: IgMeResp = {};
     let successVariant: ProfileVariant | null = null;
 
+    // Unversioned /me with minimal fields (Instagram Login docs).
     const variants: Array<{ v: ProfileVariant; path: string; fields: string }> = [
-      { v: "versioned_me_business_fields", path: `/${GRAPH_VERSION}/me`, fields: "user_id,username,account_type,profile_picture_url" },
-      { v: "versioned_me_basic_fields", path: `/${GRAPH_VERSION}/me`, fields: "id,username,account_type" },
+      { v: "me_user_id_username", path: `/me`, fields: "user_id,username" },
+      { v: "me_id_username", path: `/me`, fields: "id,username" },
     ];
     if (igUserIdFromToken) {
-      variants.push({ v: "user_id_direct", path: `/${igUserIdFromToken}`, fields: "username,account_type,profile_picture_url" });
-      variants.push({ v: "user_id_minimal", path: `/${igUserIdFromToken}`, fields: "username" });
+      variants.push({ v: "user_id_path_username", path: `/${igUserIdFromToken}`, fields: "username" });
     }
+
 
     for (const { v, path, fields } of variants) {
       const { attempt, data } = await tryProfile(v, path, fields);
