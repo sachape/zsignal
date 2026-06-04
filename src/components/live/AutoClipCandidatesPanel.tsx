@@ -94,7 +94,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
     if (!inFlight) return;
     const id = window.setInterval(() => refetch(), 5000);
     return () => window.clearInterval(id);
-  }, [candidates, refresh]);
+  }, [candidates, refetch]);
 
   const handleGenerate = async (item: ContentItem) => {
     if (!autoGenEnabled) {
