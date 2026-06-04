@@ -255,7 +255,7 @@ async function processJob({
     const message = err?.message ?? "unknown_error";
     console.error("job failed", jobId, message);
     const code = message.startsWith("yt-dlp")
-      ? "twitch_vod_unavailable"
+      ? "vod_unavailable"
       : message.startsWith("ffmpeg")
         ? "ffmpeg_error"
         : "worker_error";
