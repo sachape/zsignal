@@ -213,6 +213,16 @@ Deno.serve(async (req) => {
       location: shortResp.headers.get("location"),
     });
     const shortJson = (await shortResp.json().catch(() => ({}))) as ShortTokenResp;
+    log("short_token_payload_keys", {
+      keys: Object.keys(shortJson ?? {}),
+      has_access_token: !!shortJson.access_token,
+      has_user_id: !!shortJson.user_id,
+      // @ts-ignore — log diagnostic fields if Meta returns them
+      token_type: (shortJson as Record<string, unknown>).token_type ?? null,
+      // @ts-ignore
+      expires_in: (shortJson as Record<string, unknown>).expires_in ?? null,
+      permissions: shortJson.permissions ?? null,
+    });
     if (!shortResp.ok || !shortJson.access_token) {
       const msg = shortJson.error_message ?? shortJson.error?.message ?? "token_exchange_failed";
       const metaError = extractMetaError(shortJson);
@@ -227,7 +237,8 @@ Deno.serve(async (req) => {
     }
     const shortToken = shortJson.access_token;
     const igUserIdFromToken = shortJson.user_id ? String(shortJson.user_id) : null;
-    log("short_token_ok", { has_user_id: !!igUserIdFromToken });
+    log("short_token_ok", { has_user_id: !!igUserIdFromToken, access_token_prefix: shortToken.slice(0, 6) });
+
 
     // 2. Fetch IG profile — minimal fields only (username). No account_type/picture (cause errors).
     //    Endpoint must be UNVERSIONED on graph.instagram.com for Instagram Login.
