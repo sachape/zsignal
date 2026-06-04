@@ -293,7 +293,8 @@ Deno.serve(async (req) => {
     success: true,
     source,
     reason: candidates[0].reason_code,
-    count: inserted?.length ?? 0,
-    items: inserted ?? [],
+    count: (inserted as unknown[]).length,
+    skipped,
+    items: inserted,
   });
 });
