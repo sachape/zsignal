@@ -561,7 +561,10 @@ export default function ReseauxPage() {
                         if (metaConnection?.connection_status === "pending_review") {
                           return <p className="text-amber-300/90">Connexion Meta en cours de validation.</p>;
                         }
-                        const currentInstagramError = metaConnection?.error_message === ignoredInstagramError
+                        const isRecentInstagramError = metaConnection?.updated_at
+                          ? Date.now() - new Date(metaConnection.updated_at).getTime() < 15 * 60 * 1000
+                          : false;
+                        const currentInstagramError = isRecentInstagramError && metaConnection?.error_message !== ignoredInstagramError
                           ? null
                           : metaConnection?.error_message;
                         if (metaConnection?.connection_status === "error" && currentInstagramError) {
