@@ -381,8 +381,9 @@ Deno.serve(async (req) => {
 
     return json(200, {
       success: true,
-      instagram_username: meJson.username,
-      account_type: meJson.account_type,
+      instagram_username: igUsername,
+      account_type: accountType,
+      profile_variant: successVariant,
       warning_code: warningCode,
       warning_message: warningMessage,
     });
