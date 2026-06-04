@@ -100,6 +100,27 @@ export async function runAnalysis({
     });
     await sleep(150);
 
+    // Source of truth for "lives 30j" is live_sessions, not Twitch VOD
+    // archive (which may be empty if VOD is disabled or not yet published).
+    const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data: liveSessionsRows } = isLive && platformUserId
+      ? await supabase
+          .from("live_sessions")
+          .select("started_at, ended_at, duration_minutes, avg_viewers, peak_viewers, snapshots_count")
+          .eq("user_id", userId)
+          .eq("platform", "twitch")
+          .eq("platform_user_id", platformUserId)
+          .gte("started_at", since30)
+      : { data: [] as Array<{ started_at: string }> };
+    const liveSessions = (liveSessionsRows ?? []) as Array<{
+      started_at: string;
+      ended_at?: string | null;
+      duration_minutes?: number | null;
+      avg_viewers?: number | null;
+      peak_viewers?: number | null;
+      snapshots_count?: number | null;
+    }>;
+
     onStage?.("computing_facts");
     await sleep(200);
     onStage?.("scoring");
