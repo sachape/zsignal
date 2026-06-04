@@ -125,7 +125,7 @@ const VOD_REASONS = new Set([
 const VodImportPage = () => {
   usePageMeta({
     title: "Créer depuis une VOD · Streamnco",
-    description: "Colle une VOD Twitch ou YouTube et génère des clips prêts pour Shorts, Reels et TikTok.",
+    description: "Colle une VOD Twitch et génère des clips prêts pour Shorts, Reels et TikTok.",
   });
 
   const { items, refetch, updateItem } = useContentItems();
@@ -170,13 +170,20 @@ const VodImportPage = () => {
 
   const handleSubmit = async () => {
     if (!url.trim()) {
-      toast({ title: "Lien manquant", description: "Colle une VOD Twitch ou YouTube.", variant: "destructive" });
+      toast({ title: "Lien manquant", description: "Colle une VOD Twitch.", variant: "destructive" });
       return;
     }
-    if (!detectedSource) {
+    if (detectedSource === "youtube") {
+      toast({
+        title: "YouTube arrive bientôt",
+        description: "Utilise une VOD Twitch ou importe un fichier vidéo pour le moment.",
+      });
+      return;
+    }
+    if (detectedSource !== "twitch") {
       toast({
         title: "Lien non reconnu",
-        description: "Utilise une VOD Twitch (twitch.tv/videos/...) ou YouTube (youtube.com/watch?v=... · youtu.be/...).",
+        description: "Utilise une VOD Twitch (twitch.tv/videos/…).",
         variant: "destructive",
       });
       return;
@@ -340,8 +347,20 @@ const VodImportPage = () => {
         <PageHeader
           eyebrow="Content Studio"
           title="Créer depuis une VOD"
-          description="Colle une VOD Twitch ou YouTube. Streamnco propose les clips, tu choisis ce qui part dans Content Queue."
+          description="Colle une VOD Twitch. Streamnco propose les clips, tu choisis ce qui part dans Content Queue."
         />
+
+        <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px]">
+          <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
+            Twitch VOD — Disponible
+          </Badge>
+          <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
+            Fichier vidéo — Disponible
+          </Badge>
+          <Badge variant="outline" className="border-muted bg-muted/30 text-muted-foreground">
+            YouTube VOD — Bientôt
+          </Badge>
+        </div>
 
         <Card className="mb-5 border-border/60 bg-card/60">
           <CardContent className="space-y-4 p-5">
@@ -355,18 +374,28 @@ const VodImportPage = () => {
                   id="vod-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="Colle un lien Twitch ou YouTube"
+                  placeholder="https://www.twitch.tv/videos/..."
                   className="pl-9"
                 />
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <span>Formats acceptés : twitch.tv/videos/… · youtube.com/watch?v=… · youtu.be/…</span>
-                {detectedSource && (
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span>YouTube arrive bientôt. Pour l'instant, utilise une VOD Twitch ou importe un fichier vidéo.</span>
+                {detectedSource === "twitch" && (
                   <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
-                    {detectedSource === "twitch" ? "Twitch VOD" : "YouTube"}
+                    Twitch VOD
+                  </Badge>
+                )}
+                {detectedSource === "youtube" && (
+                  <Badge variant="outline" className="border-muted bg-muted/30 text-muted-foreground text-[10px]">
+                    YouTube — Bientôt
                   </Badge>
                 )}
               </div>
+              {detectedSource === "youtube" && (
+                <p className="text-[11px] text-warning">
+                  YouTube arrive bientôt. Utilise une VOD Twitch ou importe un fichier vidéo pour le moment.
+                </p>
+              )}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -434,7 +463,11 @@ const VodImportPage = () => {
                   ? "Tes timestamps seront utilisés pour créer les clips."
                   : "Sans timestamps : Streamnco propose 3 fenêtres réparties dans la VOD à ajuster avant génération."}
               </p>
-              <Button onClick={handleSubmit} disabled={submitting} className="gap-2">
+              <Button
+                onClick={handleSubmit}
+                disabled={submitting || detectedSource === "youtube"}
+                className="gap-2"
+              >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
                 Analyser la VOD
               </Button>
