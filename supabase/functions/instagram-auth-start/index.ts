@@ -22,7 +22,10 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    if (!isOAuthEnabled()) {
+    // OAuth is available whenever Meta secrets are wired up.
+    // The explicit INSTAGRAM_OAUTH_ENABLED flag is optional (legacy gate).
+    const cfgCheck = getMetaConfig();
+    if (!isOAuthEnabled() && !cfgCheck) {
       return json(503, {
         error: "instagram_oauth_disabled",
         message: "Connexion Meta non encore activée.",
