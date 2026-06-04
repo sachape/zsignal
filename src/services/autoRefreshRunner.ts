@@ -136,7 +136,7 @@ export async function processQueuedJob(
         : null,
       competitor_groups: competitorGroups,
       dominant_category_override: liveProfile?.dominant_category ?? null,
-    });
+    }, liveSessions);
 
     const { data: saved, error: repErr } = await supabase
       .from("analysis_reports")
