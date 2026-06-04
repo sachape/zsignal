@@ -88,6 +88,8 @@ Deno.serve(async (req) => {
   if (!token) return json(409, { success: false, error: "stored_token_empty" });
 
   const endpoints = [
+    { endpoint: "https://graph.instagram.com/v25.0/me", fields: "user_id,username" },
+    { endpoint: "https://graph.instagram.com/v25.0/me", fields: "id,username" },
     { endpoint: "https://graph.instagram.com/me", fields: "user_id,username" },
     { endpoint: "https://graph.instagram.com/me", fields: "id,username" },
     ...(data.instagram_account_id
