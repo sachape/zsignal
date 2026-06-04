@@ -145,7 +145,7 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
       <div className="flex flex-wrap gap-1.5">
         <a href="https://studio.youtube.com/" target="_blank" rel="noreferrer noopener"
           className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[11px] text-foreground hover:border-primary/60">
-          <Youtube className="h-3 w-3" /> Ouvrir YouTube Studio <ExternalLink className="h-2.5 w-2.5" />
+          <Video className="h-3 w-3" /> Ouvrir YouTube Studio <ExternalLink className="h-2.5 w-2.5" />
         </a>
         <a href="https://www.instagram.com/" target="_blank" rel="noreferrer noopener"
           className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[11px] text-foreground hover:border-primary/60">
