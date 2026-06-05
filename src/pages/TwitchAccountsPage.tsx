@@ -236,95 +236,85 @@ const TwitchAccountsPage = () => {
               </CardContent>
             </Card>
           ) : (
-            <TooltipProvider delayDuration={150}>
-              <div className="space-y-3">
-                {accounts.map((acc) => {
-                  const isActive = account?.id === acc.id;
-                  const login = acc.platform_login ?? "";
-                  const display = acc.platform_display_name || login;
-                  const m = meta[acc.id];
-                  const lastAnalysis = formatDate(m?.lastAnalysisAt ?? null);
-                  const lastLive = formatDate(m?.lastLiveAt ?? null);
-                  return (
-                    <Card key={acc.id} className={isActive ? "border-primary/40" : undefined}>
-                      <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <Avatar className="h-11 w-11 shrink-0 rounded-full border border-border/60">
-                            {acc.profile_image_url && (
-                              <AvatarImage src={acc.profile_image_url} alt={login} className="object-cover" />
+            <div className="space-y-3">
+              {accounts.map((acc) => {
+                const isActive = account?.id === acc.id;
+                const login = acc.platform_login ?? "";
+                const display = acc.platform_display_name || login;
+                const m = meta[acc.id];
+                const lastAnalysis = formatDate(m?.lastAnalysisAt ?? null);
+                const lastLive = formatDate(m?.lastLiveAt ?? null);
+                return (
+                  <Card key={acc.id} className={isActive ? "border-primary/40" : undefined}>
+                    <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <Avatar className="h-11 w-11 shrink-0 rounded-full border border-border/60">
+                          {acc.profile_image_url && (
+                            <AvatarImage src={acc.profile_image_url} alt={login} className="object-cover" />
+                          )}
+                          <AvatarFallback className="rounded-full bg-muted text-xs font-semibold">
+                            {login.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="truncate text-sm font-semibold text-foreground">
+                              {display}
+                            </p>
+                            {isActive && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                                <Check className="h-3 w-3" /> Active
+                              </span>
                             )}
-                            <AvatarFallback className="rounded-full bg-muted text-xs font-semibold">
-                              {login.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="truncate text-sm font-semibold text-foreground">
-                                {display}
-                              </p>
-                              {isActive && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                                  <Check className="h-3 w-3" /> Active
-                                </span>
-                              )}
-                            </div>
-                            <p className="truncate text-xs text-muted-foreground">@{login}</p>
-                            <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground/80">
-                              <span>
-                                Dernière analyse : <span className="text-foreground/90">{lastAnalysis ?? "—"}</span>
-                              </span>
-                              <span>
-                                Dernier live : <span className="text-foreground/90">{lastLive ?? "—"}</span>
-                              </span>
-                            </div>
+                          </div>
+                          <p className="truncate text-xs text-muted-foreground">@{login}</p>
+                          <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground/80">
+                            <span>
+                              Dernière analyse : <span className="text-foreground/90">{lastAnalysis ?? "—"}</span>
+                            </span>
+                            <span>
+                              Dernier live : <span className="text-foreground/90">{lastLive ?? "—"}</span>
+                            </span>
                           </div>
                         </div>
+                      </div>
 
-                        <div className="flex flex-wrap gap-2 md:shrink-0">
-                          {!isActive && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs"
-                              onClick={() => handleSetActive(acc)}
-                            >
-                              Définir comme actif
-                            </Button>
-                          )}
+                      <div className="flex flex-wrap gap-2 md:shrink-0">
+                        {!isActive && (
                           <Button
                             size="sm"
                             variant="outline"
-                            className="gap-1.5 text-xs"
-                            onClick={() => handleAnalyze(acc)}
+                            className="text-xs"
+                            onClick={() => handleSetActive(acc)}
                           >
-                            <RefreshCcw className="h-3.5 w-3.5" />
-                            Analyser cette chaîne
+                            Définir comme actif
                           </Button>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="gap-1.5 text-xs text-muted-foreground"
-                                  disabled
-                                >
-                                  <Unplug className="h-3.5 w-3.5" />
-                                  Déconnecter
-                                </Button>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[260px] text-xs">
-                              Déconnexion sécurisée bientôt disponible : nécessite la révocation du token Twitch et le nettoyage EventSub côté serveur. Contacte le support si tu veux retirer une chaîne en attendant.
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </TooltipProvider>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5 text-xs"
+                          onClick={() => handleAnalyze(acc)}
+                        >
+                          <RefreshCcw className="h-3.5 w-3.5" />
+                          Analyser cette chaîne
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="gap-1.5 text-xs text-muted-foreground hover:text-destructive"
+                          onClick={() => setPendingDisconnect(acc)}
+                        >
+                          <Unplug className="h-3.5 w-3.5" />
+                          Déconnecter
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
           )}
         </section>
 
