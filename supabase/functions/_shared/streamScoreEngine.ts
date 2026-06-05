@@ -138,13 +138,19 @@ export function computeStreamScore(facts: SharedChannelFact[]): SharedStreamScor
       setupProgress * 0.20
     ),
   );
+  // Activity tempering: even a perfectly filled profile can't claim a high
+  // structure score without enough lives to validate the setup actually
+  // works (clear titles, repeated format, holding a session length).
+  const structureActivityFactor = Math.min((streams30d + uniqueDays) / 6, 1);
+  const structureTempered = clamp(structureRaw * (0.35 + 0.65 * structureActivityFactor));
   let structureCap = 100;
-  if (streams30d === 0) structureCap = 50;
-  else if (streams30d === 1) structureCap = 60;
-  if (!hasDescription) structureCap = Math.min(structureCap, 65);
-  if (uniqueDays < 2) structureCap = Math.min(structureCap, 70);
+  if (streams30d === 0) structureCap = 45;
+  else if (streams30d === 1) structureCap = 45;
+  else if (streams30d <= 3) structureCap = 65;
+  if (!hasDescription) structureCap = Math.min(structureCap, 60);
+  if (uniqueDays < 2) structureCap = Math.min(structureCap, 60);
   if (clips30d === 0 && streams30d < 4) structureCap = Math.min(structureCap, 80);
-  const structure = Math.min(structureRaw, structureCap);
+  const structure = Math.min(structureTempered, structureCap);
 
   const structure_reasons: string[] = [];
   const structure_levers: string[] = [];
