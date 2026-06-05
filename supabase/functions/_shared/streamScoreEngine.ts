@@ -53,11 +53,16 @@ function clamp(v: number, min = 0, max = 100): number {
  * Global maturity cap applied to the overall StreamScore.
  * Prevents a single live from pushing the score into "established" range.
  */
-export function getMaturityCap(streams30d: number, hours30d: number): number {
+export function getMaturityCap(
+  streams30d: number,
+  uniqueDays30d: number,
+  hours30d: number,
+): number {
   if (streams30d <= 0) return 20;
   if (streams30d === 1) return 30;
   if (streams30d <= 3) return 45;
-  if (streams30d >= 4 && hours30d < 4) return 55;
+  if (hours30d < 4) return 55;
+  if (uniqueDays30d < 4) return 55;
   return 100;
 }
 
