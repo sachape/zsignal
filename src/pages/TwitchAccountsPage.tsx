@@ -126,6 +126,33 @@ const TwitchAccountsPage = () => {
     navigate("/connect-twitch?mode=add");
   };
 
+  const handleConfirmDisconnect = async () => {
+    if (!pendingDisconnect || !user) return;
+    const acc = pendingDisconnect;
+    setDisconnecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("twitch-disconnect", {
+        body: { connected_account_id: acc.id },
+      });
+      if (error) throw error;
+      if (data && (data as { error?: string }).error) {
+        throw new Error((data as { message?: string; error: string }).message ?? (data as { error: string }).error);
+      }
+      toast.success(`Chaîne @${acc.platform_login ?? ""} déconnectée.`);
+      setPendingDisconnect(null);
+      // Refresh accounts list
+      window.location.reload();
+    } catch (e) {
+      toast.error(
+        e instanceof Error
+          ? `Échec de la déconnexion : ${e.message}`
+          : "Échec de la déconnexion.",
+      );
+    } finally {
+      setDisconnecting(false);
+    }
+  };
+
   const planLabel =
     plan === "growth" || plan === "agency"
       ? "Growth"
