@@ -103,6 +103,7 @@ const DIM_DRAG: Record<string, string> = {
   Positionnement: "Catégorie principale qui change trop",
   Momentum: "Démarrage de semaine encore faible",
   Monétisation: "Base d'audience encore trop fine",
+  Affiliation: "Encore loin du seuil d'affiliation",
 };
 
 const DIM_SUPPORT: Record<string, string> = {
@@ -112,6 +113,7 @@ const DIM_SUPPORT: Record<string, string> = {
   Positionnement: "Positionnement clair et stable",
   Momentum: "Bon démarrage récent",
   Monétisation: "Base d'audience qui se construit",
+  Affiliation: "En bonne voie vers l'affiliation",
 };
 
 /** Priority recommendation built from the weakest dimension. */
