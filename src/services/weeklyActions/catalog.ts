@@ -279,6 +279,7 @@ function priorityIs(s: SignalBundle, dim: string): boolean {
       Positionnement: "positioning",
       Momentum: "momentum",
       Monétisation: "monetization",
+      Affiliation: "monetization",
     };
     return map[x] ?? x;
   };
