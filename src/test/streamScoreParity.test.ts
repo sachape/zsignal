@@ -43,7 +43,7 @@ describe("StreamScore v3 — maturity caps", () => {
     expect(s.regularity).toBe(0);
   });
 
-  it("single live (fleevalo-like) keeps overall ≤ 30, monetization ≤ 49, positioning ≤ 50", () => {
+  it("single live (fleevalo) — strict per-dimension ranges", () => {
     const s = computeStreamScore(
       build({
         streams_30d: 1,
@@ -57,12 +57,52 @@ describe("StreamScore v3 — maturity caps", () => {
         posting_consistency_score: 30,
       }),
     );
+    expect(s.overall).toBeGreaterThanOrEqual(26);
     expect(s.overall).toBeLessThanOrEqual(30);
-    expect(s.monetization).toBeLessThanOrEqual(49);
-    expect(s.positioning).toBeLessThanOrEqual(50);
-    expect(s.regularity).toBeLessThanOrEqual(20);
+    expect(s.regularity).toBeGreaterThanOrEqual(10);
+    expect(s.regularity).toBeLessThanOrEqual(18);
     expect(s.content).toBe(0);
+    expect(s.structure).toBeGreaterThanOrEqual(25);
+    expect(s.structure).toBeLessThanOrEqual(40);
+    expect(s.positioning).toBeGreaterThanOrEqual(35);
+    expect(s.positioning).toBeLessThanOrEqual(50);
+    expect(s.momentum).toBeGreaterThanOrEqual(35);
     expect(s.momentum).toBeLessThanOrEqual(45);
+    expect(s.monetization).toBeGreaterThanOrEqual(38);
+    expect(s.monetization).toBeLessThanOrEqual(45);
+  });
+
+  it("4 lives same day caps overall ≤ 55", () => {
+    const s = computeStreamScore(
+      build({
+        streams_30d: 4,
+        streams_7d: 4,
+        avg_duration_minutes: 90,
+        total_hours_30d: 6,
+        unique_stream_days_30d: 1,
+        follower_count: 100,
+        avg_viewers: 10,
+        clips_30d: 4,
+        posting_consistency_score: 60,
+      }),
+    );
+    expect(s.overall).toBeLessThanOrEqual(55);
+  });
+
+  it("4 lives over 4 days but <4h caps overall ≤ 55", () => {
+    const s = computeStreamScore(
+      build({
+        streams_30d: 4,
+        streams_7d: 2,
+        avg_duration_minutes: 45,
+        total_hours_30d: 3,
+        unique_stream_days_30d: 4,
+        follower_count: 60,
+        clips_30d: 3,
+        posting_consistency_score: 70,
+      }),
+    );
+    expect(s.overall).toBeLessThanOrEqual(55);
   });
 
   it("2-3 lives caps overall ≤ 45", () => {
