@@ -41,6 +41,7 @@ import {
   fetchTwitchFactsForAccount,
   type ServerTwitchFacts,
 } from "../_shared/twitchFactsFetch.ts";
+import { assembleServerReport } from "../_shared/reportAssembler.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
