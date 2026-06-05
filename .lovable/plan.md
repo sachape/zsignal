@@ -1,157 +1,101 @@
+# Pipeline serveur StreamScore — plan d'exécution
 
-# Audit Streamnco — Clips, contenus courts & recommandations de publication
+## Contexte
 
-## 1. Résumé exécutif
+Step 1 livré et validé : `process-analysis-job` (mode `single_admin`) calcule et écrit un `stream_score_snapshots` v3 côté serveur. Valeurs réelles fleevalo : overall=25, structure=28, content=0, positioning=50, momentum=45, affiliation=43.
 
-**Bonne nouvelle : on ne part pas de zéro.** L'infrastructure d'ingestion des clips Twitch existe déjà et tourne (table, edge function, batch, fact-fetch). Ce qui manque, c'est la **couche produit** : un générateur d'idées de contenus courts (hooks, captions, titres) branché sur ces données, et une UI dédiée. Le scope OAuth actuel est **suffisant** pour Get Clips. La majorité du travail restant est frontend + un service d'intelligence, pas de l'infra.
+Gap restant : `analysis_reports` (lu par le Dashboard pour le score courant, le breakdown, le wording, les recos) est encore généré uniquement par `autoRefreshRunner` côté navigateur. Tant qu'on n'ouvre pas le Dashboard, le score affiché reste l'ancien.
 
-Verdict court : **Niveau 1 réalisable en quelques heures avec uniquement du frontend + 1 service**, niveau 2 livrable sans nouvelle table ni nouvelle edge function critique.
+## Objectif
 
----
+Le backend devient la source de vérité unique pour `analysis_reports` + `stream_score_snapshots`. Le frontend ne calcule plus rien : il lit le dernier rapport et affiche.
 
-## 2. Briques existantes (réutilisables tel quel)
+## Découpage en 4 livraisons
 
-### 2.1 Ingestion clips Twitch — COMPLÈTE
-- `supabase/functions/_shared/clipIngest.ts` : appel `GET /helix/clips`, pagination, dédup, upsert.
-- `supabase/functions/twitch-clips-ingest/index.ts` : entrypoint HTTP (mode single + mode batch cron).
-- Sélection auto des broadcasters éligibles (lives récents 7j + actions weekly contenant "clip").
-- `supabase/functions/_shared/twitchFactsFetch.ts` lit aussi `/helix/clips` pour le facts engine.
-- `supabase/functions/twitch-public-lookup/index.ts` et `twitch-live-fetch/index.ts` font déjà des appels `/helix/clips` (mode teaser).
+### Livraison A — Port serveur du report assembler (la plus grosse)
 
-### 2.2 Stockage clips — table `twitch_clip_snapshots`
-Colonnes utiles déjà présentes : `twitch_clip_id`, `broadcaster_id`, `user_id`, `title`, `view_count`, `clip_created_at`, `duration`, `vod_offset`, `is_featured`, `thumbnail_url`, `url`, `game_id`, `video_id`, `creator_id`, `fetched_at`. RLS lecture utilisateur OK. Tout ce qu'il faut pour ranking, sous-exploitation, classement par live (`video_id`), par période (`clip_created_at`), par jeu (`game_id`).
+Cible : `process-analysis-job` mode `single_admin` écrit aussi un `analysis_reports` complet.
 
-### 2.3 Données satellites disponibles
-- `live_sessions` + `live_snapshots` : sessions, durée, peak, catégorie, titre de live.
-- `live_debriefs` : strength / weakness / priority_action / verdict / signal_quality / overall_score.
-- `stream_score_snapshots` + `analysis_reports` : score global + dimensions + breakdown.
-- `recommendations` (par analyse) + `weekly_action_items` (plan hebdo).
-- `channel_update_history` : titres/catégories historiques (utile pour titres performants).
-- `community_events` : signaux d'engagement.
-- `connected_accounts` : `platform_user_id` (broadcaster_id), tokens chiffrés, scope.
+Travail :
 
-### 2.4 Générateur de posts existant — partiellement aligné
-- `src/services/postGenerator.ts` : génère déjà tweet / discord / tiktok / next_live à partir d'une session + debrief. Hashtags par jeu mappés. Bonne base de patterns.
-- `src/components/LivePostGenerator.tsx` : UI copie-coller multi-format, accepte un lien clip optionnel.
-- `src/services/weeklyActions/catalog.ts` : action `content_create_clips_from_last_live` déjà définie + vérification auto via `twitch_clip_snapshots`.
+1. Créer `supabase/functions/_shared/reportAssembler.ts` (port Deno de `src/services/reportAssembler.ts`). Dépendances à porter ou réutiliser :
+   - `_shared/factsEngine.ts` (existe déjà côté Deno) ✓
+   - `_shared/streamScoreEngine.ts` (existe déjà) ✓
+   - `_shared/recommendationEngine.ts` (à porter)
+   - `_shared/weeklyActions/*` (à porter — diagnosis, signals, ranking, catalog, generate, maturity)
+   - `_shared/liveProgressionCopy.ts` (à porter — copy FR)
+   - `_shared/reportConsistency.ts` (à porter)
+   - `_shared/shortContentPlanner.ts` (à porter)
+2. Module partagé physique : créer les fichiers côté `supabase/functions/_shared/` en TypeScript pur Deno-compatible (pas de DOM, pas de Supabase client). Le frontend continue d'importer depuis `src/services/*` qui délègue aux modules `_shared/` via un wrapper (comme déjà fait pour `streamScoreEngine`). Pas de duplication de logique.
+3. `process-analysis-job` orchestre :
+   - claim atomique (UPDATE `analysis_jobs` SET status='processing' WHERE id=? AND status='queued')
+   - `fetchTwitchFactsForAccount` (déjà OK)
+   - `assembleReport(facts, jobId, liveSessions, identity)`
+   - INSERT `analysis_reports` (le trigger `upsert_stream_score_snapshot_from_report` ON CONFLICT met à jour le snapshot existant — id stable)
+   - UPDATE `analysis_jobs` SET status='completed', completed_at=now()
+   - En erreur : status='failed', last_error=...
 
-### 2.5 UI / shell
-- `AppShell`, `PageContainer`, `PageHeader`, `SectionHeader`, `Card`, `Accordion`, `Badge`, `ScoreCard`, `RecommendationCard`, `PlaybookCard`, `LastVsAverageCard`, `WeeklySequenceCard`, `WeeklyQuestCard`, `LiveTimeline` — tout l'inventaire design system existe.
-- Routes : `/dashboard`, `/plan` (WeeklyPlanPage), `/lives`, `/lives/:id` (LiveDetailPage), `/last-live`, `/playbooks`. Points d'insertion clairs.
+Risques :
+- Le port doit produire un `analysis_reports.report_data` strictement équivalent au format frontend (mêmes clés). Sinon Dashboard casse.
+- Validation : comparer JSON.stringify(reportServer) vs reportFrontend sur 2-3 comptes test ; ajuster jusqu'à identité structurelle.
 
-### 2.6 Scope OAuth Twitch — SUFFISANT
-Scopes actuels (`twitch-oauth/index.ts`) :
-```
-user:read:email
-channel:read:subscriptions
-analytics:read:games
-moderator:read:followers
-```
-`GET /helix/clips` requiert seulement un **App Access Token** (client_credentials). Aucun scope user supplémentaire nécessaire pour lister les clips publics d'un broadcaster. → **Pas de modification OAuth requise** pour le niveau 1 et 2.
+Critère de succès : pour le job fleevalo `01c0ce0e`, un nouveau `analysis_reports` apparaît avec `score.overall = 25`, breakdown complet, Affiliation présent (pas "Monétisation"), point de blocage = Contenu, action prioritaire = clip.
 
----
+### Livraison B — Cron Postgres toutes les 5 min
 
-## 3. Briques partiellement existantes
+Travail :
 
-| Brique | État actuel | Ce qui manque |
-|---|---|---|
-| Ingestion clips utilisateur connecté | Code prêt, déclenché par cron + actions weekly | Pas de trigger UI explicite ("rafraîchir mes clips"), pas de scheduler régulier indépendant des weekly actions |
-| Génération de captions/hooks | `postGenerator.ts` couvre post-live (tweet/discord/tiktok) | Pas de génération **par clip** (hook + caption + titre court adaptés à un clip précis, pas à une session) |
-| Action "publier un clip" | Action weekly + vérification du nombre de clips | Pas d'UI dédiée pour proposer **quels clips** publier ni **quoi écrire** |
-| Données Twitch Videos (VODs) | Type `TwitchVideo` défini, exposé dans `AnalysisReport.videos` | **Aucune table** `twitch_videos`, aucun ingest VOD persistant (juste lecture éphémère côté report) |
-| Score de potentiel d'un clip | Aucun, mais view_count + duration + vod_offset + is_featured disponibles | Heuristique simple à coder côté service |
-| Détection clips sous-exploités | Données brutes présentes (view_count vs autres clips du même live) | Logique à écrire |
+1. Activer extensions `pg_cron` et `pg_net` (probablement déjà actives — vérifier).
+2. Créer le cron via `supabase--insert` (pas migration, car contient secret) :
+   ```sql
+   select cron.schedule('process-analysis-jobs', '*/5 * * * *', $$
+     select net.http_post(
+       url := 'https://poblhczgdbnfunroshul.supabase.co/functions/v1/process-analysis-job',
+       headers := '{"Content-Type":"application/json","Authorization":"Bearer <CRON_SECRET>"}'::jsonb,
+       body := '{"mode":"queued_batch","limit":10}'::jsonb
+     );
+   $$);
+   ```
+3. Renforcer `process-analysis-job` queued_batch :
+   - colonnes à ajouter sur `analysis_jobs` : `retry_count int default 0`, `locked_at timestamptz`, `processing_started_at timestamptz`
+   - claim atomique avec `locked_at` (skip si déjà locked < 10 min)
+   - unlock auto des jobs `processing` depuis > 15 min (retry)
+   - status final `completed` / `failed` avec `last_error` <= 200 chars
 
----
+Critère de succès : créer un job queued à la main, attendre 5 min, vérifier qu'il passe en `completed` avec snapshot + report écrits sans toucher le frontend.
 
-## 4. Briques totalement manquantes
+### Livraison C — Bouton "Relancer l'analyse" Dashboard
 
-1. **Service `clipInsights` / `shortContentEngine`** : ranking, score potentiel, détection sous-exploités, sélection top N.
-2. **Service `shortContentGenerator`** : hooks TikTok/Reels/Shorts + captions + titres **par clip** (vs par session).
-3. **Page UI dédiée** type `/contenus` ou `/clips` (liste + filtres live/période + actions).
-4. **Carte cockpit dashboard** "Contenu à publier cette semaine" (3 clips + 1 format + 1 timing + 1 score).
-5. **Export texte multi-plateforme** (TikTok/Reels/Shorts) — l'existant cible Twitter/Discord/TikTok session-level, pas clip-level.
-6. **Recommandation timing** : aucune heuristique sur "quand publier" (créneaux, jour). À dériver de `live_sessions.started_at` historique ou tableaux statiques.
-7. **Table VOD persistante** (`twitch_videos`) — non bloquant pour niveau 1/2 (clips suffisent).
-8. **Trigger UI "rafraîchir mes clips maintenant"** sur la page dédiée.
+Travail :
 
----
+1. Côté frontend `DashboardPage` : remplacer le `manualRefresh` actuel par :
+   - INSERT `analysis_jobs` (status='queued', trigger_source='manual_dashboard')
+   - Invoke `process-analysis-job` mode `single` avec JWT utilisateur (route déjà en place ; ajouter écriture `analysis_reports` une fois Livraison A faite)
+   - Loader "Analyse en cours…" pendant max 30s avec polling `analysis_jobs.status`
+   - Au passage à `completed` : re-fetch dernier `analysis_reports`, toast "Analyse mise à jour"
+   - En cas de timeout : message clair "L'analyse prend plus longtemps que prévu — le résultat apparaîtra automatiquement"
+2. Supprimer la dépendance "doit charger /dashboard pour déclencher autoRefreshRunner".
 
-## 5. Risques techniques
+### Livraison D — Migration progressive et nettoyage
 
-- **Coût Helix** : Get Clips est paginé (5 pages × 100 max dans `clipIngest`). Pour beaucoup d'utilisateurs en concurrence cron, surveiller le rate limit App token. Risque faible aujourd'hui (peu d'utilisateurs).
-- **Fraîcheur** : `twitch_clip_snapshots` n'est rafraîchi que par cron + déclenchement weekly. Si un user arrive sur la page dédiée sans cron récent, données potentiellement vides. → Prévoir un refresh on-demand (réutiliser le endpoint single mode existant).
-- **Cohérence identité** : ne jamais afficher de clips d'un broadcaster qui n'est pas le `connected_accounts.platform_user_id` courant (RLS protège déjà, mais à respecter côté query).
-- **Génération texte** : sans LLM, le générateur sera template-based comme `postGenerator.ts`. Acceptable pour V1. Si on veut du LLM plus tard → Lovable AI gateway (déjà disponible, voir `google/gemini-2.5-flash`).
-- **VOD offset null** : certains clips n'ont pas de `vod_offset` (clip d'un live non archivé). Le rattachement à un live peut échouer → fallback sur `clip_created_at` ∈ [started_at, ended_at].
+1. Garder `autoRefreshRunner` actif 1 release comme fallback silencieux (ne plus le déclencher automatiquement, seulement si aucun report < 10 min et server-side processing a échoué).
+2. Documenter dans `docs/data-model-audit.md` : "analysis_reports écrit uniquement par process-analysis-job côté serveur. autoRefreshRunner = fallback déprécié."
+3. Une fois 1 semaine sans incident : supprimer `autoRefreshRunner` (Livraison E future).
 
----
+## Ordre d'exécution proposé
 
-## 6. Opportunités quick win
+1. **Livraison A** (port reportAssembler) — bloquant, ~le plus de code, fait dans un PR dédié.
+2. **Livraison B** (cron) — dépend de A pour être utile, mais structurellement indépendant.
+3. **Livraison C** (bouton) — dépend de A.
+4. **Livraison D** (cleanup) — après stabilisation.
 
-1. **Carte cockpit "Cette semaine, publie ces 3 clips"** sur `/dashboard` ou `/plan`, alimentée par `twitch_clip_snapshots` + ranking simple (view_count desc, age < 14j) + 1 caption générée template-based. ~1 fichier service + 1 composant.
-2. **Bouton "Générer captions" sur LiveDetailPage** : pour chaque clip du live, propose hook + caption + titre. Réutilise `postGenerator.ts` patterns.
-3. **Élargir `LivePostGenerator` existant** pour proposer automatiquement des clips de la session au lieu d'un input manuel d'URL.
+## Validation finale fleevalo (commune aux 4 livraisons)
 
----
+Après A+B en place :
+- nouveau job queued → cron consomme → `analysis_reports` créé → snapshot mis à jour
+- Dashboard rechargé : score = 25, breakdown affiche Affiliation, point de blocage = Contenu, action = "Transforme ton dernier live en au moins 1 clip publiable"
+- aucune mention "Monétisation" ou "données partielles"
 
-## 7. Recommandation produit
+## Question
 
-**Phaser pour livrer de la valeur vite sans dette.** Le piège serait de construire une page "Clips Twitch complète" type Eklipse d'emblée. Mieux : commencer par **une seule carte cockpit honnête** ("3 clips à publier cette semaine + textes prêts"), valider l'usage, puis seulement creuser. La page dédiée vient après preuve d'usage.
-
-Aligné avec la doctrine produit Streamnco :
-- Honnêteté des données : si moins de 3 clips disponibles → afficher l'état vide explicite, ne pas inventer.
-- Pas de fake : un clip avec 4 vues ne devient pas "fort potentiel".
-- Pas de pollution teaser/connected : la carte n'apparaît qu'en mode connected.
-
----
-
-## 8. Plan d'implémentation recommandé
-
-### Niveau 1 — Quick win (sans nouvelle infra, ~0.5–1 jour)
-**Livrable** : carte "Contenu à publier cette semaine" sur `/plan` (et optionnellement `/dashboard`).
-1. Service `src/services/shortContentPlanner.ts` :
-   - Lit `twitch_clip_snapshots` du user (RLS) sur 14 derniers jours.
-   - Score potentiel = f(view_count, recency, is_featured, duration ∈ [15s, 60s]).
-   - Détecte sous-exploités = clips récents avec view_count faible vs médiane des clips du même live.
-   - Retourne top 3 + 1 reco format + 1 reco timing (template basé sur historique `live_sessions.started_at`).
-2. Service `src/services/shortContentCopy.ts` :
-   - Templates par jeu (réutilise `GAME_HASHTAGS` de `postGenerator.ts`).
-   - Pour chaque clip : 1 hook TikTok/Reels/Shorts (3 variantes), 1 caption, 1 titre court ≤ 60 caractères.
-3. Composant `src/components/WeeklyShortContentCard.tsx` :
-   - États : empty (pas de clips), partial (<3 clips), ready (3 clips avec textes copiables).
-   - Bouton "Rafraîchir mes clips" qui invoke `twitch-clips-ingest` en mode single.
-4. Insertion dans `WeeklyPlanPage`.
-
-**Aucune** : nouvelle table, nouvelle edge function, nouveau scope OAuth, nouvelle dépendance.
-
-### Niveau 2 — Page dédiée Clips (~1–2 jours)
-**Livrable** : page `/contenus` (ou `/clips`) — analyse complète des clips Twitch.
-1. Nouvelle route protégée + entrée sidebar.
-2. Composants : liste filtrable par live (`video_id`) ou période, tri par potentiel, badges sous-exploité / non publié.
-3. Détail clip : thumbnail, vues, durée, date, jeu, lien Twitch, bouton "Générer pack hooks/captions/titre".
-4. Export texte multi-plateforme (modal copy-to-clipboard, sections TikTok/Reels/Shorts).
-5. Refresh on-demand via endpoint single mode existant.
-6. (Optionnel) Brancher Lovable AI Gateway (`google/gemini-2.5-flash`) pour générations plus créatives — derrière un feature flag.
-
-### Niveau 3 — Automatisation avancée (plus tard, après validation usage)
-1. Table `twitch_videos` + ingest VOD pour analyse retitling.
-2. Suivi de publication : marquer un clip comme "publié sur TikTok/Reels/Shorts", historique.
-3. Tracking de performance externe (si user colle les vues post-publication) ou intégration TikTok/YouTube API.
-4. Recommandations de re-post intelligentes (clip publié il y a 30 jours, fort potentiel, à republier).
-5. Génération via LLM avec apprentissage des hooks qui ont marché pour ce streamer.
-6. Edge function cron `clip-recommendations-refresh` si la charge le justifie.
-
----
-
-## 9. Verdict final
-
-**On capitalise largement sur l'existant.**
-
-- Infra ingestion clips : **prête**.
-- Stockage : **prêt** (`twitch_clip_snapshots`).
-- Scope OAuth : **suffisant**, aucune modif.
-- Design system + shell + routes : **prêts**.
-- Patterns de génération texte : **existants**, à étendre clip-level.
-
-Ce qui reste est de la **logique produit frontend + 2 services TypeScript**. Le niveau 1 est livrable rapidement sans toucher à la base de données, aux edge functions critiques, ni aux scopes. On démarre par la carte cockpit, on valide l'usage, puis on construit la page dédiée.
+Livraison A représente ~600-900 lignes de port Deno (recommendationEngine + weeklyActions/* + copy + glue + tests parité). Est-ce qu'on part directement sur Livraison A maintenant, ou tu veux qu'on valide d'abord Livraison B (cron sur le snapshot seul) pour avoir un quick-win serveur en attendant le port complet ?
