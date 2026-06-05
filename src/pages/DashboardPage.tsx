@@ -40,6 +40,7 @@ import {
 import { resolveSyncSnapshot, type SyncSnapshot } from "@/services/syncStateResolver";
 import {
   enqueueRefreshForSelf,
+  enqueueAndProcessForSelf,
   processPendingForAccount,
 } from "@/services/autoRefreshRunner";
 import {
