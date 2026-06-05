@@ -375,63 +375,52 @@ Deno.serve(async (req) => {
       return json({ ok: result.status === "persisted" || result.status === "skipped_existing", mode: "single_admin", result });
     }
 
-    // ---------- BATCH MODE ----------
+    // ---------- BATCH MODE (cron) ----------
     if (mode === "queued_batch") {
       if (!(await isAdminAuthed())) {
         return json({ error: "Unauthorized (batch)" }, 401);
       }
       const limit = Math.min(
-        Math.max(Number.isFinite(body?.limit) ? Number(body.limit) : 10, 1),
+        Math.max(Number.isFinite(body?.limit) ? Number(body.limit) : 5, 1),
         25,
       );
 
-      const { data: jobs, error: jobsErr } = await admin
-        .from("analysis_jobs")
-        .select(
-          "id, user_id, status, platform, platform_user_id, platform_login, score_status",
-        )
-        .eq("platform", "twitch")
-        .eq("status", "queued")
-        .not("platform_user_id", "is", null)
-        .or("score_status.is.null,score_status.eq.pending")
-        .order("created_at", { ascending: true })
-        .limit(limit * 2);
-
-      if (jobsErr) return json({ error: jobsErr.message }, 500);
-      const candidates = (jobs ?? []) as Array<JobRow & { score_status: string | null }>;
-
-      const ids = candidates.map((j) => j.id);
-      const { data: existingSnaps } = ids.length
-        ? await admin
-            .from("stream_score_snapshots")
-            .select("analysis_job_id")
-            .in("analysis_job_id", ids)
-        : { data: [] as Array<{ analysis_job_id: string }> };
-      const has = new Set(
-        (existingSnaps ?? []).map((r) => r.analysis_job_id as string),
-      );
-
-      // Pre-mark jobs that already have a snapshot but no score_status set
-      // (legacy/frontend-only snapshots) so future cron ticks skip them.
-      for (const j of candidates) {
-        if (has.has(j.id) && j.score_status !== "computed") {
-          await markJobScoreStatus(admin, j.id, { score_status: "computed" });
-        }
-      }
-
-      const todo = candidates.filter((j) => !has.has(j.id)).slice(0, limit);
-
       const summary = {
-        scanned: candidates.length,
-        processed: 0,
-        skipped_existing_snapshot: candidates.length - todo.length,
-        skipped_missing_account: 0,
-        skipped_no_facts: 0,
-        failed: 0,
+        processed_count: 0,
+        completed_count: 0,
+        failed_count: 0,
+        retried_count: 0,
+        skipped_count: 0,
+        job_ids: [] as string[],
+        errors: [] as Array<{ job_id: string; error: string }>,
       };
-      const results: ProcessResult[] = [];
 
-      for (const job of todo) {
+      for (let i = 0; i < limit; i++) {
+        // Atomic claim — picks a queued job OR a processing job with
+        // expired lock (>10 min). FOR UPDATE SKIP LOCKED prevents double
+        // processing if multiple workers run concurrently.
+        const { data: claimed, error: claimErr } = await admin.rpc(
+          "claim_next_analysis_job",
+          { p_processor: "cron", p_lock_timeout_minutes: 10 },
+        );
+        if (claimErr) {
+          summary.errors.push({ job_id: "n/a", error: claimErr.message });
+          break;
+        }
+        const row = Array.isArray(claimed) ? claimed[0] : claimed;
+        if (!row?.id) break;
+
+        const job: JobRow = {
+          id: row.id,
+          user_id: row.user_id,
+          status: row.status,
+          platform: row.platform,
+          platform_user_id: row.platform_user_id,
+          platform_login: row.platform_login,
+        };
+        summary.processed_count++;
+        summary.job_ids.push(job.id);
+
         const fetched = await fetchTwitchFactsForAccount({
           user_id: job.user_id,
           platform_user_id: job.platform_user_id!,
@@ -439,36 +428,51 @@ Deno.serve(async (req) => {
         });
         if (!fetched.ok || !fetched.facts) {
           const reason = fetched.error ?? "fetch_failed";
-          // Mark score_status=failed so the next cron tick does NOT retry
-          // forever (missing_account, token issues, etc.). Stored message
-          // is sanitized — no token material is ever passed back here.
-          await markJobScoreStatus(admin, job.id, {
-            score_status: "failed",
-            score_error_message: reason,
+          const { data: newStatus } = await admin.rpc("fail_analysis_job", {
+            p_job_id: job.id,
+            p_error: reason,
           });
-          if (reason === "missing_account") {
-            summary.skipped_missing_account++;
-          } else {
-            summary.failed++;
-          }
-          results.push({ job_id: job.id, status: "error", error: reason });
+          if (newStatus === "queued") summary.retried_count++;
+          else summary.failed_count++;
+          summary.errors.push({ job_id: job.id, error: reason });
           continue;
         }
-        const r = await processOneJob({ admin, job, facts: fetched.facts });
-        results.push(r);
-        if (r.status === "persisted") summary.processed++;
-        else if (r.status === "skipped_existing") summary.skipped_existing_snapshot++;
-        else if (r.status === "skipped_no_facts") summary.skipped_no_facts++;
-        else summary.failed++;
+
+        try {
+          const r = await processOneJob({ admin, job, facts: fetched.facts });
+          if (r.status === "persisted" || r.status === "skipped_existing") {
+            summary.completed_count++;
+          } else if (r.status === "skipped_no_facts") {
+            const { data: newStatus } = await admin.rpc("fail_analysis_job", {
+              p_job_id: job.id,
+              p_error: "no_facts_available",
+            });
+            if (newStatus === "queued") summary.retried_count++;
+            else summary.failed_count++;
+          } else {
+            const { data: newStatus } = await admin.rpc("fail_analysis_job", {
+              p_job_id: job.id,
+              p_error: r.error ?? "unknown",
+            });
+            if (newStatus === "queued") summary.retried_count++;
+            else summary.failed_count++;
+            summary.errors.push({ job_id: job.id, error: r.error ?? "unknown" });
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          const { data: newStatus } = await admin.rpc("fail_analysis_job", {
+            p_job_id: job.id,
+            p_error: msg,
+          });
+          if (newStatus === "queued") summary.retried_count++;
+          else summary.failed_count++;
+          summary.errors.push({ job_id: job.id, error: msg });
+        }
       }
 
-      return json({
-        ok: true,
-        mode: "queued_batch",
-        ...summary,
-        results,
-      });
+      return json({ ok: true, mode: "queued_batch", ...summary });
     }
+
 
     // ---------- SINGLE MODE (user JWT) ----------
     if (!authHeader.startsWith("Bearer ")) {

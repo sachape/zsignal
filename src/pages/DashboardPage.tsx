@@ -40,6 +40,7 @@ import {
 import { resolveSyncSnapshot, type SyncSnapshot } from "@/services/syncStateResolver";
 import {
   enqueueRefreshForSelf,
+  enqueueAndProcessForSelf,
   processPendingForAccount,
 } from "@/services/autoRefreshRunner";
 import {
@@ -340,25 +341,21 @@ const DashboardPage = () => {
   const handleManualRefresh = useCallback(async () => {
     if (manualRefreshing) return;
     setManualRefreshing(true);
-    if (
-      user &&
-      account?.platform_user_id &&
-      account.platform_login &&
-      syncSnapshot?.lastJobStatus === "queued"
-    ) {
-      await processPendingForAccount(
-        user.id,
-        account.platform_user_id,
-        account.platform_login,
-        account.platform_display_name ?? null,
-      );
-    } else {
-      await enqueueRefreshForSelf("manual");
+    try {
+      // Server-side path: create a fresh job + delegate processing to the
+      // edge function (which writes analysis_reports + snapshot + completes
+      // the job). The frontend no longer assembles the report.
+      const result = await enqueueAndProcessForSelf("manual");
+      if (!result.ok) {
+        toast.error("L'analyse n'a pas pu être lancée. Réessaie dans un instant.");
+      } else {
+        await loadDashboardState();
+        toast.success("Analyse mise à jour");
+      }
+    } finally {
+      setManualRefreshing(false);
     }
-    await loadDashboardState();
-    setManualRefreshing(false);
-    toast.success("Analyse mise à jour");
-  }, [manualRefreshing, loadDashboardState, user, account, syncSnapshot]);
+  }, [manualRefreshing, loadDashboardState]);
 
   // Sprint 1 — gamification derived state. Hooks must run unconditionally,
   // so we compute them before any early return. Values are safe defaults
