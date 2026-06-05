@@ -47,6 +47,8 @@ const TwitchAccountsPage = () => {
   const { accounts, account, initializing } = useTwitchConnection();
   const { plan, isGrowth, loading: planLoading } = usePlan();
   const [meta, setMeta] = useState<Record<string, AccountMeta>>({});
+  const [pendingDisconnect, setPendingDisconnect] = useState<TwitchAccount | null>(null);
+  const [disconnecting, setDisconnecting] = useState(false);
 
   usePageMeta({
     title: "Comptes Twitch — Streamnco",
