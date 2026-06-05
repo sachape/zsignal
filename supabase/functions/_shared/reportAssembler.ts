@@ -86,7 +86,11 @@ export interface ServerAnalysisReport {
 
 export interface AssembleArgs {
   jobId: string;
-  profile: SharedTwitchProfile & {
+  profile: {
+    login: string;
+    display_name: string;
+    follower_count?: number | null;
+    followers_available?: boolean | null;
     broadcaster_type?: string;
     description?: string;
     profile_image_url?: string | null;
