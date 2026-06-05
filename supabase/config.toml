@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.instagram-debug-token-compare]
 verify_jwt = false
+
+[functions.process-analysis-job]
+verify_jwt = false

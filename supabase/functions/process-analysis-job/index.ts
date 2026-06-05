@@ -262,11 +262,48 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
-    // ---------- BATCH MODE (vault-backed cron-secret protected) ----------
+    // ---------- ADMIN AUTH (vault eventsub_cron_secret OR env CRON_SECRET) ----------
+    const adminToken = authHeader.replace(/^Bearer\s+/i, "");
+    const cronEnv = Deno.env.get("CRON_SECRET") ?? "";
+    async function isAdminAuthed(): Promise<boolean> {
+      if (cronEnv && adminToken && adminToken === cronEnv) return true;
+      const { data: ok } = await admin.rpc("verify_eventsub_cron_secret", { token: adminToken });
+      return ok === true;
+    }
+
+    // ---------- SINGLE_ADMIN MODE (server-side trigger for one job) ----------
+    if (mode === "single_admin") {
+      if (!(await isAdminAuthed())) {
+        return json({ error: "Unauthorized (single_admin)" }, 401);
+      }
+      const analysisJobId = typeof body?.analysis_job_id === "string" ? body.analysis_job_id : null;
+      if (!analysisJobId) return json({ error: "analysis_job_id required" }, 400);
+
+      const { data: job, error: jobErr } = await admin
+        .from("analysis_jobs")
+        .select("id, user_id, status, platform, platform_user_id, platform_login")
+        .eq("id", analysisJobId)
+        .maybeSingle();
+      if (jobErr || !job) return json({ error: "Job not found" }, 404);
+      if (job.platform !== "twitch" || !job.platform_user_id) {
+        return json({ error: "Job is not a connected Twitch job" }, 422);
+      }
+
+      const fetched = await fetchTwitchFactsForAccount({
+        user_id: job.user_id,
+        platform_user_id: job.platform_user_id,
+        admin,
+      });
+      if (!fetched.ok || !fetched.facts) {
+        return json({ error: `twitch_facts_failed:${fetched.error ?? "unknown"}` }, 502);
+      }
+      const result = await processOneJob({ admin, job: job as JobRow, facts: fetched.facts });
+      return json({ ok: result.status === "persisted" || result.status === "skipped_existing", mode: "single_admin", result });
+    }
+
+    // ---------- BATCH MODE ----------
     if (mode === "queued_batch") {
-      const token = authHeader.replace(/^Bearer\s+/i, "");
-      const { data: ok } = await admin.rpc("verify_eventsub_cron_secret", { token });
-      if (ok !== true) {
+      if (!(await isAdminAuthed())) {
         return json({ error: "Unauthorized (batch)" }, 401);
       }
       const limit = Math.min(
