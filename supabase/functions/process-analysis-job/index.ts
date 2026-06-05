@@ -167,6 +167,69 @@ async function markJobScoreStatus(
  * facts. Idempotent: returns skipped_existing if a snapshot row is present
  * for the analysis_job_id (server- or trigger-origin).
  */
+async function ensureAnalysisReport(args: {
+  admin: ReturnType<typeof createClient>;
+  job: JobRow;
+  facts: ServerTwitchFacts;
+}): Promise<{ report_id: string | null; created: boolean }> {
+  const { admin, job, facts } = args;
+  const { data: existing } = await admin
+    .from("analysis_reports")
+    .select("id")
+    .eq("analysis_job_id", job.id)
+    .maybeSingle();
+  if (existing?.id) return { report_id: existing.id, created: false };
+
+  const report = assembleServerReport({
+    jobId: job.id,
+    profile: {
+      login: facts.profile.login,
+      display_name: facts.profile.display_name,
+      profile_image_url: facts.profile.profile_image_url,
+      description: facts.profile.description,
+      broadcaster_type: facts.profile.broadcaster_type,
+      follower_count: facts.follower_count ?? 0,
+      followers_available: facts.followers_available,
+    },
+    videos: facts.videos,
+    clips: facts.clips,
+    liveSessions: facts.live_sessions,
+    platformUserId: job.platform_user_id,
+  });
+
+  const { data: inserted, error: insertErr } = await admin
+    .from("analysis_reports")
+    .insert({
+      user_id: job.user_id,
+      analysis_job_id: job.id,
+      report_data: report,
+    })
+    .select("id")
+    .maybeSingle();
+
+  if (insertErr) {
+    console.warn("[process-analysis-job] analysis_report insert failed", insertErr.message);
+    return { report_id: null, created: false };
+  }
+  return { report_id: inserted?.id ?? null, created: true };
+}
+
+async function markJobCompleted(
+  admin: ReturnType<typeof createClient>,
+  jobId: string,
+) {
+  const now = new Date().toISOString();
+  await admin
+    .from("analysis_jobs")
+    .update({
+      status: "completed",
+      completed_at: now,
+      updated_at: now,
+    })
+    .eq("id", jobId)
+    .in("status", ["queued", "processing"]);
+}
+
 async function processOneJob(args: {
   admin: ReturnType<typeof createClient>;
   job: JobRow;
@@ -180,11 +243,14 @@ async function processOneJob(args: {
     .eq("analysis_job_id", job.id)
     .maybeSingle();
   if (existing?.id) {
+    const r = await ensureAnalysisReport({ admin, job, facts });
     await markJobScoreStatus(admin, job.id, { score_status: "computed" });
+    await markJobCompleted(admin, job.id);
     return {
       job_id: job.id,
       status: "skipped_existing",
       snapshot_id: existing.id,
+      report_id: r.report_id ?? undefined,
     };
   }
 
@@ -226,11 +292,14 @@ async function processOneJob(args: {
         .select("id")
         .eq("analysis_job_id", job.id)
         .maybeSingle();
+      const r = await ensureAnalysisReport({ admin, job, facts });
       await markJobScoreStatus(admin, job.id, { score_status: "computed" });
+      await markJobCompleted(admin, job.id);
       return {
         job_id: job.id,
         status: "skipped_existing",
         snapshot_id: again?.id,
+        report_id: r.report_id ?? undefined,
         overall: row.overall,
       };
     }
@@ -241,11 +310,14 @@ async function processOneJob(args: {
     return { job_id: job.id, status: "error", error: insertErr.message };
   }
 
+  const r = await ensureAnalysisReport({ admin, job, facts });
   await markJobScoreStatus(admin, job.id, { score_status: "computed" });
+  await markJobCompleted(admin, job.id);
   return {
     job_id: job.id,
     status: "persisted",
     snapshot_id: inserted.id,
+    report_id: r.report_id ?? undefined,
     overall: row.overall,
   };
 }
