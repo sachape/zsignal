@@ -1,17 +1,27 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Check, PlusCircle, RefreshCcw, Sparkles, Tv2, Unplug } from "lucide-react";
+import { Check, Loader2, PlusCircle, RefreshCcw, Sparkles, Tv2, Unplug } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection, switchActiveAccount, type TwitchAccount } from "@/hooks/useTwitchConnection";
 import { usePlan } from "@/hooks/usePlan";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AccountMeta {
   lastAnalysisAt: string | null;
