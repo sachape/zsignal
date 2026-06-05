@@ -193,6 +193,29 @@ export function assembleServerReport(args: AssembleArgs): ServerAnalysisReport {
       };
 
   const nextAction = recommendations.find((r) => r.type === "next-action")!;
+  const priorityActions = recommendations.filter((r) => r.type === "priority").slice(0, 3);
+
+  const weeklyActions: ServerWeeklyAction[] = [];
+  // Always seed weekly actions with the next-best-action first.
+  weeklyActions.push({
+    position: 1,
+    title: nextAction.title,
+    reason: nextAction.reason,
+    action: nextAction.action,
+    category: nextAction.category,
+    source: "next-action",
+  });
+  priorityActions.forEach((p, i) => {
+    if (weeklyActions.find((w) => w.title === p.title)) return;
+    weeklyActions.push({
+      position: weeklyActions.length + 1,
+      title: p.title,
+      reason: p.reason,
+      action: p.action,
+      category: p.category,
+      source: "priority",
+    });
+  });
 
   return {
     job_id: jobId,
@@ -202,9 +225,16 @@ export function assembleServerReport(args: AssembleArgs): ServerAnalysisReport {
     score,
     affiliate_progress,
     competitor_groups: [],
+    competitor_groups_enabled: false,
     recommendations,
     weak_point,
     next_best_action: nextAction,
+    weekly_actions: weeklyActions.slice(0, 3),
     videos,
+    meta: {
+      assembled_by: "process-analysis-job",
+      assembled_at: new Date().toISOString(),
+      schema_version: 2,
+    },
   };
 }
