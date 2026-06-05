@@ -357,6 +357,46 @@ const TwitchAccountsPage = () => {
           </Card>
         </section>
       </PageContainer>
+
+      <AlertDialog
+        open={!!pendingDisconnect}
+        onOpenChange={(open) => {
+          if (!open && !disconnecting) setPendingDisconnect(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Déconnecter cette chaîne Twitch ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDisconnect ? (
+                <>
+                  La chaîne <span className="font-medium text-foreground">@{pendingDisconnect.platform_login}</span> sera retirée de Streamnco. Le token Twitch sera révoqué et les abonnements EventSub supprimés. Les analyses passées sont conservées, mais aucun nouveau live ne sera détecté tant que tu ne reconnectes pas la chaîne.
+                </>
+              ) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={disconnecting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmDisconnect();
+              }}
+              disabled={disconnecting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {disconnecting ? (
+                <>
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  Déconnexion…
+                </>
+              ) : (
+                "Déconnecter"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 };
