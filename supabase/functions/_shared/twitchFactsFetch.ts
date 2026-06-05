@@ -21,6 +21,9 @@ export interface ServerTwitchFacts {
     id: string;
     login: string;
     display_name: string;
+    profile_image_url: string | null;
+    description: string;
+    broadcaster_type: string;
   };
   follower_count: number | null;
   followers_available: boolean;
@@ -230,6 +233,9 @@ export async function fetchTwitchFactsForAccount(args: {
         id: broadcasterId,
         login: String(tw.login ?? ""),
         display_name: String(tw.display_name ?? tw.login ?? ""),
+        profile_image_url: tw.profile_image_url ? String(tw.profile_image_url) : null,
+        description: String(tw.description ?? ""),
+        broadcaster_type: String(tw.broadcaster_type ?? ""),
       },
       follower_count: followerCount,
       followers_available: hasFollowersScope && followerCount !== null,
