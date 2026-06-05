@@ -77,6 +77,7 @@ interface ProcessResult {
   job_id: string;
   status: "persisted" | "skipped_existing" | "skipped_no_facts" | "error";
   snapshot_id?: string;
+  report_id?: string;
   overall?: number;
   error?: string;
 }
