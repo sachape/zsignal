@@ -19,11 +19,18 @@ export type Database = {
           channel_name: string
           completed_at: string | null
           created_at: string
+          error_message: string | null
+          failed_at: string | null
           id: string
           last_error: string | null
+          locked_at: string | null
+          max_retries: number
           platform: string | null
           platform_login: string | null
           platform_user_id: string | null
+          processed_by: string | null
+          processing_started_at: string | null
+          retry_count: number
           score_computed_at: string | null
           score_error_message: string | null
           score_processed_by: string | null
@@ -38,11 +45,18 @@ export type Database = {
           channel_name: string
           completed_at?: string | null
           created_at?: string
+          error_message?: string | null
+          failed_at?: string | null
           id?: string
           last_error?: string | null
+          locked_at?: string | null
+          max_retries?: number
           platform?: string | null
           platform_login?: string | null
           platform_user_id?: string | null
+          processed_by?: string | null
+          processing_started_at?: string | null
+          retry_count?: number
           score_computed_at?: string | null
           score_error_message?: string | null
           score_processed_by?: string | null
@@ -57,11 +71,18 @@ export type Database = {
           channel_name?: string
           completed_at?: string | null
           created_at?: string
+          error_message?: string | null
+          failed_at?: string | null
           id?: string
           last_error?: string | null
+          locked_at?: string | null
+          max_retries?: number
           platform?: string | null
           platform_login?: string | null
           platform_user_id?: string | null
+          processed_by?: string | null
+          processing_started_at?: string | null
+          retry_count?: number
           score_computed_at?: string | null
           score_error_message?: string | null
           score_processed_by?: string | null
@@ -2741,6 +2762,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_next_analysis_job: {
+        Args: { p_lock_timeout_minutes?: number; p_processor?: string }
+        Returns: {
+          id: string
+          max_retries: number
+          platform: string
+          platform_login: string
+          platform_user_id: string
+          retry_count: number
+          status: string
+          user_id: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -2749,6 +2783,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      fail_analysis_job: {
+        Args: { p_error: string; p_job_id: string }
+        Returns: string
       }
       get_competitor_matches_for_job: {
         Args: { p_analysis_job_id: string }
