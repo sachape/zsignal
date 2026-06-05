@@ -135,6 +135,7 @@ function buildPriority(weakest: ScoreBreakdownItem | undefined, tier: ScoreTier)
     case "Momentum":
       return "Priorité : remettre un live cette semaine pour relancer le rythme.";
     case "Monétisation":
+    case "Affiliation":
       return "Priorité : pousser ta chaîne hors stream pour élargir l'audience.";
     default:
       return "Priorité : confirmer ce point sur un nouveau live.";
