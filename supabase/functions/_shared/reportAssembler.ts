@@ -69,6 +69,15 @@ export interface ServerAffiliateProgress {
   unique_chatters: { current: number; target: number };
 }
 
+export interface ServerWeeklyAction {
+  position: number;
+  title: string;
+  reason: string;
+  action: string;
+  category: string;
+  source: "next-action" | "priority";
+}
+
 export interface ServerAnalysisReport {
   job_id: string;
   identity: ServerReportIdentity;
@@ -77,10 +86,17 @@ export interface ServerAnalysisReport {
   score: SharedStreamScore;
   affiliate_progress: ServerAffiliateProgress;
   competitor_groups: unknown[];
+  competitor_groups_enabled: boolean;
   recommendations: SharedRecommendation[];
   weak_point: { label: string; description: string };
   next_best_action: SharedRecommendation;
+  weekly_actions: ServerWeeklyAction[];
   videos: SharedTwitchVideo[];
+  meta: {
+    assembled_by: "process-analysis-job";
+    assembled_at: string;
+    schema_version: 2;
+  };
 }
 
 export interface AssembleArgs {
