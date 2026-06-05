@@ -1,17 +1,27 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Check, PlusCircle, RefreshCcw, Sparkles, Tv2, Unplug } from "lucide-react";
+import { Check, Loader2, PlusCircle, RefreshCcw, Sparkles, Tv2, Unplug } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection, switchActiveAccount, type TwitchAccount } from "@/hooks/useTwitchConnection";
 import { usePlan } from "@/hooks/usePlan";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AccountMeta {
   lastAnalysisAt: string | null;
@@ -37,6 +47,8 @@ const TwitchAccountsPage = () => {
   const { accounts, account, initializing } = useTwitchConnection();
   const { plan, isGrowth, loading: planLoading } = usePlan();
   const [meta, setMeta] = useState<Record<string, AccountMeta>>({});
+  const [pendingDisconnect, setPendingDisconnect] = useState<TwitchAccount | null>(null);
+  const [disconnecting, setDisconnecting] = useState(false);
 
   usePageMeta({
     title: "Comptes Twitch — Streamnco",
@@ -112,6 +124,33 @@ const TwitchAccountsPage = () => {
     }
     if (atLimit) return;
     navigate("/connect-twitch?mode=add");
+  };
+
+  const handleConfirmDisconnect = async () => {
+    if (!pendingDisconnect || !user) return;
+    const acc = pendingDisconnect;
+    setDisconnecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("twitch-disconnect", {
+        body: { connected_account_id: acc.id },
+      });
+      if (error) throw error;
+      if (data && (data as { error?: string }).error) {
+        throw new Error((data as { message?: string; error: string }).message ?? (data as { error: string }).error);
+      }
+      toast.success(`Chaîne @${acc.platform_login ?? ""} déconnectée.`);
+      setPendingDisconnect(null);
+      // Refresh accounts list
+      window.location.reload();
+    } catch (e) {
+      toast.error(
+        e instanceof Error
+          ? `Échec de la déconnexion : ${e.message}`
+          : "Échec de la déconnexion.",
+      );
+    } finally {
+      setDisconnecting(false);
+    }
   };
 
   const planLabel =
@@ -197,95 +236,85 @@ const TwitchAccountsPage = () => {
               </CardContent>
             </Card>
           ) : (
-            <TooltipProvider delayDuration={150}>
-              <div className="space-y-3">
-                {accounts.map((acc) => {
-                  const isActive = account?.id === acc.id;
-                  const login = acc.platform_login ?? "";
-                  const display = acc.platform_display_name || login;
-                  const m = meta[acc.id];
-                  const lastAnalysis = formatDate(m?.lastAnalysisAt ?? null);
-                  const lastLive = formatDate(m?.lastLiveAt ?? null);
-                  return (
-                    <Card key={acc.id} className={isActive ? "border-primary/40" : undefined}>
-                      <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <Avatar className="h-11 w-11 shrink-0 rounded-full border border-border/60">
-                            {acc.profile_image_url && (
-                              <AvatarImage src={acc.profile_image_url} alt={login} className="object-cover" />
+            <div className="space-y-3">
+              {accounts.map((acc) => {
+                const isActive = account?.id === acc.id;
+                const login = acc.platform_login ?? "";
+                const display = acc.platform_display_name || login;
+                const m = meta[acc.id];
+                const lastAnalysis = formatDate(m?.lastAnalysisAt ?? null);
+                const lastLive = formatDate(m?.lastLiveAt ?? null);
+                return (
+                  <Card key={acc.id} className={isActive ? "border-primary/40" : undefined}>
+                    <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <Avatar className="h-11 w-11 shrink-0 rounded-full border border-border/60">
+                          {acc.profile_image_url && (
+                            <AvatarImage src={acc.profile_image_url} alt={login} className="object-cover" />
+                          )}
+                          <AvatarFallback className="rounded-full bg-muted text-xs font-semibold">
+                            {login.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="truncate text-sm font-semibold text-foreground">
+                              {display}
+                            </p>
+                            {isActive && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                                <Check className="h-3 w-3" /> Active
+                              </span>
                             )}
-                            <AvatarFallback className="rounded-full bg-muted text-xs font-semibold">
-                              {login.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="truncate text-sm font-semibold text-foreground">
-                                {display}
-                              </p>
-                              {isActive && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                                  <Check className="h-3 w-3" /> Active
-                                </span>
-                              )}
-                            </div>
-                            <p className="truncate text-xs text-muted-foreground">@{login}</p>
-                            <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground/80">
-                              <span>
-                                Dernière analyse : <span className="text-foreground/90">{lastAnalysis ?? "—"}</span>
-                              </span>
-                              <span>
-                                Dernier live : <span className="text-foreground/90">{lastLive ?? "—"}</span>
-                              </span>
-                            </div>
+                          </div>
+                          <p className="truncate text-xs text-muted-foreground">@{login}</p>
+                          <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground/80">
+                            <span>
+                              Dernière analyse : <span className="text-foreground/90">{lastAnalysis ?? "—"}</span>
+                            </span>
+                            <span>
+                              Dernier live : <span className="text-foreground/90">{lastLive ?? "—"}</span>
+                            </span>
                           </div>
                         </div>
+                      </div>
 
-                        <div className="flex flex-wrap gap-2 md:shrink-0">
-                          {!isActive && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs"
-                              onClick={() => handleSetActive(acc)}
-                            >
-                              Définir comme actif
-                            </Button>
-                          )}
+                      <div className="flex flex-wrap gap-2 md:shrink-0">
+                        {!isActive && (
                           <Button
                             size="sm"
                             variant="outline"
-                            className="gap-1.5 text-xs"
-                            onClick={() => handleAnalyze(acc)}
+                            className="text-xs"
+                            onClick={() => handleSetActive(acc)}
                           >
-                            <RefreshCcw className="h-3.5 w-3.5" />
-                            Analyser cette chaîne
+                            Définir comme actif
                           </Button>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="gap-1.5 text-xs text-muted-foreground"
-                                  disabled
-                                >
-                                  <Unplug className="h-3.5 w-3.5" />
-                                  Déconnecter
-                                </Button>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[260px] text-xs">
-                              Déconnexion sécurisée bientôt disponible : nécessite la révocation du token Twitch et le nettoyage EventSub côté serveur. Contacte le support si tu veux retirer une chaîne en attendant.
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </TooltipProvider>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5 text-xs"
+                          onClick={() => handleAnalyze(acc)}
+                        >
+                          <RefreshCcw className="h-3.5 w-3.5" />
+                          Analyser cette chaîne
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="gap-1.5 text-xs text-muted-foreground hover:text-destructive"
+                          onClick={() => setPendingDisconnect(acc)}
+                        >
+                          <Unplug className="h-3.5 w-3.5" />
+                          Déconnecter
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
           )}
         </section>
 
@@ -328,6 +357,46 @@ const TwitchAccountsPage = () => {
           </Card>
         </section>
       </PageContainer>
+
+      <AlertDialog
+        open={!!pendingDisconnect}
+        onOpenChange={(open) => {
+          if (!open && !disconnecting) setPendingDisconnect(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Déconnecter cette chaîne Twitch ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDisconnect ? (
+                <>
+                  La chaîne <span className="font-medium text-foreground">@{pendingDisconnect.platform_login}</span> sera retirée de Streamnco. Le token Twitch sera révoqué et les abonnements EventSub supprimés. Les analyses passées sont conservées, mais aucun nouveau live ne sera détecté tant que tu ne reconnectes pas la chaîne.
+                </>
+              ) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={disconnecting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmDisconnect();
+              }}
+              disabled={disconnecting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {disconnecting ? (
+                <>
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  Déconnexion…
+                </>
+              ) : (
+                "Déconnecter"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 };
