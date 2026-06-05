@@ -53,11 +53,16 @@ function clamp(v: number, min = 0, max = 100): number {
  * Global maturity cap applied to the overall StreamScore.
  * Prevents a single live from pushing the score into "established" range.
  */
-export function getMaturityCap(streams30d: number, hours30d: number): number {
+export function getMaturityCap(
+  streams30d: number,
+  uniqueDays30d: number,
+  hours30d: number,
+): number {
   if (streams30d <= 0) return 20;
   if (streams30d === 1) return 30;
   if (streams30d <= 3) return 45;
-  if (streams30d >= 4 && hours30d < 4) return 55;
+  if (hours30d < 4) return 55;
+  if (uniqueDays30d < 4) return 55;
   return 100;
 }
 
@@ -144,12 +149,12 @@ export function computeStreamScore(facts: SharedChannelFact[]): SharedStreamScor
   const structureActivityFactor = Math.min((streams30d + uniqueDays) / 6, 1);
   const structureTempered = clamp(structureRaw * (0.35 + 0.65 * structureActivityFactor));
   let structureCap = 100;
-  if (streams30d === 0) structureCap = 45;
-  else if (streams30d === 1) structureCap = 45;
-  else if (streams30d <= 3) structureCap = 65;
-  if (!hasDescription) structureCap = Math.min(structureCap, 60);
-  if (uniqueDays < 2) structureCap = Math.min(structureCap, 60);
-  if (clips30d === 0 && streams30d < 4) structureCap = Math.min(structureCap, 80);
+  if (streams30d === 0) structureCap = 35;
+  else if (streams30d === 1) structureCap = 40;
+  else if (streams30d <= 3) structureCap = 60;
+  if (!hasDescription) structureCap = Math.min(structureCap, 55);
+  if (uniqueDays < 2) structureCap = Math.min(structureCap, 50);
+  if (clips30d === 0 && streams30d < 4) structureCap = Math.min(structureCap, 70);
   const structure = Math.min(structureTempered, structureCap);
 
   const structure_reasons: string[] = [];
@@ -303,7 +308,7 @@ export function computeStreamScore(facts: SharedChannelFact[]): SharedStreamScor
     momentum * 0.10 +
     monetization * 0.10,
   );
-  const maturityCap = getMaturityCap(streams30d, totalHours);
+  const maturityCap = getMaturityCap(streams30d, uniqueDays, totalHours);
   const overall = Math.min(overallRaw, maturityCap);
 
   // ---------- Confidence / freshness ----------
