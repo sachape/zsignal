@@ -24,7 +24,6 @@ import {
   type SharedChannelFactFull,
   type SharedLiveSessionFact,
   type SharedTwitchClip,
-  type SharedTwitchProfile as _SharedTwitchProfile,
   type SharedTwitchVideo,
 } from "./factsEngine.ts";
 import {
