@@ -308,7 +308,7 @@ export function computeStreamScore(facts: SharedChannelFact[]): SharedStreamScor
     momentum * 0.10 +
     monetization * 0.10,
   );
-  const maturityCap = getMaturityCap(streams30d, totalHours);
+  const maturityCap = getMaturityCap(streams30d, uniqueDays, totalHours);
   const overall = Math.min(overallRaw, maturityCap);
 
   // ---------- Confidence / freshness ----------
