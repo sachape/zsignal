@@ -9,7 +9,8 @@
 //
 // These tests touch the live Supabase project using the service-role key.
 // They create + clean up disposable rows in public.analysis_jobs.
-import "https://deno.land/std@0.224.0/dotenv/load.ts";
+import { load } from "https://deno.land/std@0.224.0/dotenv/mod.ts";
+const _env = await load({ envPath: ".env", examplePath: null, export: true });
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   assert,
