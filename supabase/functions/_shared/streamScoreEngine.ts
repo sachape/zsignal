@@ -317,14 +317,30 @@ export function computeStreamScore(facts: SharedChannelFact[]): SharedStreamScor
     { dimension: "Affiliation", score: monetization, weight: 0.10, reasons: monetization_reasons, levers: monetization_levers },
   ];
 
+  // ---------- Universal anti-100 rule ----------
+  // No sub-score may reach 100 unless the channel has a real activity
+  // baseline (≥4 streams, ≥4 unique days, ≥4 hours streamed). Otherwise
+  // every dimension is capped at 90.
+  const hasActivityBaseline = streams30d >= 4 && uniqueDays >= 4 && totalHours >= 4;
+  const capForBaseline = (n: number) => (hasActivityBaseline ? n : Math.min(n, 90));
+
+  const breakdown: SharedScoreBreakdownItem[] = [
+    { dimension: "Régularité", score: capForBaseline(regularity), weight: 0.25, reasons: regularity_reasons, levers: regularity_levers },
+    { dimension: "Contenu", score: capForBaseline(content), weight: 0.25, reasons: content_reasons, levers: content_levers },
+    { dimension: "Structure", score: capForBaseline(structure), weight: 0.15, reasons: structure_reasons, levers: structure_levers },
+    { dimension: "Positionnement", score: capForBaseline(positioning), weight: 0.15, reasons: positioning_reasons, levers: positioning_levers },
+    { dimension: "Momentum", score: capForBaseline(momentum), weight: 0.10, reasons: momentum_reasons, levers: momentum_levers },
+    { dimension: "Affiliation", score: capForBaseline(monetization), weight: 0.10, reasons: monetization_reasons, levers: monetization_levers },
+  ];
+
   return {
     overall,
-    regularity,
-    structure,
-    content,
-    positioning,
-    momentum,
-    monetization,
+    regularity: capForBaseline(regularity),
+    structure: capForBaseline(structure),
+    content: capForBaseline(content),
+    positioning: capForBaseline(positioning),
+    momentum: capForBaseline(momentum),
+    monetization: capForBaseline(monetization),
     confidence,
     freshness,
     breakdown,
