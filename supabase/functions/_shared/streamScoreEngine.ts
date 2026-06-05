@@ -308,14 +308,8 @@ export function computeStreamScore(facts: SharedChannelFact[]): SharedStreamScor
   const confidence = clamp(dataDensity * 100);
   const freshness = clamp(streams7d >= 3 ? 100 : streams7d >= 1 ? 60 : 20);
 
-  const breakdown: SharedScoreBreakdownItem[] = [
-    { dimension: "Régularité", score: regularity, weight: 0.25, reasons: regularity_reasons, levers: regularity_levers },
-    { dimension: "Contenu", score: content, weight: 0.25, reasons: content_reasons, levers: content_levers },
-    { dimension: "Structure", score: structure, weight: 0.15, reasons: structure_reasons, levers: structure_levers },
-    { dimension: "Positionnement", score: positioning, weight: 0.15, reasons: positioning_reasons, levers: positioning_levers },
-    { dimension: "Momentum", score: momentum, weight: 0.10, reasons: momentum_reasons, levers: momentum_levers },
-    { dimension: "Affiliation", score: monetization, weight: 0.10, reasons: monetization_reasons, levers: monetization_levers },
-  ];
+
+
 
   // ---------- Universal anti-100 rule ----------
   // No sub-score may reach 100 unless the channel has a real activity
