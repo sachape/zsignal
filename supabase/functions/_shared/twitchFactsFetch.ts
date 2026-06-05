@@ -21,6 +21,9 @@ export interface ServerTwitchFacts {
     id: string;
     login: string;
     display_name: string;
+    profile_image_url: string | null;
+    description: string;
+    broadcaster_type: string;
   };
   follower_count: number | null;
   followers_available: boolean;
