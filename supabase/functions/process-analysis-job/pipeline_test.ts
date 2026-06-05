@@ -53,6 +53,7 @@ async function insertTestJob(opts: {
       platform: "twitch",
       platform_user_id: opts.platform_user_id ?? `test_pipeline_${crypto.randomUUID()}`,
       platform_login: "pipeline-test",
+      channel_name: "pipeline-test",
       status: opts.status ?? "queued",
       retry_count: opts.retry_count ?? 0,
       max_retries: opts.max_retries ?? 3,
