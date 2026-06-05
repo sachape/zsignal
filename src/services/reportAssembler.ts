@@ -116,10 +116,20 @@ export function assembleReport(
   };
 
   const weakest = [...score.breakdown].sort((a, b) => a.score - b.score)[0];
-  const weak_point = {
-    label: weakest?.dimension ?? "Général",
-    description: weakest?.reasons[0] ?? "Continue sur ta lancée.",
-  };
+  const clipsCount = Number(getFact("clips_30d")?.value ?? 0);
+  const streamsCount = Number(getFact("streams_30d")?.value ?? 0);
+  // When the user has lived at least once but has 0 clip, the blocking point
+  // is always Contenu — the next concrete action is "create a clip".
+  const forceContentBlock = clipsCount === 0 && streamsCount >= 1;
+  const weak_point = forceContentBlock
+    ? {
+        label: "Contenu",
+        description: "Transforme ton dernier live en au moins 1 clip publiable.",
+      }
+    : {
+        label: weakest?.dimension ?? "Général",
+        description: weakest?.reasons[0] ?? "Continue sur ta lancée.",
+      };
 
   const nextAction = recommendations.find((r) => r.type === "next-action")!;
 

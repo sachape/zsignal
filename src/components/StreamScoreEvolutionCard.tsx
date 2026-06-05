@@ -29,7 +29,7 @@ const DIM_LABEL: Record<DimKey, string> = {
   content: "Contenu",
   positioning: "Positionnement",
   momentum: "Momentum",
-  monetization: "Monétisation",
+  monetization: "Affiliation",
 };
 
 const DIM_LABEL_FR: Record<DimKey, string> = {
@@ -38,7 +38,7 @@ const DIM_LABEL_FR: Record<DimKey, string> = {
   content: "le contenu réutilisable",
   positioning: "le positionnement",
   momentum: "le momentum",
-  monetization: "la monétisation",
+  monetization: "le potentiel d'affiliation",
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

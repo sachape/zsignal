@@ -123,12 +123,15 @@ function dimToKey(label: string | null): DimKey | null {
     Positionnement: "positioning",
     Momentum: "momentum",
     Monétisation: "monetization",
+    Affiliation: "monetization",
+    "Potentiel monétisation": "monetization",
     regularity: "regularity",
     structure: "structure",
     content: "content",
     positioning: "positioning",
     momentum: "momentum",
     monetization: "monetization",
+    affiliation: "monetization",
   };
   return map[label] ?? null;
 }

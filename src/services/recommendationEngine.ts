@@ -79,14 +79,24 @@ export function generateRecommendations(
 
   // Next best action
   const weakest = score.breakdown.sort((a, b) => a.score - b.score)[0];
-  const nextAction: Recommendation = {
-    id: nextId(), priority: 0, type: "next-action",
-    title: weakest?.levers[0] || "Continue sur ta lancée",
-    reason: weakest?.reasons[0] || "Ton score est équilibré — maintiens ta régularité.",
-    action: weakest?.levers[0] || "Reviens demain et streame à la même heure.",
-    category: weakest?.dimension?.toLowerCase() || "general",
-    is_locked: false,
-  };
+  const forceClipAction = clips30d === 0 && streams30d >= 1;
+  const nextAction: Recommendation = forceClipAction
+    ? {
+        id: nextId(), priority: 0, type: "next-action",
+        title: "Crée 1 clip à partir de ton dernier live",
+        reason: "Tu as relancé un live mais aucun clip n'en est sorti — c'est le levier de découvrabilité le plus rapide.",
+        action: "Transforme ton dernier live en au moins 1 clip publiable.",
+        category: "content",
+        is_locked: false,
+      }
+    : {
+        id: nextId(), priority: 0, type: "next-action",
+        title: weakest?.levers[0] || "Continue sur ta lancée",
+        reason: weakest?.reasons[0] || "Ton score est équilibré — maintiens ta régularité.",
+        action: weakest?.levers[0] || "Reviens demain et streame à la même heure.",
+        category: weakest?.dimension?.toLowerCase() || "general",
+        is_locked: false,
+      };
 
   // Short-term goal
   let goalTitle = "Atteins 50 followers";

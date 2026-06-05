@@ -130,6 +130,9 @@ export function extractChannelFacts(
   // Affiliate thresholds
   const AFFILIATE = { followers: 50, avg_viewers: 3, stream_days_30d: 7, stream_hours_30d: 8 };
 
+  const hasDescription = !!(profile.description && profile.description.trim().length > 0) ? 1 : 0;
+  const hasAvatar = !!(profile.profile_image_url && profile.profile_image_url.trim().length > 0) ? 1 : 0;
+
   const facts: ChannelFact[] = [
     { key: "streams_7d", value: effectiveStreams7d, label: "Streams (7 derniers jours)", confidence: 1 },
     { key: "streams_30d", value: effectiveStreams30d, label: "Streams (30 derniers jours)", confidence: 1 },
@@ -137,6 +140,10 @@ export function extractChannelFacts(
     { key: "lives_7d", value: lives7d.length, label: "Lives détectés (7j)", confidence: 1 },
     { key: "vods_30d", value: videos30d.length, label: "VODs publiées (30j)", confidence: 1 },
     { key: "clips_30d", value: clips30d.length, label: "Clips (30 derniers jours)", confidence: 1 },
+    { key: "exported_clips_30d", value: 0, label: "Clips exportés (30j)", confidence: 0.5 },
+    { key: "connected_social_accounts_count", value: 0, label: "Réseaux sociaux connectés", confidence: 0.5 },
+    { key: "has_description", value: hasDescription, label: "Bio renseignée", confidence: 1 },
+    { key: "has_avatar", value: hasAvatar, label: "Avatar renseigné", confidence: 1 },
     { key: "avg_duration_minutes", value: Math.round(avgDuration), label: "Durée moyenne (min)", confidence: 1 },
     { key: "total_hours_30d", value: Math.round(totalHours30d * 10) / 10, label: "Heures streamées (30j)", confidence: 1 },
     { key: "dominant_category", value: dominantCategory, label: "Catégorie dominante", confidence: dominant ? 0.9 : 0.3 },
