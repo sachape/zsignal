@@ -13,13 +13,14 @@ export interface PlanInfo {
   loading: boolean;
 }
 
-const PLAN_CACHE = new Map<string, PlanTier>();
+const ACTIVE_STATUSES = new Set(["active", "trialing"]);
+
+export const PLAN_REFRESH_EVENT = "streamnco:plan-refresh";
 
 export function invalidatePlanCache(userId: string) {
-  PLAN_CACHE.delete(userId);
+  void userId;
+  triggerPlanRefresh();
 }
-
-const PLAN_REFRESH_EVENT = "streamnco:plan-refresh";
 
 export function triggerPlanRefresh() {
   window.dispatchEvent(new CustomEvent(PLAN_REFRESH_EVENT));
@@ -32,47 +33,55 @@ export function usePlan(): PlanInfo {
   const { user } = useAuth();
   const [plan, setPlan] = useState<PlanTier>("free");
   const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    const handler = () => setRefreshKey((k) => k + 1);
-    window.addEventListener(PLAN_REFRESH_EVENT, handler);
-    return () => window.removeEventListener(PLAN_REFRESH_EVENT, handler);
-  }, []);
+    let cancelled = false;
 
-  useEffect(() => {
     if (!user) {
       setPlan("free");
       setLoading(false);
       return;
     }
 
+    const loadPlan = async (showLoading = false) => {
+      if (showLoading) setLoading(true);
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("plan_name, status")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-
-
-    // Use cache only on initial load — skip it on forced refreshes
-    if (refreshKey === 0 && PLAN_CACHE.has(user.id)) {
-      setPlan(PLAN_CACHE.get(user.id)!);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    supabase
-      .from("subscriptions")
-      .select("plan_name, status")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
+      if (!cancelled) {
         const status = data?.status ?? null;
-        const isActive = status === "active" || status === "trialing";
-        const t = (isActive ? normalizePlan(data?.plan_name) : "free") as PlanTier;
-        PLAN_CACHE.set(user.id, t);
-        setPlan(t);
+        const isActive = status ? ACTIVE_STATUSES.has(status) : false;
+        const resolvedPlan = (isActive ? normalizePlan(data?.plan_name) : "free") as PlanTier;
+        setPlan(resolvedPlan);
         setLoading(false);
-        analytics.setPlan(t);
-      });
-  }, [user, refreshKey]);
+        analytics.setPlan(resolvedPlan);
+      }
+    };
+
+    const refresh = () => {
+      void loadPlan(false);
+    };
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+
+    void loadPlan(true);
+    window.addEventListener(PLAN_REFRESH_EVENT, refresh);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("pageshow", refresh);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener(PLAN_REFRESH_EVENT, refresh);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("pageshow", refresh);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [user]);
 
   return {
     plan,
