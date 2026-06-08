@@ -37,6 +37,8 @@ import ManualMediaUploadDialog from "@/components/content-queue/ManualMediaUploa
 import { useFreshMediaUrl } from "@/services/mediaStorage";
 import { isAdminMode } from "@/lib/featureFlags";
 import { getGenerationErrorMessage, getGenerationStageLabel } from "@/services/videoGeneration";
+import { ContentItemSocialBadges } from "@/components/ContentItemSocialBadges";
+
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
