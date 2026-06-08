@@ -646,15 +646,15 @@ const CompetitorsPage = () => {
         {hasRenderableBenchmark ? (() => {
           // Count all matches so we can apply the free-tier limit across sections
           const allSectionMatches = renderSections.flatMap((s) => s.matches);
-          const totalLocked = !isPro && allSectionMatches.length > FREE_COMPETITORS_LIMIT
+          const totalLocked = !canAccessProFeatures && allSectionMatches.length > FREE_COMPETITORS_LIMIT
             ? allSectionMatches.length - FREE_COMPETITORS_LIMIT
             : 0;
 
           let shown = 0;
           return renderSections.map((section) => {
             const freeSlots = Math.max(0, FREE_COMPETITORS_LIMIT - shown);
-            const visibleMatches = isPro ? section.matches : section.matches.slice(0, freeSlots);
-            const lockedMatches = isPro ? [] : section.matches.slice(freeSlots);
+            const visibleMatches = canAccessProFeatures ? section.matches : section.matches.slice(0, freeSlots);
+            const lockedMatches = canAccessProFeatures ? [] : section.matches.slice(freeSlots);
             shown += visibleMatches.length;
 
             return (
@@ -769,7 +769,7 @@ const CompetitorsPage = () => {
               <>
                 <div className="grid gap-3">
                   {nicheLeaders.map((c, i) => {
-                    const locked = i >= 3;
+                    const locked = !canAccessProFeatures && i >= 3;
                     return (
                       <div key={c.id} className="relative">
                         <Link
@@ -840,7 +840,7 @@ const CompetitorsPage = () => {
                     );
                   })}
                 </div>
-                {nicheLeaders.length > 3 && (
+                {!canAccessProFeatures && nicheLeaders.length > 3 && (
                   <p className="mt-3 text-center text-[10px] text-muted-foreground">
                     {nicheLeaders.length - 3} leader{nicheLeaders.length - 3 > 1 ? "s" : ""} supplémentaire{nicheLeaders.length - 3 > 1 ? "s" : ""} disponible{nicheLeaders.length - 3 > 1 ? "s" : ""} en Pro
                   </p>
@@ -862,11 +862,11 @@ const CompetitorsPage = () => {
                 key={op.id}
                 opportunity={op}
                 index={i}
-                locked={i >= 3}
+                locked={!canAccessProFeatures && i >= 3}
               />
             ))}
           </div>
-          {opportunities.length > 3 && (
+          {!canAccessProFeatures && opportunities.length > 3 && (
             <div className="mt-6 flex flex-col items-center gap-2 rounded-2xl border border-primary/20 bg-primary/[0.04] px-6 py-5 text-center">
               <p className="text-sm font-semibold text-foreground">
                 {opportunities.length - 3} opportunité{opportunities.length - 3 > 1 ? "s" : ""} supplémentaire{opportunities.length - 3 > 1 ? "s" : ""} disponible{opportunities.length - 3 > 1 ? "s" : ""}
