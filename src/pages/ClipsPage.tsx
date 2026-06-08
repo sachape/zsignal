@@ -395,10 +395,14 @@ const ClipsPage = () => {
 
   const action = (
     <div className="flex flex-wrap items-center gap-2">
-      <Button asChild className="gap-2">
+      <Button onClick={() => setCreateOpen(true)} className="gap-2">
+        <Sparkles className="h-4 w-4" />
+        Créer un clip
+      </Button>
+      <Button asChild variant="outline" className="gap-2">
         <a href="/clips/vod-import">
           <Scissors className="h-4 w-4" />
-          Créer depuis une VOD
+          Depuis une VOD
         </a>
       </Button>
       <Button onClick={refresh} disabled={refreshing} variant="outline" className="gap-2">
@@ -413,9 +417,15 @@ const ClipsPage = () => {
       <PageContainer size="lg">
         <PageHeader
           title="Clips"
-          description="Repère tes meilleurs moments et transforme-les en contenus courts."
+          description="Transforme n’importe quelle VOD ou vidéo en clip vertical prêt à publier."
           action={action}
         />
+        <CreateClipDialog
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          platformUserId={account?.platformUserId ?? null}
+        />
+
 
         {status === "loading" && <LoadingState label="Chargement de tes clips…" />}
 
