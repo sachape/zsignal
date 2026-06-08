@@ -40,6 +40,8 @@ import {
   type PlannerResult,
 } from "@/services/shortContentPlanner";
 import { generateClipCopy } from "@/services/shortContentCopy";
+import { CreateClipDialog } from "@/components/CreateClipDialog";
+
 
 type Status = "loading" | "ready" | "error";
 
