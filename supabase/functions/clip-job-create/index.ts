@@ -182,6 +182,37 @@ Deno.serve(async (req) => {
     }, 503);
   }
 
+  // Load layout preset if requested.
+  let layoutPayload: Record<string, unknown> | null = null;
+  if (outputFormat === "vertical_9_16") {
+    if (layoutType === "facecam_top_gameplay_bottom") {
+      if (!layoutPresetId) return json({ error: "missing_preset", message: "Configure ta caméra pour générer un clip vertical." }, 400);
+      const { data: preset, error: presetErr } = await userClient
+        .from("creator_video_layout_presets")
+        .select("*")
+        .eq("id", layoutPresetId)
+        .maybeSingle();
+      if (presetErr || !preset) return json({ error: "preset_not_found" }, 404);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const p = preset as any;
+      if (p.facecam_x === null || p.facecam_width === null) {
+        return json({ error: "invalid_layout", message: "Reconfigure ta zone caméra." }, 400);
+      }
+      layoutPayload = {
+        type: "facecam_top_gameplay_bottom",
+        output_width: 1080, output_height: 1920,
+        facecam: { x: p.facecam_x, y: p.facecam_y, w: p.facecam_width, h: p.facecam_height },
+        gameplay: p.gameplay_width
+          ? { x: p.gameplay_x, y: p.gameplay_y, w: p.gameplay_width, h: p.gameplay_height }
+          : null,
+        reference_width: p.source_reference_width,
+        reference_height: p.source_reference_height,
+      };
+    } else if (layoutType === "gameplay_only") {
+      layoutPayload = { type: "gameplay_only", output_width: 1080, output_height: 1920 };
+    }
+  }
+
   const { data: job, error: jobErr } = await admin
     .from("creator_video_generation_jobs")
     .insert({
@@ -193,7 +224,12 @@ Deno.serve(async (req) => {
       start_time_seconds: Math.round(startTime),
       end_time_seconds: Math.round(endTime),
       duration_seconds: duration,
-      output_format: "mp4_16_9",
+      output_format: outputFormat === "vertical_9_16" ? "mp4_9_16" : "mp4_16_9",
+      output_width: outputFormat === "vertical_9_16" ? 1080 : null,
+      output_height: outputFormat === "vertical_9_16" ? 1920 : null,
+      layout_type: layoutType,
+      layout_preset_id: layoutPresetId,
+      video_source_id: videoSourceId,
       status: "queued",
       progress: 0,
       generation_stage: "queued",
@@ -205,6 +241,8 @@ Deno.serve(async (req) => {
           start_time_seconds: Math.round(startTime),
           end_time_seconds: Math.round(endTime),
           duration_seconds: duration,
+          output_format: outputFormat,
+          layout_type: layoutType,
         },
       },
     })
@@ -219,8 +257,12 @@ Deno.serve(async (req) => {
       status: "generating",
       generation_status: "queued",
       generation_error: null,
+      output_format: outputFormat,
+      layout_type: layoutType,
+      video_source_id: videoSourceId,
     })
     .eq("id", contentItemId);
+
 
   // Resolve source URL (signed for storage, direct otherwise).
   let resolvedSourceUrl: string | null = null;
