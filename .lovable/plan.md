@@ -1,101 +1,179 @@
-# Pipeline serveur StreamScore — plan d'exécution
+# Format Réseaux — Clip vertical 1080x1920
 
-## Contexte
+Feature lourde, je cadre avant d'écrire du code. Validation attendue avant implémentation.
 
-Step 1 livré et validé : `process-analysis-job` (mode `single_admin`) calcule et écrit un `stream_score_snapshots` v3 côté serveur. Valeurs réelles fleevalo : overall=25, structure=28, content=0, positioning=50, momentum=45, affiliation=43.
+## 1. Cadrage technique
 
-Gap restant : `analysis_reports` (lu par le Dashboard pour le score courant, le breakdown, le wording, les recos) est encore généré uniquement par `autoRefreshRunner` côté navigateur. Tant qu'on n'ouvre pas le Dashboard, le score affiché reste l'ancien.
+**Output cible** : MP4 1080x1920, H.264 + AAC.
+**Layout V1 unique** : `facecam_top_gameplay_bottom`
+- Zone caméra : 1080x480 (haut, 25%)
+- Zone gameplay : 1080x1440 (bas, 75%)
 
-## Objectif
+**Sources d'entrée** (pipeline unifié) :
+1. Moment proposé Streamnco (existant)
+2. URL VOD Twitch (déjà partiellement géré via `vod-import-create`)
+3. Upload manuel MP4/MOV/WebM (signed upload URL → bucket `creator-source-videos`)
 
-Le backend devient la source de vérité unique pour `analysis_reports` + `stream_score_snapshots`. Le frontend ne calcule plus rien : il lit le dernier rapport et affiche.
+**Préset caméra** : 1 enregistrement par user/platform/platform_user_id. Obligatoire pour le layout vertical avec facecam, optionnel si "gameplay seul".
 
-## Découpage en 4 livraisons
+## 2. Data model
 
-### Livraison A — Port serveur du report assembler (la plus grosse)
+### Nouvelle table : `creator_video_layout_presets`
+```
+id uuid PK
+user_id uuid (FK auth.users) NOT NULL
+platform text NOT NULL ('twitch' V1)
+platform_user_id text NOT NULL
+layout_type text NOT NULL DEFAULT 'facecam_top_gameplay_bottom'
+facecam_x int, facecam_y int, facecam_width int, facecam_height int
+gameplay_x int, gameplay_y int, gameplay_width int, gameplay_height int  (nullable V1)
+output_width int DEFAULT 1080
+output_height int DEFAULT 1920
+source_reference_width int, source_reference_height int  (résolution où les coords ont été définies — pour scaler)
+created_at, updated_at
+UNIQUE(user_id, platform, platform_user_id)
+```
+RLS : `user_id = auth.uid()`. GRANT authenticated + service_role.
 
-Cible : `process-analysis-job` mode `single_admin` écrit aussi un `analysis_reports` complet.
+### Nouvelle table : `creator_video_sources`
+```
+id uuid PK
+user_id uuid NOT NULL
+source_type text ('streamnco_detected' | 'twitch_vod_url' | 'manual_upload')
+source_url text (URL externe : Twitch VOD)
+storage_bucket text, storage_path text (upload manuel)
+original_filename text
+duration_seconds numeric
+width int, height int
+mime_type text
+platform text, platform_video_id text
+created_at, updated_at
+```
+RLS user_id. GRANT auth + service_role.
 
-Travail :
+### `creator_content_items` (existant) — ajouter
+- `video_source_id uuid` (FK → creator_video_sources, nullable)
+- `output_format text` ('vertical_9_16' | 'horizontal_16_9') DEFAULT 'vertical_9_16'
+- `layout_type text` ('facecam_top_gameplay_bottom' | 'gameplay_only')
 
-1. Créer `supabase/functions/_shared/reportAssembler.ts` (port Deno de `src/services/reportAssembler.ts`). Dépendances à porter ou réutiliser :
-   - `_shared/factsEngine.ts` (existe déjà côté Deno) ✓
-   - `_shared/streamScoreEngine.ts` (existe déjà) ✓
-   - `_shared/recommendationEngine.ts` (à porter)
-   - `_shared/weeklyActions/*` (à porter — diagnosis, signals, ranking, catalog, generate, maturity)
-   - `_shared/liveProgressionCopy.ts` (à porter — copy FR)
-   - `_shared/reportConsistency.ts` (à porter)
-   - `_shared/shortContentPlanner.ts` (à porter)
-2. Module partagé physique : créer les fichiers côté `supabase/functions/_shared/` en TypeScript pur Deno-compatible (pas de DOM, pas de Supabase client). Le frontend continue d'importer depuis `src/services/*` qui délègue aux modules `_shared/` via un wrapper (comme déjà fait pour `streamScoreEngine`). Pas de duplication de logique.
-3. `process-analysis-job` orchestre :
-   - claim atomique (UPDATE `analysis_jobs` SET status='processing' WHERE id=? AND status='queued')
-   - `fetchTwitchFactsForAccount` (déjà OK)
-   - `assembleReport(facts, jobId, liveSessions, identity)`
-   - INSERT `analysis_reports` (le trigger `upsert_stream_score_snapshot_from_report` ON CONFLICT met à jour le snapshot existant — id stable)
-   - UPDATE `analysis_jobs` SET status='completed', completed_at=now()
-   - En erreur : status='failed', last_error=...
+### `creator_video_generation_jobs` (existant) — ajouter
+- `output_width int`, `output_height int`, `layout_type text`
+- `layout_preset_id uuid` (snapshot des coords utilisées)
+- `video_source_id uuid`
 
-Risques :
-- Le port doit produire un `analysis_reports.report_data` strictement équivalent au format frontend (mêmes clés). Sinon Dashboard casse.
-- Validation : comparer JSON.stringify(reportServer) vs reportFrontend sur 2-3 comptes test ; ajuster jusqu'à identité structurelle.
+## 3. Pipeline ffmpeg (worker `workers/clip-generator`)
 
-Critère de succès : pour le job fleevalo `01c0ce0e`, un nouveau `analysis_reports` apparaît avec `score.overall = 25`, breakdown complet, Affiliation présent (pas "Monétisation"), point de blocage = Contenu, action prioritaire = clip.
+Mise à jour de `workers/clip-generator/index.mjs`. Le worker reçoit le job avec : source (URL ou storage path signé), start/end, output dims, layout coords.
 
-### Livraison B — Cron Postgres toutes les 5 min
+**Si `gameplay_only`** :
+```
+ffmpeg -ss <start> -to <end> -i input
+  -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
+  -c:v libx264 -preset veryfast -crf 20 -c:a aac -b:a 128k out.mp4
+```
 
-Travail :
+**Si `facecam_top_gameplay_bottom`** : filter_complex à deux branches :
+```
+[0:v]trim=start=S:end=E,setpts=PTS-STARTPTS,split=2[a][b];
+[a]crop=FW:FH:FX:FY,scale=1080:480[cam];
+[b]crop=GW:GH:GX:GY,scale=1080:1440:force_original_aspect_ratio=increase,
+    crop=1080:1440[game];
+[cam][game]vstack=inputs=2[v]
+```
+Coords (FX,FY,FW,FH / GX,GY,...) scalées depuis `source_reference_width/height` vers la résolution réelle de la VOD si différente. Si gameplay coords absentes → utiliser image entière croppée.
 
-1. Activer extensions `pg_cron` et `pg_net` (probablement déjà actives — vérifier).
-2. Créer le cron via `supabase--insert` (pas migration, car contient secret) :
-   ```sql
-   select cron.schedule('process-analysis-jobs', '*/5 * * * *', $$
-     select net.http_post(
-       url := 'https://poblhczgdbnfunroshul.supabase.co/functions/v1/process-analysis-job',
-       headers := '{"Content-Type":"application/json","Authorization":"Bearer <CRON_SECRET>"}'::jsonb,
-       body := '{"mode":"queued_batch","limit":10}'::jsonb
-     );
-   $$);
-   ```
-3. Renforcer `process-analysis-job` queued_batch :
-   - colonnes à ajouter sur `analysis_jobs` : `retry_count int default 0`, `locked_at timestamptz`, `processing_started_at timestamptz`
-   - claim atomique avec `locked_at` (skip si déjà locked < 10 min)
-   - unlock auto des jobs `processing` depuis > 15 min (retry)
-   - status final `completed` / `failed` avec `last_error` <= 200 chars
+Audio : `-map 0:a -c:a aac -b:a 128k -ar 48000`.
 
-Critère de succès : créer un job queued à la main, attendre 5 min, vérifier qu'il passe en `completed` avec snapshot + report écrits sans toucher le frontend.
+## 4. Edge functions
 
-### Livraison C — Bouton "Relancer l'analyse" Dashboard
+- **`video-layout-preset-upsert`** (nouveau) : POST { layout_type, facecam_*, gameplay_*, source_reference_width/height } → upsert dans table preset
+- **`video-source-upload-url`** (nouveau / dérivé de `clip-source-upload-url`) : retourne signed upload URL pour `creator-source-videos`
+- **`video-source-register`** (nouveau) : après upload, enregistre la ligne `creator_video_sources` + sonde dimensions/duration (best-effort)
+- **`clip-job-create`** (existante — adapter) : accepte `video_source_id`, `output_format`, `layout_type`, lit preset si manquant, crée job worker
+- **`clip-job-callback`** (existante — pas de changement majeur, juste passe-through des nouvelles colonnes)
 
-Travail :
+## 5. Frontend
 
-1. Côté frontend `DashboardPage` : remplacer le `manualRefresh` actuel par :
-   - INSERT `analysis_jobs` (status='queued', trigger_source='manual_dashboard')
-   - Invoke `process-analysis-job` mode `single` avec JWT utilisateur (route déjà en place ; ajouter écriture `analysis_reports` une fois Livraison A faite)
-   - Loader "Analyse en cours…" pendant max 30s avec polling `analysis_jobs.status`
-   - Au passage à `completed` : re-fetch dernier `analysis_reports`, toast "Analyse mise à jour"
-   - En cas de timeout : message clair "L'analyse prend plus longtemps que prévu — le résultat apparaîtra automatiquement"
-2. Supprimer la dépendance "doit charger /dashboard pour déclencher autoRefreshRunner".
+### Nouveaux composants
+- `src/components/LayoutPresetModal.tsx` : modale "Configurer ma caméra" — preview frame VOD + zone draggable/resizable pour facecam (lib `react-rnd`) → save
+- `src/components/ClipFormatPicker.tsx` : 3 sources (moment / URL Twitch / upload)
+- `src/components/CreateClipDialog.tsx` : orchestrateur — choix source → preview → start/end → CTA générer
+- `src/components/ClipGenerationStatus.tsx` : étapes UX (Préparation, Découpage, Création format vertical, Export, Prêt)
+- `src/components/ContentItemSocialBadges.tsx` : badges "Format réseaux", "9:16", "Caméra + gameplay"
 
-### Livraison D — Migration progressive et nettoyage
+### Hooks
+- `src/hooks/useVideoLayoutPreset.ts` : read/upsert preset utilisateur
+- `src/hooks/useVideoSources.ts` : CRUD sources + upload signé
+- Adapter `useVideoJobs.ts` pour nouveaux champs
 
-1. Garder `autoRefreshRunner` actif 1 release comme fallback silencieux (ne plus le déclencher automatiquement, seulement si aucun report < 10 min et server-side processing a échoué).
-2. Documenter dans `docs/data-model-audit.md` : "analysis_reports écrit uniquement par process-analysis-job côté serveur. autoRefreshRunner = fallback déprécié."
-3. Une fois 1 semaine sans incident : supprimer `autoRefreshRunner` (Livraison E future).
+### Pages modifiées
+- `src/pages/ClipsPage.tsx` : ajouter CTA "Créer un clip" → ouvre `CreateClipDialog`
+- `src/pages/ContentQueuePage.tsx` : badges sociaux, preview verticale, retirer labels techniques (`Clip Draft`, `vod_auto_suggestion`, `draft_ready` → "Brouillon", "Suggestion", "Prêt")
+- `src/pages/SettingsPage.tsx` : entrée "Format réseaux" → ouvre `LayoutPresetModal`
 
-## Ordre d'exécution proposé
+### Wording
+Remplacer "Meilleurs moments / IA détecte" par "Moments proposés / Suggestions de clips" dans `ClipsPage`, `LastLivePage`, copies marketing internes.
 
-1. **Livraison A** (port reportAssembler) — bloquant, ~le plus de code, fait dans un PR dédié.
-2. **Livraison B** (cron) — dépend de A pour être utile, mais structurellement indépendant.
-3. **Livraison C** (bouton) — dépend de A.
-4. **Livraison D** (cleanup) — après stabilisation.
+## 6. Paywall
 
-## Validation finale fleevalo (commune aux 4 livraisons)
+Feature gate via `hasPlanAtLeast(plan, "pro")` (Pro+Growth). Aucune comparaison stricte.
 
-Après A+B en place :
-- nouveau job queued → cron consomme → `analysis_reports` créé → snapshot mis à jour
-- Dashboard rechargé : score = 25, breakdown affiche Affiliation, point de blocage = Contenu, action = "Transforme ton dernier live en au moins 1 clip publiable"
-- aucune mention "Monétisation" ou "données partielles"
+## 7. États UX (jamais montrer ffmpeg/worker/storage)
 
-## Question
+`queued → "En attente"`, `worker_started → "Préparation du clip"`, `downloading → "Téléchargement source"`, `cutting → "Découpage"`, `compositing → "Création format vertical"` (nouveau stage), `uploading → "Export du MP4"`, `completed → "Clip prêt"`, `failed → "Échec — Réessayer"`.
 
-Livraison A représente ~600-900 lignes de port Deno (recommendationEngine + weeklyActions/* + copy + glue + tests parité). Est-ce qu'on part directement sur Livraison A maintenant, ou tu veux qu'on valide d'abord Livraison B (cron sur le snapshot seul) pour avoir un quick-win serveur en attendant le port complet ?
+Ajouter `compositing` à `VideoGenerationStage` dans `src/services/videoGeneration.ts`.
+
+## 8. Fallbacks
+
+- Pas de preset + layout facecam → bloque génération, CTA "Configurer ma caméra" + option "Générer en gameplay seul"
+- Durée > 60s → warning non bloquant "Vise 15-60s"
+- Durée > 180s → bloque (limite worker)
+- Upload > 500 MB → erreur claire "Fichier trop lourd"
+- MIME non supporté → "Format non supporté. Utilise MP4, MOV ou WebM"
+
+## 9. Storage
+
+Réutilise buckets existants :
+- `creator-source-videos` (privé) → upload manuel + cache VOD téléchargée
+- `creator-generated-clips` (privé) → clips finaux, signed URL via `mediaStorage.ts`
+
+## 10. Limites V1 assumées
+
+- Layout unique : facecam top / gameplay bottom (pas de side-by-side, pas de PiP)
+- Pas d'overlays (titre, sous-titres, branding) → V1.1
+- Pas de détection auto facecam (manuel only) → V2
+- Gameplay zone optionnelle V1 (image complète croppée par défaut)
+- Pas de sélection de frame de référence pour le preset → on prend une frame à mi-VOD via ffmpeg
+
+## 11. Migration order
+
+1. SQL migration (2 tables + colonnes + GRANT + RLS)
+2. Edge functions (4 nouvelles + 1 modifiée)
+3. Worker update (filter_complex vertical)
+4. Frontend (preset modal → create dialog → content queue)
+5. QA matrice 9 cas
+
+## 12. QA matrice prévue
+
+| Cas | Attendu |
+|---|---|
+| Sans preset + facecam | Bloque + CTA config |
+| Sans preset + gameplay_only | Génère OK |
+| Avec preset, 15s, source moment | 1080x1920 OK |
+| Avec preset, 60s, URL Twitch | 1080x1920 OK |
+| Upload MP4 + preset | OK |
+| Upload >180s | Warning + bloque si >180s |
+| Mauvais MIME | Erreur claire |
+| Free user | Paywall bloque |
+| Growth user | Accès OK |
+
+---
+
+**Estimation effort** : ~25 fichiers touchés, 2 migrations, 4 edge functions, refonte worker. C'est gros — 1 PR cohérente.
+
+**Question avant d'attaquer** :
+1. OK pour limiter V1 au seul layout `facecam_top_gameplay_bottom` (pas de side-by-side) ?
+2. OK pour `react-rnd` comme dépendance pour le crop-picker du preset caméra ?
+3. Le worker `workers/clip-generator` est-il actuellement déployé et opérationnel ? (Je dois savoir si je peux casser son contrat actuel ou si je dois rester rétrocompatible avec les jobs horizontaux existants.)
+4. Limite dure de durée à 180s côté worker : OK ou tu veux plus (ex. 300s) ?
