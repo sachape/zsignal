@@ -169,6 +169,34 @@ const SettingsPage = () => {
           </Card>
         </section>
 
+        {/* Format réseaux */}
+        {isConnected && account?.platform_user_id && (
+          <section className="mb-6">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Format réseaux
+            </h2>
+            <Card>
+              <CardContent className="flex items-center justify-between gap-4 p-5">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Configurer ma caméra</p>
+                  <p className="text-xs text-muted-foreground">
+                    Indique l’emplacement de ta caméra dans tes streams. Streamnco l’utilisera pour générer tes clips verticaux 1080×1920.
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => setPresetOpen(true)}>
+                  Configurer
+                </Button>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+        <LayoutPresetModal
+          open={presetOpen}
+          onOpenChange={setPresetOpen}
+          platformUserId={account?.platform_user_id ?? null}
+        />
+
+
         {/* Sécurité */}
         <section className="mb-6">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
