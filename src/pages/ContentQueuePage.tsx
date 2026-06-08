@@ -180,7 +180,7 @@ const ContentQueuePage = () => {
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <StatCell label="Total" value={counts.total} />
           <StatCell label="À générer" value={counts.to_generate} accent="violet" />
-          <StatCell label="Drafts" value={counts.draft_ready} accent="cyan" />
+          <StatCell label="Brouillons" value={counts.draft_ready} accent="cyan" />
           <StatCell label="Prêts" value={counts.ready} accent="primary" />
           <StatCell label="Publiés" value={counts.published} accent="emerald" />
         </div>
