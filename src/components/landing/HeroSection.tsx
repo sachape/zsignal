@@ -133,6 +133,7 @@ const HeroSection = () => {
               aria-hidden
               loading="eager"
               className="w-full max-w-sm xl:max-w-md"
+              style={{ mixBlendMode: "multiply" }}
             />
 
             {/* Floating speech-bubble chip: Score */}

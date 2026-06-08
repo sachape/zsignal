@@ -53,16 +53,15 @@ const HowItWorksSection = () => {
               className="flex h-full flex-col overflow-hidden rounded-2xl border-2 border-foreground/75 bg-card"
               style={{ boxShadow: `4px 4px 0 0 ${color}` }}
             >
-              {/* Illustration fills the top */}
-              <div className="h-52 overflow-hidden">
-                <img
-                  src={illus}
-                  alt=""
-                  aria-hidden
-                  loading="lazy"
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
+              {/* Illustration complète, blend avec le fond */}
+              <img
+                src={illus}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                className="w-full"
+                style={{ mixBlendMode: "multiply" }}
+              />
 
               {/* Content */}
               <div className="flex flex-1 flex-col p-6">

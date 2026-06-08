@@ -56,16 +56,15 @@ const AudienceValueSection = () => {
               className="flex h-full flex-col overflow-hidden rounded-2xl border-2 border-foreground/75 bg-card transition-all duration-150 hover:-translate-x-px hover:-translate-y-px"
               style={{ boxShadow: "4px 4px 0 0 rgba(23,29,46,0.72)" }}
             >
-              {/* Illustration — remplit le top de la card edge-to-edge */}
-              <div className="h-52 overflow-hidden">
-                <img
-                  src={illus}
-                  alt=""
-                  aria-hidden
-                  loading="lazy"
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
+              {/* Illustration complète, blend avec le fond */}
+              <img
+                src={illus}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                className="w-full"
+                style={{ mixBlendMode: "multiply" }}
+              />
 
               {/* Content */}
               <div className="flex flex-1 flex-col p-6 md:p-7">
