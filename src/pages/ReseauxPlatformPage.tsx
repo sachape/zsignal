@@ -200,7 +200,7 @@ export default function ReseauxPlatformPage() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-bold">{meta.label}</h1>
+              <h1 className="font-display text-xl font-bold">{meta.label}</h1>
               <span className={cn(
                 "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
                 status === "connected" ? "text-primary border-primary/30 bg-primary/5" :

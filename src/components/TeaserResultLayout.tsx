@@ -284,7 +284,7 @@ const TeaserResultLayout = ({
 
           {/* Identity */}
           <div className="flex flex-col items-center gap-2">
-            <h1 className="bg-gradient-to-b from-foreground to-foreground/80 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl">
+            <h1 className="font-display bg-gradient-to-b from-foreground to-foreground/80 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl">
               {summary.display_name}
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-2">

@@ -115,7 +115,7 @@ const PlaybookDetailPage = () => {
               <BookOpen className="h-3 w-3" /> Playbook
             </div>
 
-            <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h1 className="font-display mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               {playbook.title}
             </h1>
 

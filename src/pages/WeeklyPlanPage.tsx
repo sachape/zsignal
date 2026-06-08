@@ -964,7 +964,7 @@ const WeeklyPlanPage = () => {
       <PageContainer size="sm">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
             Feuille de route
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
