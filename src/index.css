@@ -84,6 +84,11 @@
     overflow-x: hidden;
     width: 100%;
   }
+  /* Tous les titres du site en Boogaloo (police display).
+     Une classe utilitaire font-* sur un titre garde la priorité. */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
 }
 
 /* ── Landing-shared: rotating conic gradient border for hero cells ── */
