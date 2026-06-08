@@ -633,11 +633,13 @@ export type Database = {
           hashtags: Json
           id: string
           last_metrics_sync_at: string | null
+          layout_type: string | null
           live_session_id: string | null
           notes: string | null
           opportunity_label: string | null
           opportunity_reason: string | null
           opportunity_score: number | null
+          output_format: string | null
           platform: string
           post_publish_metrics: Json | null
           priority: string
@@ -661,6 +663,7 @@ export type Database = {
           title_variants: Json
           updated_at: string
           user_id: string
+          video_source_id: string | null
           youtube_privacy_status: string | null
           youtube_uploaded_at: string | null
           youtube_url: string | null
@@ -682,11 +685,13 @@ export type Database = {
           hashtags?: Json
           id?: string
           last_metrics_sync_at?: string | null
+          layout_type?: string | null
           live_session_id?: string | null
           notes?: string | null
           opportunity_label?: string | null
           opportunity_reason?: string | null
           opportunity_score?: number | null
+          output_format?: string | null
           platform: string
           post_publish_metrics?: Json | null
           priority?: string
@@ -710,6 +715,7 @@ export type Database = {
           title_variants?: Json
           updated_at?: string
           user_id: string
+          video_source_id?: string | null
           youtube_privacy_status?: string | null
           youtube_uploaded_at?: string | null
           youtube_url?: string | null
@@ -731,11 +737,13 @@ export type Database = {
           hashtags?: Json
           id?: string
           last_metrics_sync_at?: string | null
+          layout_type?: string | null
           live_session_id?: string | null
           notes?: string | null
           opportunity_label?: string | null
           opportunity_reason?: string | null
           opportunity_score?: number | null
+          output_format?: string | null
           platform?: string
           post_publish_metrics?: Json | null
           priority?: string
@@ -759,12 +767,21 @@ export type Database = {
           title_variants?: Json
           updated_at?: string
           user_id?: string
+          video_source_id?: string | null
           youtube_privacy_status?: string | null
           youtube_uploaded_at?: string | null
           youtube_url?: string | null
           youtube_video_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "creator_content_items_video_source_id_fkey"
+            columns: ["video_source_id"]
+            isOneToOne: false
+            referencedRelation: "creator_video_sources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       creator_live_sessions: {
         Row: {
@@ -1089,10 +1106,14 @@ export type Database = {
           error_message: string | null
           generation_stage: string
           id: string
+          layout_preset_id: string | null
+          layout_type: string | null
           metadata: Json | null
           output_format: string
+          output_height: number | null
           output_storage_path: string | null
           output_url: string | null
+          output_width: number | null
           progress: number | null
           source_storage_path: string | null
           source_type: string
@@ -1101,6 +1122,7 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          video_source_id: string | null
           worker_completed_at: string | null
           worker_last_seen_at: string | null
           worker_started_at: string | null
@@ -1116,10 +1138,14 @@ export type Database = {
           error_message?: string | null
           generation_stage?: string
           id?: string
+          layout_preset_id?: string | null
+          layout_type?: string | null
           metadata?: Json | null
           output_format?: string
+          output_height?: number | null
           output_storage_path?: string | null
           output_url?: string | null
+          output_width?: number | null
           progress?: number | null
           source_storage_path?: string | null
           source_type: string
@@ -1128,6 +1154,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          video_source_id?: string | null
           worker_completed_at?: string | null
           worker_last_seen_at?: string | null
           worker_started_at?: string | null
@@ -1143,10 +1170,14 @@ export type Database = {
           error_message?: string | null
           generation_stage?: string
           id?: string
+          layout_preset_id?: string | null
+          layout_type?: string | null
           metadata?: Json | null
           output_format?: string
+          output_height?: number | null
           output_storage_path?: string | null
           output_url?: string | null
+          output_width?: number | null
           progress?: number | null
           source_storage_path?: string | null
           source_type?: string
@@ -1155,6 +1186,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          video_source_id?: string | null
           worker_completed_at?: string | null
           worker_last_seen_at?: string | null
           worker_started_at?: string | null
@@ -1167,7 +1199,141 @@ export type Database = {
             referencedRelation: "creator_content_items"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "creator_video_generation_jobs_layout_preset_id_fkey"
+            columns: ["layout_preset_id"]
+            isOneToOne: false
+            referencedRelation: "creator_video_layout_presets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_video_generation_jobs_video_source_id_fkey"
+            columns: ["video_source_id"]
+            isOneToOne: false
+            referencedRelation: "creator_video_sources"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      creator_video_layout_presets: {
+        Row: {
+          created_at: string
+          facecam_height: number | null
+          facecam_width: number | null
+          facecam_x: number | null
+          facecam_y: number | null
+          gameplay_height: number | null
+          gameplay_width: number | null
+          gameplay_x: number | null
+          gameplay_y: number | null
+          id: string
+          layout_type: string
+          output_height: number
+          output_width: number
+          platform: string
+          platform_user_id: string
+          source_reference_height: number | null
+          source_reference_width: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          facecam_height?: number | null
+          facecam_width?: number | null
+          facecam_x?: number | null
+          facecam_y?: number | null
+          gameplay_height?: number | null
+          gameplay_width?: number | null
+          gameplay_x?: number | null
+          gameplay_y?: number | null
+          id?: string
+          layout_type?: string
+          output_height?: number
+          output_width?: number
+          platform?: string
+          platform_user_id: string
+          source_reference_height?: number | null
+          source_reference_width?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          facecam_height?: number | null
+          facecam_width?: number | null
+          facecam_x?: number | null
+          facecam_y?: number | null
+          gameplay_height?: number | null
+          gameplay_width?: number | null
+          gameplay_x?: number | null
+          gameplay_y?: number | null
+          id?: string
+          layout_type?: string
+          output_height?: number
+          output_width?: number
+          platform?: string
+          platform_user_id?: string
+          source_reference_height?: number | null
+          source_reference_width?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      creator_video_sources: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          height: number | null
+          id: string
+          mime_type: string | null
+          original_filename: string | null
+          platform: string | null
+          platform_video_id: string | null
+          source_type: string
+          source_url: string | null
+          storage_bucket: string | null
+          storage_path: string | null
+          updated_at: string
+          user_id: string
+          width: number | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          platform?: string | null
+          platform_video_id?: string | null
+          source_type: string
+          source_url?: string | null
+          storage_bucket?: string | null
+          storage_path?: string | null
+          updated_at?: string
+          user_id: string
+          width?: number | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          platform?: string | null
+          platform_video_id?: string | null
+          source_type?: string
+          source_url?: string | null
+          storage_bucket?: string | null
+          storage_path?: string | null
+          updated_at?: string
+          user_id?: string
+          width?: number | null
+        }
+        Relationships: []
       }
       email_send_log: {
         Row: {
