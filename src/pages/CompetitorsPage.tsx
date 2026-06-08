@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { analytics } from "@/services/analytics";
 import { ArrowLeft, Trophy, Users, Info, Compass, Lock } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
+import { useSubscription } from "@/hooks/useSubscription";
 import { InlineLock } from "@/components/PaywallGate";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -17,7 +18,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { hasPlanAtLeast, normalizePlan } from "@/lib/planAccess";
+import { isAdminMode } from "@/lib/featureFlags";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import {
   getLatestReport,
@@ -97,9 +101,20 @@ function isSeedCategoryTrustworthy(seed: BenchmarkSeed | null): boolean {
 
 const FREE_COMPETITORS_LIMIT = 3;
 
+interface RawSubscriptionDebug {
+  plan_name: string | null;
+  status: string | null;
+  billing_cycle: string | null;
+  stripe_price_id: string | null;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean | null;
+}
+
 const CompetitorsPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const { isPro } = usePlan();
+  const planInfo = usePlan();
+  const subscriptionInfo = useSubscription();
+  const { plan, isPro, isGrowth, loading: planLoading } = planInfo;
   const { account, loading: connectionLoading } = useTwitchConnection();
   const [report, setReport] = useState<SavedReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +124,7 @@ const CompetitorsPage = () => {
   const [debug, setDebug] = useState<CompetitorPoolDebug | null>(null);
   const [seed, setSeed] = useState<BenchmarkSeed | null>(null);
   const [nicheVersion, setNicheVersion] = useState(0);
+  const [rawSubscriptionDebug, setRawSubscriptionDebug] = useState<RawSubscriptionDebug | null>(null);
 
   // Re-run discovery when the user picks a niche.
   useEffect(() => {
