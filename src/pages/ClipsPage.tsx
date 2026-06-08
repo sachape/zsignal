@@ -425,7 +425,7 @@ const ClipsPage = () => {
         <CreateClipDialog
           open={createOpen}
           onOpenChange={setCreateOpen}
-          platformUserId={account?.platformUserId ?? null}
+          platformUserId={account?.broadcaster_id ?? null}
         />
 
 
