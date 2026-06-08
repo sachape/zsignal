@@ -149,12 +149,12 @@
   --input: 38 22% 87%;
   --ring: 85 76% 38%;
 
-  /* Brand primary: illustration lime green, calibrated for light bg */
-  --primary: 85 78% 38%;             /* #5BA40C */
-  --primary-foreground: 0 0% 100%;   /* white on green */
+  /* Brand primary: violet des speech bubbles des illustrations */
+  --primary: 258 47% 48%;            /* #6B47B8 */
+  --primary-foreground: 0 0% 100%;   /* white on violet */
 
-  /* Purple accent (from illustrations speech bubbles) */
-  --accent: 258 47% 48%;             /* #6B47B8 */
+  /* Green as secondary accent */
+  --accent: 85 78% 38%;              /* lime green #5BA40C */
   --accent-foreground: 0 0% 100%;
 
   /* Semantic states — unchanged */
@@ -165,9 +165,10 @@
   --destructive: 0 72% 51%;
   --destructive-foreground: 210 20% 98%;
 
-  /* Brand extras — orange from illustrations */
+  /* Brand extras */
   --brand-orange: 25 88% 55%;
   --brand-purple: 258 47% 48%;
+  --brand-green: 85 78% 38%;
 }
 
 /* ── Print / PDF export ─────────────────────────────────────────── */
