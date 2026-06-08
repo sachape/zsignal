@@ -58,14 +58,14 @@ export function useSubscription(): SubscriptionInfo {
 
       const status = data.status ?? null;
       const isActive = status ? ACTIVE_STATUSES.has(status) : false;
-      const plan = (data.plan_name ?? "free") as "free" | "pro" | "growth";
+      const plan = (isActive ? normalizePlan(data.plan_name) : "free") as "free" | "pro" | "growth";
       setState({
-        plan_name: isActive ? plan : "free",
+        plan_name: plan,
         billing_cycle: (data.billing_cycle as "monthly" | "annual" | null) ?? null,
         status,
         is_active: isActive,
-        is_pro: isActive && plan === "pro",
-        is_growth: isActive && plan === "growth",
+        is_pro: isActive && hasPlanAtLeast(plan, "pro"),
+        is_growth: isActive && hasPlanAtLeast(plan, "growth"),
         current_period_end: data.current_period_end ?? null,
         cancel_at_period_end: data.cancel_at_period_end ?? false,
         loading: false,
