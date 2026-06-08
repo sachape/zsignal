@@ -73,7 +73,7 @@ const BlogPage = () => {
       <SectionShell className="pt-32 md:pt-40">
         <div className="mx-auto max-w-3xl text-center">
           <SectionBadge>Blog</SectionBadge>
-          <h1 className="mt-5 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
+          <h1 className="mt-5 font-display text-4xl font-bold leading-tight text-foreground sm:text-5xl md:text-6xl">
             Tout ce que tu dois savoir pour progresser sur Twitch
           </h1>
           <p className="mt-5 text-base text-muted-foreground sm:text-lg">
@@ -98,9 +98,9 @@ const BlogPage = () => {
       </SectionShell>
 
       {/* CTA strip */}
-      <section className="border-t border-white/[0.06] bg-card/20 py-16">
+      <section className="border-t-2 border-foreground/10 bg-muted/30 py-16">
         <div className="container mx-auto max-w-3xl px-4 text-center">
-          <p className="text-2xl font-bold text-foreground">
+          <p className="font-display text-2xl font-bold text-foreground">
             Prêt à diagnostiquer ta chaîne ?
           </p>
           <p className="mt-3 text-sm text-muted-foreground">

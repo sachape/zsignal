@@ -90,7 +90,7 @@ const SolutionsPage = () => {
             <SectionBadge>
               <Users className="h-3 w-3" /> Solutions
             </SectionBadge>
-            <h1 className="mx-auto mt-5 max-w-2xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-[3.5rem]">
+            <h1 className="mx-auto mt-5 max-w-2xl font-display text-4xl font-bold leading-tight text-foreground sm:text-5xl md:text-[3.5rem]">
               Le bon outil,<br />au bon niveau.
             </h1>
             <p className="mx-auto mt-4 max-w-md text-base text-foreground/60 md:text-lg">
@@ -150,7 +150,7 @@ const SolutionsPage = () => {
                   </ul>
 
                   {/* Plan + CTA */}
-                  <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-4">
+                  <div className="mt-6 flex items-center justify-between border-t border-foreground/10 pt-4">
                     <span className={cn("rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", p.planStyle)}>
                       {p.plan}
                     </span>
@@ -186,7 +186,7 @@ const SolutionsPage = () => {
                       Agency
                     </span>
                   </div>
-                  <h2 className="mt-5 text-2xl font-bold text-foreground sm:text-3xl">
+                  <h2 className="mt-5 font-display text-2xl font-bold text-foreground sm:text-3xl">
                     Tu gères plusieurs streamers ?
                   </h2>
                   <p className="mt-3 text-sm text-muted-foreground leading-relaxed max-w-sm">
@@ -222,11 +222,9 @@ const SolutionsPage = () => {
       </section>
 
       {/* ── Bottom CTA — premium split ── */}
-      <SectionShell grid={false}>
+      <SectionShell>
         <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background shadow-[0_40px_120px_-40px_hsl(var(--primary)/0.2)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_left,hsl(var(--primary)/0.12),transparent_55%)]" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)] opacity-40" />
+          <div className="relative overflow-hidden rounded-3xl border-2 border-foreground/80 bg-card" style={{ boxShadow: "6px 6px 0 0 hsl(var(--primary))" }}>
 
             <div className="relative grid lg:grid-cols-[1.1fr_1fr]">
 
@@ -235,7 +233,7 @@ const SolutionsPage = () => {
                 <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
                   <Zap className="h-3 w-3" /> Gratuit · Sans compte
                 </span>
-                <h2 className="mt-5 text-3xl font-bold leading-tight text-foreground md:text-4xl">
+                <h2 className="mt-5 font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
                   Découvre ton profil<br />de streamer.
                 </h2>
                 <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">

@@ -357,7 +357,7 @@ const FeaturesPage = () => {
             <SectionBadge>
               <Sparkles className="h-3 w-3" /> Fonctionnalités
             </SectionBadge>
-            <h1 className="mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
+            <h1 className="mx-auto mt-5 max-w-3xl font-display text-4xl font-bold leading-tight text-foreground sm:text-5xl md:text-6xl">
               Tout ce qu'il faut pour progresser sur Twitch
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-base text-foreground/70 md:text-lg">
@@ -377,7 +377,7 @@ const FeaturesPage = () => {
       </section>
 
       {/* ── Main features bento grid ── */}
-      <SectionShell glow={false}>
+      <SectionShell>
         <div className="grid gap-4 md:grid-cols-4">
           {mainFeatures.map((f, i) => (
             <FadeIn key={f.label} delay={i * 0.07} className={f.span}>
@@ -402,7 +402,7 @@ const FeaturesPage = () => {
       </SectionShell>
 
       {/* ── Ecosystem features — premium illustrated cards ── */}
-      <SectionShell glow={false} grid={false}>
+      <SectionShell>
         <div className="mb-12 text-center">
           <SectionHeading
             badge="Et aussi"
@@ -564,22 +564,19 @@ const FeaturesPage = () => {
       </SectionShell>
 
       {/* ── CTA — split layout with product preview ── */}
-      <SectionShell grid={false}>
+      <SectionShell>
         <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background shadow-[0_40px_120px_-40px_hsl(var(--primary)/0.2)]">
-            {/* Ambient */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_left,hsl(var(--primary)/0.12),transparent_55%)]" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)] opacity-50" />
+          <div className="relative overflow-hidden rounded-3xl border-2 border-foreground/80 bg-card" style={{ boxShadow: "6px 6px 0 0 hsl(var(--primary))" }}>
 
             <div className="relative grid lg:grid-cols-[1.1fr_1fr]">
 
               {/* LEFT — CTA */}
               <div className="flex flex-col justify-center p-8 sm:p-10 md:p-12 lg:p-14">
-                <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-foreground px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-background">
                   <Zap className="h-3 w-3" /> Gratuit · Sans compte
                 </span>
 
-                <h2 className="mt-5 text-3xl font-bold leading-tight text-foreground md:text-4xl">
+                <h2 className="mt-5 font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
                   Vois ce qui bloque<br />ta chaîne. Maintenant.
                 </h2>
 
@@ -587,75 +584,63 @@ const FeaturesPage = () => {
                   Entre ton pseudo Twitch ci-dessous. En 60 secondes tu as ton score, ton blocage principal et ton premier plan d'action.
                 </p>
 
-                <Button
-                  size="lg"
-                  className="mt-7 gap-2"
-                  onClick={() => openAuthModal("signup")}
-                >
+                <Button size="lg" className="mt-7 gap-2 w-fit" onClick={() => openAuthModal("signup")}>
                   <Sparkles className="h-4 w-4" />
                   Essayer gratuitement
                 </Button>
 
-                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground/60">
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
                   {["Sans connexion Twitch", "Résultat en 60 s", "8 000+ chaînes analysées"].map((t) => (
                     <span key={t} className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />{t}
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />{t}
                     </span>
                   ))}
                 </div>
               </div>
 
-              {/* RIGHT — Product preview */}
-              <div className="relative hidden min-h-[380px] overflow-hidden lg:flex lg:items-center lg:justify-center">
-                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card/30 to-transparent" />
-
-                {/* Central score ring */}
+              {/* RIGHT — Score ring + floating chips */}
+              <div className="relative hidden min-h-[340px] overflow-hidden bg-muted/20 lg:flex lg:items-center lg:justify-center">
                 <div className="relative">
-                  <div className="pointer-events-none absolute inset-0 rounded-full bg-primary/15 blur-3xl" />
                   <svg viewBox="0 0 160 160" className="relative h-36 w-36">
                     <defs>
                       <linearGradient id="ctaRingGrad" x1="0" y1="0" x2="1" y2="1">
                         <stop offset="0%" stopColor="hsl(var(--primary))" />
-                        <stop offset="100%" stopColor="hsl(var(--primary)/0.35)" />
+                        <stop offset="100%" stopColor="hsl(var(--primary)/0.4)" />
                       </linearGradient>
                     </defs>
-                    <circle cx="80" cy="80" r="66" fill="none" stroke="hsl(var(--border)/0.25)" strokeWidth="8" />
+                    <circle cx="80" cy="80" r="66" fill="none" stroke="hsl(var(--foreground)/0.08)" strokeWidth="8" />
                     <motion.circle
                       cx="80" cy="80" r="66" fill="none"
                       stroke="url(#ctaRingGrad)" strokeWidth="8" strokeLinecap="round"
                       strokeDasharray={2 * Math.PI * 66}
-                      initial={{ strokeDashoffset: 2 * Math.PI * 66, rotate: -90 }}
+                      initial={{ strokeDashoffset: 2 * Math.PI * 66 }}
                       whileInView={{ strokeDashoffset: 2 * Math.PI * 66 * 0.28 }}
                       style={{ transformOrigin: "80px 80px", transform: "rotate(-90deg)" }}
                       viewport={{ once: true }}
                       transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
                     />
-                    <text x="80" y="76" textAnchor="middle" className="fill-foreground" style={{ fontSize: 28, fontWeight: 700, fill: "hsl(var(--foreground))" }}>72</text>
-                    <text x="80" y="94" textAnchor="middle" style={{ fontSize: 9, fontWeight: 600, fill: "hsl(var(--muted-foreground))", letterSpacing: "0.15em", textTransform: "uppercase" }}>StreamScore</text>
+                    <text x="80" y="76" textAnchor="middle" style={{ fontSize: 28, fontWeight: 700, fill: "hsl(var(--foreground))" }}>72</text>
+                    <text x="80" y="94" textAnchor="middle" style={{ fontSize: 9, fontWeight: 600, fill: "hsl(var(--muted-foreground))", letterSpacing: "0.15em" }}>StreamScore</text>
                   </svg>
 
-                  {/* Floating card — Blocage */}
                   <motion.div
-                    className="absolute -left-28 top-0 w-[160px] rounded-xl border border-white/10 bg-card/80 p-3 backdrop-blur-xl shadow-lg"
+                    className="absolute -left-28 top-0 w-[160px] rounded-xl border-2 border-foreground/70 bg-card p-3"
+                    style={{ boxShadow: "3px 3px 0 0 rgba(23,29,46,0.6)", animation: "hero-float 7s ease-in-out infinite" }}
                     initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }} transition={{ delay: 0.8, duration: 0.6 }}
-                    style={{ animation: "hero-float 7s ease-in-out infinite" }}
                   >
-                    <p className="text-[9px] font-semibold uppercase tracking-widest text-warning/70">Blocage #1</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Blocage #1</p>
                     <p className="mt-1 text-[11px] font-semibold text-foreground">Régularité trop instable</p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground/60">Créneaux variables sur 30j</p>
                   </motion.div>
 
-                  {/* Floating card — Priorité */}
                   <motion.div
-                    className="absolute -right-28 bottom-0 w-[160px] rounded-xl border border-white/10 bg-card/80 p-3 backdrop-blur-xl shadow-lg"
+                    className="absolute -right-28 bottom-0 w-[160px] rounded-xl border-2 border-foreground/70 bg-card p-3"
+                    style={{ boxShadow: "3px 3px 0 0 hsl(var(--primary))", animation: "hero-float 8s ease-in-out infinite 1s" }}
                     initial={{ opacity: 0, x: 10 }} whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }} transition={{ delay: 1, duration: 0.6 }}
-                    style={{ animation: "hero-float 8s ease-in-out infinite 1s" }}
                   >
-                    <p className="text-[9px] font-semibold uppercase tracking-widest text-primary/70">Action #1</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-primary">Action #1</p>
                     <p className="mt-1 text-[11px] font-semibold text-foreground">Fixer 2 créneaux fixes</p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground/60">Impact estimé : +12 pts</p>
                   </motion.div>
                 </div>
               </div>
