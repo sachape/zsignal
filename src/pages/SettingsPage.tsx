@@ -29,6 +29,8 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [presetOpen, setPresetOpen] = useState(false);
+
 
   const handleDeleteAccount = async () => {
     setDeleting(true);
