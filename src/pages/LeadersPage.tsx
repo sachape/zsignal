@@ -88,7 +88,8 @@ const FREE_LEADERS_LIMIT = 3;
 
 const LeadersPage = () => {
   const { user } = useAuth();
-  const { isPro } = usePlan();
+  const { isPro, loading: planLoading } = usePlan();
+  const canAccessProFeatures = isPro && !planLoading;
 
   const [category, setCategory] = useState<string>("Just Chatting");
   const [language, setLanguage] = useState<string>("fr");
@@ -452,11 +453,15 @@ const LeadersPage = () => {
               </TabsList>
 
               <TabsContent value="streamscore" className="mt-0">
-                <StreamScoreLeaderboard
-                  category={category}
-                  language={language}
-                  isPro={isPro}
-                />
+                {planLoading ? (
+                  <LoadingState />
+                ) : (
+                  <StreamScoreLeaderboard
+                    category={category}
+                    language={language}
+                    isPro={canAccessProFeatures}
+                  />
+                )}
               </TabsContent>
 
               <TabsContent value="live" className="mt-0">
@@ -550,8 +555,8 @@ const LeadersPage = () => {
                 </CardContent>
               </Card>
             ) : (() => {
-              const visibleRows = isPro ? filtered : filtered.slice(0, FREE_LEADERS_LIMIT);
-              const lockedRows = isPro ? [] : filtered.slice(FREE_LEADERS_LIMIT);
+              const visibleRows = canAccessProFeatures ? filtered : filtered.slice(0, FREE_LEADERS_LIMIT);
+              const lockedRows = canAccessProFeatures ? [] : filtered.slice(FREE_LEADERS_LIMIT);
 
               const renderRow = (c: (typeof filtered)[number], idx: number) => {
                 const separatorLabel = TIER_SEPARATORS[idx];
