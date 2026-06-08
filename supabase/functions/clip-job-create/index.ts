@@ -311,7 +311,9 @@ Deno.serve(async (req) => {
         end_time_seconds: Math.round(endTime),
         callback_url: callbackUrl,
         callback_secret: WORKER_SHARED_SECRET,
+        layout: layoutPayload,
       }),
+
     });
     const workerBody = await workerRes.text().catch(() => "");
     await admin
