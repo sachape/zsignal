@@ -134,6 +134,55 @@ const CompetitorsPage = () => {
       window.removeEventListener("streampulse:preferred-niche-changed", handler);
   }, []);
 
+  const normalizedPlan = normalizePlan(subscriptionInfo.plan_name);
+  const canAccessProFeatures = hasPlanAtLeast(plan, "pro");
+  const canAccessGrowthFeatures = hasPlanAtLeast(plan, "growth");
+
+  useEffect(() => {
+    if (!user || !isAdminMode()) return;
+    let cancelled = false;
+    supabase
+      .from("subscriptions")
+      .select("plan_name, status, billing_cycle, stripe_price_id, current_period_end, cancel_at_period_end")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) {
+          setRawSubscriptionDebug(data ?? null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, plan, subscriptionInfo.plan_name, subscriptionInfo.status]);
+
+  useEffect(() => {
+    if (!isAdminMode()) return;
+    console.info("[Streamnco paywall runtime]", {
+      rawPlanFromDb: rawSubscriptionDebug?.plan_name ?? null,
+      plan_name: subscriptionInfo.plan_name,
+      subscription_status: subscriptionInfo.status,
+      is_active: subscriptionInfo.is_active,
+      normalizedPlan,
+      usePlan_plan: plan,
+      usePlan_isPro: isPro,
+      usePlan_isGrowth: isGrowth,
+      useSubscription_is_pro: subscriptionInfo.is_pro,
+      useSubscription_is_growth: subscriptionInfo.is_growth,
+      hasPlanAtLeastPro: canAccessProFeatures,
+      hasPlanAtLeastGrowth: canAccessGrowthFeatures,
+    });
+  }, [
+    rawSubscriptionDebug,
+    subscriptionInfo,
+    normalizedPlan,
+    plan,
+    isPro,
+    isGrowth,
+    canAccessProFeatures,
+    canAccessGrowthFeatures,
+  ]);
+
   useEffect(() => {
     if (authLoading || connectionLoading || !user) return;
     let cancelled = false;
@@ -471,7 +520,7 @@ const CompetitorsPage = () => {
     };
   }, [benchmarkReport, seed, mode, allMatches.length, user, nicheVersion]);
 
-  if (loading) {
+  if (loading || planLoading) {
     return (
       <AppShell>
         <LoadingState />
