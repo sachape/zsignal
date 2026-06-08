@@ -100,7 +100,7 @@ async function resolveAccountLimit(admin: any, userId: string): Promise<number> 
   const status = (data?.status ?? "") as string;
   const plan = (data?.plan_name ?? "free") as string;
   const active = status === "active" || status === "trialing";
-  if (active && plan === "growth") return LIMIT_GROWTH;
+  if (active && (plan === "growth" || plan === "agency")) return LIMIT_GROWTH;
   return LIMIT_FREE_PRO;
 }
 
