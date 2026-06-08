@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { hasPlanAtLeast, normalizePlan } from "@/lib/planAccess";
+import { hasPlanAtLeast } from "@/lib/planAccess";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import {
@@ -101,7 +101,7 @@ const FREE_COMPETITORS_LIMIT = 3;
 const CompetitorsPage = () => {
   const { user, loading: authLoading } = useAuth();
   const planInfo = usePlan();
-  const { plan, isPro, isGrowth, loading: planLoading } = planInfo;
+  const { plan, loading: planLoading } = planInfo;
   const { account, loading: connectionLoading } = useTwitchConnection();
   const [report, setReport] = useState<SavedReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,54 +120,7 @@ const CompetitorsPage = () => {
       window.removeEventListener("streampulse:preferred-niche-changed", handler);
   }, []);
 
-  const normalizedPlan = normalizePlan(subscriptionInfo.plan_name);
   const canAccessProFeatures = hasPlanAtLeast(plan, "pro");
-  const canAccessGrowthFeatures = hasPlanAtLeast(plan, "growth");
-
-  useEffect(() => {
-    if (!user || !isAdminMode()) return;
-    let cancelled = false;
-    supabase
-      .from("subscriptions")
-      .select("plan_name, status, billing_cycle, stripe_price_id, current_period_end, cancel_at_period_end")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!cancelled) {
-          setRawSubscriptionDebug(data ?? null);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [user, plan, subscriptionInfo.plan_name, subscriptionInfo.status]);
-
-  useEffect(() => {
-    if (!isAdminMode()) return;
-    console.info("[Streamnco paywall runtime]", {
-      rawPlanFromDb: rawSubscriptionDebug?.plan_name ?? null,
-      plan_name: subscriptionInfo.plan_name,
-      subscription_status: subscriptionInfo.status,
-      is_active: subscriptionInfo.is_active,
-      normalizedPlan,
-      usePlan_plan: plan,
-      usePlan_isPro: isPro,
-      usePlan_isGrowth: isGrowth,
-      useSubscription_is_pro: subscriptionInfo.is_pro,
-      useSubscription_is_growth: subscriptionInfo.is_growth,
-      hasPlanAtLeastPro: canAccessProFeatures,
-      hasPlanAtLeastGrowth: canAccessGrowthFeatures,
-    });
-  }, [
-    rawSubscriptionDebug,
-    subscriptionInfo,
-    normalizedPlan,
-    plan,
-    isPro,
-    isGrowth,
-    canAccessProFeatures,
-    canAccessGrowthFeatures,
-  ]);
 
   useEffect(() => {
     if (authLoading || connectionLoading || !user) return;
