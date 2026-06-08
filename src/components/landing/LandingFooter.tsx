@@ -42,7 +42,7 @@ const LandingFooter = () => {
         <img
           src="/illustrations/cozy-setup.png"
           alt=""
-          className="h-full w-full object-contain object-bottom-right brightness-0 invert"
+          className="h-full w-full object-contain object-bottom-right"
           loading="lazy"
         />
       </div>
@@ -53,7 +53,7 @@ const LandingFooter = () => {
           {/* Brand */}
           <div>
             <Link to="/" className="inline-block" aria-label="Streamnco">
-              <img src={logo} alt="Streamnco" className="h-7 w-auto brightness-0 invert" />
+              <img src={logo} alt="Streamnco" className="h-7 w-auto" />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/50">
               Le copilote de progression pour streamers Twitch. Score, blocages, plan d'action — en moins d'une minute.

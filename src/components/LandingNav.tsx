@@ -51,7 +51,7 @@ const LandingNav = () => {
           className="flex shrink-0 items-center focus-visible:outline-none"
           aria-label="Streamnco — Accueil"
         >
-          <img src={logo} alt="Streamnco" className="h-6 w-auto brightness-0 invert" />
+          <img src={logo} alt="Streamnco" className="h-6 w-auto" />
         </button>
 
         {/* Desktop nav */}
