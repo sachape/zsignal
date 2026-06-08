@@ -53,14 +53,14 @@ const HowItWorksSection = () => {
               className="flex h-full flex-col overflow-hidden rounded-2xl border-2 border-foreground/75 bg-card"
               style={{ boxShadow: `4px 4px 0 0 ${color}` }}
             >
-              {/* Illustration */}
-              <div className="flex items-center justify-center overflow-hidden bg-muted/40 p-4 pb-0">
+              {/* Illustration fills the top */}
+              <div className="h-52 overflow-hidden">
                 <img
                   src={illus}
                   alt=""
                   aria-hidden
                   loading="lazy"
-                  className="h-36 w-36 object-contain drop-shadow-md"
+                  className="h-full w-full object-cover object-center"
                 />
               </div>
 
@@ -79,10 +79,9 @@ const HowItWorksSection = () => {
                   {description}
                 </p>
 
-                {/* Tag chip */}
                 <div className="mt-5">
                   <span
-                    className="inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-background"
+                    className="inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white"
                     style={{ backgroundColor: color }}
                   >
                     {tag}

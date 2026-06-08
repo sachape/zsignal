@@ -17,41 +17,36 @@ const CATEGORY_COLORS: Record<string, string> = {
 const ArticleCard = ({ article, featured = false }: { article: typeof ARTICLES[number]; featured?: boolean }) => (
   <Link
     to={`/articles/${article.slug}`}
-    className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white/[0.12] hover:shadow-[0_8px_40px_hsl(var(--primary)/0.08)] ${featured ? "md:col-span-2" : ""}`}
+    className={`group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/70 bg-card transition-all duration-150 hover:-translate-x-px hover:-translate-y-px ${featured ? "md:col-span-2" : ""}`}
+    style={{ boxShadow: "4px 4px 0 0 rgba(23,29,46,0.72)" }}
   >
-    {/* Top glow */}
-    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.06),transparent_55%)]" />
-
-    {/* Illustration */}
-    <div className={`relative overflow-hidden border-b border-white/[0.05] bg-card/60 ${featured ? "h-52 md:h-64" : "h-40"}`}>
-      <div className="absolute inset-0 flex items-center justify-center p-6 opacity-80">
+    {/* Illustration zone */}
+    <div className={`relative overflow-hidden bg-muted/30 border-b-2 border-foreground/10 ${featured ? "h-52 md:h-64" : "h-40"}`}>
+      <div className="absolute inset-0 flex items-center justify-center p-6">
         {article.illustration}
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
     </div>
 
     {/* Content */}
-    <div className="relative flex flex-1 flex-col p-5">
+    <div className="flex flex-1 flex-col p-5">
       <div className="flex items-center gap-2">
-        <span
-          className={`inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${CATEGORY_COLORS[article.category] ?? "border-border/40 bg-muted/30 text-muted-foreground"}`}
-        >
+        <span className="inline-flex rounded-full border-2 border-foreground/20 bg-muted px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground/60">
           {article.category}
         </span>
-        <span className="flex items-center gap-1 text-[10px] text-muted-foreground/50">
+        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <Clock className="h-2.5 w-2.5" />
           {article.readingTime} min
         </span>
       </div>
 
-      <h2 className={`mt-3 font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary/90 ${featured ? "text-xl" : "text-base"}`}>
+      <h2 className={`mt-3 font-display font-bold leading-snug text-foreground transition-colors group-hover:text-primary ${featured ? "text-xl" : "text-base"}`}>
         {article.title}
       </h2>
-      <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground/70">
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
         {article.excerpt}
       </p>
 
-      <div className="mt-4 flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
+      <div className="mt-4 flex items-center gap-1 text-xs font-bold text-foreground/50 transition-colors group-hover:text-primary">
         Lire l'article
         <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </div>
@@ -71,7 +66,7 @@ const BlogPage = () => {
   const [featured, ...rest] = ARTICLES;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="landing min-h-screen bg-background">
       <LandingNav />
 
       {/* Hero */}

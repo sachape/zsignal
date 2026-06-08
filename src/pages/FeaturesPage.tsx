@@ -344,7 +344,7 @@ const FeaturesPage = () => {
   const microFeatures = FEATURES.filter((f) => !f.illus);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="landing min-h-screen bg-background">
       <LandingNav />
 
       {/* ── Hero ── */}

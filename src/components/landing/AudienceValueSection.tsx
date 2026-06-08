@@ -53,37 +53,40 @@ const AudienceValueSection = () => {
             }}
           >
             <div
-              className="flex h-full flex-col rounded-2xl border-2 border-foreground/75 bg-card p-6 transition-all duration-150 hover:-translate-x-px hover:-translate-y-px md:p-7"
+              className="flex h-full flex-col overflow-hidden rounded-2xl border-2 border-foreground/75 bg-card transition-all duration-150 hover:-translate-x-px hover:-translate-y-px"
               style={{ boxShadow: "4px 4px 0 0 rgba(23,29,46,0.72)" }}
             >
-              {/* Illustration */}
-              <div className="mb-5 flex h-24 items-center justify-center">
+              {/* Illustration — remplit le top de la card edge-to-edge */}
+              <div className="h-52 overflow-hidden">
                 <img
                   src={illus}
                   alt=""
                   aria-hidden
                   loading="lazy"
-                  className="h-24 w-24 object-contain"
+                  className="h-full w-full object-cover object-center"
                 />
               </div>
 
-              {/* Label chip */}
-              <span
-                className="mb-3 inline-block w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-background"
-                style={{ backgroundColor: color }}
-              >
-                {label}
-              </span>
+              {/* Content */}
+              <div className="flex flex-1 flex-col p-6 md:p-7">
+                {/* Label chip */}
+                <span
+                  className="mb-3 inline-block w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white"
+                  style={{ backgroundColor: color }}
+                >
+                  {label}
+                </span>
 
-              <h3 className="font-display text-xl font-bold leading-snug text-foreground">
-                {title}
-              </h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-                {description}
-              </p>
+                <h3 className="font-display text-xl font-bold leading-snug text-foreground">
+                  {title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                  {description}
+                </p>
 
-              <div className="mt-5 border-t border-foreground/10 pt-4">
-                <span className="text-[11px] font-bold text-foreground/70">{stat}</span>
+                <div className="mt-5 border-t border-foreground/10 pt-4">
+                  <span className="text-[11px] font-bold text-foreground/70">{stat}</span>
+                </div>
               </div>
             </div>
           </div>

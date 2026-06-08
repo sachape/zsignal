@@ -118,22 +118,21 @@ const HeroSection = () => {
             </ul>
           </div>
 
-          {/* ── Right: illustration ── */}
+          {/* ── Right: illustration (fond crème = blend naturel, pas de shadow) ── */}
           <div
-            className="relative hidden lg:flex lg:items-center lg:justify-center"
+            className="relative hidden lg:block"
             style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? "translateY(0)" : "translateY(30px)",
               transition: "opacity 900ms cubic-bezier(0.16,1,0.3,1) 200ms, transform 900ms cubic-bezier(0.16,1,0.3,1) 200ms",
             }}
           >
-            {/* Illustration */}
             <img
               src="/illustrations/neon-crew.png"
               alt=""
               aria-hidden
               loading="eager"
-              className="w-full max-w-sm drop-shadow-xl xl:max-w-md"
+              className="w-full max-w-sm xl:max-w-md"
             />
 
             {/* Floating speech-bubble chip: Score */}

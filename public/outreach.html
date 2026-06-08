@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outreach — Streamnco</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #f5f6f8;
+      --surface: #ffffff;
+      --card:    #ffffff;
+      --border:  rgba(0,0,0,0.08);
+      --border-hi: rgba(0,0,0,0.14);
+      --primary: #16a34a;
+      --primary-dim:    rgba(22,163,74,0.08);
+      --primary-border: rgba(22,163,74,0.25);
+      --primary-glow:   rgba(22,163,74,0.18);
+      --text:   #111827;
+      --text-2: #6b7280;
+      --text-3: #9ca3af;
+      --warn:   #d97706;
+      --err:    #dc2626;
+      --ok:     #059669;
+      --sky:    #0284c7;
+      --blue:   #3b82f6;
+      --pink:   #ec4899;
+      --indigo: #6366f1;
+      --red:    #ef4444;
+      --cyan:   #06b6d4;
+      --purple: #7c3aed;
+      --ig:     #c2185b;
+      --r:  8px;
+      --r-lg: 12px;
+    }
+
+    html { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Header ─────────────────────────────────────────── */
+    .hdr {
+      align-items: center;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 48px;
+      position: sticky;
+      top: 0;
+      z-index: 60;
+    }
+    .hdr-left { display: flex; align-items: center; gap: 10px; }
+    .logo { font-size: 14px; font-weight: 800; letter-spacing: -0.03em; }
+    .logo em { color: var(--primary); font-style: normal; }
+    .logo-sep { color: var(--text-3); font-weight: 300; }
+    .logo-sub { color: var(--text-2); font-size: 12px; font-weight: 500; letter-spacing: -0.01em; }
+
+    .stat-row { display: flex; gap: 3px; }
+    .stat-pill {
+      align-items: center;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      font-size: 11px;
+      gap: 5px;
+      padding: 3px 10px;
+    }
+    .stat-pill b { color: var(--text); font-weight: 700; }
+    .stat-pill span { color: var(--text-3); }
+
+    /* ─── Layout ─────────────────────────────────────────── */
+    .layout { display: grid; grid-template-columns: 268px 1fr; align-items: start; }
+
+    /* ─── Sidebar ────────────────────────────────────────── */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 48px);
+      overflow-y: auto;
+      position: sticky;
+      top: 48px;
+    }
+    .sidebar-inner { display: flex; flex-direction: column; gap: 14px; padding: 14px 12px 24px; }
+
+    /* Tabs */
+    .tabs {
+      background: #f3f4f6;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      display: flex;
+      gap: 2px;
+      padding: 3px;
+    }
+    .tab {
+      background: none; border: none;
+      border-radius: 6px;
+      color: var(--text-2);
+      cursor: pointer;
+      flex: 1;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 4px;
+      text-align: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+    .tab.active { background: #ffffff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: flex; flex-direction: column; gap: 14px; }
+
+    /* Labels */
+    .lbl {
+      color: var(--text-3);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    /* Inputs */
+    input[type=text], select, textarea {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      outline: none;
+      padding: 8px 10px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+    input[type=text]:focus, select:focus, textarea:focus {
+      border-color: var(--primary-border);
+      box-shadow: 0 0 0 3px var(--primary-dim);
+    }
+    textarea { resize: vertical; }
+    select option { background: #ffffff; }
+    .hint { color: var(--text-3); font-size: 10px; margin-top: 4px; }
+
+    /* Pills */
+    .pills { display: flex; flex-wrap: wrap; gap: 4px; }
+    .pill-btn {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .pill-btn:hover { border-color: var(--border-hi); color: var(--text); background: #f9fafb; }
+    .pill-btn.active { background: var(--primary-dim); border-color: var(--primary-border); color: var(--primary); }
+
+    /* Primary button */
+    .btn {
+      background: var(--primary);
+      border: none;
+      border-radius: var(--r);
+      color: #ffffff;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      padding: 9px 14px;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      width: 100%;
+    }
+    .btn:hover { background: #15803d; box-shadow: 0 2px 8px var(--primary-glow); }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { cursor: not-allowed; opacity: 0.4; transform: none; box-shadow: none; }
+    .btn-ghost {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      margin-top: 5px;
+    }
+    .btn-ghost:hover { border-color: var(--border-hi); box-shadow: none; color: var(--text); background: #f9fafb; }
+    .btn-sm {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-2);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      padding: 4px 9px;
+      transition: all 0.15s;
+    }
+    .btn-sm:hover { border-color: var(--border-hi); color: var(--text); background: #f9fafb; }
+
+    /* Search list */
+    .search-list { display: flex; flex-direction: column; gap: 2px; max-height: 240px; overflow-y: auto; margin-top: 6px; }
+    .s-row {
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex;
+      gap: 8px;
+      padding: 6px 8px;
+      transition: all 0.12s;
+      user-select: none;
+    }
+    .s-row:hover { border-color: var(--primary-border); background: var(--primary-dim); }
+    .s-row.sel { border-color: var(--primary-border); background: var(--primary-dim); }
+    .s-av { align-items: center; background: #f3f4f6; border-radius: 50%; color: var(--text-2); display: flex; flex-shrink: 0; font-size: 10px; font-weight: 700; height: 26px; justify-content: center; width: 26px; }
+    .s-info { flex: 1; min-width: 0; }
+    .s-name { color: var(--text); font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .s-meta { color: var(--text-2); font-size: 10px; }
+    .s-score { color: var(--primary); flex-shrink: 0; font-size: 10px; font-weight: 700; }
+    .s-chk { border: 1.5px solid #d1d5db; border-radius: 4px; flex-shrink: 0; height: 14px; width: 14px; transition: all 0.12s; }
+    .s-row.sel .s-chk { background: var(--primary); border-color: var(--primary); }
+
+    .sel-bar {
+      align-items: center;
+      background: var(--primary-dim);
+      border: 1px solid var(--primary-border);
+      border-radius: 7px;
+      display: flex;
+      font-size: 12px;
+      gap: 8px;
+      justify-content: space-between;
+      margin-top: 6px;
+      padding: 7px 9px;
+    }
+    .sel-bar span { color: var(--primary); font-weight: 600; }
+
+    /* Debug log */
+    #debugLog {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-2);
+      display: none;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 10px;
+      max-height: 72px;
+      overflow-y: auto;
+      padding: 6px 9px;
+    }
+
+    /* History */
+    .hist-empty { align-items: center; color: var(--text-3); display: flex; flex-direction: column; gap: 8px; padding: 24px 0; text-align: center; }
+    .hist-empty-icon { font-size: 28px; opacity: 0.3; }
+    .hist-list { display: flex; flex-direction: column; gap: 4px; }
+    .hist-entry {
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      gap: 10px;
+      padding: 9px 10px;
+      transition: all 0.12s;
+    }
+    .hist-entry:hover { background: #f9fafb; border-color: var(--border-hi); }
+    .hist-icon { color: var(--text-3); flex-shrink: 0; font-size: 14px; }
+    .hist-info { flex: 1; min-width: 0; }
+    .hist-label { color: var(--text); font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-meta { color: var(--text-3); font-size: 10px; margin-top: 1px; }
+    .hist-restore {
+      background: var(--primary-dim);
+      border: 1px solid var(--primary-border);
+      border-radius: 5px;
+      color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      transition: all 0.12s;
+    }
+    .hist-restore:hover { background: rgba(22,163,74,0.14); }
+    .hist-del { background: none; border: none; color: var(--text-3); cursor: pointer; flex-shrink: 0; font-size: 13px; line-height: 1; padding: 2px 4px; transition: color 0.12s; }
+    .hist-del:hover { color: var(--err); }
+
+    /* ─── Results area ───────────────────────────────────── */
+    .results-area { display: flex; flex-direction: column; min-width: 0; }
+
+    .filter-bar {
+      align-items: center;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 18px;
+      position: sticky;
+      top: 48px;
+      z-index: 40;
+    }
+    .filter-pills { display: flex; flex-wrap: wrap; gap: 3px; flex: 1; }
+    .fpill {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 20px;
+      color: var(--text-2);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 11px;
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+    .fpill:hover { color: var(--text); background: #f3f4f6; }
+    .fpill.active { background: #f3f4f6; border-color: var(--border); color: var(--text); }
+    .fpill.active.ig-filter { background: rgba(193,24,91,0.07); border-color: rgba(193,24,91,0.25); color: var(--ig); }
+    .fcnt { color: var(--text-3); font-size: 10px; margin-left: 2px; }
+    .fsep { background: var(--border); height: 14px; margin: 0 3px; width: 1px; flex-shrink: 0; align-self: center; }
+    .sort-sel { font-size: 11px; padding: 3px 8px; resize: none; width: auto; }
+
+    .scroll { display: flex; flex-direction: column; gap: 7px; padding: 14px 18px 40px; }
+
+    /* ─── Empty state ────────────────────────────────────── */
+    .empty { align-items: center; color: var(--text-3); display: flex; flex-direction: column; gap: 10px; padding: 80px 20px; text-align: center; }
+    .empty-glyph { font-size: 40px; opacity: 0.15; }
+    .empty-title { color: var(--text-2); font-size: 14px; font-weight: 600; }
+    .empty-sub { color: var(--text-3); font-size: 12px; }
+
+    /* ─── Card ───────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .row {
+      animation: fadeUp 0.18s ease;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .row:hover { border-color: var(--border-hi); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .row.status-sent     { background: #eff9ff; border-color: #bae6fd; }
+    .row.status-followup { background: #fffbeb; border-color: #fde68a; }
+    .row.status-replied  { background: #f0fdf4; border-color: #bbf7d0; }
+
+    .row-hdr { align-items: center; display: flex; gap: 10px; padding: 11px 13px; }
+    .av {
+      align-items: center;
+      background: var(--primary-dim);
+      border: 1px solid var(--primary-border);
+      border-radius: 50%;
+      color: var(--primary);
+      display: flex;
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 800;
+      height: 34px;
+      justify-content: center;
+      width: 34px;
+    }
+    .row-info { flex: 1; min-width: 0; }
+    .row-name { align-items: center; display: flex; flex-wrap: wrap; font-size: 13px; font-weight: 700; gap: 5px; letter-spacing: -0.01em; }
+    .login-tag { color: var(--text-3); font-size: 10px; font-weight: 400; }
+    .cat-badge {
+      background: #f3f4f6;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-2);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding: 1px 5px;
+      text-transform: uppercase;
+    }
+    .twitch-badge {
+      align-items: center;
+      background: rgba(124,58,237,0.07);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 4px;
+      color: var(--purple);
+      display: inline-flex;
+      font-size: 9px;
+      font-weight: 600;
+      gap: 3px;
+      padding: 1px 6px;
+      text-decoration: none;
+      transition: all 0.12s;
+    }
+    .twitch-badge:hover { background: rgba(124,58,237,0.12); }
+    .row-meta { align-items: center; color: var(--text-2); display: flex; flex-wrap: wrap; font-size: 10px; gap: 6px; margin-top: 2px; }
+    .blocker-tag { color: var(--warn); display: flex; align-items: center; gap: 2px; }
+
+    /* Status badges */
+    .bdg { border-radius: 4px; font-size: 9px; font-weight: 700; padding: 1px 6px; }
+    .bdg-sent     { background:#dbeafe; color:#1d4ed8; }
+    .bdg-followup { background:#fef3c7; color:#92400e; }
+    .bdg-replied  { background:#d1fae5; color:#065f46; }
+
+    /* Score ring */
+    .ring { flex-shrink: 0; height: 48px; position: relative; width: 48px; }
+    .ring svg { transform: rotate(-90deg); }
+    .ring-val { align-items: center; display: flex; flex-direction: column; inset: 0; justify-content: center; position: absolute; }
+    .ring-num { font-size: 13px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
+    .ring-lbl { color: var(--text-3); font-size: 7px; margin-top: 1px; }
+
+    /* Divider */
+    .div { border-top: 1px solid var(--border); }
+
+    /* Contacts */
+    .card-sec { padding: 8px 13px; }
+    .sec-lbl-sm { color: var(--text-3); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 5px; text-transform: uppercase; }
+    .contacts { display: flex; flex-wrap: wrap; gap: 4px; }
+    .cpill {
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: #f9fafb;
+      color: var(--text-2);
+      cursor: pointer;
+      display: inline-flex;
+      font-size: 11px;
+      font-weight: 500;
+      gap: 4px;
+      padding: 3px 9px;
+      text-decoration: none;
+      transition: all 0.12s;
+    }
+    .cpill:hover { background: #f3f4f6; border-color: var(--border-hi); color: var(--text); }
+    .cpill.email     { background:#dcfce7; border-color:#86efac; color:#15803d; }
+    .cpill.twitter   { background:#dbeafe; border-color:#93c5fd; color:#1d4ed8; }
+    .cpill.instagram { background:#fce7f3; border-color:#f9a8d4; color:var(--ig); }
+    .cpill.discord   { background:#ede9fe; border-color:#c4b5fd; color:#5b21b6; }
+    .cpill.youtube   { background:#fee2e2; border-color:#fca5a5; color:#b91c1c; }
+    .cpill.tiktok    { background:#cffafe; border-color:#67e8f9; color:#0e7490; }
+    .cpill.linktree  { background:#dcfce7; border-color:#86efac; color:#166534; }
+    .no-contact { color: var(--text-3); font-size: 11px; font-style: italic; }
+
+    /* DM area */
+    .dm-area { padding: 9px 13px; }
+    .dm-lbl  { color: var(--text-3); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 5px; text-transform: uppercase; }
+    .dm-text {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: #374151;
+      font-size: 11px;
+      line-height: 1.65;
+      padding: 9px 11px;
+      white-space: pre-wrap;
+    }
+    .dm-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .dm-btn {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-2);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+    .dm-btn:hover { background: #f9fafb; border-color: var(--border-hi); color: var(--text); }
+    .dm-btn.ok    { border-color:#86efac; color:#15803d; background:#f0fdf4; }
+    .dm-btn.sent  { background:#eff6ff; border-color:#93c5fd; color:#1d4ed8; }
+    .dm-btn.fu    { background:#fffbeb; border-color:#fcd34d; color:#92400e; }
+    .dm-btn.rep   { background:#f0fdf4; border-color:#86efac; color:#15803d; }
+    .dm-btn.ig    { background:#fdf2f8; border-color:#f9a8d4; color:var(--ig); text-decoration:none; }
+    .dm-btn.ig:hover { background:#fce7f3; }
+    .dm-btn.tw-lnk { color:var(--text-3); font-size:10px; margin-left:auto; text-decoration:none; background:transparent; }
+    .dm-btn.tw-lnk:hover { border-color:rgba(124,58,237,0.25); color:var(--purple); background:#faf5ff; }
+
+    /* Note */
+    .note-wrap { margin-top: 7px; }
+    .note-input {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-2);
+      font-family: inherit;
+      font-size: 11px;
+      outline: none;
+      padding: 5px 10px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+    .note-input:focus { border-color: var(--border-hi); box-shadow: 0 0 0 2px rgba(0,0,0,0.04); color: var(--text); }
+    .note-input::placeholder { color: var(--text-3); }
+    .note-input.filled { background:#fffbeb; border-color:#fcd34d; color:#92400e; }
+
+    /* Spinner */
+    .spin {
+      animation: rotate 0.7s linear infinite;
+      border: 2px solid #e5e7eb;
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      height: 16px;
+      width: 16px;
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    ::-webkit-scrollbar { height: 4px; width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+    @media (max-width: 680px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border); height: auto; position: relative; top: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="logo">Stream<em>nco</em> <span class="logo-sep">/</span> <span class="logo-sub">Outreach</span></div>
+  </div>
+  <div class="stat-row" id="statBar" style="display:none">
+    <div class="stat-pill"><b id="sDone">0</b><span>analysés</span></div>
+    <div class="stat-pill"><b id="sIG" style="color:var(--ig)">0</b><span>instagram</span></div>
+    <div class="stat-pill"><b id="sContact" style="color:var(--primary)">0</b><span>contact</span></div>
+    <div class="stat-pill"><b id="sSent" style="color:var(--sky)">0</b><span>envoyés</span></div>
+    <div class="stat-pill"><b id="sFollowup" style="color:var(--warn)">0</b><span>relances</span></div>
+    <div class="stat-pill"><b id="sReplied" style="color:var(--ok)">0</b><span>répondus</span></div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('search')">Twitch</button>
+        <button class="tab" onclick="switchTab('manual')">Manuel</button>
+        <button class="tab" onclick="switchTab('history')">Historique</button>
+      </div>
+
+      <!-- Twitch search tab -->
+      <div class="tab-pane active" id="tab-search">
+        <div>
+          <div class="lbl">Catégorie / Jeu</div>
+          <input type="text" id="catInput" placeholder="VALORANT, Just Chatting…" list="catSug" />
+          <datalist id="catSug">
+            <option value="Just Chatting"></option><option value="VALORANT"></option>
+            <option value="Minecraft"></option><option value="Fortnite"></option>
+            <option value="League of Legends"></option><option value="Apex Legends"></option>
+            <option value="Counter-Strike 2"></option><option value="Grand Theft Auto V"></option>
+          </datalist>
+        </div>
+        <div>
+          <div class="lbl">Langue</div>
+          <select id="langSelect">
+            <option value="fr">🇫🇷 Français</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="all">Toutes</option>
+          </select>
+        </div>
+        <div>
+          <div class="lbl">Statut</div>
+          <div class="pills" id="sizeFilters">
+            <button class="pill-btn active" data-type="all">Tous</button>
+            <button class="pill-btn" data-type="none">🌱 Non affiliés</button>
+            <button class="pill-btn" data-type="affiliate">⭐ Affiliés</button>
+            <button class="pill-btn" data-type="partner">🏆 Partenaires</button>
+          </div>
+        </div>
+        <div>
+          <div class="lbl">Disponibilité</div>
+          <div class="pills">
+            <button class="pill-btn" id="btnLive" onclick="setLiveFilter(true)">🔴 Live only</button>
+            <button class="pill-btn active" id="btnAll" onclick="setLiveFilter(false)">📋 Tous</button>
+          </div>
+          <div class="hint" id="liveHint">Live + streamers hors-ligne</div>
+        </div>
+        <button class="btn" onclick="searchStreamers()">Rechercher →</button>
+
+        <div id="searchSpinner" style="display:none;text-align:center;padding:14px">
+          <div class="spin" style="margin:0 auto"></div>
+          <p id="spinTxt" style="font-size:10px;color:var(--text-3);margin-top:6px">Recherche…</p>
+        </div>
+
+        <div id="searchResults" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span class="lbl" id="searchCount" style="margin-bottom:0"></span>
+            <div style="display:flex;gap:3px">
+              <button class="btn-sm" onclick="selectAll()">Tout</button>
+              <button class="btn-sm" onclick="selectNone()">Rien</button>
+            </div>
+          </div>
+          <div class="search-list" id="searchList"></div>
+          <button id="loadMoreBtn" onclick="loadMore()" style="display:none;width:100%;margin-top:4px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;color:var(--text-2);cursor:pointer;font-family:inherit;font-size:11px;padding:6px;transition:all 0.12s">⬇ Charger plus</button>
+          <div class="sel-bar" id="selBar" style="display:none">
+            <span id="selCount">0 sélectionnés</span>
+            <button class="btn-sm" onclick="analyzeSelected()" style="background:var(--primary);color:#000;border:none;font-weight:700">Analyser →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manuel tab -->
+      <div class="tab-pane" id="tab-manual">
+        <div>
+          <div class="lbl">Pseudos Twitch</div>
+          <textarea id="manualInput" rows="10" placeholder="pseudo1&#10;pseudo2&#10;&#10;ou URLs Twitch"></textarea>
+          <div class="hint">1 par ligne · max 500 · URLs acceptées</div>
+        </div>
+        <button class="btn" onclick="analyzeManual()">Analyser et générer →</button>
+      </div>
+
+      <!-- History tab -->
+      <div class="tab-pane" id="tab-history">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="lbl" style="margin-bottom:0">Sessions récentes</div>
+          <button class="btn-sm" onclick="clearHistory()" style="font-size:10px;color:var(--err);border-color:rgba(239,68,68,0.2)">Tout effacer</button>
+        </div>
+        <div id="histList"></div>
+      </div>
+
+      <!-- Tone -->
+      <div>
+        <div class="lbl">Ton du message</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px">
+          <button class="pill-btn" data-tone="soft" style="text-align:center">🤝 Doux</button>
+          <button class="pill-btn active" data-tone="direct" style="text-align:center">⚡ Direct</button>
+          <button class="pill-btn" data-tone="curious" style="text-align:center">🔍 Curieux</button>
+        </div>
+      </div>
+
+      <button class="btn btn-ghost" id="exportBtn" onclick="exportCsv()" style="display:none">↓ Exporter CSV</button>
+      <div id="debugLog"></div>
+
+    </div>
+  </aside>
+
+  <div class="results-area">
+    <div class="filter-bar" id="filterBar">
+      <div class="filter-pills">
+        <button class="fpill active" data-f="all"       onclick="setFilter('all')">Tous <span class="fcnt" id="cAll">0</span></button>
+        <button class="fpill"        data-f="instagram" onclick="setFilter('instagram')">📸 Instagram <span class="fcnt" id="cIG">0</span></button>
+        <button class="fpill"        data-f="contact"   onclick="setFilter('contact')">Avec contact <span class="fcnt" id="cContact">0</span></button>
+        <button class="fpill"        data-f="nocontact" onclick="setFilter('nocontact')">Sans contact <span class="fcnt" id="cNone">0</span></button>
+        <div class="fsep"></div>
+        <button class="fpill" data-f="sent"     onclick="setFilter('sent')"    >✉ Envoyés <span class="fcnt" id="cSent">0</span></button>
+        <button class="fpill" data-f="followup" onclick="setFilter('followup')">🔄 Relances <span class="fcnt" id="cFU">0</span></button>
+        <button class="fpill" data-f="replied"  onclick="setFilter('replied')" >✓ Répondus <span class="fcnt" id="cRep">0</span></button>
+      </div>
+      <select class="sort-sel" onchange="setSort(this.value)">
+        <option value="score">Score ↓</option>
+        <option value="instagram">Instagram d'abord</option>
+        <option value="contact">Contact d'abord</option>
+        <option value="name">Nom A→Z</option>
+      </select>
+    </div>
+
+    <div class="scroll" id="results">
+      <div class="empty">
+        <div class="empty-glyph">◎</div>
+        <div class="empty-title">Aucune analyse en cours</div>
+        <div class="empty-sub">Recherche des streamers Twitch ou entre des pseudos manuellement</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── Constants ────────────────────────────────────────────────────── */
+const SB_URL = "https://poblhczgdbnfunroshul.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvYmxoY3pnZGJuZnVucm9zaHVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyODE1MTksImV4cCI6MjA5MTg1NzUxOX0.AZytxuMjgJQGYWV7UpKLD3Sbd6x6PbUEGL1wlr4l8M0";
+const LS_CRM     = "streamnco_crm_v2";
+const LS_ROWS    = "streamnco_rows_v3";
+const LS_SEARCH  = "streamnco_search_v3";
+const LS_HISTORY = "streamnco_history_v1";
+// Legacy keys — data is migrated automatically on first load
+const LS_CRM_LEGACY = "streamnco_outreach_v2";
+
+/* ─── CRM persistence ──────────────────────────────────────────────── */
+function loadCRM() {
+  try {
+    const current = JSON.parse(localStorage.getItem(LS_CRM) || "{}");
+    // Migrate from legacy key if new key is empty
+    if (!Object.keys(current).length) {
+      const legacy = JSON.parse(localStorage.getItem(LS_CRM_LEGACY) || "{}");
+      if (Object.keys(legacy).length) {
+        localStorage.setItem(LS_CRM, JSON.stringify(legacy));
+        localStorage.removeItem(LS_CRM_LEGACY);
+        return legacy;
+      }
+    }
+    return current;
+  } catch { return {}; }
+}
+const saveCRM  = d  => { try { localStorage.setItem(LS_CRM, JSON.stringify(d)); } catch {} };
+const getCS    = l  => loadCRM()[l] || { status:"none" };
+const setCS    = (l,s) => { const d=loadCRM(), now=new Date().toLocaleDateString("fr-FR"); d[l]={...d[l],status:s,[`${s}At`]:now}; saveCRM(d); };
+
+/* ─── History ──────────────────────────────────────────────────────── */
+const getHistory  = () => { try { return JSON.parse(localStorage.getItem(LS_HISTORY)||"[]"); } catch { return []; } };
+const saveHistory = h  => { try { localStorage.setItem(LS_HISTORY, JSON.stringify(h)); } catch {} };
+
+function addToHistory(label, logins) {
+  try {
+    const h = getHistory();
+    h.unshift({
+      id: Date.now(),
+      date: new Date().toLocaleString("fr-FR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}),
+      label,
+      count: logins.length,
+      logins,
+    });
+    saveHistory(h.slice(0, 30));
+    renderHistory();
+  } catch {}
+}
+
+function renderHistory() {
+  const list = document.getElementById("histList");
+  const h = getHistory();
+  if (!h.length) {
+    list.innerHTML = `<div class="hist-empty"><div class="hist-empty-icon">◷</div><div style="font-size:11px;color:var(--text-2);font-weight:600">Aucune session</div><div style="font-size:10px">Tes analyses apparaîtront ici</div></div>`;
+    return;
+  }
+  list.innerHTML = `<div class="hist-list">${h.map(e=>`
+    <div class="hist-entry">
+      <div class="hist-icon">◎</div>
+      <div class="hist-info">
+        <div class="hist-label">${esc(e.label)}</div>
+        <div class="hist-meta">${e.date} · ${e.count} streamers</div>
+      </div>
+      <button class="hist-restore" onclick="restoreHistory(${e.id})">Restaurer</button>
+      <button class="hist-del" onclick="deleteHistory(${e.id})" title="Supprimer">×</button>
+    </div>`).join("")}</div>`;
+}
+
+function restoreHistory(id) {
+  const entry = getHistory().find(e => e.id === id);
+  if (!entry) return;
+  document.getElementById("manualInput").value = entry.logins.join("\n");
+  switchTab("manual");
+  runAnalysis(entry.logins);
+}
+
+function deleteHistory(id) {
+  saveHistory(getHistory().filter(e => e.id !== id));
+  renderHistory();
+}
+
+function clearHistory() {
+  if (!confirm("Effacer tout l'historique ?")) return;
+  saveHistory([]);
+  renderHistory();
+}
+
+/* ─── State ────────────────────────────────────────────────────────── */
+let tone = "direct";
+let rows = {};
+let searchResults = [];
+let selected = new Set();
+let broadcasterFilter = "all";
+let liveOnly = false;
+let nextCursor = null;
+let currentCat = "";
+let currentLang = "fr";
+let activeFilter = "all";
+let activeSort = "score";
+
+/* ─── UI helpers ───────────────────────────────────────────────────── */
+function switchTab(name) {
+  const tabs  = ["search","manual","history"];
+  const btns  = document.querySelectorAll(".tab");
+  tabs.forEach((t,i) => {
+    document.getElementById(`tab-${t}`).classList.toggle("active", t===name);
+    btns[i]?.classList.toggle("active", t===name);
+  });
+  if (name==="history") renderHistory();
+}
+
+function setLiveFilter(v) {
+  liveOnly = v;
+  document.getElementById("btnLive").classList.toggle("active", v);
+  document.getElementById("btnAll").classList.toggle("active", !v);
+  document.getElementById("liveHint").textContent = v ? "Live uniquement" : "Live + streamers hors-ligne";
+}
+
+document.querySelectorAll(".size-btn, #sizeFilters .pill-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#sizeFilters .pill-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    broadcasterFilter = btn.dataset.type || "all";
+    if (searchResults.length) renderSearchResults();
+  });
+});
+
+document.querySelectorAll("[data-tone]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-tone]").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    tone = btn.dataset.tone;
+    Object.keys(rows).forEach(l => { if(rows[l].status==="done") renderDmArea(l); });
+  });
+});
+
+function log(m) {
+  const el = document.getElementById("debugLog");
+  el.style.display = "block";
+  el.insertAdjacentHTML("beforeend", `<div>${m}</div>`);
+  el.scrollTop = el.scrollHeight;
+}
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ─── Contact extraction ───────────────────────────────────────────── */
+const URL_PAT = [
+  { type:"email",     re:/[\w.+-]+@[\w-]+\.[a-z]{2,}/gi,
+    val:m=>m[0], href:v=>`mailto:${v}`, show:v=>v, icon:"✉", cls:"email" },
+  { type:"twitter",   re:/(?:https?:\/\/)?(?:www\.)?(?:twitter|x)\.com\/([a-z0-9_]{2,})/gi,
+    val:m=>m[1], href:v=>`https://x.com/${v}`, show:v=>`@${v}`, icon:"𝕏", cls:"twitter" },
+  { type:"instagram", re:/(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?!(?:p|reel|reels|stories|explore|tv|ar|a|accounts|direct|_u|graphql)\/)([a-z0-9_.]{2,})/gi,
+    val:m=>m[1], href:v=>`https://instagram.com/${v}`, show:v=>`@${v}`, icon:"◈", cls:"instagram" },
+  { type:"discord",   re:/(?:https?:\/\/)?discord\.gg\/([a-z0-9-]{2,})/gi,
+    val:m=>m[1], href:v=>`https://discord.gg/${v}`, show:v=>v, icon:"⊕", cls:"discord" },
+  { type:"youtube",   re:/(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:c\/|channel\/|@)([a-z0-9_-]{2,})/gi,
+    val:m=>m[1], href:v=>`https://youtube.com/@${v}`, show:v=>v, icon:"▶", cls:"youtube" },
+  { type:"tiktok",    re:/(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@([a-z0-9_.]{2,})/gi,
+    val:m=>m[1], href:v=>`https://tiktok.com/@${v}`, show:v=>`@${v}`, icon:"♪", cls:"tiktok" },
+  { type:"linktree",  re:/(?:https?:\/\/)?linktr\.ee\/([a-z0-9_-]{2,})/gi,
+    val:m=>m[1], href:v=>`https://linktr.ee/${v}`, show:v=>v, icon:"⋮", cls:"linktree" },
+];
+// Words that look like instagram/ig handles but are common French/English words
+const FALSE_POS = new Set(["ller","nore","norer","noring","nore","nored","nores","norial","nace","naces","nacio","nacion","nacio","nored","norial","lle","ile","ile","les","les","les","me","my","all","aller","allez","ales","aux","our","ous","ee","el","er","es","et","en","fr","ly","me","no","or","re","st","to","up","us","we","be","do","go","he","hi","if","in","is","it","la","le","of","ok","on","so","th","tv","uk","vs","vs"]);
+
+const TXT_PAT = [
+  { type:"twitter",   re:/\b(?:twitter|tw)\b\s*[:/]?\s*@?([a-z0-9_]{4,})/gi },
+  { type:"instagram", re:/\b(?:instagram|insta|ig)\b\s*[:/]?\s*@?([a-z0-9_.]{4,30})/gi },
+  { type:"discord",   re:/\bdiscord\b\s*[:/]?\s*([a-z0-9_.#-]{4,})/gi },
+  { type:"tiktok",    re:/\btiktok\b\s*[:/]?\s*@?([a-z0-9_.]{4,})/gi },
+  { type:"youtube",   re:/\b(?:youtube|yt)\b\s*[:/]?\s*@?([a-z0-9_-]{4,})/gi },
+];
+
+function extractContacts(data) {
+  const bio = (data.channel?.description||"")+" "+(data.channel?.offline_image_url||"");
+  const found=[], seen=new Set();
+  const add = (type,val,href,display,icon,cls) => {
+    const k=`${type}:${val.toLowerCase()}`;
+    if(seen.has(k)) return; seen.add(k);
+    found.push({type,value:val,href,display,icon,cls});
+  };
+  for (const p of URL_PAT) {
+    const re=new RegExp(p.re.source,p.re.flags); let m;
+    while((m=re.exec(bio))!==null) { const v=p.val(m); add(p.type,v,p.href(v),p.show(v),p.icon,p.cls); }
+  }
+  for (const p of TXT_PAT) {
+    if(found.find(f=>f.type===p.type)) continue;
+    const def=URL_PAT.find(u=>u.type===p.type), re=new RegExp(p.re.source,p.re.flags); let m;
+    while((m=re.exec(bio))!==null) {
+      const v=m[1]; if(!v||v.length<4||FALSE_POS.has(v.toLowerCase())) continue;
+      add(p.type,v,def.href(v),def.show(v),def.icon,def.cls);
+    }
+  }
+  if (Array.isArray(data.social_links)) {
+    for (const lk of data.social_links) {
+      const url=lk.url||lk.href||""; if(!url) continue;
+      let matched=false;
+      for (const p of URL_PAT) {
+        if(p.type==="email") continue;
+        const re=new RegExp(p.re.source,"gi"), m=re.exec(url);
+        if(m){const v=p.val(m); add(p.type,v,p.href(v),p.show(v),p.icon,p.cls); matched=true; break;}
+      }
+      if(!matched){const k=`link:${url}`; if(!seen.has(k)){seen.add(k); found.push({type:"link",value:url,href:url,display:url.replace(/https?:\/\/(www\.)?/,"").slice(0,26),icon:"↗",cls:""}); }}
+    }
+  }
+  return found;
+}
+
+/* ─── Score ────────────────────────────────────────────────────────── */
+function getDims(data) {
+  // Priority: channel_facts (full analysis) > vod_facts (public VODs) > raw clips array
+  const f = {};
+  if (Array.isArray(data.channel_facts)) data.channel_facts.forEach(x => { f[x.key] = x.value; });
+  const vf = data.vod_facts || {};
+  const clips_arr = Array.isArray(data.clips) ? data.clips : [];
+
+  // Stream frequency
+  const s30 = f.streams_30d ?? vf.streams_30d ?? 0;
+  const s7  = f.streams_7d  ?? Math.round(s30 * 7 / 30);
+
+  // Stream duration (minutes)
+  const avgDur = f.avg_duration_minutes
+    ?? (s30 > 0 && vf.total_hours_30d ? Math.round((vf.total_hours_30d * 60) / s30) : 0);
+
+  // Clips: quantity + avg views
+  const clipCount   = f.clips_30d ?? clips_arr.length;
+  const avgClipViews = clips_arr.length
+    ? clips_arr.reduce((s, c) => s + (c.view_count || 0), 0) / clips_arr.length
+    : 0;
+
+  // Category stability
+  const catSwitch = f.category_switch_rate ?? (clips_arr.length >= 3
+    ? (() => { const games = new Set(clips_arr.map(c => c.game_id).filter(Boolean)); return Math.round((games.size / clips_arr.length) * 100); })()
+    : 50);
+
+  // Channel reach proxy (Twitch hides followers publicly)
+  const viewCount  = data.channel?.view_count || 0;
+  const liveViewers = data.live?.viewer_count || 0;
+
+  // ── Dimension scores ──────────────────────────────────────────────
+  // Regularity: target 2 streams/week = 8/month
+  const reg = Math.min(100, Math.round(
+    (s30 / 12) * 55 +
+    (s7 >= 3 ? 45 : s7 >= 2 ? 35 : s7 >= 1 ? 20 : 0)
+  ));
+
+  // Content: clips quality matters more than quantity
+  const con = Math.min(100, Math.round(
+    Math.min(40, clipCount * 8) +                                          // quantity (max 40)
+    (avgClipViews >= 2000 ? 45 : avgClipViews >= 500 ? 35 :
+     avgClipViews >= 100  ? 22 : avgClipViews >= 20   ? 12 : 5) +         // quality
+    (clipCount >= 5 && avgClipViews >= 200 ? 15 : 0)                       // viral consistency bonus
+  ));
+
+  // Positioning: category focus
+  const pos = Math.min(100, Math.round(100 - catSwitch));
+
+  // Momentum: recent signals
+  const mom = liveViewers > 0 ? 100
+    : s7 >= 3 ? 85 : s7 >= 2 ? 65 : s7 >= 1 ? 40 : s30 >= 4 ? 20 : 5;
+
+  // Structure: session length
+  const str = Math.min(100, Math.round((avgDur / 180) * 100));
+
+  // Overall
+  const ov = Math.round(reg*0.30 + con*0.25 + pos*0.20 + mom*0.15 + str*0.10);
+
+  // Real data = at least 1 stream in 30d OR 2+ clips OR currently live
+  const hasRealData = s30 > 0 || clipCount >= 2 || liveViewers > 0;
+
+  const dims = [
+    { key:"regularity",  label:"régularité",    score:reg },
+    { key:"content",     label:"contenu clips",  score:con },
+    { key:"positioning", label:"positionnement", score:pos },
+    { key:"momentum",    label:"momentum",       score:mom },
+  ];
+
+  // Only set weakest when we have real data — otherwise generic DM kicks in
+  const weakest = hasRealData ? [...dims].sort((a, b) => a.score - b.score)[0] : null;
+
+  return {
+    overall: hasRealData ? Math.max(15, Math.min(94, ov)) : null,
+    weakest, dims, hasRealData,
+    s30, s7, clipCount, avgClipViews, avgDur, viewCount, liveViewers,
+  };
+}
+
+/* ─── Channel size ─────────────────────────────────────────────────── */
+function getSize(data) {
+  const vc  = data.channel?.view_count || 0;
+  const bt  = data.channel?.broadcaster_type || "";
+  const lv  = data.live?.viewer_count || 0;
+  const clips = Array.isArray(data.clips) ? data.clips : [];
+  const avgCV = clips.length ? clips.reduce((s,c)=>s+(c.view_count||0),0)/clips.length : 0;
+
+  if (bt==="partner" || vc>800000 || lv>200 || avgCV>3000) return "large";
+  if (vc>80000 || lv>25 || avgCV>400 || (bt==="affiliate"&&vc>30000)) return "medium";
+  if (bt==="affiliate" || vc>8000 || avgCV>80) return "growing";
+  return "small";
+}
+
+/* ─── DM builder ───────────────────────────────────────────────────── */
+// Blockers adapted by channel size
+const BC = {
+  large: {
+    regularity:  "ta fréquence de stream a baissé — ta communauté s'y était habituée",
+    content:     "tes clips ne capitalisent pas assez sur tes meilleurs moments live",
+    positioning: "ta niche perd en clarté, ce qui dilue ton audience fidèle",
+    momentum:    "ton engagement récent ralentit par rapport à ta base installée",
+  },
+  medium: {
+    regularity:  "ton rythme de stream n'est pas encore assez prévisible pour fidéliser",
+    content:     "tes clips ont du potentiel mais ne sont pas assez optimisés pour circuler",
+    positioning: "tu changes trop de catégories — tes viewers ne savent plus ce que tu proposes",
+    momentum:    "ta chaîne a eu une pause — difficile de garder l'élan sans régularité",
+  },
+  growing: {
+    regularity:  "streamer régulièrement (2x/semaine min) est le levier le plus puissant à ton stade",
+    content:     "tes clips sont trop rares — c'est ton principal canal de découverte hors Twitch",
+    positioning: "changer de jeu trop souvent empêche l'algorithme de te recommander",
+    momentum:    "une longue période sans stream remet presque à zéro l'élan d'une petite chaîne",
+  },
+  small: {
+    regularity:  "la régularité prime sur tout quand on démarre — 2 streams fixes par semaine changent tout",
+    content:     "créer des clips de tes meilleurs moments te permet d'être découvert en dehors du live",
+    positioning: "1 ou 2 jeux max au début, c'est ce qui permet à Twitch de te recommander",
+    momentum:    "reprendre après une pause est difficile — la constance vaut mieux que la fréquence",
+  },
+};
+
+let _di = 0;
+const pick = arr => arr[(_di++) % arr.length];
+
+function buildDm(l, data, score, w) {
+  const n   = data.channel?.display_name ?? l;
+  const cat = data.dominant_category ?? data.channel?.game_name ?? "Twitch";
+  const sz  = getSize(data);
+  if (!w) {
+    const generic = {
+      soft:    `Hey ${n} 👋\n\nJ'ai vu ta chaîne ${cat} et je voulais te partager un outil gratuit qui identifie les leviers de croissance pour chaque streamer.\n\nDiagnostic sur streamnco.fr — 1 minute chrono.`,
+      direct:  `Hey ${n},\n\nStreamnco a analysé ta chaîne ${cat} — diagnostic gratuit disponible.\n\nTu veux voir ce qui freine ta croissance ? streamnco.fr`,
+      curious: `Hey ${n} 👋\n\nTu sais exactement ce qui freine ta chaîne ${cat} en ce moment ?\n\nStreamnco l'identifie en 1 minute, gratuitement : streamnco.fr`,
+    };
+    return generic[tone] ?? generic.direct;
+  }
+  const b   = BC[sz][w.key];
+
+  // Size-specific openers
+  const openers = {
+    large:   { soft:`Hey ${n} 👋\n\nJ'ai analysé ta chaîne sur Streamnco — ${score}/100.\n\n${b}.\n\nOn a un diagnostic qui identifie exactement les leviers à activer à ton niveau. C'est gratuit.\n\nTu veux jeter un œil ?`, direct:`Hey ${n},\n\nStreamnco — ${score}/100 pour ta chaîne.\n\nFriction principale : ${b}.\n\nDiagnostic optimisation → streamnco.fr`, curious:`Hey ${n} 👋\n\nTu sais exactement quel levier activer pour ta prochaine étape de croissance ?\n\nStreamnco l'identifie en 1 minute : streamnco.fr` },
+    medium:  { soft:`Hey ${n} 👋\n\nJ'ai regardé ta chaîne ${cat} sur Streamnco — score ${score}/100.\n\nCe qui ressort : ${b}.\n\nUn diagnostic gratuit peut te donner un plan d'action concret. Tu veux le lien ?`, direct:`Hey ${n},\n\nTon StreamScore : ${score}/100.\n\nPrincipal frein : ${b}.\n\nDiagnostic gratuit : streamnco.fr`, curious:`Hey ${n} 👋\n\nTa chaîne ${cat} est à ${score}/100 sur Streamnco.\n\n${b}. Curieux de voir le plan d'action complet ?\n\nstreamnco.fr — 1 minute.` },
+    growing: { soft:`Hey ${n} 👋\n\nJ'ai analysé ta chaîne avec Streamnco — ${score}/100.\n\n${b}.\n\nJ'ai un outil qui te donne un plan d'action précis et gratuit. Tu veux essayer ?`, direct:`Hey ${n},\n\nStreamnco a analysé ta chaîne : ${score}/100.\n\nFriction : ${b}.\n\nDiagnostic gratuit → streamnco.fr`, curious:`Hey ${n} 👋\n\nSi tu pouvais corriger une seule chose sur ta chaîne ${cat} là maintenant, ce serait quoi ?\n\nStreamnco répond en 1 minute, gratuitement : streamnco.fr` },
+    small:   { soft:`Hey ${n} 👋\n\nJ'ai regardé ta chaîne sur Streamnco — ${score}/100.\n\nCe qui ressort en priorité : ${b}.\n\nJ'ai un outil gratuit qui te donne un plan d'action étape par étape. Tu veux que je t'envoie le lien ?`, direct:`Hey ${n},\n\nTon score Streamnco : ${score}/100.\n\nPremier levier à activer : ${b}.\n\nDiagnostic gratuit : streamnco.fr`, curious:`Hey ${n} 👋\n\nEst-ce que tu sais exactement ce qui freine ta chaîne ${cat} en ce moment ?\n\nStreamnco identifie ton blocage principal en 1 minute. C'est gratuit : streamnco.fr` },
+  };
+  return openers[sz][tone] ?? openers.growing[tone];
+}
+
+function buildFollowup(l, data, score, w) {
+  const n  = data.channel?.display_name ?? l;
+  const sz = getSize(data);
+  const b  = w ? BC[sz][w.key] : null;
+  if (!b) return `Hey ${n} 👋\n\nJe t'avais envoyé un message il y a quelques jours.\n\nToujours dispo si tu veux tester le diagnostic gratuit : streamnco.fr\n\nBonne continuation 👊`;
+  return `Hey ${n} 👋\n\nJe t'avais envoyé un message il y a quelques jours — tu n'as peut-être pas eu le temps.\n\nPour rappel : score ${score}/100, principal frein = ${b}.\n\nDiagnostic gratuit sur streamnco.fr — 1 minute chrono.\n\nBonne continuation 👊`;
+}
+
+/* ─── Score ring ───────────────────────────────────────────────────── */
+function scoreRing(score) {
+  const c=score>=70?"var(--primary)":score>=45?"var(--warn)":"var(--err)";
+  return `<div class="ring">
+    <svg viewBox="0 0 36 36" width="48" height="48">
+      <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" stroke-width="2.8"/>
+      <circle cx="18" cy="18" r="15.9" fill="none" stroke="${c}" stroke-width="2.8"
+        stroke-dasharray="${score} ${100-score}" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+    </svg>
+    <div class="ring-val"><span class="ring-num" style="color:${c}">${score}</span><span class="ring-lbl">pts</span></div>
+  </div>`;
+}
+
+/* ─── Notes ────────────────────────────────────────────────────────── */
+function getNote(l) { return loadCRM()[l]?.note||""; }
+function setNote(l,v) {
+  const d=loadCRM(); d[l]={...(d[l]||{}),note:v}; saveCRM(d);
+  const el=document.getElementById(`note-${l}`);
+  if(el) el.classList.toggle("filled",!!v.trim());
+}
+
+/* ─── Render skeleton ──────────────────────────────────────────────── */
+function renderRow(l) {
+  if(document.getElementById(`row-${l}`)) return;
+  const d=document.createElement("div");
+  d.className="row"; d.id=`row-${l}`; d.dataset.login=l;
+  d.innerHTML=`<div class="row-hdr"><div class="av">${l[0].toUpperCase()}</div><div class="row-info"><div class="row-name" id="rn-${l}">${l}</div><div class="row-meta" id="rm-${l}"><span style="color:var(--text-3);font-size:10px">Analyse…</span></div></div><div id="rs-${l}"><div class="spin"></div></div></div><div id="rc-${l}"></div><div id="rd-${l}"></div>`;
+  document.getElementById("results").appendChild(d);
+}
+
+/* ─── Update full card ─────────────────────────────────────────────── */
+function updateRow(l) {
+  const r=rows[l], data=r.data;
+  const {overall,weakest}=getDims(data);
+  const name=data.channel?.display_name??l;
+  const cat=data.dominant_category??data.channel?.game_name??null;
+  const contacts=extractContacts(data);
+  r.name=name; r.category=cat; r.overall=overall; r.weakest=weakest; r.contacts=contacts;
+  r.dm=buildDm(l,data,overall,weakest);
+  r.followup=buildFollowup(l,data,overall,weakest);
+
+  document.getElementById(`rn-${l}`).innerHTML=
+    `${name}${name!==l?` <span class="login-tag">@${l}</span>`:""}
+     ${cat?`<span class="cat-badge">${cat}</span>`:""}
+     <a href="https://twitch.tv/${l}" target="_blank" rel="noopener" class="twitch-badge">⬥ Twitch</a>`;
+
+  document.getElementById(`rs-${l}`).innerHTML = overall != null ? scoreRing(overall) : `<div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;border-radius:50%;color:#9ca3af;font-size:9px;text-align:center;line-height:1.2;background:#f9fafb">—</div>`;
+
+  const cc=document.getElementById(`rc-${l}`);
+  if(contacts.length) {
+    cc.innerHTML=`<div class="div"></div><div class="card-sec"><div class="sec-lbl-sm">Contacts</div><div class="contacts">${contacts.map(c=>`<a class="cpill ${c.cls}" href="${c.href}" target="_blank" rel="noopener">${c.icon} ${c.display}</a>`).join("")}</div></div>`;
+  } else {
+    cc.innerHTML=`<div class="div"></div><div class="card-sec"><span class="no-contact">Aucun contact dans la bio</span></div>`;
+  }
+  renderDmArea(l);
+}
+
+/* ─── DM area (CRM aware) ──────────────────────────────────────────── */
+function renderDmArea(l) {
+  const r=rows[l], data=r.data;
+  const {overall,weakest}=getDims(data);
+  r.overall=overall; r.weakest=weakest;
+  r.dm=buildDm(l,data,overall,weakest);
+  r.followup=buildFollowup(l,data,overall,weakest);
+
+  const cs=getCS(l), st=cs.status;
+  document.getElementById(`row-${l}`).className=`row${st!=="none"?` status-${st}`:""}`;
+
+  const badge={none:"",sent:`<span class="bdg bdg-sent">✉ Envoyé${cs.sentAt?" · "+cs.sentAt:""}</span>`,followup:`<span class="bdg bdg-followup">🔄 Relance</span>`,replied:`<span class="bdg bdg-replied">✓ Répondu</span>`}[st];
+  const blockerHtml = r.weakest
+    ? `<span class="blocker-tag">⚡ ${r.weakest.label}</span>`
+    : `<span style="color:var(--text-3);font-size:10px">⚪ données insuffisantes — DM générique</span>`;
+  document.getElementById(`rm-${l}`).innerHTML=`${blockerHtml}${badge}`;
+
+  const igC=(r.contacts||[]).find(c=>c.type==="instagram");
+  const igBtn=igC?`<a class="dm-btn ig" href="https://www.instagram.com/direct/new/?usernames=${encodeURIComponent(igC.value)}" target="_blank" rel="noopener">📸 DM Instagram</a>`:"";
+
+  let content="", actions="";
+  if(st==="replied") {
+    content=`<p style="font-size:11px;color:var(--ok)">✓ Ce streamer a répondu.</p>`;
+    actions=`${igBtn}<button class="dm-btn" onclick="setStatus('${l}','none')">↩ Reset</button>`;
+  } else if(st==="followup") {
+    content=`<div class="dm-lbl">Relance</div><div class="dm-text">${esc(r.followup)}</div>`;
+    actions=`<button class="dm-btn" id="cp-${l}" onclick="copyText('${l}','followup')">📋 Copier</button>${igBtn}<button class="dm-btn rep" onclick="setStatus('${l}','replied')">✓ Répondu</button><button class="dm-btn" onclick="setStatus('${l}','none')">↩ Reset</button>`;
+  } else if(st==="sent") {
+    content=`<div class="dm-lbl">DM envoyé</div><div class="dm-text" style="opacity:.35">${esc(r.dm)}</div>`;
+    actions=`${igBtn}<button class="dm-btn rep" onclick="setStatus('${l}','replied')">✓ Répondu</button><button class="dm-btn fu" onclick="setStatus('${l}','followup')">🔄 À relancer</button><button class="dm-btn" onclick="setStatus('${l}','none')">↩ Reset</button>`;
+  } else {
+    content=`<div class="dm-lbl">DM initial</div><div class="dm-text">${esc(r.dm)}</div>`;
+    actions=`<button class="dm-btn" id="cp-${l}" onclick="copyText('${l}','dm')">📋 Copier</button>${igBtn}<button class="dm-btn sent" onclick="setStatus('${l}','sent')">✉ Marquer envoyé</button><a class="dm-btn tw-lnk" href="https://twitch.tv/${l}" target="_blank" rel="noopener">⬥ Twitch ↗</a>`;
+  }
+
+  const note=getNote(l);
+  document.getElementById(`rd-${l}`).innerHTML=`<div class="div"></div><div class="dm-area">${content}<div class="dm-actions">${actions}</div><div class="note-wrap"><input type="text" class="note-input${note?" filled":""}" id="note-${l}" placeholder="📝 Note privée…" value="${esc(note)}" oninput="setNote('${l}',this.value)"></div></div>`;
+}
+
+function setStatus(l,s) { setCS(l,s); renderDmArea(l); updateStats(); applyView(); }
+function copyText(l,field) {
+  navigator.clipboard.writeText(field==="dm"?rows[l].dm:rows[l].followup);
+  const btn=document.getElementById(`cp-${l}`);
+  if(btn){btn.textContent="✓ Copié !"; btn.classList.add("ok"); setTimeout(()=>{btn.textContent="📋 Copier";btn.classList.remove("ok");},2000);}
+}
+
+/* ─── Filter + sort ────────────────────────────────────────────────── */
+function setFilter(f) {
+  activeFilter=f;
+  document.querySelectorAll(".fpill").forEach(t=>{
+    t.classList.toggle("active",t.dataset.f===f);
+    if(t.dataset.f==="instagram") t.classList.toggle("ig-filter",f==="instagram"&&t.classList.contains("active"));
+  });
+  applyView();
+}
+function setSort(s) { activeSort=s; applyView(); }
+
+function applyView() {
+  const container=document.getElementById("results");
+  const cards=[...container.querySelectorAll(".row[data-login]")];
+  const done=cards.filter(c=>rows[c.dataset.login]?.status==="done");
+  const rest=cards.filter(c=>rows[c.dataset.login]?.status!=="done");
+
+  done.forEach(c=>{
+    const r=rows[c.dataset.login];
+    const hasC=(r.contacts?.length||0)>0;
+    const hasIG=(r.contacts||[]).some(x=>x.type==="instagram");
+    const st=getCS(c.dataset.login).status;
+    let v=true;
+    if(activeFilter==="contact")   v=hasC;
+    if(activeFilter==="instagram") v=hasIG;
+    if(activeFilter==="nocontact") v=!hasC;
+    if(activeFilter==="sent")      v=st==="sent";
+    if(activeFilter==="followup")  v=st==="followup";
+    if(activeFilter==="replied")   v=st==="replied";
+    c.style.display=v?"":"none";
+  });
+
+  const sorted=[...done].sort((a,b)=>{
+    const ra=rows[a.dataset.login],rb=rows[b.dataset.login];
+    if(activeSort==="score")     return (rb.overall||0)-(ra.overall||0);
+    if(activeSort==="instagram") { const ia=(ra.contacts||[]).some(x=>x.type==="instagram")?1:0, ib=(rb.contacts||[]).some(x=>x.type==="instagram")?1:0; return ib-ia; }
+    if(activeSort==="contact")   return (rb.contacts?.length||0)-(ra.contacts?.length||0);
+    if(activeSort==="name")      return (ra.name||"").localeCompare(rb.name||"");
+    return 0;
+  });
+  sorted.forEach(c=>container.appendChild(c));
+  rest.forEach(c=>container.appendChild(c));
+}
+
+function updateStats() {
+  const all = Object.values(rows).filter(r => r.status === "done");
+  const wC  = all.filter(r => (r.contacts?.length||0) > 0);
+  const wIG = all.filter(r => (r.contacts||[]).some(c => c.type === "instagram"));
+
+  // Header CRM stats = totaux cumulatifs depuis tout l'historique localStorage
+  const crm     = loadCRM();
+  const crmVals = Object.values(crm);
+  document.getElementById("sDone").textContent     = all.length;
+  document.getElementById("sIG").textContent       = wIG.length;
+  document.getElementById("sContact").textContent  = wC.length;
+  document.getElementById("sSent").textContent     = crmVals.filter(v => v.status === "sent").length;
+  document.getElementById("sFollowup").textContent = crmVals.filter(v => v.status === "followup").length;
+  document.getElementById("sReplied").textContent  = crmVals.filter(v => v.status === "replied").length;
+
+  // Filter bar = stats de l'analyse en cours uniquement
+  document.getElementById("cAll").textContent  = all.length;
+  document.getElementById("cIG").textContent   = wIG.length;
+  document.getElementById("cContact").textContent = wC.length;
+  document.getElementById("cNone").textContent = all.length - wC.length;
+  document.getElementById("cSent").textContent = all.filter(r => getCS(r.login||"").status === "sent").length;
+  document.getElementById("cFU").textContent   = all.filter(r => getCS(r.login||"").status === "followup").length;
+  document.getElementById("cRep").textContent  = all.filter(r => getCS(r.login||"").status === "replied").length;
+}
+
+/* ─── Session save/restore ─────────────────────────────────────────── */
+function saveRows() {
+  try {
+    const s={};
+    Object.entries(rows).forEach(([l,r])=>{
+      if(r.status!=="done"||!r.data) return;
+      s[l]={login:l,status:"done",data:{
+        channel:        r.data.channel,
+        channel_facts:  r.data.channel_facts,
+        stream_stats:   r.data.stream_stats,
+        vod_facts:      r.data.vod_facts,          // nécessaire pour getDims au restore
+        clips:          (r.data.clips||[]).slice(0,20), // vrai tableau limité à 20
+        dominant_category: r.data.dominant_category,
+        social_links:   r.data.social_links,
+        success:        true,
+      }};
+    });
+    localStorage.setItem(LS_ROWS,JSON.stringify(s));
+  } catch {}
+}
+function saveSearch() {
+  try { localStorage.setItem(LS_SEARCH,JSON.stringify({results:searchResults.slice(0,200),cat:currentCat,lang:currentLang,cursor:nextCursor,broadcasterFilter,liveOnly})); } catch {}
+}
+
+function restoreState() {
+  try {
+    const s=JSON.parse(localStorage.getItem(LS_SEARCH)||"null");
+    if(s?.results?.length) {
+      searchResults=s.results; currentCat=s.cat||""; currentLang=s.lang||"fr";
+      nextCursor=s.cursor||null; broadcasterFilter=s.broadcasterFilter||"all"; liveOnly=s.liveOnly??false;
+      if(currentCat) document.getElementById("catInput").value=currentCat;
+      document.getElementById("langSelect").value=currentLang;
+      document.querySelectorAll("#sizeFilters .pill-btn").forEach(b=>b.classList.toggle("active",b.dataset.type===broadcasterFilter));
+      document.getElementById("btnLive").classList.toggle("active",liveOnly);
+      document.getElementById("btnAll").classList.toggle("active",!liveOnly);
+      renderSearchResults(); document.getElementById("searchResults").style.display="block"; updateLoadMoreBtn();
+    }
+  } catch {}
+  try {
+    const sr=JSON.parse(localStorage.getItem(LS_ROWS)||"null");
+    if(sr&&Object.keys(sr).length) {
+      document.getElementById("results").innerHTML="";
+      Object.entries(sr).forEach(([l,r])=>{
+        if(!r.data?.channel) return; // ignorer les rows sans données valides
+        rows[l]={...r,dm:"",followup:"",contacts:[]};
+        renderRow(l);
+        try { updateRow(l); } catch(e) {
+          // Si updateRow échoue, retirer la card plutôt que la laisser en skeleton
+          document.getElementById(`row-${l}`)?.remove();
+          delete rows[l];
+        }
+      });
+      document.getElementById("statBar").style.display="flex";
+      document.getElementById("filterBar").style.display="flex";
+      document.getElementById("exportBtn").style.display="block";
+      updateStats(); applyView();
+    }
+  } catch {}
+}
+
+/* ─── Twitch search ─────────────────────────────────────────────────── */
+async function fetchPage(cat,lang,cursor) {
+  const body={input:cat,mode:"category",first:100,language:lang,live_only:liveOnly};
+  if(!liveOnly) body.include_offline=true;
+  if(cursor) body.after=cursor;
+  const r=await fetch(`${SB_URL}/functions/v1/twitch-public-lookup`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${SB_KEY}`,"apikey":SB_KEY},body:JSON.stringify(body)});
+  return r.json();
+}
+
+const GAME_ALIASES = {
+  "cs2":"Counter-Strike 2","cs 2":"Counter-Strike 2","counter strike 2":"Counter-Strike 2",
+  "csgo":"Counter-Strike: Global Offensive","cs:go":"Counter-Strike: Global Offensive","cs go":"Counter-Strike: Global Offensive",
+  "lol":"League of Legends","league":"League of Legends",
+  "fortnite":"Fortnite","fn":"Fortnite",
+  "valo":"VALORANT","valorant":"VALORANT",
+  "apex":"Apex Legends","apex legends":"Apex Legends",
+  "wow":"World of Warcraft","warcraft":"World of Warcraft",
+  "minecraft":"Minecraft","mc":"Minecraft",
+  "gta":"Grand Theft Auto V","gta5":"Grand Theft Auto V","gta v":"Grand Theft Auto V",
+  "r6":"Tom Clancy's Rainbow Six Siege","rainbow six":"Tom Clancy's Rainbow Six Siege",
+  "overwatch":"Overwatch 2","ow":"Overwatch 2","ow2":"Overwatch 2",
+};
+
+function resolveGameName(input) {
+  const key = input.trim().toLowerCase();
+  return GAME_ALIASES[key] || input.trim();
+}
+
+async function searchStreamers() {
+  const rawCat=document.getElementById("catInput").value.trim();
+  const cat=resolveGameName(rawCat);
+  if(cat!==rawCat) document.getElementById("catInput").value=cat;
+  const lang=document.getElementById("langSelect").value;
+  if(!cat){log("⚠ Entre une catégorie"); return;}
+  currentCat=cat; currentLang=lang; nextCursor=null; searchResults=[]; selected.clear();
+  const spin=document.getElementById("searchSpinner"), txt=document.getElementById("spinTxt");
+  spin.style.display="block"; document.getElementById("searchResults").style.display="none";
+  try {
+    const data=await fetchPage(cat,lang,null);
+    if(data.success===false) {
+      if(data.reason==="category_not_found") log(`⚠ Catégorie "${cat}" introuvable sur Twitch. Vérifie l'orthographe exacte (ex: "Counter-Strike 2", "VALORANT").`);
+      else if(data.reason==="game_lookup_failed") log(`⚠ Erreur lors de la recherche du jeu. Réessaie.`);
+      else log(`⚠ Erreur API : ${data.reason||"inconnue"}`);
+    }
+    const ch=data.channels||data.data||data.results||[];
+    nextCursor=data.pagination?.cursor??null; searchResults=ch;
+    if(data.success!==false && ch.length===0) log(`ℹ Aucun streamer ${lang!=="all"?lang+" ":""  }en live pour "${cat}" en ce moment. Réessaie plus tard ou change de langue.`);
+    ch.forEach(c=>selected.add(c.login||c.platform_login||""));
+    renderSearchResults(); document.getElementById("searchResults").style.display="block"; updateLoadMoreBtn();
+    while(nextCursor&&searchResults.length<1000) {
+      if(txt) txt.textContent=`${searchResults.length} chargés…`; await sleep(250);
+      const more=await fetchPage(currentCat,currentLang,nextCursor);
+      const mc=more.channels||more.data||more.results||[];
+      if(!mc.length) break;
+      nextCursor=more.pagination?.cursor??null;
+      mc.forEach(c=>selected.add(c.login||c.platform_login||""));
+      searchResults=[...searchResults,...mc]; renderSearchResults(); updateLoadMoreBtn();
+    }
+    saveSearch();
+  } catch(e){log("❌ "+e.message);}
+  spin.style.display="none"; if(txt) txt.textContent="Recherche…";
+  renderSearchResults();
+}
+
+async function loadMore() {
+  if(!nextCursor) return;
+  const btn=document.getElementById("loadMoreBtn");
+  btn.textContent="⏳ Chargement…"; btn.disabled=true;
+  try {
+    const data=await fetchPage(currentCat,currentLang,nextCursor);
+    const ch=data.channels||data.data||data.results||[];
+    nextCursor=data.pagination?.cursor??null;
+    ch.forEach(c=>selected.add(c.login||c.platform_login||""));
+    searchResults=[...searchResults,...ch]; renderSearchResults(); saveSearch(); updateLoadMoreBtn();
+  } catch(e){log("❌ "+e.message);}
+}
+
+function updateLoadMoreBtn() {
+  const btn=document.getElementById("loadMoreBtn");
+  if(!btn) return;
+  if(nextCursor){btn.style.display="block"; btn.textContent=`⬇ Charger plus (${searchResults.length} chargés)`; btn.disabled=false;}
+  else btn.style.display="none";
+}
+
+function applySearchFilter(ch) {
+  let r=ch;
+  if(broadcasterFilter!=="all") r=ch.filter(c=>{const t=(c.broadcaster_type||"").toLowerCase(); if(broadcasterFilter==="none") return t===""||t==="none"; if(broadcasterFilter==="affiliate") return t==="affiliate"; if(broadcasterFilter==="partner") return t==="partner"; return true;});
+  return [...r].sort((a,b)=>(a.live_viewer_count??a.avg_viewers??0)-(b.live_viewer_count??b.avg_viewers??0));
+}
+
+function renderSearchResults() {
+  const list=document.getElementById("searchList"); list.innerHTML="";
+  const filtered=applySearchFilter(searchResults);
+  const labels={all:"tous",none:"🌱 non aff.",affiliate:"⭐ affiliés",partner:"🏆 partenaires"};
+  document.getElementById("searchCount").textContent=`${filtered.length}/${searchResults.length} · ${labels[broadcasterFilter]??""}`;
+  if(!filtered.length){list.innerHTML=`<div style="text-align:center;padding:12px;color:var(--text-3);font-size:11px">Aucun résultat.</div>`;return;}
+  filtered.forEach(ch=>{
+    const l=ch.login||ch.platform_login||"", n=ch.display_name||l;
+    const v=ch.live_viewer_count??ch.avg_viewers??null, sc=ch.stream_score||0;
+    const cs=getCS(l), si={sent:"✉",followup:"🔄",replied:"✓"}[cs.status]||"";
+    const bt=ch.broadcaster_type==="affiliate"?" · ⭐":ch.broadcaster_type==="partner"?" · 🏆":" · 🌱";
+    const d=document.createElement("div");
+    d.className=`s-row${selected.has(l)?" sel":""}`; d.dataset.login=l;
+    d.innerHTML=`<div class="s-av">${(n[0]||"?").toUpperCase()}</div><div class="s-info"><div class="s-name">${n}${si?` <span style="font-size:9px">${si}</span>`:""}</div><div class="s-meta">@${l}${v!=null?` · ${v>=1000?(v/1000).toFixed(1)+"k":v}vw`:""}${bt}</div></div><div class="s-score">${sc||"—"}</div><div class="s-chk"></div>`;
+    d.addEventListener("click",()=>toggleSel(l,d));
+    list.appendChild(d);
+  });
+  updateSelBar();
+}
+
+function toggleSel(l,el){selected.has(l)?(selected.delete(l),el.classList.remove("sel")):(selected.add(l),el.classList.add("sel")); updateSelBar();}
+function selectAll(){applySearchFilter(searchResults).forEach(c=>selected.add(c.login||"")); renderSearchResults();}
+function selectNone(){selected.clear(); renderSearchResults();}
+function updateSelBar(){document.getElementById("selCount").textContent=`${selected.size} sélectionné${selected.size>1?"s":""}`;document.getElementById("selBar").style.display=selected.size>0?"flex":"none";}
+function analyzeSelected(){if(selected.size) runAnalysis([...selected]);}
+function analyzeManual(){
+  const l=document.getElementById("manualInput").value.split(/[\n,;]+/).map(extractLogin).filter(l=>l.length>=2).slice(0,500);
+  if(!l.length){log("⚠ Aucun pseudo valide"); return;} runAnalysis(l);
+}
+
+/* ─── Lookup ────────────────────────────────────────────────────────── */
+async function lookup(l) {
+  try {
+    const r=await fetch(`${SB_URL}/functions/v1/twitch-public-lookup`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${SB_KEY}`,"apikey":SB_KEY},body:JSON.stringify({input:l})});
+    if(!r.ok) return null;
+    const d=await r.json(); return d.success&&d.channel?d:null;
+  } catch{return null;}
+}
+
+function extractLogin(raw) {
+  const s=raw.trim(), m=s.match(/(?:https?:\/\/)?(?:www\.)?twitch\.tv\/([a-zA-Z0-9_]+)/i);
+  return m?m[1].toLowerCase():s.replace(/^@/,"").toLowerCase().replace(/[^a-z0-9_]/g,"");
+}
+
+async function runAnalysis(logins) {
+  if(!logins.length) return;
+  rows={};
+  document.getElementById("results").innerHTML="";
+  document.getElementById("statBar").style.display="flex";
+  document.getElementById("filterBar").style.display="flex";
+  document.getElementById("exportBtn").style.display="none";
+  updateStats(); // affiche les totaux CRM historiques immédiatement
+  log(`🔍 Analyse de ${logins.length} chaîne(s)…`);
+
+  logins.forEach(l=>{rows[l]={login:l,status:"pending",data:null,dm:"",followup:"",contacts:[]}; renderRow(l);});
+
+  const BATCH=4;
+  for(let i=0;i<logins.length;i+=BATCH){
+    await Promise.all(logins.slice(i,i+BATCH).map(async l=>{
+      const data=await lookup(l);
+      if(!data){rows[l].status="error"; document.getElementById(`rs-${l}`).innerHTML=`<span style="color:var(--err);font-size:10px">Introuvable</span>`; document.getElementById(`rm-${l}`).innerHTML=`<span style="color:var(--err);font-size:10px">Non trouvé</span>`; log(`❌ ${l}`); return;}
+      rows[l].status="done"; rows[l].data=data; log(`✅ ${l}`); updateRow(l);
+    }));
+    updateStats(); applyView();
+    if(i+BATCH<logins.length) await sleep(700);
+  }
+
+  const doneLogins=Object.values(rows).filter(r=>r.status==="done").map(r=>r.login);
+  if(doneLogins.length) {
+    document.getElementById("exportBtn").style.display="block";
+    saveRows();
+    const label=currentCat?`${currentCat} · ${currentLang} · ${doneLogins.length} streamers`:`Manuel · ${doneLogins.length} streamers`;
+    addToHistory(label, doneLogins);
+  }
+}
+
+/* ─── Export CSV ────────────────────────────────────────────────────── */
+function exportCsv() {
+  const lines=["login,name,score,blocage,categorie,contacts,note,statut,dm"];
+  Object.entries(rows).forEach(([l,r])=>{
+    if(r.status!=="done") return;
+    const cs=getCS(l), dm=(r.dm||"").replace(/\n/g," ").replace(/"/g,"'");
+    const contacts=(r.contacts||[]).map(c=>c.display).join(" | ");
+    const note=(getNote(l)||"").replace(/"/g,"'");
+    lines.push(`${l},"${r.name||l}",${r.overall||""},"${r.weakest?.label||""}","${r.category||""}","${contacts}","${note}","${cs.status}","${dm}"`);
+  });
+  const blob=new Blob([lines.join("\n")],{type:"text/csv"});
+  const a=Object.assign(document.createElement("a"),{href:URL.createObjectURL(blob),download:"outreach-streamnco.csv"});
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ─── Boot ──────────────────────────────────────────────────────────── */
+document.addEventListener("DOMContentLoaded", () => {
+  // Toujours montrer les totaux CRM même sans analyse en cours
+  document.getElementById("statBar").style.display = "flex";
+  updateStats();
+  restoreState();
+});
+</script>
+</body>
+</html>
