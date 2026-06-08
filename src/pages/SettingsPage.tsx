@@ -20,6 +20,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import AccountMenu from "@/components/AccountMenu";
+import { LayoutPresetModal } from "@/components/LayoutPresetModal";
+
 
 const SettingsPage = () => {
   const { user, deleteAccount } = useAuth();
