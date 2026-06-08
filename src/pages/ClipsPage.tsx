@@ -40,6 +40,8 @@ import {
   type PlannerResult,
 } from "@/services/shortContentPlanner";
 import { generateClipCopy } from "@/services/shortContentCopy";
+import { CreateClipDialog } from "@/components/CreateClipDialog";
+
 
 type Status = "loading" | "ready" | "error";
 
@@ -305,7 +307,7 @@ const SummaryTile = ({
 const ClipsPage = () => {
   usePageMeta({
     title: "Clips · Streamnco",
-    description: "Repère tes meilleurs moments Twitch et transforme-les en contenus courts prêts à poster.",
+    description: "Transforme tes moments Twitch en clips verticaux prêts pour TikTok, Reels et Shorts.",
   });
 
   const { user } = useAuth();
@@ -317,6 +319,8 @@ const ClipsPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<ClipFilter>("all");
   const [sort, setSort] = useState<ClipSort>("potential");
+  const [createOpen, setCreateOpen] = useState(false);
+
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -393,10 +397,14 @@ const ClipsPage = () => {
 
   const action = (
     <div className="flex flex-wrap items-center gap-2">
-      <Button asChild className="gap-2">
+      <Button onClick={() => setCreateOpen(true)} className="gap-2">
+        <Sparkles className="h-4 w-4" />
+        Créer un clip
+      </Button>
+      <Button asChild variant="outline" className="gap-2">
         <a href="/clips/vod-import">
           <Scissors className="h-4 w-4" />
-          Créer depuis une VOD
+          Depuis une VOD
         </a>
       </Button>
       <Button onClick={refresh} disabled={refreshing} variant="outline" className="gap-2">
@@ -411,9 +419,15 @@ const ClipsPage = () => {
       <PageContainer size="lg">
         <PageHeader
           title="Clips"
-          description="Repère tes meilleurs moments et transforme-les en contenus courts."
+          description="Transforme n’importe quelle VOD ou vidéo en clip vertical prêt à publier."
           action={action}
         />
+        <CreateClipDialog
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          platformUserId={account?.broadcaster_id ?? null}
+        />
+
 
         {status === "loading" && <LoadingState label="Chargement de tes clips…" />}
 

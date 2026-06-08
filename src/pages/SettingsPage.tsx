@@ -20,6 +20,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import AccountMenu from "@/components/AccountMenu";
+import { LayoutPresetModal } from "@/components/LayoutPresetModal";
+
 
 const SettingsPage = () => {
   const { user, deleteAccount } = useAuth();
@@ -27,6 +29,8 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [presetOpen, setPresetOpen] = useState(false);
+
 
   const handleDeleteAccount = async () => {
     setDeleting(true);
@@ -168,6 +172,34 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
         </section>
+
+        {/* Format réseaux */}
+        {isConnected && account?.platform_user_id && (
+          <section className="mb-6">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Format réseaux
+            </h2>
+            <Card>
+              <CardContent className="flex items-center justify-between gap-4 p-5">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Configurer ma caméra</p>
+                  <p className="text-xs text-muted-foreground">
+                    Indique l’emplacement de ta caméra dans tes streams. Streamnco l’utilisera pour générer tes clips verticaux 1080×1920.
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => setPresetOpen(true)}>
+                  Configurer
+                </Button>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+        <LayoutPresetModal
+          open={presetOpen}
+          onOpenChange={setPresetOpen}
+          platformUserId={account?.platform_user_id ?? null}
+        />
+
 
         {/* Sécurité */}
         <section className="mb-6">

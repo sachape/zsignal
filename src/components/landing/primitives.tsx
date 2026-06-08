@@ -4,10 +4,15 @@ export const SectionShell = ({
   children,
   id,
   className = "",
+  glow: _glow,
+  grid: _grid,
 }: {
   children: ReactNode;
   id?: string;
   className?: string;
+  /** Optional visual flags consumed by callers. Currently no-op visual hints. */
+  glow?: boolean;
+  grid?: boolean;
 }) => (
   <section
     id={id}
@@ -18,6 +23,7 @@ export const SectionShell = ({
     </div>
   </section>
 );
+
 
 /** Black pill badge — matches the speech-bubble sticker style of the illustrations */
 export const SectionBadge = ({ children }: { children: ReactNode }) => (

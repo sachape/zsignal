@@ -37,6 +37,8 @@ import ManualMediaUploadDialog from "@/components/content-queue/ManualMediaUploa
 import { useFreshMediaUrl } from "@/services/mediaStorage";
 import { isAdminMode } from "@/lib/featureFlags";
 import { getGenerationErrorMessage, getGenerationStageLabel } from "@/services/videoGeneration";
+import { ContentItemSocialBadges } from "@/components/ContentItemSocialBadges";
+
 
 const PLATFORM_META: Record<ContentPlatform, { label: string; Icon: React.FC<{ className?: string }> }> = {
   youtube_shorts: { label: "YouTube Shorts", Icon: Video },
@@ -78,7 +80,7 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "community", label: "Communauté" },
   { key: "high", label: "Priorité élevée" },
   { key: "to_generate", label: "À générer" },
-  { key: "draft_ready", label: "Draft prêt" },
+  { key: "draft_ready", label: "Brouillon" },
   { key: "ready", label: "Prêt" },
   { key: "uploaded", label: "Uploadé" },
 ];
@@ -180,7 +182,7 @@ const ContentQueuePage = () => {
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <StatCell label="Total" value={counts.total} />
           <StatCell label="À générer" value={counts.to_generate} accent="violet" />
-          <StatCell label="Drafts" value={counts.draft_ready} accent="cyan" />
+          <StatCell label="Brouillons" value={counts.draft_ready} accent="cyan" />
           <StatCell label="Prêts" value={counts.ready} accent="primary" />
           <StatCell label="Publiés" value={counts.published} accent="emerald" />
         </div>
@@ -550,13 +552,18 @@ function ContentRow({
           </>
         )}
 
-        {/* V3D — Clip draft block (video platforms only) */}
+        {/* Clip vidéo généré */}
         {isVideo && item.status !== "ignored" && (
           <div className="space-y-2 rounded-md border border-border/60 bg-background/40 p-3">
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-foreground">
               <Film className="h-3.5 w-3.5 text-primary" />
-              Clip Draft
+              Clip
+              <ContentItemSocialBadges
+                outputFormat={(item as unknown as { output_format?: string }).output_format}
+                layoutType={(item as unknown as { layout_type?: string }).layout_type}
+              />
             </div>
+
 
             {hasGeneratedClip ? (
               <div className="space-y-2">
