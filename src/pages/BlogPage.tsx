@@ -20,12 +20,14 @@ const ArticleCard = ({ article, featured = false }: { article: typeof ARTICLES[n
     className={`group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/70 bg-card transition-all duration-150 hover:-translate-x-px hover:-translate-y-px ${featured ? "md:col-span-2" : ""}`}
     style={{ boxShadow: "4px 4px 0 0 rgba(23,29,46,0.72)" }}
   >
-    {/* Illustration zone — fond sombre pour que les SVG ressortent */}
-    <div className={`relative overflow-hidden bg-black border-b-2 border-foreground/70 ${featured ? "h-52 md:h-64" : "h-40"}`}>
+    {/* Illustration zone — gradient dark premium, comme le dark mode original */}
+    <div className={`relative overflow-hidden border-b border-foreground/10 ${featured ? "h-52 md:h-64" : "h-40"}`}
+      style={{ background: "linear-gradient(135deg, #0e1117 0%, #141c28 100%)" }}>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(107,71,184,0.12),transparent_60%)]" />
       <div className="absolute inset-0 flex items-center justify-center p-6 opacity-90">
         {article.illustration}
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0e1117]/50 to-transparent" />
     </div>
 
     {/* Content */}

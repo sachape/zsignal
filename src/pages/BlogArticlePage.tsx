@@ -146,10 +146,11 @@ const BlogArticlePage = () => {
             {article.excerpt}
           </p>
 
-          {/* Illustration — fond sombre pour que les SVG ressortent */}
+          {/* Illustration — gradient dark premium */}
           <div className="mt-10 overflow-hidden rounded-2xl border-2 border-foreground/80" style={{ boxShadow: "4px 4px 0 0 rgba(23,29,46,0.7)" }}>
-            <div className="bg-black p-6 md:p-10 opacity-95">
-              {article.illustration}
+            <div className="relative p-6 md:p-10" style={{ background: "linear-gradient(135deg, #0e1117 0%, #141c28 100%)" }}>
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(107,71,184,0.15),transparent_55%)]" />
+              <div className="relative opacity-95">{article.illustration}</div>
             </div>
           </div>
         </div>
@@ -282,8 +283,9 @@ const BlogArticlePage = () => {
                 style={{ boxShadow: "3px 3px 0 0 rgba(23,29,46,0.6)" }}
               >
                 {/* Mini illustration */}
-                <div className="h-24 overflow-hidden border-b-2 border-foreground/10 bg-black opacity-90 flex items-center justify-center p-4">
-                  {a.illustration}
+                <div className="relative h-24 overflow-hidden border-b border-foreground/10 flex items-center justify-center p-3"
+                  style={{ background: "linear-gradient(135deg, #0e1117 0%, #141c28 100%)" }}>
+                  <div className="opacity-90">{a.illustration}</div>
                 </div>
                 <div className="flex flex-1 flex-col gap-2 p-4">
                   <span className="self-start rounded-full bg-foreground px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-background">
