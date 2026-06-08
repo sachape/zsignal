@@ -66,7 +66,7 @@ export function usePlan(): PlanInfo {
       .then(({ data }) => {
         const status = data?.status ?? null;
         const isActive = status === "active" || status === "trialing";
-        const t = (isActive ? (data?.plan_name ?? "free") : "free") as PlanTier;
+        const t = (isActive ? normalizePlan(data?.plan_name) : "free") as PlanTier;
         PLAN_CACHE.set(user.id, t);
         setPlan(t);
         setLoading(false);
@@ -74,5 +74,10 @@ export function usePlan(): PlanInfo {
       });
   }, [user, refreshKey]);
 
-  return { plan, isPro: plan !== "free", isGrowth: plan === "growth" || plan === "agency", loading };
+  return {
+    plan,
+    isPro: hasPlanAtLeast(plan, "pro"),
+    isGrowth: hasPlanAtLeast(plan, "growth"),
+    loading,
+  };
 }
