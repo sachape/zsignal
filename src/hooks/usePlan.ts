@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { analytics } from "@/services/analytics";
+import { hasPlanAtLeast, normalizePlan, type PlanTier } from "@/lib/planAccess";
 
-export type PlanTier = "free" | "pro" | "growth" | "agency";
+export type { PlanTier };
 
 export interface PlanInfo {
   plan: PlanTier;
