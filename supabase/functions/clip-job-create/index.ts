@@ -81,6 +81,11 @@ Deno.serve(async (req) => {
   const sourceStoragePath = body.source_storage_path ? String(body.source_storage_path) : null;
   const startTime = Number(body.start_time_seconds);
   const endTime = Number(body.end_time_seconds);
+  // NEW — vertical social layout (optional, defaults to legacy 16:9)
+  const outputFormat = body.output_format ? String(body.output_format) : "horizontal_16_9";
+  const layoutType = body.layout_type ? String(body.layout_type) : null;
+  const layoutPresetId = body.layout_preset_id ? String(body.layout_preset_id) : null;
+  const videoSourceId = body.video_source_id ? String(body.video_source_id) : null;
 
   if (!contentItemId) return json({ error: "missing_content_item_id" }, 400);
   if (!["upload", "storage_url", "direct_url", "twitch_vod", "youtube_vod"].includes(sourceType)) return json({ error: "invalid_source_type" }, 400);
@@ -88,6 +93,8 @@ Deno.serve(async (req) => {
   if (startTime < 0 || endTime <= startTime) return json({ error: "invalid_range" }, 400);
   const duration = Math.round(endTime - startTime);
   if (duration < 5 || duration > 180) return json({ error: "invalid_duration" }, 400);
+  if (outputFormat === "vertical_9_16" && !layoutType) return json({ error: "missing_layout_type" }, 400);
+
 
   if (sourceType === "upload" || sourceType === "storage_url") {
     if (!sourceStoragePath) return json({ error: "missing_source_storage_path" }, 400);
