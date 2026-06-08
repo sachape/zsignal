@@ -78,7 +78,7 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "community", label: "Communauté" },
   { key: "high", label: "Priorité élevée" },
   { key: "to_generate", label: "À générer" },
-  { key: "draft_ready", label: "Draft prêt" },
+  { key: "draft_ready", label: "Brouillon" },
   { key: "ready", label: "Prêt" },
   { key: "uploaded", label: "Uploadé" },
 ];
