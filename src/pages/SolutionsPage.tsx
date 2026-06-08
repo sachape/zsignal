@@ -90,7 +90,7 @@ const SolutionsPage = () => {
             <SectionBadge>
               <Users className="h-3 w-3" /> Solutions
             </SectionBadge>
-            <h1 className="mx-auto mt-5 max-w-2xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-[3.5rem]">
+            <h1 className="font-display mx-auto mt-5 max-w-2xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-[3.5rem]">
               Le bon outil,<br />au bon niveau.
             </h1>
             <p className="mx-auto mt-4 max-w-md text-base text-foreground/60 md:text-lg">

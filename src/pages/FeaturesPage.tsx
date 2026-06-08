@@ -357,7 +357,7 @@ const FeaturesPage = () => {
             <SectionBadge>
               <Sparkles className="h-3 w-3" /> Fonctionnalités
             </SectionBadge>
-            <h1 className="mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
+            <h1 className="font-display mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
               Tout ce qu'il faut pour progresser sur Twitch
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-base text-foreground/70 md:text-lg">

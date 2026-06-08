@@ -606,7 +606,7 @@ const DashboardPage = () => {
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-base font-bold text-foreground">{headerTitle}</h1>
+                <h1 className="font-display text-base font-bold text-foreground">{headerTitle}</h1>
                 {summary.broadcaster_type === "partner" && (
                   <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">Partenaire</span>
                 )}

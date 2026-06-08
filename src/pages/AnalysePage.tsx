@@ -334,7 +334,7 @@ const AnalysePage = () => {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                     Résumé d'analyse
                   </p>
-                  <h1 className="mt-0.5 truncate bg-gradient-to-b from-foreground to-foreground/80 bg-clip-text text-2xl font-bold tracking-tight text-transparent md:text-[28px]">
+                  <h1 className="font-display mt-0.5 truncate bg-gradient-to-b from-foreground to-foreground/80 bg-clip-text text-2xl font-bold tracking-tight text-transparent md:text-[28px]">
                     {summary.display_name}
                   </h1>
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">

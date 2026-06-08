@@ -261,7 +261,7 @@ const AnalyzePage = () => {
               <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {mode === "teaser" ? "Aperçu en cours" : "Analyse en cours"}
               </p>
-              <h1 className="text-xl font-semibold tracking-tight text-foreground">
+              <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">
                 {channel}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">

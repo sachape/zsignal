@@ -64,7 +64,7 @@ const UnsubscribePage = () => {
   return (
     <main className="min-h-screen bg-background text-foreground flex items-center justify-center px-6">
       <section className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold tracking-tight">Désinscription</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">Désinscription</h1>
 
         {state.kind === "loading" && (
           <p className="mt-4 text-muted-foreground">Vérification du lien…</p>

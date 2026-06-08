@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ["DM Sans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
+        display: ["Boogaloo", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

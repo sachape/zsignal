@@ -164,7 +164,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10 shadow-[0_0_24px_hsl(var(--primary)/0.25)]">
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
           Prêt à prendre le contrôle ?
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">

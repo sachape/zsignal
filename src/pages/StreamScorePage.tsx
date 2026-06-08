@@ -186,7 +186,7 @@ const StreamScorePage = () => {
             </SectionBadge>
 
             {/* H1 — required verbatim */}
-            <h1 className="mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-[3.25rem] md:leading-[1.08]">
+            <h1 className="font-display mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-[3.25rem] md:leading-[1.08]">
               StreamScore : le score de progression de ta chaîne Twitch
             </h1>
 

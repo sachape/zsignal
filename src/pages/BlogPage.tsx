@@ -78,7 +78,7 @@ const BlogPage = () => {
       <SectionShell className="pt-32 md:pt-40">
         <div className="mx-auto max-w-3xl text-center">
           <SectionBadge>Blog</SectionBadge>
-          <h1 className="mt-5 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
+          <h1 className="font-display mt-5 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
             Tout ce que tu dois savoir pour progresser sur Twitch
           </h1>
           <p className="mt-5 text-base text-muted-foreground sm:text-lg">

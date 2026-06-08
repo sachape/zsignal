@@ -154,7 +154,7 @@ const HeroSection = () => {
           </span>
 
           {/* Headline — outcome-first, specific, creates curiosity gap */}
-          <h1 className="mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.05]">
+          <h1 className="font-display mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.05]">
             Découvre en 60 secondes ce qui bloque ta chaîne Twitch.
           </h1>
 
