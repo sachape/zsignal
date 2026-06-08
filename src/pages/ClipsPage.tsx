@@ -305,7 +305,7 @@ const SummaryTile = ({
 const ClipsPage = () => {
   usePageMeta({
     title: "Clips · Streamnco",
-    description: "Repère tes meilleurs moments Twitch et transforme-les en contenus courts prêts à poster.",
+    description: "Transforme tes moments Twitch en clips verticaux prêts pour TikTok, Reels et Shorts.",
   });
 
   const { user } = useAuth();
@@ -317,6 +317,8 @@ const ClipsPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<ClipFilter>("all");
   const [sort, setSort] = useState<ClipSort>("potential");
+  const [createOpen, setCreateOpen] = useState(false);
+
 
   const load = useCallback(async () => {
     if (!user) return;
