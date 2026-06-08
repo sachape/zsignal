@@ -45,7 +45,6 @@ const AboutPage = lazy(() => import("./pages/AboutPage.tsx"));
 const StreamScorePage = lazy(() => import("./pages/StreamScorePage.tsx"));
 const BillingPage = lazy(() => import("./pages/BillingPage.tsx"));
 const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
-const PublicPricingPage = lazy(() => import("./pages/PublicPricingPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const LegalTermsPage = lazy(() => import("./pages/LegalTermsPage.tsx"));
 const LegalPrivacyPage = lazy(() => import("./pages/LegalPrivacyPage.tsx"));
@@ -335,7 +334,6 @@ const App = () => (
                 <Route path="/concurrents" element={<Navigate to="/competitors" replace />} />
                 <Route path="/planning" element={<Navigate to="/schedule" replace />} />
                 <Route path="/pricing" element={<PricingPage />} />
-                <Route path="/tarifs" element={<PublicPricingPage />} />
                 <Route path="/fonctionnalites" element={<FeaturesPage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
                 <Route path="/a-propos" element={<AboutPage />} />

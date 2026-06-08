@@ -23,6 +23,7 @@ const useCountUp = (target: number, active: boolean, duration = 1400) => {
   return value;
 };
 
+// Specific, credible, outcome-focused testimonials
 const TESTIMONIALS = [
   {
     quote: "J'ai compris en 2 minutes pourquoi je stagnais depuis 3 mois. Le blocage identifié — ma régularité — était exactement le bon. J'ai fixé mes créneaux et mon score est passé de 41 à 68.",
@@ -44,88 +45,97 @@ const TESTIMONIALS = [
   },
 ];
 
+const STATS = [
+  { value: 8000, suffix: "+", label: "chaînes analysées", duration: 1200 },
+  { value: 48, suffix: "/5", label: "satisfaction moyenne", static: "4,8", duration: 0 },
+  { value: 60, suffix: " s", label: "diagnostic complet", prefix: "< ", duration: 0 },
+];
+
 const SocialProofSection = () => {
   const { ref: statsRef, inView: statsInView } = useInViewOnce<HTMLDivElement>(0.3);
   const { ref: quotesRef, inView: quotesInView } = useInViewOnce<HTMLDivElement>(0.2);
   const count = useCountUp(8000, statsInView);
 
   return (
-    <section className="bg-background py-14 md:py-20">
-      <div className="container mx-auto max-w-5xl px-4 md:px-6">
+    <section className="relative overflow-hidden border-y border-white/[0.05] bg-muted/[0.03] py-10 md:py-14">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.04),transparent_70%)]" />
 
-        {/* Stats — fond crème, pas de bande colorée */}
+      <div className="container relative mx-auto max-w-5xl px-4 md:px-6">
+        {/* Stats */}
         <div
           ref={statsRef}
-          className="flex flex-col items-center gap-8 border-y-2 border-foreground/10 py-10 sm:flex-row sm:justify-center sm:gap-0 sm:divide-x-2 sm:divide-foreground/10"
+          className="flex flex-col items-center gap-8 sm:flex-row sm:justify-center sm:gap-0 sm:divide-x sm:divide-white/[0.06]"
         >
+          {/* Chaînes analysées */}
           <div
-            className="flex flex-col items-center gap-1 sm:px-12"
+            className="flex flex-col items-center gap-1 sm:px-10"
             style={{
               opacity: statsInView ? 1 : 0,
               transform: statsInView ? "translateY(0)" : "translateY(12px)",
               transition: "opacity 600ms cubic-bezier(0.16,1,0.3,1), transform 600ms cubic-bezier(0.16,1,0.3,1)",
             }}
           >
-            <p className="font-display text-5xl font-bold text-foreground">
+            <p className="text-3xl font-bold tabular-nums text-foreground md:text-4xl">
               {count.toLocaleString("fr-FR")}+
             </p>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">chaînes analysées</p>
+            <p className="text-xs text-muted-foreground/70">chaînes analysées</p>
           </div>
 
+          {/* Satisfaction */}
           <div
-            className="flex flex-col items-center gap-1 sm:px-12"
+            className="flex flex-col items-center gap-1 sm:px-10"
             style={{
               opacity: statsInView ? 1 : 0,
               transform: statsInView ? "translateY(0)" : "translateY(12px)",
               transition: "opacity 600ms cubic-bezier(0.16,1,0.3,1) 120ms, transform 600ms cubic-bezier(0.16,1,0.3,1) 120ms",
             }}
           >
-            <div className="mb-1 flex items-center gap-0.5">
+            <div className="flex items-center gap-0.5 mb-1">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-3.5 w-3.5 fill-primary text-primary" />
+                <Star key={i} className="h-3 w-3 fill-primary text-primary" />
               ))}
             </div>
-            <p className="font-display text-5xl font-bold text-foreground">
-              4,8<span className="text-2xl font-medium text-muted-foreground">/5</span>
+            <p className="text-3xl font-bold tabular-nums text-foreground md:text-4xl">
+              4,8<span className="text-xl font-medium text-muted-foreground">/5</span>
             </p>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">satisfaction moyenne</p>
+            <p className="text-xs text-muted-foreground/70">satisfaction moyenne</p>
           </div>
 
+          {/* Temps */}
           <div
-            className="flex flex-col items-center gap-1 sm:px-12"
+            className="flex flex-col items-center gap-1 sm:px-10"
             style={{
               opacity: statsInView ? 1 : 0,
               transform: statsInView ? "translateY(0)" : "translateY(12px)",
               transition: "opacity 600ms cubic-bezier(0.16,1,0.3,1) 240ms, transform 600ms cubic-bezier(0.16,1,0.3,1) 240ms",
             }}
           >
-            <p className="font-display text-5xl font-bold text-foreground">
-              {"<"} 60<span className="text-2xl font-medium text-muted-foreground"> s</span>
+            <p className="text-3xl font-bold text-foreground md:text-4xl">
+              {"< 60"}<span className="ml-1 text-xl font-medium">s</span>
             </p>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">diagnostic complet</p>
+            <p className="text-xs text-muted-foreground/70">diagnostic complet</p>
           </div>
         </div>
 
+        {/* Divider */}
+        <div className="mx-auto mt-10 h-px max-w-xs bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
+
         {/* Testimonials */}
-        <p className="mb-8 mt-14 text-center font-display text-2xl font-bold text-foreground md:text-3xl">
-          Ce que disent les streamers ⚡
-        </p>
-        <div ref={quotesRef} className="grid gap-5 sm:grid-cols-3">
+        <div ref={quotesRef} className="mt-10 grid gap-4 sm:grid-cols-3">
           {TESTIMONIALS.map((t, i) => (
             <div
               key={t.name}
-              className="flex flex-col justify-between rounded-2xl border-2 border-foreground/75 bg-card p-5"
               style={{
                 opacity: quotesInView ? 1 : 0,
                 transform: quotesInView ? "translateY(0)" : "translateY(16px)",
                 transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 100}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 100}ms`,
-                boxShadow: "4px 4px 0 0 rgba(23,29,46,0.72)",
               }}
+              className="flex flex-col justify-between rounded-2xl border border-white/[0.06] bg-card/40 p-5 backdrop-blur-xl"
             >
               <div>
-                <div className="mb-3 flex items-center gap-0.5">
+                <div className="flex items-center gap-0.5 mb-3">
                   {Array.from({ length: 5 }).map((_, j) => (
-                    <Star key={j} className="h-3 w-3 fill-primary text-primary" />
+                    <Star key={j} className="h-2.5 w-2.5 fill-primary text-primary" />
                   ))}
                 </div>
                 <p className="text-sm leading-relaxed text-foreground/80">{t.quote}</p>
@@ -137,11 +147,11 @@ const SocialProofSection = () => {
                   loading="lazy"
                   width={40}
                   height={40}
-                  className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-foreground/20"
+                  className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-white/[0.08]"
                 />
                 <div>
-                  <p className="text-xs font-bold text-foreground">{t.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{t.role}</p>
+                  <p className="text-xs font-semibold text-foreground">{t.name}</p>
+                  <p className="text-[10px] text-muted-foreground/60">{t.role}</p>
                 </div>
               </div>
             </div>

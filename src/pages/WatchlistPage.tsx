@@ -183,7 +183,7 @@ const WatchlistPage = () => {
         {/* Header */}
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
               Watchlist
             </h1>
             {entries.length > 0 && (

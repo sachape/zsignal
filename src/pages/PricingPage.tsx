@@ -301,7 +301,7 @@ const PricingPage = () => {
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             <Zap className="h-3 w-3" /> Tarifs simples et transparents
           </div>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Commence gratuitement,
             <br />
             <span className="text-primary">évolue à ton rythme.</span>

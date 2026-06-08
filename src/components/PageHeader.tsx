@@ -63,7 +63,7 @@ const PageHeader = ({
           </Avatar>
         )}
         <div className="min-w-0">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
             {title}
           </h1>
           {(avatarLogin || (badges && badges.length > 0)) && (

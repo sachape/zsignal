@@ -108,11 +108,11 @@ const DemoPreviewSection = () => {
       <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-background">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary shadow-[0_0_24px_hsl(var(--primary)/0.25)]">
             <Sparkles className="h-3 w-3" />
             Aperçu du diagnostic
           </span>
-          <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl md:text-5xl">
+          <h2 className="mt-4 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl md:text-5xl">
             Voilà ce que tu vois dès la première analyse
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground/90">
@@ -161,7 +161,7 @@ const DemoPreviewSection = () => {
           <Cell hero className="md:col-span-4 md:row-span-2">
             <CellLabel icon={AlertTriangle} tone="warning">Blocage principal</CellLabel>
             <div className="flex flex-1 flex-col justify-center">
-              <p className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+              <p className="text-2xl font-bold leading-tight text-foreground sm:text-3xl">
                 Régularité du planning trop instable
               </p>
               <p className="mt-3 max-w-md text-sm text-foreground/70">

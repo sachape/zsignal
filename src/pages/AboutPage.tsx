@@ -160,7 +160,7 @@ const AboutPage = () => {
   });
 
   return (
-    <div className="landing min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <LandingNav />
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
@@ -187,7 +187,7 @@ const AboutPage = () => {
         <motion.div style={{ y: heroY, opacity: heroOpacity }}>
           {/* LEFT — Blocage card */}
           <FloatCard delay={0.5} duration={7} className="pointer-events-none absolute left-[5%] top-[32%] hidden lg:block xl:left-[9%]">
-            <div className="w-[210px] rounded-2xl border-2 border-foreground/75 bg-card p-4">
+            <div className="w-[210px] rounded-2xl border border-white/10 bg-card/70 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.35)]">
               <div className="flex items-center gap-2">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-warning/15">
                   <AlertTriangle className="h-3.5 w-3.5 text-warning" />
@@ -201,7 +201,7 @@ const AboutPage = () => {
 
           {/* RIGHT — Plan card */}
           <FloatCard delay={1} duration={8} className="pointer-events-none absolute right-[5%] top-[28%] hidden lg:block xl:right-[9%]">
-            <div className="w-[220px] rounded-2xl border-2 border-foreground/75 bg-card p-4">
+            <div className="w-[220px] rounded-2xl border border-white/10 bg-card/70 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
               <div className="flex items-center gap-2">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
                   <ListChecks className="h-3.5 w-3.5 text-primary" />
@@ -221,7 +221,7 @@ const AboutPage = () => {
 
           {/* BOTTOM RIGHT — Score delta */}
           <FloatCard delay={0.2} duration={9} className="pointer-events-none absolute right-[8%] top-[65%] hidden lg:block xl:right-[12%]">
-            <div className="rounded-2xl border-2 border-foreground/75 bg-card p-3.5">
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-3.5 backdrop-blur-xl shadow-lg">
               <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/50">Progression</p>
               <div className="mt-1.5 flex items-center gap-2">
                 <span className="text-2xl font-bold text-foreground">+18</span>
@@ -245,7 +245,7 @@ const AboutPage = () => {
               <Sparkles className="h-3 w-3" /> À propos
             </span>
 
-            <h1 className="mx-auto mt-5 max-w-2xl font-display text-4xl font-bold leading-tight text-foreground sm:text-5xl md:text-[3.5rem]">
+            <h1 className="mx-auto mt-5 max-w-2xl bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-[3.5rem] md:leading-[1.08]">
               À propos de Streamnco
             </h1>
           </motion.div>
@@ -329,8 +329,8 @@ const AboutPage = () => {
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
                 Méthodologie
               </span>
-              <h2 className="mt-4 font-display text-3xl font-bold text-foreground sm:text-4xl">
-                Comment fonctionne le StreamScore ?
+              <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
+                <WordReveal text="Comment fonctionne le StreamScore ?" />
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                 Le StreamScore est un indicateur composite sur 100. Il mesure la qualité d'exécution de la chaîne — pas sa popularité. Chaque dimension est pondérée selon son impact réel sur la croissance d'une chaîne Twitch francophone.
@@ -357,8 +357,8 @@ const AboutPage = () => {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.06),transparent_60%)]" />
         <div className="container mx-auto max-w-5xl px-4 md:px-6">
           <div className="mb-12 text-center">
-            <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
-              La philosophie du produit
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
+              <WordReveal text="La philosophie du produit" />
             </h2>
             <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
               Trois principes qui guident chaque décision.
@@ -443,7 +443,8 @@ const AboutPage = () => {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: i * 0.12 }}
               >
-                <div className="group relative h-full overflow-hidden rounded-2xl border-2 border-foreground/75 bg-card p-6 transition-all duration-150 hover:-translate-x-px hover:-translate-y-px" style={{ boxShadow: "4px 4px 0 0 rgba(23,29,46,0.72)" }}>
+                <div className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.07] bg-gradient-to-br from-card/80 to-card/40 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-[0_20px_40px_-20px_hsl(var(--primary)/0.2)]">
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.06),transparent_55%)]" />
                   <div className="relative">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 shadow-[0_0_20px_hsl(var(--primary)/0.15)] transition-all group-hover:bg-primary/15">
                       <p.icon className="h-5 w-5 text-primary" />
@@ -471,8 +472,8 @@ const AboutPage = () => {
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
                 Audience
               </span>
-              <h2 className="mt-4 font-display text-3xl font-bold text-foreground sm:text-4xl">
-                À qui s'adresse Streamnco ?
+              <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
+                <WordReveal text="À qui s'adresse Streamnco ?" />
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                 Streamnco est conçu pour les{" "}
@@ -493,8 +494,7 @@ const AboutPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1], delay: i * 0.1 }}
-                  className="group rounded-2xl border-2 border-foreground/70 bg-card p-4 transition-all hover:-translate-x-px hover:-translate-y-px"
-              style={{ boxShadow: "3px 3px 0 0 rgba(23,29,46,0.6)" }}
+                  className="group rounded-2xl border border-white/[0.06] bg-card/40 p-4 backdrop-blur-sm transition-all hover:border-primary/20 hover:bg-card/60"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xl">{p.emoji}</span>
@@ -520,14 +520,16 @@ const AboutPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <div className="relative overflow-hidden rounded-3xl border-2 border-foreground/80 bg-card" style={{ boxShadow: "6px 6px 0 0 hsl(var(--primary))" }}>
+            <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background shadow-[0_40px_120px_-40px_hsl(var(--primary)/0.2)]">
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_left,hsl(var(--primary)/0.12),transparent_55%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:20px_20px] opacity-40" />
 
               <div className="relative grid lg:grid-cols-2">
                 <div className="flex flex-col justify-center p-8 sm:p-10 md:p-12 lg:p-14">
                   <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
                     <Zap className="h-3 w-3" /> Gratuit · Sans compte
                   </span>
-                  <h2 className="mt-5 font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
+                  <h2 className="mt-5 text-3xl font-bold leading-tight text-foreground md:text-4xl">
                     Découvre ton<br />StreamScore.
                   </h2>
                   <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
@@ -578,7 +580,7 @@ const AboutPage = () => {
                     </svg>
 
                     <FloatCard delay={0.5} duration={6} className="absolute -left-32 top-2">
-                      <div className="w-[150px] rounded-xl border-2 border-foreground/75 bg-card p-3">
+                      <div className="w-[150px] rounded-xl border border-white/10 bg-card/80 p-3 backdrop-blur-xl shadow-lg">
                         <p className="text-[9px] font-semibold uppercase tracking-widest text-warning/70">Blocage #1</p>
                         <p className="mt-1 text-[11px] font-semibold text-foreground">Régularité</p>
                         <p className="text-[10px] text-muted-foreground/60">→ Fixer 2 créneaux</p>
@@ -586,7 +588,7 @@ const AboutPage = () => {
                     </FloatCard>
 
                     <FloatCard delay={1} duration={7} className="absolute -right-32 bottom-2">
-                      <div className="w-[140px] rounded-xl border-2 border-foreground/75 bg-card p-3">
+                      <div className="w-[140px] rounded-xl border border-white/10 bg-card/80 p-3 backdrop-blur-xl shadow-lg">
                         <p className="text-[9px] font-semibold uppercase tracking-widest text-emerald-400/70">Progression</p>
                         <p className="mt-1 text-lg font-bold text-foreground">+18 pts</p>
                         <p className="text-[10px] text-muted-foreground/60">ce mois-ci</p>

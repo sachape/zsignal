@@ -170,7 +170,7 @@ const TwitchAccountsPage = () => {
             <span>/</span>
             <span className="text-foreground">Comptes Twitch</span>
           </div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
             Comptes Twitch
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">

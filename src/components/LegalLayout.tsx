@@ -30,7 +30,7 @@ export const LegalLayout = ({
     <LandingNav />
     <div className="pt-14">
       <div className="container mx-auto max-w-3xl px-4 py-14 md:px-6 md:py-20">
-        <h1 className="font-display bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
+        <h1 className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
           {title}
         </h1>
         <div className="prose-legal mt-10 space-y-10">{children}</div>

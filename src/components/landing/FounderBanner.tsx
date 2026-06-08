@@ -26,19 +26,19 @@ const FounderBanner = () => {
   const pct = Math.round((TAKEN_SPOTS / TOTAL_SPOTS) * 100);
 
   return (
-    <div className="relative flex items-center justify-center gap-3 border-b border-white/10 bg-white/5 px-4 py-2 text-center">
-      <Lock className="h-3 w-3 shrink-0 text-white/50" />
+    <div className="relative flex items-center justify-center gap-3 border-b border-primary/20 bg-primary/10 px-4 py-2 text-center">
+      <Lock className="h-3 w-3 shrink-0 text-primary" />
 
-      <p className="text-xs font-medium text-white/70">
-        <span className="font-semibold text-white">{TAKEN_SPOTS}/{TOTAL_SPOTS}</span>
+      <p className="text-xs font-medium text-foreground">
+        <span className="font-semibold text-primary">{TAKEN_SPOTS}/{TOTAL_SPOTS}</span>
         {" "}places fondateurs prises ·{" "}
-        <span>prix locké à vie, il reste <span className="font-semibold text-white">{remaining} places</span></span>
+        <span className="text-foreground/80">prix locké à vie, il reste <span className="font-semibold text-primary">{remaining} places</span></span>
       </p>
 
       {/* Mini progress bar */}
-      <div className="hidden w-20 shrink-0 overflow-hidden rounded-full bg-white/15 sm:block" style={{ height: "4px" }}>
+      <div className="hidden w-20 shrink-0 overflow-hidden rounded-full bg-primary/15 sm:block" style={{ height: "4px" }}>
         <div
-          className="h-full rounded-full bg-white/60 transition-all"
+          className="h-full rounded-full bg-primary transition-all"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -48,7 +48,7 @@ const FounderBanner = () => {
         onClick={() => {
           document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
         }}
-        className="shrink-0 rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/20"
+        className="shrink-0 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary transition-colors hover:bg-primary/20"
       >
         Réserver →
       </a>
@@ -56,7 +56,7 @@ const FounderBanner = () => {
       <button
         onClick={dismiss}
         aria-label="Fermer"
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-white/40 transition-colors hover:text-white"
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground/60 transition-colors hover:text-foreground"
       >
         <X className="h-3.5 w-3.5" />
       </button>

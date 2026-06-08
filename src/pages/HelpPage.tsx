@@ -286,7 +286,7 @@ const HelpPage = () => {
               <LifeBuoy className="h-3.5 w-3.5 text-primary" />
               Support Streamnco
             </div>
-            <h1 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
+            <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
               Centre d'aide Streamnco
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
