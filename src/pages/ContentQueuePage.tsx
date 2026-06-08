@@ -550,13 +550,18 @@ function ContentRow({
           </>
         )}
 
-        {/* V3D — Clip draft block (video platforms only) */}
+        {/* Clip vidéo généré */}
         {isVideo && item.status !== "ignored" && (
           <div className="space-y-2 rounded-md border border-border/60 bg-background/40 p-3">
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-foreground">
               <Film className="h-3.5 w-3.5 text-primary" />
-              Clip Draft
+              Clip
+              <ContentItemSocialBadges
+                outputFormat={(item as unknown as { output_format?: string }).output_format}
+                layoutType={(item as unknown as { layout_type?: string }).layout_type}
+              />
             </div>
+
 
             {hasGeneratedClip ? (
               <div className="space-y-2">
