@@ -90,7 +90,7 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="landing min-h-screen bg-background">
       <LandingNav />
 
       {/* 1. Hook + CTA principal */}

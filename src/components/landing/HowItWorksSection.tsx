@@ -1,74 +1,95 @@
-import { Search, Activity, Map } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
-import { GlassCard, MicroLabel, SectionHeading, SectionShell } from "./primitives";
+import { SectionHeading, SectionShell } from "./primitives";
 
 const STEPS = [
   {
-    icon: Search,
-    title: "Entre ton pseudo Twitch",
-    description: "Pas besoin de connecter ton compte pour commencer.",
+    num: "01",
+    title: "Press Start",
+    description: "Entre ton pseudo Twitch. Pas de compte, pas de connexion, pas d'attente. Le diagnostic démarre instantanément.",
+    color: "hsl(var(--primary))",
+    illus: "/illustrations/clutch-time.png",
+    tag: "Gratuit · 0 friction",
   },
   {
-    icon: Activity,
-    title: "Streamnco analyse ta chaîne",
-    description:
-      "Score, blocage principal, progression vers l'objectif et premières recommandations.",
+    num: "02",
+    title: "L'IA scanne ta chaîne",
+    description: "Streamnco analyse 6 dimensions : régularité, clips, catégorie, momentum, structure de tes lives et progression vers l'objectif.",
+    color: "hsl(var(--brand-purple, 258 47% 48%))",
+    illus: "/illustrations/midnight-quest.png",
+    tag: "< 60 secondes",
   },
   {
-    icon: Map,
-    title: "Tu repars avec un plan clair",
-    description:
-      "Vois ce qu'il faut corriger maintenant, puis débloque le suivi complet pour aller plus loin.",
+    num: "03",
+    title: "Tu repars avec un plan",
+    description: "Score, blocage #1 identifié, levier à actionner cette semaine. Plus clair qu'un coach, plus rapide qu'une formation.",
+    color: "hsl(25 88% 55%)",
+    illus: "/illustrations/victory-ritual.png",
+    tag: "Plan d'action concret",
   },
 ];
 
 const HowItWorksSection = () => {
-  const { ref, inView } = useInViewOnce<HTMLDivElement>(0.25);
+  const { ref, inView } = useInViewOnce<HTMLDivElement>(0.15);
 
   return (
-    <SectionShell id="how-it-works">
+    <SectionShell id="how-it-works" className="bg-muted/40">
       <SectionHeading
         badge="Comment ça marche"
-        title="Trois étapes, zéro friction"
-        subtitle="Tu lances l'analyse, Streamnco lit les signaux utiles de ta chaîne et te montre où agir en priorité."
+        title="3 étapes. GG."
+        subtitle="Entre ton pseudo. L'IA fait le reste. Tu repars avec un plan d'action concret — pas une liste de conseils génériques."
       />
 
-      <div
-        ref={ref}
-        className="relative mx-auto mt-10 grid max-w-5xl gap-5 md:mt-14 md:grid-cols-3"
-      >
-        {/* Connecting line on desktop */}
-        <div
-          className="pointer-events-none absolute left-[16%] right-[16%] top-[58px] hidden h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent md:block"
-          aria-hidden
-        />
-
-        {STEPS.map(({ icon: Icon, title, description }, i) => (
+      <div ref={ref} className="mt-12 grid gap-6 md:mt-16 md:grid-cols-3">
+        {STEPS.map(({ num, title, description, color, illus, tag }, i) => (
           <div
-            key={title}
+            key={num}
             style={{
               opacity: inView ? 1 : 0,
-              transform: inView ? "translateY(0)" : "translateY(20px)",
-              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 140}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 140}ms`,
+              transform: inView ? "translateY(0)" : "translateY(24px)",
+              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 130}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 130}ms`,
             }}
           >
-            <GlassCard className="relative h-full p-6 md:p-7">
-              <div className="flex items-center gap-3">
-                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 shadow-[0_0_20px_hsl(var(--primary)/0.2)]">
-                  <Icon className="h-5 w-5 text-primary" />
-                  <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-primary/30 bg-background text-[10px] font-bold text-primary">
-                    {i + 1}
+            <div
+              className="flex h-full flex-col overflow-hidden rounded-2xl border-2 border-foreground/75 bg-card"
+              style={{ boxShadow: `4px 4px 0 0 ${color}` }}
+            >
+              {/* Illustration */}
+              <div className="flex items-center justify-center overflow-hidden bg-muted/40 p-4 pb-0">
+                <img
+                  src={illus}
+                  alt=""
+                  aria-hidden
+                  loading="lazy"
+                  className="h-36 w-36 object-contain drop-shadow-md"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="flex flex-1 flex-col p-6">
+                {/* Step number */}
+                <div
+                  className="mb-4 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-foreground/75 font-display text-lg font-bold text-foreground"
+                  style={{ boxShadow: `2px 2px 0 0 ${color}` }}
+                >
+                  {num}
+                </div>
+
+                <h3 className="font-display text-xl font-bold text-foreground">{title}</h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                  {description}
+                </p>
+
+                {/* Tag chip */}
+                <div className="mt-5">
+                  <span
+                    className="inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-background"
+                    style={{ backgroundColor: color }}
+                  >
+                    {tag}
                   </span>
                 </div>
-                <MicroLabel>Étape {i + 1}</MicroLabel>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-foreground md:text-lg">
-                {title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {description}
-              </p>
-            </GlassCard>
+            </div>
           </div>
         ))}
       </div>

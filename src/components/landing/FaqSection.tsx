@@ -8,7 +8,7 @@ import {
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { SectionHeading, SectionShell } from "./primitives";
 
-const FAQS = [
+const DEFAULT_FAQS = [
   {
     q: "Faut-il connecter Twitch pour commencer ?",
     a: "Non. Entre simplement ton pseudo : Streamnco lit les signaux publics de ta chaîne pour générer un premier diagnostic. La connexion Twitch arrive seulement si tu veux le suivi complet.",
@@ -33,14 +33,13 @@ const FAQS = [
     q: "Streamnco publie-t-il quoi que ce soit sur ma chaîne ?",
     a: "Non. Streamnco ne publie rien à ta place. Le diagnostic initial est en lecture seule.",
   },
-  {
-    q: "Pourrai-je suivre plusieurs chaînes plus tard ?",
-    a: "Oui, c'est prévu pour les usages plus avancés. L'expérience actuelle est centrée sur l'analyse et le suivi de ta chaîne, avec une ouverture progressive vers le multi-chaînes.",
-  },
 ];
 
-const FaqSection = () => {
+type FaqItem = { q: string; a: string };
+
+const FaqSection = ({ extraFaq }: { extraFaq?: FaqItem[] }) => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.2);
+  const faqs = extraFaq ? [...DEFAULT_FAQS, ...extraFaq] : DEFAULT_FAQS;
 
   return (
     <SectionShell id="faq">
@@ -56,20 +55,20 @@ const FaqSection = () => {
         style={{
           opacity: inView ? 1 : 0,
           transform: inView ? "translateY(0)" : "translateY(16px)",
-          transition:
-            "opacity 700ms cubic-bezier(0.16,1,0.3,1), transform 700ms cubic-bezier(0.16,1,0.3,1)",
+          transition: "opacity 700ms cubic-bezier(0.16,1,0.3,1), transform 700ms cubic-bezier(0.16,1,0.3,1)",
         }}
       >
         <Accordion type="single" collapsible defaultValue="faq-0" className="space-y-3">
-          {FAQS.map((item, i) => (
+          {faqs.map((item, i) => (
             <AccordionItem
               key={item.q}
               value={`faq-${i}`}
-              className="overflow-hidden rounded-2xl border border-white/[0.06] bg-card/40 px-5 backdrop-blur-xl"
+              className="overflow-hidden rounded-2xl border-2 border-foreground/70 bg-card px-5"
+              style={{ boxShadow: "3px 3px 0 0 rgba(23,29,46,0.55)" }}
             >
-              <AccordionTrigger className="py-4 text-left text-sm font-medium text-foreground hover:no-underline md:text-base">
+              <AccordionTrigger className="py-4 text-left text-sm font-semibold text-foreground hover:no-underline md:text-base">
                 <span className="flex items-start gap-3 pr-3">
-                  <HelpCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary/70" />
+                  <HelpCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   {item.q}
                 </span>
               </AccordionTrigger>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -123,6 +123,51 @@
           mask-composite: exclude;
   animation: bento-rotate 6s linear infinite;
   pointer-events: none;
+}
+
+/* ── Landing page — cream light theme ──────────────────────────── */
+/*    Applied as .landing wrapper on Index and PublicPricingPage.    */
+/*    App stays dark. CSS custom properties inherit through DOM.     */
+.landing {
+  /* Surfaces */
+  --background: 38 35% 94%;          /* warm cream #F4EEE3 */
+  --foreground: 225 28% 12%;         /* near-black #171D2E */
+
+  --card: 0 0% 100%;                 /* white cards */
+  --card-foreground: 225 28% 12%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 225 28% 12%;
+
+  --muted: 38 22% 87%;               /* darker cream #E2D9CA */
+  --muted-foreground: 225 12% 42%;   /* medium gray #5E6678 */
+
+  --secondary: 38 22% 87%;
+  --secondary-foreground: 225 28% 12%;
+
+  --border: 225 25% 18%;             /* dark border for bold outline style */
+  --input: 38 22% 87%;
+  --ring: 85 76% 38%;
+
+  /* Brand primary: illustration lime green, calibrated for light bg */
+  --primary: 85 78% 38%;             /* #5BA40C */
+  --primary-foreground: 0 0% 100%;   /* white on green */
+
+  /* Purple accent (from illustrations speech bubbles) */
+  --accent: 258 47% 48%;             /* #6B47B8 */
+  --accent-foreground: 0 0% 100%;
+
+  /* Semantic states — unchanged */
+  --success: 142 71% 38%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 7%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 210 20% 98%;
+
+  /* Brand extras — orange from illustrations */
+  --brand-orange: 25 88% 55%;
+  --brand-purple: 258 47% 48%;
 }
 
 /* ── Print / PDF export ─────────────────────────────────────────── */
