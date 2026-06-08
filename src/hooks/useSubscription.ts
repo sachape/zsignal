@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { PLAN_REFRESH_EVENT } from "@/hooks/usePlan";
 import { hasPlanAtLeast, normalizePlan } from "@/lib/planAccess";
 
 export interface SubscriptionInfo {
@@ -38,7 +39,8 @@ export function useSubscription(): SubscriptionInfo {
       return;
     }
 
-    (async () => {
+    const loadSubscription = async (showLoading = false) => {
+      if (showLoading) setState((s) => ({ ...s, loading: true }));
       const { data } = await supabase
         .from("subscriptions")
         .select("plan_name, billing_cycle, status, current_period_end, cancel_at_period_end")
@@ -70,9 +72,28 @@ export function useSubscription(): SubscriptionInfo {
         cancel_at_period_end: data.cancel_at_period_end ?? false,
         loading: false,
       });
-    })();
+    };
 
-    return () => { cancelled = true; };
+    const refresh = () => {
+      void loadSubscription(false);
+    };
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+
+    void loadSubscription(true);
+    window.addEventListener(PLAN_REFRESH_EVENT, refresh);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("pageshow", refresh);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener(PLAN_REFRESH_EVENT, refresh);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("pageshow", refresh);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [user]);
 
   return state;
