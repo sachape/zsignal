@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { hasPlanAtLeast, normalizePlan } from "@/lib/planAccess";
 
 export interface SubscriptionInfo {
   plan_name: "free" | "pro" | "growth";
