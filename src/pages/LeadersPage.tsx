@@ -535,7 +535,7 @@ const LeadersPage = () => {
             )}
 
             {/* Results */}
-            {loading ? (
+            {loading || planLoading ? (
               <LoadingState />
             ) : notFound ? (
               <Card>
