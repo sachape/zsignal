@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
     return json({
       success: false,
       reason: "invalid_url",
-      message: "URL non reconnue. Utilise une VOD Twitch (twitch.tv/videos/…) pour le moment.",
+      message: "Colle un lien de VOD Twitch ou de Clip Twitch valide.",
     }, 400);
   }
   const { source, url } = detected;
@@ -214,7 +214,7 @@ Deno.serve(async (req) => {
     return json({
       success: false,
       reason: "youtube_not_enabled",
-      message: "YouTube VOD sera bientôt disponible. Pour le moment, utilise une VOD Twitch ou importe un fichier.",
+      message: "YouTube VOD sera bientôt disponible. Pour le moment, utilise une VOD Twitch, un Clip Twitch ou importe un fichier.",
     }, 400);
   }
 
