@@ -229,7 +229,9 @@ async function fail(admin: any, jobId: string, reason: string) {
     .from("visual_generation_jobs")
     .update({
       status: "failed",
+      error_code: reason,
       error_message: reason,
+      provider_response_has_image: reason === "provider_no_image" ? false : null,
       completed_at: new Date().toISOString(),
     })
     .eq("id", jobId);
