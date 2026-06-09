@@ -201,20 +201,20 @@ const VodImportPage = () => {
 
   const handleSubmit = async () => {
     if (!url.trim()) {
-      toast({ title: "Lien manquant", description: "Colle une VOD Twitch.", variant: "destructive" });
+      toast({ title: "Lien manquant", description: "Colle un lien Twitch.", variant: "destructive" });
       return;
     }
     if (detectedSource === "youtube") {
       toast({
         title: "YouTube arrive bientôt",
-        description: "Utilise une VOD Twitch ou importe un fichier vidéo pour le moment.",
+        description: "Utilise une VOD Twitch, un Clip Twitch ou importe une vidéo.",
       });
       return;
     }
-    if (detectedSource !== "twitch") {
+    if (detectedSource !== "twitch_vod" && detectedSource !== "twitch_clip") {
       toast({
         title: "Lien non reconnu",
-        description: "Utilise une VOD Twitch (twitch.tv/videos/…).",
+        description: "Colle un lien de VOD Twitch ou de Clip Twitch valide.",
         variant: "destructive",
       });
       return;
