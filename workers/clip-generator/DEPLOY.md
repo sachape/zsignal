@@ -1,6 +1,6 @@
 # V3D — Guide de déploiement du worker FFmpeg (Lovable Cloud)
 
-Le worker est **stateless** : il ne connaît rien de Supabase / Lovable Cloud. La Edge Function lui envoie une URL signée pour lire la source et une URL signée pour uploader le clip. Le worker n'a donc besoin que d'**un seul secret**.
+Le worker est **stateless** : il ne connaît rien du backend Lovable Cloud. L'Edge Function lui envoie une URL signée pour lire la source et une URL signée pour uploader le clip. Le worker n'a donc besoin que d'**un seul secret**.
 
 Tant que `WORKER_BASE_URL` n'est pas configuré côté Lovable, l'app reste cohérente : le bouton « Générer » renvoie `worker_not_configured`, le content item passe en `generation_status=unavailable`, **aucun faux clip n'est créé**.
 
@@ -178,7 +178,7 @@ Aucun fichier ni URL fake : si le worker échoue, l'item revient en `to_generate
 
 ## 6. Sécurité
 
-- Le worker n'a aucun accès Supabase — impossible pour lui d'écrire ailleurs que dans la signed URL fournie.
+- Le worker n'a aucun accès direct au backend — impossible pour lui d'écrire ailleurs que dans la signed URL fournie.
 - `WORKER_SHARED_SECRET` protège les deux sens : edge → worker (`X-Worker-Secret`) et worker → edge (`X-Worker-Secret` côté callback).
 - Buckets `creator-source-videos` et `creator-generated-clips` privés. URLs signées (1h lecture source, 7j lecture preview).
 - Le worker supprime ses fichiers temporaires après chaque job.
