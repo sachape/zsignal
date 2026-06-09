@@ -67,6 +67,26 @@ const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
   low: { label: "Faible", cls: "border-border bg-muted text-muted-foreground" },
 };
 
+const REASON_LABELS: Record<string, string> = {
+  twitch_clip_full: "Clip Twitch complet",
+  vod_manual_timestamp: "Moment indiqué dans la VOD",
+  vod_auto_suggestion: "Suggestion automatique",
+};
+function humanizeReason(r: string | null | undefined): string {
+  if (!r) return "";
+  return REASON_LABELS[r] ?? r.replace(/_/g, " ");
+}
+const SOURCE_PLATFORM_LABELS: Record<string, string> = {
+  twitch: "VOD Twitch",
+  twitch_clip: "Clip Twitch",
+  youtube: "YouTube",
+  upload: "Vidéo importée",
+};
+function humanizeSourcePlatform(p: string | null | undefined): string {
+  if (!p) return "vidéo";
+  return SOURCE_PLATFORM_LABELS[p] ?? p;
+}
+
 type FilterKey = "all" | ContentPlatform | "high" | "to_generate" | "draft_ready" | "ready" | "uploaded";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
