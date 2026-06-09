@@ -76,11 +76,38 @@ Deno.serve(async (req) => {
   try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
 
   const contentItemId = String(body.content_item_id ?? "");
-  const sourceType = String(body.source_type ?? "");
-  const sourceUrl = body.source_url ? String(body.source_url) : null;
+  let sourceType = String(body.source_type ?? "");
+  let sourceUrl = body.source_url ? String(body.source_url) : null;
   const sourceStoragePath = body.source_storage_path ? String(body.source_storage_path) : null;
   const startTime = Number(body.start_time_seconds);
   const endTime = Number(body.end_time_seconds);
+
+  // Defensive coercion + canonicalization: any Twitch URL MUST flow through
+  // its dedicated source_type so the worker uses yt-dlp instead of treating
+  // it as a direct MP4 (which fails with "moov atom not found").
+  if (sourceUrl && (sourceType === "direct_url" || sourceType === "twitch_vod" || sourceType === "twitch_clip")) {
+    try {
+      const u = new URL(sourceUrl);
+      const host = u.hostname.replace(/^www\./, "");
+      if (host === "clips.twitch.tv") {
+        const slug = u.pathname.replace(/^\//, "").split("/")[0];
+        if (slug && /^[A-Za-z0-9_-]+$/.test(slug)) {
+          sourceType = "twitch_clip";
+          sourceUrl = `https://clips.twitch.tv/${slug}`;
+        }
+      } else if (host === "twitch.tv" || host === "m.twitch.tv") {
+        const clipMatch = u.pathname.match(/^\/[^/]+\/clip\/([A-Za-z0-9_-]+)/);
+        const vodMatch = u.pathname.match(/^\/videos\/(\d+)/);
+        if (clipMatch) {
+          sourceType = "twitch_clip";
+          sourceUrl = `https://clips.twitch.tv/${clipMatch[1]}`;
+        } else if (vodMatch) {
+          sourceType = "twitch_vod";
+          sourceUrl = `https://www.twitch.tv/videos/${vodMatch[1]}`;
+        }
+      }
+    } catch { /* fall through to validation below */ }
+  }
 
   if (!contentItemId) return json({ error: "missing_content_item_id" }, 400);
   if (!["upload", "storage_url", "direct_url", "twitch_vod", "twitch_clip", "youtube_vod"].includes(sourceType)) return json({ error: "invalid_source_type" }, 400);
