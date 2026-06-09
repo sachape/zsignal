@@ -6,6 +6,8 @@ export type VideoGenerationStage =
   | "detecting_facecam"
   | "cutting"
   | "compositing"
+  | "transcribing_audio"
+  | "rendering_subtitles"
   | "uploading"
   | "completed"
   | "failed"
