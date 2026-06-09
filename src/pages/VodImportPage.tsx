@@ -285,7 +285,8 @@ const VodImportPage = () => {
     }
     const source = detectSourceClient(item.source_video_url);
     const sourceType =
-      source === "twitch" ? "twitch_vod" :
+      source === "twitch_clip" ? "twitch_clip" :
+      source === "twitch_vod" ? "twitch_vod" :
       source === "youtube" ? "youtube_vod" : "direct_url";
 
     setGeneratingId(item.id);
