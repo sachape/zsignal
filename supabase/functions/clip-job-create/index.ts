@@ -369,6 +369,10 @@ Deno.serve(async (req) => {
         end_time_seconds: Math.round(endTime),
         callback_url: callbackUrl,
         callback_secret: WORKER_SHARED_SECRET,
+        captions_enabled: captionsEnabled,
+        captions_language: captionsLanguage,
+        transcribe_url: transcribeUrl,
+        transcribe_secret: WORKER_SHARED_SECRET,
         ...layoutPayload,
       }),
     });
