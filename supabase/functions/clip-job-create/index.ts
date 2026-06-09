@@ -295,9 +295,10 @@ Deno.serve(async (req) => {
     Number.isFinite(preset.facecam_width) && Number.isFinite(preset.facecam_height) &&
     (preset.facecam_width ?? 0) > 0 && (preset.facecam_height ?? 0) > 0;
 
-  // HONESTY RULE: never fake a facecam. If the user has NOT selected/saved
-  // a real camera zone, render gameplay_only — duplicating the gameplay
-  // crop on top would be misleading and breaks the product promise.
+  // Default flow: ask the worker to auto-detect the facecam (OpenCV).
+  // If the user has explicitly pinned a crop via the advanced editor, use it
+  // and skip detection. Worker falls back to gameplay_only silently when no
+  // facecam is reliably detected — zero friction for the user.
   const layoutPayload = hasFacecamCrop
     ? {
         output_format: "vertical_9_16",
@@ -317,14 +318,16 @@ Deno.serve(async (req) => {
             : undefined,
         source_reference_width: preset!.source_reference_width ?? undefined,
         source_reference_height: preset!.source_reference_height ?? undefined,
+        auto_detect_facecam: false,
         layout_source: "user_preset",
       }
     : {
         output_format: "vertical_9_16",
-        layout_type: "gameplay_only",
+        layout_type: "facecam_top_gameplay_bottom",
         output_width: 1080,
         output_height: 1920,
-        layout_source: "no_camera_selected",
+        auto_detect_facecam: true,
+        layout_source: "auto_detect",
       };
 
   // Dispatch to worker (fire-and-forget).
