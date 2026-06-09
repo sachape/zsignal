@@ -28,6 +28,7 @@ const LastLivePage = lazy(() => import("./pages/LastLivePage.tsx"));
 const LivesPage = lazy(() => import("./pages/LivesPage.tsx"));
 const LiveDetailPage = lazy(() => import("./pages/LiveDetailPage.tsx"));
 const ClipsPage = lazy(() => import("./pages/ClipsPage.tsx"));
+const ClipsReseauxPage = lazy(() => import("./pages/ClipsReseauxPage.tsx"));
 const VodImportPage = lazy(() => import("./pages/VodImportPage.tsx"));
 const AffiliationPage = lazy(() => import("./pages/AffiliationPage.tsx"));
 const WatchlistPage = lazy(() => import("./pages/WatchlistPage.tsx"));
@@ -188,6 +189,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <ClipsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/clips-reseaux"
+                  element={
+                    <ProtectedRoute>
+                      <ClipsReseauxPage />
                     </ProtectedRoute>
                   }
                 />
