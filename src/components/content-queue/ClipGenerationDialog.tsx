@@ -1,10 +1,11 @@
 // V3D — Dialog to upload a source video (or paste a direct URL) and launch generation.
 import { useState } from "react";
-import { Loader2, Upload, AlertCircle, Wand2, Link as LinkIcon, FileVideo, Sparkles, ChevronDown } from "lucide-react";
+import { Loader2, Upload, AlertCircle, Wand2, Link as LinkIcon, FileVideo, Sparkles, ChevronDown, Captions } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -56,6 +57,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [error, setError] = useState<string | null>(null);
   // Auto-detection is the default. The advanced camera picker is opt-in.
   const [showAdvanced, setShowAdvanced] = useState(false);
+  // Auto subtitles are ON by default. The user can opt out.
+  const [captionsEnabled, setCaptionsEnabled] = useState(true);
 
   const start = item.source_start_time;
   const end = item.source_end_time;
@@ -171,6 +174,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             // Opt-in only: a stored preset is used ONLY when the user explicitly
             // opened "Forcer manuellement". Default flow = pure auto-detect.
             use_manual_layout: showAdvanced,
+            captions_enabled: captionsEnabled,
+            captions_language: "fr",
           }),
         },
       );
@@ -310,6 +315,24 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
                 <QuickCameraPicker onReady={() => { /* optional override saved server-side */ }} />
               </div>
             )}
+          </div>
+
+          <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-card p-3">
+            <div className="flex items-start gap-2">
+              <Captions className="mt-0.5 h-3.5 w-3.5 text-primary" />
+              <div>
+                <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  Ajoute automatiquement les sous-titres quand tu parles. Style TikTok, incrustés dans la vidéo.
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={captionsEnabled}
+              onCheckedChange={setCaptionsEnabled}
+              disabled={busy}
+              aria-label="Activer les sous-titres automatiques"
+            />
           </div>
         </div>
 

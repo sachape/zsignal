@@ -341,6 +341,11 @@ Deno.serve(async (req) => {
         layout_source: "auto_detect",
       };
 
+  // Captions: opt-out, ON by default. Worker calls back to clip-transcribe-audio.
+  const captionsEnabled = body.captions_enabled !== false;
+  const captionsLanguage = typeof body.captions_language === "string" ? body.captions_language : "fr";
+  const transcribeUrl = `${SUPABASE_URL}/functions/v1/clip-transcribe-audio`;
+
   // Dispatch to worker (fire-and-forget).
   const callbackUrl = `${SUPABASE_URL}/functions/v1/clip-job-callback`;
   try {
@@ -364,6 +369,10 @@ Deno.serve(async (req) => {
         end_time_seconds: Math.round(endTime),
         callback_url: callbackUrl,
         callback_secret: WORKER_SHARED_SECRET,
+        captions_enabled: captionsEnabled,
+        captions_language: captionsLanguage,
+        transcribe_url: transcribeUrl,
+        transcribe_secret: WORKER_SHARED_SECRET,
         ...layoutPayload,
       }),
     });

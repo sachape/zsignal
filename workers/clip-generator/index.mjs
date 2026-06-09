@@ -27,13 +27,13 @@
 
 import express from "express";
 import { spawn } from "node:child_process";
-import { mkdtemp, rm, stat, readFile } from "node:fs/promises";
+import { mkdtemp, rm, stat, readFile, writeFile } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.0";
+const WORKER_VERSION = "3.1";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -79,6 +79,7 @@ async function capabilities() {
     opencv_version: cv.version,
     supports_vertical_9_16: true,
     supports_facecam_autodetect: cv.ok,
+    supports_auto_captions: true,
     supported_layouts: ["facecam_top_gameplay_bottom", "gameplay_only"],
   };
 }
@@ -139,6 +140,10 @@ app.post("/generate", async (req, res) => {
     source_reference_height,
     auto_detect_facecam,
     layout_source,
+    captions_enabled,
+    captions_language,
+    transcribe_url,
+    transcribe_secret,
   } = req.body ?? {};
 
   if (
@@ -183,6 +188,10 @@ app.post("/generate", async (req, res) => {
       typeof source_reference_height === "number" ? source_reference_height : null,
     autoDetectFacecam: auto_detect_facecam === true || layout_source === "auto_detect",
     layoutSource: typeof layout_source === "string" ? layout_source : null,
+    captionsEnabled: captions_enabled !== false && !!transcribe_url,
+    captionsLanguage: typeof captions_language === "string" ? captions_language : "fr",
+    transcribeUrl: typeof transcribe_url === "string" ? transcribe_url : null,
+    transcribeSecret: typeof transcribe_secret === "string" ? transcribe_secret : WORKER_SHARED_SECRET,
   }).catch((err) => {
     console.error("processJob error", job_id, err?.message);
   });
@@ -335,6 +344,227 @@ function detectFacecam(sourcePath, startSeconds, duration) {
 }
 
 
+// ── Captions (burn-in subtitles) ─────────────────────────────────────────
+
+// Extract a compact mono MP3 from the composed clip. We send THIS file to
+// the transcription proxy — never the original source — so STT cost stays
+// bounded by clip duration.
+function extractAudioForTranscription(videoPath, outAudioPath) {
+  return runCommand("ffmpeg", [
+    "-y", "-i", videoPath,
+    "-vn",
+    "-ac", "1",
+    "-ar", "16000",
+    "-b:a", "64k",
+    "-f", "mp3",
+    outAudioPath,
+  ], 3 * 60 * 1000);
+}
+
+// Group word-level timestamps into short caption chunks (TikTok-style).
+// Target: 1-3 words, max ~1.4s, max 16 chars per cue.
+function groupWordsIntoCues(words) {
+  const cues = [];
+  let cur = null;
+  const MAX_WORDS = 3;
+  const MAX_DURATION = 1.4;
+  const MAX_CHARS = 18;
+  for (const w of words) {
+    const text = String(w.text ?? "").trim();
+    if (!text) continue;
+    if (!cur) {
+      cur = { start: w.start, end: w.end, words: [text] };
+      continue;
+    }
+    const tentativeText = (cur.words.join(" ") + " " + text).length;
+    const tentativeDuration = w.end - cur.start;
+    const gap = w.start - cur.end;
+    if (
+      cur.words.length >= MAX_WORDS ||
+      tentativeDuration > MAX_DURATION ||
+      tentativeText > MAX_CHARS ||
+      gap > 0.6
+    ) {
+      cues.push(cur);
+      cur = { start: w.start, end: w.end, words: [text] };
+    } else {
+      cur.words.push(text);
+      cur.end = w.end;
+    }
+  }
+  if (cur) cues.push(cur);
+  // Ensure no zero-length cues, clamp min duration to 0.45s for readability.
+  return cues.map((c) => ({
+    start: c.start,
+    end: Math.max(c.end, c.start + 0.45),
+    text: c.words.join(" "),
+  }));
+}
+
+function secondsToAssTime(s) {
+  if (!Number.isFinite(s) || s < 0) s = 0;
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s - h * 3600 - m * 60;
+  const secInt = Math.floor(sec);
+  const cs = Math.floor((sec - secInt) * 100);
+  return `${h}:${String(m).padStart(2, "0")}:${String(secInt).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
+}
+
+function escapeAssText(t) {
+  return String(t)
+    .replace(/\\/g, "\\\\")
+    .replace(/\{/g, "\\{")
+    .replace(/\}/g, "\\}")
+    .replace(/\r?\n/g, "\\N");
+}
+
+// Build an .ass subtitle file. Style is TikTok-classic:
+//   - White bold uppercase-feel (sentence case kept)
+//   - Thick black outline + soft shadow
+//   - Centered horizontally, positioned in the gameplay zone
+//   - MarginV picked so subs sit ~mid-gameplay, well above player chrome
+function buildAssFile(cues, outW, outH) {
+  const fontSize = Math.round(outH * 0.052); // ~100px on 1920
+  const outline = Math.max(4, Math.round(fontSize * 0.10));
+  const shadow = 2;
+  // Vertical placement: bottom-anchored (Alignment=2). MarginV is distance
+  // from the bottom. We want the line around y = outH * 0.78 from top
+  // → MarginV ≈ outH * 0.22.
+  const marginV = Math.round(outH * 0.22);
+  const marginLR = Math.round(outW * 0.08);
+
+  const header = [
+    "[Script Info]",
+    "ScriptType: v4.00+",
+    `PlayResX: ${outW}`,
+    `PlayResY: ${outH}`,
+    "ScaledBorderAndShadow: yes",
+    "WrapStyle: 2",
+    "",
+    "[V4+ Styles]",
+    "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
+    `Style: TT,DejaVu Sans,${fontSize},&H00FFFFFF,&H000000FF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,${outline},${shadow},2,${marginLR},${marginLR},${marginV},1`,
+    "",
+    "[Events]",
+    "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
+  ];
+
+  const events = cues.map((c) =>
+    `Dialogue: 0,${secondsToAssTime(c.start)},${secondsToAssTime(c.end)},TT,,0,0,0,,${escapeAssText(c.text)}`,
+  );
+
+  return header.concat(events).join("\n") + "\n";
+}
+
+async function transcribeAudioViaProxy({ jobId, audioPath, transcribeUrl, transcribeSecret, language }) {
+  const audioBuf = await readFile(audioPath);
+  const form = new FormData();
+  const blob = new Blob([audioBuf], { type: "audio/mpeg" });
+  form.append("audio", blob, "clip-audio.mp3");
+  if (language) form.append("language", language);
+  const t0 = Date.now();
+  const res = await fetch(transcribeUrl, {
+    method: "POST",
+    headers: { "X-Worker-Secret": transcribeSecret },
+    body: form,
+    signal: AbortSignal.timeout(120_000),
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`transcribe_http_${res.status}:${text.slice(0, 200)}`);
+  }
+  let parsed;
+  try { parsed = JSON.parse(text); } catch {
+    throw new Error("transcribe_bad_json");
+  }
+  console.log("[captions_transcription]", JSON.stringify({
+    job_id: jobId,
+    duration_ms: Date.now() - t0,
+    word_count: Array.isArray(parsed?.words) ? parsed.words.length : 0,
+    text_len: (parsed?.text ?? "").length,
+  }));
+  return Array.isArray(parsed?.words) ? parsed.words : [];
+}
+
+async function maybeBurnCaptions({
+  jobId,
+  workDir,
+  composedPath,
+  transcribeUrl,
+  transcribeSecret,
+  captionsLanguage,
+  outW,
+  outH,
+  callbackUrl,
+  callbackSecret,
+}) {
+  const audioPath = join(workDir, "audio.mp3");
+  const assPath = join(workDir, "subs.ass");
+  const finalPath = join(workDir, "final.mp4");
+
+  console.log("[captions_started]", JSON.stringify({ job_id: jobId, language: captionsLanguage }));
+
+  try {
+    await postCallback(callbackUrl, callbackSecret, {
+      job_id: jobId, status: "processing", stage: "transcribing_audio", progress: 75,
+    });
+
+    await extractAudioForTranscription(composedPath, audioPath);
+
+    const words = await transcribeAudioViaProxy({
+      jobId, audioPath, transcribeUrl, transcribeSecret, language: captionsLanguage,
+    });
+
+    if (!words.length) {
+      console.log("[captions_skipped]", JSON.stringify({ job_id: jobId, reason: "no_speech_detected" }));
+      return { finalPath: composedPath };
+    }
+
+    const cues = groupWordsIntoCues(words);
+    if (!cues.length) {
+      console.log("[captions_skipped]", JSON.stringify({ job_id: jobId, reason: "no_cues_generated" }));
+      return { finalPath: composedPath };
+    }
+
+    const ass = buildAssFile(cues, outW, outH);
+    await writeFile(assPath, ass, "utf8");
+    console.log("[captions_generated]", JSON.stringify({
+      job_id: jobId, cue_count: cues.length, ass_bytes: ass.length,
+    }));
+
+    await postCallback(callbackUrl, callbackSecret, {
+      job_id: jobId, status: "processing", stage: "rendering_subtitles", progress: 82,
+    });
+
+    // Escape ass path for ffmpeg filter syntax.
+    const ffEscaped = assPath.replace(/\\/g, "\\\\").replace(/:/g, "\\:").replace(/'/g, "\\'");
+    await runCommand("ffmpeg", [
+      "-y", "-i", composedPath,
+      "-vf", `ass=${ffEscaped}`,
+      "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
+      "-pix_fmt", "yuv420p",
+      "-c:a", "copy",
+      "-movflags", "+faststart",
+      finalPath,
+    ], 5 * 60 * 1000);
+
+    const st = await stat(finalPath);
+    if (st.size === 0) throw new Error("captions_empty_output");
+    console.log("[captions_burned]", JSON.stringify({ job_id: jobId, size_bytes: st.size }));
+    return { finalPath };
+  } catch (err) {
+    const message = err?.message ?? "unknown_error";
+    console.error("[captions_failed]", JSON.stringify({ job_id: jobId, message: message.slice(0, 300) }));
+    // Silent fallback to the un-captioned clip — never fail the job.
+    return { finalPath: composedPath };
+  }
+}
+
+
+
+
+
 async function processJob({
   jobId,
   sourceUrl,
@@ -355,6 +585,10 @@ async function processJob({
   sourceReferenceHeight,
   autoDetectFacecam,
   layoutSource,
+  captionsEnabled,
+  captionsLanguage,
+  transcribeUrl,
+  transcribeSecret,
 }) {
   const workDir = await mkdtemp(join(tmpdir(), `clip-${jobId}-`));
   const sourcePath = join(workDir, "source.mp4");
@@ -378,6 +612,8 @@ async function processJob({
       has_facecam_crop: !!facecamCrop,
       has_gameplay_crop: !!gameplayCrop,
       has_manual_preset: !!facecamCrop,
+      captions_enabled: !!captionsEnabled,
+      captions_language: captionsLanguage ?? null,
       worker_version: WORKER_VERSION,
     }));
 
@@ -603,12 +839,42 @@ async function processJob({
     if (outStat.size === 0) throw new Error("empty_output");
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
 
+    // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
+    //      vertical clip. Failures here NEVER fail the job — clip ships
+    //      without captions and a [captions_failed] / [captions_skipped]
+    //      log is emitted.
+    let finalOutputPath = outputPath;
+    if (captionsEnabled && transcribeUrl && isVertical) {
+      const captionsResult = await maybeBurnCaptions({
+        jobId,
+        workDir,
+        composedPath: outputPath,
+        transcribeUrl,
+        transcribeSecret,
+        captionsLanguage,
+        outW: outW ?? 1080,
+        outH: outH ?? 1920,
+        callbackUrl,
+        callbackSecret,
+      });
+      if (captionsResult?.finalPath) {
+        finalOutputPath = captionsResult.finalPath;
+      }
+    } else {
+      console.log("[captions_skipped]", JSON.stringify({
+        job_id: jobId,
+        reason: !captionsEnabled ? "disabled_by_user"
+          : !transcribeUrl ? "no_transcribe_url"
+          : "legacy_horizontal_pipeline",
+      }));
+    }
+
     await postCallback(callbackUrl, callbackSecret, {
-      job_id: jobId, status: "processing", stage: "uploading", progress: 85,
+      job_id: jobId, status: "processing", stage: "uploading", progress: 90,
     });
 
     // 3) Upload.
-    const buf = await readFile(outputPath);
+    const buf = await readFile(finalOutputPath);
     const upRes = await fetch(outputUploadUrl, {
       method: "PUT",
       headers: { "Content-Type": "video/mp4" },
