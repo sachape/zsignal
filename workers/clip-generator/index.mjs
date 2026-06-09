@@ -33,7 +33,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.1";
+const WORKER_VERSION = "3.2";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -142,6 +142,7 @@ app.post("/generate", async (req, res) => {
     layout_source,
     captions_enabled,
     captions_language,
+    captions_style,
     transcribe_url,
     transcribe_secret,
   } = req.body ?? {};
@@ -190,6 +191,7 @@ app.post("/generate", async (req, res) => {
     layoutSource: typeof layout_source === "string" ? layout_source : null,
     captionsEnabled: captions_enabled !== false && !!transcribe_url,
     captionsLanguage: typeof captions_language === "string" ? captions_language : "fr",
+    captionsStyle: (["clean", "bold_tiktok", "gaming_neon", "minimal"].includes(captions_style)) ? captions_style : "clean",
     transcribeUrl: typeof transcribe_url === "string" ? transcribe_url : null,
     transcribeSecret: typeof transcribe_secret === "string" ? transcribe_secret : WORKER_SHARED_SECRET,
   }).catch((err) => {
@@ -419,18 +421,91 @@ function escapeAssText(t) {
     .replace(/\r?\n/g, "\\N");
 }
 
-// Build an .ass subtitle file. Style is TikTok-classic:
-//   - White bold uppercase-feel (sentence case kept)
-//   - Thick black outline + soft shadow
-//   - Centered horizontally, positioned in the gameplay zone
-//   - MarginV picked so subs sit ~mid-gameplay, well above player chrome
-function buildAssFile(cues, outW, outH) {
-  const fontSize = Math.round(outH * 0.052); // ~100px on 1920
-  const outline = Math.max(4, Math.round(fontSize * 0.10));
-  const shadow = 2;
-  // Vertical placement: bottom-anchored (Alignment=2). MarginV is distance
-  // from the bottom. We want the line around y = outH * 0.78 from top
-  // → MarginV ≈ outH * 0.22.
+// Style presets. Each returns the ASS Style line params + per-cue text wrap.
+// All keep subs inside the gameplay zone (Alignment=2, bottom-anchored,
+// MarginV ≈ 22% of outH → ~y=78% of frame which is well below the facecam
+// band that occupies the top 25%).
+// ASS colors use &HAABBGGRR& (alpha-blue-green-red).
+function getCaptionStyleParams(stylePreset, outW, outH) {
+  // Base sizes scale with output height.
+  const baseFont = Math.round(outH * 0.052); // ~100px on 1920
+
+  if (stylePreset === "minimal") {
+    return {
+      name: "minimal",
+      fontName: "DejaVu Sans",
+      fontSize: Math.round(baseFont * 0.85),
+      bold: 0,
+      primary: "&H00F2F2F2",       // off-white
+      outlineColor: "&H00101010",
+      backColor: "&H50000000",
+      outline: Math.max(2, Math.round(baseFont * 0.05)),
+      shadow: 1,
+      wrapText: (t) => t,
+    };
+  }
+  if (stylePreset === "bold_tiktok") {
+    const fs = Math.round(baseFont * 1.18);
+    // Punchy accent (Streamnco yellow-green vibe). Short cues get highlighted,
+    // longer ones stay white for readability.
+    const accent = "&H0029E1FF"; // bright yellow-orange in BGR
+    return {
+      name: "bold_tiktok",
+      fontName: "DejaVu Sans",
+      fontSize: fs,
+      bold: -1,
+      primary: "&H00FFFFFF",
+      outlineColor: "&H00000000",
+      backColor: "&H80000000",
+      outline: Math.max(6, Math.round(fs * 0.14)),
+      shadow: 2,
+      wrapText: (t) => {
+        const wc = t.trim().split(/\s+/).length;
+        // Short, punchy cues get the accent color via inline override.
+        if (wc <= 2) return `{\\c${accent}}${t}{\\c&H00FFFFFF&}`;
+        return t;
+      },
+    };
+  }
+  if (stylePreset === "gaming_neon") {
+    const fs = Math.round(baseFont * 1.05);
+    // Streamnco green #89FD3A → BGR &H003AFD89
+    const neon = "&H003AFD89";
+    return {
+      name: "gaming_neon",
+      fontName: "DejaVu Sans",
+      fontSize: fs,
+      bold: -1,
+      primary: "&H00FFFFFF",
+      outlineColor: neon,            // green glow ring
+      backColor: "&H40000000",
+      outline: Math.max(5, Math.round(fs * 0.11)),
+      shadow: 4,                     // larger soft shadow → glow feel
+      wrapText: (t) => t,
+    };
+  }
+  // "clean" — default: white bold + thick black outline, premium readable.
+  return {
+    name: "clean",
+    fontName: "DejaVu Sans",
+    fontSize: baseFont,
+    bold: -1,
+    primary: "&H00FFFFFF",
+    outlineColor: "&H00000000",
+    backColor: "&H64000000",
+    outline: Math.max(4, Math.round(baseFont * 0.10)),
+    shadow: 2,
+    wrapText: (t) => t,
+  };
+}
+
+// Build an .ass subtitle file with selectable style preset.
+// All presets share: centered (Alignment=2), bottom-anchored, MarginV in
+// the gameplay zone, WrapStyle=2 (max 2 lines via line-break).
+function buildAssFile(cues, outW, outH, stylePreset) {
+  const s = getCaptionStyleParams(stylePreset, outW, outH);
+  // Vertical placement: bottom-anchored. We want the line around y = outH*0.78
+  // from top → MarginV ≈ outH * 0.22. Safely below facecam band (top 25%).
   const marginV = Math.round(outH * 0.22);
   const marginLR = Math.round(outW * 0.08);
 
@@ -444,15 +519,16 @@ function buildAssFile(cues, outW, outH) {
     "",
     "[V4+ Styles]",
     "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-    `Style: TT,DejaVu Sans,${fontSize},&H00FFFFFF,&H000000FF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,${outline},${shadow},2,${marginLR},${marginLR},${marginV},1`,
+    `Style: TT,${s.fontName},${s.fontSize},${s.primary},&H000000FF,${s.outlineColor},${s.backColor},${s.bold},0,0,0,100,100,0,0,1,${s.outline},${s.shadow},2,${marginLR},${marginLR},${marginV},1`,
     "",
     "[Events]",
     "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
   ];
 
-  const events = cues.map((c) =>
-    `Dialogue: 0,${secondsToAssTime(c.start)},${secondsToAssTime(c.end)},TT,,0,0,0,,${escapeAssText(c.text)}`,
-  );
+  const events = cues.map((c) => {
+    const wrapped = s.wrapText(escapeAssText(c.text));
+    return `Dialogue: 0,${secondsToAssTime(c.start)},${secondsToAssTime(c.end)},TT,,0,0,0,,${wrapped}`;
+  });
 
   return header.concat(events).join("\n") + "\n";
 }
@@ -494,6 +570,7 @@ async function maybeBurnCaptions({
   transcribeUrl,
   transcribeSecret,
   captionsLanguage,
+  captionsStyle,
   outW,
   outH,
   callbackUrl,
@@ -504,6 +581,7 @@ async function maybeBurnCaptions({
   const finalPath = join(workDir, "final.mp4");
 
   console.log("[captions_started]", JSON.stringify({ job_id: jobId, language: captionsLanguage }));
+  console.log("[captions_style_selected]", JSON.stringify({ job_id: jobId, style: captionsStyle }));
 
   try {
     await postCallback(callbackUrl, callbackSecret, {
@@ -527,7 +605,7 @@ async function maybeBurnCaptions({
       return { finalPath: composedPath };
     }
 
-    const ass = buildAssFile(cues, outW, outH);
+    const ass = buildAssFile(cues, outW, outH, captionsStyle);
     await writeFile(assPath, ass, "utf8");
     console.log("[captions_generated]", JSON.stringify({
       job_id: jobId, cue_count: cues.length, ass_bytes: ass.length,
@@ -587,6 +665,7 @@ async function processJob({
   layoutSource,
   captionsEnabled,
   captionsLanguage,
+  captionsStyle,
   transcribeUrl,
   transcribeSecret,
 }) {
@@ -614,6 +693,7 @@ async function processJob({
       has_manual_preset: !!facecamCrop,
       captions_enabled: !!captionsEnabled,
       captions_language: captionsLanguage ?? null,
+      captions_style: captionsStyle ?? null,
       worker_version: WORKER_VERSION,
     }));
 
@@ -852,6 +932,7 @@ async function processJob({
         transcribeUrl,
         transcribeSecret,
         captionsLanguage,
+        captionsStyle,
         outW: outW ?? 1080,
         outH: outH ?? 1920,
         callbackUrl,

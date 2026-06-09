@@ -344,6 +344,9 @@ Deno.serve(async (req) => {
   // Captions: opt-out, ON by default. Worker calls back to clip-transcribe-audio.
   const captionsEnabled = body.captions_enabled !== false;
   const captionsLanguage = typeof body.captions_language === "string" ? body.captions_language : "fr";
+  const ALLOWED_CAPTION_STYLES = ["clean", "bold_tiktok", "gaming_neon", "minimal"] as const;
+  const rawStyle = typeof body.captions_style === "string" ? body.captions_style : "clean";
+  const captionsStyle = (ALLOWED_CAPTION_STYLES as readonly string[]).includes(rawStyle) ? rawStyle : "clean";
   const transcribeUrl = `${SUPABASE_URL}/functions/v1/clip-transcribe-audio`;
 
   // Dispatch to worker (fire-and-forget).
@@ -371,6 +374,7 @@ Deno.serve(async (req) => {
         callback_secret: WORKER_SHARED_SECRET,
         captions_enabled: captionsEnabled,
         captions_language: captionsLanguage,
+        captions_style: captionsStyle,
         transcribe_url: transcribeUrl,
         transcribe_secret: WORKER_SHARED_SECRET,
         ...layoutPayload,
