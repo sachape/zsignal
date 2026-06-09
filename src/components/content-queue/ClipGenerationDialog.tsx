@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import type { ContentItem } from "@/hooks/useContentItems";
+import { detectTwitchUrl } from "@/lib/twitchUrl";
 
 interface Props {
   item: ContentItem;
