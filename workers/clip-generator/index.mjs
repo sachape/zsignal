@@ -693,6 +693,7 @@ async function processJob({
       has_manual_preset: !!facecamCrop,
       captions_enabled: !!captionsEnabled,
       captions_language: captionsLanguage ?? null,
+      captions_style: captionsStyle ?? null,
       worker_version: WORKER_VERSION,
     }));
 
