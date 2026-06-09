@@ -932,6 +932,7 @@ async function processJob({
         transcribeUrl,
         transcribeSecret,
         captionsLanguage,
+        captionsStyle,
         outW: outW ?? 1080,
         outH: outH ?? 1920,
         callbackUrl,
