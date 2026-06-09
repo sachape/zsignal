@@ -142,6 +142,7 @@ app.post("/generate", async (req, res) => {
     layout_source,
     captions_enabled,
     captions_language,
+    captions_style,
     transcribe_url,
     transcribe_secret,
   } = req.body ?? {};
