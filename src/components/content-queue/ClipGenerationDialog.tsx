@@ -11,6 +11,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { ContentItem } from "@/hooks/useContentItems";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
+import { QuickCameraPicker } from "@/components/clips/QuickCameraPicker";
 
 interface Props {
   item: ContentItem;
@@ -53,6 +54,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [phase, setPhase] = useState<"idle" | "uploading" | "creating">("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  // null = user hasn't picked yet → block launch (no fake facecam allowed).
+  const [cameraReady, setCameraReady] = useState<boolean | null>(null);
 
   const start = item.source_start_time;
   const end = item.source_end_time;
@@ -282,13 +285,22 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
               {reasonLabel(error)}
             </div>
           )}
+
+          <div className="border-t border-border/60 pt-3">
+            <QuickCameraPicker onReady={(hasCam) => setCameraReady(hasCam)} />
+          </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Annuler</Button>
           <Button
             onClick={handleLaunch}
-            disabled={busy || !validTimestamps || (mode === "upload" ? !file : !directUrl.trim())}
+            disabled={
+              busy ||
+              !validTimestamps ||
+              cameraReady === null ||
+              (mode === "upload" ? !file : !directUrl.trim())
+            }
           >
             {busy
               ? <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> En cours…</>
