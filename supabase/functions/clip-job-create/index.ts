@@ -267,6 +267,7 @@ Deno.serve(async (req) => {
         source_url: resolvedSourceUrl,
         source_kind:
           sourceType === "twitch_vod" ? "twitch_vod" :
+          sourceType === "twitch_clip" ? "twitch_clip" :
           sourceType === "youtube_vod" ? "youtube_vod" : "direct",
         output_upload_url: upload.signedUrl,
         output_storage_path: outputStoragePath,
