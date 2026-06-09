@@ -322,23 +322,50 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             )}
           </div>
 
-          <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-card p-3">
-            <div className="flex items-start gap-2">
-              <Captions className="mt-0.5 h-3.5 w-3.5 text-primary" />
-              <div>
-                <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  Ajoute automatiquement les sous-titres quand tu parles. Style TikTok, incrustés dans la vidéo.
+          <div className="space-y-3 rounded-md border border-border bg-card p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2">
+                <Captions className="mt-0.5 h-3.5 w-3.5 text-primary" />
+                <div>
+                  <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    Ajoute automatiquement les sous-titres quand tu parles. Incrustés dans la vidéo.
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={captionsEnabled}
+                onCheckedChange={setCaptionsEnabled}
+                disabled={busy}
+                aria-label="Activer les sous-titres automatiques"
+              />
+            </div>
+
+            {captionsEnabled && (
+              <div className="space-y-1.5 border-t border-border/60 pt-3">
+                <Label className="text-xs">Style des sous-titres</Label>
+                <Select
+                  value={captionsStyle}
+                  onValueChange={(v) => setCaptionsStyle(v as typeof captionsStyle)}
+                  disabled={busy}
+                >
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="clean">Clean — sobre & lisible</SelectItem>
+                    <SelectItem value="bold_tiktok">Bold TikTok — dynamique & viral</SelectItem>
+                    <SelectItem value="gaming_neon">Gaming Neon — accent vert glow</SelectItem>
+                    <SelectItem value="minimal">Minimal — discret & épuré</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[10px] text-muted-foreground">
+                  Choisis l'apparence des sous-titres dans la vidéo.
                 </p>
               </div>
-            </div>
-            <Switch
-              checked={captionsEnabled}
-              onCheckedChange={setCaptionsEnabled}
-              disabled={busy}
-              aria-label="Activer les sous-titres automatiques"
-            />
+            )}
           </div>
+
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
