@@ -200,6 +200,46 @@ function scaleCrop(crop, refW, refH, actualW, actualH) {
   };
 }
 
+
+// Given a detected facecam rect in the actual source frame coords,
+// derive a sensible gameplay crop = largest rect that excludes the
+// facecam band. Falls back to the full frame if shape is ambiguous.
+function gameplayCropFromFacecam(face, frameW, frameH) {
+  if (!face || !frameW || !frameH) return null;
+  const cx = face.x + face.width / 2;
+  const cy = face.y + face.height / 2;
+  const horizontal = cx < frameW / 2 ? "left" : "right";
+  const vertical = cy < frameH / 2 ? "top" : "bottom";
+
+  // Prefer trimming vertically (most facecams sit in a top or bottom band).
+  // Only do it if at least 55% of the frame height remains after the trim.
+  if (vertical === "bottom") {
+    const newH = Math.max(2, face.y - 4);
+    if (newH / frameH >= 0.55) {
+      return { x: 0, y: 0, width: frameW, height: newH };
+    }
+  } else {
+    const cutY = Math.min(frameH - 2, face.y + face.height + 4);
+    const newH = frameH - cutY;
+    if (newH / frameH >= 0.55) {
+      return { x: 0, y: cutY, width: frameW, height: newH };
+    }
+  }
+
+  // Otherwise trim horizontally.
+  if (horizontal === "left") {
+    const cutX = Math.min(frameW - 2, face.x + face.width + 4);
+    const newW = frameW - cutX;
+    if (newW / frameW >= 0.55) return { x: cutX, y: 0, width: newW, height: frameH };
+  } else {
+    const newW = Math.max(2, face.x - 4);
+    if (newW / frameW >= 0.55) return { x: 0, y: 0, width: newW, height: frameH };
+  }
+
+  // Last resort: full frame (facecam will appear small inside gameplay; acceptable).
+  return { x: 0, y: 0, width: frameW, height: frameH };
+}
+
 // Build a complex filter for the vertical 9:16 layout.
 //   - facecam_top_gameplay_bottom : facecam scaled to outW x (outH*0.25),
 //     gameplay scaled+cropped to outW x (outH*0.75), then vstack.
@@ -240,6 +280,33 @@ function buildVerticalFilterComplex({
   const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[v]`;
   return { filterComplex: filter, mapVideo: "[v]" };
 }
+
+// Run the OpenCV-based facecam detector on the downloaded source.
+// Returns { detected, confidence, facecam, source_width, source_height, corner } or null.
+function detectFacecam(sourcePath, startSeconds, duration) {
+  return new Promise((resolve) => {
+    const p = spawn("python3", ["/app/detect_facecam.py", sourcePath, String(startSeconds), String(duration)], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let out = "";
+    let err = "";
+    const timer = setTimeout(() => { p.kill("SIGTERM"); resolve(null); }, 60_000);
+    p.stdout.on("data", (d) => { out += d.toString(); });
+    p.stderr.on("data", (d) => { err += d.toString(); });
+    p.on("error", () => { clearTimeout(timer); resolve(null); });
+    p.on("close", () => {
+      clearTimeout(timer);
+      try {
+        const lines = out.trim().split("\n").filter(Boolean);
+        const last = lines[lines.length - 1] ?? "{}";
+        resolve(JSON.parse(last));
+      } catch {
+        resolve(null);
+      }
+    });
+  });
+}
+
 
 async function processJob({
   jobId,
