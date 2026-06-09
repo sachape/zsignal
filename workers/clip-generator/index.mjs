@@ -349,6 +349,7 @@ async function processJob({
   sourceReferenceWidth,
   sourceReferenceHeight,
   autoDetectFacecam,
+  layoutSource,
 }) {
   const workDir = await mkdtemp(join(tmpdir(), `clip-${jobId}-`));
   const sourcePath = join(workDir, "source.mp4");
@@ -367,6 +368,11 @@ async function processJob({
       end_seconds: endSeconds,
       output_format: outputFormat ?? "legacy_16_9",
       layout_type: layoutType ?? null,
+      auto_detect_facecam: autoDetectFacecam === true,
+      layout_source: layoutSource ?? null,
+      has_facecam_crop: !!facecamCrop,
+      has_gameplay_crop: !!gameplayCrop,
+      has_manual_preset: !!facecamCrop,
       worker_version: WORKER_VERSION,
     }));
 
@@ -443,33 +449,59 @@ async function processJob({
     let effectiveLayout = layoutType ?? "gameplay_only";
     if (isVertical) {
       // Probe actual dimensions so we can scale crops from the preset reference.
-      const probed = await probeVideoDimensions(sourcePath).catch(() => null);
+      let probed = null;
+      try {
+        probed = await probeVideoDimensions(sourcePath);
+      } catch (probeErr) {
+        console.log("[probe_failed]", JSON.stringify({ job_id: jobId, message: probeErr?.message }));
+      }
       const actualW = probed?.width ?? sourceReferenceWidth ?? null;
       const actualH = probed?.height ?? sourceReferenceHeight ?? null;
 
       let scaledFacecam = scaleCrop(facecamCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
       let scaledGameplay = scaleCrop(gameplayCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
 
-      // Auto facecam detection — fires when user hasn't pinned a crop and
-      // the client asked for autodetect (or we're targeting facecam layout).
-      const shouldDetect =
-        !scaledFacecam &&
-        (autoDetectFacecam || layoutType === "facecam_top_gameplay_bottom");
+      // SAFETY: auto-detect facecam whenever the target layout requires it and
+      // the user has NOT pinned a manual crop. This must run even if the edge
+      // function forgets to set auto_detect_facecam (defense in depth).
+      const shouldDetect = !scaledFacecam && (
+        autoDetectFacecam === true ||
+        layoutType === "facecam_top_gameplay_bottom"
+      );
 
-      if (shouldDetect && actualW && actualH) {
+      const strategy = scaledFacecam
+        ? "manual_preset"
+        : shouldDetect
+        ? "auto_detect"
+        : "gameplay_only_default";
+
+      if (shouldDetect) {
         await postCallback(callbackUrl, callbackSecret, {
           job_id: jobId, status: "processing", stage: "detecting_facecam", progress: 50,
         });
+
         const detection = await detectFacecam(
           sourcePath,
           sourceKind === "twitch_clip" ? 0 : (trimmedAlready ? 0 : startSeconds),
           duration,
         );
         detectionMeta = detection;
-        console.log("[facecam_detection]", JSON.stringify({ job_id: jobId, result: detection }));
 
-        if (detection?.detected && detection.facecam && detection.source_width) {
-          // Detection ran in a downscaled sample space — rescale to actual frame.
+        console.log("[facecam_detection]", JSON.stringify({
+          job_id: jobId,
+          strategy,
+          detected: !!detection?.detected,
+          confidence: detection?.confidence ?? null,
+          corner: detection?.corner ?? null,
+          facecam: detection?.facecam ?? null,
+          source_width: detection?.source_width ?? null,
+          source_height: detection?.source_height ?? null,
+          fallback_reason: detection?.detected ? null : (detection?.reason ?? "no_detection"),
+          actual_width: actualW,
+          actual_height: actualH,
+        }));
+
+        if (detection?.detected && detection.facecam && detection.source_width && actualW && actualH) {
           scaledFacecam = scaleCrop(
             detection.facecam,
             detection.source_width,
@@ -485,7 +517,18 @@ async function processJob({
           // Silent fallback — gameplay-only vertical render.
           effectiveLayout = "gameplay_only";
         }
+      } else {
+        console.log("[facecam_detection]", JSON.stringify({
+          job_id: jobId,
+          strategy,
+          detected: !!scaledFacecam,
+          fallback_reason: scaledFacecam ? null : "detection_not_requested",
+        }));
+        if (scaledFacecam) {
+          effectiveLayout = "facecam_top_gameplay_bottom";
+        }
       }
+
 
       await postCallback(callbackUrl, callbackSecret, {
         job_id: jobId, status: "processing", stage: "compositing", progress: 60,
