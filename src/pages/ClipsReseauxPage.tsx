@@ -115,22 +115,22 @@ const ClipsReseauxPage = () => {
           <div className="grid gap-3 sm:grid-cols-3">
             <SourceCard
               icon={Tv}
-              title="Coller une VOD Twitch"
-              description="À partir d'une URL de VOD."
+              title="Coller un lien Twitch"
+              description="VOD ou Clip Twitch."
               to="/clips/vod-import"
               disabled={!canAccess}
             />
             <SourceCard
               icon={Upload}
               title="Importer une vidéo"
-              description="Upload manuel d'un fichier vidéo."
-              to="/clips/vod-import"
+              description="Upload une vidéo depuis ton ordinateur."
+              to="/content-queue"
               disabled={!canAccess}
             />
             <SourceCard
               icon={Wand2}
-              title="Moment proposé"
-              description="Depuis un clip détecté par Streamnco."
+              title="Moments proposés"
+              description="Utilise les suggestions détectées par Streamnco."
               to="/clips"
               disabled={!canAccess}
             />
