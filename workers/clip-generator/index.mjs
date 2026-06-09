@@ -179,6 +179,7 @@ app.post("/generate", async (req, res) => {
     sourceReferenceHeight:
       typeof source_reference_height === "number" ? source_reference_height : null,
     autoDetectFacecam: auto_detect_facecam === true,
+    layoutSource: typeof layout_source === "string" ? layout_source : null,
   }).catch((err) => {
     console.error("processJob error", job_id, err?.message);
   });
