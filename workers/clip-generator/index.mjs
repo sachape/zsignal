@@ -33,7 +33,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "2.2";
+const WORKER_VERSION = "3.0";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -62,9 +62,11 @@ async function probeBinary(cmd, args) {
 }
 
 async function capabilities() {
-  const [ff, yt] = await Promise.all([
+  const [ff, yt, py, cv] = await Promise.all([
     probeBinary("ffmpeg", ["-version"]),
     probeBinary("yt-dlp", ["--version"]),
+    probeBinary("python3", ["--version"]),
+    probeBinary("python3", ["-c", "import cv2; print(cv2.__version__)"]),
   ]);
   return {
     worker_version: WORKER_VERSION,
@@ -72,7 +74,11 @@ async function capabilities() {
     ffmpeg_version: ff.version,
     yt_dlp_available: yt.ok,
     yt_dlp_version: yt.version,
+    python_available: py.ok,
+    opencv_available: cv.ok,
+    opencv_version: cv.version,
     supports_vertical_9_16: true,
+    supports_facecam_autodetect: cv.ok,
     supported_layouts: ["facecam_top_gameplay_bottom", "gameplay_only"],
   };
 }
