@@ -33,6 +33,10 @@ export function getGenerationStageLabel(stage: VideoGenerationStage | null | und
     case "cutting":
     case "compositing":
       return "Création du format vertical";
+    case "transcribing_audio":
+      return "Transcription de l'audio";
+    case "rendering_subtitles":
+      return "Ajout des sous-titres";
     case "uploading":
       return "Export du MP4";
     case "completed":
