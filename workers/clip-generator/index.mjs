@@ -665,6 +665,7 @@ async function processJob({
   layoutSource,
   captionsEnabled,
   captionsLanguage,
+  captionsStyle,
   transcribeUrl,
   transcribeSecret,
 }) {
