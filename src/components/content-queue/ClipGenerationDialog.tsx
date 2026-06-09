@@ -285,13 +285,22 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
               {reasonLabel(error)}
             </div>
           )}
+
+          <div className="border-t border-border/60 pt-3">
+            <QuickCameraPicker onReady={(hasCam) => setCameraReady(hasCam)} />
+          </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Annuler</Button>
           <Button
             onClick={handleLaunch}
-            disabled={busy || !validTimestamps || (mode === "upload" ? !file : !directUrl.trim())}
+            disabled={
+              busy ||
+              !validTimestamps ||
+              cameraReady === null ||
+              (mode === "upload" ? !file : !directUrl.trim())
+            }
           >
             {busy
               ? <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> En cours…</>
