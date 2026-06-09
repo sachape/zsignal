@@ -140,6 +140,10 @@ app.post("/generate", async (req, res) => {
     source_reference_height,
     auto_detect_facecam,
     layout_source,
+    captions_enabled,
+    captions_language,
+    transcribe_url,
+    transcribe_secret,
   } = req.body ?? {};
 
   if (
