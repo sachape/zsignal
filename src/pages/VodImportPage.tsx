@@ -40,6 +40,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { isFeatureEnabled } from "@/lib/featureFlags";
+import { detectTwitchUrl } from "@/lib/twitchUrl";
 
 import { useContentItems, type ContentItem } from "@/hooks/useContentItems";
 import { useActiveVideoJob } from "@/hooks/useVideoJobs";
