@@ -1,5 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import {
+  generateImage,
+  ImageProviderError,
+  pickOpenAISize,
+} from "../_shared/visualImageProvider.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,9 +14,6 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
-const AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const IMAGE_MODEL = "google/gemini-2.5-flash-image-preview";
 const VARIANT_COUNT = 3;
 const ASSETS_BUCKET = "creator-visual-assets";
 const UPLOADS_BUCKET = "creator-visual-uploads";
@@ -23,8 +25,6 @@ Deno.serve(async (req) => {
   try {
     const { job_id } = await req.json();
     if (!job_id) return json({ error: "job_id_required" }, 400);
-
-    // Run async, return immediately
     // @ts-ignore EdgeRuntime
     EdgeRuntime.waitUntil(processJob(String(job_id)));
     return json({ ok: true, job_id }, 202);
@@ -37,6 +37,13 @@ Deno.serve(async (req) => {
 async function processJob(jobId: string) {
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
   console.log("[visual_job_started]", jobId);
+
+  // Guard: provider key
+  if (!Deno.env.get("LOVABLE_API_KEY")) {
+    console.error("[visual_job_failed] missing_lovable_api_key", jobId);
+    await fail(admin, jobId, "missing_provider_key");
+    return;
+  }
 
   const { data: job, error: jobErr } = await admin
     .from("visual_generation_jobs")
@@ -57,6 +64,13 @@ async function processJob(jobId: string) {
     await fail(admin, jobId, "template_missing");
     return;
   }
+
+  // Load brand kit (optional)
+  const { data: brand } = await admin
+    .from("creator_brand_kit")
+    .select("*")
+    .eq("user_id", job.user_id)
+    .maybeSingle();
 
   await admin
     .from("visual_generation_jobs")
@@ -83,26 +97,32 @@ async function processJob(jobId: string) {
     }
   }
 
-  const prompt = buildPrompt(template, job.params || {});
-  console.log("[visual_job_prompt]", jobId, prompt.slice(0, 160));
+  const prompt = buildPrompt(template, job.params || {}, brand);
+  const requestedSize = pickOpenAISize(template.width, template.height);
+  console.log("[visual_job_prompt]", jobId, "size=", requestedSize, prompt.slice(0, 200));
 
   let successCount = 0;
+  let lastErrorCode: string | null = null;
+
   for (let i = 0; i < VARIANT_COUNT; i++) {
     try {
-      const imgBytes = await generateImage(prompt, referenceDataUrl, i);
-      if (!imgBytes) {
-        console.warn("[visual_variant_empty]", jobId, i);
-        continue;
-      }
+      const result = await generateImage({
+        prompt,
+        width: template.width,
+        height: template.height,
+        variantIndex: i,
+        referenceDataUrl,
+      });
       const path = `${job.user_id}/${jobId}/variant-${i}.png`;
       const { error: upErr } = await admin.storage
         .from(ASSETS_BUCKET)
-        .upload(path, imgBytes, {
-          contentType: "image/png",
+        .upload(path, result.bytes, {
+          contentType: result.mimeType,
           upsert: true,
         });
       if (upErr) {
         console.error("[visual_variant_upload_failed]", jobId, i, upErr);
+        lastErrorCode = "storage_upload_failed";
         continue;
       }
       await admin.from("generated_visuals").insert({
@@ -111,20 +131,36 @@ async function processJob(jobId: string) {
         template_id: job.template_id,
         storage_bucket: ASSETS_BUCKET,
         storage_path: path,
+        // Storage holds the model's native size; template width/height remain
+        // the canonical target (frontend renders responsive).
         width: template.width,
         height: template.height,
         variant_index: i,
         prompt_used: prompt,
       });
       successCount++;
-      console.log("[visual_variant_ok]", jobId, i);
+      console.log("[visual_variant_ok]", jobId, "i=", i, "provider=", result.provider, "model=", result.model);
     } catch (e) {
-      console.error("[visual_variant_failed]", jobId, i, e);
+      if (e instanceof ImageProviderError) {
+        lastErrorCode = e.code;
+        console.error("[visual_variant_failed]", jobId, i, e.code, e.message);
+        // Hard-stop on terminal errors — no point retrying same body 3x.
+        if (
+          e.code === "missing_lovable_api_key" ||
+          e.code === "credits_exhausted" ||
+          e.code === "provider_rejected"
+        ) {
+          break;
+        }
+      } else {
+        lastErrorCode = "unknown_error";
+        console.error("[visual_variant_failed]", jobId, i, e);
+      }
     }
   }
 
   if (successCount === 0) {
-    await fail(admin, jobId, "generation_failed_all_variants");
+    await fail(admin, jobId, lastErrorCode ?? "generation_failed");
     return;
   }
   await admin
@@ -137,24 +173,27 @@ async function processJob(jobId: string) {
   console.log("[visual_job_succeeded]", jobId, `${successCount}/${VARIANT_COUNT}`);
 }
 
-function buildPrompt(template: any, params: Record<string, any>): string {
+function buildPrompt(template: any, params: Record<string, any>, brand: any): string {
   const lines: string[] = [];
   lines.push(template.base_prompt);
   lines.push(
-    `Aspect ratio ${template.width}:${template.height} (${ratioLabel(template.width, template.height)}).`,
+    `Target format ${template.width}x${template.height} (${ratioLabel(template.width, template.height)}).`,
   );
-  if (params.headline) lines.push(`Main visible text: "${params.headline}".`);
-  if (params.subtext) lines.push(`Secondary text: "${params.subtext}".`);
-  if (params.game) lines.push(`Featured game / category: ${params.game}.`);
+  if (params.headline) lines.push(`Featured headline concept: "${params.headline}".`);
+  if (params.subtext) lines.push(`Secondary concept: "${params.subtext}".`);
+  if (params.game) lines.push(`Game / category context: ${params.game}.`);
   if (params.style) lines.push(`Visual style: ${params.style}.`);
   if (params.palette) lines.push(`Color palette: ${params.palette}.`);
   if (params.mood) lines.push(`Mood: ${params.mood}.`);
-  if (params.display_name) lines.push(`Streamer name to feature: ${params.display_name}.`);
+  if (params.display_name) lines.push(`Streamer alias: ${params.display_name}.`);
   if (params.handle) lines.push(`Streamer handle: ${params.handle}.`);
-  if (params.cta) lines.push(`Call to action: ${params.cta}.`);
-  if (params.notes) lines.push(`Extra direction: ${params.notes}.`);
+  if (params.cta) lines.push(`Call to action intent: ${params.cta}.`);
+  if (params.notes) lines.push(`Additional direction: ${params.notes}.`);
+  if (brand?.primary_color) lines.push(`Brand primary color: ${brand.primary_color}.`);
+  if (brand?.secondary_color) lines.push(`Brand secondary color: ${brand.secondary_color}.`);
+  if (brand?.brand_tone) lines.push(`Brand tone: ${brand.brand_tone}.`);
   lines.push(
-    "High-end graphic design quality, crisp typography, no watermark, no logo placeholder, no UI chrome.",
+    "Premium streamer/gaming marketing visual. Clean modern composition, dramatic lighting, depth, sharp focal subject, leave breathing room for overlay text. Avoid: cluttered layout, cheesy AI look, distorted faces, illegible or misspelled text, watermarks, UI chrome, fake logos. Keep any rendered text short and stylistically integrated.",
   );
   return lines.join(" ");
 }
@@ -168,52 +207,6 @@ function ratioLabel(w: number, h: number): string {
   return `${w}:${h}`;
 }
 
-async function generateImage(
-  prompt: string,
-  referenceDataUrl: string | null,
-  variantIdx: number,
-): Promise<Uint8Array | null> {
-  const variantHint = [
-    "Variant A — vibrant high-energy version.",
-    "Variant B — moody cinematic version with deeper shadows.",
-    "Variant C — minimalist editorial version with clean typography.",
-  ][variantIdx] ?? "";
-
-  const content: any[] = [{ type: "text", text: `${prompt} ${variantHint}` }];
-  if (referenceDataUrl) {
-    content.push({
-      type: "image_url",
-      image_url: { url: referenceDataUrl },
-    });
-  }
-
-  const res = await fetch(AI_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: IMAGE_MODEL,
-      messages: [{ role: "user", content }],
-      modalities: ["image", "text"],
-    }),
-  });
-
-  if (res.status === 429) throw new Error("rate_limited");
-  if (res.status === 402) throw new Error("credits_exhausted");
-  if (!res.ok) {
-    const text = await res.text();
-    console.error("[visual_ai_error]", res.status, text.slice(0, 200));
-    throw new Error(`ai_${res.status}`);
-  }
-  const data = await res.json();
-  const url = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-  if (!url || !url.startsWith("data:image")) return null;
-  const b64 = url.split(",")[1];
-  return base64Decode(b64);
-}
-
 async function fail(admin: any, jobId: string, reason: string) {
   await admin
     .from("visual_generation_jobs")
@@ -224,13 +217,6 @@ async function fail(admin: any, jobId: string, reason: string) {
     })
     .eq("id", jobId);
   console.error("[visual_job_failed]", jobId, reason);
-}
-
-function base64Decode(b64: string): Uint8Array {
-  const bin = atob(b64);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
 }
 
 function base64Encode(bytes: Uint8Array): string {
