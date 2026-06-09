@@ -12,6 +12,7 @@ import {
   Settings as SettingsIcon,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import CameraPlacementEditor from "@/components/clips/CameraPlacementEditor";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
+  
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -171,18 +172,15 @@ const ClipsReseauxPage = () => {
         </section>
 
         <Dialog open={cameraDialogOpen} onOpenChange={setCameraDialogOpen}>
-          <DialogContent>
+          <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Placer ma caméra — bientôt disponible</DialogTitle>
+              <DialogTitle>Placer ma caméra</DialogTitle>
               <DialogDescription>
-                L'éditeur visuel pour placer ta caméra et le gameplay arrive très bientôt.
-                En attendant, Streamnco génère automatiquement tes clips en format
-                vertical 9:16 (gameplay seul). Aucune configuration n'est requise pour démarrer.
+                On utilise une image de ton dernier live Twitch pour cadrer précisément
+                ta caméra. Tes prochains clips Twitch reprendront automatiquement ce cadrage.
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter>
-              <Button onClick={() => setCameraDialogOpen(false)}>Compris</Button>
-            </DialogFooter>
+            <CameraPlacementEditor onClose={() => setCameraDialogOpen(false)} />
           </DialogContent>
         </Dialog>
 

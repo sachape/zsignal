@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.process-analysis-job]
 verify_jwt = false
+
+[functions.clip-layout-reference-frame]
+verify_jwt = false
