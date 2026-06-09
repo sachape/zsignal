@@ -93,9 +93,9 @@ function slugify(s: string): string {
 }
 
 function buildHashtags(category: string | null, source: Source): string[] {
-  const base = source === "twitch"
-    ? ["#stream", "#twitch", "#gaming"]
-    : ["#youtube", "#shorts", "#gaming"];
+  const base = source === "youtube"
+    ? ["#youtube", "#shorts", "#gaming"]
+    : ["#stream", "#twitch", "#gaming"];
   if (category) {
     const slug = slugify(category);
     if (slug) base.unshift(`#${slug}`);
@@ -111,7 +111,7 @@ interface CandidateRow {
   hashtags: string[];
   start: number;
   end: number;
-  reason_code: "vod_manual_timestamp" | "vod_auto_suggestion";
+  reason_code: "vod_manual_timestamp" | "vod_auto_suggestion" | "twitch_clip_full";
   reason_label: string;
   confidence: number;
 }
