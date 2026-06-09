@@ -284,7 +284,20 @@ async function processJob({
     const duration = Math.max(1, Math.round(endSeconds - startSeconds));
 
     // 1) Acquire source segment.
-    if (sourceKind === "twitch_vod" || sourceKind === "youtube_vod") {
+    if (sourceKind === "twitch_clip") {
+      // Twitch Clip: download the entire clip (already short), no section trim.
+      await postCallback(callbackUrl, callbackSecret, {
+        job_id: jobId, status: "processing", stage: "downloading", progress: 15,
+      });
+      await runCommand("yt-dlp", [
+        "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
+        "--retries", "3", "--fragment-retries", "5",
+        "-f", "best",
+        "--merge-output-format", "mp4",
+        "-o", sourcePath,
+        sourceUrl,
+      ], 5 * 60 * 1000);
+    } else if (sourceKind === "twitch_vod" || sourceKind === "youtube_vod") {
       await postCallback(callbackUrl, callbackSecret, {
         job_id: jobId, status: "processing", stage: "downloading", progress: 15,
       });
@@ -318,6 +331,8 @@ async function processJob({
     });
 
     // 2) Build ffmpeg command.
+    // For twitch_clip: use the full downloaded clip (no -ss / no -t trim).
+    const useFullSource = sourceKind === "twitch_clip";
     const trimmedAlready = sourceKind === "twitch_vod" || sourceKind === "youtube_vod";
 
     let ffArgs;
