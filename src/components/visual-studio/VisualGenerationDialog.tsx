@@ -92,7 +92,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
             break;
           }
           if (job.status === "failed") {
-            setError(job.error_message ?? "génération échouée");
+            setError(friendlyError(job.error_message));
             break;
           }
         } catch (e) {
