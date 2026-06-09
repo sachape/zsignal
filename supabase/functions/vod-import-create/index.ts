@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
     return json({
       success: false,
       reason: "invalid_url",
-      message: "URL non reconnue. Utilise une VOD Twitch (twitch.tv/videos/…) pour le moment.",
+      message: "Colle un lien de VOD Twitch ou de Clip Twitch valide.",
     }, 400);
   }
   const { source, url } = detected;
@@ -165,11 +165,12 @@ Deno.serve(async (req) => {
     return json({
       success: false,
       reason: "youtube_not_enabled",
-      message: "YouTube VOD sera bientôt disponible. Pour le moment, utilise une VOD Twitch ou importe un fichier.",
+      message: "YouTube arrive bientôt. Utilise une VOD Twitch, un Clip Twitch ou importe une vidéo.",
     }, 400);
   }
 
-  const subject = (typeof body.subject === "string" ? body.subject.trim() : "") || "ta VOD";
+  const subjectFallback = source === "twitch_clip" ? "ton Clip Twitch" : "ta VOD";
+  const subject = (typeof body.subject === "string" ? body.subject.trim() : "") || subjectFallback;
   const category = typeof body.category === "string" && body.category.trim()
     ? body.category.trim()
     : null;
@@ -186,7 +187,23 @@ Deno.serve(async (req) => {
   const candidates: CandidateRow[] = [];
   const tags = buildHashtags(category, source);
 
-  if (rawTimestamps.length > 0) {
+  if (source === "twitch_clip") {
+    // Twitch Clip: pas de start/end requis. Durée par défaut (60s).
+    // Le worker téléchargera le clip complet et utilisera la vraie durée.
+    const target = rotateTarget(0, targetPlatform, preferredFormat);
+    candidates.push({
+      platform: target.platform,
+      format: target.format,
+      title: `Clip Twitch — ${subject}`.slice(0, 200),
+      description: `Clip Twitch transformé en format vertical${category ? ` (${category})` : ""}.`,
+      hashtags: tags,
+      start: 0,
+      end: 60,
+      reason_code: "twitch_clip_full",
+      reason_label: "Clip Twitch complet",
+      confidence: 80,
+    });
+  } else if (rawTimestamps.length > 0) {
     for (let i = 0; i < rawTimestamps.length && i < 10; i++) {
       const t = rawTimestamps[i] as Record<string, unknown>;
       const start = Math.round(Number(t.start_seconds));
