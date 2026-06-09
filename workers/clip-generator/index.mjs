@@ -357,7 +357,9 @@ async function processJob({
         gameplayCrop: scaledGameplay,
       });
 
-      const trimArgs = trimmedAlready
+      const trimArgs = useFullSource
+        ? ["-i", sourcePath]
+        : trimmedAlready
         ? ["-i", sourcePath, "-t", String(duration)]
         : ["-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration)];
 
@@ -375,7 +377,16 @@ async function processJob({
       ];
     } else {
       // Legacy 16:9 pipeline — backward compatible.
-      ffArgs = trimmedAlready
+      ffArgs = useFullSource
+        ? [
+            "-y", "-i", sourcePath,
+            "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+            "-c:a", "aac", "-b:a", "128k",
+            "-movflags", "+faststart",
+            outputPath,
+          ]
+        : trimmedAlready
         ? [
             "-y", "-i", sourcePath, "-t", String(duration),
             "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
@@ -393,6 +404,7 @@ async function processJob({
             outputPath,
           ];
     }
+
 
     console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, vertical: isVertical, duration }));
     await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);
