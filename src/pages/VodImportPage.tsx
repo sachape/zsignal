@@ -693,15 +693,15 @@ const VodImportPage = () => {
             <div className="flex items-start gap-2 text-xs text-muted-foreground">
               <Upload className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                VOD inaccessible ? Tu peux aussi importer un fichier vidéo depuis Content Queue ou
-                créer une idée sans générer de clip.
+                Pas de lien Twitch ? Tu peux aussi importer un fichier vidéo et le transformer en clip réseau.
               </span>
             </div>
             <Button asChild variant="outline" size="sm">
-              <Link to="/content-queue">Aller à Content Queue</Link>
+              <Link to="/content-queue">Importer une vidéo</Link>
             </Button>
           </CardContent>
         </Card>
+
 
         <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
           <DialogContent>
