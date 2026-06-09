@@ -612,6 +612,8 @@ async function processJob({
       has_facecam_crop: !!facecamCrop,
       has_gameplay_crop: !!gameplayCrop,
       has_manual_preset: !!facecamCrop,
+      captions_enabled: !!captionsEnabled,
+      captions_language: captionsLanguage ?? null,
       worker_version: WORKER_VERSION,
     }));
 
