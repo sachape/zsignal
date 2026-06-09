@@ -108,10 +108,9 @@ const VisualStudioPage = () => {
     <AppShell>
       <PageContainer>
         <PageHeader
-          icon={Palette}
           title="Studio visuel"
           description="Bannières, stories, annonces de live, posts — générés en quelques secondes."
-          actions={
+          action={
             <Button onClick={() => setDialogOpen(true)} className="gap-2">
               <Plus className="h-4 w-4" /> Créer un visuel
             </Button>
