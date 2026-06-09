@@ -233,7 +233,34 @@ Deno.serve(async (req) => {
 
   // Build candidates
   const candidates: CandidateRow[] = [];
-  const tags = buildHashtags(category, source);
+  const tagsSource: "twitch" | "youtube" = source === "youtube" ? "youtube" : "twitch";
+  const tags = buildHashtags(category, tagsSource);
+
+  // ── Twitch Clip flow ─────────────────────────────────────────────────
+  // A Twitch Clip is already a short extract. We create a single candidate
+  // covering the full clip duration. No manual timestamps required.
+  if (source === "twitch_clip") {
+    const slug = detected.slug!;
+    const meta = await fetchTwitchClip(slug);
+    const duration = Math.min(MAX_CLIP_SEC, Math.max(5, meta?.duration ?? 30));
+    const titleHint = meta?.title?.trim() || subject;
+    const target = rotateTarget(0, targetPlatform, preferredFormat);
+    candidates.push({
+      platform: target.platform,
+      format: target.format,
+      title: `${titleHint}`.slice(0, 200),
+      description:
+        `Clip Twitch${meta?.broadcaster_name ? ` de ${meta.broadcaster_name}` : ""}. ` +
+        `Streamnco va le transformer en format réseaux (9:16).`,
+      hashtags: tags,
+      start: 0,
+      end: duration,
+      reason_code: "vod_manual_timestamp",
+      reason_label: "Clip Twitch — durée complète",
+      confidence: 80,
+    });
+  } else
+
 
   if (rawTimestamps.length > 0) {
     for (let i = 0; i < rawTimestamps.length && i < 10; i++) {
