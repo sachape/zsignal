@@ -155,13 +155,12 @@ const HeroSection = () => {
 
           {/* Headline — outcome-first, specific, creates curiosity gap */}
           <h1 className="font-display mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.05]">
-            Découvre en 60 secondes ce qui bloque ta chaîne Twitch.
+            Level up ta chaîne. En 60 Secondes.
           </h1>
 
           {/* Subline — mechanism, specificity */}
           <p className="mx-auto mt-5 max-w-xl text-base text-foreground/70 md:text-lg">
-            Streamnco analyse ta régularité, tes clips, ta catégorie et 4 autres signaux —
-            puis te dit <span className="font-semibold text-foreground">exactement ce qui freine ta croissance</span> et quoi corriger en premier.
+            Streamnco analyse tes stats Twitch et te dit <span className="font-semibold text-foreground">exactement quoi faire</span> pour gagner plus de viewers, d'abonnés, et comprendre ce qui freine ta croissance.
           </p>
         </div>
 
