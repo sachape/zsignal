@@ -64,6 +64,7 @@ const LiveSetupPage = lazy(() => import("./pages/LiveSetupPage.tsx"));
 const ContentQueuePage = lazy(() => import("./pages/ContentQueuePage.tsx"));
 const ComposerPage = lazy(() => import("./pages/ComposerPage.tsx"));
 const PublicationsPage = lazy(() => import("./pages/PublicationsPage.tsx"));
+const VisualStudioPage = lazy(() => import("./pages/VisualStudioPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -320,6 +321,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <PublicationsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/studio-visuel"
+                  element={
+                    <ProtectedRoute>
+                      <VisualStudioPage />
                     </ProtectedRoute>
                   }
                 />
