@@ -54,6 +54,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [phase, setPhase] = useState<"idle" | "uploading" | "creating">("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  // null = user hasn't picked yet → block launch (no fake facecam allowed).
+  const [cameraReady, setCameraReady] = useState<boolean | null>(null);
 
   const start = item.source_start_time;
   const end = item.source_end_time;
