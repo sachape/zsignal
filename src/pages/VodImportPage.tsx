@@ -390,19 +390,22 @@ const VodImportPage = () => {
       <PageContainer size="lg">
         <PageHeader
           eyebrow="Content Studio"
-          title="Créer depuis une VOD"
-          description="Colle une VOD Twitch. Streamnco propose les clips, tu choisis ce qui part dans Content Queue."
+          title="Créer un clip réseau"
+          description="Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts."
         />
 
         <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px]">
           <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
-            Twitch VOD — Disponible
+            VOD Twitch — Disponible
           </Badge>
           <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
-            Fichier vidéo — Disponible
+            Clip Twitch — Disponible
+          </Badge>
+          <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
+            Vidéo importée — Disponible
           </Badge>
           <Badge variant="outline" className="border-muted bg-muted/30 text-muted-foreground">
-            YouTube VOD — Bientôt
+            YouTube — Bientôt
           </Badge>
         </div>
 
@@ -410,7 +413,7 @@ const VodImportPage = () => {
           <CardContent className="space-y-4 p-5">
             <div className="space-y-1.5">
               <Label htmlFor="vod-url" className="text-xs font-semibold">
-                Lien de la VOD
+                Lien Twitch
               </Label>
               <div className="relative">
                 <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -418,15 +421,20 @@ const VodImportPage = () => {
                   id="vod-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://www.twitch.tv/videos/..."
+                  placeholder="Colle une VOD Twitch ou un Clip Twitch"
                   className="pl-9"
                 />
               </div>
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                <span>YouTube arrive bientôt. Pour l'instant, utilise une VOD Twitch ou importe un fichier vidéo.</span>
-                {detectedSource === "twitch" && (
+                <span>Fonctionne avec les VOD Twitch, les Clips Twitch et les vidéos importées.</span>
+                {detectedSource === "twitch_vod" && (
                   <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
-                    Twitch VOD
+                    VOD Twitch détectée
+                  </Badge>
+                )}
+                {detectedSource === "twitch_clip" && (
+                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
+                    Clip Twitch détecté
                   </Badge>
                 )}
                 {detectedSource === "youtube" && (
@@ -435,12 +443,18 @@ const VodImportPage = () => {
                   </Badge>
                 )}
               </div>
+              {detectedSource === "twitch_clip" && (
+                <p className="text-[11px] text-primary">
+                  Clip Twitch détecté. Streamnco va le transformer en clip vertical, pas besoin d'indiquer un moment.
+                </p>
+              )}
               {detectedSource === "youtube" && (
                 <p className="text-[11px] text-warning">
-                  YouTube arrive bientôt. Utilise une VOD Twitch ou importe un fichier vidéo pour le moment.
+                  YouTube arrive bientôt. Utilise une VOD Twitch, un Clip Twitch ou importe une vidéo.
                 </p>
               )}
             </div>
+
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
