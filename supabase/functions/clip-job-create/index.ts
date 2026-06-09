@@ -279,10 +279,7 @@ Deno.serve(async (req) => {
     return json({ error: "output_sign_failed", detail: upSignErr?.message }, 500);
   }
 
-  // Load the user's most recent Twitch layout preset (if any). When a preset
-  // exists with a defined facecam crop, we send a facecam_top_gameplay_bottom
-  // layout to the worker so the camera ends up at the top of the vertical clip.
-  // Otherwise we fall back to gameplay_only (no fake facecam — see project rules).
+  // Load the user's most recent Twitch layout preset (if any).
   const { data: preset } = await admin
     .from("creator_video_layout_presets")
     .select("layout_type, facecam_x, facecam_y, facecam_width, facecam_height, gameplay_x, gameplay_y, gameplay_width, gameplay_height, source_reference_width, source_reference_height, output_width, output_height")
@@ -297,6 +294,12 @@ Deno.serve(async (req) => {
     Number.isFinite(preset.facecam_x) && Number.isFinite(preset.facecam_y) &&
     Number.isFinite(preset.facecam_width) && Number.isFinite(preset.facecam_height) &&
     (preset.facecam_width ?? 0) > 0 && (preset.facecam_height ?? 0) > 0;
+
+  // DEFAULT BEHAVIOR (no user preset): assume the webcam is in the bottom-right
+  // corner of a 1920x1080 stream (~480x360, 4:3) — the most common Twitch setup.
+  // This gives the user the target product layout (facecam top + gameplay bottom)
+  // without any configuration. They can refine via the optional editor.
+  const DEFAULT_FACECAM = { x: 1440, y: 720, width: 480, height: 360 };
 
   const layoutPayload = hasFacecamCrop
     ? {
@@ -317,12 +320,17 @@ Deno.serve(async (req) => {
             : undefined,
         source_reference_width: preset!.source_reference_width ?? undefined,
         source_reference_height: preset!.source_reference_height ?? undefined,
+        layout_source: "user_preset",
       }
     : {
         output_format: "vertical_9_16",
-        layout_type: "gameplay_only",
+        layout_type: "facecam_top_gameplay_bottom",
         output_width: 1080,
         output_height: 1920,
+        facecam_crop: DEFAULT_FACECAM,
+        source_reference_width: 1920,
+        source_reference_height: 1080,
+        layout_source: "smart_default_bottom_right",
       };
 
   // Dispatch to worker (fire-and-forget).

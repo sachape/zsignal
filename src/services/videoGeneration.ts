@@ -3,6 +3,7 @@ export type VideoGenerationStage =
   | "worker_started"
   | "downloading"
   | "cutting"
+  | "compositing"
   | "uploading"
   | "completed"
   | "failed"
@@ -17,15 +18,17 @@ export function isActiveVideoJobStatus(status: string | null | undefined): boole
 export function getGenerationStageLabel(stage: VideoGenerationStage | null | undefined): string {
   switch (stage) {
     case "queued":
-      return "En attente";
+      return "Préparation du clip";
     case "worker_started":
-      return "Préparation";
+      return "Préparation du clip";
     case "downloading":
-      return "Téléchargement de la VOD";
+      return "Récupération de la vidéo";
     case "cutting":
-      return "Découpage du clip";
+      return "Création du format vertical";
+    case "compositing":
+      return "Création du format vertical";
     case "uploading":
-      return "Import du MP4";
+      return "Export du MP4";
     case "completed":
       return "Clip généré";
     case "failed":
@@ -33,7 +36,7 @@ export function getGenerationStageLabel(stage: VideoGenerationStage | null | und
     case "cancelled":
       return "Annulé";
     default:
-      return "Préparation";
+      return "Préparation du clip";
   }
 }
 
@@ -41,15 +44,15 @@ export function getGenerationErrorMessage(errorCode: string | null | undefined):
   switch (errorCode) {
     case "twitch_vod_unavailable":
     case "vod_unavailable":
-      return "La VOD Twitch n’est pas accessible.";
+      return "La vidéo Twitch n'est pas accessible.";
     case "ffmpeg_error":
       return "Le découpage vidéo a échoué.";
     case "worker_timeout":
       return "La génération a pris trop de temps.";
     case "worker_no_callback":
-      return "Le worker vidéo n’a pas répondu.";
+      return "Le worker vidéo n'a pas répondu.";
     case "active_job_exists":
-      return "Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.";
+      return "Une génération est déjà en cours. Attends la fin avant d'en lancer une autre.";
     default:
       return "Réessaie avec un autre moment.";
   }

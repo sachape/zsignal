@@ -33,7 +33,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "2.1";
+const WORKER_VERSION = "2.2";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -284,16 +284,17 @@ async function processJob({
     const duration = Math.max(1, Math.round(endSeconds - startSeconds));
 
     // 1) Acquire source segment.
+    const downloadStartedAt = Date.now();
     if (sourceKind === "twitch_clip") {
       // Twitch Clip: download the entire clip (already short), no section trim.
       await postCallback(callbackUrl, callbackSecret, {
         job_id: jobId, status: "processing", stage: "downloading", progress: 15,
       });
+      // Prefer a single mp4 rendition to skip the merge step (faster).
       await runCommand("yt-dlp", [
         "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
         "--retries", "3", "--fragment-retries", "5",
-        "-f", "best",
-        "--merge-output-format", "mp4",
+        "-f", "best[ext=mp4]/best",
         "-o", sourcePath,
         sourceUrl,
       ], 5 * 60 * 1000);
@@ -301,14 +302,18 @@ async function processJob({
       await postCallback(callbackUrl, callbackSecret, {
         job_id: jobId, status: "processing", stage: "downloading", progress: 15,
       });
-      const section = `*${Math.max(0, Math.floor(startSeconds))}-${Math.ceil(endSeconds)}`;
+      // Download ONLY the useful window (saves minutes on long VODs).
+      const sectionStart = Math.max(0, Math.floor(startSeconds) - 2);
+      const sectionEnd = Math.ceil(endSeconds) + 1;
+      const section = `*${sectionStart}-${sectionEnd}`;
       const ytFormat = sourceKind === "youtube_vod"
         ? "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best"
-        : "best";
+        : "best[ext=mp4]/best";
       await runCommand("yt-dlp", [
         "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
         "--retries", "3", "--fragment-retries", "5",
         "--download-sections", section,
+        "--force-keyframes-at-cuts",
         "-f", ytFormat,
         "--merge-output-format", "mp4",
         "-o", sourcePath,
@@ -322,6 +327,8 @@ async function processJob({
       if (!resp.ok || !resp.body) throw new Error(`download_failed_${resp.status}`);
       await pipeline(resp.body, createWriteStream(sourcePath));
     }
+    const downloadMs = Date.now() - downloadStartedAt;
+    console.log("[download_timing]", JSON.stringify({ job_id: jobId, download_ms: downloadMs }));
 
     const sourceStat = await stat(sourcePath);
     console.log("[download_completed]", JSON.stringify({ job_id: jobId, size_bytes: sourceStat.size, duration_ms: Date.now() - startedAt }));
@@ -369,7 +376,7 @@ async function processJob({
         "-filter_complex", filterComplex,
         "-map", mapVideo,
         "-map", "0:a?",
-        "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
         "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "128k", "-ar", "48000",
         "-movflags", "+faststart",
