@@ -600,7 +600,7 @@ function ContentRow({
                   {item.source_video_url
                     ? <a href={item.source_video_url} target="_blank" rel="noreferrer noopener"
                         className="text-primary hover:underline break-all">
-                        {item.source_platform ?? "vidéo"} <ExternalLink className="inline h-3 w-3" />
+                        {humanizeSourcePlatform(item.source_platform)} <ExternalLink className="inline h-3 w-3" />
                       </a>
                     : <span className="italic">Aucune source enregistrée (l'upload se fait à la génération)</span>}
                 </div>
