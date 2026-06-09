@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import type { ContentItem } from "@/hooks/useContentItems";
+import { detectTwitchUrl } from "@/lib/twitchUrl";
 
 interface Props {
   item: ContentItem;
@@ -135,19 +136,21 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
         sourcePayload = uploaded;
       } else {
         const trimmed = directUrl.trim();
-        try {
-          const u = new URL(trimmed);
-          if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error();
-          const host = u.hostname.replace(/^www\./, "");
-          // Detect Twitch VOD URLs and route them through the twitch_vod path
-          // (yt-dlp on the worker). Otherwise they would be fetched as a raw
-          // HTML page and ffmpeg would fail with "moov atom not found".
-          if ((host === "twitch.tv") && /^\/videos\/\d+/.test(u.pathname)) {
-            sourcePayload = { source_type: "twitch_vod", source_url: trimmed };
-          } else {
+        // Detect Twitch first (VOD or Clip). A Twitch URL must NEVER be
+        // sent as direct_url — the worker would fetch HTML and ffmpeg
+        // would fail with "moov atom not found".
+        const tw = detectTwitchUrl(trimmed);
+        if (tw.kind === "twitch_clip" && tw.normalizedUrl) {
+          sourcePayload = { source_type: "twitch_clip", source_url: tw.normalizedUrl };
+        } else if (tw.kind === "twitch_vod" && tw.normalizedUrl) {
+          sourcePayload = { source_type: "twitch_vod", source_url: tw.normalizedUrl };
+        } else {
+          try {
+            const u = new URL(trimmed);
+            if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error();
             sourcePayload = { source_type: "direct_url", source_url: trimmed };
-          }
-        } catch { setError("invalid_source_url"); setBusy(false); return; }
+          } catch { setError("invalid_source_url"); setBusy(false); return; }
+        }
       }
 
       setPhase("creating");

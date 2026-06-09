@@ -67,6 +67,26 @@ const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
   low: { label: "Faible", cls: "border-border bg-muted text-muted-foreground" },
 };
 
+const REASON_LABELS: Record<string, string> = {
+  twitch_clip_full: "Clip Twitch complet",
+  vod_manual_timestamp: "Moment indiqué dans la VOD",
+  vod_auto_suggestion: "Suggestion automatique",
+};
+function humanizeReason(r: string | null | undefined): string {
+  if (!r) return "";
+  return REASON_LABELS[r] ?? r.replace(/_/g, " ");
+}
+const SOURCE_PLATFORM_LABELS: Record<string, string> = {
+  twitch: "VOD Twitch",
+  twitch_clip: "Clip Twitch",
+  youtube: "YouTube",
+  upload: "Vidéo importée",
+};
+function humanizeSourcePlatform(p: string | null | undefined): string {
+  if (!p) return "vidéo";
+  return SOURCE_PLATFORM_LABELS[p] ?? p;
+}
+
 type FilterKey = "all" | ContentPlatform | "high" | "to_generate" | "draft_ready" | "ready" | "uploaded";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
@@ -539,7 +559,7 @@ function ContentRow({
             {item.reason && (
               <p className="rounded-md border border-border/60 bg-background/40 p-2 text-[11px] italic text-muted-foreground">
                 <Sparkles className="mr-1 inline h-3 w-3 text-primary" />
-                {item.reason}
+                {humanizeReason(item.reason)}
               </p>
             )}
             {item.notes && (
@@ -580,7 +600,7 @@ function ContentRow({
                   {item.source_video_url
                     ? <a href={item.source_video_url} target="_blank" rel="noreferrer noopener"
                         className="text-primary hover:underline break-all">
-                        {item.source_platform ?? "vidéo"} <ExternalLink className="inline h-3 w-3" />
+                        {humanizeSourcePlatform(item.source_platform)} <ExternalLink className="inline h-3 w-3" />
                       </a>
                     : <span className="italic">Aucune source enregistrée (l'upload se fait à la génération)</span>}
                 </div>
