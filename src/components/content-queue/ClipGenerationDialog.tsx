@@ -340,27 +340,18 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             </div>
 
             {captionsEnabled && (
-              <div className="space-y-1.5 border-t border-border/60 pt-3">
+              <div className="space-y-2 border-t border-border/60 pt-3">
                 <Label className="text-xs">Style des sous-titres</Label>
-                <Select
+                <CaptionStylePreviewGrid
                   value={captionsStyle}
-                  onValueChange={(v) => setCaptionsStyle(v as typeof captionsStyle)}
+                  onChange={setCaptionsStyle}
                   disabled={busy}
-                >
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="clean">Clean — sobre & lisible</SelectItem>
-                    <SelectItem value="bold_tiktok">Bold TikTok — dynamique & viral</SelectItem>
-                    <SelectItem value="gaming_neon">Gaming Neon — accent vert glow</SelectItem>
-                    <SelectItem value="minimal">Minimal — discret & épuré</SelectItem>
-                  </SelectContent>
-                </Select>
+                />
                 <p className="text-[10px] text-muted-foreground">
-                  Choisis l'apparence des sous-titres dans la vidéo.
+                  Aperçu animé du rendu réel dans ton clip.
                 </p>
               </div>
+
             )}
           </div>
 
