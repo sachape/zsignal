@@ -7,9 +7,9 @@
 #
 # Après modification de ce fichier, redéployer manuellement :
 #   cd workers/clip-generator
-#   fly deploy -a streamnco-clip-gen
+#   fly deploy -a streamnco
 
-app = "streamnco-clip-gen"
+app = "streamnco"
 primary_region = "cdg"
 
 [build]
