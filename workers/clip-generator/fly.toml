@@ -1,0 +1,49 @@
+# Streamnco — Clip generator worker (Fly.io)
+#
+# Profil V1 : 1 seule machine, toujours allumée.
+# Le worker exécute yt-dlp + ffmpeg pendant 10–60 s par job ; il ne doit
+# JAMAIS être stoppé par Fly pendant un rendu (sinon le job reste bloqué
+# en "Création du format vertical" et le callback n'arrive jamais).
+#
+# Après modification de ce fichier, redéployer manuellement :
+#   cd workers/clip-generator
+#   fly deploy -a streamnco-clip-gen
+
+app = "streamnco-clip-gen"
+primary_region = "cdg"
+
+[build]
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Toujours au moins 1 machine en ligne.
+  auto_start_machines = true
+  auto_stop_machines = "off"
+  min_machines_running = 1
+  # Une seule machine = un seul process à la fois (jobs sérialisés).
+  # Le frontend bloque déjà la création d'un second job en parallèle.
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 4
+    hard_limit = 8
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/health"
+
+# Pas de strategy rolling avec 2 machines : on reste sur 1 machine V1.
+[deploy]
+  strategy = "immediate"
+
+[[vm]]
+  size = "shared-cpu-2x"
+  memory = "2gb"
+  cpu_kind = "shared"
+  cpus = 2
