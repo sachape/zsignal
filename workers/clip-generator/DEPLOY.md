@@ -22,11 +22,11 @@ Garde la valeur — tu en auras besoin **deux fois** : une fois sur Fly.io, une 
 cd workers/clip-generator
 
 # Première fois uniquement :
-fly launch --no-deploy --name streamnco-clip-gen --region cdg --copy-config
-fly secrets set -a streamnco-clip-gen WORKER_SHARED_SECRET="<colle le secret généré>"
+fly launch --no-deploy --name streamnco --region cdg --copy-config
+fly secrets set -a streamnco WORKER_SHARED_SECRET="<colle le secret généré>"
 
 # À chaque mise à jour du Dockerfile / index.mjs / fly.toml :
-fly deploy -a streamnco-clip-gen
+fly deploy -a streamnco
 ```
 
 ### Profil V1 : 1 machine always-on (config dans `fly.toml`)
@@ -49,19 +49,19 @@ Les deux sont **Stopped/Suspended** parce que l'ancien `fly.toml` autorisait l'a
 
 ```bash
 # 1) Lister les machines pour identifier les IDs
-fly machine list -a streamnco-clip-gen
+fly machine list -a streamnco
 
 # 2) Forcer le scale à 1 machine
-fly scale count 1 -a streamnco-clip-gen
+fly scale count 1 -a streamnco
 
 # 3) Si une machine "suspended" subsiste, la détruire explicitement
-fly machine destroy <machine_id> -a streamnco-clip-gen --force
+fly machine destroy <machine_id> -a streamnco --force
 
 # 4) Redéployer avec le nouveau fly.toml (auto_stop_machines = "off")
-fly deploy -a streamnco-clip-gen
+fly deploy -a streamnco
 
 # 5) Vérifier l'état final
-fly status -a streamnco-clip-gen
+fly status -a streamnco
 # attendu : 1 machine, state = started
 ```
 
@@ -74,7 +74,7 @@ Détruis l'autre.
 
 Vérifie le healthcheck **après redéploiement v3.0** :
 ```bash
-curl https://streamnco-clip-gen.fly.dev/health
+curl https://streamnco.fly.dev/health
 ```
 
 Réponse attendue :
@@ -90,7 +90,7 @@ Réponse attendue :
 }
 ```
 
-Si `opencv_available: false` → l'image Docker n'a pas été rebuild, relance `fly deploy -a streamnco-clip-gen --no-cache`.
+Si `opencv_available: false` → l'image Docker n'a pas été rebuild, relance `fly deploy -a streamnco --no-cache`.
 
 
 ---
@@ -101,7 +101,7 @@ Dans Lovable, demande :
 
 > « Ajoute les secrets `WORKER_BASE_URL` et `WORKER_SHARED_SECRET` »
 
-- **WORKER_BASE_URL** : `https://streamnco-clip-gen.fly.dev` (sans slash final)
+- **WORKER_BASE_URL** : `https://streamnco.fly.dev` (sans slash final)
 - **WORKER_SHARED_SECRET** : **exactement la même valeur** qu'à l'étape 1
 
 ---
