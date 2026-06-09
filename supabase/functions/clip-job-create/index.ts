@@ -279,6 +279,52 @@ Deno.serve(async (req) => {
     return json({ error: "output_sign_failed", detail: upSignErr?.message }, 500);
   }
 
+  // Load the user's most recent Twitch layout preset (if any). When a preset
+  // exists with a defined facecam crop, we send a facecam_top_gameplay_bottom
+  // layout to the worker so the camera ends up at the top of the vertical clip.
+  // Otherwise we fall back to gameplay_only (no fake facecam — see project rules).
+  const { data: preset } = await admin
+    .from("creator_video_layout_presets")
+    .select("layout_type, facecam_x, facecam_y, facecam_width, facecam_height, gameplay_x, gameplay_y, gameplay_width, gameplay_height, source_reference_width, source_reference_height, output_width, output_height")
+    .eq("user_id", userId)
+    .eq("platform", "twitch")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const hasFacecamCrop =
+    preset &&
+    Number.isFinite(preset.facecam_x) && Number.isFinite(preset.facecam_y) &&
+    Number.isFinite(preset.facecam_width) && Number.isFinite(preset.facecam_height) &&
+    (preset.facecam_width ?? 0) > 0 && (preset.facecam_height ?? 0) > 0;
+
+  const layoutPayload = hasFacecamCrop
+    ? {
+        output_format: "vertical_9_16",
+        layout_type: "facecam_top_gameplay_bottom",
+        output_width: preset!.output_width ?? 1080,
+        output_height: preset!.output_height ?? 1920,
+        facecam_crop: {
+          x: preset!.facecam_x, y: preset!.facecam_y,
+          width: preset!.facecam_width, height: preset!.facecam_height,
+        },
+        gameplay_crop:
+          Number.isFinite(preset!.gameplay_width) && (preset!.gameplay_width ?? 0) > 0
+            ? {
+                x: preset!.gameplay_x, y: preset!.gameplay_y,
+                width: preset!.gameplay_width, height: preset!.gameplay_height,
+              }
+            : undefined,
+        source_reference_width: preset!.source_reference_width ?? undefined,
+        source_reference_height: preset!.source_reference_height ?? undefined,
+      }
+    : {
+        output_format: "vertical_9_16",
+        layout_type: "gameplay_only",
+        output_width: 1080,
+        output_height: 1920,
+      };
+
   // Dispatch to worker (fire-and-forget).
   const callbackUrl = `${SUPABASE_URL}/functions/v1/clip-job-callback`;
   try {
@@ -302,13 +348,7 @@ Deno.serve(async (req) => {
         end_time_seconds: Math.round(endTime),
         callback_url: callbackUrl,
         callback_secret: WORKER_SHARED_SECRET,
-        // Default to vertical 9:16 "gameplay only" so users without a camera
-        // preset can still generate a clip réseau. Worker can be overridden later
-        // when a layout preset is wired through.
-        output_format: "vertical_9_16",
-        layout_type: "gameplay_only",
-        output_width: 1080,
-        output_height: 1920,
+        ...layoutPayload,
       }),
     });
     const workerBody = await workerRes.text().catch(() => "");
