@@ -559,7 +559,7 @@ function ContentRow({
             {item.reason && (
               <p className="rounded-md border border-border/60 bg-background/40 p-2 text-[11px] italic text-muted-foreground">
                 <Sparkles className="mr-1 inline h-3 w-3 text-primary" />
-                {item.reason}
+                {humanizeReason(item.reason)}
               </p>
             )}
             {item.notes && (
