@@ -4,6 +4,24 @@ Le worker est **stateless** : il ne connaît rien de Supabase / Lovable Cloud. L
 
 Tant que `WORKER_BASE_URL` n'est pas configuré côté Lovable, l'app reste cohérente : le bouton « Générer » renvoie `worker_not_configured`, le content item passe en `generation_status=unavailable`, **aucun faux clip n'est créé**.
 
+## Worker v3.1 — sous-titres automatiques
+
+À partir de la v3.1, le worker peut burn-in des sous-titres TikTok-style dans le clip vertical.
+
+- La transcription tourne côté Lovable Cloud (edge function `clip-transcribe-audio` → ElevenLabs Scribe).
+- Le worker n'a **pas** besoin de `ELEVENLABS_API_KEY` (le secret reste côté Supabase).
+- Si la transcription échoue ou que la vidéo ne contient pas de parole, le clip est publié **sans** sous-titres : `[captions_skipped]` ou `[captions_failed]`, jamais d'échec du job.
+
+Redéploie après `git pull` :
+
+```bash
+cd workers/clip-generator
+fly deploy -a streamnco
+# Vérifier worker_version: 3.1 dans /health
+curl -s https://streamnco.fly.dev/health | jq .worker_version
+```
+
+
 ---
 
 ## 1. Générer le secret partagé
