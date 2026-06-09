@@ -389,13 +389,16 @@ const VodImportPage = () => {
       <PageContainer size="lg">
         <PageHeader
           eyebrow="Content Studio"
-          title="Créer depuis une VOD"
-          description="Colle une VOD Twitch. Streamnco propose les clips, tu choisis ce qui part dans Content Queue."
+          title="Créer un clip"
+          description="Colle une VOD Twitch ou un Clip Twitch. Streamnco le transforme en clip vertical 9:16 prêt pour Reels, TikTok et Shorts."
         />
 
         <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px]">
           <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
-            Twitch VOD — Disponible
+            VOD Twitch — Disponible
+          </Badge>
+          <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
+            Clip Twitch — Disponible
           </Badge>
           <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
             Fichier vidéo — Disponible
