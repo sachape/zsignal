@@ -83,16 +83,36 @@ async function capabilities() {
   };
 }
 
+// Cache capabilities once at boot. /health MUST be instantaneous, otherwise
+// Fly's healthcheck (5s timeout) fails while ffmpeg saturates the CPUs and
+// the machine is killed mid-render → callbacks never sent → jobs stuck.
+let CACHED_CAPS = {
+  worker_version: WORKER_VERSION,
+  ffmpeg_available: false,
+  yt_dlp_available: false,
+  opencv_available: false,
+  supports_vertical_9_16: true,
+  supports_facecam_autodetect: false,
+  supported_layouts: ["facecam_top_gameplay_bottom", "gameplay_only"],
+  booting: true,
+};
+
 capabilities()
-  .then((c) => console.log("[boot] capabilities", JSON.stringify(c)))
+  .then((c) => {
+    CACHED_CAPS = { ...c, booting: false };
+    console.log("[boot] capabilities", JSON.stringify(CACHED_CAPS));
+  })
   .catch(() => {});
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
-app.get("/health", async (_req, res) => {
-  const caps = await capabilities();
-  res.json({ ok: caps.ffmpeg_available && caps.yt_dlp_available, ...caps });
+// Synchronous, zero-fork health endpoint — safe under heavy ffmpeg load.
+app.get("/health", (_req, res) => {
+  res.json({
+    ok: CACHED_CAPS.ffmpeg_available && CACHED_CAPS.yt_dlp_available,
+    ...CACHED_CAPS,
+  });
 });
 
 app.post("/generate", async (req, res) => {
