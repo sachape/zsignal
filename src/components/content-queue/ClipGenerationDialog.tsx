@@ -9,10 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { CaptionStylePreviewGrid, type CaptionStyle } from "@/components/clips/CaptionStylePreviewGrid";
 import type { ContentItem } from "@/hooks/useContentItems";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
 import { QuickCameraPicker } from "@/components/clips/QuickCameraPicker";
@@ -62,7 +60,7 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [showAdvanced, setShowAdvanced] = useState(false);
   // Auto subtitles are ON by default. The user can opt out.
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
-  const [captionsStyle, setCaptionsStyle] = useState<"clean" | "bold_tiktok" | "gaming_neon" | "minimal">("clean");
+  const [captionsStyle, setCaptionsStyle] = useState<CaptionStyle>("clean");
 
   const start = item.source_start_time;
   const end = item.source_end_time;
