@@ -374,6 +374,7 @@ Deno.serve(async (req) => {
         callback_secret: WORKER_SHARED_SECRET,
         captions_enabled: captionsEnabled,
         captions_language: captionsLanguage,
+        captions_style: captionsStyle,
         transcribe_url: transcribeUrl,
         transcribe_secret: WORKER_SHARED_SECRET,
         ...layoutPayload,
