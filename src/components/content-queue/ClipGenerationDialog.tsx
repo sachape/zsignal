@@ -180,6 +180,7 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             use_manual_layout: showAdvanced,
             captions_enabled: captionsEnabled,
             captions_language: "fr",
+            captions_style: captionsStyle,
           }),
         },
       );
