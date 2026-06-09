@@ -36,18 +36,37 @@ function json(body: unknown, status = 200) {
   });
 }
 
-type Source = "twitch" | "youtube";
+type Source = "twitch" | "twitch_clip" | "youtube";
 
-function detectSource(rawUrl: string): { source: Source; url: string } | null {
+interface DetectedSource {
+  source: Source;
+  url: string;
+  slug?: string;
+  videoId?: string;
+}
+
+function detectSource(rawUrl: string): DetectedSource | null {
   let u: URL;
   try { u = new URL(rawUrl); } catch { return null; }
   if (u.protocol !== "https:" && u.protocol !== "http:") return null;
-  const host = u.hostname.replace(/^www\./, "");
-  if (host === "twitch.tv") {
-    if (!/^\/videos\/\d+/.test(u.pathname)) return null;
-    return { source: "twitch", url: `https://www.twitch.tv${u.pathname}` };
+  const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "");
+
+  if (host === "clips.twitch.tv") {
+    const slug = u.pathname.replace(/^\//, "").split("/")[0];
+    if (!slug || !/^[A-Za-z0-9_-]{4,}$/.test(slug)) return null;
+    return { source: "twitch_clip", url: `https://clips.twitch.tv/${slug}`, slug };
   }
-  if (host === "youtube.com" || host === "m.youtube.com") {
+  if (host === "twitch.tv") {
+    const parts = u.pathname.split("/").filter(Boolean);
+    if (parts[0] === "videos" && /^\d+$/.test(parts[1] ?? "")) {
+      return { source: "twitch", url: `https://www.twitch.tv/videos/${parts[1]}`, videoId: parts[1] };
+    }
+    if (parts[1] === "clip" && parts[2] && /^[A-Za-z0-9_-]{4,}$/.test(parts[2])) {
+      return { source: "twitch_clip", url: `https://clips.twitch.tv/${parts[2]}`, slug: parts[2] };
+    }
+    return null;
+  }
+  if (host === "youtube.com") {
     const v = u.searchParams.get("v");
     if (!v || !/^[A-Za-z0-9_-]{6,}$/.test(v)) return null;
     return { source: "youtube", url: `https://www.youtube.com/watch?v=${v}` };
@@ -58,6 +77,51 @@ function detectSource(rawUrl: string): { source: Source; url: string } | null {
     return { source: "youtube", url: `https://www.youtube.com/watch?v=${id}` };
   }
   return null;
+}
+
+interface HelixClip {
+  id: string;
+  url: string;
+  title: string;
+  broadcaster_name: string;
+  duration: number;
+  thumbnail_url: string;
+}
+
+async function fetchTwitchClip(slug: string): Promise<HelixClip | null> {
+  const clientId = Deno.env.get("TWITCH_CLIENT_ID");
+  const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET");
+  if (!clientId || !clientSecret) return null;
+  try {
+    const tokRes = await fetch("https://id.twitch.tv/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: "client_credentials",
+      }),
+    });
+    if (!tokRes.ok) return null;
+    const tok = await tokRes.json();
+    const res = await fetch(`https://api.twitch.tv/helix/clips?id=${encodeURIComponent(slug)}`, {
+      headers: { "Client-ID": clientId, Authorization: `Bearer ${tok.access_token}` },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const clip = data?.data?.[0];
+    if (!clip) return null;
+    return {
+      id: clip.id,
+      url: clip.url,
+      title: clip.title ?? "Clip Twitch",
+      broadcaster_name: clip.broadcaster_name ?? "",
+      duration: Math.max(5, Math.round(Number(clip.duration ?? 30))),
+      thumbnail_url: clip.thumbnail_url ?? "",
+    };
+  } catch {
+    return null;
+  }
 }
 
 function fmtTimestamp(sec: number): string {
