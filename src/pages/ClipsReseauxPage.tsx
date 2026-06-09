@@ -51,7 +51,7 @@ const ClipsReseauxPage = () => {
   const canAccess = hasPlanAtLeast(plan, "pro");
 
   const [recent, setRecent] = useState<RecentClip[]>([]);
-  const [hasCameraPreset] = useState(false); // preset feature not yet wired
+  const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
 
   const loadRecent = useCallback(async () => {
     if (!user) return;
