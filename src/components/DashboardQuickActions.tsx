@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Rocket, Clapperboard, Inbox, Network, RefreshCw } from "lucide-react";
+import { Rocket, Clapperboard, Inbox, Network, RefreshCw, Sparkles } from "lucide-react";
 
 const ACTIONS = [
   { to: "/live-setup", icon: Rocket, label: "Préparer un live", hint: "Setup en 60s" },
+  { to: "/clips-reseaux", icon: Sparkles, label: "Créer un clip réseau", hint: "Depuis une VOD ou une vidéo" },
   { to: "/clips", icon: Clapperboard, label: "Générer un clip", hint: "Depuis un VOD" },
   { to: "/content-queue", icon: Inbox, label: "Contenus à publier", hint: "Queue YouTube" },
   { to: "/reseaux", icon: Network, label: "Connecter YouTube", hint: "OAuth en 1 clic" },

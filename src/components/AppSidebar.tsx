@@ -15,6 +15,7 @@ import {
   Sparkles,
   BookOpen,
   MessageCircle,
+  Clapperboard,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -54,6 +55,7 @@ const primaryItems: NavEntry[] = [
   { title: "Analyse", url: "/analyse", icon: Activity },
   { title: "Live Studio", url: "/live-setup", icon: Rocket, matchSection: "live-studio" },
   { title: "Content Studio", url: "/content-queue", icon: Inbox, matchSection: "content-studio" },
+  { title: "Clips réseaux", url: "/clips-reseaux", icon: Clapperboard },
   { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark" },
   { title: "Réseaux", url: "/reseaux", icon: Network },
   { title: "Ressources", url: "/outils/titres", icon: BookOpen, matchSection: "resources" },
