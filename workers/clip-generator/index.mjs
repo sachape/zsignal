@@ -172,13 +172,16 @@ app.post("/generate", async (req, res) => {
     outputWidth: typeof output_width === "number" ? output_width : null,
     outputHeight: typeof output_height === "number" ? output_height : null,
     layoutType: layout_type ?? null,
-    facecamCrop: facecam_crop ?? null,
-    gameplayCrop: gameplay_crop ?? null,
+    // Hard guard: when the dispatcher says "auto_detect", we ignore any
+    // residual facecam_crop / gameplay_crop that might be sitting in the
+    // payload from an older client build. Auto-detect must mean auto-detect.
+    facecamCrop: (layout_source === "auto_detect" || auto_detect_facecam === true) ? null : (facecam_crop ?? null),
+    gameplayCrop: (layout_source === "auto_detect" || auto_detect_facecam === true) ? null : (gameplay_crop ?? null),
     sourceReferenceWidth:
       typeof source_reference_width === "number" ? source_reference_width : null,
     sourceReferenceHeight:
       typeof source_reference_height === "number" ? source_reference_height : null,
-    autoDetectFacecam: auto_detect_facecam === true,
+    autoDetectFacecam: auto_detect_facecam === true || layout_source === "auto_detect",
     layoutSource: typeof layout_source === "string" ? layout_source : null,
   }).catch((err) => {
     console.error("processJob error", job_id, err?.message);

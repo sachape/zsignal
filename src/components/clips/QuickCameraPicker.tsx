@@ -127,11 +127,22 @@ export function QuickCameraPicker({ onReady }: Props) {
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-xs text-foreground">
             <Check className="h-3.5 w-3.5 text-primary" />
-            Cadrage caméra prêt. Le clip sera <strong>caméra en haut, gameplay en bas</strong>.
+            Crop manuel enregistré. Sera utilisé uniquement si tu coches « Forcer manuellement ».
           </div>
-          <Button size="sm" variant="ghost" className="gap-1 text-xs" onClick={() => setEditorOpen(true)}>
-            <Pencil className="h-3 w-3" /> Ajuster
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="ghost" className="gap-1 text-xs" onClick={() => setEditorOpen(true)}>
+              <Pencil className="h-3 w-3" /> Ajuster
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="gap-1 text-xs text-destructive hover:text-destructive"
+              disabled={saving}
+              onClick={() => applyChoice({ kind: "gameplay_only" })}
+            >
+              Réinitialiser
+            </Button>
+          </div>
         </div>
         <CameraEditorDialog open={editorOpen} onOpenChange={setEditorOpen} onSaved={() => onReady(true)} />
       </div>

@@ -279,45 +279,52 @@ Deno.serve(async (req) => {
     return json({ error: "output_sign_failed", detail: upSignErr?.message }, 500);
   }
 
-  // Load the user's most recent Twitch layout preset (if any).
-  const { data: preset } = await admin
-    .from("creator_video_layout_presets")
-    .select("layout_type, facecam_x, facecam_y, facecam_width, facecam_height, gameplay_x, gameplay_y, gameplay_width, gameplay_height, source_reference_width, source_reference_height, output_width, output_height")
-    .eq("user_id", userId)
-    .eq("platform", "twitch")
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  // Manual layout is strictly opt-in. The default flow is pure auto-detect
+  // (OpenCV facecam detection on the worker). A previously stored preset is
+  // ONLY honored when the client explicitly sets `use_manual_layout: true`
+  // (i.e. the user opened "Forcer manuellement" in the dialog). This
+  // prevents stale/auto-saved presets from silently overriding auto-detect
+  // and turning a gameplay region into the "facecam".
+  const useManualLayout = body.use_manual_layout === true;
+
+  let preset: Record<string, unknown> | null = null;
+  if (useManualLayout) {
+    const { data } = await admin
+      .from("creator_video_layout_presets")
+      .select("layout_type, facecam_x, facecam_y, facecam_width, facecam_height, gameplay_x, gameplay_y, gameplay_width, gameplay_height, source_reference_width, source_reference_height, output_width, output_height")
+      .eq("user_id", userId)
+      .eq("platform", "twitch")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    preset = data as Record<string, unknown> | null;
+  }
 
   const hasFacecamCrop =
-    preset &&
+    !!preset &&
     Number.isFinite(preset.facecam_x) && Number.isFinite(preset.facecam_y) &&
     Number.isFinite(preset.facecam_width) && Number.isFinite(preset.facecam_height) &&
-    (preset.facecam_width ?? 0) > 0 && (preset.facecam_height ?? 0) > 0;
+    ((preset.facecam_width as number) ?? 0) > 0 && ((preset.facecam_height as number) ?? 0) > 0;
 
-  // Default flow: ask the worker to auto-detect the facecam (OpenCV).
-  // If the user has explicitly pinned a crop via the advanced editor, use it
-  // and skip detection. Worker falls back to gameplay_only silently when no
-  // facecam is reliably detected — zero friction for the user.
-  const layoutPayload = hasFacecamCrop
+  const layoutPayload = (useManualLayout && hasFacecamCrop)
     ? {
         output_format: "vertical_9_16",
         layout_type: "facecam_top_gameplay_bottom",
-        output_width: preset!.output_width ?? 1080,
-        output_height: preset!.output_height ?? 1920,
+        output_width: (preset!.output_width as number) ?? 1080,
+        output_height: (preset!.output_height as number) ?? 1920,
         facecam_crop: {
           x: preset!.facecam_x, y: preset!.facecam_y,
           width: preset!.facecam_width, height: preset!.facecam_height,
         },
         gameplay_crop:
-          Number.isFinite(preset!.gameplay_width) && (preset!.gameplay_width ?? 0) > 0
+          Number.isFinite(preset!.gameplay_width) && ((preset!.gameplay_width as number) ?? 0) > 0
             ? {
                 x: preset!.gameplay_x, y: preset!.gameplay_y,
                 width: preset!.gameplay_width, height: preset!.gameplay_height,
               }
             : undefined,
-        source_reference_width: preset!.source_reference_width ?? undefined,
-        source_reference_height: preset!.source_reference_height ?? undefined,
+        source_reference_width: (preset!.source_reference_width as number) ?? undefined,
+        source_reference_height: (preset!.source_reference_height as number) ?? undefined,
         auto_detect_facecam: false,
         layout_source: "user_preset",
       }
@@ -326,6 +333,10 @@ Deno.serve(async (req) => {
         layout_type: "facecam_top_gameplay_bottom",
         output_width: 1080,
         output_height: 1920,
+        // Explicit nulls so the worker ignores any residual fields and uses OpenCV.
+        facecam_crop: null,
+        gameplay_crop: null,
+        manual_preset: null,
         auto_detect_facecam: true,
         layout_source: "auto_detect",
       };
