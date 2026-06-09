@@ -168,6 +168,9 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             ...sourcePayload,
             start_time_seconds: start,
             end_time_seconds: end,
+            // Opt-in only: a stored preset is used ONLY when the user explicitly
+            // opened "Forcer manuellement". Default flow = pure auto-detect.
+            use_manual_layout: showAdvanced,
           }),
         },
       );
