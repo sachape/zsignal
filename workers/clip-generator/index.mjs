@@ -651,7 +651,7 @@ async function processJob({
     });
 
     // 3) Upload.
-    const buf = await readFile(outputPath);
+    const buf = await readFile(finalOutputPath);
     const upRes = await fetch(outputUploadUrl, {
       method: "PUT",
       headers: { "Content-Type": "video/mp4" },
