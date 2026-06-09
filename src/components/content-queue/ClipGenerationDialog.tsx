@@ -316,6 +316,24 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
               </div>
             )}
           </div>
+
+          <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-card p-3">
+            <div className="flex items-start gap-2">
+              <Captions className="mt-0.5 h-3.5 w-3.5 text-primary" />
+              <div>
+                <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  Ajoute automatiquement les sous-titres quand tu parles. Style TikTok, incrustés dans la vidéo.
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={captionsEnabled}
+              onCheckedChange={setCaptionsEnabled}
+              disabled={busy}
+              aria-label="Activer les sous-titres automatiques"
+            />
+          </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
