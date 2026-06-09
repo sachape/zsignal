@@ -275,6 +275,13 @@ Deno.serve(async (req) => {
         end_time_seconds: Math.round(endTime),
         callback_url: callbackUrl,
         callback_secret: WORKER_SHARED_SECRET,
+        // Default to vertical 9:16 "gameplay only" so users without a camera
+        // preset can still generate a clip réseau. Worker can be overridden later
+        // when a layout preset is wired through.
+        output_format: "vertical_9_16",
+        layout_type: "gameplay_only",
+        output_width: 1080,
+        output_height: 1920,
       }),
     });
     const workerBody = await workerRes.text().catch(() => "");
