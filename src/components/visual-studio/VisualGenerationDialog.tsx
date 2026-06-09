@@ -95,7 +95,10 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
       setError(null);
       setPreviewError(false);
     }
-  }, [open, prefill]);
+    // Reset only when the dialog opens. Completion refreshes can update prefill
+    // while the dialog is open; that must not erase the generated variants view.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Poll job status
   useEffect(() => {
