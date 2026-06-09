@@ -188,6 +188,10 @@ app.post("/generate", async (req, res) => {
       typeof source_reference_height === "number" ? source_reference_height : null,
     autoDetectFacecam: auto_detect_facecam === true || layout_source === "auto_detect",
     layoutSource: typeof layout_source === "string" ? layout_source : null,
+    captionsEnabled: captions_enabled !== false && !!transcribe_url,
+    captionsLanguage: typeof captions_language === "string" ? captions_language : "fr",
+    transcribeUrl: typeof transcribe_url === "string" ? transcribe_url : null,
+    transcribeSecret: typeof transcribe_secret === "string" ? transcribe_secret : WORKER_SHARED_SECRET,
   }).catch((err) => {
     console.error("processJob error", job_id, err?.message);
   });
