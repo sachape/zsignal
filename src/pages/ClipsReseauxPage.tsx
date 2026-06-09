@@ -137,7 +137,7 @@ const ClipsReseauxPage = () => {
           </div>
         </section>
 
-        {/* Camera config */}
+        {/* Camera config — optional, never blocks generation */}
         <section className="mb-8">
           <Card className="border-border/60 bg-card/60">
             <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -146,30 +146,46 @@ const ClipsReseauxPage = () => {
                   <Video className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">Format réseaux</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-foreground">Option avancée : placer ma caméra</h3>
+                    <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                      Optionnel
+                    </Badge>
+                  </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    Caméra en haut, gameplay en bas, prêt pour TikTok, Reels et Shorts.
+                    Utile si tu veux un rendu avec ta caméra en haut et le gameplay en bas.
+                    Par défaut, Streamnco génère un clip vertical en gameplay seul.
                   </p>
-                  {hasCameraPreset ? (
-                    <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
-                      <Check className="h-3.5 w-3.5" /> Format caméra configuré
-                    </p>
-                  ) : (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Configure ta caméra une fois pour générer tes clips au bon format.
-                    </p>
-                  )}
                 </div>
               </div>
-              <Button asChild variant="outline" className="gap-2">
-                <Link to="/settings">
-                  <SettingsIcon className="h-4 w-4" />
-                  {hasCameraPreset ? "Modifier ma caméra" : "Configurer ma caméra"}
-                </Link>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => setCameraDialogOpen(true)}
+              >
+                <SettingsIcon className="h-4 w-4" />
+                Placer ma caméra
               </Button>
             </CardContent>
           </Card>
         </section>
+
+        <Dialog open={cameraDialogOpen} onOpenChange={setCameraDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Placer ma caméra — bientôt disponible</DialogTitle>
+              <DialogDescription>
+                L'éditeur visuel pour placer ta caméra et le gameplay arrive très bientôt.
+                En attendant, Streamnco génère automatiquement tes clips en format
+                vertical 9:16 (gameplay seul). Aucune configuration n'est requise pour démarrer.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={() => setCameraDialogOpen(false)}>Compris</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
 
         {/* Recent clips */}
         <section>
