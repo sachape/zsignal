@@ -512,7 +512,9 @@ const VodImportPage = () => {
 
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <p className="text-[11px] text-muted-foreground">
-                {hasManualTimestamps
+                {detectedSource === "twitch_clip"
+                  ? "Streamnco va utiliser toute la durée du Clip Twitch."
+                  : hasManualTimestamps
                   ? "Tes timestamps seront utilisés pour créer les clips."
                   : "Sans timestamps : Streamnco propose 3 fenêtres réparties dans la VOD à ajuster avant génération."}
               </p>
@@ -522,7 +524,7 @@ const VodImportPage = () => {
                 className="gap-2"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                Analyser la VOD
+                {detectedSource === "twitch_clip" ? "Générer en format réseaux" : "Analyser la VOD"}
               </Button>
             </div>
           </CardContent>
