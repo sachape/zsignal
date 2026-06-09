@@ -79,6 +79,7 @@ async function capabilities() {
     opencv_version: cv.version,
     supports_vertical_9_16: true,
     supports_facecam_autodetect: cv.ok,
+    supports_auto_captions: true,
     supported_layouts: ["facecam_top_gameplay_bottom", "gameplay_only"],
   };
 }
