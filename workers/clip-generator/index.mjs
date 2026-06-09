@@ -616,8 +616,38 @@ async function processJob({
     if (outStat.size === 0) throw new Error("empty_output");
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
 
+    // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
+    //      vertical clip. Failures here NEVER fail the job — clip ships
+    //      without captions and a [captions_failed] / [captions_skipped]
+    //      log is emitted.
+    let finalOutputPath = outputPath;
+    if (captionsEnabled && transcribeUrl && isVertical) {
+      const captionsResult = await maybeBurnCaptions({
+        jobId,
+        workDir,
+        composedPath: outputPath,
+        transcribeUrl,
+        transcribeSecret,
+        captionsLanguage,
+        outW: outW ?? 1080,
+        outH: outH ?? 1920,
+        callbackUrl,
+        callbackSecret,
+      });
+      if (captionsResult?.finalPath) {
+        finalOutputPath = captionsResult.finalPath;
+      }
+    } else {
+      console.log("[captions_skipped]", JSON.stringify({
+        job_id: jobId,
+        reason: !captionsEnabled ? "disabled_by_user"
+          : !transcribeUrl ? "no_transcribe_url"
+          : "legacy_horizontal_pipeline",
+      }));
+    }
+
     await postCallback(callbackUrl, callbackSecret, {
-      job_id: jobId, status: "processing", stage: "uploading", progress: 85,
+      job_id: jobId, status: "processing", stage: "uploading", progress: 90,
     });
 
     // 3) Upload.
