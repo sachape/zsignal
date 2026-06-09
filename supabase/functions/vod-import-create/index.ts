@@ -36,16 +36,31 @@ function json(body: unknown, status = 200) {
   });
 }
 
-type Source = "twitch" | "youtube";
+type Source = "twitch" | "twitch_clip" | "youtube";
 
 function detectSource(rawUrl: string): { source: Source; url: string } | null {
   let u: URL;
   try { u = new URL(rawUrl); } catch { return null; }
   if (u.protocol !== "https:" && u.protocol !== "http:") return null;
   const host = u.hostname.replace(/^www\./, "");
-  if (host === "twitch.tv") {
-    if (!/^\/videos\/\d+/.test(u.pathname)) return null;
-    return { source: "twitch", url: `https://www.twitch.tv${u.pathname}` };
+
+  // clips.twitch.tv/<slug>
+  if (host === "clips.twitch.tv") {
+    const slug = u.pathname.replace(/^\//, "").split("/")[0];
+    if (slug && /^[A-Za-z0-9_-]+$/.test(slug)) {
+      return { source: "twitch_clip", url: `https://clips.twitch.tv/${slug}` };
+    }
+    return null;
+  }
+  if (host === "twitch.tv" || host === "m.twitch.tv") {
+    const vodMatch = u.pathname.match(/^\/videos\/(\d+)/);
+    if (vodMatch) {
+      return { source: "twitch", url: `https://www.twitch.tv/videos/${vodMatch[1]}` };
+    }
+    const clipMatch = u.pathname.match(/^\/[^/]+\/clip\/([A-Za-z0-9_-]+)/);
+    if (clipMatch) {
+      return { source: "twitch_clip", url: `https://clips.twitch.tv/${clipMatch[1]}` };
+    }
   }
   if (host === "youtube.com" || host === "m.youtube.com") {
     const v = u.searchParams.get("v");
