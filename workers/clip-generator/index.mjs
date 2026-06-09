@@ -284,7 +284,20 @@ async function processJob({
     const duration = Math.max(1, Math.round(endSeconds - startSeconds));
 
     // 1) Acquire source segment.
-    if (sourceKind === "twitch_vod" || sourceKind === "youtube_vod") {
+    if (sourceKind === "twitch_clip") {
+      // Twitch Clip: download the entire clip (already short), no section trim.
+      await postCallback(callbackUrl, callbackSecret, {
+        job_id: jobId, status: "processing", stage: "downloading", progress: 15,
+      });
+      await runCommand("yt-dlp", [
+        "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
+        "--retries", "3", "--fragment-retries", "5",
+        "-f", "best",
+        "--merge-output-format", "mp4",
+        "-o", sourcePath,
+        sourceUrl,
+      ], 5 * 60 * 1000);
+    } else if (sourceKind === "twitch_vod" || sourceKind === "youtube_vod") {
       await postCallback(callbackUrl, callbackSecret, {
         job_id: jobId, status: "processing", stage: "downloading", progress: 15,
       });
@@ -301,19 +314,6 @@ async function processJob({
         "-o", sourcePath,
         sourceUrl,
       ], 8 * 60 * 1000);
-    } else if (sourceKind === "twitch_clip") {
-      // Twitch Clips are already short. Download the whole clip; ffmpeg trims.
-      await postCallback(callbackUrl, callbackSecret, {
-        job_id: jobId, status: "processing", stage: "downloading", progress: 15,
-      });
-      await runCommand("yt-dlp", [
-        "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
-        "--retries", "3", "--fragment-retries", "5",
-        "-f", "best",
-        "--merge-output-format", "mp4",
-        "-o", sourcePath,
-        sourceUrl,
-      ], 5 * 60 * 1000);
     } else {
       await postCallback(callbackUrl, callbackSecret, {
         job_id: jobId, status: "processing", stage: "downloading", progress: 15,
@@ -331,6 +331,8 @@ async function processJob({
     });
 
     // 2) Build ffmpeg command.
+    // For twitch_clip: use the full downloaded clip (no -ss / no -t trim).
+    const useFullSource = sourceKind === "twitch_clip";
     const trimmedAlready = sourceKind === "twitch_vod" || sourceKind === "youtube_vod";
 
     let ffArgs;
@@ -355,7 +357,9 @@ async function processJob({
         gameplayCrop: scaledGameplay,
       });
 
-      const trimArgs = trimmedAlready
+      const trimArgs = useFullSource
+        ? ["-i", sourcePath]
+        : trimmedAlready
         ? ["-i", sourcePath, "-t", String(duration)]
         : ["-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration)];
 
@@ -373,7 +377,16 @@ async function processJob({
       ];
     } else {
       // Legacy 16:9 pipeline — backward compatible.
-      ffArgs = trimmedAlready
+      ffArgs = useFullSource
+        ? [
+            "-y", "-i", sourcePath,
+            "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+            "-c:a", "aac", "-b:a", "128k",
+            "-movflags", "+faststart",
+            outputPath,
+          ]
+        : trimmedAlready
         ? [
             "-y", "-i", sourcePath, "-t", String(duration),
             "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
@@ -391,6 +404,7 @@ async function processJob({
             outputPath,
           ];
     }
+
 
     console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, vertical: isVertical, duration }));
     await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);

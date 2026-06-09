@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
   if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) return json({ error: "invalid_timestamps" }, 400);
   if (startTime < 0 || endTime <= startTime) return json({ error: "invalid_range" }, 400);
   const duration = Math.round(endTime - startTime);
-  if (duration < 5 || duration > 180) return json({ error: "invalid_duration" }, 400);
+  if (duration < 5 || duration > 240) return json({ error: "invalid_duration" }, 400);
 
   if (sourceType === "upload" || sourceType === "storage_url") {
     if (!sourceStoragePath) return json({ error: "missing_source_storage_path" }, 400);
@@ -109,9 +109,9 @@ Deno.serve(async (req) => {
     try {
       const u = new URL(sourceUrl);
       const host = u.hostname.replace(/^www\./, "");
-      const parts = u.pathname.split("/").filter(Boolean);
-      const isClipsHost = host === "clips.twitch.tv" && /^[A-Za-z0-9_-]{4,}$/.test(parts[0] ?? "");
-      const isChannelClip = host === "twitch.tv" && parts[1] === "clip" && /^[A-Za-z0-9_-]{4,}$/.test(parts[2] ?? "");
+      const isClipsHost = host === "clips.twitch.tv" && /^\/[A-Za-z0-9_-]+/.test(u.pathname);
+      const isChannelClip = (host === "twitch.tv" || host === "m.twitch.tv") &&
+        /^\/[^/]+\/clip\/[A-Za-z0-9_-]+/.test(u.pathname);
       if (!isClipsHost && !isChannelClip) {
         return json({ error: "invalid_twitch_clip_url" }, 400);
       }
@@ -275,6 +275,13 @@ Deno.serve(async (req) => {
         end_time_seconds: Math.round(endTime),
         callback_url: callbackUrl,
         callback_secret: WORKER_SHARED_SECRET,
+        // Default to vertical 9:16 "gameplay only" so users without a camera
+        // preset can still generate a clip réseau. Worker can be overridden later
+        // when a layout preset is wired through.
+        output_format: "vertical_9_16",
+        layout_type: "gameplay_only",
+        output_width: 1080,
+        output_height: 1920,
       }),
     });
     const workerBody = await workerRes.text().catch(() => "");

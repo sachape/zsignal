@@ -38,35 +38,31 @@ function json(body: unknown, status = 200) {
 
 type Source = "twitch" | "twitch_clip" | "youtube";
 
-interface DetectedSource {
-  source: Source;
-  url: string;
-  slug?: string;
-  videoId?: string;
-}
-
-function detectSource(rawUrl: string): DetectedSource | null {
+function detectSource(rawUrl: string): { source: Source; url: string } | null {
   let u: URL;
   try { u = new URL(rawUrl); } catch { return null; }
   if (u.protocol !== "https:" && u.protocol !== "http:") return null;
-  const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "");
+  const host = u.hostname.replace(/^www\./, "");
 
+  // clips.twitch.tv/<slug>
   if (host === "clips.twitch.tv") {
     const slug = u.pathname.replace(/^\//, "").split("/")[0];
-    if (!slug || !/^[A-Za-z0-9_-]{4,}$/.test(slug)) return null;
-    return { source: "twitch_clip", url: `https://clips.twitch.tv/${slug}`, slug };
-  }
-  if (host === "twitch.tv") {
-    const parts = u.pathname.split("/").filter(Boolean);
-    if (parts[0] === "videos" && /^\d+$/.test(parts[1] ?? "")) {
-      return { source: "twitch", url: `https://www.twitch.tv/videos/${parts[1]}`, videoId: parts[1] };
-    }
-    if (parts[1] === "clip" && parts[2] && /^[A-Za-z0-9_-]{4,}$/.test(parts[2])) {
-      return { source: "twitch_clip", url: `https://clips.twitch.tv/${parts[2]}`, slug: parts[2] };
+    if (slug && /^[A-Za-z0-9_-]+$/.test(slug)) {
+      return { source: "twitch_clip", url: `https://clips.twitch.tv/${slug}` };
     }
     return null;
   }
-  if (host === "youtube.com") {
+  if (host === "twitch.tv" || host === "m.twitch.tv") {
+    const vodMatch = u.pathname.match(/^\/videos\/(\d+)/);
+    if (vodMatch) {
+      return { source: "twitch", url: `https://www.twitch.tv/videos/${vodMatch[1]}` };
+    }
+    const clipMatch = u.pathname.match(/^\/[^/]+\/clip\/([A-Za-z0-9_-]+)/);
+    if (clipMatch) {
+      return { source: "twitch_clip", url: `https://clips.twitch.tv/${clipMatch[1]}` };
+    }
+  }
+  if (host === "youtube.com" || host === "m.youtube.com") {
     const v = u.searchParams.get("v");
     if (!v || !/^[A-Za-z0-9_-]{6,}$/.test(v)) return null;
     return { source: "youtube", url: `https://www.youtube.com/watch?v=${v}` };
@@ -77,51 +73,6 @@ function detectSource(rawUrl: string): DetectedSource | null {
     return { source: "youtube", url: `https://www.youtube.com/watch?v=${id}` };
   }
   return null;
-}
-
-interface HelixClip {
-  id: string;
-  url: string;
-  title: string;
-  broadcaster_name: string;
-  duration: number;
-  thumbnail_url: string;
-}
-
-async function fetchTwitchClip(slug: string): Promise<HelixClip | null> {
-  const clientId = Deno.env.get("TWITCH_CLIENT_ID");
-  const clientSecret = Deno.env.get("TWITCH_CLIENT_SECRET");
-  if (!clientId || !clientSecret) return null;
-  try {
-    const tokRes = await fetch("https://id.twitch.tv/oauth2/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: clientId,
-        client_secret: clientSecret,
-        grant_type: "client_credentials",
-      }),
-    });
-    if (!tokRes.ok) return null;
-    const tok = await tokRes.json();
-    const res = await fetch(`https://api.twitch.tv/helix/clips?id=${encodeURIComponent(slug)}`, {
-      headers: { "Client-ID": clientId, Authorization: `Bearer ${tok.access_token}` },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const clip = data?.data?.[0];
-    if (!clip) return null;
-    return {
-      id: clip.id,
-      url: clip.url,
-      title: clip.title ?? "Clip Twitch",
-      broadcaster_name: clip.broadcaster_name ?? "",
-      duration: Math.max(5, Math.round(Number(clip.duration ?? 30))),
-      thumbnail_url: clip.thumbnail_url ?? "",
-    };
-  } catch {
-    return null;
-  }
 }
 
 function fmtTimestamp(sec: number): string {
@@ -142,9 +93,9 @@ function slugify(s: string): string {
 }
 
 function buildHashtags(category: string | null, source: Source): string[] {
-  const base = source === "twitch"
-    ? ["#stream", "#twitch", "#gaming"]
-    : ["#youtube", "#shorts", "#gaming"];
+  const base = source === "youtube"
+    ? ["#youtube", "#shorts", "#gaming"]
+    : ["#stream", "#twitch", "#gaming"];
   if (category) {
     const slug = slugify(category);
     if (slug) base.unshift(`#${slug}`);
@@ -160,7 +111,7 @@ interface CandidateRow {
   hashtags: string[];
   start: number;
   end: number;
-  reason_code: "vod_manual_timestamp" | "vod_auto_suggestion";
+  reason_code: "vod_manual_timestamp" | "vod_auto_suggestion" | "twitch_clip_full";
   reason_label: string;
   confidence: number;
 }
@@ -214,11 +165,12 @@ Deno.serve(async (req) => {
     return json({
       success: false,
       reason: "youtube_not_enabled",
-      message: "YouTube VOD sera bientôt disponible. Pour le moment, utilise une VOD Twitch, un Clip Twitch ou importe un fichier.",
+      message: "YouTube arrive bientôt. Utilise une VOD Twitch, un Clip Twitch ou importe une vidéo.",
     }, 400);
   }
 
-  const subject = (typeof body.subject === "string" ? body.subject.trim() : "") || "ta VOD";
+  const subjectFallback = source === "twitch_clip" ? "ton Clip Twitch" : "ta VOD";
+  const subject = (typeof body.subject === "string" ? body.subject.trim() : "") || subjectFallback;
   const category = typeof body.category === "string" && body.category.trim()
     ? body.category.trim()
     : null;
@@ -233,36 +185,25 @@ Deno.serve(async (req) => {
 
   // Build candidates
   const candidates: CandidateRow[] = [];
-  const tagsSource: "twitch" | "youtube" = source === "youtube" ? "youtube" : "twitch";
-  const tags = buildHashtags(category, tagsSource);
+  const tags = buildHashtags(category, source);
 
-  // ── Twitch Clip flow ─────────────────────────────────────────────────
-  // A Twitch Clip is already a short extract. We create a single candidate
-  // covering the full clip duration. No manual timestamps required.
   if (source === "twitch_clip") {
-    const slug = detected.slug!;
-    const meta = await fetchTwitchClip(slug);
-    const duration = Math.min(MAX_CLIP_SEC, Math.max(5, meta?.duration ?? 30));
-    const titleHint = meta?.title?.trim() || subject;
+    // Twitch Clip: pas de start/end requis. Durée par défaut (60s).
+    // Le worker téléchargera le clip complet et utilisera la vraie durée.
     const target = rotateTarget(0, targetPlatform, preferredFormat);
     candidates.push({
       platform: target.platform,
       format: target.format,
-      title: `${titleHint}`.slice(0, 200),
-      description:
-        `Clip Twitch${meta?.broadcaster_name ? ` de ${meta.broadcaster_name}` : ""}. ` +
-        `Streamnco va le transformer en format réseaux (9:16).`,
+      title: `Clip Twitch — ${subject}`.slice(0, 200),
+      description: `Clip Twitch transformé en format vertical${category ? ` (${category})` : ""}.`,
       hashtags: tags,
       start: 0,
-      end: duration,
-      reason_code: "vod_manual_timestamp",
-      reason_label: "Clip Twitch — durée complète",
+      end: 60,
+      reason_code: "twitch_clip_full",
+      reason_label: "Clip Twitch complet",
       confidence: 80,
     });
-  } else
-
-
-  if (rawTimestamps.length > 0) {
+  } else if (rawTimestamps.length > 0) {
     for (let i = 0; i < rawTimestamps.length && i < 10; i++) {
       const t = rawTimestamps[i] as Record<string, unknown>;
       const start = Math.round(Number(t.start_seconds));
@@ -334,7 +275,7 @@ Deno.serve(async (req) => {
     priority: c.confidence >= 60 ? "high" : c.confidence >= 40 ? "medium" : "low",
     format: c.format,
     reason: c.reason_code,
-    source_platform: source,
+    source_platform: source === "twitch_clip" ? "twitch" : source,
     source_video_url: url,
     source_start_time: c.start,
     source_end_time: c.end,

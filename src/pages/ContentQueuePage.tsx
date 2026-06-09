@@ -578,18 +578,11 @@ function ContentRow({
                 <div>
                   <span className="font-medium text-foreground">Source : </span>
                   {item.source_video_url
-                    ? (() => {
-                        const isClip = /clips\.twitch\.tv|twitch\.tv\/[^/]+\/clip\//.test(item.source_video_url);
-                        const isVod = /twitch\.tv\/videos\/\d+/.test(item.source_video_url);
-                        const label = isClip ? "Clip Twitch" : isVod ? "VOD Twitch" : (item.source_platform ?? "vidéo");
-                        return (
-                          <a href={item.source_video_url} target="_blank" rel="noreferrer noopener"
-                            className="text-primary hover:underline break-all">
-                            {label} <ExternalLink className="inline h-3 w-3" />
-                          </a>
-                        );
-                      })()
-                    : <span className="italic">Vidéo importée</span>}
+                    ? <a href={item.source_video_url} target="_blank" rel="noreferrer noopener"
+                        className="text-primary hover:underline break-all">
+                        {item.source_platform ?? "vidéo"} <ExternalLink className="inline h-3 w-3" />
+                      </a>
+                    : <span className="italic">Aucune source enregistrée (l'upload se fait à la génération)</span>}
                 </div>
                 <div>
                   <span className="font-medium text-foreground">Moment : </span>

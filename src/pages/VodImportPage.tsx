@@ -40,6 +40,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { isFeatureEnabled } from "@/lib/featureFlags";
+import { detectTwitchUrl } from "@/lib/twitchUrl";
 
 import { useContentItems, type ContentItem } from "@/hooks/useContentItems";
 import { useActiveVideoJob } from "@/hooks/useVideoJobs";
@@ -75,11 +76,9 @@ const TARGET_PLATFORMS = [
   { value: "community", label: "Post récap", format: "recap" },
 ] as const;
 
-import { detectTwitchUrl, type TwitchUrlKind } from "@/lib/twitchUrl";
-
-function detectSourceClient(raw: string): TwitchUrlKind | "youtube" | null {
-  const t = detectTwitchUrl(raw);
-  if (t) return t.kind;
+function detectSourceClient(raw: string): "twitch_vod" | "twitch_clip" | "youtube" | null {
+  const tw = detectTwitchUrl(raw);
+  if (tw.kind) return tw.kind;
   try {
     const u = new URL(raw.trim());
     const host = u.hostname.replace(/^www\./, "");
@@ -125,12 +124,14 @@ function parseClock(v: string): number {
 const VOD_REASONS = new Set([
   "vod_manual_timestamp",
   "vod_auto_suggestion",
+  "twitch_clip_full",
 ]);
 
 const VodImportPage = () => {
   usePageMeta({
-    title: "Créer depuis une VOD · Streamnco",
-    description: "Colle une VOD Twitch et génère des clips prêts pour Shorts, Reels et TikTok.",
+    title: "Créer un clip réseau · Streamnco",
+    description:
+      "Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts.",
   });
 
   const { items, refetch, updateItem } = useContentItems();
@@ -206,7 +207,7 @@ const VodImportPage = () => {
     if (detectedSource === "youtube") {
       toast({
         title: "YouTube arrive bientôt",
-        description: "Utilise une VOD Twitch, un Clip Twitch ou importe un fichier vidéo.",
+        description: "Utilise une VOD Twitch, un Clip Twitch ou importe une vidéo.",
       });
       return;
     }
@@ -284,8 +285,8 @@ const VodImportPage = () => {
     }
     const source = detectSourceClient(item.source_video_url);
     const sourceType =
-      source === "twitch_vod" ? "twitch_vod" :
       source === "twitch_clip" ? "twitch_clip" :
+      source === "twitch_vod" ? "twitch_vod" :
       source === "youtube" ? "youtube_vod" : "direct_url";
 
     setGeneratingId(item.id);
@@ -389,8 +390,8 @@ const VodImportPage = () => {
       <PageContainer size="lg">
         <PageHeader
           eyebrow="Content Studio"
-          title="Créer un clip"
-          description="Colle une VOD Twitch ou un Clip Twitch. Streamnco le transforme en clip vertical 9:16 prêt pour Reels, TikTok et Shorts."
+          title="Créer un clip réseau"
+          description="Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts."
         />
 
         <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px]">
@@ -401,10 +402,10 @@ const VodImportPage = () => {
             Clip Twitch — Disponible
           </Badge>
           <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
-            Fichier vidéo — Disponible
+            Vidéo importée — Disponible
           </Badge>
           <Badge variant="outline" className="border-muted bg-muted/30 text-muted-foreground">
-            YouTube VOD — Bientôt
+            YouTube — Bientôt
           </Badge>
         </div>
 
@@ -420,12 +421,12 @@ const VodImportPage = () => {
                   id="vod-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="Colle une VOD ou un Clip Twitch"
+                  placeholder="Colle une VOD Twitch ou un Clip Twitch"
                   className="pl-9"
                 />
               </div>
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                <span>Tu peux coller une VOD Twitch complète ou un Clip Twitch déjà existant.</span>
+                <span>Fonctionne avec les VOD Twitch, les Clips Twitch et les vidéos importées.</span>
                 {detectedSource === "twitch_vod" && (
                   <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
                     VOD Twitch détectée
@@ -444,15 +445,16 @@ const VodImportPage = () => {
               </div>
               {detectedSource === "twitch_clip" && (
                 <p className="text-[11px] text-primary">
-                  Clip Twitch détecté — Streamnco va le transformer en format réseaux (9:16). Pas besoin de saisir start/end.
+                  Clip Twitch détecté. Streamnco va le transformer en clip vertical, pas besoin d'indiquer un moment.
                 </p>
               )}
               {detectedSource === "youtube" && (
                 <p className="text-[11px] text-warning">
-                  YouTube arrive bientôt. Utilise une VOD Twitch, un Clip Twitch ou importe un fichier vidéo.
+                  YouTube arrive bientôt. Utilise une VOD Twitch, un Clip Twitch ou importe une vidéo.
                 </p>
               )}
             </div>
+
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
@@ -495,28 +497,30 @@ const VodImportPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="vod-timestamps" className="text-xs font-semibold">
-                  Moments à découper <span className="font-normal text-muted-foreground">(optionnel)</span>
-                </Label>
-                <Textarea
-                  id="vod-timestamps"
-                  value={timestampsRaw}
-                  onChange={(e) => setTimestampsRaw(e.target.value)}
-                  placeholder={"Une ligne par clip\n1:23-1:48 Réaction\n12:05-12:30 Punchline"}
-                  rows={3}
-                  className="font-mono text-xs"
-                />
-                <p className="text-[11px] text-muted-foreground">
-                  Format : <code>mm:ss-mm:ss</code> ou <code>hh:mm:ss-hh:mm:ss</code>. Durée 10 à 180 s.
-                </p>
-              </div>
+              {detectedSource !== "twitch_clip" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="vod-timestamps" className="text-xs font-semibold">
+                    Moments à découper <span className="font-normal text-muted-foreground">(optionnel)</span>
+                  </Label>
+                  <Textarea
+                    id="vod-timestamps"
+                    value={timestampsRaw}
+                    onChange={(e) => setTimestampsRaw(e.target.value)}
+                    placeholder={"Une ligne par clip\n1:23-1:48 Réaction\n12:05-12:30 Punchline"}
+                    rows={3}
+                    className="font-mono text-xs"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Format : <code>mm:ss-mm:ss</code> ou <code>hh:mm:ss-hh:mm:ss</code>. Durée 10 à 180 s.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <p className="text-[11px] text-muted-foreground">
                 {detectedSource === "twitch_clip"
-                  ? "Streamnco va utiliser toute la durée du Clip Twitch."
+                  ? "Streamnco va utiliser tout le Clip Twitch pour générer ton clip vertical."
                   : hasManualTimestamps
                   ? "Tes timestamps seront utilisés pour créer les clips."
                   : "Sans timestamps : Streamnco propose 3 fenêtres réparties dans la VOD à ajuster avant génération."}
@@ -527,9 +531,10 @@ const VodImportPage = () => {
                 className="gap-2"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                {detectedSource === "twitch_clip" ? "Générer en format réseaux" : "Analyser la VOD"}
+                {detectedSource === "twitch_clip" ? "Générer en format réseaux" : "Analyser le lien"}
               </Button>
             </div>
+
           </CardContent>
         </Card>
 
@@ -688,15 +693,15 @@ const VodImportPage = () => {
             <div className="flex items-start gap-2 text-xs text-muted-foreground">
               <Upload className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                VOD inaccessible ? Tu peux aussi importer un fichier vidéo depuis Content Queue ou
-                créer une idée sans générer de clip.
+                Pas de lien Twitch ? Tu peux aussi importer un fichier vidéo et le transformer en clip réseau.
               </span>
             </div>
             <Button asChild variant="outline" size="sm">
-              <Link to="/content-queue">Aller à Content Queue</Link>
+              <Link to="/content-queue">Importer une vidéo</Link>
             </Button>
           </CardContent>
         </Card>
+
 
         <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
           <DialogContent>

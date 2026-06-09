@@ -1,63 +1,77 @@
-/**
- * Twitch URL detection — shared between landing flows and the VOD import page.
- * Supports both Twitch VODs and Twitch Clips (clips.twitch.tv + per-channel
- * /clip/ shorthand).
- */
+// Streamnco — Twitch URL detection helper.
+// Supports:
+//   - VOD:  https://www.twitch.tv/videos/123456789
+//   - VOD:  https://twitch.tv/videos/123456789
+//   - Clip: https://clips.twitch.tv/<slug>
+//   - Clip: https://(www.)twitch.tv/<channel>/clip/<slug>?...
+// Query params (?filter=…&range=…) and trailing slashes are ignored.
+
 export type TwitchUrlKind = "twitch_vod" | "twitch_clip";
 
 export interface TwitchUrlInfo {
-  kind: TwitchUrlKind;
-  url: string;          // normalized canonical URL
-  videoId?: string;     // for VODs
-  slug?: string;        // for Clips
-  channel?: string;     // for /<channel>/clip/<slug>
+  kind: TwitchUrlKind | null;
+  normalizedUrl: string | null;
+  clipSlug?: string;
+  vodId?: string;
 }
 
-/**
- * Returns null when the URL is not a recognised Twitch VOD/Clip link.
- * Accepts both desktop and mobile shares.
- */
-export function detectTwitchUrl(raw: string): TwitchUrlInfo | null {
-  if (!raw) return null;
+export function detectTwitchUrl(raw: string): TwitchUrlInfo {
+  const trimmed = (raw ?? "").trim();
+  if (!trimmed) return { kind: null, normalizedUrl: null };
+
   let u: URL;
   try {
-    u = new URL(raw.trim());
+    u = new URL(trimmed);
   } catch {
-    return null;
+    return { kind: null, normalizedUrl: null };
   }
-  if (u.protocol !== "https:" && u.protocol !== "http:") return null;
-  const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "");
+  if (u.protocol !== "https:" && u.protocol !== "http:") {
+    return { kind: null, normalizedUrl: null };
+  }
+
+  const host = u.hostname.replace(/^www\./, "");
 
   // clips.twitch.tv/<slug>
   if (host === "clips.twitch.tv") {
     const slug = u.pathname.replace(/^\//, "").split("/")[0];
-    if (!slug || !/^[A-Za-z0-9_-]{4,}$/.test(slug)) return null;
-    return {
-      kind: "twitch_clip",
-      url: `https://clips.twitch.tv/${slug}`,
-      slug,
-    };
-  }
-
-  // twitch.tv/<channel>/clip/<slug> or twitch.tv/videos/<id>
-  if (host === "twitch.tv") {
-    const parts = u.pathname.split("/").filter(Boolean);
-    if (parts[0] === "videos" && /^\d+$/.test(parts[1] ?? "")) {
-      return {
-        kind: "twitch_vod",
-        url: `https://www.twitch.tv/videos/${parts[1]}`,
-        videoId: parts[1],
-      };
-    }
-    if (parts[1] === "clip" && parts[2] && /^[A-Za-z0-9_-]{4,}$/.test(parts[2])) {
+    if (slug && /^[A-Za-z0-9_-]+$/.test(slug)) {
       return {
         kind: "twitch_clip",
-        url: `https://clips.twitch.tv/${parts[2]}`,
-        slug: parts[2],
-        channel: parts[0],
+        normalizedUrl: `https://clips.twitch.tv/${slug}`,
+        clipSlug: slug,
+      };
+    }
+    return { kind: null, normalizedUrl: null };
+  }
+
+  if (host === "twitch.tv" || host === "m.twitch.tv") {
+    // /videos/<id>
+    const vodMatch = u.pathname.match(/^\/videos\/(\d+)/);
+    if (vodMatch) {
+      return {
+        kind: "twitch_vod",
+        normalizedUrl: `https://www.twitch.tv/videos/${vodMatch[1]}`,
+        vodId: vodMatch[1],
+      };
+    }
+    // /<channel>/clip/<slug>
+    const clipMatch = u.pathname.match(/^\/[^/]+\/clip\/([A-Za-z0-9_-]+)/);
+    if (clipMatch) {
+      return {
+        kind: "twitch_clip",
+        normalizedUrl: `https://clips.twitch.tv/${clipMatch[1]}`,
+        clipSlug: clipMatch[1],
       };
     }
   }
 
-  return null;
+  return { kind: null, normalizedUrl: null };
+}
+
+export function isTwitchClipUrl(raw: string): boolean {
+  return detectTwitchUrl(raw).kind === "twitch_clip";
+}
+
+export function isTwitchVodUrl(raw: string): boolean {
+  return detectTwitchUrl(raw).kind === "twitch_vod";
 }
