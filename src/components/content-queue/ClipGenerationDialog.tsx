@@ -11,6 +11,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { ContentItem } from "@/hooks/useContentItems";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
+import { QuickCameraPicker } from "@/components/clips/QuickCameraPicker";
 
 interface Props {
   item: ContentItem;
