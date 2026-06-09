@@ -497,27 +497,31 @@ const VodImportPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="vod-timestamps" className="text-xs font-semibold">
-                  Moments à découper <span className="font-normal text-muted-foreground">(optionnel)</span>
-                </Label>
-                <Textarea
-                  id="vod-timestamps"
-                  value={timestampsRaw}
-                  onChange={(e) => setTimestampsRaw(e.target.value)}
-                  placeholder={"Une ligne par clip\n1:23-1:48 Réaction\n12:05-12:30 Punchline"}
-                  rows={3}
-                  className="font-mono text-xs"
-                />
-                <p className="text-[11px] text-muted-foreground">
-                  Format : <code>mm:ss-mm:ss</code> ou <code>hh:mm:ss-hh:mm:ss</code>. Durée 10 à 180 s.
-                </p>
-              </div>
+              {detectedSource !== "twitch_clip" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="vod-timestamps" className="text-xs font-semibold">
+                    Moments à découper <span className="font-normal text-muted-foreground">(optionnel)</span>
+                  </Label>
+                  <Textarea
+                    id="vod-timestamps"
+                    value={timestampsRaw}
+                    onChange={(e) => setTimestampsRaw(e.target.value)}
+                    placeholder={"Une ligne par clip\n1:23-1:48 Réaction\n12:05-12:30 Punchline"}
+                    rows={3}
+                    className="font-mono text-xs"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Format : <code>mm:ss-mm:ss</code> ou <code>hh:mm:ss-hh:mm:ss</code>. Durée 10 à 180 s.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <p className="text-[11px] text-muted-foreground">
-                {hasManualTimestamps
+                {detectedSource === "twitch_clip"
+                  ? "Streamnco va utiliser tout le Clip Twitch pour générer ton clip vertical."
+                  : hasManualTimestamps
                   ? "Tes timestamps seront utilisés pour créer les clips."
                   : "Sans timestamps : Streamnco propose 3 fenêtres réparties dans la VOD à ajuster avant génération."}
               </p>
@@ -527,9 +531,10 @@ const VodImportPage = () => {
                 className="gap-2"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                Analyser la VOD
+                {detectedSource === "twitch_clip" ? "Générer en format réseaux" : "Analyser le lien"}
               </Button>
             </div>
+
           </CardContent>
         </Card>
 
