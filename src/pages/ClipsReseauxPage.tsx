@@ -4,7 +4,7 @@ import {
   Clapperboard,
   Sparkles,
   Upload,
-  Twitch,
+  Tv,
   Wand2,
   Video,
   Download,
@@ -107,7 +107,7 @@ const ClipsReseauxPage = () => {
           <h2 className="mb-3 text-sm font-semibold text-foreground">Choisis une source</h2>
           <div className="grid gap-3 sm:grid-cols-3">
             <SourceCard
-              icon={Twitch}
+              icon={Tv}
               title="Coller une VOD Twitch"
               description="À partir d'une URL de VOD."
               to="/clips/vod-import"
