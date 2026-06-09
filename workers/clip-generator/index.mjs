@@ -605,7 +605,7 @@ async function maybeBurnCaptions({
       return { finalPath: composedPath };
     }
 
-    const ass = buildAssFile(cues, outW, outH);
+    const ass = buildAssFile(cues, outW, outH, captionsStyle);
     await writeFile(assPath, ass, "utf8");
     console.log("[captions_generated]", JSON.stringify({
       job_id: jobId, cue_count: cues.length, ass_bytes: ass.length,
