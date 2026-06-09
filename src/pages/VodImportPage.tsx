@@ -76,11 +76,12 @@ const TARGET_PLATFORMS = [
   { value: "community", label: "Post récap", format: "recap" },
 ] as const;
 
-function detectSourceClient(raw: string): "twitch" | "youtube" | null {
+function detectSourceClient(raw: string): "twitch_vod" | "twitch_clip" | "youtube" | null {
+  const tw = detectTwitchUrl(raw);
+  if (tw.kind) return tw.kind;
   try {
     const u = new URL(raw.trim());
     const host = u.hostname.replace(/^www\./, "");
-    if (host === "twitch.tv" && /^\/videos\/\d+/.test(u.pathname)) return "twitch";
     if ((host === "youtube.com" || host === "m.youtube.com") && u.searchParams.get("v")) return "youtube";
     if (host === "youtu.be" && u.pathname.length > 1) return "youtube";
     return null;
