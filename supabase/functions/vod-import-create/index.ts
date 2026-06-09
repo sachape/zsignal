@@ -275,7 +275,7 @@ Deno.serve(async (req) => {
     priority: c.confidence >= 60 ? "high" : c.confidence >= 40 ? "medium" : "low",
     format: c.format,
     reason: c.reason_code,
-    source_platform: source === "twitch_clip" ? "twitch_clip" : source === "twitch" ? "twitch" : source,
+    source_platform: source === "twitch_clip" ? "twitch" : source,
     source_video_url: url,
     source_start_time: c.start,
     source_end_time: c.end,
