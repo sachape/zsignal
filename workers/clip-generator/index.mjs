@@ -138,6 +138,7 @@ app.post("/generate", async (req, res) => {
     source_reference_width,
     source_reference_height,
     auto_detect_facecam,
+    layout_source,
   } = req.body ?? {};
 
   if (
