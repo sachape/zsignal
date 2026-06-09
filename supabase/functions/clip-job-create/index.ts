@@ -83,11 +83,11 @@ Deno.serve(async (req) => {
   const endTime = Number(body.end_time_seconds);
 
   if (!contentItemId) return json({ error: "missing_content_item_id" }, 400);
-  if (!["upload", "storage_url", "direct_url", "twitch_vod", "youtube_vod"].includes(sourceType)) return json({ error: "invalid_source_type" }, 400);
+  if (!["upload", "storage_url", "direct_url", "twitch_vod", "twitch_clip", "youtube_vod"].includes(sourceType)) return json({ error: "invalid_source_type" }, 400);
   if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) return json({ error: "invalid_timestamps" }, 400);
   if (startTime < 0 || endTime <= startTime) return json({ error: "invalid_range" }, 400);
   const duration = Math.round(endTime - startTime);
-  if (duration < 5 || duration > 180) return json({ error: "invalid_duration" }, 400);
+  if (duration < 5 || duration > 240) return json({ error: "invalid_duration" }, 400);
 
   if (sourceType === "upload" || sourceType === "storage_url") {
     if (!sourceStoragePath) return json({ error: "missing_source_storage_path" }, 400);
@@ -102,6 +102,18 @@ Deno.serve(async (req) => {
       }
       if (!/^\/videos\/\d+/.test(u.pathname)) {
         return json({ error: "invalid_twitch_vod_url" }, 400);
+      }
+    } catch { return json({ error: "invalid_source_url" }, 400); }
+  } else if (sourceType === "twitch_clip") {
+    if (!sourceUrl) return json({ error: "missing_source_url" }, 400);
+    try {
+      const u = new URL(sourceUrl);
+      const host = u.hostname.replace(/^www\./, "");
+      const isClipsHost = host === "clips.twitch.tv" && /^\/[A-Za-z0-9_-]+/.test(u.pathname);
+      const isChannelClip = (host === "twitch.tv" || host === "m.twitch.tv") &&
+        /^\/[^/]+\/clip\/[A-Za-z0-9_-]+/.test(u.pathname);
+      if (!isClipsHost && !isChannelClip) {
+        return json({ error: "invalid_twitch_clip_url" }, 400);
       }
     } catch { return json({ error: "invalid_source_url" }, 400); }
   } else if (sourceType === "youtube_vod") {
