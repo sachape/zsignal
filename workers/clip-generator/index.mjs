@@ -191,6 +191,7 @@ app.post("/generate", async (req, res) => {
     layoutSource: typeof layout_source === "string" ? layout_source : null,
     captionsEnabled: captions_enabled !== false && !!transcribe_url,
     captionsLanguage: typeof captions_language === "string" ? captions_language : "fr",
+    captionsStyle: (["clean", "bold_tiktok", "gaming_neon", "minimal"].includes(captions_style)) ? captions_style : "clean",
     transcribeUrl: typeof transcribe_url === "string" ? transcribe_url : null,
     transcribeSecret: typeof transcribe_secret === "string" ? transcribe_secret : WORKER_SHARED_SECRET,
   }).catch((err) => {
