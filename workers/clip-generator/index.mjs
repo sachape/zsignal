@@ -301,6 +301,19 @@ async function processJob({
         "-o", sourcePath,
         sourceUrl,
       ], 8 * 60 * 1000);
+    } else if (sourceKind === "twitch_clip") {
+      // Twitch Clips are already short. Download the whole clip; ffmpeg trims.
+      await postCallback(callbackUrl, callbackSecret, {
+        job_id: jobId, status: "processing", stage: "downloading", progress: 15,
+      });
+      await runCommand("yt-dlp", [
+        "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
+        "--retries", "3", "--fragment-retries", "5",
+        "-f", "best",
+        "--merge-output-format", "mp4",
+        "-o", sourcePath,
+        sourceUrl,
+      ], 5 * 60 * 1000);
     } else {
       await postCallback(callbackUrl, callbackSecret, {
         job_id: jobId, status: "processing", stage: "downloading", progress: 15,
