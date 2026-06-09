@@ -117,6 +117,7 @@ app.post("/generate", async (req, res) => {
     gameplay_crop,
     source_reference_width,
     source_reference_height,
+    auto_detect_facecam,
   } = req.body ?? {};
 
   if (
@@ -156,6 +157,7 @@ app.post("/generate", async (req, res) => {
       typeof source_reference_width === "number" ? source_reference_width : null,
     sourceReferenceHeight:
       typeof source_reference_height === "number" ? source_reference_height : null,
+    autoDetectFacecam: auto_detect_facecam === true,
   }).catch((err) => {
     console.error("processJob error", job_id, err?.message);
   });
