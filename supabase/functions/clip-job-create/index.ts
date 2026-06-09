@@ -104,6 +104,18 @@ Deno.serve(async (req) => {
         return json({ error: "invalid_twitch_vod_url" }, 400);
       }
     } catch { return json({ error: "invalid_source_url" }, 400); }
+  } else if (sourceType === "twitch_clip") {
+    if (!sourceUrl) return json({ error: "missing_source_url" }, 400);
+    try {
+      const u = new URL(sourceUrl);
+      const host = u.hostname.replace(/^www\./, "");
+      const parts = u.pathname.split("/").filter(Boolean);
+      const isClipsHost = host === "clips.twitch.tv" && /^[A-Za-z0-9_-]{4,}$/.test(parts[0] ?? "");
+      const isChannelClip = host === "twitch.tv" && parts[1] === "clip" && /^[A-Za-z0-9_-]{4,}$/.test(parts[2] ?? "");
+      if (!isClipsHost && !isChannelClip) {
+        return json({ error: "invalid_twitch_clip_url" }, 400);
+      }
+    } catch { return json({ error: "invalid_source_url" }, 400); }
   } else if (sourceType === "youtube_vod") {
     if (!sourceUrl) return json({ error: "missing_source_url" }, 400);
     try {
