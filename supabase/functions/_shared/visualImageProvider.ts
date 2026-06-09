@@ -24,6 +24,7 @@ export interface GenerateImageResult {
   requestedSize: string;
   provider: ProviderName;
   model: string;
+  hasImage: boolean;
 }
 
 export class ImageProviderError extends Error {
@@ -107,9 +108,24 @@ async function generateWithOpenAI(input: GenerateImageInput): Promise<GenerateIm
 
   const data = await res.json();
   const b64 = data?.data?.[0]?.b64_json;
+  const imageUrl = data?.data?.[0]?.url;
+  if (!b64 && typeof imageUrl === "string") {
+    const imageRes = await fetch(imageUrl);
+    if (!imageRes.ok) {
+      throw new ImageProviderError("provider_no_image", "image URL could not be downloaded", imageRes.status);
+    }
+    return {
+      bytes: new Uint8Array(await imageRes.arrayBuffer()),
+      mimeType: imageRes.headers.get("content-type") || "image/png",
+      requestedSize: size,
+      provider: "openai",
+      model: OPENAI_MODEL,
+      hasImage: true,
+    };
+  }
   if (!b64 || typeof b64 !== "string") {
     console.error("[visual_provider_openai_empty]", JSON.stringify(data).slice(0, 300));
-    throw new ImageProviderError("empty_response", "no image returned");
+    throw new ImageProviderError("provider_no_image", "no image returned");
   }
   return {
     bytes: base64Decode(b64),
@@ -117,6 +133,7 @@ async function generateWithOpenAI(input: GenerateImageInput): Promise<GenerateIm
     requestedSize: size,
     provider: "openai",
     model: OPENAI_MODEL,
+    hasImage: true,
   };
 }
 

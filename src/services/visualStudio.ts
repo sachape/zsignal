@@ -23,7 +23,12 @@ export interface VisualJob {
   template_id: string;
   status: VisualJobStatus;
   params: Record<string, any> | null;
+  provider: string | null;
+  model: string | null;
+  prompt_used: string | null;
+  error_code: string | null;
   error_message: string | null;
+  provider_response_has_image: boolean | null;
   reference_asset_id: string | null;
   created_at: string;
   completed_at: string | null;
@@ -35,6 +40,7 @@ export interface GeneratedVisual {
   template_id: string;
   storage_bucket: string;
   storage_path: string;
+  mime_type: string | null;
   width: number | null;
   height: number | null;
   variant_index: number;
@@ -160,7 +166,8 @@ export async function uploadReferenceImage(file: File): Promise<string> {
 }
 
 async function signedUrlFor(bucket: string, path: string): Promise<string | null> {
-  const { data } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60);
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60);
+  if (error) return null;
   return data?.signedUrl ?? null;
 }
 

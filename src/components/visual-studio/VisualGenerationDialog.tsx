@@ -30,6 +30,7 @@ interface Props {
 }
 
 type Step = "pick" | "form" | "result";
+type ResultState = "queued" | "processing" | "succeeded" | "failed" | "timeout";
 
 const STYLE_OPTIONS = [
   "Cinématique",
@@ -72,9 +73,10 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
   const [refUploading, setRefUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [jobId, setJobId] = useState<string | null>(null);
-  const [jobStatus, setJobStatus] = useState<string>("queued");
+  const [jobStatus, setJobStatus] = useState<ResultState>("queued");
   const [variants, setVariants] = useState<GeneratedVisual[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -91,13 +93,18 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
       setJobStatus("queued");
       setVariants([]);
       setError(null);
+      setPreviewError(false);
     }
-  }, [open, prefill]);
+    // Reset only when the dialog opens. Completion refreshes can update prefill
+    // while the dialog is open; that must not erase the generated variants view.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Poll job status
   useEffect(() => {
     if (!jobId || step !== "result") return;
     let cancelled = false;
+    const startedAt = Date.now();
     const poll = async () => {
       while (!cancelled) {
         try {
@@ -106,16 +113,24 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
           setJobStatus(job.status);
           if (job.status === "succeeded") {
             const vars = await fetchJobVariants(jobId);
-            if (!cancelled) setVariants(vars);
+            if (!cancelled) {
+              setVariants(vars);
+              setPreviewError(vars.length > 0 && vars.some((v) => !v.signedUrl));
+            }
             onCompleted();
             break;
           }
           if (job.status === "failed") {
-            setError(friendlyError(job.error_message));
+            setError(friendlyError(job.error_code ?? job.error_message));
             break;
           }
         } catch (e) {
           console.error(e);
+        }
+        if (Date.now() - startedAt > 120000) {
+          setJobStatus("timeout");
+          setError("La génération prend plus de temps que prévu.");
+          break;
         }
         await new Promise((r) => setTimeout(r, 2000));
       }
@@ -169,6 +184,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
       setJobId(res.job_id);
       setJobStatus("queued");
       setVariants([]);
+      setPreviewError(false);
       setStep("result");
     } catch (e: any) {
       const msg = e?.message === "quota_exceeded"
@@ -379,12 +395,33 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
             )}
             {jobStatus === "failed" && (
               <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-                La génération a échoué : {error ?? "raison inconnue"}.
-                <div className="mt-3">
+                {error ?? "Impossible de générer les visuels pour le moment. Réessaie dans quelques instants."}
+                <div className="mt-3 flex gap-2">
                   <Button size="sm" variant="outline" onClick={handleRegenerate}>
                     <RefreshCw className="mr-2 h-4 w-4" /> Réessayer
                   </Button>
+                  <Button size="sm" variant="ghost" onClick={() => onOpenChange(false)}>
+                    Fermer
+                  </Button>
                 </div>
+              </div>
+            )}
+            {jobStatus === "timeout" && (
+              <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+                La génération prend plus de temps que prévu.
+                <div className="mt-3 flex gap-2">
+                  <Button size="sm" variant="outline" onClick={handleRegenerate}>
+                    <RefreshCw className="mr-2 h-4 w-4" /> Réessayer
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => onOpenChange(false)}>
+                    Fermer
+                  </Button>
+                </div>
+              </div>
+            )}
+            {previewError && (
+              <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                Les visuels ont été générés, mais leur aperçu n’a pas pu être chargé.
               </div>
             )}
             {variants.length > 0 && (

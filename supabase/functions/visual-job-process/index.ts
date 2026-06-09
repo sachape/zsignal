@@ -101,6 +101,17 @@ async function processJob(jobId: string) {
   const requestedSize = pickOpenAISize(template.width, template.height);
   console.log("[visual_job_prompt]", jobId, "size=", requestedSize, prompt.slice(0, 200));
 
+  await admin
+    .from("visual_generation_jobs")
+    .update({
+      provider: Deno.env.get("VISUAL_IMAGE_PROVIDER") || "openai",
+      model: "openai/gpt-image-2",
+      prompt_used: prompt,
+      error_code: null,
+      provider_response_has_image: null,
+    })
+    .eq("id", jobId);
+
   let successCount = 0;
   let lastErrorCode: string | null = null;
 
@@ -131,6 +142,7 @@ async function processJob(jobId: string) {
         template_id: job.template_id,
         storage_bucket: ASSETS_BUCKET,
         storage_path: path,
+        mime_type: result.mimeType,
         // Storage holds the model's native size; template width/height remain
         // the canonical target (frontend renders responsive).
         width: template.width,
@@ -138,6 +150,10 @@ async function processJob(jobId: string) {
         variant_index: i,
         prompt_used: prompt,
       });
+      await admin
+        .from("visual_generation_jobs")
+        .update({ provider_response_has_image: result.hasImage, error_code: null })
+        .eq("id", jobId);
       successCount++;
       console.log("[visual_variant_ok]", jobId, "i=", i, "provider=", result.provider, "model=", result.model);
     } catch (e) {
@@ -168,6 +184,7 @@ async function processJob(jobId: string) {
     .update({
       status: "succeeded",
       completed_at: new Date().toISOString(),
+      error_code: null,
     })
     .eq("id", jobId);
   console.log("[visual_job_succeeded]", jobId, `${successCount}/${VARIANT_COUNT}`);
@@ -212,7 +229,9 @@ async function fail(admin: any, jobId: string, reason: string) {
     .from("visual_generation_jobs")
     .update({
       status: "failed",
+      error_code: reason,
       error_message: reason,
+      provider_response_has_image: reason === "provider_no_image" ? false : null,
       completed_at: new Date().toISOString(),
     })
     .eq("id", jobId);

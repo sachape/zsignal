@@ -1474,6 +1474,7 @@ export type Database = {
           id: string
           is_favorite: boolean
           job_id: string
+          mime_type: string
           prompt_used: string | null
           storage_bucket: string
           storage_path: string
@@ -1488,6 +1489,7 @@ export type Database = {
           id?: string
           is_favorite?: boolean
           job_id: string
+          mime_type?: string
           prompt_used?: string | null
           storage_bucket: string
           storage_path: string
@@ -1502,6 +1504,7 @@ export type Database = {
           id?: string
           is_favorite?: boolean
           job_id?: string
+          mime_type?: string
           prompt_used?: string | null
           storage_bucket?: string
           storage_path?: string
@@ -2761,9 +2764,14 @@ export type Database = {
         Row: {
           completed_at: string | null
           created_at: string
+          error_code: string | null
           error_message: string | null
           id: string
+          model: string | null
           params: Json
+          prompt_used: string | null
+          provider: string | null
+          provider_response_has_image: boolean | null
           reference_asset_id: string | null
           source_ref: Json | null
           started_at: string | null
@@ -2776,9 +2784,14 @@ export type Database = {
         Insert: {
           completed_at?: string | null
           created_at?: string
+          error_code?: string | null
           error_message?: string | null
           id?: string
+          model?: string | null
           params?: Json
+          prompt_used?: string | null
+          provider?: string | null
+          provider_response_has_image?: boolean | null
           reference_asset_id?: string | null
           source_ref?: Json | null
           started_at?: string | null
@@ -2791,9 +2804,14 @@ export type Database = {
         Update: {
           completed_at?: string | null
           created_at?: string
+          error_code?: string | null
           error_message?: string | null
           id?: string
+          model?: string | null
           params?: Json
+          prompt_used?: string | null
+          provider?: string | null
+          provider_response_has_image?: boolean | null
           reference_asset_id?: string | null
           source_ref?: Json | null
           started_at?: string | null
