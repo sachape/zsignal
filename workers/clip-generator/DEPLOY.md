@@ -72,7 +72,7 @@ Détruis l'autre.
 
 > ⚠️ **Le worker tourne sur Fly.io, pas sur Lovable Cloud.** Toute modification de `workers/clip-generator/` nécessite un `fly deploy` manuel depuis ta machine. Lovable ne peut pas redéployer Fly à ta place.
 
-Vérifie le healthcheck **après redéploiement v1.1.0** :
+Vérifie le healthcheck **après redéploiement v3.0** :
 ```bash
 curl https://streamnco-clip-gen.fly.dev/health
 ```
@@ -81,15 +81,16 @@ Réponse attendue :
 ```json
 {
   "ok": true,
-  "worker_version": "1.1.0",
+  "worker_version": "3.0",
   "ffmpeg_available": true,
-  "ffmpeg_version": "ffmpeg version 5.x ...",
   "yt_dlp_available": true,
-  "yt_dlp_version": "2024.xx.xx"
+  "python_available": true,
+  "opencv_available": true,
+  "supports_facecam_autodetect": true
 }
 ```
 
-Si `yt_dlp_available: false` ou `ok: false` → le redéploiement n'a pas pris, refais `fly deploy -a streamnco-clip-gen`.
+Si `opencv_available: false` → l'image Docker n'a pas été rebuild, relance `fly deploy -a streamnco-clip-gen --no-cache`.
 
 
 ---

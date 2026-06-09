@@ -1,6 +1,6 @@
 // V3D — Dialog to upload a source video (or paste a direct URL) and launch generation.
 import { useState } from "react";
-import { Loader2, Upload, AlertCircle, Wand2, Link as LinkIcon, FileVideo } from "lucide-react";
+import { Loader2, Upload, AlertCircle, Wand2, Link as LinkIcon, FileVideo, Sparkles, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,8 +54,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [phase, setPhase] = useState<"idle" | "uploading" | "creating">("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  // null = user hasn't picked yet → block launch (no fake facecam allowed).
-  const [cameraReady, setCameraReady] = useState<boolean | null>(null);
+  // Auto-detection is the default. The advanced camera picker is opt-in.
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const start = item.source_start_time;
   const end = item.source_end_time;
@@ -286,8 +286,27 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             </div>
           )}
 
-          <div className="border-t border-border/60 pt-3">
-            <QuickCameraPicker onReady={(hasCam) => setCameraReady(hasCam)} />
+          <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
+            <p className="flex items-center gap-2 text-xs font-medium text-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              Détection automatique de la facecam
+            </p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Streamnco repère ta caméra dans la vidéo et la place en haut du clip vertical. Si aucune caméra n'est détectée, le rendu sort en gameplay seul.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowAdvanced((v) => !v)}
+              className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+            >
+              <ChevronDown className={`h-3 w-3 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
+              {showAdvanced ? "Masquer" : "Forcer manuellement la position de la caméra (avancé)"}
+            </button>
+            {showAdvanced && (
+              <div className="mt-3 border-t border-border/60 pt-3">
+                <QuickCameraPicker onReady={() => { /* optional override saved server-side */ }} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -298,7 +317,6 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             disabled={
               busy ||
               !validTimestamps ||
-              cameraReady === null ||
               (mode === "upload" ? !file : !directUrl.trim())
             }
           >

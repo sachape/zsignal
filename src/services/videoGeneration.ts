@@ -2,6 +2,8 @@ export type VideoGenerationStage =
   | "queued"
   | "worker_started"
   | "downloading"
+  | "analyzing_layout"
+  | "detecting_facecam"
   | "cutting"
   | "compositing"
   | "uploading"
@@ -18,13 +20,15 @@ export function isActiveVideoJobStatus(status: string | null | undefined): boole
 export function getGenerationStageLabel(stage: VideoGenerationStage | null | undefined): string {
   switch (stage) {
     case "queued":
-      return "Préparation du clip";
     case "worker_started":
       return "Préparation du clip";
     case "downloading":
       return "Récupération de la vidéo";
+    case "analyzing_layout":
+      return "Analyse du layout";
+    case "detecting_facecam":
+      return "Détection de la facecam";
     case "cutting":
-      return "Création du format vertical";
     case "compositing":
       return "Création du format vertical";
     case "uploading":

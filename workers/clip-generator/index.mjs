@@ -33,7 +33,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "2.2";
+const WORKER_VERSION = "3.0";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -62,9 +62,11 @@ async function probeBinary(cmd, args) {
 }
 
 async function capabilities() {
-  const [ff, yt] = await Promise.all([
+  const [ff, yt, py, cv] = await Promise.all([
     probeBinary("ffmpeg", ["-version"]),
     probeBinary("yt-dlp", ["--version"]),
+    probeBinary("python3", ["--version"]),
+    probeBinary("python3", ["-c", "import cv2; print(cv2.__version__)"]),
   ]);
   return {
     worker_version: WORKER_VERSION,
@@ -72,7 +74,11 @@ async function capabilities() {
     ffmpeg_version: ff.version,
     yt_dlp_available: yt.ok,
     yt_dlp_version: yt.version,
+    python_available: py.ok,
+    opencv_available: cv.ok,
+    opencv_version: cv.version,
     supports_vertical_9_16: true,
+    supports_facecam_autodetect: cv.ok,
     supported_layouts: ["facecam_top_gameplay_bottom", "gameplay_only"],
   };
 }
@@ -111,6 +117,7 @@ app.post("/generate", async (req, res) => {
     gameplay_crop,
     source_reference_width,
     source_reference_height,
+    auto_detect_facecam,
   } = req.body ?? {};
 
   if (
@@ -150,6 +157,7 @@ app.post("/generate", async (req, res) => {
       typeof source_reference_width === "number" ? source_reference_width : null,
     sourceReferenceHeight:
       typeof source_reference_height === "number" ? source_reference_height : null,
+    autoDetectFacecam: auto_detect_facecam === true,
   }).catch((err) => {
     console.error("processJob error", job_id, err?.message);
   });
@@ -194,6 +202,46 @@ function scaleCrop(crop, refW, refH, actualW, actualH) {
   };
 }
 
+
+// Given a detected facecam rect in the actual source frame coords,
+// derive a sensible gameplay crop = largest rect that excludes the
+// facecam band. Falls back to the full frame if shape is ambiguous.
+function gameplayCropFromFacecam(face, frameW, frameH) {
+  if (!face || !frameW || !frameH) return null;
+  const cx = face.x + face.width / 2;
+  const cy = face.y + face.height / 2;
+  const horizontal = cx < frameW / 2 ? "left" : "right";
+  const vertical = cy < frameH / 2 ? "top" : "bottom";
+
+  // Prefer trimming vertically (most facecams sit in a top or bottom band).
+  // Only do it if at least 55% of the frame height remains after the trim.
+  if (vertical === "bottom") {
+    const newH = Math.max(2, face.y - 4);
+    if (newH / frameH >= 0.55) {
+      return { x: 0, y: 0, width: frameW, height: newH };
+    }
+  } else {
+    const cutY = Math.min(frameH - 2, face.y + face.height + 4);
+    const newH = frameH - cutY;
+    if (newH / frameH >= 0.55) {
+      return { x: 0, y: cutY, width: frameW, height: newH };
+    }
+  }
+
+  // Otherwise trim horizontally.
+  if (horizontal === "left") {
+    const cutX = Math.min(frameW - 2, face.x + face.width + 4);
+    const newW = frameW - cutX;
+    if (newW / frameW >= 0.55) return { x: cutX, y: 0, width: newW, height: frameH };
+  } else {
+    const newW = Math.max(2, face.x - 4);
+    if (newW / frameW >= 0.55) return { x: 0, y: 0, width: newW, height: frameH };
+  }
+
+  // Last resort: full frame (facecam will appear small inside gameplay; acceptable).
+  return { x: 0, y: 0, width: frameW, height: frameH };
+}
+
 // Build a complex filter for the vertical 9:16 layout.
 //   - facecam_top_gameplay_bottom : facecam scaled to outW x (outH*0.25),
 //     gameplay scaled+cropped to outW x (outH*0.75), then vstack.
@@ -235,6 +283,33 @@ function buildVerticalFilterComplex({
   return { filterComplex: filter, mapVideo: "[v]" };
 }
 
+// Run the OpenCV-based facecam detector on the downloaded source.
+// Returns { detected, confidence, facecam, source_width, source_height, corner } or null.
+function detectFacecam(sourcePath, startSeconds, duration) {
+  return new Promise((resolve) => {
+    const p = spawn("python3", ["/app/detect_facecam.py", sourcePath, String(startSeconds), String(duration)], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let out = "";
+    let err = "";
+    const timer = setTimeout(() => { p.kill("SIGTERM"); resolve(null); }, 60_000);
+    p.stdout.on("data", (d) => { out += d.toString(); });
+    p.stderr.on("data", (d) => { err += d.toString(); });
+    p.on("error", () => { clearTimeout(timer); resolve(null); });
+    p.on("close", () => {
+      clearTimeout(timer);
+      try {
+        const lines = out.trim().split("\n").filter(Boolean);
+        const last = lines[lines.length - 1] ?? "{}";
+        resolve(JSON.parse(last));
+      } catch {
+        resolve(null);
+      }
+    });
+  });
+}
+
+
 async function processJob({
   jobId,
   sourceUrl,
@@ -253,6 +328,7 @@ async function processJob({
   gameplayCrop,
   sourceReferenceWidth,
   sourceReferenceHeight,
+  autoDetectFacecam,
 }) {
   const workDir = await mkdtemp(join(tmpdir(), `clip-${jobId}-`));
   const sourcePath = join(workDir, "source.mp4");
@@ -343,21 +419,60 @@ async function processJob({
     const trimmedAlready = sourceKind === "twitch_vod" || sourceKind === "youtube_vod";
 
     let ffArgs;
+    let detectionMeta = null;
+    let effectiveLayout = layoutType ?? "gameplay_only";
     if (isVertical) {
       // Probe actual dimensions so we can scale crops from the preset reference.
       const probed = await probeVideoDimensions(sourcePath).catch(() => null);
       const actualW = probed?.width ?? sourceReferenceWidth ?? null;
       const actualH = probed?.height ?? sourceReferenceHeight ?? null;
 
-      const scaledFacecam = scaleCrop(facecamCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
-      const scaledGameplay = scaleCrop(gameplayCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
+      let scaledFacecam = scaleCrop(facecamCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
+      let scaledGameplay = scaleCrop(gameplayCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
+
+      // Auto facecam detection — fires when user hasn't pinned a crop and
+      // the client asked for autodetect (or we're targeting facecam layout).
+      const shouldDetect =
+        !scaledFacecam &&
+        (autoDetectFacecam || layoutType === "facecam_top_gameplay_bottom");
+
+      if (shouldDetect && actualW && actualH) {
+        await postCallback(callbackUrl, callbackSecret, {
+          job_id: jobId, status: "processing", stage: "detecting_facecam", progress: 50,
+        });
+        const detection = await detectFacecam(
+          sourcePath,
+          sourceKind === "twitch_clip" ? 0 : (trimmedAlready ? 0 : startSeconds),
+          duration,
+        );
+        detectionMeta = detection;
+        console.log("[facecam_detection]", JSON.stringify({ job_id: jobId, result: detection }));
+
+        if (detection?.detected && detection.facecam && detection.source_width) {
+          // Detection ran in a downscaled sample space — rescale to actual frame.
+          scaledFacecam = scaleCrop(
+            detection.facecam,
+            detection.source_width,
+            detection.source_height,
+            actualW,
+            actualH,
+          );
+          if (!scaledGameplay) {
+            scaledGameplay = gameplayCropFromFacecam(scaledFacecam, actualW, actualH);
+          }
+          effectiveLayout = "facecam_top_gameplay_bottom";
+        } else {
+          // Silent fallback — gameplay-only vertical render.
+          effectiveLayout = "gameplay_only";
+        }
+      }
 
       await postCallback(callbackUrl, callbackSecret, {
         job_id: jobId, status: "processing", stage: "compositing", progress: 60,
       });
 
       const { filterComplex, mapVideo } = buildVerticalFilterComplex({
-        layoutType: layoutType ?? "gameplay_only",
+        layoutType: effectiveLayout,
         outW: outW ?? 1080,
         outH: outH ?? 1920,
         facecamCrop: scaledFacecam,
