@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
   const endTime = Number(body.end_time_seconds);
 
   if (!contentItemId) return json({ error: "missing_content_item_id" }, 400);
-  if (!["upload", "storage_url", "direct_url", "twitch_vod", "youtube_vod"].includes(sourceType)) return json({ error: "invalid_source_type" }, 400);
+  if (!["upload", "storage_url", "direct_url", "twitch_vod", "twitch_clip", "youtube_vod"].includes(sourceType)) return json({ error: "invalid_source_type" }, 400);
   if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) return json({ error: "invalid_timestamps" }, 400);
   if (startTime < 0 || endTime <= startTime) return json({ error: "invalid_range" }, 400);
   const duration = Math.round(endTime - startTime);
