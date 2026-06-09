@@ -562,6 +562,51 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_brand_kit: {
+        Row: {
+          accent_color: string | null
+          created_at: string
+          display_name: string | null
+          handle: string | null
+          id: string
+          logo_storage_bucket: string | null
+          logo_storage_path: string | null
+          notes: string | null
+          preferred_style: string | null
+          primary_color: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string
+          display_name?: string | null
+          handle?: string | null
+          id?: string
+          logo_storage_bucket?: string | null
+          logo_storage_path?: string | null
+          notes?: string | null
+          preferred_style?: string | null
+          primary_color?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string
+          display_name?: string | null
+          handle?: string | null
+          id?: string
+          logo_storage_bucket?: string | null
+          logo_storage_path?: string | null
+          notes?: string | null
+          preferred_style?: string | null
+          primary_color?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       creator_connected_accounts: {
         Row: {
           access_token_encrypted: string | null
@@ -1421,6 +1466,66 @@ export type Database = {
           used_at?: string | null
         }
         Relationships: []
+      }
+      generated_visuals: {
+        Row: {
+          created_at: string
+          height: number | null
+          id: string
+          is_favorite: boolean
+          job_id: string
+          prompt_used: string | null
+          storage_bucket: string
+          storage_path: string
+          template_id: string
+          user_id: string
+          variant_index: number
+          width: number | null
+        }
+        Insert: {
+          created_at?: string
+          height?: number | null
+          id?: string
+          is_favorite?: boolean
+          job_id: string
+          prompt_used?: string | null
+          storage_bucket: string
+          storage_path: string
+          template_id: string
+          user_id: string
+          variant_index?: number
+          width?: number | null
+        }
+        Update: {
+          created_at?: string
+          height?: number | null
+          id?: string
+          is_favorite?: boolean
+          job_id?: string
+          prompt_used?: string | null
+          storage_bucket?: string
+          storage_path?: string
+          template_id?: string
+          user_id?: string
+          variant_index?: number
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_visuals_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "visual_generation_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_visuals_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "visual_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       live_debriefs: {
         Row: {
@@ -2649,6 +2754,147 @@ export type Database = {
           quest_id?: string
           user_id?: string
           week_key?: string
+        }
+        Relationships: []
+      }
+      visual_generation_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          params: Json
+          reference_asset_id: string | null
+          source_ref: Json | null
+          started_at: string | null
+          status: string
+          template_id: string
+          updated_at: string
+          user_id: string
+          variant_count: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          params?: Json
+          reference_asset_id?: string | null
+          source_ref?: Json | null
+          started_at?: string | null
+          status?: string
+          template_id: string
+          updated_at?: string
+          user_id: string
+          variant_count?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          params?: Json
+          reference_asset_id?: string | null
+          source_ref?: Json | null
+          started_at?: string | null
+          status?: string
+          template_id?: string
+          updated_at?: string
+          user_id?: string
+          variant_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visual_generation_jobs_reference_asset_id_fkey"
+            columns: ["reference_asset_id"]
+            isOneToOne: false
+            referencedRelation: "visual_uploaded_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visual_generation_jobs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "visual_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visual_templates: {
+        Row: {
+          base_prompt: string
+          category: string
+          created_at: string
+          description: string
+          height: number
+          icon: string | null
+          id: string
+          is_active: boolean
+          label: string
+          sort_order: number
+          width: number
+        }
+        Insert: {
+          base_prompt: string
+          category: string
+          created_at?: string
+          description: string
+          height: number
+          icon?: string | null
+          id: string
+          is_active?: boolean
+          label: string
+          sort_order?: number
+          width: number
+        }
+        Update: {
+          base_prompt?: string
+          category?: string
+          created_at?: string
+          description?: string
+          height?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+          width?: number
+        }
+        Relationships: []
+      }
+      visual_uploaded_assets: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          mime_type: string | null
+          original_filename: string | null
+          size_bytes: number | null
+          storage_bucket: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          size_bytes?: number | null
+          storage_bucket: string
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          size_bytes?: number | null
+          storage_bucket?: string
+          storage_path?: string
+          user_id?: string
         }
         Relationships: []
       }
