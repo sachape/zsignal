@@ -9,10 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { CaptionStylePreviewGrid, type CaptionStyle } from "@/components/clips/CaptionStylePreviewGrid";
 import type { ContentItem } from "@/hooks/useContentItems";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
 import { QuickCameraPicker } from "@/components/clips/QuickCameraPicker";
@@ -62,7 +60,7 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [showAdvanced, setShowAdvanced] = useState(false);
   // Auto subtitles are ON by default. The user can opt out.
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
-  const [captionsStyle, setCaptionsStyle] = useState<"clean" | "bold_tiktok" | "gaming_neon" | "minimal">("clean");
+  const [captionsStyle, setCaptionsStyle] = useState<CaptionStyle>("clean");
 
   const start = item.source_start_time;
   const end = item.source_end_time;
@@ -342,27 +340,18 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             </div>
 
             {captionsEnabled && (
-              <div className="space-y-1.5 border-t border-border/60 pt-3">
+              <div className="space-y-2 border-t border-border/60 pt-3">
                 <Label className="text-xs">Style des sous-titres</Label>
-                <Select
+                <CaptionStylePreviewGrid
                   value={captionsStyle}
-                  onValueChange={(v) => setCaptionsStyle(v as typeof captionsStyle)}
+                  onChange={setCaptionsStyle}
                   disabled={busy}
-                >
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="clean">Clean — sobre & lisible</SelectItem>
-                    <SelectItem value="bold_tiktok">Bold TikTok — dynamique & viral</SelectItem>
-                    <SelectItem value="gaming_neon">Gaming Neon — accent vert glow</SelectItem>
-                    <SelectItem value="minimal">Minimal — discret & épuré</SelectItem>
-                  </SelectContent>
-                </Select>
+                />
                 <p className="text-[10px] text-muted-foreground">
-                  Choisis l'apparence des sous-titres dans la vidéo.
+                  Aperçu animé du rendu réel dans ton clip.
                 </p>
               </div>
+
             )}
           </div>
 
