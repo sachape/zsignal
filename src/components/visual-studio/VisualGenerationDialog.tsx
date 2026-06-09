@@ -39,6 +39,25 @@ const STYLE_OPTIONS = [
   "Streetwear urbain",
   "Pastel cosy",
 ];
+function friendlyError(code: string | null | undefined): string {
+  switch (code) {
+    case "quota_exceeded":
+      return "Tu as atteint la limite quotidienne de générations.";
+    case "credits_exhausted":
+      return "Le service de génération est temporairement indisponible. Réessaie plus tard.";
+    case "rate_limited":
+      return "Trop de demandes en même temps. Réessaie dans un instant.";
+    case "missing_provider_key":
+      return "Le service de génération n'est pas configuré. Contacte le support.";
+    case "provider_rejected":
+      return "Ce prompt a été refusé par le moteur d'image. Modifie le texte ou le style et réessaie.";
+    case "template_missing":
+      return "Le template sélectionné n'est plus disponible.";
+    default:
+      return "Impossible de générer les visuels pour le moment. Réessaie dans quelques instants.";
+  }
+}
+
 
 export default function VisualGenerationDialog({ open, onOpenChange, templates, prefill, onCompleted }: Props) {
   const [step, setStep] = useState<Step>("pick");
