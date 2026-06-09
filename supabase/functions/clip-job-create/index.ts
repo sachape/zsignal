@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
       start_time_seconds: Math.round(startTime),
       end_time_seconds: Math.round(endTime),
       duration_seconds: duration,
-      output_format: "mp4_16_9",
+      output_format: "vertical_9_16",
       status: "queued",
       progress: 0,
       generation_stage: "queued",

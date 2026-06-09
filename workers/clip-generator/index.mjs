@@ -1,26 +1,33 @@
-// Streamnco Clip Generator Worker — v2.0
+// Streamnco Clip Generator Worker — v3.2
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
 //   - or a vertical 9:16 social clip (1080x1920) with optional facecam-top /
-//     gameplay-bottom composition.
+//     gameplay-bottom composition, OpenCV facecam auto-detection and optional
+//     burn-in subtitles.
 //
 // POST /generate
 //   Headers: X-Worker-Secret: <WORKER_SHARED_SECRET>
 //   Body: {
 //     job_id,
-//     source_url, source_kind?,                  // "twitch_vod" | "youtube_vod" | "direct"
+//     source_url, source_kind?,                  // "twitch_vod" | "twitch_clip" | "youtube_vod" | "direct"
 //     output_upload_url, output_storage_path,
 //     start_time_seconds, end_time_seconds,
 //     callback_url, callback_secret,
 //
-//     // NEW v2.0 — all optional. If omitted → legacy 16:9 pipeline.
+//     // Layout — optional. If omitted → legacy 16:9 pipeline.
 //     output_format?,                            // "vertical_9_16" | "horizontal_16_9"
 //     output_width?, output_height?,             // default 1080x1920 when vertical
 //     layout_type?,                              // "facecam_top_gameplay_bottom" | "gameplay_only"
 //     facecam_crop?,                             // { x, y, width, height }
 //     gameplay_crop?,                            // { x, y, width, height } (optional)
 //     source_reference_width?, source_reference_height?  // resolution where crops were defined
+//     auto_detect_facecam?, layout_source?,       // true / "auto_detect" by default from clip-job-create
+//
+//     // Captions — optional, enabled by default by clip-job-create.
+//     captions_enabled?, captions_language?,
+//     captions_style?,                            // "clean" | "bold_tiktok" | "gaming_neon" | "minimal"
+//     transcribe_url?, transcribe_secret?
 //   }
 //
 // Env required: WORKER_SHARED_SECRET. PORT optional (default 8080).

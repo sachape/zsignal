@@ -1,15 +1,16 @@
 # V3D — Guide de déploiement du worker FFmpeg (Lovable Cloud)
 
-Le worker est **stateless** : il ne connaît rien de Supabase / Lovable Cloud. La Edge Function lui envoie une URL signée pour lire la source et une URL signée pour uploader le clip. Le worker n'a donc besoin que d'**un seul secret**.
+Le worker est **stateless** : il ne connaît rien du backend Lovable Cloud. L'Edge Function lui envoie une URL signée pour lire la source et une URL signée pour uploader le clip. Le worker n'a donc besoin que d'**un seul secret**.
 
 Tant que `WORKER_BASE_URL` n'est pas configuré côté Lovable, l'app reste cohérente : le bouton « Générer » renvoie `worker_not_configured`, le content item passe en `generation_status=unavailable`, **aucun faux clip n'est créé**.
 
-## Worker v3.1 — sous-titres automatiques
+## Worker v3.2 — vertical, facecam auto et sous-titres stylés
 
-À partir de la v3.1, le worker peut burn-in des sous-titres TikTok-style dans le clip vertical.
+À partir de la v3.2, le worker génère le format vertical 9:16 avec facecam en haut, gameplay en bas, détection facecam automatique OpenCV et sous-titres burn-in personnalisables.
 
 - La transcription tourne côté Lovable Cloud (edge function `clip-transcribe-audio` → ElevenLabs Scribe).
 - Le worker n'a **pas** besoin de `ELEVENLABS_API_KEY` (le secret reste côté Supabase).
+- Les styles supportés sont `clean`, `bold_tiktok`, `gaming_neon`, `minimal` via `captions_style`.
 - Si la transcription échoue ou que la vidéo ne contient pas de parole, le clip est publié **sans** sous-titres : `[captions_skipped]` ou `[captions_failed]`, jamais d'échec du job.
 
 Redéploie après `git pull` :
@@ -17,8 +18,8 @@ Redéploie après `git pull` :
 ```bash
 cd workers/clip-generator
 fly deploy -a streamnco
-# Vérifier worker_version: 3.1 dans /health
-curl -s https://streamnco.fly.dev/health | jq .worker_version
+# Vérifier worker_version: 3.2 et les capabilities dans /health
+curl -s https://streamnco.fly.dev/health | jq '{worker_version, supports_vertical_9_16, supports_facecam_autodetect, supports_auto_captions}'
 ```
 
 
@@ -90,7 +91,7 @@ Détruis l'autre.
 
 > ⚠️ **Le worker tourne sur Fly.io, pas sur Lovable Cloud.** Toute modification de `workers/clip-generator/` nécessite un `fly deploy` manuel depuis ta machine. Lovable ne peut pas redéployer Fly à ta place.
 
-Vérifie le healthcheck **après redéploiement v3.0** :
+Vérifie le healthcheck **après redéploiement v3.2** :
 ```bash
 curl https://streamnco.fly.dev/health
 ```
@@ -99,12 +100,15 @@ Réponse attendue :
 ```json
 {
   "ok": true,
-  "worker_version": "3.0",
+  "worker_version": "3.2",
   "ffmpeg_available": true,
   "yt_dlp_available": true,
   "python_available": true,
   "opencv_available": true,
-  "supports_facecam_autodetect": true
+  "supports_vertical_9_16": true,
+  "supports_facecam_autodetect": true,
+  "supports_auto_captions": true,
+  "supported_layouts": ["facecam_top_gameplay_bottom", "gameplay_only"]
 }
 ```
 
@@ -151,11 +155,16 @@ Le worker n'a **plus besoin** de `SUPABASE_URL` ni de `SUPABASE_SERVICE_ROLE_KEY
    - crée le job (`status=queued`)
    - signe une URL de lecture (1h) sur `creator-source-videos`
    - signe une URL d'upload (PUT) sur `creator-generated-clips`
-   - appelle `POST <WORKER_BASE_URL>/generate` avec source_url + output_upload_url + timestamps + callback_url + secret
+   - canonicalise les liens Twitch (`twitch_vod` / `twitch_clip`)
+   - force le rendu `vertical_9_16` avec `layout_type=facecam_top_gameplay_bottom`
+   - envoie `auto_detect_facecam=true`, `layout_source=auto_detect`, `captions_enabled`, `captions_style`, `transcribe_url`
+   - appelle `POST <WORKER_BASE_URL>/generate` avec le payload complet
 3. Worker Fly :
    - vérifie `X-Worker-Secret`
-   - télécharge la source via `source_url`
-   - exécute FFmpeg
+   - télécharge la source via `source_url` (`yt-dlp` pour Twitch/YouTube)
+   - détecte la facecam via OpenCV quand aucun preset manuel explicite n'est fourni
+   - compose facecam haut / gameplay bas en 9:16 via FFmpeg
+   - extrait l'audio, appelle `clip-transcribe-audio`, génère le `.ass` via `buildAssFile`, puis burn-in les sous-titres si activés
    - PUT le clip vers `output_upload_url`
    - POST `clip-job-callback` avec `status=completed` + `output_storage_path`
 4. `clip-job-callback` :
@@ -169,18 +178,18 @@ Aucun fichier ni URL fake : si le worker échoue, l'item revient en `to_generate
 
 ## 6. Sécurité
 
-- Le worker n'a aucun accès Supabase — impossible pour lui d'écrire ailleurs que dans la signed URL fournie.
+- Le worker n'a aucun accès direct au backend — impossible pour lui d'écrire ailleurs que dans la signed URL fournie.
 - `WORKER_SHARED_SECRET` protège les deux sens : edge → worker (`X-Worker-Secret`) et worker → edge (`X-Worker-Secret` côté callback).
 - Buckets `creator-source-videos` et `creator-generated-clips` privés. URLs signées (1h lecture source, 7j lecture preview).
 - Le worker supprime ses fichiers temporaires après chaque job.
 
 ---
 
-## 7. Limites V3D MVP
+## 7. Limites actuelles
 
-- Découpe simple `start → end`, encodage H.264/AAC, MP4 max 1080p
-- Durée clip : 5 à 180 s
+- Encodage H.264/AAC, MP4 vertical 1080x1920 par défaut
+- Durée clip : 5 à 240 s côté génération
 - Source max 500 Mo
-- Pas de sous-titres auto, pas de crop vertical, pas de face tracking, pas de best-of auto
-- VOD Twitch/YouTube non téléchargeables directement (upload reste fiable)
-- Publication YouTube uniquement
+- Sous-titres auto non bloquants : fallback sans sous-titres si ElevenLabs ou FFmpeg ASS échoue
+- Facecam auto non bloquante : fallback gameplay-only si OpenCV ne détecte rien de fiable
+- Pas encore de best-of auto dans le worker

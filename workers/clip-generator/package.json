@@ -1,9 +1,9 @@
 {
   "name": "streamnco-clip-generator",
-  "version": "1.1.0",
+  "version": "3.2.0",
   "private": true,
   "type": "module",
-  "description": "Streamnco V3D worker: stateless FFmpeg clip generator. Receives a signed source URL and signed upload URL from the Lovable Edge Function, cuts the clip, uploads, calls back.",
+  "description": "Streamnco V3D worker: stateless FFmpeg vertical clip generator with facecam autodetect and burn-in captions.",
   "main": "index.mjs",
   "scripts": {
     "start": "node index.mjs"
