@@ -409,7 +409,7 @@ const VodImportPage = () => {
           <CardContent className="space-y-4 p-5">
             <div className="space-y-1.5">
               <Label htmlFor="vod-url" className="text-xs font-semibold">
-                Lien de la VOD
+                Lien Twitch
               </Label>
               <div className="relative">
                 <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -417,15 +417,20 @@ const VodImportPage = () => {
                   id="vod-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://www.twitch.tv/videos/..."
+                  placeholder="Colle une VOD ou un Clip Twitch"
                   className="pl-9"
                 />
               </div>
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                <span>YouTube arrive bientôt. Pour l'instant, utilise une VOD Twitch ou importe un fichier vidéo.</span>
-                {detectedSource === "twitch" && (
+                <span>Tu peux coller une VOD Twitch complète ou un Clip Twitch déjà existant.</span>
+                {detectedSource === "twitch_vod" && (
                   <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
-                    Twitch VOD
+                    VOD Twitch détectée
+                  </Badge>
+                )}
+                {detectedSource === "twitch_clip" && (
+                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
+                    Clip Twitch détecté
                   </Badge>
                 )}
                 {detectedSource === "youtube" && (
@@ -434,9 +439,14 @@ const VodImportPage = () => {
                   </Badge>
                 )}
               </div>
+              {detectedSource === "twitch_clip" && (
+                <p className="text-[11px] text-primary">
+                  Clip Twitch détecté — Streamnco va le transformer en format réseaux (9:16). Pas besoin de saisir start/end.
+                </p>
+              )}
               {detectedSource === "youtube" && (
                 <p className="text-[11px] text-warning">
-                  YouTube arrive bientôt. Utilise une VOD Twitch ou importe un fichier vidéo pour le moment.
+                  YouTube arrive bientôt. Utilise une VOD Twitch, un Clip Twitch ou importe un fichier vidéo.
                 </p>
               )}
             </div>
