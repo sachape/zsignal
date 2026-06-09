@@ -22,12 +22,53 @@ Garde la valeur — tu en auras besoin **deux fois** : une fois sur Fly.io, une 
 cd workers/clip-generator
 
 # Première fois uniquement :
-fly launch --no-deploy --name streamnco-clip-gen --region cdg
+fly launch --no-deploy --name streamnco-clip-gen --region cdg --copy-config
 fly secrets set -a streamnco-clip-gen WORKER_SHARED_SECRET="<colle le secret généré>"
 
-# À chaque mise à jour du Dockerfile / index.mjs (ex: ajout yt-dlp v1.1.0) :
+# À chaque mise à jour du Dockerfile / index.mjs / fly.toml :
 fly deploy -a streamnco-clip-gen
 ```
+
+### Profil V1 : 1 machine always-on (config dans `fly.toml`)
+
+Le `fly.toml` du repo impose :
+- `auto_stop_machines = "off"` → Fly n'arrête plus la machine après idle.
+- `min_machines_running = 1` → toujours au moins 1 machine vivante.
+- `[deploy] strategy = "immediate"` → pas de rolling deploy (qui crée une 2ᵉ machine temporaire).
+
+#### Pourquoi tu vois actuellement 2 machines
+
+Fly crée une seconde machine quand :
+1. Tu as fait un `fly deploy` avec la stratégie par défaut (`rolling`) → une machine de relève est créée puis l'ancienne est gardée.
+2. Ou tu avais lancé `fly scale count 2` à un moment.
+3. Ou la première machine a été marquée "suspended" sans être détruite et une nouvelle a été provisionnée au déploiement suivant.
+
+Les deux sont **Stopped/Suspended** parce que l'ancien `fly.toml` autorisait l'autostop (`auto_stop_machines = "suspend"` par défaut sur Fly v2).
+
+#### Nettoyage à exécuter une fois (manuel, depuis ta machine)
+
+```bash
+# 1) Lister les machines pour identifier les IDs
+fly machine list -a streamnco-clip-gen
+
+# 2) Forcer le scale à 1 machine
+fly scale count 1 -a streamnco-clip-gen
+
+# 3) Si une machine "suspended" subsiste, la détruire explicitement
+fly machine destroy <machine_id> -a streamnco-clip-gen --force
+
+# 4) Redéployer avec le nouveau fly.toml (auto_stop_machines = "off")
+fly deploy -a streamnco-clip-gen
+
+# 5) Vérifier l'état final
+fly status -a streamnco-clip-gen
+# attendu : 1 machine, state = started
+```
+
+Garde la machine la plus récente (celle avec la dernière `image_ref` / `updated`).
+Détruis l'autre.
+
+
 
 > ⚠️ **Le worker tourne sur Fly.io, pas sur Lovable Cloud.** Toute modification de `workers/clip-generator/` nécessite un `fly deploy` manuel depuis ta machine. Lovable ne peut pas redéployer Fly à ta place.
 
