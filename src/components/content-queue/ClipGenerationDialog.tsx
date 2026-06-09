@@ -62,6 +62,7 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [showAdvanced, setShowAdvanced] = useState(false);
   // Auto subtitles are ON by default. The user can opt out.
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
+  const [captionsStyle, setCaptionsStyle] = useState<"clean" | "bold_tiktok" | "gaming_neon" | "minimal">("clean");
 
   const start = item.source_start_time;
   const end = item.source_end_time;
