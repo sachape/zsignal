@@ -124,12 +124,14 @@ function parseClock(v: string): number {
 const VOD_REASONS = new Set([
   "vod_manual_timestamp",
   "vod_auto_suggestion",
+  "twitch_clip_full",
 ]);
 
 const VodImportPage = () => {
   usePageMeta({
-    title: "Créer depuis une VOD · Streamnco",
-    description: "Colle une VOD Twitch et génère des clips prêts pour Shorts, Reels et TikTok.",
+    title: "Créer un clip réseau · Streamnco",
+    description:
+      "Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts.",
   });
 
   const { items, refetch, updateItem } = useContentItems();
