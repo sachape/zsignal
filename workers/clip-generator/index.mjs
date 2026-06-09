@@ -570,6 +570,7 @@ async function maybeBurnCaptions({
   transcribeUrl,
   transcribeSecret,
   captionsLanguage,
+  captionsStyle,
   outW,
   outH,
   callbackUrl,
@@ -580,6 +581,7 @@ async function maybeBurnCaptions({
   const finalPath = join(workDir, "final.mp4");
 
   console.log("[captions_started]", JSON.stringify({ job_id: jobId, language: captionsLanguage }));
+  console.log("[captions_style_selected]", JSON.stringify({ job_id: jobId, style: captionsStyle }));
 
   try {
     await postCallback(callbackUrl, callbackSecret, {
