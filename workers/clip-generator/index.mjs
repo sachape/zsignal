@@ -364,6 +364,10 @@ async function processJob({
   sourceReferenceHeight,
   autoDetectFacecam,
   layoutSource,
+  captionsEnabled,
+  captionsLanguage,
+  transcribeUrl,
+  transcribeSecret,
 }) {
   const workDir = await mkdtemp(join(tmpdir(), `clip-${jobId}-`));
   const sourcePath = join(workDir, "source.mp4");
