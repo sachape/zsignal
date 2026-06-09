@@ -131,7 +131,7 @@ app.post("/generate", async (req, res) => {
     jobId: job_id,
     sourceUrl: source_url,
     sourceKind:
-      source_kind === "twitch_vod" || source_kind === "youtube_vod"
+      source_kind === "twitch_vod" || source_kind === "youtube_vod" || source_kind === "twitch_clip"
         ? source_kind
         : "direct",
     outputUploadUrl: output_upload_url,
