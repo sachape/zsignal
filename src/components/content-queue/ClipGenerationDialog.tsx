@@ -57,6 +57,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [error, setError] = useState<string | null>(null);
   // Auto-detection is the default. The advanced camera picker is opt-in.
   const [showAdvanced, setShowAdvanced] = useState(false);
+  // Auto subtitles are ON by default. The user can opt out.
+  const [captionsEnabled, setCaptionsEnabled] = useState(true);
 
   const start = item.source_start_time;
   const end = item.source_end_time;
