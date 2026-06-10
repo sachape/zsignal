@@ -174,13 +174,66 @@ async function signedUrlFor(bucket: string, path: string): Promise<string | null
 export async function downloadVisual(visual: GeneratedVisual, filename: string) {
   const url = visual.signedUrl ?? (await signedUrlFor(visual.storage_bucket, visual.storage_path));
   if (!url) throw new Error("no_url");
-  const res = await fetch(url);
-  const blob = await res.blob();
+
+  const targetW = visual.width ?? 0;
+  const targetH = visual.height ?? 0;
+
+  let downloadHref: string;
+  let revoke = true;
+
+  if (targetW > 0 && targetH > 0) {
+    // Render the source image cover-cropped to the exact template dimensions
+    // so the downloaded file is ready-to-use (e.g. Twitch banner = 1920x480).
+    const img = await loadImage(url);
+    const canvas = document.createElement("canvas");
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("canvas_unavailable");
+
+    const srcW = img.naturalWidth;
+    const srcH = img.naturalHeight;
+    const srcRatio = srcW / srcH;
+    const dstRatio = targetW / targetH;
+    let sx = 0, sy = 0, sW = srcW, sH = srcH;
+    if (srcRatio > dstRatio) {
+      // source wider than target -> crop horizontally
+      sW = srcH * dstRatio;
+      sx = (srcW - sW) / 2;
+    } else if (srcRatio < dstRatio) {
+      // source taller than target -> crop vertically
+      sH = srcW / dstRatio;
+      sy = (srcH - sH) / 2;
+    }
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, sx, sy, sW, sH, 0, 0, targetW, targetH);
+
+    const blob: Blob = await new Promise((resolve, reject) =>
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("encode_failed"))), "image/png"),
+    );
+    downloadHref = URL.createObjectURL(blob);
+  } else {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    downloadHref = URL.createObjectURL(blob);
+  }
+
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = downloadHref;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
-  URL.revokeObjectURL(a.href);
+  if (revoke) URL.revokeObjectURL(downloadHref);
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("image_load_failed"));
+    img.src = src;
+  });
 }
