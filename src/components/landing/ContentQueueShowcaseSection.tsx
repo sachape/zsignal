@@ -53,8 +53,9 @@ const ContentQueueShowcaseSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.2);
 
   return (
-    <SectionShell id="content-queue-showcase" tone="contrast">
+    <SectionShell id="content-queue-showcase" tone="light">
       <SectionHeading
+        badgeTone="light"
         badge="Organisation · File de contenu"
         title="Tout ton contenu prêt à publier, au même endroit"
         subtitle="Tes clips et tes visuels arrivent automatiquement dans la file. Tu organises, tu programmes, tu publies."
