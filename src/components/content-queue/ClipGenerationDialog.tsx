@@ -43,6 +43,7 @@ function reasonLabel(reason: string): string {
     case "upload_failed": return "Échec de l'upload de la source.";
     case "job_insert_failed": return "Échec de création du job. Réessaie.";
     case "active_job_exists": return "Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.";
+    case "quota_exceeded": return "Tu as atteint ta limite de clips générés ce mois-ci. Passe à un plan supérieur pour augmenter ton quota.";
     case "worker_no_callback": return "Le worker vidéo n’a pas répondu.";
     default: return "Échec. Réessaie.";
   }
