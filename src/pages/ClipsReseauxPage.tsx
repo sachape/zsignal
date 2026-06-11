@@ -91,6 +91,13 @@ const ClipsReseauxPage = () => {
           action={primaryCta}
         />
 
+        {canAccess && !quota.loading && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {quota.clipsUsed} / {quota.clipsLimit} clips générés ce mois-ci
+          </p>
+        )}
+
+
         {!planLoading && !canAccess && (
           <Card className="mb-6 border-primary/30 bg-primary/5">
             <CardContent className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
