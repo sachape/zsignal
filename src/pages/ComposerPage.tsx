@@ -254,7 +254,7 @@ const ComposerPage = () => {
     <AppShell>
       <PageContainer size="lg">
         <PageHeader
-          eyebrow="Content Studio"
+          eyebrow="File de contenu"
           title="Composer"
           description="Prépare, prévisualise et planifie tes publications Instagram."
           action={

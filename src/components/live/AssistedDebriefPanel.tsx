@@ -125,7 +125,7 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
     if (signalLimited) {
       return "L'analyse automatique est limitée sur ce live, mais tu peux quand même préparer des contenus prêts à publier en quelques secondes.";
     }
-    return "Transforme ce live en contenus prêts à publier : Streamnco te propose des idées que tu peux envoyer directement dans ta Content Queue.";
+    return "Transforme ce live en contenus prêts à publier : Streamnco te propose des idées que tu peux envoyer directement dans ta file de contenu.";
   }, [signalLimited]);
 
   const handleGenerate = () => {
@@ -154,7 +154,7 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
       const n = await createMany(rows);
       setCreatedCount(n);
       toast({
-        title: "Contenus envoyés dans Content Queue",
+        title: "Contenus envoyés dans la file de contenu",
         description: `${n} idée${n > 1 ? "s" : ""} prête${n > 1 ? "s" : ""} à préparer.`,
       });
       setPreview(null);
@@ -195,7 +195,7 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
           <div className="flex items-center justify-between gap-3 rounded-lg border border-success/30 bg-success/[0.06] px-3 py-2">
             <div className="flex items-center gap-2 text-sm text-foreground">
               <Check className="h-4 w-4 text-success" />
-              {createdCount} contenu{createdCount > 1 ? "s" : ""} ajouté{createdCount > 1 ? "s" : ""} à ta Content Queue.
+              {createdCount} contenu{createdCount > 1 ? "s" : ""} ajouté{createdCount > 1 ? "s" : ""} à ta file de contenu.
             </div>
             <Button asChild size="sm" variant="outline">
               <Link to="/content-queue">
@@ -260,7 +260,7 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
               <Button asChild variant="ghost" size="sm">
                 <Link to="/content-queue">
                   <ListPlus className="h-3.5 w-3.5" />
-                  Voir Content Queue
+                  Voir la file de contenu
                 </Link>
               </Button>
             </div>
@@ -306,7 +306,7 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
                 ) : (
                   <Send className="h-3.5 w-3.5" />
                 )}
-                Envoyer dans Content Queue
+                Envoyer dans la file de contenu
               </Button>
               <Button
                 variant="ghost"

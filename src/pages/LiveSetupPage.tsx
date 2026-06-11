@@ -1614,7 +1614,7 @@ function PostLiveBriefCard({
         };
       });
       const count = await createMany(rows);
-      toast.success(`${count} idée${count > 1 ? "s" : ""} envoyée${count > 1 ? "s" : ""} dans Content Queue`);
+      toast.success(`${count} idée${count > 1 ? "s" : ""} envoyée${count > 1 ? "s" : ""} dans la file de contenu`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
     } finally { setSending(false); }
@@ -1646,7 +1646,7 @@ function PostLiveBriefCard({
             <Inbox className="h-3.5 w-3.5 text-primary" />
             {alreadyQueued > 0
               ? `${alreadyQueued} contenu(s) déjà dans la queue pour ce live`
-              : "Envoie les idées dans la Content Queue pour les produire."}
+              : "Envoie les idées dans la file de contenu pour les produire."}
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Button size="sm" onClick={handleSendToQueue} disabled={sending}>
