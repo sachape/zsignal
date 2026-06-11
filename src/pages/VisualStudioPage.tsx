@@ -37,6 +37,7 @@ const VisualStudioPage = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [prefill, setPrefill] = useState<Record<string, any>>({});
+  const quota = useQuotaUsage();
 
   const loadAll = useCallback(async () => {
     setLoading(true);
