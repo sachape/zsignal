@@ -1,99 +1,107 @@
-# Studio Visuel — V1 end-to-end
 
-## Vision
+# Packaging UX Streamnco — plan d'exécution
 
-Un module premium "Studio visuel" intégré à Streamnco qui permet au streamer de générer rapidement des assets visuels (bannière Twitch, annonce live, post IG, story, highlight, etc.), de les sauvegarder dans une bibliothèque, et de les réutiliser. Architecture pensée pour s'étendre (packs cohérents, déclinaisons multi-formats, brand kit).
+## Audit express (constats avant action)
 
-## Architecture retenue
+| Zone | Constat | Action |
+|---|---|---|
+| **Sidebar** | 9 entrées plates, "Content Studio" + "Clips réseaux" + "Studio visuel" côte à côte = confusion | Regrouper sous 3 sections : Créer / Analyser / Live |
+| **Dashboard** | `DashboardQuickActions` existe mais noie les 2 features "wow" | Ajouter bloc premium "Créer maintenant" en haut, 2 CTA clairs |
+| **Clips réseaux** | URL clair (`/clips-reseaux`), wording OK, mais empty state à premiumiser | Empty state + quota visible (déjà OK) |
+| **Studio visuel** | OK fonctionnellement, empty state à enrichir | Empty state premium |
+| **Content Studio (queue)** | Label ambigu vs Clips réseaux | Renommer "File de contenu" + sous-titre explicatif, empty state clarifié |
+| **Live Studio / Planning / Titres** | Bien isolés mais éparpillés dans la nav | Regrouper sous "Live" |
+| **Analyse / StreamScore / Benchmark / Progression** | 4 entrées éparses | Regrouper sous "Analyser" |
+| **Réseaux** | YouTube stable, Instagram/TikTok présentés comme égaux | Badge "Bêta" sur IG/TikTok |
+| **Billing** | Quotas OK, CTA cohérents (vérifié dans QA précédente) | Aucun changement |
+| **Wording technique** | "job", "processing", "generated_visuals" dans les empty states | Remplacer par "génération", "en cours", "visuels" |
+
+Aucune feature supprimée. Aucune route déplacée (pas de redirections à gérer).
+
+## Architecture navigation appliquée
+
+Nav nested avec groupes `SidebarGroup` collapsibles, état actif persistant. Routes inchangées.
 
 ```text
-[Frontend React]
-   │
-   ├── /studio-visuel            → galerie + bouton "Créer"
-   ├── /studio-visuel/nouveau    → choix template → form prérempli → preview
-   └── /studio-visuel/historique → bibliothèque + favoris + uploads
-        │
-        ▼
-[Edge Functions Supabase]
-   ├── visual-job-create      → crée job, valide quota, enqueue
-   ├── visual-job-status      → poll status
-   ├── visual-asset-upload-url → URL signée pour upload (logo, ref)
-   └── visual-job-process     → worker async (génère via Lovable AI Gateway,
-                                 modèle google/gemini-2.5-flash-image-preview,
-                                 upload résultat → storage, update job)
-        │
-        ▼
-[Storage]
-   ├── creator-visual-uploads   (privé) — refs utilisateur
-   └── creator-visual-assets    (privé) — rendus générés (URL signée)
+Tableau de bord                 → /dashboard
 
-[DB]
-   ├── visual_templates           (catalogue templates, seedé)
-   ├── creator_brand_kit          (1 par user — pseudo, handle, couleurs, logo)
-   ├── visual_generation_jobs     (job + params + status + variantes)
-   ├── generated_visuals          (1 ligne par variante générée)
-   └── visual_uploaded_assets     (refs uploadées par user)
+Créer
+  ├─ Clips réseaux              → /clips-reseaux
+  ├─ Studio visuel              → /studio-visuel
+  └─ File de contenu            → /content-queue
+
+Analyser
+  ├─ StreamScore                → /analyse
+  ├─ Benchmark                  → /competitors
+  └─ Progression                → /progression
+
+Live
+  ├─ Live Studio                → /live-setup
+  ├─ Planning                   → /planning
+  └─ Titres                     → /outils/titres
+
+Réseaux                         → /reseaux
+Ressources                      → /playbooks
 ```
 
-### Flux génération
-1. User pick un template → form prérempli depuis `creator_brand_kit` + dernier live Twitch (déjà dispo via `creator_live_sessions` / `twitch_profiles`).
-2. Submit → `visual-job-create` insère job `status=queued`, retourne `job_id`, et fire-and-forget vers `visual-job-process`.
-3. `visual-job-process` (async, EdgeRuntime.waitUntil) :
-   - construit un prompt typé par template (dimensions, style, contenu)
-   - boucle 3 appels image au gateway Lovable AI (`gemini-2.5-flash-image-preview`)
-   - upload chaque image dans `creator-visual-assets`
-   - insère 3 lignes dans `generated_visuals`, passe job en `succeeded`
-4. Front polle `visual-job-status` toutes les 2s → quand `succeeded`, charge variantes via signed URLs.
+"Créer" est ouvert par défaut (priorité produit). Footer inchangé (Progression XP, upgrade CTA, account popover).
 
-### Réutilisation / bibliothèque
-- `generated_visuals` filtré par user → galerie historique
-- favoris via `is_favorite` boolean
-- regénérer = re-créer un job avec mêmes params
-- télécharger = signed URL force-download
+## Changements ciblés
 
-## Scope V1 livré
+### 1. `src/components/AppSidebar.tsx`
+- Refactor `primaryItems` en `navGroups` (4 groupes).
+- Utiliser `SidebarGroup` + `SidebarGroupLabel` (groupe "Créer" `defaultOpen`).
+- Reste du fichier (header, footer XP, popover) intact.
 
-### Templates (seed)
-- `twitch_banner` (1920x480)
-- `twitch_offline` (1920x1080)
-- `live_announcement` (1080x1080)
-- `instagram_post` (1080x1080)
-- `instagram_story` (1080x1920)
-- `new_clip` (1080x1080)
-- `highlight` (1080x1350)
-- `cover_simple` (1500x500)
+### 2. `src/pages/DashboardPage.tsx` + `src/components/DashboardQuickActions.tsx` (ou nouveau `CreateNowBlock.tsx`)
+- Nouveau composant `CreateNowBlock` placé en tête du dashboard :
+  - Titre "Créer maintenant" + sous-titre.
+  - 2 cards larges : "Créer un clip réseau" → `/clips-reseaux`, "Générer un visuel" → `/studio-visuel`.
+  - Style premium : gradient subtil, icônes Clapperboard + Palette, hover lift.
+- Les quick actions existantes restent en dessous mais en version secondaire.
 
-Chacun avec : label FR, description usage, dimensions, prompt template, icône.
+### 3. Empty states premium
+Fichiers ciblés (vérification puis remplacement du copy + visuel) :
+- `src/pages/ClipsReseauxPage.tsx`
+- `src/pages/VisualStudioPage.tsx`
+- `src/pages/ContentQueuePage.tsx`
+- `src/pages/ReseauxPage.tsx`
 
-### UI
-- Sidebar : nouvelle entrée **Studio visuel** (Palette icon) sous "Clips réseaux".
-- Page `/studio-visuel` : grid des derniers visuels + CTA "Créer un visuel".
-- Dialog "Nouveau visuel" : step 1 catégorie/template, step 2 form (titre, sous-titre, jeu, palette, style, upload ref optionnel), step 3 preview/loading/résultats 3 variantes avec actions (télécharger, favori, régénérer, supprimer).
-- État vide propre, loading skeleton, erreurs FR.
+Composant partagé léger `src/components/ui/empty-state.tsx` (nouveau, ~40 lignes) : icône, titre, description, CTA primaire. Réutilisé sur les 4 pages.
 
-### Backend
-- 4 migrations : `creator_brand_kit`, `visual_templates` + seed, `visual_generation_jobs`, `generated_visuals`, `visual_uploaded_assets`. RLS + GRANT.
-- 2 storage buckets privés.
-- 4 edge functions : create / status / upload-url / process.
-- Service frontend `src/services/visualGenerator.ts` + hook `useVisualJobs`.
+### 4. Badges Bêta réseaux
+- `src/pages/ReseauxPage.tsx` + `src/pages/ReseauxPlatformPage.tsx` : badge `<Badge variant="outline">Bêta</Badge>` à côté de "Instagram" et "TikTok". Note courte "Publication automatique en validation API".
+- YouTube : pas de badge (stable).
 
-### Extensibilité (préparée mais pas livrée V1)
-- `creator_brand_kit` permettra packs cohérents.
-- `visual_generation_jobs.source_ref` (jsonb) permettra liaison à un clip/live/event.
-- Templates table-driven → ajout sans déploiement.
+### 5. Wording harmonisé
+- "Content Studio" → "File de contenu" (label sidebar) ; route inchangée.
+- Empty/erreur copy : remplacer "job", "processing brut", "generated_visuals", "quota_exceeded" par "génération", "en cours", "visuels", "limite mensuelle atteinte".
+- Cibles principales : empty states + messages d'erreur des 4 pages ci-dessus. Pas de chasse globale (risque de casser des libellés internes).
 
-## Limites V1
-- Pas d'éditeur post-génération (crop/text overlay) — V2.
-- Pas de déclinaisons auto multi-formats à partir d'une seule génération — V2.
-- Brand kit minimal (couleurs + logo + pseudo), pas de polices custom — V2.
-- Quota : 10 jobs / user / jour (anti-abus), affiché dans l'UI.
+## Hors scope
 
-## Détails techniques
+- Pas d'onboarding refondu (section 5 du brief) — le `OnboardingGuide` existant reste tel quel ; un audit fin mériterait son propre passage dédié.
+- Pas de textes landing (section 9) — la landing n'est pas en context, à traiter séparément si demandé.
+- Pas de refonte design tokens.
+- Pas de changement de route (aucune redirection à gérer).
 
-- Image gen : `google/gemini-2.5-flash-image-preview` via `https://ai.gateway.lovable.dev/v1/chat/completions` avec `modalities:["image","text"]`. Réponse en base64 → upload Storage.
-- Polling front via React Query `refetchInterval` dynamique (2s tant que `queued|processing`).
-- Pas de worker Fly — tout dans edge function avec `EdgeRuntime.waitUntil` (gen image ≈ 5-15s × 3 = OK dans budget edge).
-- Wording 100% FR, design tokens existants (gradient primary/teal, glass cards).
+## Tests
 
-## À confirmer avant de coder
-Si OK je lance : migrations → edge functions → frontend → seed templates → test bout en bout.
+1. Navigation : cliquer chaque entrée des 4 groupes, vérifier route + état actif.
+2. Dashboard : cliquer les 2 CTA "Créer maintenant" → routes attendues.
+3. Empty states : forcer état vide (compte sans visuels/clips) et inspecter visuel.
+4. Réseaux : vérifier badge Bêta sur IG/TikTok.
+5. Billing : déjà validé en QA précédente (Free/Pro/Growth), pas de retest.
+6. Responsive : sidebar collapsible="icon" déjà fonctionnel, vérifier que les groupes restent utilisables en mobile (Sheet).
+
+Build + TypeScript : vérifiés automatiquement après les edits.
+
+## Risques
+
+- **Faible** : refactor sidebar peut casser le highlight actif si `matchSection` mal porté → conserver `matchSection` sur chaque item.
+- **Faible** : nouveau `CreateNowBlock` peut allonger le dashboard sur mobile → grid responsive `md:grid-cols-2`.
+- **Nul** : aucune migration DB, aucune edge function modifiée.
+
+## Livrables
+
+~6 fichiers édités, 2 fichiers créés (`CreateNowBlock.tsx`, `empty-state.tsx`). Zéro migration, zéro changement backend.
