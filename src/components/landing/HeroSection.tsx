@@ -150,17 +150,17 @@ const HeroSection = () => {
           {/* Badge */}
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary shadow-[0_0_24px_hsl(var(--primary)/0.18)]">
             <Zap className="h-3 w-3" />
-            8 000+ chaînes analysées
+            Le cockpit créatif des streamers
           </span>
 
-          {/* Headline — outcome-first, specific, creates curiosity gap */}
+          {/* Headline — content creation first */}
           <h1 className="font-display mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.05]">
-            Level up ta chaîne. En 60 Secondes.
+            Crée tout le contenu autour de ton stream.
           </h1>
 
-          {/* Subline — mechanism, specificity */}
+          {/* Subline — clips + visuels + StreamScore */}
           <p className="mx-auto mt-5 max-w-xl text-base text-foreground/70 md:text-lg">
-            Streamnco analyse tes stats Twitch et te dit <span className="font-semibold text-foreground">exactement quoi faire</span> pour gagner plus de viewers, d'abonnés, et comprendre ce qui freine ta croissance.
+            Génère des <span className="font-semibold text-foreground">clips verticaux</span> avec facecam et sous-titres, crée tes <span className="font-semibold text-foreground">visuels Twitch et réseaux</span>, puis suis ta progression avec ton <span className="font-semibold text-foreground">StreamScore</span>.
           </p>
         </div>
 
@@ -199,11 +199,11 @@ const HeroSection = () => {
             inputError={inputError}
           />
 
-          {/* Trust signals — specific, objection-killing */}
+          {/* Trust signals */}
           <ul className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[11px] text-foreground/65">
             {[
-              { icon: ShieldCheck, label: "Sans connexion Twitch" },
-              { icon: Timer, label: "Résultat en 45 secondes" },
+              { icon: ShieldCheck, label: "Diagnostic sans connexion Twitch" },
+              { icon: Timer, label: "Premier clip en moins de 2 min" },
               { icon: Activity, label: "Gratuit, sans carte bancaire" },
             ].map(({ icon: Icon, label }) => (
               <li key={label} className="inline-flex items-center gap-1.5">
