@@ -102,13 +102,19 @@ const Index = () => {
       {/* 2. Preuve sociale immédiate — crédibilité */}
       <SocialProofSection />
 
-      {/* 3. Wow features — Clips réseaux + Studio visuel */}
+      {/* 3. Wow features — Clips réseaux + Studio visuel (contrast surface) */}
       <WowFeaturesSection />
 
-      {/* 4. Différenciateurs — pourquoi pas les autres outils */}
+      {/* 4. StreamScore — comprendre quoi améliorer (deep surface) */}
+      <StreamScoreShowcaseSection />
+
+      {/* 5. File de contenu — organiser et publier (contrast surface) */}
+      <ContentQueueShowcaseSection />
+
+      {/* 6. Différenciateurs — pourquoi pas les autres outils */}
       <AudienceValueSection />
 
-      {/* 5. Comment ça marche — réduction de friction */}
+      {/* 7. Comment ça marche — réduction de friction */}
       <HowItWorksSection />
 
       {/* 5. Aperçu du produit — voir avant de s'engager */}
