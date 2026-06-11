@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
+import { FloatCard } from "./motion";
 
 const PRODUCT_FLOW = [
   { label: "Clip Twitch", value: "URL, VOD ou upload", icon: Upload },
@@ -52,8 +53,9 @@ const HeroSection = () => {
   return (
     <section className="relative overflow-hidden pt-28 pb-14 sm:pt-32 md:pt-36 md:pb-20">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,hsl(var(--background))_0%,#11161c_42%,#0a0d10_100%)]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[42rem] w-[60rem] -translate-x-1/2 landing-aurora" aria-hidden />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[720px] bg-[radial-gradient(ellipse_at_20%_10%,rgba(190,255,90,0.18),transparent_42%),radial-gradient(ellipse_at_78%_18%,rgba(90,210,255,0.12),transparent_38%),radial-gradient(ellipse_at_52%_92%,rgba(255,183,77,0.08),transparent_34%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)] opacity-30" />
+      <div className="pointer-events-none absolute inset-0 landing-grid-pan bg-[linear-gradient(to_right,rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)] opacity-30" />
 
       <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
         <div className="grid gap-12 lg:grid-cols-[0.96fr_1.04fr] lg:items-center">
@@ -154,7 +156,7 @@ const HeroSection = () => {
             }}
           >
             <div className="pointer-events-none absolute -inset-8 rounded-[2rem] bg-primary/10 blur-3xl" />
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c1014]/[0.88] shadow-[0_30px_120px_-70px_rgba(190,255,90,0.55)] backdrop-blur-2xl">
+            <FloatCard range={8} duration={7} className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c1014]/[0.88] shadow-[0_30px_120px_-70px_rgba(190,255,90,0.55)] backdrop-blur-2xl">
               <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-[#ff6b6b]" />
@@ -240,7 +242,7 @@ const HeroSection = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </FloatCard>
           </div>
         </div>
       </div>

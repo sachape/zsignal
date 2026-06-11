@@ -130,6 +130,60 @@
   pointer-events: none;
 }
 
+/* ── Landing premium: animated backdrops & utilities ──────────────── */
+
+/* Slow drifting aurora glow — premium section atmosphere. */
+@keyframes aurora-drift {
+  0%   { transform: translate3d(-8%, -4%, 0) scale(1);   opacity: 0.85; }
+  50%  { transform: translate3d(8%, 6%, 0)  scale(1.15); opacity: 1;    }
+  100% { transform: translate3d(-8%, -4%, 0) scale(1);   opacity: 0.85; }
+}
+.landing-aurora {
+  background:
+    radial-gradient(40% 50% at 30% 30%, hsl(var(--primary) / 0.18), transparent 70%),
+    radial-gradient(35% 45% at 70% 60%, hsl(var(--accent) / 0.12), transparent 70%);
+  filter: blur(40px);
+  animation: aurora-drift 18s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Horizontal marquee for proof / category strips. */
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.landing-marquee {
+  animation: marquee-x var(--marquee-duration, 32s) linear infinite;
+  will-change: transform;
+}
+.landing-marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+          mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* Slowly drifting dot grid — keeps backgrounds alive without distraction. */
+@keyframes grid-pan {
+  from { background-position: 0 0; }
+  to   { background-position: 48px 48px; }
+}
+.landing-grid-pan {
+  animation: grid-pan 24s linear infinite;
+  will-change: background-position;
+}
+
+/* Respect the user's motion preference everywhere on the landing. */
+@media (prefers-reduced-motion: reduce) {
+  .landing-aurora,
+  .landing-marquee,
+  .landing-grid-pan,
+  .bento-hero-border {
+    animation: none !important;
+  }
+  [style*="hero-float"] {
+    animation: none !important;
+  }
+}
+
 /* ── Print / PDF export ─────────────────────────────────────────── */
 @media print {
   /* Hide chrome: sidebar, nav, action buttons */

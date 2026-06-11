@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, ChevronDown, Menu, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,15 @@ const LandingNav = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<MegaMenu>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Scroll-aware chrome: airy at the very top, condensed glass once scrolled.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleLogoClick = () => {
     if (location.pathname === "/") {
@@ -109,11 +118,21 @@ const LandingNav = () => {
 
   return (
     <nav
-      className="fixed left-0 right-0 top-0 z-50 border-b border-white/[0.06] bg-background/[0.78] backdrop-blur-xl"
+      className={cn(
+        "fixed left-0 right-0 top-0 z-50 transition-[background-color,border-color,box-shadow] duration-300",
+        scrolled
+          ? "border-b border-white/[0.08] bg-background/[0.85] backdrop-blur-xl shadow-[0_8px_30px_-12px_hsl(var(--background))]"
+          : "border-b border-white/[0.04] bg-background/[0.55] backdrop-blur-md",
+      )}
       aria-label="Navigation principale"
     >
       <FounderBanner />
-      <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
+      <div
+        className={cn(
+          "container mx-auto flex max-w-6xl items-center justify-between px-4 transition-[height] duration-300 md:px-6",
+          scrolled ? "h-14" : "h-16",
+        )}
+      >
         <button
           onClick={handleLogoClick}
           className="flex shrink-0 items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"

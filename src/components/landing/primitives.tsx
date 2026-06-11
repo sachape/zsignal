@@ -70,9 +70,13 @@ export const SectionShell = ({
       {glow && !isLight && (
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.06),transparent_60%)]" />
       )}
+      {/* Slow animated aurora — premium living atmosphere (dark tones only). */}
+      {glow && !isLight && (
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[36rem] w-[48rem] -translate-x-1/2 landing-aurora opacity-70" aria-hidden />
+      )}
       {grid && (
         <div
-          className={`pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/${isLight ? "0.06" : "0.04"})_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-40`}
+          className={`landing-grid-pan pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/${isLight ? "0.06" : "0.04"})_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-40`}
         />
       )}
       {/* Light variant: subtle warm accent halo */}
