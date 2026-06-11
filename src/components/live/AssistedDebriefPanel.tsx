@@ -260,7 +260,7 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
               <Button asChild variant="ghost" size="sm">
                 <Link to="/content-queue">
                   <ListPlus className="h-3.5 w-3.5" />
-                  Voir Content Queue
+                  Voir la file de contenu
                 </Link>
               </Button>
             </div>
