@@ -168,8 +168,8 @@ const ContentQueuePage = () => {
       <PageContainer size="lg">
         <PageHeader
           eyebrow="Cockpit éditorial"
-          title="Content Queue"
-          description="Prépare, télécharge et publie tes contenus en quelques clics."
+          title="File de contenu"
+          description="Organise, prépare et publie tes clips, visuels et posts depuis un seul endroit."
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild variant="outline">
@@ -275,17 +275,23 @@ const ContentQueuePage = () => {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Chargement…
           </div>
         ) : filtered.length === 0 ? (
-          <Card className="border-dashed border-border/60 bg-muted/10">
-            <CardContent className="space-y-3 p-8 text-center">
-              <Inbox className="mx-auto h-8 w-8 text-muted-foreground/60" />
-              <p className="text-sm font-medium text-foreground">Aucun contenu dans cette vue</p>
-              <p className="text-xs text-muted-foreground">
-                Crée un contenu manuellement ou termine un live depuis{" "}
-                <Link to="/live-setup" className="text-primary underline-offset-2 hover:underline">Live Setup</Link>.
-              </p>
-              <div className="flex justify-center gap-2 pt-2">
-                <Button size="sm" onClick={() => setNewOpen(true)}>
+          <Card className="border-dashed border-border/50 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.06),transparent_60%)] bg-card/40">
+            <CardContent className="flex flex-col items-center gap-4 px-6 py-12 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                <Inbox className="h-6 w-6" />
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-base font-semibold text-foreground">Ta file de contenu est vide</h3>
+                <p className="mx-auto max-w-md text-sm text-muted-foreground leading-relaxed">
+                  Les clips et visuels que tu génères apparaîtront ici pour t'aider à préparer tes prochaines publications.
+                </p>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                <Button onClick={() => setNewOpen(true)}>
                   <Plus className="h-4 w-4" /> Nouveau contenu
+                </Button>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/clips-reseaux">Créer un clip réseau</Link>
                 </Button>
               </div>
             </CardContent>

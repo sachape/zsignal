@@ -19,6 +19,7 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import DashboardQuickActions from "@/components/DashboardQuickActions";
+import CreateNowBlock from "@/components/CreateNowBlock";
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import { formatSyncRelative } from "@/components/SyncStatusCard";
@@ -802,6 +803,9 @@ const DashboardPage = () => {
             </div>
           </div>
         </div>
+
+        {/* ── Créer maintenant (premium block) ─────────────────────── */}
+        <CreateNowBlock />
 
         {/* ── Actions rapides (inchangé) ──────────────────────────────── */}
         <div className="mb-6">
