@@ -48,14 +48,17 @@ const FREE_FEATURES = [
   "Le blocage #1 identifié avec précision",
   "Téléchargement de tes clips et visuels",
   "Sans connexion Twitch requise pour démarrer",
+  "Publication manuelle uniquement",
+  "Sans carte bancaire",
 ];
 
 const PRO_FEATURES = [
   "Tout le plan Gratuit",
   "100 visuels et 30 clips réseaux par mois",
-  "Analyses illimitées après chaque live",
   "Évolution sur 30, 60 et 90 jours",
   "Plan d'action personnalisé chaque semaine",
+  "Sous-titres et styles de captions",
+  "File de contenu et brouillons",
   "Benchmark concurrents complet",
 ];
 
@@ -63,7 +66,8 @@ const GROWTH_FEATURES = [
   "Tout le plan Pro",
   "300 visuels et 200 clips réseaux par mois",
   "Jusqu'à 3 chaînes Twitch connectées",
-  "Suivi multi-chaînes unifié",
+  "Benchmark et watchlist avancés",
+  "Préparation live plus complète",
   "Support prioritaire",
   "Accès anticipé aux nouvelles features",
 ];
@@ -74,7 +78,7 @@ const FeatureList = ({ features }: { features: string[] }) => (
   <ul className="space-y-2.5">
     {features.map((f) => (
       <li key={f} className="flex items-start gap-2.5 text-sm">
-        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/15">
+        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/[0.15]">
           <Check className="h-2.5 w-2.5 text-primary" />
         </span>
         <span className="text-muted-foreground">{f}</span>
@@ -129,8 +133,8 @@ const PricingSection = () => {
     <SectionShell id="pricing">
       <SectionHeading
         badge="Tarifs"
-        title="Commence gratuitement. Accélère quand tu es prêt."
-        subtitle="Ton diagnostic est immédiat et gratuit. Passe au suivi complet pour piloter ta progression live après live."
+        title="Commence gratuitement. Structure ton contenu quand tu es prêt."
+        subtitle="Un premier diagnostic pour découvrir Streamnco, puis des outils pour créer des clips, produire des visuels et suivre ta progression."
       />
 
       {/* Billing toggle */}
@@ -143,7 +147,7 @@ const PricingSection = () => {
             onClick={() => setBilling("monthly")}
             className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
               billing === "monthly"
-                ? "bg-primary/12 border border-primary/25 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+                ? "bg-primary/[0.12] border border-primary/25 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -153,7 +157,7 @@ const PricingSection = () => {
             onClick={() => setBilling("annual")}
             className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
               billing === "annual"
-                ? "bg-primary/12 border border-primary/25 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+                ? "bg-primary/[0.12] border border-primary/25 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -197,7 +201,7 @@ const PricingSection = () => {
               </div>
               <p className="mt-1.5 text-xs text-muted-foreground">pour toujours</p>
               <p className="mt-3 text-sm text-muted-foreground">
-                Sache en 60 secondes ce qui freine ta chaîne — sans compte, sans carte.
+                Découvre Streamnco avec un premier diagnostic Twitch — sans carte bancaire.
               </p>
               <div className="mt-6">
                 <FeatureList features={FREE_FEATURES} />
@@ -224,7 +228,7 @@ const PricingSection = () => {
                     Recommandé
                   </span>
                   {FOUNDING_MEMBER && (
-                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-bold text-primary">
+                    <span className="rounded-full bg-primary/[0.15] px-2 py-0.5 text-[9px] font-bold text-primary">
                       Fondateur
                     </span>
                   )}
@@ -262,7 +266,7 @@ const PricingSection = () => {
                 )}
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                Pour les streamers qui progressent live après live, sans avancer à l'aveugle.
+                Pour les streamers qui veulent créer et organiser leurs contenus plus sérieusement.
               </p>
               <div className="mt-6">
                 <FeatureList features={PRO_FEATURES} />

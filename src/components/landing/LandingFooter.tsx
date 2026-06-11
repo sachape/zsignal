@@ -51,7 +51,7 @@ const LandingFooter = () => {
               <img src={logo} alt="Streamnco" className="h-6 w-auto" />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground/70">
-              Le copilote de progression pour streamers Twitch. Score, blocages, plan d'action — en moins d'une minute.
+              Le cockpit créatif et stratégique pour streamers : clips, visuels, file de contenu, StreamScore et préparation live.
             </p>
             <a
               href="https://www.instagram.com/streamnco.fr"

@@ -74,9 +74,9 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
       {
         label: "StreamScore",
         free: "1/mois",
-        pro: "Illimité",
-        growth: "Illimité",
-        agency: "Illimité",
+        pro: "Quota Pro",
+        growth: "Quota Growth",
+        agency: "Sur devis",
       },
       {
         label: "Progression affilié",
@@ -88,9 +88,9 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
       {
         label: "Historique des analyses",
         free: "30 jours",
-        pro: "Illimité",
-        growth: "Illimité",
-        agency: "Illimité",
+        pro: "90 jours",
+        growth: "Avancé",
+        agency: "Sur devis",
       },
       {
         label: "Profil public",
@@ -102,17 +102,24 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
     ],
   },
   {
-    group: "Live",
+    group: "Création",
     rows: [
       {
-        label: "Live cockpit (temps réel)",
-        free: false,
+        label: "Clips réseaux 9:16",
+        free: "Découverte",
         pro: true,
         growth: true,
         agency: true,
       },
       {
-        label: "Débrief post-live",
+        label: "Studio visuel",
+        free: "Découverte",
+        pro: true,
+        growth: true,
+        agency: true,
+      },
+      {
+        label: "File de contenu",
         free: false,
         pro: true,
         growth: true,
@@ -152,9 +159,9 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
       {
         label: "Concurrents",
         free: "3 chaînes",
-        pro: "Illimité",
-        growth: "Illimité",
-        agency: "Illimité",
+        pro: "Quota Pro",
+        growth: "Quota Growth",
+        agency: "Sur devis",
       },
       {
         label: "Export PNG (share card)",
@@ -173,7 +180,7 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
         free: "1",
         pro: "1",
         growth: "Jusqu'à 3",
-        agency: "Illimité",
+        agency: "Sur devis",
       },
       {
         label: "Support prioritaire",
@@ -272,29 +279,10 @@ const PricingPage = () => {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
-  // Authenticated users should manage their plan from the in-app billing page,
-  // not the public marketing pricing page.
-  if (user) {
-    return <Navigate to="/billing" replace />;
-  }
-
-  const handleCheckout = async (plan: "pro" | "growth") => {
-    if (!user) {
-      openAuthModal("signup");
-      return;
-    }
-    setCheckoutLoading(plan);
-    try {
-      await startCheckout(plan, billing === "annual" ? "annual" : "monthly");
-    } catch {
-      setCheckoutLoading(null);
-    }
-  };
-
   usePageMeta({
     title: "Tarifs",
     description:
-      "Streamnco — Gratuit, Pro à 7,99€/mois, Growth à 14,99€/mois. Analyse ta chaîne Twitch et progresse vers l'affiliation.",
+      "Streamnco — Gratuit, Pro à 7,99€/mois, Growth à 14,99€/mois. Crée tes contenus de stream, analyse Twitch et organise ta progression.",
     canonical: "https://streamnco.fr/pricing",
     ogUrl: "https://streamnco.fr/pricing",
     jsonLd: {
@@ -324,6 +312,25 @@ const PricingPage = () => {
       })),
     },
   });
+
+  // Authenticated users should manage their plan from the in-app billing page,
+  // not the public marketing pricing page.
+  if (user) {
+    return <Navigate to="/billing" replace />;
+  }
+
+  const handleCheckout = async (plan: "pro" | "growth") => {
+    if (!user) {
+      openAuthModal("signup");
+      return;
+    }
+    setCheckoutLoading(plan);
+    try {
+      await startCheckout(plan, billing === "annual" ? "annual" : "monthly");
+    } catch {
+      setCheckoutLoading(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -475,7 +482,7 @@ const PricingPage = () => {
           <div>
             <p className="text-sm font-bold text-foreground">Agency</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Tu gères plusieurs streamers ? Comptes illimités, onboarding dédié et accès anticipé aux nouvelles features.
+              Tu gères plusieurs streamers ? Volume sur devis, onboarding dédié et accès anticipé aux nouvelles features.
             </p>
           </div>
           <Button

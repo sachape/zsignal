@@ -11,7 +11,7 @@ import { SectionHeading, SectionShell } from "./primitives";
 const FAQS = [
   {
     q: "Est-ce que Streamnco publie automatiquement sur TikTok et Instagram ?",
-    a: "Streamnco t'aide à préparer des contenus adaptés à TikTok, Reels et Shorts. YouTube est le plus avancé côté publication, tandis que TikTok et Instagram sont affichés en bêta dans l'app — la publication automatique dépend encore des validations API des plateformes. Tu peux toujours télécharger tes contenus pour les publier manuellement.",
+    a: "Non. Streamnco t'aide à préparer des contenus adaptés à TikTok, Reels et Shorts, puis à les télécharger. La publication reste manuelle tant que les intégrations officielles ne sont pas suffisamment fiables.",
   },
   {
     q: "Est-ce que je peux télécharger mes clips et visuels ?",
@@ -37,6 +37,10 @@ const FAQS = [
     q: "Est-ce utile si je débute ?",
     a: "Oui — c'est même là que Streamnco aide le plus. Tu poses tout de suite de bonnes bases : un StreamScore clair pour savoir où tu en es, et de quoi créer du contenu autour de tes premiers lives sans logiciel pro.",
   },
+  {
+    q: "À quoi sert le StreamScore ?",
+    a: "Il synthétise les signaux Twitch importants en score, dimensions et recommandations. L'objectif n'est pas de promettre une croissance garantie, mais de clarifier les priorités.",
+  },
 ];
 
 const FaqSection = () => {
@@ -46,8 +50,8 @@ const FaqSection = () => {
     <SectionShell id="faq">
       <SectionHeading
         badge="FAQ"
-        title="Les questions qu'on nous pose avant de lancer"
-        subtitle="Des réponses directes pour démarrer sereinement."
+        title="Des promesses claires, pas de flou."
+        subtitle="Ce qui est disponible, ce qui est manuel, et ce qui viendra plus tard."
       />
 
       <div

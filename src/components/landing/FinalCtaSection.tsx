@@ -1,24 +1,23 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Sparkles, TrendingUp } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, Clapperboard, Palette, Search, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
-import streamerImage from "@/assets/final-cta-streamer.jpg";
 
 const FinalCtaSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.2);
   const [username, setUsername] = useState("");
   const [inputError, setInputError] = useState<string | null>(null);
+  const { openAuthModal } = useAuthModal();
   const navigate = useNavigate();
 
   const handleAnalyze = (explicitLogin?: string, gameNameHint?: string | null) => {
-    const login =
-      explicitLogin?.trim().toLowerCase() || normalizeChannelInput(username);
+    const login = explicitLogin?.trim().toLowerCase() || normalizeChannelInput(username);
     if (!login) {
-      setInputError(
-        "Entre un nom d'utilisateur Twitch valide ou une URL twitch.tv/...",
-      );
+      setInputError("Entre un nom d'utilisateur Twitch valide ou une URL twitch.tv/...");
       return;
     }
     setInputError(null);
@@ -28,13 +27,10 @@ const FinalCtaSection = () => {
 
   return (
     <section className="relative overflow-hidden py-20 md:py-24">
-      {/* Ambient background */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.14),transparent_60%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.04)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-40" />
-
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(190,255,90,0.14),transparent_62%)]" />
       <div ref={ref} className="container relative mx-auto max-w-5xl px-4 md:px-6">
         <div
-          className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-card/40 backdrop-blur-xl shadow-[0_40px_120px_-40px_hsl(var(--primary)/0.35)]"
+          className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d1116]/90 backdrop-blur-xl"
           style={{
             opacity: inView ? 1 : 0,
             transform: inView ? "translateY(0)" : "translateY(24px)",
@@ -42,27 +38,52 @@ const FinalCtaSection = () => {
               "opacity 800ms cubic-bezier(0.16,1,0.3,1), transform 800ms cubic-bezier(0.16,1,0.3,1)",
           }}
         >
-          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl" aria-hidden />
-          <div className="pointer-events-none absolute -bottom-24 right-1/3 h-72 w-72 rounded-full bg-primary/10 blur-3xl" aria-hidden />
-
-          <div className="relative grid gap-0 lg:grid-cols-[1.15fr_1fr]">
-            {/* LEFT — Content + CTA (the real conversion zone) */}
-            <div className="flex flex-col justify-center p-8 sm:p-10 md:p-12 lg:p-14">
-              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-primary shadow-[0_0_24px_hsl(var(--primary)/0.25)]">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+          <div className="grid gap-px bg-white/[0.055] lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="bg-[#0d1116] p-7 sm:p-9 md:p-12">
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-primary">
                 <Sparkles className="h-3 w-3" />
-                Diagnostic gratuit · Résultat en 60 s
+                Démarrer
               </span>
 
-              <h2 className="mt-5 bg-gradient-to-b from-foreground to-foreground/65 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl lg:text-[2.75rem] lg:leading-[1.05]">
-                Vois ce qui bloque ta chaîne. Maintenant.
+              <h2 className="mt-5 text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-[2.8rem] lg:leading-[1.04]">
+                Ouvre un espace plus propre pour ton stream.
               </h2>
 
-              <p className="mt-4 max-w-md text-sm text-foreground/70 md:text-base">
-                Entre ton pseudo Twitch. En 60 secondes tu as ton score, ton blocage principal, et ton premier plan d'action.
-                <span className="font-semibold text-foreground"> Gratuit, sans compte.</span>
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground md:text-base">
+                Crée tes premiers clips, prépare tes visuels, range tes contenus et garde un oeil sur ta progression Twitch depuis le même cockpit.
               </p>
 
-              <div className="mt-7 max-w-md">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Button size="lg" className="gap-2" onClick={() => openAuthModal("signup")}>
+                  Essayer gratuitement
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link to="/pricing">Voir les tarifs</Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-[#0d1116] p-7 sm:p-9 md:p-12">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { icon: Clapperboard, label: "Clips réseaux", copy: "Vertical 9:16, facecam, sous-titres." },
+                  { icon: Palette, label: "Studio visuel", copy: "Formats Twitch et social prêts." },
+                  { icon: Search, label: "Diagnostic Twitch", copy: "Score, benchmark, recommandations." },
+                ].map(({ icon: Icon, label, copy }) => (
+                  <div key={label} className="rounded-xl border border-white/[0.07] bg-white/[0.035] p-4 sm:last:col-span-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <p className="mt-3 text-sm font-semibold text-foreground">{label}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{copy}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 rounded-xl border border-white/[0.08] bg-black/20 p-3">
+                <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Ou tester le diagnostic public
+                </p>
                 <HeroChannelSearch
                   value={username}
                   onChange={(next) => {
@@ -72,96 +93,6 @@ const FinalCtaSection = () => {
                   onSubmit={(login, gameName) => handleAnalyze(login, gameName)}
                   inputError={inputError}
                 />
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground/90">
-                {[
-                  "Aucune connexion Twitch requise",
-                  "Lecture seule",
-                  "Sans compte",
-                ].map((t) => (
-                  <span key={t} className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/70 shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* RIGHT — Subtle supporting visual (does not compete with the CTA) */}
-            <div className="relative hidden min-h-[400px] overflow-hidden lg:block">
-              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-card/85 to-transparent" aria-hidden />
-
-              <img
-                src={streamerImage}
-                alt=""
-                width={1024}
-                height={1280}
-                loading="lazy"
-              decoding="async"
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{
-                  opacity: inView ? 0.85 : 0,
-                  transform: inView ? "scale(1)" : "scale(1.05)",
-                  transition:
-                    "opacity 1200ms ease-out 200ms, transform 1400ms cubic-bezier(0.16,1,0.3,1) 200ms",
-                }}
-              />
-
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-background/70 via-background/20 to-primary/10 mix-blend-multiply" aria-hidden />
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.18),transparent_55%)]" aria-hidden />
-
-              {/* Two minimal supporting chips — no competing CTA */}
-              <div
-                className="pointer-events-none absolute right-6 top-8 z-20"
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transform: inView ? "translateY(0)" : "translateY(16px)",
-                  transition:
-                    "opacity 800ms ease-out 700ms, transform 1000ms cubic-bezier(0.16,1,0.3,1) 700ms",
-                }}
-                aria-hidden
-              >
-                <div className="rounded-2xl border border-white/10 bg-card/75 px-3.5 py-2.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.4)]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
-                      <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                        StreamScore
-                      </span>
-                      <span className="text-xs font-semibold">62 / 100</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="pointer-events-none absolute bottom-8 left-6 z-20"
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transform: inView ? "translateY(0)" : "translateY(16px)",
-                  transition:
-                    "opacity 800ms ease-out 900ms, transform 1000ms cubic-bezier(0.16,1,0.3,1) 900ms",
-                }}
-                aria-hidden
-              >
-                <div className="rounded-2xl border border-white/10 bg-card/75 px-3.5 py-2.5 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
-                      <Sparkles className="h-3.5 w-3.5 text-primary" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                        Action prioritaire
-                      </span>
-                      <span className="text-xs font-semibold">
-                        Fixer 2 créneaux
-                      </span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

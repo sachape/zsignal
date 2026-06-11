@@ -1,193 +1,129 @@
-import { Sparkles, Clock } from "lucide-react";
+import { Activity, Clapperboard, Palette, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
-import {
-  GlassCard,
-  MicroLabel,
-  SectionShell,
-} from "./primitives";
-
-// Keep in sync with PricingSection constants
-const PRO_MONTHLY = 7.99;
-const PRO_FUTURE = 12.99;
-const FOUNDING_SPOTS = 150;
+import { GlassCard, MicroLabel, SectionShell } from "./primitives";
 
 const OPTIONS = [
   {
-    id: "coaching",
-    name: "Coaching individuel",
-    price: "~35 €",
-    cadence: "/ heure",
-    note: "Minimum 1h · tarif marché",
+    id: "manual",
+    icon: Clapperboard,
+    name: "Montage manuel",
+    price: "Long",
     description:
-      "Utile pour débloquer un problème précis. Mais entre les sessions, personne n'analyse tes lives, ne compare tes stats ni ne te dit ce qui a changé cette semaine.",
-    highlight: false,
-    verdict: "Ponctuel, pas systématique",
+      "Tu peux tout faire à la main : découper, recadrer, sous-titrer, exporter, ranger, puis recommencer au prochain live.",
+    verdict: "Beaucoup de friction",
+    muted: true,
   },
   {
-    id: "formation",
-    name: "Formation en ligne",
-    price: "1 000 €+",
-    cadence: "",
-    note: "Paiement unique",
+    id: "templates",
+    icon: Palette,
+    name: "Templates isolés",
+    price: "Dispersé",
     description:
-      "Tu apprends les bases une fois. Mais ta chaîne évolue chaque semaine — la formation, elle, ne s'adapte pas à ton dernier live ni à tes concurrents actuels.",
-    highlight: false,
-    verdict: "Figé, pas personnalisé",
+      "Un outil pour les visuels, un autre pour les clips, un tableur pour les idées, puis des stats Twitch à interpréter ailleurs.",
+    verdict: "Peu de continuité",
+    muted: true,
   },
   {
     id: "streamnco",
-    name: "Streamnco Pro",
-    price: `${PRO_MONTHLY.toFixed(2).replace(".", ",")} €`,
-    cadence: "/ mois",
-    note: `Offre fondateur · ${FOUNDING_SPOTS} places`,
-    futurePrice: `${PRO_FUTURE.toFixed(2).replace(".", ",")} €`,
+    icon: Sparkles,
+    name: "Streamnco",
+    price: "Centralisé",
     description:
-      "StreamScore après chaque live. Blocage #1 identifié avec précision. Benchmark de tes concurrents. Plan d'action hebdo personnalisé. Automatiquement — pendant que tu te couches.",
-    highlight: true,
-    verdict: "Continu, personnalisé, automatique",
+      "Un cockpit pour préparer tes clips, tes visuels, ta file de contenu et tes décisions Twitch dans le même environnement.",
+    verdict: "Création + progression",
+    muted: false,
   },
 ] as const;
 
 const ValueAnchorSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.2);
-
-  const handleCta = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setTimeout(() => {
-      document
-        .querySelector<HTMLInputElement>('input[type="text"], input[type="search"]')
-        ?.focus();
-    }, 600);
-  };
+  const { openAuthModal } = useAuthModal();
 
   return (
-    <SectionShell id="value-anchor">
-      {/* Section heading — fully custom for this section */}
+    <SectionShell id="value-anchor" glow={false}>
       <div className="mx-auto max-w-3xl text-center">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-          Vs. les alternatives
+          Positionnement
         </span>
 
         <h2 className="mt-5 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-          Un coach coûte 35 € de l'heure.
+          Le problème n'est pas de créer un clip.
           <br className="hidden sm:block" />
-          <span className="text-primary"> Streamnco, c'est {PRO_MONTHLY.toFixed(2).replace(".", ",")} € par mois.</span>
+          <span className="text-primary"> C'est de construire un système.</span>
         </h2>
 
         <p className="mt-4 text-base leading-relaxed text-foreground/70 md:text-lg">
-          Un humain ne peut pas scruter ton stream chaque semaine, comparer tes stats
-          avec tes concurrents directs, et te rédiger un plan d'action personnalisé.
-          <span className="font-semibold text-foreground"> Streamnco, si.</span>
+          Streamnco rassemble les gestes qui entourent ton stream : transformer les moments forts, produire des visuels, retrouver tes brouillons et décider quoi améliorer ensuite.
         </p>
       </div>
 
-      {/* Cards */}
-      <div
-        ref={ref}
-        className="mx-auto mt-10 grid max-w-5xl gap-5 md:mt-14 md:grid-cols-3"
-      >
+      <div ref={ref} className="mx-auto mt-10 grid max-w-5xl gap-4 md:mt-14 md:grid-cols-3">
         {OPTIONS.map((opt, i) => (
           <div
             key={opt.id}
             style={{
               opacity: inView ? 1 : 0,
               transform: inView ? "translateY(0)" : "translateY(24px)",
-              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms`,
+              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 110}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 110}ms`,
             }}
           >
             <GlassCard
-              hero={opt.highlight}
-              className={`flex h-full flex-col p-6 md:p-7 ${opt.highlight ? "" : "opacity-75"}`}
+              hero={!opt.muted}
+              className={`flex h-full flex-col p-6 md:p-7 ${opt.muted ? "opacity-80" : ""}`}
             >
-              {/* Header */}
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <MicroLabel>Option</MicroLabel>
-                  <h3 className="mt-1 text-lg font-semibold text-foreground">
-                    {opt.name}
-                  </h3>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
+                  <opt.icon className={opt.muted ? "h-5 w-5 text-muted-foreground" : "h-5 w-5 text-primary"} />
                 </div>
-                {opt.highlight && (
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary">
-                      <Sparkles className="h-2.5 w-2.5" />
-                      Recommandé
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-bold text-primary">
-                      <Clock className="h-2.5 w-2.5" />
-                      Fondateur
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Price */}
-              <div className="mt-5">
-                {"futurePrice" in opt && opt.futurePrice && (
-                  <p className="mb-1 text-xs text-muted-foreground line-through">
-                    {opt.futurePrice}/mois après le lancement
-                  </p>
-                )}
-                <div className="flex items-baseline gap-1.5">
-                  <span
-                    className={`text-3xl font-bold tracking-tight tabular-nums md:text-4xl ${
-                      opt.highlight ? "text-foreground" : "text-foreground/70"
-                    }`}
-                  >
-                    {opt.price}
+                {!opt.muted && (
+                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary">
+                    Recommandé
                   </span>
-                  {opt.cadence && (
-                    <span className="text-sm text-muted-foreground">{opt.cadence}</span>
-                  )}
-                </div>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-                  {opt.note}
-                </p>
+                )}
               </div>
 
-              {/* Description */}
-              <p className="mt-5 flex-1 text-sm leading-relaxed text-muted-foreground">
+              <MicroLabel>Option</MicroLabel>
+              <h3 className="mt-1 text-lg font-semibold text-foreground">{opt.name}</h3>
+              <p className={opt.muted ? "mt-3 text-3xl font-bold text-foreground/70" : "mt-3 text-3xl font-bold text-foreground"}>
+                {opt.price}
+              </p>
+              <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">
                 {opt.description}
               </p>
-
-              {/* Verdict chip */}
-              <div className="mt-5">
-                <span
-                  className={`inline-block rounded-full px-2.5 py-1 text-[10px] font-semibold ${
-                    opt.highlight
-                      ? "bg-primary/15 text-primary"
-                      : "bg-muted/60 text-muted-foreground"
-                  }`}
-                >
-                  {opt.verdict}
-                </span>
-              </div>
+              <span
+                className={
+                  opt.muted
+                    ? "mt-5 inline-block rounded-full bg-muted/60 px-2.5 py-1 text-[10px] font-semibold text-muted-foreground"
+                    : "mt-5 inline-block rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-semibold text-primary"
+                }
+              >
+                {opt.verdict}
+              </span>
             </GlassCard>
           </div>
         ))}
       </div>
 
-      {/* Bottom hook + CTA */}
       <div className="mx-auto mt-12 max-w-2xl text-center md:mt-16">
-        <p className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl md:text-[2.1rem]">
-          Moins cher qu'une heure de coaching.
-          <br className="hidden sm:block" /> Plus actif que n'importe quel formateur.
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+          <Activity className="h-5 w-5 text-primary" />
+        </div>
+        <p className="mt-5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          D'abord un workflow fiable. Ensuite, des connexions plus profondes.
         </p>
-
-        <p className="mt-3 text-sm text-muted-foreground">
-          Pour le prix d'un skin Epic par mois — un système qui analyse,
-          compare et te dit exactement quoi corriger. Chaque semaine.
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          C'est volontaire : les intégrations TikTok, Instagram et YouTube ne doivent pas être vendues comme stables tant qu'elles ne le sont pas. Le produit assume le téléchargement et la préparation manuelle.
         </p>
-
-        <div className="mt-7 flex flex-col items-center gap-3">
-          <Button size="lg" onClick={handleCta}>
-            Voir mon diagnostic gratuit
+        <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button size="lg" onClick={() => openAuthModal("signup")}>
+            Essayer gratuitement
           </Button>
-          <p className="text-[11px] text-muted-foreground">
-            Le diagnostic est gratuit et immédiat.
-            Le Pro démarre à <span className="font-semibold text-foreground">{PRO_MONTHLY.toFixed(2).replace(".", ",")} €/mois</span> — prix locké à vie pour les fondateurs.
-          </p>
+          <Button size="lg" variant="outline" asChild>
+            <Link to="/fonctionnalites">Explorer les fonctionnalités</Link>
+          </Button>
         </div>
       </div>
     </SectionShell>

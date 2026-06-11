@@ -1,45 +1,45 @@
-import { Search, Activity, Map } from "lucide-react";
+import { Download, FileInput, FolderCheck, Wand2 } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { GlassCard, MicroLabel, SectionHeading, SectionShell } from "./primitives";
 
 const STEPS = [
   {
-    icon: Search,
-    title: "Entre ton pseudo Twitch",
-    description: "Pas besoin de connecter ton compte pour commencer.",
+    icon: FileInput,
+    title: "Pars d'une source réelle",
+    description:
+      "Colle un Clip Twitch, une VOD, un pseudo Twitch ou importe une vidéo. Streamnco part de ce que tu as déjà.",
   },
   {
-    icon: Activity,
-    title: "Streamnco analyse ta chaîne",
+    icon: Wand2,
+    title: "Compose un contenu propre",
     description:
-      "Score, blocage principal, progression vers l'objectif et premières recommandations.",
+      "Clip vertical avec facecam et sous-titres, visuel de live, bannière, story ou post carré : chaque format a son usage.",
   },
   {
-    icon: Map,
-    title: "Tu repars avec un plan clair",
+    icon: FolderCheck,
+    title: "Range avant de publier",
     description:
-      "Vois ce qu'il faut corriger maintenant, puis débloque le suivi complet pour aller plus loin.",
+      "Tes exports, brouillons et contenus prêts restent dans une file claire. La publication reste manuelle tant que les réseaux ne sont pas officiellement prêts.",
   },
-];
+] as const;
 
 const HowItWorksSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.25);
 
   return (
-    <SectionShell id="how-it-works">
+    <SectionShell id="how-it-works" glow={false}>
       <SectionHeading
-        badge="Comment ça marche"
-        title="Trois étapes, zéro friction"
-        subtitle="Tu lances l'analyse, Streamnco lit les signaux utiles de ta chaîne et te montre où agir en priorité."
+        badge="Parcours"
+        title="Une chaîne de production simple."
+        subtitle="Moins de friction, plus de contrôle : Streamnco t'aide à préparer les bons contenus sans prendre la main sur tes comptes sociaux."
       />
 
       <div
         ref={ref}
-        className="relative mx-auto mt-10 grid max-w-5xl gap-5 md:mt-14 md:grid-cols-3"
+        className="relative mx-auto mt-10 grid max-w-5xl gap-4 md:mt-14 md:grid-cols-3"
       >
-        {/* Connecting line on desktop */}
         <div
-          className="pointer-events-none absolute left-[16%] right-[16%] top-[58px] hidden h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent md:block"
+          className="pointer-events-none absolute left-[16%] right-[16%] top-[54px] hidden h-px bg-gradient-to-r from-transparent via-white/20 to-transparent md:block"
           aria-hidden
         />
 
@@ -49,12 +49,12 @@ const HowItWorksSection = () => {
             style={{
               opacity: inView ? 1 : 0,
               transform: inView ? "translateY(0)" : "translateY(20px)",
-              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 140}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 140}ms`,
+              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms`,
             }}
           >
-            <GlassCard className="relative h-full p-6 md:p-7">
+            <GlassCard className="relative h-full p-5 md:p-6">
               <div className="flex items-center gap-3">
-                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 shadow-[0_0_20px_hsl(var(--primary)/0.2)]">
+                <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
                   <Icon className="h-5 w-5 text-primary" />
                   <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-primary/30 bg-background text-[10px] font-bold text-primary">
                     {i + 1}
@@ -72,6 +72,11 @@ const HowItWorksSection = () => {
           </div>
         ))}
       </div>
+
+      <p className="mx-auto mt-8 flex max-w-2xl items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+        <Download className="h-4 w-4 text-primary" />
+        Aujourd'hui, la sortie la plus fiable reste le téléchargement et la publication manuelle.
+      </p>
     </SectionShell>
   );
 };

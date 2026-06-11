@@ -1,121 +1,91 @@
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  Rocket,
-  Repeat,
-  Recycle,
-  Palette,
-  TrendingUp,
-  Check,
+  CheckCircle2,
   Clapperboard,
-  Sparkles,
-  ListChecks,
-  CalendarDays,
   Compass,
-  Image as ImageIcon,
+  Palette,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/landing/LandingFooter";
-import {
-  GlassCard,
-  MicroLabel,
-  SectionHeading,
-  SectionShell,
-} from "@/components/landing/primitives";
+import { SectionBadge } from "@/components/landing/primitives";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { cn } from "@/lib/utils";
 
-interface Persona {
-  id: string;
-  icon: React.ElementType;
-  tag: string;
-  headline: string;
-  promise: string;
-  bullets: { icon: React.ElementType; label: string; sub: string }[];
-  cta: { label: string; href: string };
-  highlighted?: boolean;
-}
-
-const PERSONAS: Persona[] = [
+const SOLUTIONS = [
   {
     id: "debutant",
-    icon: Rocket,
-    tag: "Streamer débutant",
-    headline: "Comprends quoi améliorer et crée tes premiers contenus sans te perdre.",
-    promise: "Pose tout de suite de bonnes bases avec un diagnostic clair et de quoi créer du contenu autour de tes premiers lives.",
-    bullets: [
-      { icon: Sparkles, label: "StreamScore", sub: "Identifie ce qui freine ta progression dès le départ" },
-      { icon: Palette, label: "Studio visuel", sub: "Crée une bannière et un visuel d'annonce propres" },
-      { icon: Clapperboard, label: "Clips réseaux", sub: "Publie un premier clip pour tester les formats courts" },
-      { icon: ListChecks, label: "Checklist d'activation", sub: "Avance étape par étape sans te disperser" },
-    ],
-    cta: { label: "Essayer gratuitement", href: "/auth" },
+    icon: Compass,
+    label: "Débutant",
+    title: "Tu veux savoir quoi améliorer et créer tes premiers contenus propres.",
+    description:
+      "Tu n'as pas besoin d'un cockpit complexe. Tu as besoin d'une méthode simple : comprendre ta chaîne, sortir quelques contenus propres et préparer tes prochains lives avec plus d'intention.",
+    focus: ["Premier diagnostic Twitch", "Premiers clips verticaux", "Visuels de base propres"],
+    startingPoint: "Lancer un diagnostic puis créer un premier clip 9:16.",
+    tone: "primary",
   },
   {
-    id: "regulier",
-    icon: Repeat,
-    tag: "Streamer régulier",
-    headline: "Recycle tes lives en contenus courts et garde une présence régulière sur les réseaux.",
-    promise: "Tu streames déjà régulièrement — Streamnco transforme cette régularité en contenu qui continue de bosser pour toi entre deux lives.",
-    bullets: [
-      { icon: Clapperboard, label: "Clips réseaux", sub: "Génère un clip vertical après chaque live" },
-      { icon: ListChecks, label: "File de contenu", sub: "Centralise clips et visuels prêts à publier" },
-      { icon: Palette, label: "Studio visuel", sub: "Annonce ton planning, tes events, tes prochains lives" },
-      { icon: CalendarDays, label: "Planning", sub: "Garde des créneaux clairs et lisibles" },
-    ],
-    cta: { label: "Créer un clip", href: "/clips-reseaux" },
-    highlighted: true,
-  },
-  {
-    id: "recycle",
-    icon: Recycle,
-    tag: "Créateur qui veut recycler ses lives",
-    headline: "Transforme tes VOD et Clips Twitch en contenus prêts à publier.",
-    promise: "Tes lives ne s'arrêtent plus à la fin du stream. Récupère les meilleurs moments et publie-les là où ton audience consomme déjà du contenu court.",
-    bullets: [
-      { icon: Clapperboard, label: "VOD & Clips Twitch", sub: "Colle un lien, importe une VOD, ou upload un fichier" },
-      { icon: Sparkles, label: "Format vertical 9:16", sub: "Facecam et gameplay alignés automatiquement" },
-      { icon: Sparkles, label: "Sous-titres auto", sub: "Plusieurs styles pour matcher ton identité" },
-      { icon: ListChecks, label: "Téléchargement direct", sub: "Publie manuellement sur TikTok, Reels, Shorts" },
-    ],
-    cta: { label: "Importer une VOD", href: "/clips-reseaux" },
-  },
-  {
-    id: "image",
-    icon: Palette,
-    tag: "Streamer qui veut professionnaliser son image",
-    headline: "Crée des visuels plus propres pour ton stream, tes réseaux et tes annonces.",
-    promise: "Une identité visuelle cohérente sans freelance ni Photoshop — pour tes bannières, stories, posts et covers.",
-    bullets: [
-      { icon: ImageIcon, label: "8 formats prêts", sub: "Bannière Twitch, story, post, cover, annonce live…" },
-      { icon: Palette, label: "3 variantes par génération", sub: "Choisis celle qui colle à ton univers" },
-      { icon: Sparkles, label: "Export aux bonnes dimensions", sub: "Plus de visuels recadrés ou flous" },
-      { icon: ListChecks, label: "File de contenu", sub: "Retrouve tous tes visuels en un endroit" },
-    ],
-    cta: { label: "Générer un visuel", href: "/studio-visuel" },
-  },
-  {
-    id: "ambitieux",
+    id: "intermediaire",
     icon: TrendingUp,
-    tag: "Streamer qui veut progresser sérieusement",
-    headline: "Analyse ta progression, compare-toi et suis un plan d'action.",
-    promise: "Arrête de naviguer à vue. Streamnco te donne un score, un historique, des concurrents pertinents et un plan d'action priorisé.",
-    bullets: [
-      { icon: Sparkles, label: "StreamScore", sub: "Score global et 6 dimensions analysées" },
-      { icon: Compass, label: "Benchmark", sub: "Comparaison avec des chaînes vraiment proches" },
-      { icon: TrendingUp, label: "Historique", sub: "Suis tes progrès sur 30, 60, 90 jours" },
-      { icon: ListChecks, label: "Recommandations", sub: "Plan d'action hebdomadaire priorisé (Pro)" },
-    ],
-    cta: { label: "Découvrir mon StreamScore", href: "/streamscore" },
+    label: "Intermédiaire",
+    title: "Tu streams déjà et tu veux publier plus régulièrement.",
+    description:
+      "Le problème n'est plus de commencer, c'est de tenir le rythme. Streamnco t'aide à transformer tes lives en assets, ranger tes brouillons et préparer une cadence réaliste.",
+    focus: ["Clips Twitch / VOD / upload", "File de contenu", "Studio visuel multi-formats"],
+    startingPoint: "Mettre en place une file de contenu hebdomadaire.",
+    tone: "cyan",
   },
-];
+  {
+    id: "confirme",
+    icon: Target,
+    label: "Confirmé",
+    title: "Tu veux professionnaliser ton image, suivre tes performances et optimiser ta croissance.",
+    description:
+      "Tu as déjà des signaux, des concurrents et une audience à comprendre. Streamnco devient un cockpit de pilotage : création, benchmark, StreamScore, recommandations et préparation live.",
+    focus: ["Benchmark concurrentiel", "Historique StreamScore", "Live Studio et plan d'action"],
+    startingPoint: "Comparer ta chaîne, prioriser une action et produire les assets liés.",
+    tone: "amber",
+  },
+] as const;
+
+const FadeIn = ({ children, delay = 0, className = "" }: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 22 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+const toneClasses = {
+  primary: "border-primary/20 bg-primary/[0.055] text-primary",
+  cyan: "border-cyan-200/20 bg-cyan-200/[0.055] text-cyan-100",
+  amber: "border-amber-200/20 bg-amber-200/[0.055] text-amber-100",
+};
 
 const SolutionsPage = () => {
+  const { openAuthModal } = useAuthModal();
+
   usePageMeta({
-    title: "Solutions — Streamnco pour ton profil de streamer",
+    title: "Solutions — Streamnco",
     description:
-      "Que tu débutes, que tu streames régulièrement ou que tu vises la progression sérieuse, Streamnco s'adapte à ton profil pour créer, organiser et améliorer ton contenu.",
+      "Streamnco pour streamers débutants, intermédiaires et confirmés : créer des contenus propres, publier plus régulièrement et piloter sa progression Twitch.",
     canonical: "https://streamnco.fr/solutions",
+    ogUrl: "https://streamnco.fr/solutions",
     robots: "index, follow",
   });
 
@@ -123,154 +93,121 @@ const SolutionsPage = () => {
     <div className="min-h-screen bg-background">
       <LandingNav />
 
-      {/* ── Hero ────────────────────────────────────────────────────── */}
-      <SectionShell className="pt-24 pb-8 sm:pt-28 md:pt-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
-            Solutions
-          </span>
-          <h1 className="font-display mt-5 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
-            Streamnco s'adapte à ton profil de streamer.
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-base text-foreground/70 md:text-lg">
-            Que tu débutes ou que tu vises la progression sérieuse, voici comment créer, organiser et améliorer le contenu autour de ton stream — selon où tu en es.
-          </p>
+      <section className="relative overflow-hidden pt-32 pb-12 md:pt-40 md:pb-16">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(190,255,90,0.14),transparent_54%),radial-gradient(ellipse_at_80%_20%,rgba(90,210,255,0.10),transparent_36%)]" />
+        <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
+          <FadeIn className="max-w-3xl">
+            <SectionBadge>
+              <Users className="h-3 w-3" /> Solutions
+            </SectionBadge>
+            <h1 className="font-display mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+              Le même cockpit, trois niveaux de maturité.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
+              Streamnco ne vend pas la même histoire à tout le monde. Ton besoin change selon ton niveau : poser les bases, tenir une cadence, ou professionnaliser ton système.
+            </p>
+          </FadeIn>
 
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <Link to="/auth">
-                Essayer gratuitement
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/fonctionnalites">Voir les fonctionnalités</Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Quick nav */}
-        <div className="mx-auto mt-12 grid max-w-5xl gap-2.5 sm:grid-cols-2 lg:grid-cols-5">
-          {PERSONAS.map((p) => {
-            const Icon = p.icon;
-            return (
+          <FadeIn delay={0.12} className="mt-8 flex flex-wrap gap-2">
+            {SOLUTIONS.map((solution) => (
               <a
-                key={p.id}
-                href={`#${p.id}`}
-                className="group flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-card/40 px-3 py-2.5 backdrop-blur-xl transition-all hover:border-primary/30 hover:bg-card/60"
+                key={solution.id}
+                href={`#${solution.id}`}
+                className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/25 hover:text-foreground"
               >
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10">
-                  <Icon className="h-3.5 w-3.5 text-primary" />
-                </div>
-                <span className="text-xs font-medium text-foreground/85 leading-tight">{p.tag}</span>
+                {solution.label}
               </a>
-            );
-          })}
+            ))}
+          </FadeIn>
         </div>
-      </SectionShell>
+      </section>
 
-      {/* ── Personas ─────────────────────────────────────────────────── */}
-      {PERSONAS.map((p, idx) => {
-        const Icon = p.icon;
-        return (
-          <SectionShell key={p.id} id={p.id} className={idx % 2 === 1 ? "" : ""}>
-            <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2 lg:items-center">
-              {/* Left: pitch */}
-              <div>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
-                    <Icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <MicroLabel>{p.tag}</MicroLabel>
-                  {p.highlighted && (
-                    <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                      Le plus courant
-                    </span>
-                  )}
+      <main className="container mx-auto max-w-6xl px-4 pb-24 md:px-6">
+        <div className="grid gap-4 lg:grid-cols-3">
+          {SOLUTIONS.map((solution, index) => (
+            <FadeIn key={solution.id} delay={index * 0.08}>
+              <section
+                id={solution.id}
+                className="scroll-mt-28 rounded-2xl border border-white/[0.08] bg-[#0d1116] p-6 md:p-7"
+              >
+                <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl border", toneClasses[solution.tone])}>
+                  <solution.icon className="h-6 w-6" />
                 </div>
-                <h2 className="font-display mt-4 text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
-                  {p.headline}
+                <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+                  {solution.label}
+                </p>
+                <h2 className="mt-3 text-2xl font-bold leading-tight text-foreground">
+                  {solution.title}
                 </h2>
-                <p className="mt-4 text-sm text-muted-foreground md:text-base">
-                  {p.promise}
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  {solution.description}
                 </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Button asChild>
-                    <Link to={p.cta.href}>
-                      {p.cta.label}
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <Link to="/pricing">Voir les tarifs</Link>
-                  </Button>
+
+                <div className="mt-6 border-t border-white/[0.06] pt-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    À prioriser
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {solution.focus.map((item) => (
+                      <div key={item} className="flex items-center gap-2 rounded-lg bg-white/[0.035] px-3 py-2 text-sm text-foreground">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                        {item}
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                <div className="mt-6 rounded-xl border border-white/[0.07] bg-white/[0.035] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Point de départ
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground">
+                    {solution.startingPoint}
+                  </p>
+                </div>
+              </section>
+            </FadeIn>
+          ))}
+        </div>
+
+        <FadeIn className="mt-14">
+          <section className="grid overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d1116] lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="border-b border-white/[0.06] p-7 md:p-9 lg:border-b-0 lg:border-r">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">Parcours recommandé</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground">
+                Créer, organiser, analyser, progresser.
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                La bonne solution n'est pas une page différente pour chaque profil : c'est un produit qui met l'accent sur le bon module au bon moment.
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Button onClick={() => openAuthModal("signup")} className="gap-2">
+                  Essayer gratuitement
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link to="/fonctionnalites">Voir les fonctionnalités</Link>
+                </Button>
               </div>
-
-              {/* Right: bullets */}
-              <GlassCard className="p-6 md:p-8" interactive>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">
-                  Ce que Streamnco fait pour toi
-                </p>
-                <ul className="mt-5 space-y-4">
-                  {p.bullets.map((b) => {
-                    const BIcon = b.icon;
-                    return (
-                      <li key={b.label} className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
-                          <BIcon className="h-3.5 w-3.5 text-primary" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground">{b.label}</p>
-                          <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{b.sub}</p>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </GlassCard>
             </div>
-          </SectionShell>
-        );
-      })}
 
-      {/* ── Quotas reminder ─────────────────────────────────────────── */}
-      <SectionShell className="pt-0">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-white/[0.06] bg-card/40 p-6 text-center backdrop-blur-xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">Quotas mensuels</p>
-          <p className="mt-3 text-sm text-foreground/85">
-            <span className="font-semibold text-foreground">Gratuit</span> : 5 visuels · 3 clips ·
-            {" "}<span className="font-semibold text-foreground">Pro</span> : 100 visuels · 30 clips ·
-            {" "}<span className="font-semibold text-foreground">Growth</span> : 300 visuels · 200 clips
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Les générations en échec ne sont pas comptées. Publication automatique disponible sur YouTube ; Instagram et TikTok en bêta selon les validations API.
-          </p>
-        </div>
-      </SectionShell>
-
-      {/* ── Final CTA ────────────────────────────────────────────────── */}
-      <SectionShell>
-        <div className="mx-auto max-w-3xl rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card/50 to-card/30 p-8 text-center backdrop-blur-xl md:p-12">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
-            Choisis ton point de départ
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground md:text-base">
-            Démarre gratuitement et avance à ton rythme. Pas de carte bancaire pour commencer.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <Link to="/auth">
-                Essayer gratuitement
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/fonctionnalites">Voir les fonctionnalités</Link>
-            </Button>
-          </div>
-        </div>
-      </SectionShell>
+            <div className="grid gap-px bg-white/[0.055] sm:grid-cols-2">
+              {[
+                { icon: Clapperboard, label: "Clips réseaux", copy: "Transformer les moments Twitch en assets verticaux." },
+                { icon: Palette, label: "Studio visuel", copy: "Maintenir une image de chaîne plus cohérente." },
+                { icon: TrendingUp, label: "StreamScore", copy: "Lire les signaux Twitch sans dashboard brut." },
+                { icon: Sparkles, label: "Live Studio", copy: "Préparer titres, planning et intentions de live." },
+              ].map(({ icon: Icon, label, copy }) => (
+                <div key={label} className="bg-[#0d1116] p-6">
+                  <Icon className="h-5 w-5 text-primary" />
+                  <p className="mt-4 text-base font-semibold text-foreground">{label}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{copy}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </FadeIn>
+      </main>
 
       <LandingFooter />
     </div>

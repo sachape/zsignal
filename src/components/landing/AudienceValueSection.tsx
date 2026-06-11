@@ -1,68 +1,76 @@
-import { Activity, Calendar, Target } from "lucide-react";
+import { Activity, Clapperboard, ListChecks, Palette } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { GlassCard, MicroLabel, SectionHeading, SectionShell } from "./primitives";
 
 const PILLARS = [
   {
+    icon: Clapperboard,
+    label: "Créer",
+    title: "Tes moments deviennent des assets propres.",
+    description:
+      "Clip Twitch, VOD ou upload : tu produis un vertical 9:16 avec facecam, gameplay, sous-titres et styles prêts à télécharger.",
+    stat: "Clips réseaux",
+  },
+  {
+    icon: Palette,
+    label: "Habiller",
+    title: "Ton image de chaîne reste cohérente.",
+    description:
+      "Le Studio visuel génère des formats Twitch et sociaux avec des dimensions propres, sans repartir d'une page blanche.",
+    stat: "8 formats · 3 variantes",
+  },
+  {
     icon: Activity,
-    label: "Diagnostic",
-    title: "Un score, pas des stats.",
+    label: "Comprendre",
+    title: "Tes données deviennent des décisions.",
     description:
-      "TwitchTracker te donne des chiffres. Streamnco te dit ce qu'ils signifient — et exactement ce que tu dois corriger en priorité.",
-    stat: "6 dimensions analysées",
+      "StreamScore, dimensions de progression, benchmark et historique t'aident à savoir quoi prioriser sans lire des dashboards bruts.",
+    stat: "Analyse Twitch",
   },
   {
-    icon: Target,
-    label: "Précision",
-    title: "Ton blocage exact, pas une liste.",
+    icon: ListChecks,
+    label: "Préparer",
+    title: "Chaque contenu a une prochaine étape.",
     description:
-      "Pas 15 recommandations génériques. Un blocage principal identifié, avec le levier précis à actionner cette semaine.",
-    stat: "1 priorité claire par analyse",
+      "File de contenu, brouillons, recommandations, titres et planning : tu avances avec un système, pas avec une liste perdue.",
+    stat: "File de contenu",
   },
-  {
-    icon: Calendar,
-    label: "Progression",
-    title: "Suivi semaine après semaine.",
-    description:
-      "Ton score évolue à chaque live. Tu vois ce qui progresse, ce qui stagne — et quand il faut changer d'approche.",
-    stat: "Score recalculé après chaque stream",
-  },
-];
+] as const;
 
 const AudienceValueSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.2);
 
   return (
-    <SectionShell id="features">
+    <SectionShell id="features" glow={false}>
       <SectionHeading
         badge="Pourquoi Streamnco"
-        title="Pas des stats. Une direction."
-        subtitle="La différence entre savoir que quelque chose ne va pas — et savoir exactement quoi changer."
+        title="Un cockpit, pas une pile d'outils."
+        subtitle="Tout ce qui entoure ton stream est relié : les clips, les visuels, l'organisation et les décisions de progression."
       />
 
-      <div ref={ref} className="mx-auto mt-10 grid max-w-5xl gap-5 md:mt-14 md:grid-cols-3">
+      <div ref={ref} className="mx-auto mt-10 grid max-w-6xl gap-4 md:mt-14 md:grid-cols-4">
         {PILLARS.map(({ icon: Icon, label, title, description, stat }, i) => (
           <div
             key={label}
             style={{
               opacity: inView ? 1 : 0,
               transform: inView ? "translateY(0)" : "translateY(24px)",
-              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 120}ms`,
+              transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${i * 100}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${i * 100}ms`,
             }}
           >
-            <GlassCard interactive className="flex h-full flex-col p-6 md:p-7">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
+            <GlassCard interactive className="flex h-full flex-col p-5 md:p-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
                 <Icon className="h-5 w-5 text-primary" />
               </div>
               <MicroLabel>{label}</MicroLabel>
-              <h3 className="mt-2 text-lg font-semibold leading-snug text-foreground">
+              <h3 className="mt-2 text-base font-semibold leading-snug text-foreground">
                 {title}
               </h3>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                 {description}
               </p>
               <div className="mt-5 border-t border-white/[0.06] pt-4">
-                <span className="text-[11px] font-semibold text-primary/80">{stat}</span>
+                <span className="text-[11px] font-semibold text-primary/[0.85]">{stat}</span>
               </div>
             </GlassCard>
           </div>

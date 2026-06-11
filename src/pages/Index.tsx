@@ -17,24 +17,24 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 
 const HOMEPAGE_FAQ = [
   {
+    q: "Que fait Streamnco aujourd'hui ?",
+    a: "Streamnco aide les streamers à créer des clips verticaux, générer des visuels, organiser leurs contenus, analyser leur chaîne Twitch et préparer leurs prochains lives.",
+  },
+  {
+    q: "Les clips sont-ils publiés automatiquement sur TikTok ou Instagram ?",
+    a: "Non. Aujourd'hui, Streamnco prépare et exporte tes contenus. Tu gardes la main sur la publication. Les connexions sociales avancées sont traitées comme une évolution à venir.",
+  },
+  {
+    q: "Quels types de clips puis-je transformer ?",
+    a: "Tu peux partir d'un Clip Twitch, d'une VOD Twitch ou d'un upload vidéo. L'objectif est de produire un format vertical 9:16 avec facecam, gameplay, sous-titres et export téléchargeable.",
+  },
+  {
+    q: "À quoi sert le Studio visuel ?",
+    a: "Il sert à générer des visuels Twitch et réseaux sociaux aux bonnes dimensions : bannière, story verticale, post carré, annonce live, cover/header ou écran offline.",
+  },
+  {
     q: "Faut-il connecter Twitch pour commencer ?",
-    a: "Non. Entre simplement ton pseudo Twitch — Streamnco lit les signaux publics de ta chaîne et génère ton diagnostic en moins d'une minute. Pas de token, pas de permission, pas de compte requis.",
-  },
-  {
-    q: "Quelles données sont analysées ?",
-    a: "Streamnco analyse 6 dimensions : ta régularité de stream, la structure de tes sessions, ta production de clips, ton positionnement en catégorie, ton momentum récent et ta progression vers l'affiliation. Chaque dimension génère un score et un levier d'action concret.",
-  },
-  {
-    q: "Pourquoi Streamnco plutôt que TwitchTracker ou SullyGnome ?",
-    a: "Ces outils te donnent des statistiques brutes. Streamnco te dit ce qu'elles signifient pour toi, identifie ton blocage principal et génère un plan d'action personnalisé. Ce n'est pas un dashboard, c'est un diagnostic.",
-  },
-  {
-    q: "Est-ce utile si je débute ?",
-    a: "Oui. C'est même là que Streamnco est le plus utile. Un débutant sans méthode peut passer des mois sur des axes secondaires. Streamnco identifie ce qui compte vraiment dès le départ.",
-  },
-  {
-    q: "Que débloque la version complète ?",
-    a: "Le plan Pro ajoute l'historique de progression (30/60/90 jours), le suivi live automatique après chaque stream, le benchmark de tes concurrents directs et le plan d'action hebdomadaire vérifié automatiquement.",
+    a: "Non pour lancer un premier diagnostic public. La connexion Twitch devient utile pour les usages avancés et le suivi dans le temps.",
   },
   {
     q: "Puis-je annuler à tout moment ?",
@@ -44,12 +44,12 @@ const HOMEPAGE_FAQ = [
 
 const Index = () => {
   usePageMeta({
-    title: "Streamnco — Crée tout le contenu autour de ton stream",
+    title: "Streamnco — Cockpit créatif et stratégique pour streamers",
     description:
-      "Génère des clips verticaux avec facecam et sous-titres, crée tes visuels Twitch et réseaux sociaux, puis suis ta progression avec ton StreamScore — depuis un seul cockpit.",
+      "Crée des clips verticaux, génère des visuels Twitch, organise tes contenus et analyse ta progression avec Streamnco.",
     ogTitle: "Streamnco — Le cockpit créatif des streamers",
     ogDescription:
-      "Clips réseaux, Studio visuel et StreamScore : crée, organise et améliore tout le contenu autour de ton stream.",
+      "Clips 9:16, Studio visuel, file de contenu, StreamScore, benchmark et Live Studio pour créer, organiser et progresser.",
     canonical: "https://streamnco.fr/",
     ogUrl: "https://streamnco.fr/",
     robots: "index, follow",
@@ -77,7 +77,7 @@ const Index = () => {
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         description:
-          "Diagnostic Twitch instantané. Streamnco analyse ta chaîne, identifie ton blocage principal et génère un plan d'action personnalisé — sans connexion Twitch requise.",
+          "Cockpit créatif et stratégique pour streamers : clips verticaux, visuels, organisation de contenus, analyse Twitch et préparation live.",
         sameAs: ["https://www.instagram.com/streamnco.fr/"],
       },
       {
