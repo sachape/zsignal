@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as Icons from "lucide-react";
 import { Loader2, Upload, X, Check, RefreshCw, Download, Star, Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,46 +101,91 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Poll job status
+  // Keep latest onCompleted in a ref so the polling effect never restarts.
+  const onCompletedRef = useRef(onCompleted);
+  useEffect(() => {
+    onCompletedRef.current = onCompleted;
+  }, [onCompleted]);
+
+  // Load variants + flip to succeeded state. Idempotent — safe to call multiple times.
+  const finalizeSucceeded = useRef(false);
+  const loadVariantsAndComplete = async (id: string) => {
+    if (finalizeSucceeded.current) return;
+    finalizeSucceeded.current = true;
+    try {
+      const vars = await fetchJobVariants(id);
+      setVariants(vars);
+      setPreviewError(vars.length > 0 && vars.some((v) => !v.signedUrl));
+      setJobStatus("succeeded");
+      onCompletedRef.current?.();
+    } catch (e) {
+      console.error("[visual-studio] load variants failed", e);
+      finalizeSucceeded.current = false;
+    }
+  };
+
+  // Poll job status + realtime subscription (whichever fires first wins).
   useEffect(() => {
     if (!jobId || step !== "result") return;
+    finalizeSucceeded.current = false;
     let cancelled = false;
     const startedAt = Date.now();
+
+    // Realtime: instant trigger as soon as the row flips.
+    const channel = supabase
+      .channel(`visual-job-${jobId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "visual_generation_jobs", filter: `id=eq.${jobId}` },
+        (payload: any) => {
+          const next = payload?.new;
+          if (!next || cancelled) return;
+          setJobStatus(next.status);
+          if (next.status === "succeeded") {
+            void loadVariantsAndComplete(jobId);
+          } else if (next.status === "failed") {
+            setError(friendlyError(next.error_code ?? next.error_message));
+          }
+        },
+      )
+      .subscribe();
+
+    // Polling fallback (resilient to transient nulls / errors).
     const poll = async () => {
       while (!cancelled) {
         try {
           const job = await fetchJob(jobId);
-          if (!job) break;
-          setJobStatus(job.status);
-          if (job.status === "succeeded") {
-            const vars = await fetchJobVariants(jobId);
-            if (!cancelled) {
-              setVariants(vars);
-              setPreviewError(vars.length > 0 && vars.some((v) => !v.signedUrl));
+          if (job) {
+            setJobStatus(job.status);
+            if (job.status === "succeeded") {
+              await loadVariantsAndComplete(jobId);
+              break;
             }
-            onCompleted();
-            break;
-          }
-          if (job.status === "failed") {
-            setError(friendlyError(job.error_code ?? job.error_message));
-            break;
+            if (job.status === "failed") {
+              setError(friendlyError(job.error_code ?? job.error_message));
+              break;
+            }
           }
         } catch (e) {
-          console.error(e);
+          console.error("[visual-studio] poll error", e);
         }
         if (Date.now() - startedAt > 120000) {
-          setJobStatus("timeout");
-          setError("La génération prend plus de temps que prévu.");
+          if (!finalizeSucceeded.current) {
+            setJobStatus("timeout");
+            setError("La génération prend plus de temps que prévu.");
+          }
           break;
         }
-        await new Promise((r) => setTimeout(r, 2000));
+        await new Promise((r) => setTimeout(r, 2500));
       }
     };
     void poll();
+
     return () => {
       cancelled = true;
+      supabase.removeChannel(channel);
     };
-  }, [jobId, step, onCompleted]);
+  }, [jobId, step]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, VisualTemplate[]>();
