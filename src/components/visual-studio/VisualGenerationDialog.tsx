@@ -99,6 +99,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
       setJobStatus("queued");
       setVariants([]);
       setError(null);
+      setQuotaBlocked(false);
       setPreviewError(false);
     }
     // Reset only when the dialog opens. Completion refreshes can update prefill
