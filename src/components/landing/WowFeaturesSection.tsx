@@ -17,8 +17,9 @@ const WowFeaturesSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.15);
 
   return (
-    <SectionShell id="features-wow" tone="contrast">
+    <SectionShell id="features-wow" tone="light">
       <SectionHeading
+        badgeTone="light"
         badge="Tes deux nouveaux super-pouvoirs"
         title="Crée tes clips et tes visuels en quelques secondes"
         subtitle="Streamnco transforme ton live en contenu prêt à publier — sans Premiere Pro, sans Photoshop, sans freelance."
