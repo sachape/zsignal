@@ -5,6 +5,7 @@
 // then trigger the external worker. Worker URL + shared secret read from env.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
