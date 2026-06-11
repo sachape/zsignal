@@ -3205,6 +3205,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      cleanup_orphaned_generation_jobs: { Args: never; Returns: Json }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
