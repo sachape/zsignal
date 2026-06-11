@@ -51,6 +51,7 @@ const ClipsReseauxPage = () => {
   const { user } = useAuth();
   const { plan, loading: planLoading } = usePlan();
   const canAccess = hasPlanAtLeast(plan, "pro");
+  const quota = useQuotaUsage();
 
   const [recent, setRecent] = useState<RecentClip[]>([]);
   const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
