@@ -1,107 +1,100 @@
+# Montée en gamme visuelle marketing Streamnco
 
-# Packaging UX Streamnco — plan d'exécution
+Objectif : passer le site marketing à un rendu premium (Stripe / Linear / Framer-like), sans casser le produit interne ni le backend.
 
-## Audit express (constats avant action)
+## Périmètre
 
-| Zone | Constat | Action |
-|---|---|---|
-| **Sidebar** | 9 entrées plates, "Content Studio" + "Clips réseaux" + "Studio visuel" côte à côte = confusion | Regrouper sous 3 sections : Créer / Analyser / Live |
-| **Dashboard** | `DashboardQuickActions` existe mais noie les 2 features "wow" | Ajouter bloc premium "Créer maintenant" en haut, 2 CTA clairs |
-| **Clips réseaux** | URL clair (`/clips-reseaux`), wording OK, mais empty state à premiumiser | Empty state + quota visible (déjà OK) |
-| **Studio visuel** | OK fonctionnellement, empty state à enrichir | Empty state premium |
-| **Content Studio (queue)** | Label ambigu vs Clips réseaux | Renommer "File de contenu" + sous-titre explicatif, empty state clarifié |
-| **Live Studio / Planning / Titres** | Bien isolés mais éparpillés dans la nav | Regrouper sous "Live" |
-| **Analyse / StreamScore / Benchmark / Progression** | 4 entrées éparses | Regrouper sous "Analyser" |
-| **Réseaux** | YouTube stable, Instagram/TikTok présentés comme égaux | Badge "Bêta" sur IG/TikTok |
-| **Billing** | Quotas OK, CTA cohérents (vérifié dans QA précédente) | Aucun changement |
-| **Wording technique** | "job", "processing", "generated_visuals" dans les empty states | Remplacer par "génération", "en cours", "visuels" |
+**Touché (marketing uniquement) :**
+- `LandingNav` + nouveau composant `MarketingDropdown`
+- `index.css` + `tailwind.config.ts` (font Instrument Sans, tokens)
+- `index.html` (préconnexion Google Fonts)
+- Pages : `Index`, `FeaturesPage`, `SolutionsPage`, `PricingPage`
+- Sections landing : `HeroSection`, `WowFeaturesSection`, `PricingSection`, `FaqSection`, `FinalCtaSection`, `primitives.tsx`
+- Footer marketing si nécessaire
 
-Aucune feature supprimée. Aucune route déplacée (pas de redirections à gérer).
+**Non touché :**
+- App produit interne (`AppShell`, dashboard, studio, clips, etc.)
+- Backend / edge functions / RLS
+- `BillingPage` (réservé au produit)
+- Logique métier, quotas, données
 
-## Architecture navigation appliquée
+## 1. Typographie — Instrument Sans
 
-Nav nested avec groupes `SidebarGroup` collapsibles, état actif persistant. Routes inchangées.
+- Import via Google Fonts dans `index.css` (poids 400/500/600/700) + preconnect dans `index.html`
+- Ajout `font-sans` = Instrument Sans dans `tailwind.config.ts` (fallback system)
+- `body` reste sur `font-sans` global → l'app produit héritera aussi, mais c'est cohérent (une seule famille = simple). Boogaloo (`font-display`) reste pour les titres uniquement si déjà utilisé — à arbitrer : on garde `font-display` actuel pour ne pas casser l'identité Streamnco, on remplace seulement la sans
+- Vérif fallback + aucun conflit
 
-```text
-Tableau de bord                 → /dashboard
+## 2. Header marketing (`LandingNav`)
 
-Créer
-  ├─ Clips réseaux              → /clips-reseaux
-  ├─ Studio visuel              → /studio-visuel
-  └─ File de contenu            → /content-queue
+Refonte du composant :
+- Liens principaux : `Fonctionnalités` (dropdown), `Solutions` (dropdown), `Tarifs` → `/pricing`, `Articles`, `À propos`
+- Dropdowns premium desktop (Radix `NavigationMenu` ou popover custom) :
+  - **Fonctionnalités** : 6 entrées (Clips réseaux, Studio visuel, File de contenu, StreamScore, Benchmark, Live Studio) avec icône + description courte, chacune pointant `/fonctionnalites#<anchor>`
+  - **Solutions** : 5 personas vers `/solutions#<anchor>`
+- Mobile : accordéons dans le drawer
+- CTA principal : `Essayer gratuitement` → `/auth` (ou `/dashboard` si user)
+- A11y : focus visible, navigation clavier, `aria-expanded`, fermeture Escape
+- ⚠️ Bug détecté dans le code actuel : `link.anchor` référencé mais pas dans le type des `NAV_LINKS` → à supprimer
 
-Analyser
-  ├─ StreamScore                → /analyse
-  ├─ Benchmark                  → /competitors
-  └─ Progression                → /progression
+Vérif : aucun lien vers `/billing` depuis le marketing.
 
-Live
-  ├─ Live Studio                → /live-setup
-  ├─ Planning                   → /planning
-  └─ Titres                     → /outils/titres
+## 3. Direction artistique — alternance + profondeur
 
-Réseaux                         → /reseaux
-Ressources                      → /playbooks
-```
+`primitives.tsx` étendu avec :
+- Variante `SectionShell` `tone="dark" | "light" | "gradient"` pour alterner backgrounds
+- Variante `glow` + `grid` déjà présents, on ajoute halos colorés + transitions douces entre sections (mask gradients en haut/bas)
+- Nouveaux helpers : `FloatingCard` (légère animation float CSS), `GlassPanel`
 
-"Créer" est ouvert par défaut (priorité produit). Footer inchangé (Progression XP, upgrade CTA, account popover).
+Alternance home : Hero dark → SocialProof neutre → WowFeatures gradient → Audience clair → HowItWorks dark → Demo gradient → Pricing neutre → FAQ clair → FinalCTA dark.
 
-## Changements ciblés
+## 4. Hero
 
-### 1. `src/components/AppSidebar.tsx`
-- Refactor `primaryItems` en `navGroups` (4 groupes).
-- Utiliser `SidebarGroup` + `SidebarGroupLabel` (groupe "Créer" `defaultOpen`).
-- Reste du fichier (header, footer XP, popover) intact.
+Refonte `HeroSection` :
+- Badge + titre + sous-titre conformes au brief
+- Composition visuelle droite : mockups UI stylisés (pas de screenshots) en flottement subtil :
+  - Card StreamScore (gauge + dimensions)
+  - Preview clip vertical 9:16 (facecam haut / gameplay bas, sous-titre)
+  - 3 cards Studio visuel (banner / story / post)
+  - Mini file de contenu
+- Animations `hero-float` déjà dispo, durées décalées
+- `prefers-reduced-motion` respecté
+- Responsive : mockups stack sur mobile
 
-### 2. `src/pages/DashboardPage.tsx` + `src/components/DashboardQuickActions.tsx` (ou nouveau `CreateNowBlock.tsx`)
-- Nouveau composant `CreateNowBlock` placé en tête du dashboard :
-  - Titre "Créer maintenant" + sous-titre.
-  - 2 cards larges : "Créer un clip réseau" → `/clips-reseaux`, "Générer un visuel" → `/studio-visuel`.
-  - Style premium : gradient subtil, icônes Clapperboard + Palette, hover lift.
-- Les quick actions existantes restent en dessous mais en version secondaire.
+## 5. Sections premium
 
-### 3. Empty states premium
-Fichiers ciblés (vérification puis remplacement du copy + visuel) :
-- `src/pages/ClipsReseauxPage.tsx`
-- `src/pages/VisualStudioPage.tsx`
-- `src/pages/ContentQueuePage.tsx`
-- `src/pages/ReseauxPage.tsx`
+- `WowFeaturesSection` : avant/après pour clips, 3 variantes pour Studio visuel, tags visibles
+- Nouvelle section StreamScore visuelle (score card + dimensions + recommandation)
+- Section File de contenu (kanban léger)
+- `PricingSection` + `PricingPage` : cards plus haut de gamme, Growth mis en avant, quotas lisibles
+- `FaqSection` : accordéons premium, espacement éditorial
 
-Composant partagé léger `src/components/ui/empty-state.tsx` (nouveau, ~40 lignes) : icône, titre, description, CTA primaire. Réutilisé sur les 4 pages.
+## 6. Pages Features / Solutions
 
-### 4. Badges Bêta réseaux
-- `src/pages/ReseauxPage.tsx` + `src/pages/ReseauxPlatformPage.tsx` : badge `<Badge variant="outline">Bêta</Badge>` à côté de "Instagram" et "TikTok". Note courte "Publication automatique en validation API".
-- YouTube : pas de badge (stable).
+- Garder structure pilier / persona et ancres existantes (`scroll-mt-24`)
+- Améliorer cards : gradient borders subtils, icônes plus marquées, mini-mockups par pilier
+- Alternance backgrounds entre piliers
+- Respect des anchors : `#clips-reseaux`, `#studio-visuel`, `#file-de-contenu`, `#streamscore`, `#benchmark`, `#live-studio`, `#debutant`, `#regulier`, `#recycle`, `#image`, `#ambitieux`
 
-### 5. Wording harmonisé
-- "Content Studio" → "File de contenu" (label sidebar) ; route inchangée.
-- Empty/erreur copy : remplacer "job", "processing brut", "generated_visuals", "quota_exceeded" par "génération", "en cours", "visuels", "limite mensuelle atteinte".
-- Cibles principales : empty states + messages d'erreur des 4 pages ci-dessus. Pas de chasse globale (risque de casser des libellés internes).
+## 7. Vérifications finales
 
-## Hors scope
+- TypeScript clean
+- Build OK (harness)
+- Routes : `/pricing` public, `/billing` non lié depuis marketing
+- Anchors testées via preview
+- Responsive desktop + mobile (988 et < 768)
+- Pas d'overflow horizontal
 
-- Pas d'onboarding refondu (section 5 du brief) — le `OnboardingGuide` existant reste tel quel ; un audit fin mériterait son propre passage dédié.
-- Pas de textes landing (section 9) — la landing n'est pas en context, à traiter séparément si demandé.
-- Pas de refonte design tokens.
-- Pas de changement de route (aucune redirection à gérer).
+## Risques / arbitrages
 
-## Tests
+- **Font globale** : Instrument Sans s'appliquera aussi à l'app produit (design system partagé). Acceptable et cohérent, mais signalé.
+- **Boogaloo** (`font-display` actuel sur titres) : je le conserve sur l'app produit, mais sur le marketing j'utilise Instrument Sans en headings pour un rendu plus premium/éditorial. À confirmer si tu veux Instrument Sans aussi sur les headings produit.
+- **Pas de génération d'images** : tous les visuels sont des mockups UI faits en CSS/SVG (plus rapide, responsive, pas de poids supplémentaire).
+- **Périmètre volumineux** : je livre en une passe cohérente, sans toucher au backend ni à l'app produit. Si tu préfères découper (header d'abord, puis hero, puis sections), dis-le avant que je commence.
 
-1. Navigation : cliquer chaque entrée des 4 groupes, vérifier route + état actif.
-2. Dashboard : cliquer les 2 CTA "Créer maintenant" → routes attendues.
-3. Empty states : forcer état vide (compte sans visuels/clips) et inspecter visuel.
-4. Réseaux : vérifier badge Bêta sur IG/TikTok.
-5. Billing : déjà validé en QA précédente (Free/Pro/Growth), pas de retest.
-6. Responsive : sidebar collapsible="icon" déjà fonctionnel, vérifier que les groupes restent utilisables en mobile (Sheet).
+## Confirmation
 
-Build + TypeScript : vérifiés automatiquement après les edits.
-
-## Risques
-
-- **Faible** : refactor sidebar peut casser le highlight actif si `matchSection` mal porté → conserver `matchSection` sur chaque item.
-- **Faible** : nouveau `CreateNowBlock` peut allonger le dashboard sur mobile → grid responsive `md:grid-cols-2`.
-- **Nul** : aucune migration DB, aucune edge function modifiée.
-
-## Livrables
-
-~6 fichiers édités, 2 fichiers créés (`CreateNowBlock.tsx`, `empty-state.tsx`). Zéro migration, zéro changement backend.
+Avant d'attaquer, j'aimerais que tu confirmes :
+1. Instrument Sans **partout** (marketing + produit) ou **marketing seulement** ?
+2. Je garde Boogaloo (`font-display`) sur les gros titres marketing ou je passe tout en Instrument Sans (700) ?
+3. OK pour livrer la passe complète en un seul lot (gros diff) ?
