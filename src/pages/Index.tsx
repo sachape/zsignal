@@ -2,6 +2,8 @@ import LandingNav from "@/components/LandingNav";
 import HeroSection from "@/components/landing/HeroSection";
 import SocialProofSection from "@/components/landing/SocialProofSection";
 import WowFeaturesSection from "@/components/landing/WowFeaturesSection";
+import StreamScoreShowcaseSection from "@/components/landing/StreamScoreShowcaseSection";
+import ContentQueueShowcaseSection from "@/components/landing/ContentQueueShowcaseSection";
 import AudienceValueSection from "@/components/landing/AudienceValueSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import DemoPreviewSection from "@/components/DemoPreviewSection";
