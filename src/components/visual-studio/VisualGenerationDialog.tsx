@@ -239,11 +239,14 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
       setPreviewError(false);
       setStep("result");
     } catch (e: any) {
-      const msg = e?.message === "quota_exceeded"
-        ? "Tu as atteint la limite quotidienne de générations. Réessaie demain."
-        : "Impossible de lancer la génération. Réessaie dans un instant.";
-      toast.error(msg);
-      setError(msg);
+      if (e?.code === "quota_exceeded" || e?.message === "quota_exceeded") {
+        setQuotaBlocked(true);
+        setError(quotaExceededMessage("visual"));
+      } else {
+        const msg = "Impossible de lancer la génération. Réessaie dans un instant.";
+        toast.error(msg);
+        setError(msg);
+      }
     } finally {
       setSubmitting(false);
       setRefUploading(false);
