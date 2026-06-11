@@ -51,6 +51,13 @@ const STATS = [
   { value: 60, suffix: " s", label: "diagnostic complet", prefix: "< ", duration: 0 },
 ];
 
+// Scrolling proof band — continuous motion, visible at a glance.
+const CATEGORIES = [
+  "Just Chatting", "League of Legends", "Valorant", "Fortnite", "Minecraft",
+  "GTA RP", "Counter-Strike", "Rocket League", "Apex Legends", "Speedrun",
+  "IRL", "Trackmania",
+];
+
 const SocialProofSection = () => {
   const { ref: statsRef, inView: statsInView } = useInViewOnce<HTMLDivElement>(0.3);
   const { ref: quotesRef, inView: quotesInView } = useInViewOnce<HTMLDivElement>(0.2);
@@ -61,6 +68,25 @@ const SocialProofSection = () => {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.04),transparent_70%)]" />
 
       <div className="container relative mx-auto max-w-5xl px-4 md:px-6">
+        {/* Category marquee — continuous motion, "used across every category" */}
+        <div className="mb-10">
+          <p className="mb-4 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/50">
+            Analysé sur toutes les catégories Twitch
+          </p>
+          <div className="landing-marquee-mask relative overflow-hidden">
+            <div className="landing-marquee flex w-max items-center gap-3" style={{ ["--marquee-duration" as string]: "34s" }}>
+              {[...CATEGORIES, ...CATEGORIES].map((cat, i) => (
+                <span
+                  key={`${cat}-${i}`}
+                  className="shrink-0 rounded-full border border-white/[0.07] bg-card/40 px-4 py-1.5 text-xs font-medium text-foreground/70 backdrop-blur-sm"
+                >
+                  {cat}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Stats */}
         <div
           ref={statsRef}

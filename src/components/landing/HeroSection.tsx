@@ -156,7 +156,7 @@ const HeroSection = () => {
             }}
           >
             <div className="pointer-events-none absolute -inset-8 rounded-[2rem] bg-primary/10 blur-3xl" />
-            <FloatCard range={8} duration={7} className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c1014]/[0.88] shadow-[0_30px_120px_-70px_rgba(190,255,90,0.55)] backdrop-blur-2xl">
+            <FloatCard range={16} duration={6} className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c1014]/[0.88] shadow-[0_30px_120px_-70px_rgba(190,255,90,0.55)] backdrop-blur-2xl">
               <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-[#ff6b6b]" />
