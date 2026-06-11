@@ -14,9 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["DM Sans", "system-ui", "sans-serif"],
+        sans: ["Instrument Sans", "DM Sans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
-        display: ["Boogaloo", "system-ui", "sans-serif"],
+        display: ["Instrument Sans", "DM Sans", "system-ui", "sans-serif"],
+        brand: ["Boogaloo", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
