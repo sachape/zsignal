@@ -49,15 +49,17 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (tplErr || !template) return json({ error: "template_not_found" }, 404);
 
-    // Quota: 10 jobs / 24h
-    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { count } = await admin
-      .from("visual_generation_jobs")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .gte("created_at", dayAgo);
-    if ((count ?? 0) >= DAILY_QUOTA) {
-      return json({ error: "quota_exceeded", quota: DAILY_QUOTA }, 429);
+    // Monthly per-plan quota — backend source of truth.
+    const { plan, visuals_used } = await getUserPlanAndUsage(admin, user.id);
+    const limit = quotaFor(plan, "visual");
+    if (visuals_used >= limit) {
+      return json({
+        error: "quota_exceeded",
+        feature: "visual",
+        plan,
+        limit,
+        used: visuals_used,
+      }, 429);
     }
 
     const { data: job, error: insErr } = await admin
