@@ -223,7 +223,7 @@ const VisualStudioPage = () => {
           onOpenChange={setDialogOpen}
           templates={templates}
           prefill={prefill}
-          onCompleted={loadAll}
+          onCompleted={() => { void loadAll(); void quota.refresh(); }}
         />
       </PageContainer>
     </AppShell>
