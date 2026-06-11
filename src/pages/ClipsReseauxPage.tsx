@@ -31,6 +31,7 @@ import { usePlan } from "@/hooks/usePlan";
 import { hasPlanAtLeast } from "@/lib/planAccess";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { cn } from "@/lib/utils";
 
 interface RecentClip {
