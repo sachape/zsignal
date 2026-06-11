@@ -173,6 +173,23 @@ Deno.serve(async (req) => {
 
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+  // Monthly per-plan quota — backend source of truth.
+  {
+    const { plan, clips_used } = await getUserPlanAndUsage(admin, userId);
+    const limit = quotaFor(plan, "clip");
+    if (clips_used >= limit) {
+      return json({
+        success: false,
+        error: "quota_exceeded",
+        feature: "clip",
+        plan,
+        limit,
+        used: clips_used,
+        message: "Tu as atteint ta limite de clips générés ce mois-ci.",
+      }, 429);
+    }
+  }
+
   const { data: activeJob } = await admin
     .from("creator_video_generation_jobs")
     .select("id, content_item_id, status, generation_stage, created_at, updated_at, worker_last_seen_at")
