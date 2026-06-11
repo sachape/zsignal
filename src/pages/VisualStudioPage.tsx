@@ -22,6 +22,7 @@ import {
   type VisualTemplate,
   type GeneratedVisual,
 } from "@/services/visualStudio";
+import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { cn } from "@/lib/utils";
 
 const VisualStudioPage = () => {
