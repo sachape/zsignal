@@ -333,9 +333,10 @@ const PricingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
       <LandingNav />
-      <div className="container mx-auto max-w-5xl px-4 pt-28 pb-20 md:px-6 md:pt-32">
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[38rem] w-[56rem] -translate-x-1/2 landing-aurora" aria-hidden />
+      <div className="container relative mx-auto max-w-5xl px-4 pt-28 pb-20 md:px-6 md:pt-32">
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">

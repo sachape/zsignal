@@ -130,6 +130,7 @@ const FeaturesPage = () => {
       <LandingNav />
 
       <section className="relative overflow-hidden pt-32 pb-12 md:pt-40 md:pb-16">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[40rem] w-[58rem] -translate-x-1/2 landing-aurora" aria-hidden />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_40%_0%,rgba(190,255,90,0.15),transparent_54%),radial-gradient(ellipse_at_80%_20%,rgba(90,210,255,0.10),transparent_36%)]" />
         <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
           <FadeIn className="max-w-3xl">

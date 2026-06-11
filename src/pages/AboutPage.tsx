@@ -168,6 +168,7 @@ const AboutPage = () => {
       {/* ══════════════════════════════════════════════════════════════════════ */}
       <section ref={heroRef} className="relative overflow-hidden pt-32 pb-24 md:pt-44 md:pb-32">
         {/* Layered atmosphere */}
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[42rem] w-[58rem] -translate-x-1/2 landing-aurora" aria-hidden />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.12),transparent_55%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.035)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)] opacity-50" />
 
