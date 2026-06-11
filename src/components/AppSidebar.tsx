@@ -17,6 +17,9 @@ import {
   MessageCircle,
   Clapperboard,
   Palette,
+  TrendingUp,
+  Calendar,
+  Type,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -27,6 +30,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -51,16 +55,44 @@ type NavEntry = {
   matchSection?: "live-studio" | "content-studio" | "benchmark" | "resources";
 };
 
-const primaryItems: NavEntry[] = [
-  { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
-  { title: "Analyse", url: "/analyse", icon: Activity },
-  { title: "Live Studio", url: "/live-setup", icon: Rocket, matchSection: "live-studio" },
-  { title: "Content Studio", url: "/content-queue", icon: Inbox, matchSection: "content-studio" },
-  { title: "Clips réseaux", url: "/clips-reseaux", icon: Clapperboard },
-  { title: "Studio visuel", url: "/studio-visuel", icon: Palette },
-  { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark" },
-  { title: "Réseaux", url: "/reseaux", icon: Network },
-  { title: "Ressources", url: "/outils/titres", icon: BookOpen, matchSection: "resources" },
+type NavGroup = { label?: string; items: NavEntry[] };
+
+const navGroups: NavGroup[] = [
+  {
+    items: [
+      { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard, end: true },
+    ],
+  },
+  {
+    label: "Créer",
+    items: [
+      { title: "Clips réseaux", url: "/clips-reseaux", icon: Clapperboard },
+      { title: "Studio visuel", url: "/studio-visuel", icon: Palette },
+      { title: "File de contenu", url: "/content-queue", icon: Inbox, matchSection: "content-studio" },
+    ],
+  },
+  {
+    label: "Analyser",
+    items: [
+      { title: "StreamScore", url: "/analyse", icon: Activity },
+      { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark" },
+      { title: "Progression", url: "/progression", icon: TrendingUp },
+    ],
+  },
+  {
+    label: "Live",
+    items: [
+      { title: "Live Studio", url: "/live-setup", icon: Rocket, matchSection: "live-studio" },
+      { title: "Planning", url: "/planning", icon: Calendar },
+      { title: "Titres", url: "/outils/titres", icon: Type, matchSection: "resources" },
+    ],
+  },
+  {
+    items: [
+      { title: "Réseaux", url: "/reseaux", icon: Network },
+      { title: "Ressources", url: "/playbooks", icon: BookOpen },
+    ],
+  },
 ];
 
 const AppSidebar = () => {
