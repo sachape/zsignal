@@ -65,6 +65,7 @@ function friendlyError(code: string | null | undefined): string {
 
 
 export default function VisualGenerationDialog({ open, onOpenChange, templates, prefill, onCompleted }: Props) {
+  const { plan } = usePlan();
   const [step, setStep] = useState<Step>("pick");
   const [template, setTemplate] = useState<VisualTemplate | null>(null);
   const [headline, setHeadline] = useState("");
@@ -80,6 +81,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
   const [jobStatus, setJobStatus] = useState<ResultState>("queued");
   const [variants, setVariants] = useState<GeneratedVisual[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [quotaBlocked, setQuotaBlocked] = useState(false);
   const [previewError, setPreviewError] = useState(false);
 
   useEffect(() => {
