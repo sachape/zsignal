@@ -69,6 +69,21 @@ export async function createVisualJob(input: CreateJobParams): Promise<{ job_id:
   const { data, error } = await supabase.functions.invoke("visual-job-create", {
     body: input,
   });
+  // Try to surface a structured error payload from non-2xx responses.
+  let payload: any = data;
+  if (error && (error as any)?.context?.response) {
+    try {
+      payload = await (error as any).context.response.clone().json();
+    } catch { /* keep null */ }
+  }
+  if (payload?.error === "quota_exceeded") {
+    const err: any = new Error("quota_exceeded");
+    err.code = "quota_exceeded";
+    err.limit = payload.limit;
+    err.used = payload.used;
+    err.plan = payload.plan;
+    throw err;
+  }
   if (error) throw error;
   if ((data as any)?.error) throw new Error((data as any).error);
   return data as { job_id: string };
