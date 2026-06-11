@@ -424,7 +424,27 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
               </div>
             </div>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {quotaBlocked ? (
+              <div className="rounded-lg border border-primary/40 bg-primary/5 p-4 text-sm">
+                <p className="font-semibold text-foreground">{quotaExceededMessage("visual")}</p>
+                <p className="mt-1 text-muted-foreground">
+                  Ta limite mensuelle se réinitialise au début du mois prochain.
+                </p>
+                <div className="mt-3">
+                  {(() => {
+                    const cta = quotaCta(plan);
+                    if (!cta.href) return <p className="text-muted-foreground">{cta.label}</p>;
+                    return cta.href.startsWith("mailto:") ? (
+                      <a href={cta.href} className="inline-flex"><Button size="sm">{cta.label}</Button></a>
+                    ) : (
+                      <Button asChild size="sm"><Link to={cta.href}>{cta.label}</Link></Button>
+                    );
+                  })()}
+                </div>
+              </div>
+            ) : error ? (
+              <p className="text-sm text-destructive">{error}</p>
+            ) : null}
 
             <div className="flex items-center justify-between gap-2 pt-2">
               <Button variant="ghost" onClick={() => setStep("pick")}>
