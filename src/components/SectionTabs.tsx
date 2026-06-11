@@ -20,7 +20,7 @@ const SECTIONS: Section[] = [
   },
   {
     id: "content-studio",
-    label: "Content Studio",
+    label: "File de contenu",
     tabs: [
       { label: "Queue", to: "/content-queue", matches: ["/content-queue", "/content-studio"] },
       { label: "Composer", to: "/composer", matches: ["/composer"] },

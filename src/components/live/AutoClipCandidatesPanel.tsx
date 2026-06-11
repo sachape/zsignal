@@ -176,7 +176,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
     try {
       await updateItem(item.id, { status: "idea" });
       toast({
-        title: "Envoyé dans Content Queue",
+        title: "Envoyé dans la file de contenu",
         description: "Le clip est marqué « À préparer ».",
       });
     } catch (err) {
@@ -284,7 +284,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
               <div className="flex items-center gap-2 text-foreground">
                 <AlertCircle className="h-4 w-4 text-warning" />
                 La VOD Twitch n'est pas encore disponible. Tu peux réessayer ou envoyer
-                ces clips comme idées dans Content Queue.
+                ces clips comme idées dans la file de contenu.
               </div>
               <Button
                 variant="outline"

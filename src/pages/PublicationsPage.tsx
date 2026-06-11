@@ -65,7 +65,7 @@ const PublicationsPage = () => {
     <AppShell>
       <PageContainer size="lg">
         <PageHeader
-          eyebrow="Content Studio"
+          eyebrow="File de contenu"
           title="Publications"
           description="Tes brouillons, planifications et publications Instagram."
           action={
@@ -87,7 +87,7 @@ const PublicationsPage = () => {
               <div>
                 <div className="font-semibold">Aucune publication pour l'instant</div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Crée ta première publication depuis le Composer ou prépare un contenu dans la Content Queue.
+                  Crée ta première publication depuis le Composer ou prépare un contenu dans ta file de contenu.
                 </p>
               </div>
               <Button onClick={() => navigate("/composer")}>
