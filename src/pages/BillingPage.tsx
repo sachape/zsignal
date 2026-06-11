@@ -105,6 +105,31 @@ const BillingPage = () => {
           </h1>
         </div>
 
+        {/* Usage ce mois-ci */}
+        {!quota.loading && (
+          <section className="mb-6">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
+              Usage ce mois-ci
+            </h2>
+            <Card>
+              <CardContent className="grid gap-3 p-5 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Studio visuel</p>
+                  <p className="mt-1 text-sm font-medium text-foreground">
+                    {quota.visualsUsed} / {quota.visualsLimit} générations
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Clips réseaux</p>
+                  <p className="mt-1 text-sm font-medium text-foreground">
+                    {quota.clipsUsed} / {quota.clipsLimit} clips
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
         {/* Plan actuel */}
         <section className="mb-6">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
