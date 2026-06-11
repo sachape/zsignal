@@ -119,6 +119,12 @@ const VisualStudioPage = () => {
           }
         />
 
+        {!quota.loading && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {quota.visualsUsed} / {quota.visualsLimit} générations utilisées ce mois-ci
+          </p>
+        )}
+
         {/* Quick start templates */}
         <section className="mt-6">
           <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Démarrage rapide</h2>
