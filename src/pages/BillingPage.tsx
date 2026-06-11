@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { openBillingPortal, startCheckout } from "@/services/billingService";
 import { toast } from "sonner";
 
