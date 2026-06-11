@@ -49,11 +49,11 @@ function InstagramIcon({ className }: { className?: string }) {
 }
 
 // ── Platform meta ─────────────────────────────────────────────────────────────
-const PM: Record<Platform, { label: string; color: string; iconBg: string; Icon: React.FC<{ className?: string }>; cta: string }> = {
+const PM: Record<Platform, { label: string; color: string; iconBg: string; Icon: React.FC<{ className?: string }>; cta: string; beta?: boolean }> = {
   twitch:    { label: "Twitch",    color: "text-[#9146FF]", iconBg: "bg-[#9146FF]/15", Icon: TwitchIcon,    cta: "Connecter" },
   youtube:   { label: "YouTube",   color: "text-[#FF0000]", iconBg: "bg-[#FF0000]/10", Icon: YouTubeIcon,   cta: "Connecter YouTube" },
-  tiktok:    { label: "TikTok",    color: "text-foreground", iconBg: "bg-muted",       Icon: TikTokIcon,    cta: "Ajouter TikTok" },
-  instagram: { label: "Instagram", color: "text-[#E1306C]", iconBg: "bg-[#E1306C]/10", Icon: InstagramIcon, cta: "Ajouter Instagram" },
+  tiktok:    { label: "TikTok",    color: "text-foreground", iconBg: "bg-muted",       Icon: TikTokIcon,    cta: "Ajouter TikTok",    beta: true },
+  instagram: { label: "Instagram", color: "text-[#E1306C]", iconBg: "bg-[#E1306C]/10", Icon: InstagramIcon, cta: "Ajouter Instagram", beta: true },
 };
 
 const IMPACT: Record<string, { label: string; cls: string }> = {
@@ -191,11 +191,23 @@ function PlatformCard({
 
         {/* Identity */}
         <div>
-          <p className="font-semibold text-sm">{meta.label}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="font-semibold text-sm">{meta.label}</p>
+            {meta.beta && (
+              <span className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-400/10 px-1.5 py-0 text-[9px] font-semibold uppercase tracking-wide text-amber-400">
+                Bêta
+              </span>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground">
             {username ? `@${username}` : isActive ? "Profil non renseigné" : "Non connecté"}
           </p>
-          {status === "manual" && (
+          {meta.beta && (
+            <p className="mt-1 text-[10px] text-muted-foreground/60 leading-snug">
+              Publication automatique en validation API. Tu peux préparer tes contenus dès maintenant.
+            </p>
+          )}
+          {status === "manual" && !meta.beta && (
             <p className="mt-1 text-[10px] text-muted-foreground/60 leading-snug">
               {platform === "tiktok"
                 ? "Ajouté manuellement. Connecte TikTok via OAuth pour récupérer tes vidéos."
@@ -206,6 +218,7 @@ function PlatformCard({
             <p className="mt-0.5 text-[10px] text-muted-foreground/50">{syncLabel}</p>
           )}
         </div>
+
 
         {/* Score */}
         <div className="flex items-center justify-between pt-1.5 border-t border-border/40 mt-auto">

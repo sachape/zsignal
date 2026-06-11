@@ -33,6 +33,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface RecentClip {
   id: string;
@@ -197,21 +198,21 @@ const ClipsReseauxPage = () => {
         {/* Recent clips */}
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Derniers clips générés</h2>
+            <h2 className="text-sm font-semibold text-foreground">Tes derniers clips</h2>
             <Button asChild variant="ghost" size="sm" className="text-xs">
-              <Link to="/content-queue">Suivre dans la Content Queue</Link>
+              <Link to="/content-queue">Voir la file de contenu</Link>
             </Button>
           </div>
           {recent.length === 0 ? (
-            <Card className="border-border/60 bg-card/40">
-              <CardContent className="flex flex-col items-center gap-2 p-8 text-center">
-                <Clapperboard className="h-6 w-6 text-muted-foreground" />
-                <p className="text-sm text-foreground">Aucun clip généré pour l'instant.</p>
-                <p className="text-xs text-muted-foreground">
-                  Lance ta première génération depuis une VOD Twitch ou un import vidéo.
-                </p>
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={Clapperboard}
+              title="Tu n'as pas encore créé de clip"
+              description="Colle un Clip Twitch ou importe une VOD, et Streamnco génère une vidéo verticale prête pour TikTok, Reels ou Shorts — avec facecam, gameplay et sous-titres."
+              ctaLabel={canAccess ? "Créer mon premier clip" : "Passer au Pro"}
+              ctaTo={canAccess ? "/clips/vod-import" : "/billing"}
+              secondaryLabel="Voir la file de contenu"
+              secondaryTo="/content-queue"
+            />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((clip) => (

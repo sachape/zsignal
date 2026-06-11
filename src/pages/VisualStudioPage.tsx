@@ -24,6 +24,7 @@ import {
 } from "@/services/visualStudio";
 import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const VisualStudioPage = () => {
   usePageMeta({
@@ -162,20 +163,13 @@ const VisualStudioPage = () => {
               ))}
             </div>
           ) : library.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Palette className="h-6 w-6" />
-                </div>
-                <h3 className="text-base font-semibold">Aucun visuel pour le moment</h3>
-                <p className="max-w-md text-sm text-muted-foreground">
-                  Crée ton premier visuel et il s'ajoutera ici. Tu pourras le retrouver, le télécharger ou le mettre en favori à tout moment.
-                </p>
-                <Button onClick={() => setDialogOpen(true)} className="mt-2 gap-2">
-                  <Plus className="h-4 w-4" /> Créer mon premier visuel
-                </Button>
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={Palette}
+              title="Tu n'as pas encore généré de visuel"
+              description="Crée une bannière Twitch, une story, un post réseau ou une annonce de live en quelques secondes. Tes visuels apparaîtront ici pour être téléchargés ou mis en favoris."
+              ctaLabel="Créer mon premier visuel"
+              ctaOnClick={() => setDialogOpen(true)}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
               {library.map((v) => (
