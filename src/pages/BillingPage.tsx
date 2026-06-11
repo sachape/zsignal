@@ -61,6 +61,7 @@ function formatDate(iso: string) {
 const BillingPage = () => {
   usePageMeta({ title: "Facturation", description: "Gérez votre abonnement et vos paiements." });
   const sub = useSubscription();
+  const quota = useQuotaUsage();
   const [portalLoading, setPortalLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "growth" | null>(null);
 
