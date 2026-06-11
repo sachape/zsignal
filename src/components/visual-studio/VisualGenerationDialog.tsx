@@ -21,6 +21,9 @@ import {
   type GeneratedVisual,
   type VisualTemplate,
 } from "@/services/visualStudio";
+import { usePlan } from "@/hooks/usePlan";
+import { quotaCta, quotaExceededMessage } from "@/lib/quotas";
+import { Link } from "react-router-dom";
 
 interface Props {
   open: boolean;
