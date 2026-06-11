@@ -58,6 +58,8 @@ function friendlyError(code: string | null | undefined): string {
       return "Ce prompt a été refusé par le moteur d'image. Modifie le texte ou le style et réessaie.";
     case "template_missing":
       return "Le template sélectionné n'est plus disponible.";
+    case "timeout_orphaned_job":
+      return "La génération a pris trop de temps. Tu peux réessayer.";
     default:
       return "Impossible de générer les visuels pour le moment. Réessaie dans quelques instants.";
   }
