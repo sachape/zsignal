@@ -1,12 +1,10 @@
 import { ReactNode } from "react";
 
+type Tone = "default" | "contrast" | "deep";
+
 /**
  * Shared atmospheric wrapper for landing sections.
- * Provides:
- *  - dark page-consistent background
- *  - centered radial green spotlight
- *  - faint dot grid masked toward center
- *  - vertical rhythm py-24 md:py-32
+ * Use `tone` to alternate surface depth between sections without leaving the dark palette.
  */
 export const SectionShell = ({
   children,
@@ -14,23 +12,41 @@ export const SectionShell = ({
   className = "",
   glow = true,
   grid = true,
+  tone = "default",
 }: {
   children: ReactNode;
   id?: string;
   className?: string;
   glow?: boolean;
   grid?: boolean;
-}) => (
-  <section id={id} className={`relative overflow-hidden py-16 sm:py-20 md:py-28 lg:py-32 scroll-mt-24 md:scroll-mt-28 ${className}`}>
-    {glow && (
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.06),transparent_60%)]" />
-    )}
-    {grid && (
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.04)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-40" />
-    )}
-    <div className="container relative mx-auto max-w-6xl px-4 md:px-6">{children}</div>
-  </section>
-);
+  tone?: Tone;
+}) => {
+  const toneClasses: Record<Tone, string> = {
+    default: "bg-background",
+    contrast: "bg-[hsl(220_16%_8%)]",
+    deep: "bg-[hsl(220_24%_4%)]",
+  };
+
+  return (
+    <section
+      id={id}
+      className={`relative overflow-hidden py-16 sm:py-20 md:py-28 lg:py-32 scroll-mt-24 md:scroll-mt-28 ${toneClasses[tone]} ${className}`}
+    >
+      {/* Top transition fade */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background/40 to-transparent" />
+      {/* Bottom transition fade */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background/40 to-transparent" />
+
+      {glow && (
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.06),transparent_60%)]" />
+      )}
+      {grid && (
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.04)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-40" />
+      )}
+      <div className="container relative mx-auto max-w-6xl px-4 md:px-6">{children}</div>
+    </section>
+  );
+};
 
 export const SectionBadge = ({ children }: { children: ReactNode }) => (
   <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary shadow-[0_0_24px_hsl(var(--primary)/0.18)]">
@@ -42,14 +58,16 @@ export const SectionHeading = ({
   badge,
   title,
   subtitle,
+  align = "center",
 }: {
   badge?: ReactNode;
   title: ReactNode;
   subtitle?: ReactNode;
+  align?: "center" | "left";
 }) => (
-  <div className="mx-auto max-w-2xl text-center">
+  <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
     {badge && <SectionBadge>{badge}</SectionBadge>}
-    <h2 className="mt-4 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl md:text-5xl">
+    <h2 className="mt-4 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-semibold tracking-tight text-transparent sm:text-4xl md:text-5xl">
       {title}
     </h2>
     {subtitle && (
@@ -87,4 +105,32 @@ export const MicroLabel = ({ children }: { children: ReactNode }) => (
   <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 md:text-[11px]">
     {children}
   </span>
+);
+
+/** Floating card with subtle hover lift and ambient gradient halo. */
+export const FloatingCard = ({
+  children,
+  className = "",
+  delay = 0,
+  duration = 7,
+  rotate = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+  duration?: number;
+  rotate?: number;
+}) => (
+  <div
+    className={`relative rounded-2xl border border-white/10 bg-card/70 shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.35)] backdrop-blur-xl ${className}`}
+    style={
+      {
+        animation: `hero-float ${duration}s ease-in-out infinite ${delay}s`,
+        ["--rot" as string]: `${rotate}deg`,
+        transform: `rotate(${rotate}deg)`,
+      } as React.CSSProperties
+    }
+  >
+    {children}
+  </div>
 );
