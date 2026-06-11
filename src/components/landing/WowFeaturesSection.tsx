@@ -17,8 +17,9 @@ const WowFeaturesSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.15);
 
   return (
-    <SectionShell id="features-wow" tone="contrast">
+    <SectionShell id="features-wow" tone="light">
       <SectionHeading
+        badgeTone="light"
         badge="Tes deux nouveaux super-pouvoirs"
         title="Crée tes clips et tes visuels en quelques secondes"
         subtitle="Streamnco transforme ton live en contenu prêt à publier — sans Premiere Pro, sans Photoshop, sans freelance."
@@ -34,7 +35,7 @@ const WowFeaturesSection = () => {
         }}
       >
         {/* ── Clips réseaux ─────────────────────────────────────────── */}
-        <article className="group relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary/30">
+        <article className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-[0_30px_80px_-30px_hsl(220_28%_10%/0.18)] transition-all hover:-translate-y-0.5 hover:border-primary/30">
           <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl transition-opacity group-hover:opacity-90" aria-hidden />
 
           <div className="relative p-6 md:p-8">
@@ -81,7 +82,7 @@ const WowFeaturesSection = () => {
 
             <ul className="relative mt-6 flex flex-wrap gap-1.5">
               {clipTags.map(({ icon: Icon, label }) => (
-                <li key={label} className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-background/50 px-2.5 py-1 text-[11px] text-foreground/85">
+                <li key={label} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-[11px] text-foreground/85">
                   <Icon className="h-3 w-3 text-primary" />
                   {label}
                 </li>
@@ -100,7 +101,7 @@ const WowFeaturesSection = () => {
         </article>
 
         {/* ── Studio visuel ─────────────────────────────────────────── */}
-        <article className="group relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary/30">
+        <article className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-[0_30px_80px_-30px_hsl(220_28%_10%/0.18)] transition-all hover:-translate-y-0.5 hover:border-primary/30">
           <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl transition-opacity group-hover:opacity-90" aria-hidden />
 
           <div className="relative p-6 md:p-8">
@@ -144,7 +145,7 @@ const WowFeaturesSection = () => {
               {visualFormats.map((format) => (
                 <li
                   key={format}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-background/50 px-2.5 py-1 text-[11px] text-foreground/85"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-[11px] text-foreground/85"
                 >
                   <Sparkles className="h-3 w-3 text-primary/80" />
                   {format}

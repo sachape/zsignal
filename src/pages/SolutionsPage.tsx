@@ -144,7 +144,7 @@ const SolutionsPage = () => {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/features">Voir les fonctionnalités</Link>
+              <Link to="/fonctionnalites">Voir les fonctionnalités</Link>
             </Button>
           </div>
         </div>
@@ -266,7 +266,7 @@ const SolutionsPage = () => {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/features">Voir les fonctionnalités</Link>
+              <Link to="/fonctionnalites">Voir les fonctionnalités</Link>
             </Button>
           </div>
         </div>

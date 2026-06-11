@@ -53,8 +53,9 @@ const ContentQueueShowcaseSection = () => {
   const { ref, inView } = useInViewOnce<HTMLDivElement>(0.2);
 
   return (
-    <SectionShell id="content-queue-showcase" tone="contrast">
+    <SectionShell id="content-queue-showcase" tone="light">
       <SectionHeading
+        badgeTone="light"
         badge="Organisation · File de contenu"
         title="Tout ton contenu prêt à publier, au même endroit"
         subtitle="Tes clips et tes visuels arrivent automatiquement dans la file. Tu organises, tu programmes, tu publies."
@@ -89,7 +90,7 @@ const ContentQueueShowcaseSection = () => {
                 return (
                   <div
                     key={i}
-                    className="group/item rounded-xl border border-white/[0.06] bg-background/40 p-3 transition-all hover:border-primary/25 hover:bg-background/60"
+                    className="group/item rounded-xl border border-border bg-background/60 p-3 transition-all hover:border-primary/25 hover:bg-background/60"
                   >
                     <div className="flex items-start gap-2.5">
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -121,7 +122,7 @@ const ContentQueueShowcaseSection = () => {
           { icon: ListChecks, label: "Statuts clairs", desc: "Brouillon, prêt, programmé : tu vois ce qui reste à faire." },
           { icon: CheckCircle2, label: "Téléchargement direct", desc: "Récupère un fichier prêt à publier en un clic." },
         ].map(({ icon: Icon, label, desc }) => (
-          <div key={label} className="rounded-2xl border border-white/[0.06] bg-background/30 p-4">
+          <div key={label} className="rounded-2xl border border-border bg-background/60 p-4">
             <div className="flex items-center gap-2">
               <Icon className="h-4 w-4 text-primary" />
               <span className="text-sm font-semibold text-foreground">{label}</span>
