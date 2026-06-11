@@ -141,36 +141,44 @@ const AppSidebar = () => {
       <SidebarStreamerSearch collapsed={collapsed} />
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {primaryItems.map((item) => {
-                const sectionActive =
-                  item.matchSection && activeSection === item.matchSection;
-                return (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild tooltip={item.title} isActive={!!sectionActive}>
-                      <NavLink
-                        to={item.url}
-                        end={item.end}
-                        className="flex w-full items-center gap-2"
-                        activeClassName={
-                          sectionActive
-                            ? undefined
-                            : "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                        }
-                      >
-                        <item.icon className="h-4 w-4 shrink-0" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {navGroups.map((group, gi) => (
+          <SidebarGroup key={group.label ?? `g-${gi}`}>
+            {group.label && !collapsed && (
+              <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => {
+                  const sectionActive =
+                    item.matchSection && activeSection === item.matchSection;
+                  return (
+                    <SidebarMenuItem key={item.url}>
+                      <SidebarMenuButton asChild tooltip={item.title} isActive={!!sectionActive}>
+                        <NavLink
+                          to={item.url}
+                          end={item.end}
+                          className="flex w-full items-center gap-2"
+                          activeClassName={
+                            sectionActive
+                              ? undefined
+                              : "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          }
+                        >
+                          <item.icon className="h-4 w-4 shrink-0" />
+                          {!collapsed && <span>{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
+
 
       <SidebarFooter>
         {/* Progression (secondary) */}
