@@ -21,6 +21,9 @@ import {
   type GeneratedVisual,
   type VisualTemplate,
 } from "@/services/visualStudio";
+import { usePlan } from "@/hooks/usePlan";
+import { quotaCta, quotaExceededMessage } from "@/lib/quotas";
+import { Link } from "react-router-dom";
 
 interface Props {
   open: boolean;
@@ -62,6 +65,7 @@ function friendlyError(code: string | null | undefined): string {
 
 
 export default function VisualGenerationDialog({ open, onOpenChange, templates, prefill, onCompleted }: Props) {
+  const { plan } = usePlan();
   const [step, setStep] = useState<Step>("pick");
   const [template, setTemplate] = useState<VisualTemplate | null>(null);
   const [headline, setHeadline] = useState("");
@@ -77,6 +81,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
   const [jobStatus, setJobStatus] = useState<ResultState>("queued");
   const [variants, setVariants] = useState<GeneratedVisual[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [quotaBlocked, setQuotaBlocked] = useState(false);
   const [previewError, setPreviewError] = useState(false);
 
   useEffect(() => {
@@ -94,6 +99,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
       setJobStatus("queued");
       setVariants([]);
       setError(null);
+      setQuotaBlocked(false);
       setPreviewError(false);
     }
     // Reset only when the dialog opens. Completion refreshes can update prefill
@@ -233,11 +239,14 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
       setPreviewError(false);
       setStep("result");
     } catch (e: any) {
-      const msg = e?.message === "quota_exceeded"
-        ? "Tu as atteint la limite quotidienne de générations. Réessaie demain."
-        : "Impossible de lancer la génération. Réessaie dans un instant.";
-      toast.error(msg);
-      setError(msg);
+      if (e?.code === "quota_exceeded" || e?.message === "quota_exceeded") {
+        setQuotaBlocked(true);
+        setError(quotaExceededMessage("visual"));
+      } else {
+        const msg = "Impossible de lancer la génération. Réessaie dans un instant.";
+        toast.error(msg);
+        setError(msg);
+      }
     } finally {
       setSubmitting(false);
       setRefUploading(false);
@@ -415,7 +424,27 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
               </div>
             </div>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {quotaBlocked ? (
+              <div className="rounded-lg border border-primary/40 bg-primary/5 p-4 text-sm">
+                <p className="font-semibold text-foreground">{quotaExceededMessage("visual")}</p>
+                <p className="mt-1 text-muted-foreground">
+                  Ta limite mensuelle se réinitialise au début du mois prochain.
+                </p>
+                <div className="mt-3">
+                  {(() => {
+                    const cta = quotaCta(plan);
+                    if (!cta.href) return <p className="text-muted-foreground">{cta.label}</p>;
+                    return cta.href.startsWith("mailto:") ? (
+                      <a href={cta.href} className="inline-flex"><Button size="sm">{cta.label}</Button></a>
+                    ) : (
+                      <Button asChild size="sm"><Link to={cta.href}>{cta.label}</Link></Button>
+                    );
+                  })()}
+                </div>
+              </div>
+            ) : error ? (
+              <p className="text-sm text-destructive">{error}</p>
+            ) : null}
 
             <div className="flex items-center justify-between gap-2 pt-2">
               <Button variant="ghost" onClick={() => setStep("pick")}>

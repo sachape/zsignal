@@ -22,6 +22,7 @@ import {
   type VisualTemplate,
   type GeneratedVisual,
 } from "@/services/visualStudio";
+import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { cn } from "@/lib/utils";
 
 const VisualStudioPage = () => {
@@ -36,6 +37,7 @@ const VisualStudioPage = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [prefill, setPrefill] = useState<Record<string, any>>({});
+  const quota = useQuotaUsage();
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -116,6 +118,12 @@ const VisualStudioPage = () => {
             </Button>
           }
         />
+
+        {!quota.loading && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {quota.visualsUsed} / {quota.visualsLimit} générations utilisées ce mois-ci
+          </p>
+        )}
 
         {/* Quick start templates */}
         <section className="mt-6">
@@ -215,7 +223,7 @@ const VisualStudioPage = () => {
           onOpenChange={setDialogOpen}
           templates={templates}
           prefill={prefill}
-          onCompleted={loadAll}
+          onCompleted={() => { void loadAll(); void quota.refresh(); }}
         />
       </PageContainer>
     </AppShell>

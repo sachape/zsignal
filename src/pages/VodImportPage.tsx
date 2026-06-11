@@ -300,9 +300,27 @@ const VodImportPage = () => {
           end_time_seconds: item.source_end_time,
         },
       });
+      // Try to surface a structured error payload from non-2xx responses.
+      let payload: unknown = data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (error && (error as any)?.context?.response) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          payload = await (error as any).context.response.clone().json();
+        } catch { /* ignore */ }
+      }
+      const p = payload as { success?: boolean; error?: string; message?: string } | null;
+      if (p?.error === "quota_exceeded") {
+        toast({
+          title: "Tu as atteint ta limite de clips générés ce mois-ci.",
+          description: "Passe à un plan supérieur pour augmenter ton quota.",
+          variant: "destructive",
+        });
+        return;
+      }
       if (error) throw error;
-      if (data && (data as { success?: boolean }).success === false) {
-        throw new Error((data as { message?: string }).message ?? "Échec de génération");
+      if (p && p.success === false) {
+        throw new Error(p.message ?? "Échec de génération");
       }
       toast({ title: "Génération lancée", description: "Le clip est en cours de génération." });
       await refetch();

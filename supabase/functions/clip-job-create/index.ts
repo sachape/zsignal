@@ -5,6 +5,7 @@
 // then trigger the external worker. Worker URL + shared secret read from env.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -171,6 +172,23 @@ Deno.serve(async (req) => {
   if (itemErr || !item) return json({ error: "content_item_not_found" }, 404);
 
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  // Monthly per-plan quota — backend source of truth.
+  {
+    const { plan, clips_used } = await getUserPlanAndUsage(admin, userId);
+    const limit = quotaFor(plan, "clip");
+    if (clips_used >= limit) {
+      return json({
+        success: false,
+        error: "quota_exceeded",
+        feature: "clip",
+        plan,
+        limit,
+        used: clips_used,
+        message: "Tu as atteint ta limite de clips générés ce mois-ci.",
+      }, 429);
+    }
+  }
 
   const { data: activeJob } = await admin
     .from("creator_video_generation_jobs")

@@ -7,11 +7,13 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-const DAILY_QUOTA = 10;
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -47,15 +49,17 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (tplErr || !template) return json({ error: "template_not_found" }, 404);
 
-    // Quota: 10 jobs / 24h
-    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { count } = await admin
-      .from("visual_generation_jobs")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .gte("created_at", dayAgo);
-    if ((count ?? 0) >= DAILY_QUOTA) {
-      return json({ error: "quota_exceeded", quota: DAILY_QUOTA }, 429);
+    // Monthly per-plan quota — backend source of truth.
+    const { plan, visuals_used } = await getUserPlanAndUsage(admin, user.id);
+    const limit = quotaFor(plan, "visual");
+    if (visuals_used >= limit) {
+      return json({
+        error: "quota_exceeded",
+        feature: "visual",
+        plan,
+        limit,
+        used: visuals_used,
+      }, 429);
     }
 
     const { data: job, error: insErr } = await admin
