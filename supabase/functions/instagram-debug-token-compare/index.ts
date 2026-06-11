@@ -68,6 +68,18 @@ async function callExchange(token: string): Promise<TestResult> {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  // Diagnostic endpoint — gated behind CRON_SECRET so it can't be used as a
+  // public Meta-token oracle. Internal Streamnco use only.
+  const auth = req.headers.get("Authorization") ?? "";
+  const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
+  const bearer = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  if (!CRON_SECRET || bearer !== CRON_SECRET) {
+    return new Response(
+      JSON.stringify({ error: "forbidden" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
     const token: string = body?.access_token ?? "";
@@ -79,6 +91,7 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+
 
     const token_prefix = token.slice(0, 6);
     const [me, exch] = await Promise.all([callMe(token), callExchange(token)]);

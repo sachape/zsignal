@@ -22,6 +22,14 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  // Internal-only endpoint: only callable by visual-job-create (service role)
+  // or pg_cron retries. Anything else would let a user re-trigger OpenAI
+  // generation on an arbitrary job_id and burn quota/$.
+  const auth = req.headers.get("Authorization") ?? "";
+  const bearer = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  if (bearer !== SERVICE_KEY) {
+    return json({ error: "forbidden" }, 403);
+  }
   try {
     const { job_id } = await req.json();
     if (!job_id) return json({ error: "job_id_required" }, 400);
@@ -33,6 +41,7 @@ Deno.serve(async (req) => {
     return json({ error: "internal_error" }, 500);
   }
 });
+
 
 async function processJob(jobId: string) {
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
