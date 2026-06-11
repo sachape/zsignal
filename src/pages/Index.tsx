@@ -1,6 +1,7 @@
 import LandingNav from "@/components/LandingNav";
 import HeroSection from "@/components/landing/HeroSection";
 import SocialProofSection from "@/components/landing/SocialProofSection";
+import WowFeaturesSection from "@/components/landing/WowFeaturesSection";
 import AudienceValueSection from "@/components/landing/AudienceValueSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import DemoPreviewSection from "@/components/DemoPreviewSection";
@@ -41,12 +42,12 @@ const HOMEPAGE_FAQ = [
 
 const Index = () => {
   usePageMeta({
-    title: "Streamnco — Découvre en 60 s ce qui bloque ta chaîne Twitch",
+    title: "Streamnco — Crée tout le contenu autour de ton stream",
     description:
-      "Entre ton pseudo Twitch. Streamnco analyse ta régularité, tes clips, ta catégorie et 4 autres signaux — puis te dit exactement ce qui freine ta croissance et quoi corriger en premier.",
-    ogTitle: "Streamnco — Découvre ce qui bloque ta chaîne Twitch",
+      "Génère des clips verticaux avec facecam et sous-titres, crée tes visuels Twitch et réseaux sociaux, puis suis ta progression avec ton StreamScore — depuis un seul cockpit.",
+    ogTitle: "Streamnco — Le cockpit créatif des streamers",
     ogDescription:
-      "Diagnostic Twitch en 60 secondes. Score, blocage principal, plan d'action. Sans compte, sans connexion Twitch.",
+      "Clips réseaux, Studio visuel et StreamScore : crée, organise et améliore tout le contenu autour de ton stream.",
     canonical: "https://streamnco.fr/",
     ogUrl: "https://streamnco.fr/",
     robots: "index, follow",
@@ -99,10 +100,13 @@ const Index = () => {
       {/* 2. Preuve sociale immédiate — crédibilité */}
       <SocialProofSection />
 
-      {/* 3. Différenciateurs — pourquoi pas les autres outils */}
+      {/* 3. Wow features — Clips réseaux + Studio visuel */}
+      <WowFeaturesSection />
+
+      {/* 4. Différenciateurs — pourquoi pas les autres outils */}
       <AudienceValueSection />
 
-      {/* 4. Comment ça marche — réduction de friction */}
+      {/* 5. Comment ça marche — réduction de friction */}
       <HowItWorksSection />
 
       {/* 5. Aperçu du produit — voir avant de s'engager */}

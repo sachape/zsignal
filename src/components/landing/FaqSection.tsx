@@ -10,32 +10,32 @@ import { SectionHeading, SectionShell } from "./primitives";
 
 const FAQS = [
   {
+    q: "Est-ce que Streamnco publie automatiquement sur TikTok et Instagram ?",
+    a: "Streamnco t'aide à préparer des contenus adaptés à TikTok, Reels et Shorts. YouTube est le plus avancé côté publication, tandis que TikTok et Instagram sont affichés en bêta dans l'app — la publication automatique dépend encore des validations API des plateformes. Tu peux toujours télécharger tes contenus pour les publier manuellement.",
+  },
+  {
+    q: "Est-ce que je peux télécharger mes clips et visuels ?",
+    a: "Oui. Tous les clips réseaux et visuels générés peuvent être téléchargés depuis ta file de contenu pour être publiés manuellement où tu veux.",
+  },
+  {
+    q: "Est-ce que le Studio visuel exporte aux bons formats ?",
+    a: "Oui. Tes visuels sont exportés aux dimensions adaptées à chaque usage : bannière Twitch, story verticale 9:16, post carré 1:1, cover YouTube, annonce de live, et plus encore. 8 formats prêts à l'emploi avec 3 variantes par génération.",
+  },
+  {
+    q: "Combien de clips et de visuels puis-je générer ?",
+    a: "Chaque plan inclut une limite mensuelle pour garder le service fiable. Gratuit : 5 visuels et 3 clips par mois. Pro : 100 visuels et 30 clips. Growth : 300 visuels et 200 clips. Les générations en échec ne sont pas comptées.",
+  },
+  {
     q: "Faut-il connecter Twitch pour commencer ?",
-    a: "Non. Entre simplement ton pseudo : Streamnco lit les signaux publics de ta chaîne pour générer un premier diagnostic. La connexion Twitch arrive seulement si tu veux le suivi complet.",
+    a: "Non. Tu peux lancer un premier diagnostic public en entrant ton pseudo Twitch. Connecter ta chaîne devient utile pour le suivi complet, le StreamScore personnalisé et la génération de clips à partir de tes propres Clips et VOD.",
   },
   {
-    q: "Quelles données sont analysées ?",
-    a: "Streamnco analyse les signaux utiles de ta chaîne : régularité, progression vers l'objectif, dynamiques visibles et premiers indicateurs de performance. Le niveau de détail augmente avec le suivi complet.",
-  },
-  {
-    q: "Puis-je essayer sans créer de compte ?",
-    a: "Oui. Tu peux lancer un premier diagnostic sans compte. Le compte devient utile si tu veux sauvegarder ton analyse, la retrouver et aller plus loin.",
-  },
-  {
-    q: "Que débloque la version complète ?",
-    a: "Le suivi complet ajoute l'historique, une lecture plus riche de ta progression, davantage de contexte sur tes performances et un accompagnement plus utile dans le temps.",
+    q: "Mes données Twitch sont-elles privées ?",
+    a: "Oui. Streamnco ne publie jamais à ta place sans ton action explicite, et ne partage pas tes données avec des tiers. Le diagnostic public utilise uniquement les signaux Twitch déjà visibles publiquement.",
   },
   {
     q: "Est-ce utile si je débute ?",
-    a: "Oui. Streamnco n'est pas réservé aux grosses chaînes. L'outil est justement utile pour poser de bonnes bases, éviter les erreurs classiques et suivre une progression plus claire.",
-  },
-  {
-    q: "Streamnco publie-t-il quoi que ce soit sur ma chaîne ?",
-    a: "Non. Streamnco ne publie rien à ta place. Le diagnostic initial est en lecture seule.",
-  },
-  {
-    q: "Pourrai-je suivre plusieurs chaînes plus tard ?",
-    a: "Oui, c'est prévu pour les usages plus avancés. L'expérience actuelle est centrée sur l'analyse et le suivi de ta chaîne, avec une ouverture progressive vers le multi-chaînes.",
+    a: "Oui — c'est même là que Streamnco aide le plus. Tu poses tout de suite de bonnes bases : un StreamScore clair pour savoir où tu en es, et de quoi créer du contenu autour de tes premiers lives sans logiciel pro.",
   },
 ];
 
