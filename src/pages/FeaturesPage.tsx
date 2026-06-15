@@ -119,7 +119,7 @@ const FeaturesPage = () => {
   usePageMeta({
     title: "Fonctionnalités — Streamnco",
     description:
-      "Clips réseaux, Studio visuel, file de contenu, StreamScore, benchmark et Live Studio : le cockpit créatif et stratégique des streamers.",
+      "Clips réseaux 9:16, visuels prêts à poster et suivi de progression : tout ce qu'il faut pour faire grandir ta chaîne Twitch.",
     canonical: "https://streamnco.fr/fonctionnalites",
     ogUrl: "https://streamnco.fr/fonctionnalites",
     robots: "index, follow",
@@ -138,10 +138,10 @@ const FeaturesPage = () => {
               <Sparkles className="h-3 w-3" /> Fonctionnalités
             </SectionBadge>
             <h1 className="font-display mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Tout le contenu autour de ton stream, dans un même cockpit.
+              Tout ce qu'il faut pour faire grandir ta chaîne.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-              Streamnco relie les tâches qui vivent souvent dans dix outils : créer des clips, générer des visuels, ranger tes contenus, analyser Twitch et préparer tes prochains lives.
+              Des clips prêts à poster, des visuels en un clic et une vision claire de ta progression — plus tout ce qui t'aide à publier vite et régulièrement.
             </p>
           </FadeIn>
 
@@ -181,7 +181,7 @@ const FeaturesPage = () => {
                 </h2>
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                La création est pensée comme une chaîne : une source réelle, un format clair, un export que tu peux publier manuellement quand tu veux.
+                La création suit une chaîne simple : une source réelle, un format clair, un export prêt à poster que tu publies où tu veux, quand tu veux.
               </p>
             </div>
           </FadeIn>
@@ -237,7 +237,7 @@ const FeaturesPage = () => {
                 </h2>
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Les contenus prêts, les brouillons et les téléchargements restent visibles. Le système privilégie aujourd'hui la préparation et l'export manuel.
+                Tes contenus prêts, tes brouillons et tes exports restent visibles au même endroit — prêts à télécharger et publier en un clic.
               </p>
             </div>
           </FadeIn>
@@ -265,17 +265,19 @@ const FeaturesPage = () => {
 
             <FadeIn delay={0.12}>
               <FeaturePanel
-                id="reseaux-connectes"
+                id="export-publication"
                 icon={Radio}
-                eyebrow="Réseaux connectés"
-                title="Une évolution prévue, pas une promesse vendue trop tôt."
-                description="TikTok, Instagram et YouTube peuvent apparaître comme destinations de travail, mais la promesse stable aujourd'hui reste la préparation, le téléchargement et la publication manuelle."
+                eyebrow="Export & publication"
+                title="Prêt à poster, partout où tu es présent."
+                description="Tes clips et visuels s'exportent aux bons formats pour TikTok, Reels, Shorts, Twitch et X. Tu télécharges et tu publies où tu veux, quand tu veux — tu gardes le contrôle total."
               >
-                <div className="rounded-xl border border-amber-300/20 bg-amber-300/[0.07] p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-100">Bientôt</p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    Les connexions sociales avancées seront mises en avant quand elles seront réellement fiables côté produit et validation plateforme.
-                  </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {["TikTok", "Reels", "Shorts", "Twitch", "X / Twitter", "Discord"].map((dest) => (
+                    <div key={dest} className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.035] px-3 py-2 text-xs text-foreground">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                      {dest}
+                    </div>
+                  ))}
                 </div>
               </FeaturePanel>
             </FadeIn>
@@ -292,7 +294,7 @@ const FeaturesPage = () => {
                 </h2>
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Streamnco ne promet pas de croissance garantie. Il rend tes signaux lisibles pour t'aider à choisir la prochaine action.
+                Tes stats Twitch deviennent des priorités claires : tu sais exactement quoi faire au prochain live pour progresser.
               </p>
             </div>
           </FadeIn>
@@ -423,10 +425,10 @@ const FeaturesPage = () => {
           <section className="rounded-2xl border border-white/[0.08] bg-[#0d1116] p-7 text-center md:p-10">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">Résumé</p>
             <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-bold tracking-tight text-foreground">
-              Streamnco t'aide à créer mieux, publier plus proprement et décider avec plus de recul.
+              Crée plus vite, publie plus souvent, et vois ta chaîne grandir.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Pas de promesse d'automatisation totale. Pas de croissance garantie. Un cockpit fiable pour structurer le contenu et la progression autour de ton stream.
+              Des clips et visuels prêts à poster, une progression claire, et tout ce qui t'aide à publier régulièrement. Tout part de ton stream.
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               <Button size="lg" onClick={() => openAuthModal("signup")} className="gap-2">

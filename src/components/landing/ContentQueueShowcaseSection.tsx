@@ -56,9 +56,9 @@ const ContentQueueShowcaseSection = () => {
     <SectionShell id="content-queue-showcase" tone="light">
       <SectionHeading
         badgeTone="light"
-        badge="Organisation · File de contenu"
-        title="Tout ton contenu prêt à publier, au même endroit"
-        subtitle="Tes clips et tes visuels arrivent automatiquement dans la file. Tu organises, tu programmes, tu publies."
+        badge="Inclus dans Streamnco"
+        title="Et tout ton contenu reste rangé, prêt à publier"
+        subtitle="Tes clips et tes visuels arrivent automatiquement au même endroit. Tu organises, tu programmes, tu télécharges — sans rien chercher."
       />
 
       <div

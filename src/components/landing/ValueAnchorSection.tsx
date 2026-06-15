@@ -32,8 +32,8 @@ const OPTIONS = [
     name: "Streamnco",
     price: "Centralisé",
     description:
-      "Un cockpit pour préparer tes clips, tes visuels, ta file de contenu et tes décisions Twitch dans le même environnement.",
-    verdict: "Création + progression",
+      "Tes clips, tes visuels et ta progression au même endroit, prêts à publier. Tu passes moins de temps à produire, plus de temps à streamer.",
+    verdict: "Crée, publie, progresse",
     muted: false,
   },
 ] as const;
@@ -50,13 +50,13 @@ const ValueAnchorSection = () => {
         </span>
 
         <h2 className="mt-5 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-          Le problème n'est pas de créer un clip.
+          Créer un clip, c'est facile.
           <br className="hidden sm:block" />
-          <span className="text-primary"> C'est de construire un système.</span>
+          <span className="text-primary"> Le faire après chaque live, c'est le vrai travail.</span>
         </h2>
 
         <p className="mt-4 text-base leading-relaxed text-foreground/70 md:text-lg">
-          Streamnco rassemble les gestes qui entourent ton stream : transformer les moments forts, produire des visuels, retrouver tes brouillons et décider quoi améliorer ensuite.
+          Streamnco transforme chaque live en clips et visuels prêts à poster, et te montre ce qui fait grandir ta chaîne — pour que tu publies vite et régulièrement, sans t'épuiser.
         </p>
       </div>
 
@@ -112,10 +112,10 @@ const ValueAnchorSection = () => {
           <Activity className="h-5 w-5 text-primary" />
         </div>
         <p className="mt-5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          D'abord un workflow fiable. Ensuite, des connexions plus profondes.
+          Crée, publie, progresse — sans jongler entre dix outils.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          C'est volontaire : les intégrations TikTok, Instagram et YouTube ne doivent pas être vendues comme stables tant qu'elles ne le sont pas. Le produit assume le téléchargement et la préparation manuelle.
+          Un seul endroit pour transformer tes lives en contenu prêt à poster et suivre ce qui fait grandir ta chaîne. Tu te concentres sur ton stream, Streamnco s'occupe du reste.
         </p>
         <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button size="lg" onClick={() => openAuthModal("signup")}>

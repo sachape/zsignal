@@ -21,8 +21,8 @@ const HOMEPAGE_FAQ = [
     a: "Streamnco aide les streamers à créer des clips verticaux, générer des visuels, organiser leurs contenus, analyser leur chaîne Twitch et préparer leurs prochains lives.",
   },
   {
-    q: "Les clips sont-ils publiés automatiquement sur TikTok ou Instagram ?",
-    a: "Non. Aujourd'hui, Streamnco prépare et exporte tes contenus. Tu gardes la main sur la publication. Les connexions sociales avancées sont traitées comme une évolution à venir.",
+    q: "Comment je publie mes clips et visuels sur les réseaux ?",
+    a: "Tu récupères tes clips et visuels prêts à poster, optimisés pour TikTok, Reels et Shorts. Tu publies où tu veux, quand tu veux — tu gardes le contrôle total sur ce qui sort et sur ton calendrier.",
   },
   {
     q: "Quels types de clips puis-je transformer ?",
@@ -96,43 +96,43 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <LandingNav />
 
-      {/* 1. Hook + CTA principal */}
+      {/* 1. Hook + promesse de croissance + CTA principal */}
       <HeroSection />
 
       {/* 2. Preuve sociale immédiate — crédibilité */}
       <SocialProofSection />
 
-      {/* 3. Wow features — Clips réseaux + Studio visuel (contrast surface) */}
+      {/* 3. Les 3 piliers — vue d'ensemble de la proposition de valeur */}
+      <AudienceValueSection />
+
+      {/* 4. Pilier 1 + 2 en profondeur — Clips réseaux + Studio visuel */}
       <WowFeaturesSection />
 
-      {/* 4. StreamScore — comprendre quoi améliorer (deep surface) */}
+      {/* 5. Pilier 3 en profondeur — Progression + récap après live */}
       <StreamScoreShowcaseSection />
 
-      {/* 5. File de contenu — organiser et publier (contrast surface) */}
+      {/* 6. Et tout ce qui va autour — file de contenu incluse */}
       <ContentQueueShowcaseSection />
-
-      {/* 6. Différenciateurs — pourquoi pas les autres outils */}
-      <AudienceValueSection />
 
       {/* 7. Comment ça marche — réduction de friction */}
       <HowItWorksSection />
 
-      {/* 5. Aperçu du produit — voir avant de s'engager */}
+      {/* 8. Aperçu du produit — voir avant de s'engager */}
       <DemoPreviewSection />
 
-      {/* 6. Comparaison vs alternatives — justifier la valeur AVANT le prix */}
+      {/* 9. Comparaison vs alternatives — justifier la valeur AVANT le prix */}
       <ValueAnchorSection />
 
-      {/* 7. Tarifs */}
+      {/* 10. Tarifs */}
       <PricingSection />
 
-      {/* 8. FAQ — traiter les objections au moment de la décision */}
+      {/* 11. FAQ — traiter les objections au moment de la décision */}
       <FaqSection />
 
-      {/* 9. CTA final — dernière conversion */}
+      {/* 12. CTA final — dernière conversion */}
       <FinalCtaSection />
 
-      {/* 10. Articles — pour ceux qui veulent en savoir plus */}
+      {/* 13. Articles — pour ceux qui veulent en savoir plus */}
       <ArticlesSection />
 
       <LandingFooter />

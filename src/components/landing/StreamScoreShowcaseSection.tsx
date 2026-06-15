@@ -23,9 +23,9 @@ const StreamScoreShowcaseSection = () => {
   return (
     <SectionShell id="streamscore-showcase" tone="deep">
       <SectionHeading
-        badge="Analyse · StreamScore"
-        title="Comprends ce qui bloque ta progression"
-        subtitle="Un score, six dimensions, une recommandation prioritaire. Tu sais exactement quoi améliorer dès le prochain live."
+        badge="Progression · Après chaque live"
+        title="Vois exactement comment tu progresses, live après live"
+        subtitle="Un récap après chaque live, six dimensions de progression et une reco prioritaire : tu sais ce qui marche et quoi faire au prochain stream."
       />
 
       <div

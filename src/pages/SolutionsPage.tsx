@@ -26,7 +26,7 @@ const SOLUTIONS = [
     label: "Débutant",
     title: "Tu veux savoir quoi améliorer et créer tes premiers contenus propres.",
     description:
-      "Tu n'as pas besoin d'un cockpit complexe. Tu as besoin d'une méthode simple : comprendre ta chaîne, sortir quelques contenus propres et préparer tes prochains lives avec plus d'intention.",
+      "Pas besoin d'un outil compliqué. Juste une méthode simple : comprendre ta chaîne, sortir tes premiers clips et visuels propres, et arriver en live avec plus d'intention.",
     focus: ["Premier diagnostic Twitch", "Premiers clips verticaux", "Visuels de base propres"],
     startingPoint: "Lancer un diagnostic puis créer un premier clip 9:16.",
     tone: "primary",
@@ -48,7 +48,7 @@ const SOLUTIONS = [
     label: "Confirmé",
     title: "Tu veux professionnaliser ton image, suivre tes performances et optimiser ta croissance.",
     description:
-      "Tu as déjà des signaux, des concurrents et une audience à comprendre. Streamnco devient un cockpit de pilotage : création, benchmark, StreamScore, recommandations et préparation live.",
+      "Tu as déjà des stats, des concurrents et une audience à comprendre. Streamnco devient ton centre de pilotage : création, benchmark, StreamScore, recommandations et préparation live.",
     focus: ["Benchmark concurrentiel", "Historique StreamScore", "Live Studio et plan d'action"],
     startingPoint: "Comparer ta chaîne, prioriser une action et produire les assets liés.",
     tone: "amber",
@@ -102,10 +102,10 @@ const SolutionsPage = () => {
               <Users className="h-3 w-3" /> Solutions
             </SectionBadge>
             <h1 className="font-display mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Le même cockpit, trois niveaux de maturité.
+              Quel que soit ton niveau, Streamnco grandit avec toi.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-              Streamnco ne vend pas la même histoire à tout le monde. Ton besoin change selon ton niveau : poser les bases, tenir une cadence, ou professionnaliser ton système.
+              Ton besoin change selon ton niveau : poser les bases, tenir une cadence, ou professionnaliser ta chaîne. Streamnco met l'accent sur ce qui compte pour toi, au bon moment.
             </p>
           </FadeIn>
 

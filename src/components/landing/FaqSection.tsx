@@ -10,12 +10,12 @@ import { SectionHeading, SectionShell } from "./primitives";
 
 const FAQS = [
   {
-    q: "Est-ce que Streamnco publie automatiquement sur TikTok et Instagram ?",
-    a: "Non. Streamnco t'aide à préparer des contenus adaptés à TikTok, Reels et Shorts, puis à les télécharger. La publication reste manuelle tant que les intégrations officielles ne sont pas suffisamment fiables.",
+    q: "Comment je publie mes clips et visuels sur les réseaux ?",
+    a: "Tu récupères tes clips et visuels prêts à poster, optimisés pour TikTok, Reels et Shorts. Tu publies où tu veux, quand tu veux — tu gardes le contrôle total sur ce qui sort et sur ton calendrier.",
   },
   {
     q: "Est-ce que je peux télécharger mes clips et visuels ?",
-    a: "Oui. Tous les clips réseaux et visuels générés peuvent être téléchargés depuis ta file de contenu pour être publiés manuellement où tu veux.",
+    a: "Oui. Tous tes clips et visuels se téléchargent depuis ta file en un clic, prêts à poster où tu veux : TikTok, Instagram, YouTube, X…",
   },
   {
     q: "Est-ce que le Studio visuel exporte aux bons formats ?",
@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: "Combien de clips et de visuels puis-je générer ?",
-    a: "Chaque plan inclut une limite mensuelle pour garder le service fiable. Gratuit : 5 visuels et 3 clips par mois. Pro : 100 visuels et 30 clips. Growth : 300 visuels et 200 clips. Les générations en échec ne sont pas comptées.",
+    a: "Chaque plan inclut un volume mensuel de générations. Gratuit : 5 visuels et 3 clips par mois. Pro : 100 visuels et 30 clips. Growth : 300 visuels et 200 clips. Les générations en échec ne sont jamais comptées.",
   },
   {
     q: "Faut-il connecter Twitch pour commencer ?",
@@ -39,7 +39,7 @@ const FAQS = [
   },
   {
     q: "À quoi sert le StreamScore ?",
-    a: "Il synthétise les signaux Twitch importants en score, dimensions et recommandations. L'objectif n'est pas de promettre une croissance garantie, mais de clarifier les priorités.",
+    a: "Il synthétise les signaux Twitch importants en un score clair, six dimensions de progression et une reco prioritaire. Tu sais exactement quoi améliorer pour grandir, sans interpréter des dashboards bruts.",
   },
 ];
 
@@ -50,8 +50,8 @@ const FaqSection = () => {
     <SectionShell id="faq">
       <SectionHeading
         badge="FAQ"
-        title="Des promesses claires, pas de flou."
-        subtitle="Ce qui est disponible, ce qui est manuel, et ce qui viendra plus tard."
+        title="Tout ce que tu veux savoir."
+        subtitle="Les réponses aux questions que se posent les streamers avant de se lancer."
       />
 
       <div

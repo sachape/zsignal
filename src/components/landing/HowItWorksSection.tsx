@@ -17,9 +17,9 @@ const STEPS = [
   },
   {
     icon: FolderCheck,
-    title: "Range avant de publier",
+    title: "Récupère et publie",
     description:
-      "Tes exports, brouillons et contenus prêts restent dans une file claire. La publication reste manuelle tant que les réseaux ne sont pas officiellement prêts.",
+      "Tes clips et visuels arrivent prêts dans une file claire. Tu télécharges le bon fichier en un clic et tu publies où tu veux, quand tu veux.",
   },
 ] as const;
 
@@ -30,8 +30,8 @@ const HowItWorksSection = () => {
     <SectionShell id="how-it-works" glow={false}>
       <SectionHeading
         badge="Parcours"
-        title="Une chaîne de production simple."
-        subtitle="Moins de friction, plus de contrôle : Streamnco t'aide à préparer les bons contenus sans prendre la main sur tes comptes sociaux."
+        title="De ton live à du contenu prêt à poster."
+        subtitle="Trois étapes simples, zéro logiciel pro : tes lives deviennent des clips et des visuels prêts à publier."
       />
 
       <div
@@ -75,7 +75,7 @@ const HowItWorksSection = () => {
 
       <p className="mx-auto mt-8 flex max-w-2xl items-center justify-center gap-2 text-center text-sm text-muted-foreground">
         <Download className="h-4 w-4 text-primary" />
-        Aujourd'hui, la sortie la plus fiable reste le téléchargement et la publication manuelle.
+        Des fichiers prêts à poster, optimisés pour chaque réseau — tu gardes le contrôle total sur ce qui sort.
       </p>
     </SectionShell>
   );

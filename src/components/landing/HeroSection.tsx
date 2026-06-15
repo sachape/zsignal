@@ -266,19 +266,19 @@ const HeroSection = () => {
               {...rise(0)}
               className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
             >
-              <Sparkles className="h-3.5 w-3.5" /> Cockpit créatif pour streamers
+              <Sparkles className="h-3.5 w-3.5" /> Pour les streamers qui veulent grandir
             </motion.span>
 
             <motion.h1
               {...rise(0.07)}
               className="mt-6 max-w-3xl text-[2.75rem] font-bold leading-[0.98] tracking-[-0.02em] text-foreground sm:text-6xl md:text-[4.2rem]"
             >
-              Tout ton contenu de stream,{" "}
-              <span className="bg-gradient-to-r from-primary to-[hsl(150_80%_55%)] bg-clip-text text-transparent">créé en quelques secondes.</span>
+              Plus de clips, plus de vues,{" "}
+              <span className="bg-gradient-to-r from-primary to-[hsl(150_80%_55%)] bg-clip-text text-transparent">plus d'abonnés.</span>
             </motion.h1>
 
             <motion.p {...rise(0.14)} className="mt-6 max-w-lg text-base leading-8 text-muted-foreground md:text-lg">
-              Transforme tes lives en clips verticaux et visuels prêts à publier, et sache exactement quoi améliorer sur Twitch — le tout depuis un seul cockpit.
+              Streamnco transforme tes lives en clips et visuels prêts à poster, et te montre noir sur blanc ce qui fait grandir ta chaîne. Tout part de ton stream.
             </motion.p>
 
             <motion.div {...rise(0.2)} className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -293,7 +293,7 @@ const HeroSection = () => {
             </motion.div>
 
             <motion.div {...rise(0.26)} className="mt-7 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
-              {["Clips 9:16 prêts à poster", "Visuels aux bons formats", "StreamScore + reco"].map((item) => (
+              {["Clips 9:16 prêts à poster", "Visuels réseaux en un clic", "Ta progression, en clair"].map((item) => (
                 <div key={item} className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary" />
                   <span>{item}</span>

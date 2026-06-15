@@ -1,39 +1,31 @@
-import { Activity, Clapperboard, ListChecks, Palette } from "lucide-react";
+import { Activity, Clapperboard, Palette } from "lucide-react";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { GlassCard, MicroLabel, SectionHeading, SectionShell } from "./primitives";
 
 const PILLARS = [
   {
     icon: Clapperboard,
-    label: "Créer",
-    title: "Tes moments deviennent des assets propres.",
+    label: "Clips réseaux",
+    title: "Tes meilleurs moments deviennent des clips qui tournent.",
     description:
-      "Clip Twitch, VOD ou upload : tu produis un vertical 9:16 avec facecam, gameplay, sous-titres et styles prêts à télécharger.",
-    stat: "Clips réseaux",
+      "Clip Twitch, VOD ou upload → une vidéo verticale 9:16 avec facecam et sous-titres, prête à poster sur TikTok, Reels et Shorts.",
+    stat: "Format 9:16 prêt à poster",
   },
   {
     icon: Palette,
-    label: "Habiller",
-    title: "Ton image de chaîne reste cohérente.",
+    label: "Visuels",
+    title: "Une image de chaîne pro, sans Photoshop.",
     description:
-      "Le Studio visuel génère des formats Twitch et sociaux avec des dimensions propres, sans repartir d'une page blanche.",
-    stat: "8 formats · 3 variantes",
+      "Bannières, miniatures, stories, posts d'annonce : génère des visuels aux bons formats Twitch et réseaux en quelques secondes.",
+    stat: "8 formats · plusieurs variantes",
   },
   {
     icon: Activity,
-    label: "Comprendre",
-    title: "Tes données deviennent des décisions.",
+    label: "Progression",
+    title: "Vois exactement ce qui fait grandir ta chaîne.",
     description:
-      "StreamScore, dimensions de progression, benchmark et historique t'aident à savoir quoi prioriser sans lire des dashboards bruts.",
-    stat: "Analyse Twitch",
-  },
-  {
-    icon: ListChecks,
-    label: "Préparer",
-    title: "Chaque contenu a une prochaine étape.",
-    description:
-      "File de contenu, brouillons, recommandations, titres et planning : tu avances avec un système, pas avec une liste perdue.",
-    stat: "File de contenu",
+      "Un récap après chaque live, des stats claires et un StreamScore qui te dit quoi améliorer pour le prochain stream.",
+    stat: "Récap live + StreamScore",
   },
 ] as const;
 
@@ -43,12 +35,12 @@ const AudienceValueSection = () => {
   return (
     <SectionShell id="features" glow={false}>
       <SectionHeading
-        badge="Pourquoi Streamnco"
-        title="Un cockpit, pas une pile d'outils."
-        subtitle="Tout ce qui entoure ton stream est relié : les clips, les visuels, l'organisation et les décisions de progression."
+        badge="Ce que tu obtiens"
+        title="Trois façons de faire grandir ta chaîne."
+        subtitle="Tes lives deviennent des clips, des visuels et une vision claire de ta progression. Le reste, Streamnco s'en occupe."
       />
 
-      <div ref={ref} className="mx-auto mt-10 grid max-w-6xl gap-4 md:mt-14 md:grid-cols-4">
+      <div ref={ref} className="mx-auto mt-10 grid max-w-5xl gap-4 md:mt-14 md:grid-cols-3">
         {PILLARS.map(({ icon: Icon, label, title, description, stat }, i) => (
           <div
             key={label}

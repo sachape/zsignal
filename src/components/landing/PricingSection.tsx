@@ -48,7 +48,6 @@ const FREE_FEATURES = [
   "Le blocage #1 identifié avec précision",
   "Téléchargement de tes clips et visuels",
   "Sans connexion Twitch requise pour démarrer",
-  "Publication manuelle uniquement",
   "Sans carte bancaire",
 ];
 

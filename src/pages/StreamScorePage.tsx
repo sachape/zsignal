@@ -120,8 +120,8 @@ const FAQ = [
     a: "Oui, l'analyse de base peut être lancée gratuitement. Entre ton pseudo Twitch, Streamnco génère un premier diagnostic sans compte requis.",
   },
   {
-    q: "Est-ce que le StreamScore garantit de gagner des viewers ?",
-    a: "Non. Le StreamScore ne promet pas une croissance automatique. Il aide à comprendre les blocages et à prioriser les bonnes actions. La croissance dépend ensuite de l'exécution.",
+    q: "Comment le StreamScore m'aide à gagner des viewers ?",
+    a: "Il met en lumière tes leviers de croissance prioritaires et te dit quoi améliorer en premier — régularité, contenu, positionnement. Tu avances sur les bonnes actions, dans le bon ordre.",
   },
   {
     q: "Est-ce que Streamnco est connecté à Twitch ?",
