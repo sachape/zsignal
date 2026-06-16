@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import HeroChannelSearch from "@/components/HeroChannelSearch";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
+import facecamAvatar from "@/assets/avatar-gamer-1.jpg";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const CAPTION_WORDS = ["le", "clutch", "qui", "change", "TOUT"];
@@ -66,7 +67,12 @@ const StudioWindow = () => {
   const ringC = 2 * Math.PI * ringR;
 
   return (
-    <div ref={ref} className="relative">
+    <motion.div
+      ref={ref}
+      className="relative"
+      animate={reduce ? undefined : { y: [0, -10, 0] }}
+      transition={reduce ? undefined : { duration: 7, ease: "easeInOut", repeat: Infinity }}
+    >
       {/* ambient bloom behind the window */}
       <div className="pointer-events-none absolute -inset-10 rounded-[2.5rem] bg-primary/[0.10] blur-[60px]" aria-hidden />
 
@@ -98,9 +104,10 @@ const StudioWindow = () => {
           {/* Left: vertical clip preview */}
           <div className="border-r border-white/[0.06] p-3">
             <div className="relative mx-auto aspect-[9/16] w-full overflow-hidden rounded-lg border border-white/[0.08]">
-              <div className="absolute inset-x-0 top-0 h-[44%] bg-[linear-gradient(135deg,#2b3340,#10151c)]" />
+              <img src={facecamAvatar} alt="" aria-hidden className="absolute inset-x-0 top-0 h-[44%] w-full object-cover" />
+              <div className="absolute inset-x-0 top-0 h-[44%] bg-gradient-to-b from-black/10 to-[#0a0d0c]/70" />
               <div className="absolute inset-x-0 bottom-0 top-[44%] bg-[linear-gradient(160deg,#1c2a16,#0a0d0c)]" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(190,255,90,0.22),transparent_55%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(190,255,90,0.18),transparent_55%)]" />
               {/* facecam chip */}
               <div className="absolute left-2 top-2 rounded-md border border-white/15 bg-black/45 px-1.5 py-0.5 text-[7px] font-semibold uppercase tracking-wide text-primary backdrop-blur-sm">
                 Facecam
@@ -223,7 +230,7 @@ const StudioWindow = () => {
           </div>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

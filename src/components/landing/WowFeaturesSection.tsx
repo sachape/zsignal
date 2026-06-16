@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SectionHeading, SectionShell } from "./primitives";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
+import clipAvatar from "@/assets/avatar-gamer-2.jpg";
 
 const clipTags = [
   { icon: Smartphone, label: "9:16" },
@@ -65,15 +66,19 @@ const WowFeaturesSection = () => {
                 </div>
               </div>
               <ArrowRight className="h-5 w-5 text-primary" />
-              {/* Après : clip vertical */}
+              {/* Après : clip vertical (vraie facecam + flottement) */}
               <div className="relative">
                 <div className="absolute -top-2 left-2 z-10 rounded-full bg-primary/90 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary-foreground">Après</div>
-                <div className="mx-auto aspect-[9/16] w-2/3 overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-b from-[hsl(220_30%_12%)] to-[hsl(220_30%_8%)] shadow-[0_20px_50px_-20px_hsl(var(--primary)/0.5)]">
+                <div
+                  className="mx-auto aspect-[9/16] w-2/3 overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-b from-[hsl(220_30%_12%)] to-[hsl(220_30%_8%)] shadow-[0_20px_50px_-20px_hsl(var(--primary)/0.5)]"
+                  style={{ animation: "hero-float 6s ease-in-out infinite" }}
+                >
                   <div className="relative h-full">
-                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-br from-[hsl(95_60%_35%)] to-[hsl(172_50%_30%)]" />
+                    <img src={clipAvatar} alt="" aria-hidden className="absolute inset-x-0 top-0 h-1/2 w-full object-cover" />
+                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-transparent to-[hsl(220_30%_10%)]/60" />
                     <div className="absolute inset-x-0 top-1/2 bottom-0 bg-gradient-to-br from-[hsl(264_60%_30%)] to-[hsl(220_30%_10%)]" />
-                    <div className="absolute inset-x-1 bottom-3 rounded bg-black/70 px-1 py-0.5 text-center text-[7px] font-bold text-white">
-                      QUEL CLUTCH
+                    <div className="absolute inset-x-1 bottom-3 rounded bg-black/75 px-1 py-0.5 text-center text-[7px] font-extrabold uppercase text-white shadow-lg">
+                      Quel clutch
                     </div>
                   </div>
                 </div>
