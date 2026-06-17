@@ -4,6 +4,7 @@ import { ArrowLeft, Radio, TrendingDown, TrendingUp, Minus } from "lucide-react"
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
+import PageBreadcrumb from "@/components/PageBreadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -170,6 +171,7 @@ const LiveDetailPage = () => {
   return (
     <AppShell>
       <PageContainer size="sm">
+        <PageBreadcrumb items={[{ label: "Débrief" }]} />
         <PageHeader
           eyebrow="Débrief du live"
           title={`Débrief du ${formatLiveDateTime(session.started_at)}`}

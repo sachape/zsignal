@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
+import PageBreadcrumb from "@/components/PageBreadcrumb";
 import EmptyReportState from "@/components/EmptyReportState";
 import { getPlaybookBySlug, getRelatedPlaybooks } from "@/services/playbookLibrary";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -97,13 +98,7 @@ const PlaybookDetailPage = () => {
   return (
     <AppShell>
       <PageContainer size="sm">
-        {/* Back */}
-        <Link
-          to="/playbooks"
-          className="mb-6 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Tous les playbooks
-        </Link>
+        <PageBreadcrumb items={[{ label: playbook.title }]} />
 
         {/* ── Hero card ── */}
         <div className="relative mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-7 backdrop-blur-xl">
