@@ -1,4 +1,4 @@
-// Streamnco Clip Generator Worker — v3.6
+// Streamnco Clip Generator Worker — v3.7
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
@@ -40,7 +40,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.6";
+const WORKER_VERSION = "3.7";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -428,6 +428,13 @@ function detectFacecam(sourcePath, startSeconds, duration) {
     p.on("error", () => { clearTimeout(timer); resolve(null); });
     p.on("close", () => {
       clearTimeout(timer);
+      // Forward python ranking traces so they land in Fly logs:
+      //   [candidate] / [selected_facecam] / [rejected_candidate] / [runner_up]
+      if (err.trim()) {
+        for (const line of err.trim().split("\n")) {
+          console.log("[detect_facecam]", line);
+        }
+      }
       try {
         const lines = out.trim().split("\n").filter(Boolean);
         const last = lines[lines.length - 1] ?? "{}";
