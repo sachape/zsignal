@@ -445,6 +445,10 @@ def main() -> int:
         panel_w = panel_h * 4.0 / 3.0
         panel_w = max(panel_w, min_w_px * 1.05)
         panel_h = max(panel_h, min_h_px * 1.05)
+        if panel_w > max_w_px or panel_h > max_h_px:
+            scale = min(max_w_px / panel_w, max_h_px / panel_h)
+            panel_w *= scale
+            panel_h *= scale
         px = cx - panel_w / 2.0
         py = cy - panel_h * 0.40
         px = max(0.0, min(sample_w - panel_w, px))
