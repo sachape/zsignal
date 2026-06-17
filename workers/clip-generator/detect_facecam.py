@@ -307,7 +307,7 @@ def main() -> int:
     area_ratio = overlay_area / frame_area if frame_area else 1.0
     width_ratio = overlay_w / sample_w if sample_w else 1.0
     height_ratio = overlay_h / sample_h if sample_h else 1.0
-    if area_ratio > 0.30 or (width_ratio > 0.45 and height_ratio > 0.45):
+    if area_ratio > 0.18 or width_ratio > 0.32 or height_ratio > 0.35:
         print(json.dumps({
             "detected": False,
             "reason": "overlay_too_large",
