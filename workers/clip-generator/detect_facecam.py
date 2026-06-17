@@ -5,13 +5,17 @@
 # (Haar faces + edge-bounded overlay rectangles), score them, and emit the
 # best one as the facecam crop.
 #
-# v3.8 — Hard rejection of HUD / minimap / text panels:
-#   - panel candidates are rejected unless they have face/skin evidence
-#   - circular minimap is detected via HoughCircles → hard reject
-#   - high text/edge density without a face → hard reject
-#   - panels that contain a face are refined to the face sub-region
-#     (so a panel with "minimap on top + webcam below" yields only the
-#     webcam crop, not the whole HUD strip)
+# v3.9 — Human-evidence gate + full top-10 ranking log:
+#   - a candidate may ONLY win if it has real human/webcam evidence:
+#       face_support >= 1, OR
+#       source == "face_expand" (built from a face cluster), OR
+#       strong skin + low text density + colored border (clean video panel)
+#   - panels without human evidence (HUD, minimap, scoreboard, sub alert,
+#     game character portrait, decorative avatar) are never selected — they
+#     fall back to gameplay_only instead of being chosen by default
+#   - top-10 candidates are logged with bbox/source/score/face/skin/minimap/
+#     edge_dens/border/stability so regressions are diagnosable in Fly logs
+#   - small clean webcams with a real face still win (positive case preserved)
 #
 # Output JSON on stdout (single line, last one wins):
 #   { detected: bool, confidence: 0..1, facecam: {x,y,width,height},
@@ -19,10 +23,10 @@
 #     selected: {...}|null, rejected: [...], selection_reason: str,
 #     refined: bool, reason?: str }
 #
-# Detailed ranking traces are written to stderr — the Node worker forwards
-# them so they show up in Fly logs:
+# Detailed traces written to stderr (forwarded to Fly logs by the worker):
 #   [candidate] bbox=... score=... reason=...
-#   [selected_facecam] bbox=... score=... source=... refined=...
+#   [rank01] bbox=... src=... score=... face=... skin=... minimap=...
+#   [selected_facecam] bbox=... source=... score=... refined=...
 #   [rejected_candidate] bbox=... reason=...
 #
 # Usage: detect_facecam.py <video_path> <start_seconds> <duration_seconds>
