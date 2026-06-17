@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ElementType } from "react";
+import { useCallback, useEffect, useRef, useState, type ElementType } from "react";
 import { Link } from "react-router-dom";
 import {
   Clapperboard,
@@ -10,6 +10,7 @@ import {
   Download,
   Send,
   Settings as SettingsIcon,
+  Loader2,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import CameraPlacementEditor from "@/components/clips/CameraPlacementEditor";
@@ -33,6 +34,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useActiveVideoJob } from "@/hooks/useVideoJobs";
+import { getGenerationStageLabel } from "@/services/videoGeneration";
 
 interface RecentClip {
   id: string;
@@ -89,6 +92,16 @@ const ClipsReseauxPage = () => {
   useEffect(() => {
     void loadRecent();
   }, [loadRecent]);
+
+  // Show in-progress generation (after upload) so the user sees it's working.
+  const { activeJob } = useActiveVideoJob();
+  const prevActiveRef = useRef<string | null>(null);
+  useEffect(() => {
+    const cur = activeJob?.id ?? null;
+    // A job just finished → refresh the completed clips grid.
+    if (prevActiveRef.current && !cur) void loadRecent();
+    prevActiveRef.current = cur;
+  }, [activeJob, loadRecent]);
 
   const primaryCta = (
     <Button asChild className="gap-2" disabled={!canAccess}>
@@ -209,7 +222,32 @@ const ClipsReseauxPage = () => {
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground">Mes clips réseaux</h2>
           </div>
-          {recent.length === 0 ? (
+
+          {activeJob && (
+            <div className="mb-3 rounded-xl border border-primary/30 bg-primary/[0.06] p-4">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-foreground">Génération de ton clip en cours…</p>
+                  <p className="text-xs text-muted-foreground">
+                    {getGenerationStageLabel(activeJob.generation_stage)} · tu peux fermer, ça continue en arrière-plan.
+                  </p>
+                </div>
+                {typeof activeJob.progress === "number" && (
+                  <span className="shrink-0 text-sm font-semibold tabular-nums text-primary">{activeJob.progress}%</span>
+                )}
+              </div>
+              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted/40">
+                {typeof activeJob.progress === "number" ? (
+                  <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${activeJob.progress}%` }} />
+                ) : (
+                  <div className="h-full w-1/3 animate-pulse rounded-full bg-primary/60" />
+                )}
+              </div>
+            </div>
+          )}
+
+          {recent.length === 0 && !activeJob ? (
             <EmptyState
               icon={Clapperboard}
               title="Tu n'as pas encore créé de clip"
