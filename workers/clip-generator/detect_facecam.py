@@ -508,6 +508,11 @@ def main() -> int:
                     c, refined_bbox, source_override="panel_refined_to_face",
                     refined_from=c["bbox"],
                 )
+                if refined_candidate.get("skin", 0.0) < MIN_FINAL_FACE_SKIN_RATIO:
+                    blocked = {**refined_candidate, "eligible_final": False,
+                               "final_eligibility_reason": "insufficient_face_skin_signal",
+                               "refined": True}
+                    return False, "insufficient_face_skin_signal", blocked
                 refined_candidate.update({
                     "eligible_final": True,
                     "final_eligibility_reason": "panel_refined_to_face",
