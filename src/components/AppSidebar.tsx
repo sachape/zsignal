@@ -51,6 +51,8 @@ type NavEntry = {
   end?: boolean;
   // Extra paths under which this entry should be highlighted as active.
   matchSection?: "live-studio" | "content-studio" | "benchmark" | "resources";
+  // Orphan routes (no section) that should still light up this entry.
+  extraMatch?: string[];
 };
 
 type NavGroup = { label?: string; items: NavEntry[] };
@@ -72,9 +74,9 @@ const navGroups: NavGroup[] = [
   {
     label: "Analyser",
     items: [
-      { title: "StreamScore", url: "/analyse", icon: Activity },
-      { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark" },
-      { title: "Progression", url: "/progression", icon: TrendingUp },
+      { title: "StreamScore", url: "/analyse", icon: Activity, extraMatch: ["/mon-score"] },
+      { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark", extraMatch: ["/streamer"] },
+      { title: "Progression", url: "/progression", icon: TrendingUp, extraMatch: ["/quetes"] },
     ],
   },
   {
@@ -149,15 +151,20 @@ const AppSidebar = () => {
                 {group.items.map((item) => {
                   const sectionActive =
                     item.matchSection && activeSection === item.matchSection;
+                  const extraActive =
+                    item.extraMatch?.some(
+                      (p) => pathname === p || pathname.startsWith(`${p}/`),
+                    ) ?? false;
+                  const forceActive = !!sectionActive || extraActive;
                   return (
                     <SidebarMenuItem key={item.url}>
-                      <SidebarMenuButton asChild tooltip={item.title} isActive={!!sectionActive}>
+                      <SidebarMenuButton asChild tooltip={item.title} isActive={forceActive}>
                         <NavLink
                           to={item.url}
                           end={item.end}
                           className="flex w-full items-center gap-2"
                           activeClassName={
-                            sectionActive
+                            forceActive
                               ? undefined
                               : "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                           }
