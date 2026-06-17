@@ -347,12 +347,13 @@ function facecamBandRenderCrop(face, frameW, frameH, outW, outH, gameplayFraming
   };
 }
 
-function fallbackTopFacecamCrop(frameW, frameH) {
+function fallbackTopFacecamCrop(frameW, frameH, corner) {
   if (!frameW || !frameH) return null;
   const width = frameW * 0.36;
   const height = Math.min(frameH * 0.32, width * 0.75);
+  const left = corner === "top_left" || corner === "bottom_left";
   return {
-    x: Math.round(frameW - width),
+    x: left ? 0 : Math.round(frameW - width),
     y: 0,
     width: Math.round(width),
     height: Math.round(height),
@@ -947,7 +948,7 @@ async function processJob({
           // band entirely. When OpenCV misses a tiny webcam, keep a conservative
           // top-edge crop so the render still has a full-screen top band instead
           // of regressing to gameplay-only.
-          const fallbackFace = fallbackTopFacecamCrop(actualW, actualH);
+          const fallbackFace = fallbackTopFacecamCrop(actualW, actualH, detection?.corner ?? null);
           if (fallbackFace) {
             scaledFacecam = facecamBandRenderCrop(fallbackFace, actualW, actualH, outW ?? 1080, outH ?? 1920, gameplayFraming);
             if (!scaledGameplay) {
