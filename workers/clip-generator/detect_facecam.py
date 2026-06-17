@@ -182,7 +182,10 @@ def main() -> int:
             overlay_clusters.append([det])
 
     def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float]]) -> float:
-        return len(cluster) * 2.0 + statistics.median([c[4] for c in cluster])
+        # A stable webcam can be absent/partially occluded in a few frames, while
+        # HUD widgets (scoreboard/minimap) are present every frame. Weight visual
+        # webcam-likeness higher than raw count so persistent HUD does not win.
+        return len(cluster) * 1.2 + statistics.median([c[4] for c in cluster]) * 3.0
 
     if overlay_clusters:
         best_overlay = max(overlay_clusters, key=overlay_cluster_score)
