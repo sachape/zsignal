@@ -1184,5 +1184,5 @@ function runCommand(cmd, args, timeoutMs = 10 * 60 * 1000) {
 }
 
 app.listen(PORT, () => {
-  console.log(`Streamnco clip generator worker v${WORKER_VERSION} listening on :${PORT}`);
+  console.log(`Streamnco Clip Generator Worker — v${WORKER_VERSION} listening on :${PORT}`);
 });
