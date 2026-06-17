@@ -462,9 +462,19 @@ function ContentRow({
     )}>
       <CardContent className="space-y-3 p-4">
         <div className="flex items-start gap-3">
-          {hasGeneratedClip && item.thumbnail_url ? (
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-border/60 bg-background/40">
-              <img src={item.thumbnail_url} alt="" className="h-full w-full object-cover" loading="lazy" />
+          {hasGeneratedClip && (item.thumbnail_url || freshMediaUrl) ? (
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-border/60 bg-black">
+              {item.thumbnail_url ? (
+                <img src={item.thumbnail_url} alt="" className="h-full w-full object-cover" loading="lazy" />
+              ) : (
+                <video
+                  src={`${freshMediaUrl}#t=0.1`}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-cover"
+                />
+              )}
               <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border border-background bg-card">
                 <PlatformIcon className="h-2.5 w-2.5 text-primary" />
               </span>
