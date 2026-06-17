@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-# Streamnco — Facecam auto-detection (v3.9).
+# Streamnco — Facecam auto-detection (v3.10).
 #
 # Sample N frames across the segment, detect candidate webcam regions
 # (Haar faces + edge-bounded overlay rectangles), score them, and emit the
 # best one as the facecam crop.
 #
-# v3.9 — Human-evidence gate + full top-10 ranking log:
-#   - a candidate may ONLY win if it has real human/webcam evidence:
-#       face_support >= 1, OR
-#       source == "face_expand" (built from a face cluster), OR
-#       strong skin + low text density + colored border (clean video panel)
-#   - panels without human evidence (HUD, minimap, scoreboard, sub alert,
-#     game character portrait, decorative avatar) are never selected — they
-#     fall back to gameplay_only instead of being chosen by default
+# v3.10 — Final source allow-list:
+#   - source=panel is NEVER allowed as selected_facecam.
+#   - panels may only act as ROI; a panel can win only after being refined to
+#     source=panel_refined_to_face with a real face-sized subregion.
+#   - the old "clean video panel" final exception was removed because HUDs and
+#     minimaps can fake skin/border/stability/false-Haar signals.
+#   - if no face_expand or reliable panel_refined_to_face candidate exists,
+#     return detected=false reason=no_reliable_human_facecam.
 #   - top-10 candidates are logged with bbox/source/score/face/skin/minimap/
-#     edge_dens/border/stability so regressions are diagnosable in Fly logs
+#     edge_dens/border/stability plus final eligibility so regressions are
+#     diagnosable in Fly logs.
 #   - small clean webcams with a real face still win (positive case preserved)
 #
 # Output JSON on stdout (single line, last one wins):
@@ -25,8 +26,8 @@
 #
 # Detailed traces written to stderr (forwarded to Fly logs by the worker):
 #   [candidate] bbox=... score=... reason=...
-#   [rank01] bbox=... src=... score=... face=... skin=... minimap=...
-#   [selected_facecam] bbox=... source=... score=... refined=...
+#   [rank01] bbox=... source=... score=... eligible_final=false reason=...
+#   [selected_facecam] bbox=... source=face_expand|panel_refined_to_face ...
 #   [rejected_candidate] bbox=... reason=...
 #
 # Usage: detect_facecam.py <video_path> <start_seconds> <duration_seconds>
