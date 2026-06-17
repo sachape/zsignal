@@ -80,7 +80,7 @@ def main() -> int:
         return out
 
     detections: list[tuple[int, int, int, int]] = []
-    overlay_candidates: list[tuple[int, int, int, int, float, float, bool]] = []
+    overlay_candidates: list[tuple[int, int, int, int, float, float, bool, float]] = []
     sample_w = sample_h = 0
 
     def rough_skin_ratio(bgr_crop) -> float:
@@ -93,6 +93,15 @@ def main() -> int:
         mask = ((hue <= 25) | (hue >= 170)) & (sat >= 30) & (sat <= 190) & (val >= 45)
         return float(mask.mean())
 
+    def border_color_signal(bgr_crop) -> float:
+        if bgr_crop.size == 0:
+            return 0.0
+        h, w = bgr_crop.shape[:2]
+        border = max(2, int(min(w, h) * 0.08))
+        mask = cv2.cvtColor(bgr_crop, cv2.COLOR_BGR2HSV)[:, :, 1]
+        parts = [mask[:border, :], mask[-border:, :], mask[:, :border], mask[:, -border:]]
+        return max(float(p.mean()) for p in parts if p.size)
+
     def collect_overlay_candidates(img, gray_img, frame_faces):
         # Detect the whole webcam widget, not just the face. This is more robust
         # for streamer cams where the face is tiny, partially turned, hidden by
@@ -100,7 +109,7 @@ def main() -> int:
         h, w = gray_img.shape[:2]
         edges = cv2.Canny(gray_img, 50, 150)
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        out: list[tuple[int, int, int, int, float, float, bool]] = []
+        out: list[tuple[int, int, int, int, float, float, bool, float]] = []
         for c in contours:
             x, y, bw, bh = cv2.boundingRect(c)
             area_ratio = (bw * bh) / float(w * h) if w and h else 1.0
