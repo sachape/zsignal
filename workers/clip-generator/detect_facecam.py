@@ -120,11 +120,12 @@ def main() -> int:
             # not contain skin tones or a Haar face inside the candidate.
             width_ratio = bw / float(w) if w else 1.0
             height_ratio = bh / float(h) if h else 1.0
-            if not (0.012 <= area_ratio <= 0.09 and 0.75 <= aspect <= 2.10 and near_edge):
+            if not (0.0015 <= area_ratio <= 0.09 and 0.55 <= aspect <= 2.30 and near_edge):
                 continue
             if width_ratio > 0.34 or height_ratio > 0.36:
                 continue
             skin = rough_skin_ratio(img[y:y + bh, x:x + bw])
+            border_signal = border_color_signal(img[y:y + bh, x:x + bw])
             pad_x = bw * 0.18
             pad_y = bh * 0.18
             face_support = any(
@@ -132,7 +133,7 @@ def main() -> int:
                 and (y - pad_y) <= (fy + fh / 2) <= (y + bh + pad_y)
                 for fx, fy, fw, fh in frame_faces
             )
-            if not face_support and skin < 0.035:
+            if not face_support and skin < 0.035 and border_signal < 95:
                 continue
             # Top HUD/header strips are the main false positive. Only keep a
             # top-wide candidate when it has direct human evidence.
@@ -142,8 +143,9 @@ def main() -> int:
             side_bonus = 0.6 if (x < w * 0.16 or (x + bw) > w * 0.84) else 0.0
             skin_bonus = 0.8 if 0.06 <= skin <= 0.45 else 0.0
             face_bonus = 1.4 if face_support else 0.0
-            score = face_bonus + lower_third_bonus + side_bonus + skin_bonus + min(1.0, area_ratio * 20)
-            out.append((int(x), int(y), int(bw), int(bh), float(score), float(skin), bool(face_support)))
+            border_bonus = 0.7 if border_signal >= 95 else 0.0
+            score = face_bonus + lower_third_bonus + side_bonus + skin_bonus + border_bonus + min(1.0, area_ratio * 20)
+            out.append((int(x), int(y), int(bw), int(bh), float(score), float(skin), bool(face_support), float(border_signal)))
         return out
 
     for fp in frames:
