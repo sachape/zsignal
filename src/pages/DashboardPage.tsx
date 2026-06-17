@@ -792,16 +792,6 @@ const DashboardPage = () => {
           </summary>
           <div className="space-y-6 border-t border-border/40 p-4">
 
-        {/* Weekly digest */}
-        <WeeklyDigestCard report={currentReport} userId={user.id} previousScore={previous?.report?.score?.overall ?? null} />
-
-        {/* Foundation weekly sequence */}
-        {foundationActive && (
-          <div>
-            <WeeklySequenceCard actions={foundation.sequence} showPlanLink={endedSessions > 0} />
-          </div>
-        )}
-
         {/* ── LIVE ───────────────────────────────────────────────────── */}
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">Live</p>
         {isPro ? (
