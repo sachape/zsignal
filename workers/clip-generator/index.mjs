@@ -356,6 +356,18 @@ function facecamBandRenderCrop(face, frameW, frameH, outW, outH, gameplayFraming
   };
 }
 
+function fallbackTopFacecamCrop(frameW, frameH) {
+  if (!frameW || !frameH) return null;
+  const width = frameW * 0.36;
+  const height = Math.min(frameH * 0.32, width * 0.75);
+  return {
+    x: Math.round(frameW - width),
+    y: 0,
+    width: Math.round(width),
+    height: Math.round(height),
+  };
+}
+
 // Build a complex filter for the vertical 9:16 layout.
 //   - facecam_top_gameplay_bottom : facecam scaled to outW x (outH*camRatio),
 //     gameplay scaled+cropped to outW x (outH*(1-camRatio)), then vstack.
