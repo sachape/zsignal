@@ -1,4 +1,4 @@
-// Streamnco Clip Generator Worker — v3.7
+// Streamnco Clip Generator Worker — v3.8
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
