@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Streamnco — Facecam auto-detection (v3.8).
+# Streamnco — Facecam auto-detection (v3.9).
 #
 # Sample N frames across the segment, detect candidate webcam regions
 # (Haar faces + edge-bounded overlay rectangles), score them, and emit the
