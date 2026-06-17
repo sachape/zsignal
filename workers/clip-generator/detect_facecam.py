@@ -106,12 +106,18 @@ def main() -> int:
             area_ratio = (bw * bh) / float(w * h) if w and h else 1.0
             aspect = bw / float(bh) if bh else 0.0
             near_edge = x < w * 0.08 or y < h * 0.08 or (x + bw) > w * 0.92 or (y + bh) > h * 0.92
-            if not (0.015 <= area_ratio <= 0.09 and 0.75 <= aspect <= 2.25 and near_edge):
+            # A real streamer webcam overlay is small: roughly 8-25% width,
+            # 10-25% height, aspect close to 4:3 / 16:9. Reject anything wider
+            # than ~28% of the frame — those are HUD/scoreboard rows.
+            width_ratio = bw / float(w) if w else 1.0
+            height_ratio = bh / float(h) if h else 1.0
+            if not (0.015 <= area_ratio <= 0.06 and 0.85 <= aspect <= 1.9 and near_edge):
                 continue
-            # Most gameplay HUD false positives are the scoreboard/minimap row at
-            # the very top. Keep top-edge candidates only when they are clearly in
-            # a corner; otherwise let Haar fallback handle real top webcams.
-            if y < h * 0.24 and (x + bw) > w * 0.20 and x > w * 0.02:
+            if width_ratio > 0.28 or height_ratio > 0.32:
+                continue
+            # Reject any top-edge candidate that spans more than ~25% width —
+            # almost always the scoreboard/HUD strip.
+            if y < h * 0.28 and width_ratio > 0.25:
                 continue
             skin = rough_skin_ratio(img[y:y + bh, x:x + bw])
             lower_third_bonus = 1.0 if (y + bh / 2) > h * 0.30 else 0.0
