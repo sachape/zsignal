@@ -80,7 +80,46 @@ def main() -> int:
         return out
 
     detections: list[tuple[int, int, int, int]] = []
+    overlay_candidates: list[tuple[int, int, int, int, float]] = []
     sample_w = sample_h = 0
+
+    def rough_skin_ratio(bgr_crop) -> float:
+        if bgr_crop.size == 0:
+            return 0.0
+        hsv = cv2.cvtColor(bgr_crop, cv2.COLOR_BGR2HSV)
+        hue = hsv[:, :, 0]
+        sat = hsv[:, :, 1]
+        val = hsv[:, :, 2]
+        mask = ((hue <= 25) | (hue >= 170)) & (sat >= 30) & (sat <= 190) & (val >= 45)
+        return float(mask.mean())
+
+    def collect_overlay_candidates(img, gray_img):
+        # Detect the whole webcam widget, not just the face. This is more robust
+        # for streamer cams where the face is tiny, partially turned, hidden by
+        # headset/mic, or visually blurred, while the webcam frame remains stable.
+        h, w = gray_img.shape[:2]
+        edges = cv2.Canny(gray_img, 50, 150)
+        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        out: list[tuple[int, int, int, int, float]] = []
+        for c in contours:
+            x, y, bw, bh = cv2.boundingRect(c)
+            area_ratio = (bw * bh) / float(w * h) if w and h else 1.0
+            aspect = bw / float(bh) if bh else 0.0
+            near_edge = x < w * 0.08 or y < h * 0.08 or (x + bw) > w * 0.92 or (y + bh) > h * 0.92
+            if not (0.015 <= area_ratio <= 0.09 and 0.75 <= aspect <= 2.25 and near_edge):
+                continue
+            # Most gameplay HUD false positives are the scoreboard/minimap row at
+            # the very top. Keep top-edge candidates only when they are clearly in
+            # a corner; otherwise let Haar fallback handle real top webcams.
+            if y < h * 0.24 and (x + bw) > w * 0.20 and x > w * 0.02:
+                continue
+            skin = rough_skin_ratio(img[y:y + bh, x:x + bw])
+            lower_third_bonus = 1.0 if (y + bh / 2) > h * 0.30 else 0.0
+            side_bonus = 0.6 if (x < w * 0.16 or (x + bw) > w * 0.84) else 0.0
+            skin_bonus = 0.8 if 0.06 <= skin <= 0.45 else 0.0
+            score = lower_third_bonus + side_bonus + skin_bonus + min(1.0, area_ratio * 20)
+            out.append((int(x), int(y), int(bw), int(bh), float(score)))
+        return out
 
     for fp in frames:
         img = cv2.imread(fp)
@@ -89,6 +128,8 @@ def main() -> int:
         sample_h, sample_w = img.shape[:2]
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         gray = cv2.equalizeHist(gray)
+
+        overlay_candidates.extend(collect_overlay_candidates(img, gray))
 
         # 1) Full-frame pass.
         for d in detect_in(gray):
@@ -119,26 +160,18 @@ def main() -> int:
                     int(h / 1.6),
                 ))
 
-    if not detections or sample_w == 0:
-        print(json.dumps({
-            "detected": False,
-            "reason": "no_faces",
-            "frames": len(frames),
-        }))
-        return 0
-
-    # Cluster detections instead of taking one global median. Gameplay can
-    # contain several face-like shapes; a global median can land between them
-    # and make us reject the real webcam. Pick the most stable edge cluster.
+    # Cluster webcam-overlay candidates first. They describe the visible camera
+    # frame itself, so they are less likely than Haar faces to lock onto CS HUD
+    # icons or in-game character faces.
     cluster_tol_x = sample_w * 0.10
     cluster_tol_y = sample_h * 0.10
-    clusters: list[list[tuple[int, int, int, int]]] = []
-    for det in detections:
-        dx, dy, dw, dh = det
+    overlay_clusters: list[list[tuple[int, int, int, int, float]]] = []
+    for det in overlay_candidates:
+        dx, dy, dw, dh, _score = det
         dcx = dx + dw / 2
         dcy = dy + dh / 2
         matched = False
-        for cluster in clusters:
+        for cluster in overlay_clusters:
             cxs = [c[0] + c[2] / 2 for c in cluster]
             cys = [c[1] + c[3] / 2 for c in cluster]
             if abs(dcx - statistics.median(cxs)) < cluster_tol_x and abs(dcy - statistics.median(cys)) < cluster_tol_y:
@@ -146,62 +179,116 @@ def main() -> int:
                 matched = True
                 break
         if not matched:
-            clusters.append([det])
+            overlay_clusters.append([det])
 
-    def cluster_score(cluster: list[tuple[int, int, int, int]]) -> float:
-        cxs = [c[0] + c[2] / 2 for c in cluster]
-        cys = [c[1] + c[3] / 2 for c in cluster]
-        ccx = statistics.median(cxs)
-        ccy = statistics.median(cys)
-        x_ratio = ccx / sample_w if sample_w else 0.5
-        y_ratio = ccy / sample_h if sample_h else 0.5
-        near_x_edge = x_ratio < 0.42 or x_ratio > 0.58
-        near_y_edge = y_ratio < 0.42 or y_ratio > 0.58
-        edge_bonus = 1.5 if (near_x_edge or near_y_edge) else -2.0
-        corner_bonus = 1.0 if (near_x_edge and near_y_edge) else 0.0
-        return len(cluster) + edge_bonus + corner_bonus
+    def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float]]) -> float:
+        # A stable webcam can be absent/partially occluded in a few frames, while
+        # HUD widgets (scoreboard/minimap) are present every frame. Weight visual
+        # webcam-likeness higher than raw count so persistent HUD does not win.
+        return len(cluster) * 1.2 + statistics.median([c[4] for c in cluster]) * 3.0
 
-    best_cluster = max(clusters, key=cluster_score)
+    if overlay_clusters:
+        best_overlay = max(overlay_clusters, key=overlay_cluster_score)
+        if len(best_overlay) >= 2:
+            ox = statistics.median([c[0] for c in best_overlay])
+            oy = statistics.median([c[1] for c in best_overlay])
+            overlay_w = statistics.median([c[2] for c in best_overlay])
+            overlay_h = statistics.median([c[3] for c in best_overlay])
+            confidence = round(min(1.0, len(best_overlay) / max(1, len(frames))), 2)
+            stable = len(best_overlay)
+        else:
+            ox = oy = overlay_w = overlay_h = None
+            confidence = 0.0
+            stable = 0
+    else:
+        ox = oy = overlay_w = overlay_h = None
+        confidence = 0.0
+        stable = 0
 
-    xs = [d[0] + d[2] / 2 for d in best_cluster]
-    ys = [d[1] + d[3] / 2 for d in best_cluster]
-    ws = [d[2] for d in best_cluster]
-    hs = [d[3] for d in best_cluster]
+    if ox is None:
+        if not detections or sample_w == 0:
+            print(json.dumps({
+                "detected": False,
+                "reason": "no_faces",
+                "frames": len(frames),
+                "overlay_candidates": len(overlay_candidates),
+            }))
+            return 0
 
-    cx = statistics.median(xs)
-    cy = statistics.median(ys)
-    mw = statistics.median(ws)
-    mh = statistics.median(hs)
+        # Cluster detections instead of taking one global median. Gameplay can
+        # contain several face-like shapes; a global median can land between them
+        # and make us reject the real webcam. Pick the most stable edge cluster.
+        clusters: list[list[tuple[int, int, int, int]]] = []
+        for det in detections:
+            dx, dy, dw, dh = det
+            dcx = dx + dw / 2
+            dcy = dy + dh / 2
+            matched = False
+            for cluster in clusters:
+                cxs = [c[0] + c[2] / 2 for c in cluster]
+                cys = [c[1] + c[3] / 2 for c in cluster]
+                if abs(dcx - statistics.median(cxs)) < cluster_tol_x and abs(dcy - statistics.median(cys)) < cluster_tol_y:
+                    cluster.append(det)
+                    matched = True
+                    break
+            if not matched:
+                clusters.append([det])
 
-    stable = len(best_cluster)
-    # Normalize over frames (not raw detections) so multi-pass noise doesn't
-    # inflate the score. Two stable hits across ~8 frames ≈ 0.17 → accepted
-    # by the lowered floor below.
-    confidence = round(min(1.0, stable / max(1, len(frames) * 1.5)), 2)
+        def cluster_score(cluster: list[tuple[int, int, int, int]]) -> float:
+            cxs = [c[0] + c[2] / 2 for c in cluster]
+            cys = [c[1] + c[3] / 2 for c in cluster]
+            ccx = statistics.median(cxs)
+            ccy = statistics.median(cys)
+            x_ratio = ccx / sample_w if sample_w else 0.5
+            y_ratio = ccy / sample_h if sample_h else 0.5
+            near_x_edge = x_ratio < 0.42 or x_ratio > 0.58
+            near_y_edge = y_ratio < 0.42 or y_ratio > 0.58
+            edge_bonus = 1.5 if (near_x_edge or near_y_edge) else -2.0
+            corner_bonus = 1.0 if (near_x_edge and near_y_edge) else 0.0
+            return len(cluster) + edge_bonus + corner_bonus
 
-    # Lower floor: with corner-zoom + dual-cascade we accept stable >= 2.
-    if confidence < 0.15 or stable < 2:
-        print(json.dumps({
-            "detected": False,
-            "reason": "low_stability",
-            "confidence": confidence,
-            "stable": stable,
-            "frames": len(frames),
-            "detections": len(detections),
-        }))
-        return 0
+        best_cluster = max(clusters, key=cluster_score)
 
-    # Expand the face bbox into a plausible webcam overlay (≈4:3, face in upper third).
-    overlay_h = mh * 2.8
-    overlay_w = overlay_h * 4.0 / 3.0
-    ox = cx - overlay_w / 2.0
-    oy = cy - overlay_h * 0.40
+        xs = [d[0] + d[2] / 2 for d in best_cluster]
+        ys = [d[1] + d[3] / 2 for d in best_cluster]
+        ws = [d[2] for d in best_cluster]
+        hs = [d[3] for d in best_cluster]
 
-    # Snap to frame bounds (in the sampled coordinate space).
-    ox = max(0.0, min(sample_w - overlay_w, ox))
-    oy = max(0.0, min(sample_h - overlay_h, oy))
-    overlay_w = max(8.0, min(overlay_w, sample_w - ox))
-    overlay_h = max(8.0, min(overlay_h, sample_h - oy))
+        cx = statistics.median(xs)
+        cy = statistics.median(ys)
+        mw = statistics.median(ws)
+        mh = statistics.median(hs)
+
+        stable = len(best_cluster)
+        # Normalize over frames (not raw detections) so multi-pass noise doesn't
+        # inflate the score. Two stable hits across ~8 frames ≈ 0.17 → accepted
+        # by the lowered floor below.
+        confidence = round(min(1.0, stable / max(1, len(frames) * 1.5)), 2)
+
+        # Lower floor: with corner-zoom + dual-cascade we accept stable >= 2.
+        if confidence < 0.15 or stable < 2:
+            print(json.dumps({
+                "detected": False,
+                "reason": "low_stability",
+                "confidence": confidence,
+                "stable": stable,
+                "frames": len(frames),
+                "detections": len(detections),
+                "overlay_candidates": len(overlay_candidates),
+            }))
+            return 0
+
+        # Expand the face bbox into a plausible webcam overlay (≈4:3, face in upper third).
+        overlay_h = mh * 2.8
+        overlay_w = overlay_h * 4.0 / 3.0
+        ox = cx - overlay_w / 2.0
+        oy = cy - overlay_h * 0.40
+
+        # Snap to frame bounds (in the sampled coordinate space).
+        ox = max(0.0, min(sample_w - overlay_w, ox))
+        oy = max(0.0, min(sample_h - overlay_h, oy))
+        overlay_w = max(8.0, min(overlay_w, sample_w - ox))
+        overlay_h = max(8.0, min(overlay_h, sample_h - oy))
 
     # SANITY GUARD #1 — A streamer facecam is usually small. If the derived
     # overlay covers more than 30% of the frame area, OR more than 45% of both

@@ -1,4 +1,4 @@
-// Streamnco Clip Generator Worker — v3.2
+// Streamnco Clip Generator Worker — v3.3
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
@@ -40,7 +40,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.2";
+const WORKER_VERSION = "3.3";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -260,6 +260,24 @@ function gameplayCropFromFacecam(face, frameW, frameH) {
   const cy = face.y + face.height / 2;
   const horizontal = cx < frameW / 2 ? "left" : "right";
   const vertical = cy < frameH / 2 ? "top" : "bottom";
+  const touchesLeft = face.x <= frameW * 0.08;
+  const touchesRight = face.x + face.width >= frameW * 0.92;
+  const touchesTop = face.y <= frameH * 0.08;
+  const touchesBottom = face.y + face.height >= frameH * 0.92;
+
+  // If the webcam is a side overlay (common lower-left/lower-right streamer
+  // layout), trim that side first. Vertical trimming would remove the gameplay
+  // HUD/action band and cause an over-zoomed bottom crop.
+  if ((touchesLeft || touchesRight) && !touchesTop && !touchesBottom) {
+    if (touchesLeft) {
+      const cutX = Math.min(frameW - 2, face.x + face.width + 4);
+      const newW = frameW - cutX;
+      if (newW / frameW >= 0.55) return { x: cutX, y: 0, width: newW, height: frameH };
+    } else {
+      const newW = Math.max(2, face.x - 4);
+      if (newW / frameW >= 0.55) return { x: 0, y: 0, width: newW, height: frameH };
+    }
+  }
 
   // Prefer trimming vertically (most facecams sit in a top or bottom band).
   // Only do it if at least 55% of the frame height remains after the trim.
@@ -803,6 +821,9 @@ async function processJob({
       }
       const actualW = probed?.width ?? sourceReferenceWidth ?? null;
       const actualH = probed?.height ?? sourceReferenceHeight ?? null;
+      const actualDuration = typeof probed?.duration === "number" && Number.isFinite(probed.duration)
+        ? probed.duration
+        : null;
 
       let scaledFacecam = scaleCrop(facecamCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
       let scaledGameplay = scaleCrop(gameplayCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
@@ -826,10 +847,17 @@ async function processJob({
           job_id: jobId, status: "processing", stage: "detecting_facecam", progress: 50,
         });
 
+        // Twitch clip URLs are already short. The UI may still send a generic
+        // 60s range, but using that for sampling makes the detector extract only
+        // ~1 frame from a 6s clip. Use the real downloaded duration when known.
+        const detectionDuration = sourceKind === "twitch_clip" && actualDuration
+          ? Math.max(1, Math.min(duration, actualDuration))
+          : duration;
+
         const detection = await detectFacecam(
           sourcePath,
           sourceKind === "twitch_clip" ? 0 : (trimmedAlready ? 0 : startSeconds),
-          duration,
+          detectionDuration,
         );
         detectionMeta = detection;
 
@@ -845,6 +873,8 @@ async function processJob({
           fallback_reason: detection?.detected ? null : (detection?.reason ?? "no_detection"),
           actual_width: actualW,
           actual_height: actualH,
+          requested_duration: duration,
+          detection_duration: detectionDuration,
         }));
 
         if (detection?.detected && detection.facecam && detection.source_width && actualW && actualH) {
@@ -1032,8 +1062,8 @@ function probeVideoDimensions(path) {
     const p = spawn("ffprobe", [
       "-v", "error",
       "-select_streams", "v:0",
-      "-show_entries", "stream=width,height",
-      "-of", "csv=p=0",
+      "-show_entries", "stream=width,height:format=duration",
+      "-of", "json",
       path,
     ], { stdio: ["ignore", "pipe", "pipe"] });
     let out = "";
@@ -1041,9 +1071,22 @@ function probeVideoDimensions(path) {
     p.on("error", reject);
     p.on("close", (code) => {
       if (code !== 0) return reject(new Error(`ffprobe_exit_${code}`));
-      const [w, h] = out.trim().split(",").map((n) => Number(n));
+      let parsed;
+      try {
+        parsed = JSON.parse(out || "{}");
+      } catch {
+        return reject(new Error("ffprobe_bad_json"));
+      }
+      const stream = Array.isArray(parsed?.streams) ? parsed.streams[0] : null;
+      const w = Number(stream?.width);
+      const h = Number(stream?.height);
       if (!w || !h) return reject(new Error("ffprobe_no_dims"));
-      resolve({ width: w, height: h });
+      const duration = Number(parsed?.format?.duration);
+      resolve({
+        width: w,
+        height: h,
+        duration: Number.isFinite(duration) && duration > 0 ? duration : null,
+      });
     });
   });
 }
