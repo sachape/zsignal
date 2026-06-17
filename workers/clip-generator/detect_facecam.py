@@ -487,6 +487,11 @@ def main() -> int:
     # into a smaller face-centered crop.
     def final_eligibility(c):
         if c["source"] == "face_expand":
+            if c.get("face_support", 0) < MIN_FINAL_FACE_SUPPORT:
+                blocked = {**c, "eligible_final": False,
+                           "final_eligibility_reason": "insufficient_face_support",
+                           "refined": False}
+                return False, "insufficient_face_support", blocked
             return True, "face_expand", {**c, "eligible_final": True,
                                          "final_eligibility_reason": "face_expand",
                                          "refined": False}
