@@ -29,12 +29,14 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
   const state = useActivationChecklist({ userId, twitchConnected, hasReport });
 
   const [dismissed, setDismissed] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  // Collapsed by default: show only the header + progress + next-step CTA,
+  // expand on demand. Keeps the dashboard light. User's explicit choice wins.
+  const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
     try {
       setDismissed(localStorage.getItem(dismissKey(userId)) === "1");
-      setCollapsed(localStorage.getItem(collapseKey(userId)) === "1");
+      setCollapsed(localStorage.getItem(collapseKey(userId)) !== "0");
     } catch { /* noop */ }
   }, [userId]);
 
