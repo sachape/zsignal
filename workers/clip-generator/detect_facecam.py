@@ -475,41 +475,67 @@ def main() -> int:
 
     candidates.sort(key=lambda c: c["score"], reverse=True)
 
-    # Log full top-10 ranking for regression analysis.
-    log(f"[ranking] top={min(10, len(candidates))} total={len(candidates)}")
-    for i, c in enumerate(candidates[:10]):
-        log(f"[rank{i+1:02d}] bbox={tuple(c['bbox'])} src={c['source']}"
+    # ── Final eligibility gate ───────────────────────────────────────────
+    # Raw panel candidates are discovery ROIs only. They can never be the
+    # selected facecam, even when panel-level skin/border/stability/false-Haar
+    # signals look strong. A panel can become eligible only if it is refined
+    # into a smaller face-centered crop.
+    def final_eligibility(c):
+        if c["source"] == "face_expand":
+            return True, "face_expand", {**c, "eligible_final": True,
+                                         "final_eligibility_reason": "face_expand",
+                                         "refined": False}
+        if c["source"] == "panel":
+            refined_bbox, refined = refine_panel_to_face(tuple(c["bbox"]))
+            if refined:
+                refined_candidate = enrich_crop_metrics(
+                    c, refined_bbox, source_override="panel_refined_to_face",
+                    refined_from=c["bbox"],
+                )
+                refined_candidate.update({
+                    "eligible_final": True,
+                    "final_eligibility_reason": "panel_refined_to_face",
+                    "refined": True,
+                })
+                return True, "panel_refined_to_face", refined_candidate
+            blocked = {**c, "eligible_final": False,
+                       "final_eligibility_reason": "panel_not_allowed_as_final",
+                       "refined": False}
+            return False, "panel_not_allowed_as_final", blocked
+        blocked = {**c, "eligible_final": False,
+                   "final_eligibility_reason": "unsupported_source",
+                   "refined": False}
+        return False, "unsupported_source", blocked
+
+    evaluated = []
+    eligible = []
+    for c in candidates:
+        is_eligible, reason, final_candidate = final_eligibility(c)
+        evaluated.append((c, is_eligible, reason, final_candidate))
+        if is_eligible:
+            eligible.append(final_candidate)
+
+    # Log full top-10 ranking for regression analysis, including final gate.
+    log(f"[ranking] top={min(10, len(evaluated))} total={len(evaluated)}")
+    for i, (c, is_eligible, reason, _final_candidate) in enumerate(evaluated[:10]):
+        log(f"[rank{i+1:02d}] bbox={tuple(c['bbox'])} source={c['source']}"
             f" score={c['score']} face={c['face_support']} skin={c['skin']}"
             f" border={c['border']} minimap={c['minimap_frac']}"
-            f" edge_dens={c['edge_dens']} stab={c['stability']}")
+            f" edge_dens={c['edge_dens']} stab={c['stability']}"
+            f" eligible_final={str(is_eligible).lower()} reason={reason}")
 
-    # ── Human/webcam evidence gate ───────────────────────────────────────
-    # A candidate may only WIN if it shows real human/webcam evidence:
-    #   - face_support >= 1 (Haar face inside the region), OR
-    #   - source == "face_expand" (was built from a face cluster), OR
-    #   - skin_ratio strong AND border/edge consistent with a video panel
-    #     (skin >= 0.09, edge_dens <= 0.18, border >= 60).
-    # Otherwise the candidate is HUD / minimap / text / icon — never pick it.
-    def has_human_evidence(c):
-        if c["source"] == "face_expand": return True
-        if c["face_support"] >= 1: return True
-        if (c["skin"] >= 0.09 and c["edge_dens"] <= 0.18
-                and c["border"] >= 60.0 and c["minimap_frac"] < 0.10):
-            return True
-        return False
-
-    eligible = [c for c in candidates if has_human_evidence(c)]
-    skipped = [c for c in candidates if c not in eligible]
-    for c in skipped[:6]:
+    skipped = [(c, reason) for (c, is_eligible, reason, _fc) in evaluated if not is_eligible]
+    for c, reason in skipped[:10]:
+        reason_name = "panel_not_allowed_as_final_facecam" if reason == "panel_not_allowed_as_final" else reason
         log_bbox("rejected_candidate", tuple(c["bbox"]), source=c["source"],
-                 reason="no_human_evidence", score=c["score"],
+                 reason=reason_name, score=c["score"],
                  face=c["face_support"], skin=c["skin"], edge_dens=c["edge_dens"])
-        rejected.append({**c, "reason": "no_human_evidence"})
+        rejected.append({**c, "reason": reason_name})
 
     if not eligible:
-        log("[detect] no_eligible_human_candidate → fallback gameplay_only")
+        log("[detect] no_reliable_human_facecam → fallback gameplay_only")
         print(json.dumps({
-            "detected": False, "reason": "no_human_evidence",
+            "detected": False, "reason": "no_reliable_human_facecam",
             "frames": len(frames), "source_width": sample_w, "source_height": sample_h,
             "candidates": candidates[:8], "rejected": rejected[:12],
         }))
