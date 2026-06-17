@@ -90,6 +90,7 @@ const VisualStudioPage = () => {
     }
   };
   const handleDelete = async (v: GeneratedVisual) => {
+    if (!confirm("Supprimer ce visuel ? Cette action est définitive.")) return;
     try {
       await deleteVisual(v);
       setLibrary((prev) => prev.filter((x) => x.id !== v.id));

@@ -191,6 +191,7 @@ const ComposerPage = () => {
       navigate("/publications");
       return;
     }
+    if (!confirm("Supprimer ce brouillon ? Cette action est définitive.")) return;
     try {
       await removePost(draftId);
       toast.success("Brouillon supprimé");

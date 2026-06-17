@@ -272,6 +272,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
   };
 
   const handleDelete = async (v: GeneratedVisual) => {
+    if (!confirm("Supprimer ce visuel ? Cette action est définitive.")) return;
     try {
       await deleteVisual(v);
       setVariants((prev) => prev.filter((x) => x.id !== v.id));
