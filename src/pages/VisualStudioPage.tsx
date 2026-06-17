@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { supabase } from "@/integrations/supabase/client";
 import VisualGenerationDialog from "@/components/visual-studio/VisualGenerationDialog";
+import VisualPlacementPreview from "@/components/visual-studio/VisualPlacementPreview";
 import {
   fetchTemplates,
   fetchLibrary,
@@ -37,7 +38,11 @@ const VisualStudioPage = () => {
   const [library, setLibrary] = useState<GeneratedVisual[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [initialTemplateId, setInitialTemplateId] = useState<string | null>(null);
   const [prefill, setPrefill] = useState<Record<string, any>>({});
+
+  const openPicker = () => { setInitialTemplateId(null); setDialogOpen(true); };
+  const openType = (id: string) => { setInitialTemplateId(id); setDialogOpen(true); };
   const quota = useQuotaUsage();
 
   const loadAll = useCallback(async () => {
@@ -115,7 +120,7 @@ const VisualStudioPage = () => {
           title="Studio visuel"
           description="Bannières, stories, annonces de live, posts — générés en quelques secondes."
           action={
-            <Button onClick={() => setDialogOpen(true)} className="gap-2">
+            <Button onClick={openPicker} className="gap-2">
               <Plus className="h-4 w-4" /> Créer un visuel
             </Button>
           }
@@ -134,13 +139,10 @@ const VisualStudioPage = () => {
             {featured.map((t) => (
               <button
                 key={t.id}
-                onClick={() => {
-                  setPrefill((p) => ({ ...p }));
-                  setDialogOpen(true);
-                }}
-                className="group flex flex-col items-start gap-2 rounded-xl border border-border/60 bg-card/60 p-4 text-left transition-all hover:border-primary/50 hover:bg-card"
+                onClick={() => openType(t.id)}
+                className="group flex flex-col gap-2 rounded-xl border border-border/60 bg-card/60 p-4 text-left transition-all hover:border-primary/50 hover:bg-card"
               >
-                <Sparkles className="h-4 w-4 text-primary" />
+                <VisualPlacementPreview width={t.width} height={t.height} />
                 <span className="text-sm font-semibold">{t.label}</span>
                 <span className="text-xs text-muted-foreground line-clamp-2">{t.description}</span>
               </button>
@@ -169,7 +171,7 @@ const VisualStudioPage = () => {
               title="Tu n'as pas encore généré de visuel"
               description="Crée une bannière Twitch, une story, un post réseau ou une annonce de live en quelques secondes. Tes visuels apparaîtront ici pour être téléchargés ou mis en favoris."
               ctaLabel="Créer mon premier visuel"
-              ctaOnClick={() => setDialogOpen(true)}
+              ctaOnClick={openPicker}
             />
           ) : (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -218,6 +220,7 @@ const VisualStudioPage = () => {
           onOpenChange={setDialogOpen}
           templates={templates}
           prefill={prefill}
+          initialTemplateId={initialTemplateId}
           onCompleted={() => { void loadAll(); void quota.refresh(); }}
         />
       </PageContainer>

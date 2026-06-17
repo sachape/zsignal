@@ -24,6 +24,7 @@ import {
 import { usePlan } from "@/hooks/usePlan";
 import { quotaCta, quotaExceededMessage } from "@/lib/quotas";
 import { Link } from "react-router-dom";
+import VisualPlacementPreview from "@/components/visual-studio/VisualPlacementPreview";
 
 interface Props {
   open: boolean;
@@ -31,6 +32,8 @@ interface Props {
   templates: VisualTemplate[];
   prefill: Record<string, any>;
   onCompleted: () => void;
+  /** When set, the dialog opens directly on the form for this type (skips the picker). */
+  initialTemplateId?: string | null;
 }
 
 type Step = "pick" | "form" | "result";
@@ -66,7 +69,7 @@ function friendlyError(code: string | null | undefined): string {
 }
 
 
-export default function VisualGenerationDialog({ open, onOpenChange, templates, prefill, onCompleted }: Props) {
+export default function VisualGenerationDialog({ open, onOpenChange, templates, prefill, onCompleted, initialTemplateId }: Props) {
   const { plan } = usePlan();
   const [step, setStep] = useState<Step>("pick");
   const [template, setTemplate] = useState<VisualTemplate | null>(null);
@@ -88,9 +91,12 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
 
   useEffect(() => {
     if (open) {
-      setStep("pick");
-      setTemplate(null);
-      setHeadline("");
+      const initial = initialTemplateId
+        ? templates.find((t) => t.id === initialTemplateId) ?? null
+        : null;
+      setStep(initial ? "form" : "pick");
+      setTemplate(initial);
+      setHeadline(initial ? (prefill?.headline ?? prefill?.display_name ?? "") : "");
       setSubtext("");
       setGame(prefill?.game ?? "");
       setStyle("Cinématique");
@@ -323,6 +329,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
                         onClick={() => handlePick(t)}
                         className="group flex flex-col gap-2 rounded-xl border border-border/60 bg-card/60 p-3 text-left transition-all hover:border-primary/50 hover:bg-card"
                       >
+                        <VisualPlacementPreview width={t.width} height={t.height} />
                         <div className="flex items-center gap-2">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
                             <Icon className="h-4 w-4" />
@@ -344,6 +351,18 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
 
         {step === "form" && template && (
           <div className="space-y-4">
+            {/* Placement preview — où atterrit le visuel */}
+            <div className="flex items-center gap-4 rounded-xl border border-border/60 bg-muted/20 p-3">
+              <div className="w-28 shrink-0">
+                <VisualPlacementPreview width={template.width} height={template.height} caption />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">{template.label}</p>
+                <p className="text-xs text-muted-foreground">{template.description}</p>
+                <p className="mt-1 text-[10px] text-muted-foreground/70">{template.width} × {template.height}</p>
+              </div>
+            </div>
+
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <Label htmlFor="headline">Texte principal</Label>
