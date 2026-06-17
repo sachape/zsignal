@@ -58,6 +58,7 @@ MAX_OVERLAY_AREA_RATIO = 0.20
 
 MIN_FACE_PX = 44
 MIN_FINAL_FACE_SUPPORT = 2
+MIN_FINAL_FACE_SKIN_RATIO = 0.12
 
 # A panel candidate (edge-bounded rectangle, no face cluster expansion)
 # MUST show one of these signals to be considered a webcam:
@@ -492,6 +493,11 @@ def main() -> int:
                            "final_eligibility_reason": "insufficient_face_support",
                            "refined": False}
                 return False, "insufficient_face_support", blocked
+            if c.get("skin", 0.0) < MIN_FINAL_FACE_SKIN_RATIO:
+                blocked = {**c, "eligible_final": False,
+                           "final_eligibility_reason": "insufficient_face_skin_signal",
+                           "refined": False}
+                return False, "insufficient_face_skin_signal", blocked
             return True, "face_expand", {**c, "eligible_final": True,
                                          "final_eligibility_reason": "face_expand",
                                          "refined": False}
