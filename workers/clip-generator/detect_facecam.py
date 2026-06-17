@@ -231,60 +231,61 @@ def main() -> int:
             if not matched:
                 clusters.append([det])
 
-    def cluster_score(cluster: list[tuple[int, int, int, int]]) -> float:
-        cxs = [c[0] + c[2] / 2 for c in cluster]
-        cys = [c[1] + c[3] / 2 for c in cluster]
-        ccx = statistics.median(cxs)
-        ccy = statistics.median(cys)
-        x_ratio = ccx / sample_w if sample_w else 0.5
-        y_ratio = ccy / sample_h if sample_h else 0.5
-        near_x_edge = x_ratio < 0.42 or x_ratio > 0.58
-        near_y_edge = y_ratio < 0.42 or y_ratio > 0.58
-        edge_bonus = 1.5 if (near_x_edge or near_y_edge) else -2.0
-        corner_bonus = 1.0 if (near_x_edge and near_y_edge) else 0.0
-        return len(cluster) + edge_bonus + corner_bonus
+        def cluster_score(cluster: list[tuple[int, int, int, int]]) -> float:
+            cxs = [c[0] + c[2] / 2 for c in cluster]
+            cys = [c[1] + c[3] / 2 for c in cluster]
+            ccx = statistics.median(cxs)
+            ccy = statistics.median(cys)
+            x_ratio = ccx / sample_w if sample_w else 0.5
+            y_ratio = ccy / sample_h if sample_h else 0.5
+            near_x_edge = x_ratio < 0.42 or x_ratio > 0.58
+            near_y_edge = y_ratio < 0.42 or y_ratio > 0.58
+            edge_bonus = 1.5 if (near_x_edge or near_y_edge) else -2.0
+            corner_bonus = 1.0 if (near_x_edge and near_y_edge) else 0.0
+            return len(cluster) + edge_bonus + corner_bonus
 
-    best_cluster = max(clusters, key=cluster_score)
+        best_cluster = max(clusters, key=cluster_score)
 
-    xs = [d[0] + d[2] / 2 for d in best_cluster]
-    ys = [d[1] + d[3] / 2 for d in best_cluster]
-    ws = [d[2] for d in best_cluster]
-    hs = [d[3] for d in best_cluster]
+        xs = [d[0] + d[2] / 2 for d in best_cluster]
+        ys = [d[1] + d[3] / 2 for d in best_cluster]
+        ws = [d[2] for d in best_cluster]
+        hs = [d[3] for d in best_cluster]
 
-    cx = statistics.median(xs)
-    cy = statistics.median(ys)
-    mw = statistics.median(ws)
-    mh = statistics.median(hs)
+        cx = statistics.median(xs)
+        cy = statistics.median(ys)
+        mw = statistics.median(ws)
+        mh = statistics.median(hs)
 
-    stable = len(best_cluster)
-    # Normalize over frames (not raw detections) so multi-pass noise doesn't
-    # inflate the score. Two stable hits across ~8 frames ≈ 0.17 → accepted
-    # by the lowered floor below.
-    confidence = round(min(1.0, stable / max(1, len(frames) * 1.5)), 2)
+        stable = len(best_cluster)
+        # Normalize over frames (not raw detections) so multi-pass noise doesn't
+        # inflate the score. Two stable hits across ~8 frames ≈ 0.17 → accepted
+        # by the lowered floor below.
+        confidence = round(min(1.0, stable / max(1, len(frames) * 1.5)), 2)
 
-    # Lower floor: with corner-zoom + dual-cascade we accept stable >= 2.
-    if confidence < 0.15 or stable < 2:
-        print(json.dumps({
-            "detected": False,
-            "reason": "low_stability",
-            "confidence": confidence,
-            "stable": stable,
-            "frames": len(frames),
-            "detections": len(detections),
-        }))
-        return 0
+        # Lower floor: with corner-zoom + dual-cascade we accept stable >= 2.
+        if confidence < 0.15 or stable < 2:
+            print(json.dumps({
+                "detected": False,
+                "reason": "low_stability",
+                "confidence": confidence,
+                "stable": stable,
+                "frames": len(frames),
+                "detections": len(detections),
+                "overlay_candidates": len(overlay_candidates),
+            }))
+            return 0
 
-    # Expand the face bbox into a plausible webcam overlay (≈4:3, face in upper third).
-    overlay_h = mh * 2.8
-    overlay_w = overlay_h * 4.0 / 3.0
-    ox = cx - overlay_w / 2.0
-    oy = cy - overlay_h * 0.40
+        # Expand the face bbox into a plausible webcam overlay (≈4:3, face in upper third).
+        overlay_h = mh * 2.8
+        overlay_w = overlay_h * 4.0 / 3.0
+        ox = cx - overlay_w / 2.0
+        oy = cy - overlay_h * 0.40
 
-    # Snap to frame bounds (in the sampled coordinate space).
-    ox = max(0.0, min(sample_w - overlay_w, ox))
-    oy = max(0.0, min(sample_h - overlay_h, oy))
-    overlay_w = max(8.0, min(overlay_w, sample_w - ox))
-    overlay_h = max(8.0, min(overlay_h, sample_h - oy))
+        # Snap to frame bounds (in the sampled coordinate space).
+        ox = max(0.0, min(sample_w - overlay_w, ox))
+        oy = max(0.0, min(sample_h - overlay_h, oy))
+        overlay_w = max(8.0, min(overlay_w, sample_w - ox))
+        overlay_h = max(8.0, min(overlay_h, sample_h - oy))
 
     # SANITY GUARD #1 — A streamer facecam is usually small. If the derived
     # overlay covers more than 30% of the frame area, OR more than 45% of both
