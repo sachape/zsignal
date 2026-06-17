@@ -708,8 +708,8 @@ const DashboardPage = () => {
               <h2 className="mt-1.5 text-lg font-bold leading-tight text-foreground md:text-xl">{nextAction.title}</h2>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{nextAction.action || nextAction.reason}</p>
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <Button asChild size="sm">
-                  <Link to="/clips-reseaux">Passer à l'action <ArrowRight className="h-3.5 w-3.5" /></Link>
+                <Button asChild size="lg" className="shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.55)]">
+                  <Link to="/clips-reseaux">Passer à l'action <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
                 <Button asChild variant="ghost" size="sm" className="h-auto px-1.5 text-xs text-primary hover:bg-primary/10">
                   <Link to="/plan">Voir le plan complet →</Link>
