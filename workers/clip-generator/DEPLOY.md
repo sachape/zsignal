@@ -18,7 +18,7 @@ Redéploie après `git pull` :
 ```bash
 cd workers/clip-generator
 fly deploy -a streamnco
-# Vérifier worker_version: 3.2 et les capabilities dans /health
+# Vérifier worker_version: 3.10 et les capabilities dans /health
 curl -s https://streamnco.fly.dev/health | jq '{worker_version, supports_vertical_9_16, supports_facecam_autodetect, supports_auto_captions}'
 ```
 
@@ -91,7 +91,7 @@ Détruis l'autre.
 
 > ⚠️ **Le worker tourne sur Fly.io, pas sur Lovable Cloud.** Toute modification de `workers/clip-generator/` nécessite un `fly deploy` manuel depuis ta machine. Lovable ne peut pas redéployer Fly à ta place.
 
-Vérifie le healthcheck **après redéploiement v3.6** :
+Vérifie le healthcheck **après redéploiement v3.10** :
 ```bash
 curl https://streamnco.fly.dev/health
 ```
@@ -100,7 +100,7 @@ Réponse attendue :
 ```json
 {
   "ok": true,
-  "worker_version": "3.6",
+  "worker_version": "3.10",
   "ffmpeg_available": true,
   "yt_dlp_available": true,
   "python_available": true,

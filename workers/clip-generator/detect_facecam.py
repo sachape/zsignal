@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-# Streamnco — Facecam auto-detection (v3.9).
+# Streamnco — Facecam auto-detection (v3.10).
 #
 # Sample N frames across the segment, detect candidate webcam regions
 # (Haar faces + edge-bounded overlay rectangles), score them, and emit the
 # best one as the facecam crop.
 #
-# v3.9 — Human-evidence gate + full top-10 ranking log:
-#   - a candidate may ONLY win if it has real human/webcam evidence:
-#       face_support >= 1, OR
-#       source == "face_expand" (built from a face cluster), OR
-#       strong skin + low text density + colored border (clean video panel)
-#   - panels without human evidence (HUD, minimap, scoreboard, sub alert,
-#     game character portrait, decorative avatar) are never selected — they
-#     fall back to gameplay_only instead of being chosen by default
+# v3.10 — Final source allow-list:
+#   - source=panel is NEVER allowed as selected_facecam.
+#   - panels may only act as ROI; a panel can win only after being refined to
+#     source=panel_refined_to_face with a real face-sized subregion.
+#   - the old "clean video panel" final exception was removed because HUDs and
+#     minimaps can fake skin/border/stability/false-Haar signals.
+#   - if no face_expand or reliable panel_refined_to_face candidate exists,
+#     return detected=false reason=no_reliable_human_facecam.
 #   - top-10 candidates are logged with bbox/source/score/face/skin/minimap/
-#     edge_dens/border/stability so regressions are diagnosable in Fly logs
+#     edge_dens/border/stability plus final eligibility so regressions are
+#     diagnosable in Fly logs.
 #   - small clean webcams with a real face still win (positive case preserved)
 #
 # Output JSON on stdout (single line, last one wins):
@@ -25,8 +26,8 @@
 #
 # Detailed traces written to stderr (forwarded to Fly logs by the worker):
 #   [candidate] bbox=... score=... reason=...
-#   [rank01] bbox=... src=... score=... face=... skin=... minimap=...
-#   [selected_facecam] bbox=... source=... score=... refined=...
+#   [rank01] bbox=... source=... score=... eligible_final=false reason=...
+#   [selected_facecam] bbox=... source=face_expand|panel_refined_to_face ...
 #   [rejected_candidate] bbox=... reason=...
 #
 # Usage: detect_facecam.py <video_path> <start_seconds> <duration_seconds>
@@ -56,6 +57,8 @@ MAX_OVERLAY_HEIGHT_RATIO = 0.38
 MAX_OVERLAY_AREA_RATIO = 0.20
 
 MIN_FACE_PX = 44
+MIN_FINAL_FACE_SUPPORT = 2
+MIN_FINAL_FACE_SKIN_RATIO = 0.12
 
 # A panel candidate (edge-bounded rectangle, no face cluster expansion)
 # MUST show one of these signals to be considered a webcam:
@@ -223,7 +226,7 @@ def main() -> int:
     max_w_px = int(sample_w * MAX_OVERLAY_WIDTH_RATIO)
     max_h_px = int(sample_h * MAX_OVERLAY_HEIGHT_RATIO)
 
-    log(f"[detect] v3.9 frames={len(frames)} sample={sample_w}x{sample_h}"
+    log(f"[detect] v3.10 frames={len(frames)} sample={sample_w}x{sample_h}"
         f" min_overlay={min_w_px}x{min_h_px} max_overlay={max_w_px}x{max_h_px}"
         f" faces_raw={len(all_faces)} contours={len(overlay_raw)}")
 
@@ -248,7 +251,7 @@ def main() -> int:
         and refined=False."""
         x, y, w, h = bbox
         inside = faces_inside(bbox, pad=0.05)
-        if not inside:
+        if len(inside) < MIN_FINAL_FACE_SUPPORT:
             return bbox, False
         fh_med = statistics.median([f[3] for f in inside])
         if fh_med < MIN_FACE_PX:
@@ -265,10 +268,29 @@ def main() -> int:
         sub_y = max(y, min(y + h - sub_h, sub_y))
         sub_w = max(8.0, min(sub_w, x + w - sub_x))
         sub_h = max(8.0, min(sub_h, y + h - sub_y))
-        # Only consider it a refinement if the new box is meaningfully smaller.
-        if sub_w * sub_h < 0.92 * w * h:
+        # Only consider it a refinement if the new box is meaningfully smaller
+        # and facecam-sized. Panel-level skin/border/false-Haar are not enough
+        # to make a raw panel eligible as final facecam.
+        if sub_w * sub_h < 0.92 * w * h and sub_w >= min_w_px and sub_h >= min_h_px:
             return (sub_x, sub_y, sub_w, sub_h), True
         return bbox, False
+
+    def enrich_crop_metrics(entry, bbox, *, source_override=None, refined_from=None):
+        x, y, w, h = bbox
+        crop_bgr = first_bgr[int(y):int(y + h), int(x):int(x + w)] if first_bgr is not None else None
+        crop_gray = first_gray[int(y):int(y + h), int(x):int(x + w)] if first_gray is not None else None
+        enriched = dict(entry)
+        enriched.update({
+            "bbox": [int(x), int(y), int(w), int(h)],
+            "source": source_override or entry["source"],
+            "skin": round(rough_skin_ratio(crop_bgr), 3),
+            "border": round(border_color_signal(crop_bgr), 1),
+            "minimap_frac": round(detect_minimap_circle(crop_gray), 3),
+            "edge_dens": round(edge_density(crop_gray), 3),
+        })
+        if refined_from:
+            enriched["refined_from"] = refined_from
+        return enriched
 
     def consider_overlay(bbox, *, source, face_support, skin, border, stability,
                          minimap_frac=0.0, edge_dens=0.0):
@@ -425,6 +447,10 @@ def main() -> int:
         panel_w = panel_h * 4.0 / 3.0
         panel_w = max(panel_w, min_w_px * 1.05)
         panel_h = max(panel_h, min_h_px * 1.05)
+        if panel_w > max_w_px or panel_h > max_h_px:
+            scale = min(max_w_px / panel_w, max_h_px / panel_h)
+            panel_w *= scale
+            panel_h *= scale
         px = cx - panel_w / 2.0
         py = cy - panel_h * 0.40
         px = max(0.0, min(sample_w - panel_w, px))
@@ -455,41 +481,82 @@ def main() -> int:
 
     candidates.sort(key=lambda c: c["score"], reverse=True)
 
-    # Log full top-10 ranking for regression analysis.
-    log(f"[ranking] top={min(10, len(candidates))} total={len(candidates)}")
-    for i, c in enumerate(candidates[:10]):
-        log(f"[rank{i+1:02d}] bbox={tuple(c['bbox'])} src={c['source']}"
+    # ── Final eligibility gate ───────────────────────────────────────────
+    # Raw panel candidates are discovery ROIs only. They can never be the
+    # selected facecam, even when panel-level skin/border/stability/false-Haar
+    # signals look strong. A panel can become eligible only if it is refined
+    # into a smaller face-centered crop.
+    def final_eligibility(c):
+        if c["source"] == "face_expand":
+            if c.get("face_support", 0) < MIN_FINAL_FACE_SUPPORT:
+                blocked = {**c, "eligible_final": False,
+                           "final_eligibility_reason": "insufficient_face_support",
+                           "refined": False}
+                return False, "insufficient_face_support", blocked
+            if c.get("skin", 0.0) < MIN_FINAL_FACE_SKIN_RATIO:
+                blocked = {**c, "eligible_final": False,
+                           "final_eligibility_reason": "insufficient_face_skin_signal",
+                           "refined": False}
+                return False, "insufficient_face_skin_signal", blocked
+            return True, "face_expand", {**c, "eligible_final": True,
+                                         "final_eligibility_reason": "face_expand",
+                                         "refined": False}
+        if c["source"] == "panel":
+            refined_bbox, refined = refine_panel_to_face(tuple(c["bbox"]))
+            if refined:
+                refined_candidate = enrich_crop_metrics(
+                    c, refined_bbox, source_override="panel_refined_to_face",
+                    refined_from=c["bbox"],
+                )
+                if refined_candidate.get("skin", 0.0) < MIN_FINAL_FACE_SKIN_RATIO:
+                    blocked = {**refined_candidate, "eligible_final": False,
+                               "final_eligibility_reason": "insufficient_face_skin_signal",
+                               "refined": True}
+                    return False, "insufficient_face_skin_signal", blocked
+                refined_candidate.update({
+                    "eligible_final": True,
+                    "final_eligibility_reason": "panel_refined_to_face",
+                    "refined": True,
+                })
+                return True, "panel_refined_to_face", refined_candidate
+            blocked = {**c, "eligible_final": False,
+                       "final_eligibility_reason": "panel_not_allowed_as_final",
+                       "refined": False}
+            return False, "panel_not_allowed_as_final", blocked
+        blocked = {**c, "eligible_final": False,
+                   "final_eligibility_reason": "unsupported_source",
+                   "refined": False}
+        return False, "unsupported_source", blocked
+
+    evaluated = []
+    eligible = []
+    for c in candidates:
+        is_eligible, reason, final_candidate = final_eligibility(c)
+        evaluated.append((c, is_eligible, reason, final_candidate))
+        if is_eligible:
+            eligible.append(final_candidate)
+
+    # Log full top-10 ranking for regression analysis, including final gate.
+    log(f"[ranking] top={min(10, len(evaluated))} total={len(evaluated)}")
+    for i, (c, is_eligible, reason, _final_candidate) in enumerate(evaluated[:10]):
+        log(f"[rank{i+1:02d}] bbox={tuple(c['bbox'])} source={c['source']}"
             f" score={c['score']} face={c['face_support']} skin={c['skin']}"
             f" border={c['border']} minimap={c['minimap_frac']}"
-            f" edge_dens={c['edge_dens']} stab={c['stability']}")
+            f" edge_dens={c['edge_dens']} stab={c['stability']}"
+            f" eligible_final={str(is_eligible).lower()} reason={reason}")
 
-    # ── Human/webcam evidence gate ───────────────────────────────────────
-    # A candidate may only WIN if it shows real human/webcam evidence:
-    #   - face_support >= 1 (Haar face inside the region), OR
-    #   - source == "face_expand" (was built from a face cluster), OR
-    #   - skin_ratio strong AND border/edge consistent with a video panel
-    #     (skin >= 0.09, edge_dens <= 0.18, border >= 60).
-    # Otherwise the candidate is HUD / minimap / text / icon — never pick it.
-    def has_human_evidence(c):
-        if c["source"] == "face_expand": return True
-        if c["face_support"] >= 1: return True
-        if (c["skin"] >= 0.09 and c["edge_dens"] <= 0.18
-                and c["border"] >= 60.0 and c["minimap_frac"] < 0.10):
-            return True
-        return False
-
-    eligible = [c for c in candidates if has_human_evidence(c)]
-    skipped = [c for c in candidates if c not in eligible]
-    for c in skipped[:6]:
+    skipped = [(c, reason) for (c, is_eligible, reason, _fc) in evaluated if not is_eligible]
+    for c, reason in skipped[:10]:
+        reason_name = "panel_not_allowed_as_final_facecam" if reason == "panel_not_allowed_as_final" else reason
         log_bbox("rejected_candidate", tuple(c["bbox"]), source=c["source"],
-                 reason="no_human_evidence", score=c["score"],
+                 reason=reason_name, score=c["score"],
                  face=c["face_support"], skin=c["skin"], edge_dens=c["edge_dens"])
-        rejected.append({**c, "reason": "no_human_evidence"})
+        rejected.append({**c, "reason": reason_name})
 
     if not eligible:
-        log("[detect] no_eligible_human_candidate → fallback gameplay_only")
+        log("[detect] no_reliable_human_facecam → fallback gameplay_only")
         print(json.dumps({
-            "detected": False, "reason": "no_human_evidence",
+            "detected": False, "reason": "no_reliable_human_facecam",
             "frames": len(frames), "source_width": sample_w, "source_height": sample_h,
             "candidates": candidates[:8], "rejected": rejected[:12],
         }))
@@ -510,13 +577,12 @@ def main() -> int:
         return 0
 
 
-    wx, wy, ww, wh = winner["bbox"]
-    refined_bbox, refined = refine_panel_to_face((wx, wy, ww, wh)) if winner["source"] == "panel" else ((wx, wy, ww, wh), False)
-    rx, ry, rw, rh = refined_bbox
+    rx, ry, rw, rh = winner["bbox"]
+    refined = bool(winner.get("refined", False))
 
     log_bbox("selected_facecam", (rx, ry, rw, rh), source=winner["source"],
              score=winner["score"], refined=refined,
-             reason="webcam_region_with_human_signal" if winner["face_support"] > 0 else winner["reason"])
+             reason=winner.get("final_eligibility_reason", "face_expand"))
     for ru in runners_up:
         log_bbox("runner_up", tuple(ru["bbox"]), source=ru["source"], score=ru["score"])
 
@@ -533,7 +599,7 @@ def main() -> int:
         "corner": f"{vert}_{horiz}",
         "selected": winner, "refined": refined,
         "candidates": candidates[:8], "rejected": rejected[:12],
-        "selection_reason": "webcam_region_with_human_signal" if winner["face_support"] > 0 else winner["reason"],
+        "selection_reason": winner.get("final_eligibility_reason", "face_expand"),
     }
     print(json.dumps(result))
     return 0

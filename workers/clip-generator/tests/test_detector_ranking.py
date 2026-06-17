@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression test set for the facecam detector (v3.9).
+"""Regression test set for the facecam detector (v3.10).
 
 This harness builds synthetic 1280x720 frames simulating real Twitch
 layouts, encodes each as a 2-second clip with ffmpeg, then runs
@@ -122,6 +122,7 @@ class Case:
 
 
 def build_cases(tmp: Path) -> list[tuple[Case, Path]]:
+    np.random.seed(3910)
     cases: list[tuple[Case, Path]] = []
 
     def new_frame():
@@ -153,6 +154,17 @@ def build_cases(tmp: Path) -> list[tuple[Case, Path]]:
     cases.append((Case("neg_minimap_only", False,
                        forbidden_bbox=(20, 20, 240, 240)),
                   tmp / "neg_minimap.mp4"))
+    encode_clip(f, cases[-1][1])
+
+    # NEG 1b: production regression shape — panel bbox around (24,18,179,139)
+    # must be rejected as a final facecam even if panel metrics look strong.
+    f = new_frame()
+    cv2.rectangle(f, (24, 18), (24 + 179, 18 + 139), (25, 25, 25), -1)
+    cv2.rectangle(f, (24, 18), (24 + 179, 18 + 139), (220, 220, 220), 3)
+    draw_minimap(f, 45, 25, 62)
+    cases.append((Case("neg_regression_minimap_bbox_24_18_179_139", False,
+                       forbidden_bbox=(24, 18, 179, 139)),
+                  tmp / "neg_regression_minimap.mp4"))
     encode_clip(f, cases[-1][1])
 
     # NEG 2: HUD scoreboard top center, no webcam
@@ -211,18 +223,17 @@ def main() -> int:
             if case.expect_detected:
                 if not res.get("detected"):
                     ok = False; note = f"expected detect, got {res.get('reason')}"
+                elif (res.get("selected") or {}).get("source") == "panel":
+                    ok = False; note = "selected raw panel as final facecam"
                 elif case.expected_corner and res.get("corner") != case.expected_corner:
                     # corner is informational — only fail if grossly wrong
                     note = f"corner={res.get('corner')} expected={case.expected_corner}"
             else:
                 if res.get("detected"):
+                    ok = False
                     fb = res["facecam"]
                     sel = (fb["x"], fb["y"], fb["width"], fb["height"])
-                    if case.forbidden_bbox and bbox_overlap(sel, case.forbidden_bbox) > 0.30:
-                        ok = False
-                        note = f"picked forbidden region {sel} iou>0.30"
-                    else:
-                        note = f"detected={sel} (not forbidden)"
+                    note = f"expected fallback, got detected={sel} source={(res.get('selected') or {}).get('source')}"
             status = "PASS" if ok else "FAIL"
             print(f"[{status}] {case.name:42s}  {note}")
             results.append((case.name, ok, note, stderr))
