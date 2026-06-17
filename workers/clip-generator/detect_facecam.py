@@ -127,20 +127,53 @@ def main() -> int:
         }))
         return 0
 
-    xs = [d[0] + d[2] / 2 for d in detections]
-    ys = [d[1] + d[3] / 2 for d in detections]
-    ws = [d[2] for d in detections]
-    hs = [d[3] for d in detections]
+    # Cluster detections instead of taking one global median. Gameplay can
+    # contain several face-like shapes; a global median can land between them
+    # and make us reject the real webcam. Pick the most stable edge cluster.
+    cluster_tol_x = sample_w * 0.10
+    cluster_tol_y = sample_h * 0.10
+    clusters: list[list[tuple[int, int, int, int]]] = []
+    for det in detections:
+        dx, dy, dw, dh = det
+        dcx = dx + dw / 2
+        dcy = dy + dh / 2
+        matched = False
+        for cluster in clusters:
+            cxs = [c[0] + c[2] / 2 for c in cluster]
+            cys = [c[1] + c[3] / 2 for c in cluster]
+            if abs(dcx - statistics.median(cxs)) < cluster_tol_x and abs(dcy - statistics.median(cys)) < cluster_tol_y:
+                cluster.append(det)
+                matched = True
+                break
+        if not matched:
+            clusters.append([det])
+
+    def cluster_score(cluster: list[tuple[int, int, int, int]]) -> float:
+        cxs = [c[0] + c[2] / 2 for c in cluster]
+        cys = [c[1] + c[3] / 2 for c in cluster]
+        ccx = statistics.median(cxs)
+        ccy = statistics.median(cys)
+        x_ratio = ccx / sample_w if sample_w else 0.5
+        y_ratio = ccy / sample_h if sample_h else 0.5
+        near_x_edge = x_ratio < 0.42 or x_ratio > 0.58
+        near_y_edge = y_ratio < 0.42 or y_ratio > 0.58
+        edge_bonus = 1.5 if (near_x_edge or near_y_edge) else -2.0
+        corner_bonus = 1.0 if (near_x_edge and near_y_edge) else 0.0
+        return len(cluster) + edge_bonus + corner_bonus
+
+    best_cluster = max(clusters, key=cluster_score)
+
+    xs = [d[0] + d[2] / 2 for d in best_cluster]
+    ys = [d[1] + d[3] / 2 for d in best_cluster]
+    ws = [d[2] for d in best_cluster]
+    hs = [d[3] for d in best_cluster]
 
     cx = statistics.median(xs)
     cy = statistics.median(ys)
     mw = statistics.median(ws)
     mh = statistics.median(hs)
 
-    # Stability: how many detections sit close to the median position.
-    tol_x = sample_w * 0.15
-    tol_y = sample_h * 0.15
-    stable = sum(1 for x, y in zip(xs, ys) if abs(x - cx) < tol_x and abs(y - cy) < tol_y)
+    stable = len(best_cluster)
     # Normalize over frames (not raw detections) so multi-pass noise doesn't
     # inflate the score. Two stable hits across ~8 frames ≈ 0.17 → accepted
     # by the lowered floor below.
