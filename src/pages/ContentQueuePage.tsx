@@ -5,6 +5,7 @@ import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
   Film, Wand2, Clock, Flame, TrendingUp, BarChart3, Plus, Info, FileUp, Scissors,
+  MoreHorizontal, ChevronDown,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -18,6 +19,9 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -427,6 +431,7 @@ function ContentRow({
   const freshMediaUrl = useFreshMediaUrl(item);
   const anotherJobIsActive = activeJobContentItemId !== null && activeJobContentItemId !== item.id;
   const [editing, setEditing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
   const [hashtagsRaw, setHashtagsRaw] = useState(item.hashtags.join(" "));
@@ -488,7 +493,7 @@ function ContentRow({
               {item.duration && <span className="text-[10px] text-muted-foreground">· {item.duration}</span>}
             </div>
             {/* Title variant picker */}
-            {item.title_variants && item.title_variants.length > 1 && !editing && (
+            {item.title_variants && item.title_variants.length > 1 && !editing && expanded && (
               <div className="mt-2 flex flex-wrap items-center gap-1">
                 <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Variantes :</span>
                 {item.title_variants.map(v => {
@@ -514,21 +519,54 @@ function ContentRow({
             )}
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground"
-              onClick={() => copy(buildCopyPayload(item))} title="Copier titre + description + hashtags">
-              <Copy className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground"
-              onClick={() => setEditing(v => !v)} title={editing ? "Annuler" : "Modifier"}>
-              {editing ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive"
-              onClick={onDelete} title="Supprimer">
-              <Trash2 className="h-3.5 w-3.5" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground" title="Actions">
+                  <MoreHorizontal className="h-3.5 w-3.5" /> Actions
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onClick={() => { setEditing(true); setExpanded(true); }}>
+                  <Pencil className="mr-2 h-3.5 w-3.5" /> Modifier
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => copy(buildCopyPayload(item))}>
+                  <Copy className="mr-2 h-3.5 w-3.5" /> Copier titre + description
+                </DropdownMenuItem>
+                {hasGeneratedClip && !["ready", "published", "published_manually"].includes(item.status) && (
+                  <DropdownMenuItem onClick={() => onUpdate({ status: "ready" })}>
+                    <CheckCircle2 className="mr-2 h-3.5 w-3.5" /> Marquer comme prêt
+                  </DropdownMenuItem>
+                )}
+                {!["published", "published_manually", "ignored"].includes(item.status) && (
+                  <DropdownMenuItem onClick={() => onUpdate({ status: "published_manually", published_at: new Date().toISOString() })}>
+                    <CheckCircle2 className="mr-2 h-3.5 w-3.5" /> Marquer publié
+                  </DropdownMenuItem>
+                )}
+                {item.status !== "ignored" && (
+                  <DropdownMenuItem onClick={() => onUpdate({ status: "ignored" })}>
+                    <EyeOff className="mr-2 h-3.5 w-3.5" /> Ignorer
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+                  <Trash2 className="mr-2 h-3.5 w-3.5" /> Supprimer
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="ghost" size="sm"
+              className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setExpanded((v) => !v)}
+              aria-expanded={expanded}
+            >
+              {expanded ? "Réduire" : "Détails"}
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expanded && "rotate-180")} />
             </Button>
           </div>
         </div>
 
+        {(expanded || editing) && (
+          <>
         {editing ? (
           <div className="space-y-3">
             <div className="space-y-1.5">
@@ -789,6 +827,8 @@ function ContentRow({
             )}
           </div>
         </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
