@@ -152,6 +152,7 @@ app.post("/generate", async (req, res) => {
     captions_style,
     transcribe_url,
     transcribe_secret,
+    gameplay_framing,
   } = req.body ?? {};
 
   if (
@@ -201,6 +202,10 @@ app.post("/generate", async (req, res) => {
     captionsStyle: (["clean", "bold_tiktok", "gaming_neon", "minimal"].includes(captions_style)) ? captions_style : "clean",
     transcribeUrl: typeof transcribe_url === "string" ? transcribe_url : null,
     transcribeSecret: typeof transcribe_secret === "string" ? transcribe_secret : WORKER_SHARED_SECRET,
+    // Default to "fill_relaxed" — gameplay band gets a bit more height so the
+    // 16:9 source covers a less-tall area → ~7% less zoom. Still fully filled,
+    // no blur, no bars. Pass "fill_tight" to keep the legacy framing.
+    gameplayFraming: gameplay_framing === "fill_tight" ? "fill_tight" : "fill_relaxed",
   }).catch((err) => {
     console.error("processJob error", job_id, err?.message);
   });
@@ -286,19 +291,29 @@ function gameplayCropFromFacecam(face, frameW, frameH) {
 }
 
 // Build a complex filter for the vertical 9:16 layout.
-//   - facecam_top_gameplay_bottom : facecam scaled to outW x (outH*0.25),
-//     gameplay scaled+cropped to outW x (outH*0.75), then vstack.
-//   - gameplay_only : center-crop+scale to outW x outH.
+//   - facecam_top_gameplay_bottom : facecam scaled to outW x (outH*camRatio),
+//     gameplay scaled+cropped to outW x (outH*(1-camRatio)), then vstack.
+//     A taller gameplay band (smaller camRatio) zooms IN more on the source;
+//     a shorter gameplay band (larger camRatio) zooms OUT — because the
+//     16:9 source has to cover a less-tall area when the band shrinks.
+//   - gameplay_only : center-crop+scale to outW x outH (minimum cover).
+//
+// gameplayFraming:
+//   - "fill_tight"   → camRatio 0.25 (legacy, gameplay band 0.75 of height)
+//   - "fill_relaxed" → camRatio 0.30 (gameplay band 0.70 → ~7% less zoom on
+//                       16:9 sources, still fully filled, no blur/bars)
 function buildVerticalFilterComplex({
   layoutType,
   outW,
   outH,
   facecamCrop,
   gameplayCrop,
+  gameplayFraming,
 }) {
   if (layoutType === "facecam_top_gameplay_bottom" && facecamCrop) {
-    const camH = Math.round(outH * 0.25); // 480 for 1920
-    const gameH = outH - camH;            // 1440 for 1920
+    const camRatio = gameplayFraming === "fill_tight" ? 0.25 : 0.30;
+    const camH = Math.round(outH * camRatio);
+    const gameH = outH - camH;
 
     const camCrop = `crop=${facecamCrop.width}:${facecamCrop.height}:${facecamCrop.x}:${facecamCrop.y}`;
     const camScale = `scale=${outW}:${camH}:force_original_aspect_ratio=increase,crop=${outW}:${camH}`;
@@ -321,7 +336,9 @@ function buildVerticalFilterComplex({
     return { filterComplex: filter, mapVideo: "[v]" };
   }
 
-  // gameplay_only or fallback when no facecam crop
+  // gameplay_only or fallback when no facecam crop.
+  // Already minimum-cover (no extra zoom applied) — cannot relax further
+  // without introducing letterbox or blur, which the product rules forbid.
   const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[v]`;
   return { filterComplex: filter, mapVideo: "[v]" };
 }
@@ -675,6 +692,7 @@ async function processJob({
   captionsStyle,
   transcribeUrl,
   transcribeSecret,
+  gameplayFraming,
 }) {
   const workDir = await mkdtemp(join(tmpdir(), `clip-${jobId}-`));
   const sourcePath = join(workDir, "source.mp4");
@@ -868,7 +886,16 @@ async function processJob({
         outH: outH ?? 1920,
         facecamCrop: scaledFacecam,
         gameplayCrop: scaledGameplay,
+        gameplayFraming,
       });
+      console.log("[vertical_framing]", JSON.stringify({
+        job_id: jobId,
+        layout: effectiveLayout,
+        gameplay_framing: gameplayFraming,
+        cam_ratio: effectiveLayout === "facecam_top_gameplay_bottom"
+          ? (gameplayFraming === "fill_tight" ? 0.25 : 0.30)
+          : null,
+      }));
 
       const trimArgs = useFullSource
         ? ["-i", sourcePath]
