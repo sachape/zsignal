@@ -224,7 +224,7 @@ def main() -> int:
     max_w_px = int(sample_w * MAX_OVERLAY_WIDTH_RATIO)
     max_h_px = int(sample_h * MAX_OVERLAY_HEIGHT_RATIO)
 
-    log(f"[detect] v3.9 frames={len(frames)} sample={sample_w}x{sample_h}"
+    log(f"[detect] v3.10 frames={len(frames)} sample={sample_w}x{sample_h}"
         f" min_overlay={min_w_px}x{min_h_px} max_overlay={max_w_px}x{max_h_px}"
         f" faces_raw={len(all_faces)} contours={len(overlay_raw)}")
 
@@ -266,10 +266,29 @@ def main() -> int:
         sub_y = max(y, min(y + h - sub_h, sub_y))
         sub_w = max(8.0, min(sub_w, x + w - sub_x))
         sub_h = max(8.0, min(sub_h, y + h - sub_y))
-        # Only consider it a refinement if the new box is meaningfully smaller.
-        if sub_w * sub_h < 0.92 * w * h:
+        # Only consider it a refinement if the new box is meaningfully smaller
+        # and facecam-sized. Panel-level skin/border/false-Haar are not enough
+        # to make a raw panel eligible as final facecam.
+        if sub_w * sub_h < 0.92 * w * h and sub_w >= min_w_px and sub_h >= min_h_px:
             return (sub_x, sub_y, sub_w, sub_h), True
         return bbox, False
+
+    def enrich_crop_metrics(entry, bbox, *, source_override=None, refined_from=None):
+        x, y, w, h = bbox
+        crop_bgr = first_bgr[int(y):int(y + h), int(x):int(x + w)] if first_bgr is not None else None
+        crop_gray = first_gray[int(y):int(y + h), int(x):int(x + w)] if first_gray is not None else None
+        enriched = dict(entry)
+        enriched.update({
+            "bbox": [int(x), int(y), int(w), int(h)],
+            "source": source_override or entry["source"],
+            "skin": round(rough_skin_ratio(crop_bgr), 3),
+            "border": round(border_color_signal(crop_bgr), 1),
+            "minimap_frac": round(detect_minimap_circle(crop_gray), 3),
+            "edge_dens": round(edge_density(crop_gray), 3),
+        })
+        if refined_from:
+            enriched["refined_from"] = refined_from
+        return enriched
 
     def consider_overlay(bbox, *, source, face_support, skin, border, stability,
                          minimap_frac=0.0, edge_dens=0.0):
