@@ -203,9 +203,9 @@ def main() -> int:
     overlay_w = max(8.0, min(overlay_w, sample_w - ox))
     overlay_h = max(8.0, min(overlay_h, sample_h - oy))
 
-    # SANITY GUARD #1 — A streamer facecam is small. If the derived overlay
-    # covers more than 30% of the frame area, OR more than 45% of either
-    # dimension, it's almost certainly a false positive (e.g. a character's
+    # SANITY GUARD #1 — A streamer facecam is usually small. If the derived
+    # overlay covers more than 30% of the frame area, OR more than 45% of both
+    # dimensions, it's almost certainly a false positive (e.g. a character's
     # face in the gameplay, an in-game cutscene, a thumbnail, etc.). Reject
     # it — the worker will silently fall back to gameplay_only, which is
     # better than rendering a top band that's just zoomed-out gameplay.
@@ -214,7 +214,7 @@ def main() -> int:
     area_ratio = overlay_area / frame_area if frame_area else 1.0
     width_ratio = overlay_w / sample_w if sample_w else 1.0
     height_ratio = overlay_h / sample_h if sample_h else 1.0
-    if area_ratio > 0.30 or width_ratio > 0.45 or height_ratio > 0.45:
+    if area_ratio > 0.30 or (width_ratio > 0.45 and height_ratio > 0.45):
         print(json.dumps({
             "detected": False,
             "reason": "overlay_too_large",
@@ -226,17 +226,17 @@ def main() -> int:
         }))
         return 0
 
-    # SANITY GUARD #2 — Streamer facecams live in a corner. Require the
-    # overlay CENTER to sit in one of the four corner quadrants (within 45%
-    # from any edge horizontally AND vertically). A face dead-center is a
-    # character / cutscene, not a webcam overlay.
+    # SANITY GUARD #2 — Streamer facecams usually live in a corner, but some
+    # creators place them centered along the top/bottom edge. Require the
+    # overlay center to be near at least one edge; reject only dead-center
+    # gameplay/cutscene faces.
     center_x = ox + overlay_w / 2.0
     center_y = oy + overlay_h / 2.0
     in_left = center_x < sample_w * 0.45
     in_right = center_x > sample_w * 0.55
     in_top = center_y < sample_h * 0.45
     in_bottom = center_y > sample_h * 0.55
-    if not ((in_left or in_right) and (in_top or in_bottom)):
+    if not (in_left or in_right or in_top or in_bottom):
         print(json.dumps({
             "detected": False,
             "reason": "not_in_corner",
