@@ -42,7 +42,10 @@ def main() -> int:
         "-ss", str(start),
         "-i", src,
         "-t", str(duration),
-        "-vf", f"{fps_filter},scale=960:-2",
+        # Sample at higher resolution — facecams in gaming clips are often tiny
+        # (~120-180px wide on a 1080p source). 960px was too aggressive a
+        # downscale; 1280px keeps detail without blowing up Haar cost.
+        "-vf", f"{fps_filter},scale=1280:-2",
         "-frames:v", str(n_frames),
         "-loglevel", "error",
         os.path.join(tmp, "f%03d.jpg"),
@@ -54,8 +57,27 @@ def main() -> int:
         print(json.dumps({"detected": False, "reason": "no_frames"}))
         return 0
 
-    cascade_path = os.path.join(cv2.data.haarcascades, "haarcascade_frontalface_default.xml")
-    cascade = cv2.CascadeClassifier(cascade_path)
+    frontal = cv2.CascadeClassifier(
+        os.path.join(cv2.data.haarcascades, "haarcascade_frontalface_default.xml")
+    )
+    profile = cv2.CascadeClassifier(
+        os.path.join(cv2.data.haarcascades, "haarcascade_profileface.xml")
+    )
+
+    def detect_in(gray_img):
+        # Two passes: looser frontal + profile (catches head-turn streamers).
+        out = []
+        for casc in (frontal, profile):
+            faces = casc.detectMultiScale(
+                gray_img,
+                scaleFactor=1.10,
+                minNeighbors=3,
+                minSize=(24, 24),
+                flags=cv2.CASCADE_SCALE_IMAGE,
+            )
+            for (x, y, w, h) in faces:
+                out.append((int(x), int(y), int(w), int(h)))
+        return out
 
     detections: list[tuple[int, int, int, int]] = []
     sample_w = sample_h = 0
@@ -67,15 +89,35 @@ def main() -> int:
         sample_h, sample_w = img.shape[:2]
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         gray = cv2.equalizeHist(gray)
-        faces = cascade.detectMultiScale(
-            gray,
-            scaleFactor=1.15,
-            minNeighbors=5,
-            minSize=(36, 36),
-            flags=cv2.CASCADE_SCALE_IMAGE,
-        )
-        for (x, y, w, h) in faces:
-            detections.append((int(x), int(y), int(w), int(h)))
+
+        # 1) Full-frame pass.
+        for d in detect_in(gray):
+            detections.append(d)
+
+        # 2) Corner-zoom passes. Streamer facecams live in a corner ≈25-35% of
+        # the frame. Crop each corner, upsample 1.6x, detect, then translate
+        # coords back into full-frame space. Catches small webcams the
+        # full-frame pass misses (Haar struggles below ~36px faces).
+        cw = int(sample_w * 0.40)
+        ch = int(sample_h * 0.40)
+        corners = [
+            (0, 0),
+            (sample_w - cw, 0),
+            (0, sample_h - ch),
+            (sample_w - cw, sample_h - ch),
+        ]
+        for (ox, oy) in corners:
+            crop = gray[oy:oy + ch, ox:ox + cw]
+            if crop.size == 0:
+                continue
+            up = cv2.resize(crop, None, fx=1.6, fy=1.6, interpolation=cv2.INTER_LINEAR)
+            for (x, y, w, h) in detect_in(up):
+                detections.append((
+                    int(ox + x / 1.6),
+                    int(oy + y / 1.6),
+                    int(w / 1.6),
+                    int(h / 1.6),
+                ))
 
     if not detections or sample_w == 0:
         print(json.dumps({
@@ -95,13 +137,17 @@ def main() -> int:
     mw = statistics.median(ws)
     mh = statistics.median(hs)
 
-    # Stability: how many faces sit close to the median position.
-    tol_x = sample_w * 0.20
-    tol_y = sample_h * 0.20
+    # Stability: how many detections sit close to the median position.
+    tol_x = sample_w * 0.15
+    tol_y = sample_h * 0.15
     stable = sum(1 for x, y in zip(xs, ys) if abs(x - cx) < tol_x and abs(y - cy) < tol_y)
-    confidence = round(stable / max(1, len(frames)), 2)
+    # Normalize over frames (not raw detections) so multi-pass noise doesn't
+    # inflate the score. Two stable hits across ~8 frames ≈ 0.17 → accepted
+    # by the lowered floor below.
+    confidence = round(min(1.0, stable / max(1, len(frames) * 1.5)), 2)
 
-    if confidence < 0.4 or stable < 2:
+    # Lower floor: with corner-zoom + dual-cascade we accept stable >= 2.
+    if confidence < 0.15 or stable < 2:
         print(json.dumps({
             "detected": False,
             "reason": "low_stability",
