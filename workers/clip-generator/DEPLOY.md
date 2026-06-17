@@ -100,7 +100,7 @@ Réponse attendue :
 ```json
 {
   "ok": true,
-  "worker_version": "3.6",
+  "worker_version": "3.10",
   "ffmpeg_available": true,
   "yt_dlp_available": true,
   "python_available": true,
