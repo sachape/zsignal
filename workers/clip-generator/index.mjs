@@ -803,6 +803,9 @@ async function processJob({
       }
       const actualW = probed?.width ?? sourceReferenceWidth ?? null;
       const actualH = probed?.height ?? sourceReferenceHeight ?? null;
+      const actualDuration = typeof probed?.duration === "number" && Number.isFinite(probed.duration)
+        ? probed.duration
+        : null;
 
       let scaledFacecam = scaleCrop(facecamCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
       let scaledGameplay = scaleCrop(gameplayCrop, sourceReferenceWidth, sourceReferenceHeight, actualW, actualH);
@@ -826,10 +829,17 @@ async function processJob({
           job_id: jobId, status: "processing", stage: "detecting_facecam", progress: 50,
         });
 
+        // Twitch clip URLs are already short. The UI may still send a generic
+        // 60s range, but using that for sampling makes the detector extract only
+        // ~1 frame from a 6s clip. Use the real downloaded duration when known.
+        const detectionDuration = sourceKind === "twitch_clip" && actualDuration
+          ? Math.max(1, Math.min(duration, actualDuration))
+          : duration;
+
         const detection = await detectFacecam(
           sourcePath,
           sourceKind === "twitch_clip" ? 0 : (trimmedAlready ? 0 : startSeconds),
-          duration,
+          detectionDuration,
         );
         detectionMeta = detection;
 
@@ -845,6 +855,8 @@ async function processJob({
           fallback_reason: detection?.detected ? null : (detection?.reason ?? "no_detection"),
           actual_width: actualW,
           actual_height: actualH,
+          requested_duration: duration,
+          detection_duration: detectionDuration,
         }));
 
         if (detection?.detected && detection.facecam && detection.source_width && actualW && actualH) {
