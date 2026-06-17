@@ -692,6 +692,7 @@ async function processJob({
   captionsStyle,
   transcribeUrl,
   transcribeSecret,
+  gameplayFraming,
 }) {
   const workDir = await mkdtemp(join(tmpdir(), `clip-${jobId}-`));
   const sourcePath = join(workDir, "source.mp4");
