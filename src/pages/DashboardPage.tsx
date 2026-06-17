@@ -20,6 +20,7 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import DashboardQuickActions from "@/components/DashboardQuickActions";
 import CreateNowBlock from "@/components/CreateNowBlock";
+import DashboardNavCards from "@/components/DashboardNavCards";
 import ActivationChecklist from "@/components/ActivationChecklist";
 import EmptyReportState from "@/components/EmptyReportState";
 import { ErrorState, LoadingState } from "@/components/StateView";
@@ -694,115 +695,60 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* ── Main intelligence (2-col) ──────────────────────────────── */}
-        <div className="mb-6 grid gap-4 xl:grid-cols-[1fr_340px]">
-          {/* LEFT: Blocker + Next action + Milestone */}
-          <div className="overflow-hidden rounded-[22px] border border-white/[0.07] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.08),transparent_45%)] bg-card/50 p-5">
-            <div className="space-y-5">
-              {/* Blocker */}
-              <div>
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
-                  Point de blocage principal
-                </p>
-                <div className="rounded-xl border border-primary/15 bg-primary/[0.05] p-4">
-                  <p className="text-base font-bold text-foreground leading-tight">{report.weak_point.label}</p>
-                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{report.weak_point.description}</p>
-                </div>
-              </div>
-
-              {/* Next action */}
-              <div>
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
-                  Prochaine action
-                </p>
-                <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/[0.06]">
-                    <Target className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-foreground leading-tight">{nextAction.title}</p>
-                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{nextAction.action || nextAction.reason}</p>
-                    <Button asChild variant="ghost" size="sm" className="mt-2 -ml-1.5 h-auto gap-1 px-1.5 text-xs text-primary hover:bg-primary/10">
-                      <Link to="/plan">Voir le plan complet <ArrowRight className="h-3 w-3" /></Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Milestone */}
-              <div className="border-t border-border/40 pt-4">
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
-                  Prochain palier
-                </p>
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{nextMilestone.label}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{nextMilestone.current}/{nextMilestone.target} · {nextMilestone.pct}%</p>
-                  </div>
-                  <div className="w-24 shrink-0">
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/60">
-                      <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${nextMilestone.pct}%` }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT: Status + Priorities */}
-          <div className="flex flex-col gap-3">
-            {/* Live status */}
-            <div className={`rounded-xl border px-4 py-3 ${summary.is_live ? "border-destructive/25 bg-destructive/[0.04]" : "border-border/50 bg-card/40"}`}>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Radio className={`h-3.5 w-3.5 ${summary.is_live ? "text-destructive" : "text-muted-foreground/60"}`} />
-                  <p className="text-sm font-medium text-foreground">
-                    {summary.is_live ? "Live en cours" : "Prochain live"}
-                  </p>
-                </div>
-                <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-xs text-primary hover:bg-transparent">
-                  <Link to={summary.is_live ? "/lives" : "/live-setup"}>
-                    {summary.is_live ? "Cockpit →" : "Préparer →"}
-                  </Link>
-                </Button>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {summary.is_live
-                  ? `${liveSnapshot?.current?.peak_viewers ?? "—"} viewers · ${liveSnapshot?.current?.start_title ?? "Live en cours"}`
-                  : liveSnapshot?.last
-                    ? `Dernier : ${liveSnapshot.last.start_title || liveSnapshot.last.category_name || "sans titre"}`
-                    : "Prépare le prochain live en 60 secondes."}
+        {/* ── TON FOCUS — point focal unique ───────────────────────────── */}
+        <section className="mb-6 overflow-hidden rounded-[22px] border border-primary/[0.18] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.10),transparent_50%)] bg-card/50 p-5 md:p-6">
+          <p className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary/70">
+            <Target className="h-3.5 w-3.5" /> Ton focus
+          </p>
+          <div className="grid gap-5 md:grid-cols-[1fr_220px] md:items-center">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                Blocage : {report.weak_point.label}
               </p>
-            </div>
-
-            {/* This week */}
-            <div className="flex-1 rounded-xl border border-border/50 bg-card/40 p-4">
-              <div className="flex items-center justify-between gap-2 mb-4">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Cette semaine</p>
-                <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-xs text-primary hover:bg-transparent">
-                  <Link to="/plan">Plan →</Link>
+              <h2 className="mt-1.5 text-lg font-bold leading-tight text-foreground md:text-xl">{nextAction.title}</h2>
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{nextAction.action || nextAction.reason}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <Button asChild size="sm">
+                  <Link to="/clips-reseaux">Passer à l'action <ArrowRight className="h-3.5 w-3.5" /></Link>
+                </Button>
+                <Button asChild variant="ghost" size="sm" className="h-auto px-1.5 text-xs text-primary hover:bg-primary/10">
+                  <Link to="/plan">Voir le plan complet →</Link>
                 </Button>
               </div>
-              <div className="space-y-3.5">
-                <div className="flex items-start gap-2.5">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-foreground leading-tight">{nextAction.title}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug line-clamp-2">{nextAction.action || nextAction.reason}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <Orbit className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/70" />
-                  <div>
-                    <p className="text-xs font-semibold text-foreground leading-tight">Benchmark</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">
-                      {displayCategory ? `Catégorie active : ${displayCategory}` : "Analyse tes concurrents directs."}
-                    </p>
-                  </div>
-                </div>
+            </div>
+            {/* Prochain palier — compact */}
+            <div className="shrink-0 rounded-2xl border border-white/[0.06] bg-background/40 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/55">Prochain palier</p>
+              <p className="mt-2 text-sm font-semibold text-foreground">{nextMilestone.label}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{nextMilestone.current}/{nextMilestone.target} · {nextMilestone.pct}%</p>
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted/60">
+                <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${nextMilestone.pct}%` }} />
               </div>
             </div>
           </div>
+        </section>
+
+        {/* ── Que veux-tu faire ? — cards de navigation ─────────────────── */}
+        <DashboardNavCards />
+
+        {/* ── Suivre — résumé live (cockpit complet dans Live Studio) ───── */}
+        <div className={`mb-6 rounded-xl border px-4 py-3 ${summary.is_live ? "border-destructive/25 bg-destructive/[0.04]" : "border-border/50 bg-card/40"}`}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Radio className={`h-3.5 w-3.5 ${summary.is_live ? "text-destructive" : "text-muted-foreground/60"}`} />
+              <p className="text-sm font-medium text-foreground">{summary.is_live ? "Live en cours" : "Prochain live"}</p>
+            </div>
+            <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-xs text-primary hover:bg-transparent">
+              <Link to="/live-setup">{summary.is_live ? "Cockpit live →" : "Préparer →"}</Link>
+            </Button>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {summary.is_live
+              ? `${liveSnapshot?.current?.peak_viewers ?? "—"} viewers · ${liveSnapshot?.current?.start_title ?? "Live en cours"}`
+              : liveSnapshot?.last
+                ? `Dernier : ${liveSnapshot.last.start_title || liveSnapshot.last.category_name || "sans titre"}`
+                : "Prépare ton prochain live en 60 secondes."}
+          </p>
         </div>
 
         {/* ── Activation checklist (compacte, masquable) ───────────── */}
@@ -813,19 +759,6 @@ const DashboardPage = () => {
             hasReport={!!currentReport}
           />
         )}
-
-        {/* ── Créer maintenant (premium block) ─────────────────────── */}
-        <CreateNowBlock />
-
-        {/* ── Actions rapides (inchangé) ──────────────────────────────── */}
-        <div className="mb-6">
-          <DashboardQuickActions />
-        </div>
-
-        {/* ── Réseaux teaser ─────────────────────────────────────────── */}
-        <div className="mb-6">
-          <NetworksTeaser />
-        </div>
 
         {/* Followers scope warning */}
         {!followersAvailable && !currentReport.is_demo && (
@@ -851,18 +784,26 @@ const DashboardPage = () => {
           <LivePostGenerator session={liveSnapshot.last} debrief={liveSnapshot.lastDebrief} open={showPostGen} onClose={() => setShowPostGen(false)} />
         )}
 
+        {/* ── Cockpit live, quêtes & activité — replié par défaut ──────── */}
+        <details className="group mb-6 overflow-hidden rounded-xl border border-border/50 bg-card/30 [&_summary::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-white/[0.02]">
+            <span className="flex items-center gap-2"><Orbit className="h-4 w-4 text-muted-foreground/60" /> Cockpit live, quêtes & activité</span>
+            <ArrowRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-open:rotate-90" />
+          </summary>
+          <div className="space-y-6 border-t border-border/40 p-4">
+
         {/* Weekly digest */}
         <WeeklyDigestCard report={currentReport} userId={user.id} previousScore={previous?.report?.score?.overall ?? null} />
 
         {/* Foundation weekly sequence */}
         {foundationActive && (
-          <div className="mb-6">
+          <div>
             <WeeklySequenceCard actions={foundation.sequence} showPlanLink={endedSessions > 0} />
           </div>
         )}
 
         {/* ── LIVE ───────────────────────────────────────────────────── */}
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">Live</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">Live</p>
         {isPro ? (
           <div className="mb-6 space-y-2.5">
             <LiveStatusCard current={liveSnapshot?.current ?? null} last={liveSnapshot?.last ?? null} lastDebrief={liveSnapshot?.lastDebrief ?? null} />
@@ -897,10 +838,13 @@ const DashboardPage = () => {
         )}
 
         {/* EventSub */}
-        <div className="mb-6 space-y-3">
+        <div className="space-y-3">
           <ScopeDriftBanner broadcasterUserId={account?.platform_user_id ?? null} />
           <EventSubCockpitSection broadcasterUserId={account?.platform_user_id ?? null} />
         </div>
+
+          </div>
+        </details>
 
         {/* Post generator trigger — 72h après un live */}
         {liveSnapshot?.last && liveSnapshot.lastDebrief && !liveSnapshot.current && isSessionRecent(liveSnapshot.last.ended_at) && (
