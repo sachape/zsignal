@@ -1,4 +1,4 @@
-// Streamnco Clip Generator Worker — v3.4
+// Streamnco Clip Generator Worker — v3.5
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
@@ -40,7 +40,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.4";
+const WORKER_VERSION = "3.5";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -306,6 +306,63 @@ function gameplayCropFromFacecam(face, frameW, frameH) {
 
   // Last resort: full frame (facecam will appear small inside gameplay; acceptable).
   return { x: 0, y: 0, width: frameW, height: frameH };
+}
+
+function facecamBandRenderCrop(face, frameW, frameH, outW, outH, gameplayFraming) {
+  if (!face || !frameW || !frameH || !outW || !outH) return face;
+
+  const camRatio = gameplayFraming === "fill_tight" ? 0.25 : 0.30;
+  const camH = Math.round(outH * camRatio);
+  const targetAspect = outW / Math.max(1, camH);
+  const widthRatio = face.width / frameW;
+  const heightRatio = face.height / frameH;
+  const areaRatio = (face.width * face.height) / (frameW * frameH);
+  const isBroadDetection = widthRatio > 0.30 || heightRatio > 0.26 || areaRatio > 0.10;
+
+  let cropW = Math.max(8, face.width);
+  let cropH = Math.max(8, face.height);
+
+  // When detection locks onto a top HUD/webcam strip, rendering the whole strip
+  // keeps the camera tiny. Tighten the render crop around that strip's webcam
+  // zone, then scale it to fill the top band.
+  if (isBroadDetection) {
+    cropW = Math.min(cropW, frameW * 0.32);
+    cropH = Math.min(cropH, frameH * 0.28);
+  } else {
+    cropW *= 1.08;
+    cropH *= 1.08;
+  }
+
+  if (cropW / cropH < targetAspect) {
+    cropW = cropH * targetAspect;
+  } else {
+    cropH = cropW / targetAspect;
+  }
+
+  cropW = Math.min(cropW, frameW);
+  cropH = Math.min(cropH, frameH);
+
+  const touchesLeft = face.x <= frameW * 0.08;
+  const touchesRight = face.x + face.width >= frameW * 0.92;
+  const touchesTop = face.y <= frameH * 0.08;
+  const touchesBottom = face.y + face.height >= frameH * 0.92;
+
+  let x = face.x + face.width / 2 - cropW / 2;
+  let y = face.y + face.height / 2 - cropH / 2;
+  if (touchesLeft && !touchesRight) x = face.x;
+  if (touchesRight && !touchesLeft) x = face.x + face.width - cropW;
+  if (touchesTop && !touchesBottom) y = face.y;
+  if (touchesBottom && !touchesTop) y = face.y + face.height - cropH;
+
+  x = Math.max(0, Math.min(frameW - cropW, x));
+  y = Math.max(0, Math.min(frameH - cropH, y));
+
+  return {
+    x: Math.round(x),
+    y: Math.round(y),
+    width: Math.max(8, Math.round(cropW)),
+    height: Math.max(8, Math.round(cropH)),
+  };
 }
 
 // Build a complex filter for the vertical 9:16 layout.
