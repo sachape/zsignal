@@ -80,7 +80,7 @@ def main() -> int:
         return out
 
     detections: list[tuple[int, int, int, int]] = []
-    overlay_candidates: list[tuple[int, int, int, int, float]] = []
+    overlay_candidates: list[tuple[int, int, int, int, float, float, bool]] = []
     sample_w = sample_h = 0
 
     def rough_skin_ratio(bgr_crop) -> float:
@@ -93,38 +93,48 @@ def main() -> int:
         mask = ((hue <= 25) | (hue >= 170)) & (sat >= 30) & (sat <= 190) & (val >= 45)
         return float(mask.mean())
 
-    def collect_overlay_candidates(img, gray_img):
+    def collect_overlay_candidates(img, gray_img, frame_faces):
         # Detect the whole webcam widget, not just the face. This is more robust
         # for streamer cams where the face is tiny, partially turned, hidden by
         # headset/mic, or visually blurred, while the webcam frame remains stable.
         h, w = gray_img.shape[:2]
         edges = cv2.Canny(gray_img, 50, 150)
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        out: list[tuple[int, int, int, int, float]] = []
+        out: list[tuple[int, int, int, int, float, float, bool]] = []
         for c in contours:
             x, y, bw, bh = cv2.boundingRect(c)
             area_ratio = (bw * bh) / float(w * h) if w and h else 1.0
             aspect = bw / float(bh) if bh else 0.0
             near_edge = x < w * 0.08 or y < h * 0.08 or (x + bw) > w * 0.92 or (y + bh) > h * 0.92
-            # A real streamer webcam overlay is small: roughly 8-25% width,
-            # 10-25% height, aspect close to 4:3 / 16:9. Reject anything wider
-            # than ~28% of the frame — those are HUD/scoreboard rows.
+            # A real streamer webcam overlay is small/moderate and must have a
+            # human signal. Pure HUD/menu rectangles can be stable, but they do
+            # not contain skin tones or a Haar face inside the candidate.
             width_ratio = bw / float(w) if w else 1.0
             height_ratio = bh / float(h) if h else 1.0
-            if not (0.015 <= area_ratio <= 0.06 and 0.85 <= aspect <= 1.9 and near_edge):
+            if not (0.012 <= area_ratio <= 0.09 and 0.75 <= aspect <= 2.10 and near_edge):
                 continue
-            if width_ratio > 0.28 or height_ratio > 0.32:
-                continue
-            # Reject any top-edge candidate that spans more than ~25% width —
-            # almost always the scoreboard/HUD strip.
-            if y < h * 0.28 and width_ratio > 0.25:
+            if width_ratio > 0.34 or height_ratio > 0.36:
                 continue
             skin = rough_skin_ratio(img[y:y + bh, x:x + bw])
+            pad_x = bw * 0.18
+            pad_y = bh * 0.18
+            face_support = any(
+                (x - pad_x) <= (fx + fw / 2) <= (x + bw + pad_x)
+                and (y - pad_y) <= (fy + fh / 2) <= (y + bh + pad_y)
+                for fx, fy, fw, fh in frame_faces
+            )
+            if not face_support and skin < 0.035:
+                continue
+            # Top HUD/header strips are the main false positive. Only keep a
+            # top-wide candidate when it has direct human evidence.
+            if y < h * 0.22 and width_ratio > 0.24 and not face_support:
+                continue
             lower_third_bonus = 1.0 if (y + bh / 2) > h * 0.30 else 0.0
             side_bonus = 0.6 if (x < w * 0.16 or (x + bw) > w * 0.84) else 0.0
             skin_bonus = 0.8 if 0.06 <= skin <= 0.45 else 0.0
-            score = lower_third_bonus + side_bonus + skin_bonus + min(1.0, area_ratio * 20)
-            out.append((int(x), int(y), int(bw), int(bh), float(score)))
+            face_bonus = 1.4 if face_support else 0.0
+            score = face_bonus + lower_third_bonus + side_bonus + skin_bonus + min(1.0, area_ratio * 20)
+            out.append((int(x), int(y), int(bw), int(bh), float(score), float(skin), bool(face_support)))
         return out
 
     for fp in frames:
