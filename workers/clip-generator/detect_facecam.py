@@ -213,7 +213,11 @@ def main() -> int:
 
     if overlay_clusters:
         best_overlay = max(overlay_clusters, key=overlay_cluster_score)
-        if len(best_overlay) >= 2:
+        best_has_human_signal = (
+            sum(1 for c in best_overlay if c[6]) >= 1
+            or statistics.median([c[5] for c in best_overlay]) >= 0.045
+        )
+        if len(best_overlay) >= 2 and best_has_human_signal:
             ox = statistics.median([c[0] for c in best_overlay])
             oy = statistics.median([c[1] for c in best_overlay])
             overlay_w = statistics.median([c[2] for c in best_overlay])
@@ -325,7 +329,7 @@ def main() -> int:
     area_ratio = overlay_area / frame_area if frame_area else 1.0
     width_ratio = overlay_w / sample_w if sample_w else 1.0
     height_ratio = overlay_h / sample_h if sample_h else 1.0
-    if area_ratio > 0.18 or width_ratio > 0.32 or height_ratio > 0.35:
+    if area_ratio > 0.20 or width_ratio > 0.36 or height_ratio > 0.38:
         print(json.dumps({
             "detected": False,
             "reason": "overlay_too_large",
