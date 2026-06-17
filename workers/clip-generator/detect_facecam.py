@@ -160,26 +160,18 @@ def main() -> int:
                     int(h / 1.6),
                 ))
 
-    if not detections or sample_w == 0:
-        print(json.dumps({
-            "detected": False,
-            "reason": "no_faces",
-            "frames": len(frames),
-        }))
-        return 0
-
-    # Cluster detections instead of taking one global median. Gameplay can
-    # contain several face-like shapes; a global median can land between them
-    # and make us reject the real webcam. Pick the most stable edge cluster.
+    # Cluster webcam-overlay candidates first. They describe the visible camera
+    # frame itself, so they are less likely than Haar faces to lock onto CS HUD
+    # icons or in-game character faces.
     cluster_tol_x = sample_w * 0.10
     cluster_tol_y = sample_h * 0.10
-    clusters: list[list[tuple[int, int, int, int]]] = []
-    for det in detections:
+    overlay_clusters: list[list[tuple[int, int, int, int, float]]] = []
+    for det in overlay_candidates:
         dx, dy, dw, dh = det
         dcx = dx + dw / 2
         dcy = dy + dh / 2
         matched = False
-        for cluster in clusters:
+        for cluster in overlay_clusters:
             cxs = [c[0] + c[2] / 2 for c in cluster]
             cys = [c[1] + c[3] / 2 for c in cluster]
             if abs(dcx - statistics.median(cxs)) < cluster_tol_x and abs(dcy - statistics.median(cys)) < cluster_tol_y:
@@ -187,7 +179,57 @@ def main() -> int:
                 matched = True
                 break
         if not matched:
-            clusters.append([det])
+            overlay_clusters.append([det])
+
+    def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float]]) -> float:
+        return len(cluster) * 2.0 + statistics.median([c[4] for c in cluster])
+
+    if overlay_clusters:
+        best_overlay = max(overlay_clusters, key=overlay_cluster_score)
+        if len(best_overlay) >= 2:
+            ox = statistics.median([c[0] for c in best_overlay])
+            oy = statistics.median([c[1] for c in best_overlay])
+            overlay_w = statistics.median([c[2] for c in best_overlay])
+            overlay_h = statistics.median([c[3] for c in best_overlay])
+            confidence = round(min(1.0, len(best_overlay) / max(1, len(frames))), 2)
+            stable = len(best_overlay)
+        else:
+            ox = oy = overlay_w = overlay_h = None
+            confidence = 0.0
+            stable = 0
+    else:
+        ox = oy = overlay_w = overlay_h = None
+        confidence = 0.0
+        stable = 0
+
+    if ox is None:
+        if not detections or sample_w == 0:
+            print(json.dumps({
+                "detected": False,
+                "reason": "no_faces",
+                "frames": len(frames),
+                "overlay_candidates": len(overlay_candidates),
+            }))
+            return 0
+
+        # Cluster detections instead of taking one global median. Gameplay can
+        # contain several face-like shapes; a global median can land between them
+        # and make us reject the real webcam. Pick the most stable edge cluster.
+        clusters: list[list[tuple[int, int, int, int]]] = []
+        for det in detections:
+            dx, dy, dw, dh = det
+            dcx = dx + dw / 2
+            dcy = dy + dh / 2
+            matched = False
+            for cluster in clusters:
+                cxs = [c[0] + c[2] / 2 for c in cluster]
+                cys = [c[1] + c[3] / 2 for c in cluster]
+                if abs(dcx - statistics.median(cxs)) < cluster_tol_x and abs(dcy - statistics.median(cys)) < cluster_tol_y:
+                    cluster.append(det)
+                    matched = True
+                    break
+            if not matched:
+                clusters.append([det])
 
     def cluster_score(cluster: list[tuple[int, int, int, int]]) -> float:
         cxs = [c[0] + c[2] / 2 for c in cluster]
