@@ -36,7 +36,6 @@ const SimulatorPage = lazy(() => import("./pages/SimulatorPage.tsx"));
 const QuestesPage = lazy(() => import("./pages/QuestesPage.tsx"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
 const TwitchAccountsPage = lazy(() => import("./pages/TwitchAccountsPage.tsx"));
-const StreamScoreHistoryPage = lazy(() => import("./pages/StreamScoreHistoryPage.tsx"));
 const TitleGeneratorPage = lazy(() => import("./pages/TitleGeneratorPage.tsx"));
 const ClipAnalyticsPage = lazy(() => import("./pages/ClipAnalyticsPage.tsx"));
 const SchedulePage = lazy(() => import("./pages/SchedulePage.tsx"));
@@ -249,14 +248,8 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path="/mon-score"
-                  element={
-                    <ProtectedRoute>
-                      <StreamScoreHistoryPage />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* /mon-score fusionné dans /analyse (carte Profil streamer) */}
+                <Route path="/mon-score" element={<Navigate to="/analyse" replace />} />
                 <Route
                   path="/outils/titres"
                   element={

@@ -73,7 +73,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Analyser",
     items: [
-      { title: "StreamScore", url: "/analyse", icon: Activity, extraMatch: ["/mon-score"] },
+      { title: "StreamScore", url: "/analyse", icon: Activity },
       { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark", extraMatch: ["/streamer"] },
       { title: "Progression", url: "/progression", icon: TrendingUp, extraMatch: ["/quetes"] },
     ],

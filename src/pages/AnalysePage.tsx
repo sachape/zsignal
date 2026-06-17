@@ -21,6 +21,8 @@ import { Link } from "react-router-dom";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
+import StreamerDNACard from "@/components/StreamerDNACard";
+import { computeStreamerDNA } from "@/services/streamerDNA";
 import SectionHeader from "@/components/SectionHeader";
 import CompetitorCard from "@/components/CompetitorCard";
 import CompetitorFeedbackBar from "@/components/CompetitorFeedbackBar";
@@ -298,6 +300,11 @@ const AnalysePage = () => {
             date={new Date(saved.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })}
             variant="button"
           />
+        </div>
+
+        {/* Profil streamer (DNA) — rapatrié depuis /mon-score */}
+        <div style={anim(60)} className="mb-4">
+          <StreamerDNACard dna={computeStreamerDNA(score)} login={report.identity?.platform_login ?? null} />
         </div>
 
         {/* Hero card — compact analysis summary */}
