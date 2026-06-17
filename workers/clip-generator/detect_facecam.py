@@ -145,10 +145,11 @@ def main() -> int:
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         gray = cv2.equalizeHist(gray)
 
-        overlay_candidates.extend(collect_overlay_candidates(img, gray))
+        frame_faces = []
 
         # 1) Full-frame pass.
         for d in detect_in(gray):
+            frame_faces.append(d)
             detections.append(d)
 
         # 2) Corner-zoom passes. Streamer facecams live in a corner ≈25-35% of
@@ -169,21 +170,25 @@ def main() -> int:
                 continue
             up = cv2.resize(crop, None, fx=1.6, fy=1.6, interpolation=cv2.INTER_LINEAR)
             for (x, y, w, h) in detect_in(up):
-                detections.append((
+                translated = (
                     int(ox + x / 1.6),
                     int(oy + y / 1.6),
                     int(w / 1.6),
                     int(h / 1.6),
-                ))
+                )
+                frame_faces.append(translated)
+                detections.append(translated)
+
+        overlay_candidates.extend(collect_overlay_candidates(img, gray, frame_faces))
 
     # Cluster webcam-overlay candidates first. They describe the visible camera
     # frame itself, so they are less likely than Haar faces to lock onto CS HUD
     # icons or in-game character faces.
     cluster_tol_x = sample_w * 0.10
     cluster_tol_y = sample_h * 0.10
-    overlay_clusters: list[list[tuple[int, int, int, int, float]]] = []
+    overlay_clusters: list[list[tuple[int, int, int, int, float, float, bool]]] = []
     for det in overlay_candidates:
-        dx, dy, dw, dh, _score = det
+        dx, dy, dw, dh, _score, _skin, _face_support = det
         dcx = dx + dw / 2
         dcy = dy + dh / 2
         matched = False
@@ -197,11 +202,14 @@ def main() -> int:
         if not matched:
             overlay_clusters.append([det])
 
-    def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float]]) -> float:
+    def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float, float, bool]]) -> float:
         # A stable webcam can be absent/partially occluded in a few frames, while
         # HUD widgets (scoreboard/minimap) are present every frame. Weight visual
         # webcam-likeness higher than raw count so persistent HUD does not win.
-        return len(cluster) * 1.2 + statistics.median([c[4] for c in cluster]) * 3.0
+        skin_score = min(1.0, statistics.median([c[5] for c in cluster]) / 0.08)
+        face_hits = sum(1 for c in cluster if c[6])
+        face_score = min(2.0, face_hits * 0.8)
+        return len(cluster) * 0.8 + statistics.median([c[4] for c in cluster]) * 2.4 + skin_score + face_score
 
     if overlay_clusters:
         best_overlay = max(overlay_clusters, key=overlay_cluster_score)
