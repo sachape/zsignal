@@ -37,10 +37,27 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 interface RecentClip {
   id: string;
+  output_storage_path: string | null;
   output_url: string | null;
   created_at: string;
   output_format: string;
 }
+
+const GENERATED_CLIPS_BUCKET = "creator-generated-clips";
+const RECENT_CLIP_URL_TTL_SECONDS = 60 * 60;
+
+const withFreshClipUrl = async (clip: RecentClip): Promise<RecentClip> => {
+  if (!clip.output_storage_path) return clip;
+
+  const { data, error } = await supabase.storage
+    .from(GENERATED_CLIPS_BUCKET)
+    .createSignedUrl(clip.output_storage_path, RECENT_CLIP_URL_TTL_SECONDS);
+
+  return {
+    ...clip,
+    output_url: error ? clip.output_url : data?.signedUrl ?? clip.output_url,
+  };
+};
 
 const ClipsReseauxPage = () => {
   usePageMeta({
@@ -62,12 +79,13 @@ const ClipsReseauxPage = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from("creator_video_generation_jobs")
-      .select("id, output_url, created_at, output_format")
+      .select("id, output_storage_path, output_url, created_at, output_format")
       .eq("user_id", user.id)
       .eq("status", "completed")
       .order("created_at", { ascending: false })
       .limit(6);
-    setRecent((data as RecentClip[] | null) ?? []);
+    const clips = (data as RecentClip[] | null) ?? [];
+    setRecent(await Promise.all(clips.map(withFreshClipUrl)));
   }, [user]);
 
   useEffect(() => {
