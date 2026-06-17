@@ -202,6 +202,10 @@ app.post("/generate", async (req, res) => {
     captionsStyle: (["clean", "bold_tiktok", "gaming_neon", "minimal"].includes(captions_style)) ? captions_style : "clean",
     transcribeUrl: typeof transcribe_url === "string" ? transcribe_url : null,
     transcribeSecret: typeof transcribe_secret === "string" ? transcribe_secret : WORKER_SHARED_SECRET,
+    // Default to "fill_relaxed" — gameplay band gets a bit more height so the
+    // 16:9 source covers a less-tall area → ~7% less zoom. Still fully filled,
+    // no blur, no bars. Pass "fill_tight" to keep the legacy framing.
+    gameplayFraming: gameplay_framing === "fill_tight" ? "fill_tight" : "fill_relaxed",
   }).catch((err) => {
     console.error("processJob error", job_id, err?.message);
   });
