@@ -376,7 +376,7 @@ const VodImportPage = () => {
     try {
       await updateItem(item.id, { status: "idea" });
       toast({
-        title: "Ajouté à ta bibliothèque de clips",
+        title: "Ajouté à tes clips réseaux",
         description: "Le clip est marqué « À préparer ».",
       });
     } catch (err) {
@@ -568,7 +568,7 @@ const VodImportPage = () => {
                     Clips proposés ({candidates.length})
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Ajuste les moments puis génère le MP4. Le clip arrive dans ta bibliothèque de clips.
+                    Ajuste les moments puis génère le MP4. Le clip arrive dans tes clips réseaux.
                   </p>
                 </div>
               </div>
@@ -625,7 +625,7 @@ const VodImportPage = () => {
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         {isReady ? (
                           <Button asChild size="sm">
-                            <Link to="/clips">
+                            <Link to="/clips-reseaux">
                               <Sparkles className="h-3.5 w-3.5" />
                               Voir le clip généré
                             </Link>

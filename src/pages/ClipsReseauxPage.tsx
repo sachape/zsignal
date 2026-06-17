@@ -207,10 +207,7 @@ const ClipsReseauxPage = () => {
         {/* Recent clips */}
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Tes derniers clips</h2>
-            <Button asChild variant="ghost" size="sm" className="text-xs">
-              <Link to="/clips">Voir tous mes clips</Link>
-            </Button>
+            <h2 className="text-sm font-semibold text-foreground">Mes clips réseaux</h2>
           </div>
           {recent.length === 0 ? (
             <EmptyState
@@ -219,7 +216,7 @@ const ClipsReseauxPage = () => {
               description="Colle un Clip Twitch ou importe une VOD, et Streamnco génère une vidéo verticale prête pour TikTok, Reels ou Shorts — avec facecam, gameplay et sous-titres."
               ctaLabel={canAccess ? "Créer mon premier clip" : "Passer au Pro"}
               ctaTo={canAccess ? "/clips/vod-import" : "/billing"}
-              secondaryLabel="Voir tous mes clips"
+              secondaryLabel="Voir mes clips Twitch"
               secondaryTo="/clips"
             />
           ) : (
