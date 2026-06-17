@@ -197,9 +197,9 @@ def main() -> int:
     # icons or in-game character faces.
     cluster_tol_x = sample_w * 0.10
     cluster_tol_y = sample_h * 0.10
-    overlay_clusters: list[list[tuple[int, int, int, int, float, float, bool]]] = []
+    overlay_clusters: list[list[tuple[int, int, int, int, float, float, bool, float]]] = []
     for det in overlay_candidates:
-        dx, dy, dw, dh, _score, _skin, _face_support = det
+        dx, dy, dw, dh, _score, _skin, _face_support, _border_signal = det
         dcx = dx + dw / 2
         dcy = dy + dh / 2
         matched = False
@@ -213,20 +213,22 @@ def main() -> int:
         if not matched:
             overlay_clusters.append([det])
 
-    def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float, float, bool]]) -> float:
+    def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float, float, bool, float]]) -> float:
         # A stable webcam can be absent/partially occluded in a few frames, while
         # HUD widgets (scoreboard/minimap) are present every frame. Weight visual
         # webcam-likeness higher than raw count so persistent HUD does not win.
         skin_score = min(1.0, statistics.median([c[5] for c in cluster]) / 0.08)
         face_hits = sum(1 for c in cluster if c[6])
         face_score = min(2.0, face_hits * 0.8)
-        return len(cluster) * 0.8 + statistics.median([c[4] for c in cluster]) * 2.4 + skin_score + face_score
+        border_score = min(1.0, statistics.median([c[7] for c in cluster]) / 120.0)
+        return len(cluster) * 0.8 + statistics.median([c[4] for c in cluster]) * 2.4 + skin_score + face_score + border_score
 
     if overlay_clusters:
         best_overlay = max(overlay_clusters, key=overlay_cluster_score)
         best_has_human_signal = (
             sum(1 for c in best_overlay if c[6]) >= 1
             or statistics.median([c[5] for c in best_overlay]) >= 0.045
+            or statistics.median([c[7] for c in best_overlay]) >= 110
         )
         if len(best_overlay) >= 2 and best_has_human_signal:
             ox = statistics.median([c[0] for c in best_overlay])
