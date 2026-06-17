@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Loader2, Upload, AlertCircle, Wand2, Link as LinkIcon, FileVideo, Sparkles, ChevronDown, Captions } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +51,7 @@ function reasonLabel(reason: string): string {
 }
 
 const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) => {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [directUrl, setDirectUrl] = useState(item.source_video_url ?? "");
@@ -196,7 +198,10 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
         return;
       }
 
-      toast.success("Génération lancée");
+      toast.success("Génération lancée", {
+        description: "Suis l'avancement dans la queue.",
+        action: { label: "Voir la queue", onClick: () => navigate("/content-queue") },
+      });
       onLaunched();
       onOpenChange(false);
       reset();

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ToastAction } from "@/components/ui/toast";
 import {
   Scissors,
   Sparkles,
@@ -134,6 +135,7 @@ const VodImportPage = () => {
       "Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts.",
   });
 
+  const navigate = useNavigate();
   const { items, refetch, updateItem } = useContentItems();
   const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const [url, setUrl] = useState("");
@@ -322,7 +324,15 @@ const VodImportPage = () => {
       if (p && p.success === false) {
         throw new Error(p.message ?? "Échec de génération");
       }
-      toast({ title: "Génération lancée", description: "Le clip est en cours de génération." });
+      toast({
+        title: "Génération lancée",
+        description: "Le clip est en cours de génération.",
+        action: (
+          <ToastAction altText="Voir la queue" onClick={() => navigate("/content-queue")}>
+            Voir la queue
+          </ToastAction>
+        ),
+      });
       await refetch();
       await refetchActiveJob();
     } catch (err) {
