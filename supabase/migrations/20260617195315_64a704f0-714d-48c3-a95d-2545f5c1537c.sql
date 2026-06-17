@@ -1,0 +1,2 @@
+ALTER TABLE public.creator_content_items DROP CONSTRAINT IF EXISTS uniq_creator_content_items_vod_dedup;
+DROP INDEX IF EXISTS public.uniq_creator_content_items_vod_dedup;
