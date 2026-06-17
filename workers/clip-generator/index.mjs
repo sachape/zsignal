@@ -311,24 +311,15 @@ function gameplayCropFromFacecam(face, frameW, frameH) {
 function facecamBandRenderCrop(face, frameW, frameH, outW, outH, gameplayFraming) {
   if (!face || !frameW || !frameH || !outW || !outH) return face;
 
-  const camRatio = gameplayFraming === "fill_tight" ? 0.25 : 0.30;
-  const camH = Math.round(outH * camRatio);
-  const targetAspect = outW / Math.max(1, camH);
   let cropW = Math.max(8, face.width);
   let cropH = Math.max(8, face.height);
 
-  // Always use the detected camera area as the source of truth and expand only
-  // enough to match the top-band aspect ratio. Shrinking a broad/top detection
-  // around its center can crop the actual camera out, which is worse than a
-  // slightly wider render crop.
-  cropW *= 1.06;
-  cropH *= 1.06;
-
-  if (cropW / cropH < targetAspect) {
-    cropW = cropH * targetAspect;
-  } else {
-    cropH = cropW / targetAspect;
-  }
+  // The camera crop must stay tight. FFmpeg then scales this crop with
+  // force_original_aspect_ratio=increase and crops it to the full top band,
+  // making even a tiny webcam fill the whole upper area instead of staying as a
+  // small box inside a larger strip.
+  cropW *= 1.04;
+  cropH *= 1.04;
 
   cropW = Math.min(cropW, frameW);
   cropH = Math.min(cropH, frameH);
