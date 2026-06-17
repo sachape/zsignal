@@ -223,7 +223,7 @@ def main() -> int:
     max_w_px = int(sample_w * MAX_OVERLAY_WIDTH_RATIO)
     max_h_px = int(sample_h * MAX_OVERLAY_HEIGHT_RATIO)
 
-    log(f"[detect] v3.8 frames={len(frames)} sample={sample_w}x{sample_h}"
+    log(f"[detect] v3.9 frames={len(frames)} sample={sample_w}x{sample_h}"
         f" min_overlay={min_w_px}x{min_h_px} max_overlay={max_w_px}x{max_h_px}"
         f" faces_raw={len(all_faces)} contours={len(overlay_raw)}")
 
