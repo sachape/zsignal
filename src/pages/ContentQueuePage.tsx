@@ -462,9 +462,18 @@ function ContentRow({
     )}>
       <CardContent className="space-y-3 p-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/60 bg-background/40">
-            <PlatformIcon className="h-4 w-4 text-primary" />
-          </div>
+          {hasGeneratedClip && item.thumbnail_url ? (
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-border/60 bg-background/40">
+              <img src={item.thumbnail_url} alt="" className="h-full w-full object-cover" loading="lazy" />
+              <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border border-background bg-card">
+                <PlatformIcon className="h-2.5 w-2.5 text-primary" />
+              </span>
+            </div>
+          ) : (
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/60 bg-background/40">
+              <PlatformIcon className="h-4 w-4 text-primary" />
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             {editing ? (
               <Input value={title} onChange={(e) => setTitle(e.target.value)} className="font-medium" maxLength={140} />
