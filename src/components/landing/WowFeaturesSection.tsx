@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SectionHeading, SectionShell } from "./primitives";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
-import clipAvatar from "@/assets/avatar-gamer-2.jpg";
+import clipShot from "@/assets/shot-clip-vertical.png";
+import studioShot from "@/assets/shot-studio-visuel.png";
 
 const clipTags = [
   { icon: Smartphone, label: "9:16" },
@@ -54,35 +55,22 @@ const WowFeaturesSection = () => {
               Colle un Clip Twitch, importe une VOD ou upload un fichier. Streamnco te rend une vidéo verticale avec facecam, gameplay et sous-titres — prête pour TikTok, Reels et Shorts.
             </p>
 
-            {/* Avant/après visuel */}
-            <div className="relative mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-              {/* Avant : clip horizontal */}
-              <div className="relative">
-                <div className="absolute -top-2 left-2 z-10 rounded-full bg-muted/80 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground backdrop-blur-sm">Avant</div>
-                <div className="aspect-video overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[hsl(264_40%_25%)] to-[hsl(220_30%_12%)]">
-                  <div className="flex h-full items-end p-2">
-                    <span className="text-[9px] font-semibold text-white/80">Clip Twitch 16:9</span>
-                  </div>
-                </div>
+            {/* Vrai clip produit (capture réelle Streamnco) */}
+            <div
+              className="relative mt-6 overflow-hidden rounded-2xl border border-black/10 bg-[#0b0e12] shadow-[0_30px_70px_-30px_rgba(15,20,30,0.55)]"
+              style={{ animation: "hero-float 7s ease-in-out infinite" }}
+            >
+              <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-3 py-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
               </div>
-              <ArrowRight className="h-5 w-5 text-primary" />
-              {/* Après : clip vertical (vraie facecam + flottement) */}
-              <div className="relative">
-                <div className="absolute -top-2 left-2 z-10 rounded-full bg-primary/90 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary-foreground">Après</div>
-                <div
-                  className="mx-auto aspect-[9/16] w-2/3 overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-b from-[hsl(220_30%_12%)] to-[hsl(220_30%_8%)] shadow-[0_20px_50px_-20px_hsl(var(--primary)/0.5)]"
-                  style={{ animation: "hero-float 6s ease-in-out infinite" }}
-                >
-                  <div className="relative h-full">
-                    <img src={clipAvatar} alt="" aria-hidden className="absolute inset-x-0 top-0 h-1/2 w-full object-cover" />
-                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-transparent to-[hsl(220_30%_10%)]/60" />
-                    <div className="absolute inset-x-0 top-1/2 bottom-0 bg-gradient-to-br from-[hsl(264_60%_30%)] to-[hsl(220_30%_10%)]" />
-                    <div className="absolute inset-x-1 bottom-3 rounded bg-black/75 px-1 py-0.5 text-center text-[7px] font-extrabold uppercase text-white shadow-lg">
-                      Quel clutch
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img
+                src={clipShot}
+                alt="Un clip Twitch transformé en vidéo verticale 9:16 prête à publier dans Streamnco"
+                className="block w-full"
+                loading="lazy"
+              />
             </div>
 
             <ul className="relative mt-6 flex flex-wrap gap-1.5">
@@ -124,26 +112,22 @@ const WowFeaturesSection = () => {
               8 formats prêts à l'emploi, 3 variantes par génération, exportés aux bonnes dimensions. Annonce un live, crée une bannière, prépare un post — sans toucher à un logiciel de design.
             </p>
 
-            {/* 3 variantes mockup */}
-            <div className="relative mt-6 grid grid-cols-3 gap-2.5">
-              {[
-                { grad: "from-[hsl(264_60%_45%)] to-[hsl(220_70%_30%)]", label: "Variante 1" },
-                { grad: "from-[hsl(95_60%_45%)] to-[hsl(172_60%_30%)]", label: "Variante 2" },
-                { grad: "from-[hsl(0_60%_50%)] to-[hsl(38_80%_45%)]", label: "Variante 3" },
-              ].map((v, i) => (
-                <div
-                  key={i}
-                  className={`group/v relative aspect-square overflow-hidden rounded-xl border border-white/15 bg-gradient-to-br ${v.grad} shadow-[0_15px_40px_-15px_hsl(var(--primary)/0.4)] transition-transform hover:scale-[1.03]`}
-                >
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,hsl(0_0%_100%/0.25),transparent_60%)]" />
-                  <div className="absolute left-1.5 top-1.5 rounded bg-black/40 px-1 py-0.5 text-[7px] font-bold uppercase text-white backdrop-blur-sm">
-                    {v.label}
-                  </div>
-                  <div className="absolute inset-x-2 bottom-2 rounded bg-black/50 px-1 py-0.5 text-center text-[8px] font-bold text-white backdrop-blur-sm">
-                    LIVE NOW
-                  </div>
-                </div>
-              ))}
+            {/* Vraie bibliothèque de visuels (capture réelle Streamnco) */}
+            <div
+              className="relative mt-6 overflow-hidden rounded-2xl border border-black/10 bg-[#0b0e12] shadow-[0_30px_70px_-30px_rgba(15,20,30,0.55)]"
+              style={{ animation: "hero-float 7s ease-in-out 0.6s infinite" }}
+            >
+              <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-3 py-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+              </div>
+              <img
+                src={studioShot}
+                alt="Bibliothèque de visuels générés par Streamnco : bannières, annonces de live et posts aux couleurs du streamer"
+                className="block w-full"
+                loading="lazy"
+              />
             </div>
 
             <ul className="relative mt-5 flex flex-wrap gap-1.5">
