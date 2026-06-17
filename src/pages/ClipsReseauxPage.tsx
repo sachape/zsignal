@@ -144,7 +144,7 @@ const ClipsReseauxPage = () => {
               icon={Upload}
               title="Importer une vidéo"
               description="Upload une vidéo depuis ton ordinateur."
-              to="/content-queue"
+              to="/clips/vod-import"
               disabled={!canAccess}
             />
             <SourceCard
@@ -209,7 +209,7 @@ const ClipsReseauxPage = () => {
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground">Tes derniers clips</h2>
             <Button asChild variant="ghost" size="sm" className="text-xs">
-              <Link to="/content-queue">Voir la file de contenu</Link>
+              <Link to="/clips">Voir tous mes clips</Link>
             </Button>
           </div>
           {recent.length === 0 ? (
@@ -219,8 +219,8 @@ const ClipsReseauxPage = () => {
               description="Colle un Clip Twitch ou importe une VOD, et Streamnco génère une vidéo verticale prête pour TikTok, Reels ou Shorts — avec facecam, gameplay et sous-titres."
               ctaLabel={canAccess ? "Créer mon premier clip" : "Passer au Pro"}
               ctaTo={canAccess ? "/clips/vod-import" : "/billing"}
-              secondaryLabel="Voir la file de contenu"
-              secondaryTo="/content-queue"
+              secondaryLabel="Voir tous mes clips"
+              secondaryTo="/clips"
             />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

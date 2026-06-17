@@ -1,12 +1,20 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-type Tab = { label: string; to: string; matches?: string[]; soon?: boolean };
+type Tab = { label: string; to: string; matches?: string[]; soon?: boolean; exact?: boolean };
 type Section = { id: string; label: string; tabs: Tab[] };
 
 // Each section groups several existing routes behind a single sidebar entry.
 // SectionTabs renders a contextual tab bar at the top of the main area.
 const SECTIONS: Section[] = [
+  {
+    id: "clips",
+    label: "Clips réseaux",
+    tabs: [
+      { label: "Créer", to: "/clips-reseaux", matches: ["/clips-reseaux", "/clips/vod-import"] },
+      { label: "Bibliothèque", to: "/clips", exact: true },
+    ],
+  },
   {
     id: "live-studio",
     label: "Live Studio",
@@ -24,7 +32,6 @@ const SECTIONS: Section[] = [
     tabs: [
       { label: "Queue", to: "/content-queue", matches: ["/content-queue", "/content-studio"] },
       { label: "Composer", to: "/composer", matches: ["/composer"] },
-      { label: "Bibliothèque", to: "/clips", matches: ["/clips"] },
       { label: "Publications", to: "/publications", matches: ["/publications"] },
       { label: "Analytics", to: "#", soon: true },
     ],
@@ -48,11 +55,15 @@ const SECTIONS: Section[] = [
   },
 ];
 
-const matchPath = (pathname: string, patterns: string[]) =>
-  patterns.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+const tabMatches = (pathname: string, tab: Tab) => {
+  const patterns = tab.matches ?? [tab.to];
+  return patterns.some((p) =>
+    tab.exact ? pathname === p : pathname === p || pathname.startsWith(`${p}/`),
+  );
+};
 
 export const findActiveSection = (pathname: string) =>
-  SECTIONS.find((s) => s.tabs.some((t) => matchPath(pathname, t.matches ?? [t.to])));
+  SECTIONS.find((s) => s.tabs.some((t) => tabMatches(pathname, t)));
 
 const SectionTabs = () => {
   const { pathname } = useLocation();
@@ -66,7 +77,7 @@ const SectionTabs = () => {
           {section.label}
         </span>
         {section.tabs.map((tab) => {
-          const active = matchPath(pathname, tab.matches ?? [tab.to]);
+          const active = tabMatches(pathname, tab);
           if (tab.soon) {
             return (
               <span

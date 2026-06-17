@@ -50,7 +50,7 @@ type NavEntry = {
   icon: typeof LayoutDashboard;
   end?: boolean;
   // Extra paths under which this entry should be highlighted as active.
-  matchSection?: "live-studio" | "content-studio" | "benchmark" | "resources";
+  matchSection?: "clips" | "live-studio" | "content-studio" | "benchmark" | "resources";
   // Orphan routes (no section) that should still light up this entry.
   extraMatch?: string[];
 };
@@ -66,7 +66,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Créer",
     items: [
-      { title: "Clips réseaux", url: "/clips-reseaux", icon: Clapperboard },
+      { title: "Clips réseaux", url: "/clips-reseaux", icon: Clapperboard, matchSection: "clips" },
       { title: "Studio visuel", url: "/studio-visuel", icon: Palette },
       // File de contenu masquée tant que la publication auto (OAuth) n'est pas là.
       // Route + liens contextuels (Clips réseaux, Live Studio) conservés.

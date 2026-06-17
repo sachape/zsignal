@@ -376,7 +376,7 @@ const VodImportPage = () => {
     try {
       await updateItem(item.id, { status: "idea" });
       toast({
-        title: "Envoyé dans la file de contenu",
+        title: "Ajouté à ta bibliothèque de clips",
         description: "Le clip est marqué « À préparer ».",
       });
     } catch (err) {
@@ -407,7 +407,7 @@ const VodImportPage = () => {
     <AppShell>
       <PageContainer size="lg">
         <PageHeader
-          eyebrow="File de contenu"
+          eyebrow="Clips réseaux"
           title="Créer un clip réseau"
           description="Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts."
         />
@@ -568,7 +568,7 @@ const VodImportPage = () => {
                     Clips proposés ({candidates.length})
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Ajuste les moments puis génère le MP4. Le clip part dans ta file de contenu.
+                    Ajuste les moments puis génère le MP4. Le clip arrive dans ta bibliothèque de clips.
                   </p>
                 </div>
               </div>
@@ -625,7 +625,7 @@ const VodImportPage = () => {
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         {isReady ? (
                           <Button asChild size="sm">
-                            <Link to="/content-queue">
+                            <Link to="/clips">
                               <Sparkles className="h-3.5 w-3.5" />
                               Voir le clip généré
                             </Link>
