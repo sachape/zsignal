@@ -18,8 +18,6 @@ import {
   Clapperboard,
   Palette,
   TrendingUp,
-  Calendar,
-  Type,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -83,14 +81,12 @@ const navGroups: NavGroup[] = [
     label: "Live",
     items: [
       { title: "Live Studio", url: "/live-setup", icon: Rocket, matchSection: "live-studio" },
-      { title: "Planning", url: "/planning", icon: Calendar },
-      { title: "Titres", url: "/outils/titres", icon: Type, matchSection: "resources" },
     ],
   },
   {
     items: [
       { title: "Réseaux", url: "/reseaux", icon: Network },
-      { title: "Ressources", url: "/playbooks", icon: BookOpen },
+      { title: "Ressources", url: "/playbooks", icon: BookOpen, matchSection: "resources" },
     ],
   },
 ];
