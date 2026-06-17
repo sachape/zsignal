@@ -18,7 +18,7 @@ Redéploie après `git pull` :
 ```bash
 cd workers/clip-generator
 fly deploy -a streamnco
-# Vérifier worker_version: 3.2 et les capabilities dans /health
+# Vérifier worker_version: 3.10 et les capabilities dans /health
 curl -s https://streamnco.fly.dev/health | jq '{worker_version, supports_vertical_9_16, supports_facecam_autodetect, supports_auto_captions}'
 ```
 
