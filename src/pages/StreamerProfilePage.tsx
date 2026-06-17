@@ -20,6 +20,7 @@ import {
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
+import PageBreadcrumb from "@/components/PageBreadcrumb";
 import ScoreCard from "@/components/ScoreCard";
 import StatBlock from "@/components/StatBlock";
 import { ErrorState, LoadingState } from "@/components/StateView";
@@ -659,16 +660,17 @@ const StreamerProfilePage = () => {
   return (
     <AppShell>
       <PageContainer>
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
-        >
-          <Link to={user ? "/classements" : "/"}>
-            <ArrowLeft className="h-3.5 w-3.5" /> Classements
-          </Link>
-        </Button>
+        <PageBreadcrumb
+          items={
+            user
+              ? [
+                  { label: "Benchmark", to: "/competitors" },
+                  { label: "Classements", to: "/classements" },
+                  { label: summary.display_name },
+                ]
+              : [{ label: "Accueil", to: "/" }, { label: summary.display_name }]
+          }
+        />
 
         <PageHeader
           eyebrow="Profil benchmark · données publiques"
