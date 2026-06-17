@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ElementType } from "react";
 import { Link } from "react-router-dom";
 import {
   Clapperboard,
@@ -290,7 +290,7 @@ const ClipsReseauxPage = () => {
 };
 
 interface SourceCardProps {
-  icon: React.ElementType;
+  icon: ElementType;
   title: string;
   description: string;
   to: string;
