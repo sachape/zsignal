@@ -556,13 +556,12 @@ def main() -> int:
         return 0
 
 
-    wx, wy, ww, wh = winner["bbox"]
-    refined_bbox, refined = refine_panel_to_face((wx, wy, ww, wh)) if winner["source"] == "panel" else ((wx, wy, ww, wh), False)
-    rx, ry, rw, rh = refined_bbox
+    rx, ry, rw, rh = winner["bbox"]
+    refined = bool(winner.get("refined", False))
 
     log_bbox("selected_facecam", (rx, ry, rw, rh), source=winner["source"],
              score=winner["score"], refined=refined,
-             reason="webcam_region_with_human_signal" if winner["face_support"] > 0 else winner["reason"])
+             reason=winner.get("final_eligibility_reason", "face_expand"))
     for ru in runners_up:
         log_bbox("runner_up", tuple(ru["bbox"]), source=ru["source"], score=ru["score"])
 
@@ -579,7 +578,7 @@ def main() -> int:
         "corner": f"{vert}_{horiz}",
         "selected": winner, "refined": refined,
         "candidates": candidates[:8], "rejected": rejected[:12],
-        "selection_reason": "webcam_region_with_human_signal" if winner["face_support"] > 0 else winner["reason"],
+        "selection_reason": winner.get("final_eligibility_reason", "face_expand"),
     }
     print(json.dumps(result))
     return 0
