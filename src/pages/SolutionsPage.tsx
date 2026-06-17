@@ -95,7 +95,7 @@ const SolutionsPage = () => {
 
       <section className="relative overflow-hidden pt-32 pb-12 md:pt-40 md:pb-16">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[40rem] w-[58rem] -translate-x-1/2 landing-aurora" aria-hidden />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(190,255,90,0.14),transparent_54%),radial-gradient(ellipse_at_80%_20%,rgba(90,210,255,0.10),transparent_36%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,hsl(var(--primary)/0.08),transparent_55%)]" />
         <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
           <FadeIn className="max-w-3xl">
             <SectionBadge>
@@ -114,7 +114,7 @@ const SolutionsPage = () => {
               <a
                 key={solution.id}
                 href={`#${solution.id}`}
-                className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/25 hover:text-foreground"
+                className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/25 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {solution.label}
               </a>
