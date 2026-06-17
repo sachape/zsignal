@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
-# Streamnco — Facecam auto-detection (v3.7).
+# Streamnco — Facecam auto-detection (v3.8).
 #
 # Sample N frames across the segment, detect candidate webcam regions
 # (Haar faces + edge-bounded overlay rectangles), score them, and emit the
 # best one as the facecam crop.
 #
+# v3.8 — Hard rejection of HUD / minimap / text panels:
+#   - panel candidates are rejected unless they have face/skin evidence
+#   - circular minimap is detected via HoughCircles → hard reject
+#   - high text/edge density without a face → hard reject
+#   - panels that contain a face are refined to the face sub-region
+#     (so a panel with "minimap on top + webcam below" yields only the
+#     webcam crop, not the whole HUD strip)
+#
 # Output JSON on stdout (single line, last one wins):
 #   { detected: bool, confidence: 0..1, facecam: {x,y,width,height},
 #     source_width, source_height, corner, frames, candidates: [...],
-#     selected: {...}|null, rejected: [...], selection_reason: str, reason?: str }
+#     selected: {...}|null, rejected: [...], selection_reason: str,
+#     refined: bool, reason?: str }
 #
 # Detailed ranking traces are written to stderr — the Node worker forwards
 # them so they show up in Fly logs:
 #   [candidate] bbox=... score=... reason=...
-#   [selected_facecam] bbox=... score=... source=...
+#   [selected_facecam] bbox=... score=... source=... refined=...
 #   [rejected_candidate] bbox=... reason=...
 #
 # Usage: detect_facecam.py <video_path> <start_seconds> <duration_seconds>
@@ -26,39 +35,44 @@ import subprocess
 import statistics
 
 import cv2  # type: ignore
+import numpy as np  # type: ignore
 
 
 # ── Tunables ──────────────────────────────────────────────────────────────
-# Coordinates throughout this file are in the SAMPLED frame space
-# (we downscale to ~1280px wide before detection).
 SAMPLE_TARGET_WIDTH = 1280
 N_FRAMES = 8
 
-# Hard floors for a candidate to be considered a real webcam overlay.
-# A streamer webcam at 1080p source ≈ 240-400px wide; downscaled to 1280
-# that's ≈ 200-320px. We accept anything ≥ 110px wide / 90px tall — below
-# that we are looking at HUD icons / scoreboard avatars / lion stickers.
 MIN_OVERLAY_WIDTH_PX = 110
 MIN_OVERLAY_HEIGHT_PX = 90
-# Also enforce as a ratio so it scales if ffmpeg samples at a different size.
-MIN_OVERLAY_WIDTH_RATIO = 0.085   # 8.5% of sample width
-MIN_OVERLAY_HEIGHT_RATIO = 0.110  # 11% of sample height
+MIN_OVERLAY_WIDTH_RATIO = 0.085
+MIN_OVERLAY_HEIGHT_RATIO = 0.110
 
-# Upper bounds: anything bigger is gameplay/cutscene, not a webcam.
 MAX_OVERLAY_WIDTH_RATIO = 0.36
 MAX_OVERLAY_HEIGHT_RATIO = 0.38
 MAX_OVERLAY_AREA_RATIO = 0.20
 
-# Face-only fallback: minimum face size to be promoted into a webcam region.
 MIN_FACE_PX = 44
+
+# A panel candidate (edge-bounded rectangle, no face cluster expansion)
+# MUST show one of these signals to be considered a webcam:
+#   - at least one Haar face inside (face_support >= 1), OR
+#   - skin_ratio >= MIN_PANEL_SKIN_RATIO
+# Otherwise it's a HUD / minimap / scoreboard and we reject it outright.
+MIN_PANEL_SKIN_RATIO = 0.055
+
+# Text/edge density above this on a face-less panel → reject as text HUD.
+MAX_PANEL_EDGE_DENSITY_NO_FACE = 0.22
+
+# Minimap detection: HoughCircles in a panel. If a strong circle covers
+# more than this fraction of the panel area, treat it as minimap.
+MINIMAP_CIRCLE_AREA_FRACTION = 0.18
 
 
 def log(*parts: object) -> None:
-    """Write a structured trace line to stderr."""
     sys.stderr.write(" ".join(str(p) for p in parts) + "\n")
 
 
-def log_bbox(tag: str, bbox: tuple[float, float, float, float], **extra) -> None:
+def log_bbox(tag: str, bbox, **extra) -> None:
     x, y, w, h = bbox
     fields = f"bbox=({int(x)},{int(y)},{int(w)},{int(h)})"
     for k, v in extra.items():
@@ -67,6 +81,39 @@ def log_bbox(tag: str, bbox: tuple[float, float, float, float], **extra) -> None
         else:
             fields += f" {k}={v}"
     log(f"[{tag}]", fields)
+
+
+def detect_minimap_circle(gray_crop) -> float:
+    """Return area fraction of the strongest circle in the crop (0 if none)."""
+    if gray_crop is None or gray_crop.size == 0:
+        return 0.0
+    h, w = gray_crop.shape[:2]
+    if min(h, w) < 40:
+        return 0.0
+    blurred = cv2.medianBlur(gray_crop, 5)
+    min_r = int(min(h, w) * 0.20)
+    max_r = int(min(h, w) * 0.55)
+    if max_r <= min_r:
+        return 0.0
+    try:
+        circles = cv2.HoughCircles(
+            blurred, cv2.HOUGH_GRADIENT, dp=1.2, minDist=max(20, min_r),
+            param1=120, param2=35, minRadius=min_r, maxRadius=max_r,
+        )
+    except cv2.error:
+        return 0.0
+    if circles is None:
+        return 0.0
+    best_r = max(float(c[2]) for c in circles[0])
+    panel_area = float(h * w)
+    return min(1.0, (3.14159 * best_r * best_r) / panel_area)
+
+
+def edge_density(gray_crop) -> float:
+    if gray_crop is None or gray_crop.size == 0:
+        return 0.0
+    edges = cv2.Canny(gray_crop, 60, 160)
+    return float((edges > 0).mean())
 
 
 def main() -> int:
@@ -83,13 +130,9 @@ def main() -> int:
     fps_filter = f"fps=1/{step:.3f}"
 
     cmd = [
-        "ffmpeg", "-y",
-        "-ss", str(start),
-        "-i", src,
-        "-t", str(duration),
+        "ffmpeg", "-y", "-ss", str(start), "-i", src, "-t", str(duration),
         "-vf", f"{fps_filter},scale={SAMPLE_TARGET_WIDTH}:-2",
-        "-frames:v", str(N_FRAMES),
-        "-loglevel", "error",
+        "-frames:v", str(N_FRAMES), "-loglevel", "error",
         os.path.join(tmp, "f%03d.jpg"),
     ]
     subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
@@ -111,18 +154,15 @@ def main() -> int:
         out = []
         for casc in (frontal, profile):
             faces = casc.detectMultiScale(
-                gray_img,
-                scaleFactor=1.10,
-                minNeighbors=3,
-                minSize=(28, 28),
-                flags=cv2.CASCADE_SCALE_IMAGE,
+                gray_img, scaleFactor=1.10, minNeighbors=3,
+                minSize=(28, 28), flags=cv2.CASCADE_SCALE_IMAGE,
             )
             for (x, y, w, h) in faces:
                 out.append((int(x), int(y), int(w), int(h)))
         return out
 
     def rough_skin_ratio(bgr_crop) -> float:
-        if bgr_crop.size == 0:
+        if bgr_crop is None or bgr_crop.size == 0:
             return 0.0
         hsv = cv2.cvtColor(bgr_crop, cv2.COLOR_BGR2HSV)
         hue = hsv[:, :, 0]; sat = hsv[:, :, 1]; val = hsv[:, :, 2]
@@ -130,7 +170,7 @@ def main() -> int:
         return float(mask.mean())
 
     def border_color_signal(bgr_crop) -> float:
-        if bgr_crop.size == 0:
+        if bgr_crop is None or bgr_crop.size == 0:
             return 0.0
         h, w = bgr_crop.shape[:2]
         border = max(2, int(min(w, h) * 0.08))
@@ -138,8 +178,8 @@ def main() -> int:
         parts = [sat[:border, :], sat[-border:, :], sat[:, :border], sat[:, -border:]]
         return max(float(p.mean()) for p in parts if p.size)
 
-    all_faces: list[tuple[int, int, int, int]] = []
-    overlay_raw: list[tuple[int, int, int, int]] = []
+    all_faces = []
+    overlay_raw = []
     sample_w = sample_h = 0
 
     for fp in frames:
@@ -152,7 +192,6 @@ def main() -> int:
 
         frame_faces = list(detect_in(gray))
 
-        # Corner-zoom passes for tiny webcams (Haar struggles below ~36px).
         cw = int(sample_w * 0.40); ch = int(sample_h * 0.40)
         for (ox, oy) in [(0, 0), (sample_w - cw, 0), (0, sample_h - ch), (sample_w - cw, sample_h - ch)]:
             crop = gray[oy:oy + ch, ox:ox + cw]
@@ -164,7 +203,6 @@ def main() -> int:
 
         all_faces.extend(frame_faces)
 
-        # Edge-bounded rectangle candidates (the actual webcam panel).
         edges = cv2.Canny(gray, 50, 150)
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for c in contours:
@@ -181,111 +219,143 @@ def main() -> int:
     max_w_px = int(sample_w * MAX_OVERLAY_WIDTH_RATIO)
     max_h_px = int(sample_h * MAX_OVERLAY_HEIGHT_RATIO)
 
-    log(f"[detect] frames={len(frames)} sample={sample_w}x{sample_h}"
+    log(f"[detect] v3.8 frames={len(frames)} sample={sample_w}x{sample_h}"
         f" min_overlay={min_w_px}x{min_h_px} max_overlay={max_w_px}x{max_h_px}"
         f" faces_raw={len(all_faces)} contours={len(overlay_raw)}")
 
-    # ── Build candidate list ─────────────────────────────────────────────
-    # Two sources of candidates:
-    #   1) edge-bounded rectangles that look like a webcam panel
-    #   2) face clusters expanded into a plausible webcam region
-    #
-    # Each candidate carries its bbox, a score and a textual reason. We log
-    # every candidate (kept or rejected) for postmortem debugging.
+    candidates = []
+    rejected = []
 
-    candidates: list[dict] = []
-    rejected: list[dict] = []
+    first_bgr = cv2.imread(frames[0])
+    first_gray = cv2.cvtColor(first_bgr, cv2.COLOR_BGR2GRAY) if first_bgr is not None else None
 
-    def consider_overlay(bbox, *, source: str, face_support: int, skin: float,
-                         border: float, stability: int) -> None:
+    def faces_inside(bbox, pad=0.18):
+        x, y, w, h = bbox
+        pad_x = w * pad; pad_y = h * pad
+        return [
+            (fx, fy, fw, fh) for (fx, fy, fw, fh) in all_faces
+            if (x - pad_x) <= (fx + fw / 2) <= (x + w + pad_x)
+            and (y - pad_y) <= (fy + fh / 2) <= (y + h + pad_y)
+        ]
+
+    def refine_panel_to_face(bbox):
+        """If the panel contains a face cluster, crop down to a 4:3 webcam
+        sub-region centered on the face. Otherwise return bbox unchanged
+        and refined=False."""
+        x, y, w, h = bbox
+        inside = faces_inside(bbox, pad=0.05)
+        if not inside:
+            return bbox, False
+        fh_med = statistics.median([f[3] for f in inside])
+        if fh_med < MIN_FACE_PX:
+            return bbox, False
+        fcx = statistics.median([f[0] + f[2] / 2 for f in inside])
+        fcy = statistics.median([f[1] + f[3] / 2 for f in inside])
+        sub_h = min(h, max(fh_med * 3.0, min_h_px * 1.05))
+        sub_w = min(w, sub_h * 4.0 / 3.0)
+        sub_w = max(sub_w, min_w_px * 1.05)
+        sub_x = fcx - sub_w / 2.0
+        sub_y = fcy - sub_h * 0.40
+        # Clamp inside the original panel.
+        sub_x = max(x, min(x + w - sub_w, sub_x))
+        sub_y = max(y, min(y + h - sub_h, sub_y))
+        sub_w = max(8.0, min(sub_w, x + w - sub_x))
+        sub_h = max(8.0, min(sub_h, y + h - sub_y))
+        # Only consider it a refinement if the new box is meaningfully smaller.
+        if sub_w * sub_h < 0.92 * w * h:
+            return (sub_x, sub_y, sub_w, sub_h), True
+        return bbox, False
+
+    def consider_overlay(bbox, *, source, face_support, skin, border, stability,
+                         minimap_frac=0.0, edge_dens=0.0):
         x, y, w, h = bbox
         area_ratio = (w * h) / float(sample_w * sample_h)
         width_ratio = w / sample_w
         height_ratio = h / sample_h
         aspect = w / h if h else 0.0
 
-        # Hard rejections.
-        if w < min_w_px or h < min_h_px:
+        def reject(reason, **extra):
             entry = {"bbox": [int(x), int(y), int(w), int(h)], "source": source,
-                     "reason": "too_small_ui_avatar"}
+                     "reason": reason, **{k: (round(v, 3) if isinstance(v, float) else v)
+                                          for k, v in extra.items()}}
             rejected.append(entry)
-            log_bbox("rejected_candidate", bbox, source=source, reason="too_small_ui_avatar",
-                    width_ratio=width_ratio, height_ratio=height_ratio)
+            log_bbox("rejected_candidate", bbox, source=source, reason=reason, **extra)
+
+        if w < min_w_px or h < min_h_px:
+            reject("too_small_ui_avatar", width_ratio=width_ratio, height_ratio=height_ratio)
             return
         if w > max_w_px or h > max_h_px or area_ratio > MAX_OVERLAY_AREA_RATIO:
-            entry = {"bbox": [int(x), int(y), int(w), int(h)], "source": source,
-                     "reason": "too_large_gameplay"}
-            rejected.append(entry)
-            log_bbox("rejected_candidate", bbox, source=source, reason="too_large_gameplay",
-                    area_ratio=area_ratio)
-            return
+            reject("too_large_gameplay", area_ratio=area_ratio); return
         if not (0.55 <= aspect <= 2.30):
-            entry = {"bbox": [int(x), int(y), int(w), int(h)], "source": source,
-                     "reason": "aspect_implausible", "aspect": round(aspect, 2)}
-            rejected.append(entry)
-            log_bbox("rejected_candidate", bbox, source=source, reason="aspect_implausible",
-                    aspect=aspect)
-            return
+            reject("aspect_implausible", aspect=aspect); return
+
+        # ── Hard HUD/minimap/text rejection (panel sources only) ───────
+        if source == "panel":
+            if minimap_frac >= MINIMAP_CIRCLE_AREA_FRACTION:
+                reject("hud_minimap_text_panel", minimap_frac=minimap_frac); return
+            if face_support == 0 and skin < MIN_PANEL_SKIN_RATIO:
+                reject("hud_minimap_text_panel", skin=skin, edge_dens=edge_dens,
+                       face_support=face_support); return
+            if face_support == 0 and edge_dens >= MAX_PANEL_EDGE_DENSITY_NO_FACE:
+                reject("hud_minimap_text_panel", edge_dens=edge_dens); return
 
         cx = x + w / 2.0
         cy = y + h / 2.0
-        # Edge proximity (real webcams typically hug a corner or an edge).
         edge_dx = min(cx, sample_w - cx) / sample_w
         edge_dy = min(cy, sample_h - cy) / sample_h
-        edge_score = max(0.0, 1.6 - (edge_dx + edge_dy) * 3.0)  # ~1.6 in a corner, 0 in center
-        # Plausible 4:3 / 16:9 webcam aspect bonus.
+        edge_score = max(0.0, 1.6 - (edge_dx + edge_dy) * 3.0)
         aspect_score = 1.0 - min(1.0, abs(aspect - (4 / 3)) / 1.2)
-        size_score = min(1.6, area_ratio / 0.015)  # peaks around 1.5% area
+        size_score = min(1.6, area_ratio / 0.015)
         skin_score = min(1.2, skin / 0.06)
         border_score = min(1.0, border / 120.0)
-        face_score = min(2.0, face_support * 0.9)
+        face_score = min(2.5, face_support * 1.2)
         stability_score = min(1.5, stability * 0.5)
 
-        # Top-edge wide rectangles without face support → very likely a HUD strip.
+        # Penalties
         top_hud_penalty = 0.0
         if cy < sample_h * 0.22 and width_ratio > 0.24 and face_support == 0:
-            top_hud_penalty = 2.5
+            top_hud_penalty += 3.0
+        if minimap_frac > 0.05 and face_support == 0:
+            top_hud_penalty += 2.0 * minimap_frac / 0.18
+        if source == "panel" and face_support == 0:
+            # Cap any panel-without-face score so it can never beat a real
+            # face_expand candidate.
+            top_hud_penalty += 2.5
+        text_penalty = 0.0
+        if face_support == 0 and edge_dens > 0.14:
+            text_penalty = (edge_dens - 0.14) * 8.0
 
         score = (edge_score + aspect_score + size_score
                  + skin_score + border_score + face_score + stability_score
-                 - top_hud_penalty)
+                 - top_hud_penalty - text_penalty)
         score = round(score, 3)
 
-        reason_bits = [f"edge={edge_score:.2f}", f"size={size_score:.2f}",
-                       f"face={face_score:.2f}", f"skin={skin_score:.2f}",
-                       f"border={border_score:.2f}", f"stab={stability_score:.2f}"]
-        if top_hud_penalty:
-            reason_bits.append(f"hud_penalty={top_hud_penalty:.2f}")
-        reason = ",".join(reason_bits)
+        reason = (f"edge={edge_score:.2f},size={size_score:.2f},face={face_score:.2f},"
+                  f"skin={skin_score:.2f},border={border_score:.2f},stab={stability_score:.2f},"
+                  f"hud_pen={top_hud_penalty:.2f},text_pen={text_penalty:.2f},"
+                  f"minimap={minimap_frac:.2f},edge_dens={edge_dens:.2f}")
 
         entry = {
             "bbox": [int(x), int(y), int(w), int(h)],
-            "source": source,
-            "score": score,
-            "face_support": face_support,
-            "skin": round(skin, 3),
-            "border": round(border, 1),
-            "stability": stability,
+            "source": source, "score": score,
+            "face_support": face_support, "skin": round(skin, 3),
+            "border": round(border, 1), "stability": stability,
+            "minimap_frac": round(minimap_frac, 3), "edge_dens": round(edge_dens, 3),
             "reason": reason,
         }
         candidates.append(entry)
         log_bbox("candidate", bbox, source=source, score=score, reason=reason)
 
     # ----- Source 1: edge-bounded overlay rectangles -----
-    # Pre-filter raw contours to drop sub-floor boxes BEFORE clustering, so
-    # clusters represent real panel-sized regions.
-    overlay_filtered: list[tuple[int, int, int, int]] = []
+    overlay_filtered = []
     for (x, y, bw, bh) in overlay_raw:
-        if bw < min_w_px * 0.85 or bh < min_h_px * 0.85:
-            continue
-        if bw > max_w_px or bh > max_h_px:
-            continue
+        if bw < min_w_px * 0.85 or bh < min_h_px * 0.85: continue
+        if bw > max_w_px or bh > max_h_px: continue
         aspect = bw / bh if bh else 0.0
-        if not (0.55 <= aspect <= 2.30):
-            continue
+        if not (0.55 <= aspect <= 2.30): continue
         overlay_filtered.append((x, y, bw, bh))
 
-    clusters: list[list[tuple[int, int, int, int]]] = []
+    clusters = []
     tol_x = sample_w * 0.10
     tol_y = sample_h * 0.10
     for det in overlay_filtered:
@@ -296,37 +366,30 @@ def main() -> int:
             cxs = [c[0] + c[2] / 2 for c in cluster]
             cys = [c[1] + c[3] / 2 for c in cluster]
             if abs(dcx - statistics.median(cxs)) < tol_x and abs(dcy - statistics.median(cys)) < tol_y:
-                cluster.append(det)
-                placed = True
-                break
+                cluster.append(det); placed = True; break
         if not placed:
             clusters.append([det])
 
-    # Per-cluster representative bbox + signals.
     for cluster in clusters:
-        if not cluster:
-            continue
+        if not cluster: continue
         mx = statistics.median([c[0] for c in cluster])
         my = statistics.median([c[1] for c in cluster])
         mw = statistics.median([c[2] for c in cluster])
         mh = statistics.median([c[3] for c in cluster])
-        # Compute skin/border on the first frame as a cheap proxy.
-        first = cv2.imread(frames[0])
-        crop_img = first[int(my):int(my + mh), int(mx):int(mx + mw)] if first is not None else None
-        skin = rough_skin_ratio(crop_img) if crop_img is not None else 0.0
-        border = border_color_signal(crop_img) if crop_img is not None else 0.0
-        # Face support: any face center inside (with 18% padding)?
-        pad_x = mw * 0.18; pad_y = mh * 0.18
-        face_hits = sum(1 for (fx, fy, fw, fh) in all_faces
-                        if (mx - pad_x) <= (fx + fw / 2) <= (mx + mw + pad_x)
-                        and (my - pad_y) <= (fy + fh / 2) <= (my + mh + pad_y))
+        crop_bgr = first_bgr[int(my):int(my + mh), int(mx):int(mx + mw)] if first_bgr is not None else None
+        crop_gray = first_gray[int(my):int(my + mh), int(mx):int(mx + mw)] if first_gray is not None else None
+        skin = rough_skin_ratio(crop_bgr)
+        border = border_color_signal(crop_bgr)
+        minimap_frac = detect_minimap_circle(crop_gray)
+        edge_dens = edge_density(crop_gray)
+        face_hits = len(faces_inside((mx, my, mw, mh), pad=0.18))
         consider_overlay((mx, my, mw, mh), source="panel",
                          face_support=face_hits, skin=skin, border=border,
-                         stability=len(cluster))
+                         stability=len(cluster),
+                         minimap_frac=minimap_frac, edge_dens=edge_dens)
 
     # ----- Source 2: face clusters expanded into a webcam region -----
-    # Cluster face detections, then expand each cluster to a 4:3-ish panel.
-    face_clusters: list[list[tuple[int, int, int, int]]] = []
+    face_clusters = []
     for det in all_faces:
         dcx = det[0] + det[2] / 2
         dcy = det[1] + det[3] / 2
@@ -340,61 +403,48 @@ def main() -> int:
             face_clusters.append([det])
 
     for cluster in face_clusters:
-        if not cluster:
-            continue
+        if not cluster: continue
         fw_med = statistics.median([c[2] for c in cluster])
         fh_med = statistics.median([c[3] for c in cluster])
-        # Reject tiny faces outright — likely HUD avatar / lion sticker.
         if fw_med < MIN_FACE_PX or fh_med < MIN_FACE_PX:
-            log_bbox("rejected_candidate",
-                     (statistics.median([c[0] for c in cluster]),
-                      statistics.median([c[1] for c in cluster]),
-                      fw_med, fh_med),
-                     source="face", reason="face_too_small_for_webcam")
-            rejected.append({
-                "source": "face",
-                "reason": "face_too_small_for_webcam",
-                "bbox": [int(statistics.median([c[0] for c in cluster])),
-                         int(statistics.median([c[1] for c in cluster])),
-                         int(fw_med), int(fh_med)],
-            })
+            bbox = (statistics.median([c[0] for c in cluster]),
+                    statistics.median([c[1] for c in cluster]), fw_med, fh_med)
+            log_bbox("rejected_candidate", bbox, source="face",
+                     reason="face_too_small_for_webcam")
+            rejected.append({"source": "face", "reason": "face_too_small_for_webcam",
+                             "bbox": [int(bbox[0]), int(bbox[1]), int(fw_med), int(fh_med)]})
             continue
 
         cx = statistics.median([c[0] + c[2] / 2 for c in cluster])
         cy = statistics.median([c[1] + c[3] / 2 for c in cluster])
-        # Expand: ~3.0x face height tall, 4:3 panel, face in upper third.
         panel_h = fh_med * 3.0
         panel_w = panel_h * 4.0 / 3.0
-        # Enforce minimum panel size so a small but valid face still yields
-        # a usable webcam region.
         panel_w = max(panel_w, min_w_px * 1.05)
         panel_h = max(panel_h, min_h_px * 1.05)
         px = cx - panel_w / 2.0
         py = cy - panel_h * 0.40
-        # Snap to frame bounds.
         px = max(0.0, min(sample_w - panel_w, px))
         py = max(0.0, min(sample_h - panel_h, py))
         panel_w = max(8.0, min(panel_w, sample_w - px))
         panel_h = max(8.0, min(panel_h, sample_h - py))
 
-        first = cv2.imread(frames[0])
-        crop_img = first[int(py):int(py + panel_h), int(px):int(px + panel_w)] if first is not None else None
-        skin = rough_skin_ratio(crop_img) if crop_img is not None else 0.0
-        border = border_color_signal(crop_img) if crop_img is not None else 0.0
+        crop_bgr = first_bgr[int(py):int(py + panel_h), int(px):int(px + panel_w)] if first_bgr is not None else None
+        crop_gray = first_gray[int(py):int(py + panel_h), int(px):int(px + panel_w)] if first_gray is not None else None
+        skin = rough_skin_ratio(crop_bgr)
+        border = border_color_signal(crop_bgr)
+        minimap_frac = detect_minimap_circle(crop_gray)
+        edge_dens = edge_density(crop_gray)
         consider_overlay((px, py, panel_w, panel_h), source="face_expand",
                          face_support=len(cluster), skin=skin, border=border,
-                         stability=len(cluster))
+                         stability=len(cluster),
+                         minimap_frac=minimap_frac, edge_dens=edge_dens)
 
     # ── Select winner ────────────────────────────────────────────────────
     if not candidates:
-        log("[detect] no_candidate_passed_filters",
-            f"rejected={len(rejected)}")
+        log("[detect] no_candidate_passed_filters", f"rejected={len(rejected)}")
         print(json.dumps({
-            "detected": False,
-            "reason": "no_candidate",
-            "frames": len(frames),
-            "source_width": sample_w,
-            "source_height": sample_h,
+            "detected": False, "reason": "no_candidate",
+            "frames": len(frames), "source_width": sample_w, "source_height": sample_h,
             "rejected": rejected[:20],
         }))
         return 0
@@ -403,31 +453,42 @@ def main() -> int:
     winner = candidates[0]
     runners_up = candidates[1:5]
 
+    # Low-confidence guard: if the best score is poor, refuse rather than
+    # selecting a HUD-shaped panel by default.
+    if winner["score"] < 1.2:
+        log_bbox("rejected_candidate", tuple(winner["bbox"]), source=winner["source"],
+                 reason="low_confidence_no_clear_webcam", score=winner["score"])
+        print(json.dumps({
+            "detected": False, "reason": "low_confidence",
+            "frames": len(frames), "source_width": sample_w, "source_height": sample_h,
+            "candidates": candidates[:6], "rejected": rejected[:12],
+        }))
+        return 0
+
     wx, wy, ww, wh = winner["bbox"]
-    log_bbox("selected_facecam", (wx, wy, ww, wh),
-            source=winner["source"], score=winner["score"], reason=winner["reason"])
+    refined_bbox, refined = refine_panel_to_face((wx, wy, ww, wh)) if winner["source"] == "panel" else ((wx, wy, ww, wh), False)
+    rx, ry, rw, rh = refined_bbox
+
+    log_bbox("selected_facecam", (rx, ry, rw, rh), source=winner["source"],
+             score=winner["score"], refined=refined,
+             reason="webcam_region_with_human_signal" if winner["face_support"] > 0 else winner["reason"])
     for ru in runners_up:
-        log_bbox("runner_up", tuple(ru["bbox"]),
-                source=ru["source"], score=ru["score"])
+        log_bbox("runner_up", tuple(ru["bbox"]), source=ru["source"], score=ru["score"])
 
     confidence = round(min(1.0, max(0.15, winner["score"] / 6.0)), 2)
-    cx = wx + ww / 2.0
-    cy = wy + wh / 2.0
+    cx = rx + rw / 2.0
+    cy = ry + rh / 2.0
     horiz = "left" if cx < sample_w / 2 else "right"
     vert = "top" if cy < sample_h / 2 else "bottom"
 
     result = {
-        "detected": True,
-        "confidence": confidence,
-        "frames": len(frames),
-        "source_width": sample_w,
-        "source_height": sample_h,
-        "facecam": {"x": int(wx), "y": int(wy), "width": int(ww), "height": int(wh)},
+        "detected": True, "confidence": confidence,
+        "frames": len(frames), "source_width": sample_w, "source_height": sample_h,
+        "facecam": {"x": int(rx), "y": int(ry), "width": int(rw), "height": int(rh)},
         "corner": f"{vert}_{horiz}",
-        "selected": winner,
-        "candidates": candidates[:8],
-        "rejected": rejected[:12],
-        "selection_reason": winner["reason"],
+        "selected": winner, "refined": refined,
+        "candidates": candidates[:8], "rejected": rejected[:12],
+        "selection_reason": "webcam_region_with_human_signal" if winner["face_support"] > 0 else winner["reason"],
     }
     print(json.dumps(result))
     return 0
@@ -436,7 +497,7 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except Exception as exc:  # noqa: BLE001 — never crash; let worker fallback.
+    except Exception as exc:  # noqa: BLE001
         log("[detect] exception", str(exc)[:200])
         print(json.dumps({"detected": False, "reason": "exception", "message": str(exc)[:200]}))
         sys.exit(0)
