@@ -80,7 +80,46 @@ def main() -> int:
         return out
 
     detections: list[tuple[int, int, int, int]] = []
+    overlay_candidates: list[tuple[int, int, int, int, float]] = []
     sample_w = sample_h = 0
+
+    def rough_skin_ratio(bgr_crop) -> float:
+        if bgr_crop.size == 0:
+            return 0.0
+        hsv = cv2.cvtColor(bgr_crop, cv2.COLOR_BGR2HSV)
+        hue = hsv[:, :, 0]
+        sat = hsv[:, :, 1]
+        val = hsv[:, :, 2]
+        mask = ((hue <= 25) | (hue >= 170)) & (sat >= 30) & (sat <= 190) & (val >= 45)
+        return float(mask.mean())
+
+    def collect_overlay_candidates(img, gray_img):
+        # Detect the whole webcam widget, not just the face. This is more robust
+        # for streamer cams where the face is tiny, partially turned, hidden by
+        # headset/mic, or visually blurred, while the webcam frame remains stable.
+        h, w = gray_img.shape[:2]
+        edges = cv2.Canny(gray_img, 50, 150)
+        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        out: list[tuple[int, int, int, int, float]] = []
+        for c in contours:
+            x, y, bw, bh = cv2.boundingRect(c)
+            area_ratio = (bw * bh) / float(w * h) if w and h else 1.0
+            aspect = bw / float(bh) if bh else 0.0
+            near_edge = x < w * 0.08 or y < h * 0.08 or (x + bw) > w * 0.92 or (y + bh) > h * 0.92
+            if not (0.015 <= area_ratio <= 0.09 and 0.75 <= aspect <= 2.25 and near_edge):
+                continue
+            # Most gameplay HUD false positives are the scoreboard/minimap row at
+            # the very top. Keep top-edge candidates only when they are clearly in
+            # a corner; otherwise let Haar fallback handle real top webcams.
+            if y < h * 0.24 and (x + bw) > w * 0.20 and x > w * 0.02:
+                continue
+            skin = rough_skin_ratio(img[y:y + bh, x:x + bw])
+            lower_third_bonus = 1.0 if (y + bh / 2) > h * 0.30 else 0.0
+            side_bonus = 0.6 if (x < w * 0.16 or (x + bw) > w * 0.84) else 0.0
+            skin_bonus = 0.8 if 0.06 <= skin <= 0.45 else 0.0
+            score = lower_third_bonus + side_bonus + skin_bonus + min(1.0, area_ratio * 20)
+            out.append((int(x), int(y), int(bw), int(bh), float(score)))
+        return out
 
     for fp in frames:
         img = cv2.imread(fp)
@@ -89,6 +128,8 @@ def main() -> int:
         sample_h, sample_w = img.shape[:2]
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         gray = cv2.equalizeHist(gray)
+
+        overlay_candidates.extend(collect_overlay_candidates(img, gray))
 
         # 1) Full-frame pass.
         for d in detect_in(gray):
