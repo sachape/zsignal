@@ -739,7 +739,7 @@ const DashboardPage = () => {
               <p className="text-sm font-medium text-foreground">{summary.is_live ? "Live en cours" : "Prochain live"}</p>
             </div>
             <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-xs text-primary hover:bg-transparent">
-              <Link to="/live-setup">{summary.is_live ? "Cockpit live →" : "Préparer →"}</Link>
+              <Link to={summary.is_live ? "/lives/last" : "/live-setup"}>{summary.is_live ? "Cockpit live →" : "Préparer →"}</Link>
             </Button>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -784,57 +784,9 @@ const DashboardPage = () => {
           <LivePostGenerator session={liveSnapshot.last} debrief={liveSnapshot.lastDebrief} open={showPostGen} onClose={() => setShowPostGen(false)} />
         )}
 
-        {/* ── Cockpit live, quêtes & activité — replié par défaut ──────── */}
-        <details className="group mb-6 overflow-hidden rounded-xl border border-border/50 bg-card/30 [&_summary::-webkit-details-marker]:hidden">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-white/[0.02]">
-            <span className="flex items-center gap-2"><Orbit className="h-4 w-4 text-muted-foreground/60" /> Cockpit live, quêtes & activité</span>
-            <ArrowRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-open:rotate-90" />
-          </summary>
-          <div className="space-y-6 border-t border-border/40 p-4">
-
-        {/* ── LIVE ───────────────────────────────────────────────────── */}
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60">Live</p>
-        {isPro ? (
-          <div className="mb-6 space-y-2.5">
-            <LiveStatusCard current={liveSnapshot?.current ?? null} last={liveSnapshot?.last ?? null} lastDebrief={liveSnapshot?.lastDebrief ?? null} />
-            <LastVsAverageCard current={liveSnapshot?.current ?? null} />
-            {focusSlot === "milestone" && <WeeklyMilestoneCard current={liveSnapshot?.current ?? null} />}
-            {focusSlot === "inactivity" && <InactivityRelanceCard current={liveSnapshot?.current ?? null} />}
-            <PreLiveChecklistCard current={liveSnapshot?.current ?? null} last={liveSnapshot?.last ?? null} lastDebrief={liveSnapshot?.lastDebrief ?? null} />
-            <SmartAlertsCard current={liveSnapshot?.current ?? null} />
-          </div>
-        ) : (
-          <div className="mb-6">
-            <InlineLock feature="Cockpit Live — Pro" description="Suivi en direct, debrief automatique, alertes intelligentes et checklist pré-live." blurHeight="140px">
-              <div className="space-y-2.5">
-                <LiveStatusCard current={liveSnapshot?.current ?? null} last={liveSnapshot?.last ?? null} lastDebrief={liveSnapshot?.lastDebrief ?? null} />
-                <LastVsAverageCard current={liveSnapshot?.current ?? null} />
-              </div>
-            </InlineLock>
-          </div>
-        )}
-
-        {/* Quests */}
-        {!foundationActive && weeklyQuests && (
-          <div className="mb-6">
-            {isPro ? (
-              <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
-            ) : (
-              <InlineLock feature="Quêtes hebdomadaires — Pro" description="Suis tes quêtes de la semaine et accumule de l'XP." blurHeight="120px">
-                <WeeklyQuestCard weeklyQuests={weeklyQuests} onToggle={handleQuestToggle} linkToQuests />
-              </InlineLock>
-            )}
-          </div>
-        )}
-
-        {/* EventSub */}
-        <div className="space-y-3">
-          <ScopeDriftBanner broadcasterUserId={account?.platform_user_id ?? null} />
-          <EventSubCockpitSection broadcasterUserId={account?.platform_user_id ?? null} />
-        </div>
-
-          </div>
-        </details>
+        {/* Alerte scope Twitch — fonctionnelle, gardée visible. Le cockpit live
+            complet vit dans /lives/last ; quêtes dans /quetes. */}
+        <ScopeDriftBanner broadcasterUserId={account?.platform_user_id ?? null} />
 
         {/* Post generator trigger — 72h après un live */}
         {liveSnapshot?.last && liveSnapshot.lastDebrief && !liveSnapshot.current && isSessionRecent(liveSnapshot.last.ended_at) && (
