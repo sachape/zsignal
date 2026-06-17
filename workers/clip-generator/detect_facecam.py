@@ -57,6 +57,7 @@ MAX_OVERLAY_HEIGHT_RATIO = 0.38
 MAX_OVERLAY_AREA_RATIO = 0.20
 
 MIN_FACE_PX = 44
+MIN_FINAL_FACE_SUPPORT = 2
 
 # A panel candidate (edge-bounded rectangle, no face cluster expansion)
 # MUST show one of these signals to be considered a webcam:
@@ -249,7 +250,7 @@ def main() -> int:
         and refined=False."""
         x, y, w, h = bbox
         inside = faces_inside(bbox, pad=0.05)
-        if not inside:
+        if len(inside) < MIN_FINAL_FACE_SUPPORT:
             return bbox, False
         fh_med = statistics.median([f[3] for f in inside])
         if fh_med < MIN_FACE_PX:
