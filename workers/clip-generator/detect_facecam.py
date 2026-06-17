@@ -127,20 +127,53 @@ def main() -> int:
         }))
         return 0
 
-    xs = [d[0] + d[2] / 2 for d in detections]
-    ys = [d[1] + d[3] / 2 for d in detections]
-    ws = [d[2] for d in detections]
-    hs = [d[3] for d in detections]
+    # Cluster detections instead of taking one global median. Gameplay can
+    # contain several face-like shapes; a global median can land between them
+    # and make us reject the real webcam. Pick the most stable edge cluster.
+    cluster_tol_x = sample_w * 0.10
+    cluster_tol_y = sample_h * 0.10
+    clusters: list[list[tuple[int, int, int, int]]] = []
+    for det in detections:
+        dx, dy, dw, dh = det
+        dcx = dx + dw / 2
+        dcy = dy + dh / 2
+        matched = False
+        for cluster in clusters:
+            cxs = [c[0] + c[2] / 2 for c in cluster]
+            cys = [c[1] + c[3] / 2 for c in cluster]
+            if abs(dcx - statistics.median(cxs)) < cluster_tol_x and abs(dcy - statistics.median(cys)) < cluster_tol_y:
+                cluster.append(det)
+                matched = True
+                break
+        if not matched:
+            clusters.append([det])
+
+    def cluster_score(cluster: list[tuple[int, int, int, int]]) -> float:
+        cxs = [c[0] + c[2] / 2 for c in cluster]
+        cys = [c[1] + c[3] / 2 for c in cluster]
+        ccx = statistics.median(cxs)
+        ccy = statistics.median(cys)
+        x_ratio = ccx / sample_w if sample_w else 0.5
+        y_ratio = ccy / sample_h if sample_h else 0.5
+        near_x_edge = x_ratio < 0.42 or x_ratio > 0.58
+        near_y_edge = y_ratio < 0.42 or y_ratio > 0.58
+        edge_bonus = 1.5 if (near_x_edge or near_y_edge) else -2.0
+        corner_bonus = 1.0 if (near_x_edge and near_y_edge) else 0.0
+        return len(cluster) + edge_bonus + corner_bonus
+
+    best_cluster = max(clusters, key=cluster_score)
+
+    xs = [d[0] + d[2] / 2 for d in best_cluster]
+    ys = [d[1] + d[3] / 2 for d in best_cluster]
+    ws = [d[2] for d in best_cluster]
+    hs = [d[3] for d in best_cluster]
 
     cx = statistics.median(xs)
     cy = statistics.median(ys)
     mw = statistics.median(ws)
     mh = statistics.median(hs)
 
-    # Stability: how many detections sit close to the median position.
-    tol_x = sample_w * 0.15
-    tol_y = sample_h * 0.15
-    stable = sum(1 for x, y in zip(xs, ys) if abs(x - cx) < tol_x and abs(y - cy) < tol_y)
+    stable = len(best_cluster)
     # Normalize over frames (not raw detections) so multi-pass noise doesn't
     # inflate the score. Two stable hits across ~8 frames ≈ 0.17 → accepted
     # by the lowered floor below.
@@ -170,9 +203,9 @@ def main() -> int:
     overlay_w = max(8.0, min(overlay_w, sample_w - ox))
     overlay_h = max(8.0, min(overlay_h, sample_h - oy))
 
-    # SANITY GUARD #1 — A streamer facecam is small. If the derived overlay
-    # covers more than 30% of the frame area, OR more than 45% of either
-    # dimension, it's almost certainly a false positive (e.g. a character's
+    # SANITY GUARD #1 — A streamer facecam is usually small. If the derived
+    # overlay covers more than 30% of the frame area, OR more than 45% of both
+    # dimensions, it's almost certainly a false positive (e.g. a character's
     # face in the gameplay, an in-game cutscene, a thumbnail, etc.). Reject
     # it — the worker will silently fall back to gameplay_only, which is
     # better than rendering a top band that's just zoomed-out gameplay.
@@ -181,7 +214,7 @@ def main() -> int:
     area_ratio = overlay_area / frame_area if frame_area else 1.0
     width_ratio = overlay_w / sample_w if sample_w else 1.0
     height_ratio = overlay_h / sample_h if sample_h else 1.0
-    if area_ratio > 0.30 or width_ratio > 0.45 or height_ratio > 0.45:
+    if area_ratio > 0.30 or (width_ratio > 0.45 and height_ratio > 0.45):
         print(json.dumps({
             "detected": False,
             "reason": "overlay_too_large",
@@ -193,17 +226,17 @@ def main() -> int:
         }))
         return 0
 
-    # SANITY GUARD #2 — Streamer facecams live in a corner. Require the
-    # overlay CENTER to sit in one of the four corner quadrants (within 45%
-    # from any edge horizontally AND vertically). A face dead-center is a
-    # character / cutscene, not a webcam overlay.
+    # SANITY GUARD #2 — Streamer facecams usually live in a corner, but some
+    # creators place them centered along the top/bottom edge. Require the
+    # overlay center to be near at least one edge; reject only dead-center
+    # gameplay/cutscene faces.
     center_x = ox + overlay_w / 2.0
     center_y = oy + overlay_h / 2.0
     in_left = center_x < sample_w * 0.45
     in_right = center_x > sample_w * 0.55
     in_top = center_y < sample_h * 0.45
     in_bottom = center_y > sample_h * 0.55
-    if not ((in_left or in_right) and (in_top or in_bottom)):
+    if not (in_left or in_right or in_top or in_bottom):
         print(json.dumps({
             "detected": False,
             "reason": "not_in_corner",
