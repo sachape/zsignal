@@ -11,6 +11,7 @@ import {
   Send,
   Settings as SettingsIcon,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import CameraPlacementEditor from "@/components/clips/CameraPlacementEditor";
@@ -39,6 +40,7 @@ import { getGenerationStageLabel } from "@/services/videoGeneration";
 
 interface RecentClip {
   id: string;
+  status: string;
   output_storage_path: string | null;
   output_url: string | null;
   created_at: string;
@@ -80,13 +82,17 @@ const ClipsReseauxPage = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from("creator_video_generation_jobs")
-      .select("id, output_storage_path, output_url, created_at, output_format")
+      .select("id, status, output_storage_path, output_url, created_at, output_format")
       .eq("user_id", user.id)
-      .eq("status", "completed")
+      .in("status", ["completed", "failed"])
       .order("created_at", { ascending: false })
       .limit(6);
     const clips = (data as RecentClip[] | null) ?? [];
-    setRecent(await Promise.all(clips.map(withFreshClipUrl)));
+    setRecent(
+      await Promise.all(
+        clips.map((c) => (c.status === "completed" ? withFreshClipUrl(c) : Promise.resolve(c))),
+      ),
+    );
   }, [user]);
 
   useEffect(() => {
@@ -260,6 +266,23 @@ const ClipsReseauxPage = () => {
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((clip) => (
+                clip.status === "failed" ? (
+                  <Card key={clip.id} className="overflow-hidden border-destructive/40 bg-destructive/[0.05]">
+                    <div className="flex aspect-[9/16] w-full flex-col items-center justify-center gap-2 p-4 text-center">
+                      <AlertTriangle className="h-6 w-6 text-destructive" />
+                      <p className="text-sm font-semibold text-foreground">Génération échouée</p>
+                      <p className="text-[11px] text-muted-foreground">Ce clip n'a pas pu être généré. Tu peux réessayer.</p>
+                    </div>
+                    <CardContent className="flex items-center justify-between gap-2 p-3">
+                      <p className="text-[11px] text-muted-foreground">
+                        {new Date(clip.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      </p>
+                      <Button asChild size="sm" variant="outline" className="h-7 gap-1 px-2 text-[11px]">
+                        <Link to="/clips/vod-import">Réessayer</Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
                 <Card key={clip.id} className="overflow-hidden border-border/60 bg-card/60">
                   <div className="relative aspect-[9/16] w-full bg-muted">
                     {clip.output_url ? (
@@ -306,6 +329,7 @@ const ClipsReseauxPage = () => {
                     </div>
                   </CardContent>
                 </Card>
+                )
               ))}
             </div>
           )}
