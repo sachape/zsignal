@@ -942,8 +942,10 @@ async function processJob({
             actualW,
             actualH,
           );
+          const detectedFacecam = scaledFacecam;
+          scaledFacecam = facecamBandRenderCrop(scaledFacecam, actualW, actualH, outW ?? 1080, outH ?? 1920, gameplayFraming);
           if (!scaledGameplay) {
-            scaledGameplay = gameplayCropFromFacecam(scaledFacecam, actualW, actualH);
+            scaledGameplay = gameplayCropFromFacecam(detectedFacecam, actualW, actualH);
           }
           effectiveLayout = "facecam_top_gameplay_bottom";
         } else {
@@ -958,6 +960,7 @@ async function processJob({
           fallback_reason: scaledFacecam ? null : "detection_not_requested",
         }));
         if (scaledFacecam) {
+          scaledFacecam = facecamBandRenderCrop(scaledFacecam, actualW, actualH, outW ?? 1080, outH ?? 1920, gameplayFraming);
           effectiveLayout = "facecam_top_gameplay_bottom";
         }
       }
