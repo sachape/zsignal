@@ -1,4 +1,4 @@
-// Streamnco Clip Generator Worker — v3.8
+// Streamnco Clip Generator Worker — v3.9
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
@@ -40,7 +40,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.8";
+const WORKER_VERSION = "3.9";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 

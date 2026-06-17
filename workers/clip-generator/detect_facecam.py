@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-# Streamnco — Facecam auto-detection (v3.8).
+# Streamnco — Facecam auto-detection (v3.9).
 #
 # Sample N frames across the segment, detect candidate webcam regions
 # (Haar faces + edge-bounded overlay rectangles), score them, and emit the
 # best one as the facecam crop.
 #
-# v3.8 — Hard rejection of HUD / minimap / text panels:
-#   - panel candidates are rejected unless they have face/skin evidence
-#   - circular minimap is detected via HoughCircles → hard reject
-#   - high text/edge density without a face → hard reject
-#   - panels that contain a face are refined to the face sub-region
-#     (so a panel with "minimap on top + webcam below" yields only the
-#     webcam crop, not the whole HUD strip)
+# v3.9 — Human-evidence gate + full top-10 ranking log:
+#   - a candidate may ONLY win if it has real human/webcam evidence:
+#       face_support >= 1, OR
+#       source == "face_expand" (built from a face cluster), OR
+#       strong skin + low text density + colored border (clean video panel)
+#   - panels without human evidence (HUD, minimap, scoreboard, sub alert,
+#     game character portrait, decorative avatar) are never selected — they
+#     fall back to gameplay_only instead of being chosen by default
+#   - top-10 candidates are logged with bbox/source/score/face/skin/minimap/
+#     edge_dens/border/stability so regressions are diagnosable in Fly logs
+#   - small clean webcams with a real face still win (positive case preserved)
 #
 # Output JSON on stdout (single line, last one wins):
 #   { detected: bool, confidence: 0..1, facecam: {x,y,width,height},
@@ -19,10 +23,10 @@
 #     selected: {...}|null, rejected: [...], selection_reason: str,
 #     refined: bool, reason?: str }
 #
-# Detailed ranking traces are written to stderr — the Node worker forwards
-# them so they show up in Fly logs:
+# Detailed traces written to stderr (forwarded to Fly logs by the worker):
 #   [candidate] bbox=... score=... reason=...
-#   [selected_facecam] bbox=... score=... source=... refined=...
+#   [rank01] bbox=... src=... score=... face=... skin=... minimap=...
+#   [selected_facecam] bbox=... source=... score=... refined=...
 #   [rejected_candidate] bbox=... reason=...
 #
 # Usage: detect_facecam.py <video_path> <start_seconds> <duration_seconds>
@@ -219,7 +223,7 @@ def main() -> int:
     max_w_px = int(sample_w * MAX_OVERLAY_WIDTH_RATIO)
     max_h_px = int(sample_h * MAX_OVERLAY_HEIGHT_RATIO)
 
-    log(f"[detect] v3.8 frames={len(frames)} sample={sample_w}x{sample_h}"
+    log(f"[detect] v3.9 frames={len(frames)} sample={sample_w}x{sample_h}"
         f" min_overlay={min_w_px}x{min_h_px} max_overlay={max_w_px}x{max_h_px}"
         f" faces_raw={len(all_faces)} contours={len(overlay_raw)}")
 
@@ -450,20 +454,61 @@ def main() -> int:
         return 0
 
     candidates.sort(key=lambda c: c["score"], reverse=True)
-    winner = candidates[0]
-    runners_up = candidates[1:5]
 
-    # Low-confidence guard: if the best score is poor, refuse rather than
-    # selecting a HUD-shaped panel by default.
-    if winner["score"] < 1.2:
+    # Log full top-10 ranking for regression analysis.
+    log(f"[ranking] top={min(10, len(candidates))} total={len(candidates)}")
+    for i, c in enumerate(candidates[:10]):
+        log(f"[rank{i+1:02d}] bbox={tuple(c['bbox'])} src={c['source']}"
+            f" score={c['score']} face={c['face_support']} skin={c['skin']}"
+            f" border={c['border']} minimap={c['minimap_frac']}"
+            f" edge_dens={c['edge_dens']} stab={c['stability']}")
+
+    # ── Human/webcam evidence gate ───────────────────────────────────────
+    # A candidate may only WIN if it shows real human/webcam evidence:
+    #   - face_support >= 1 (Haar face inside the region), OR
+    #   - source == "face_expand" (was built from a face cluster), OR
+    #   - skin_ratio strong AND border/edge consistent with a video panel
+    #     (skin >= 0.09, edge_dens <= 0.18, border >= 60).
+    # Otherwise the candidate is HUD / minimap / text / icon — never pick it.
+    def has_human_evidence(c):
+        if c["source"] == "face_expand": return True
+        if c["face_support"] >= 1: return True
+        if (c["skin"] >= 0.09 and c["edge_dens"] <= 0.18
+                and c["border"] >= 60.0 and c["minimap_frac"] < 0.10):
+            return True
+        return False
+
+    eligible = [c for c in candidates if has_human_evidence(c)]
+    skipped = [c for c in candidates if c not in eligible]
+    for c in skipped[:6]:
+        log_bbox("rejected_candidate", tuple(c["bbox"]), source=c["source"],
+                 reason="no_human_evidence", score=c["score"],
+                 face=c["face_support"], skin=c["skin"], edge_dens=c["edge_dens"])
+        rejected.append({**c, "reason": "no_human_evidence"})
+
+    if not eligible:
+        log("[detect] no_eligible_human_candidate → fallback gameplay_only")
+        print(json.dumps({
+            "detected": False, "reason": "no_human_evidence",
+            "frames": len(frames), "source_width": sample_w, "source_height": sample_h,
+            "candidates": candidates[:8], "rejected": rejected[:12],
+        }))
+        return 0
+
+    winner = eligible[0]
+    runners_up = eligible[1:5]
+
+    # Low-confidence guard remains as a final safety net.
+    if winner["score"] < 1.0:
         log_bbox("rejected_candidate", tuple(winner["bbox"]), source=winner["source"],
                  reason="low_confidence_no_clear_webcam", score=winner["score"])
         print(json.dumps({
             "detected": False, "reason": "low_confidence",
             "frames": len(frames), "source_width": sample_w, "source_height": sample_h,
-            "candidates": candidates[:6], "rejected": rejected[:12],
+            "candidates": candidates[:8], "rejected": rejected[:12],
         }))
         return 0
+
 
     wx, wy, ww, wh = winner["bbox"]
     refined_bbox, refined = refine_panel_to_face((wx, wy, ww, wh)) if winner["source"] == "panel" else ((wx, wy, ww, wh), False)
