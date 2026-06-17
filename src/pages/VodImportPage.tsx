@@ -163,7 +163,7 @@ const VodImportPage = () => {
           VOD_REASONS.has(i.reason) &&
           i.source_video_url === lastImportedUrl,
       )
-      .sort((a, b) => (a.source_start_time ?? 0) - (b.source_start_time ?? 0));
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [items, lastImportedUrl]);
 
   // Poll while jobs are processing + drive a clock for stuck-job detection.

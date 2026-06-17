@@ -287,24 +287,26 @@ Deno.serve(async (req) => {
     opportunity_reason: c.reason_label,
   }));
 
-  // Dedup: skip rows that already exist for the same user/url/start/end/platform/format
-  // (active candidates only — ignored/published rows don't block re-creation).
-  const { data: existing, error: existingErr } = await admin
+  // Anti-spam guard: only block when the EXACT same payload was just sent
+  // (same user/url/start/end/platform/format) within the last 60 seconds AND
+  // the existing item has not started generating yet. This prevents accidental
+  // double-clicks while still allowing the same Twitch link to be re-imported
+  // to create new versions (different captions/font/layout, etc).
+  const sixtySecAgo = new Date(Date.now() - 60_000).toISOString();
+  const { data: recentDup } = await admin
     .from("creator_content_items")
-    .select("id, source_start_time, source_end_time, platform, format, status, generated_video_storage_path")
+    .select("id, source_start_time, source_end_time, platform, format, generation_status, created_at")
     .eq("user_id", userId)
     .eq("source_video_url", url)
-    .not("status", "in", "(ignored,published)");
-  if (existingErr) {
-    console.error("[vod-import-create] dedup lookup error", existingErr);
-  }
-  const existingKeys = new Set(
-    (existing ?? []).map((r) =>
+    .in("generation_status", ["idle", "queued"])
+    .gte("created_at", sixtySecAgo);
+  const recentKeys = new Set(
+    (recentDup ?? []).map((r) =>
       `${r.source_start_time}|${r.source_end_time}|${r.platform}|${r.format}`,
     ),
   );
   const newRows = rows.filter(
-    (r) => !existingKeys.has(`${r.source_start_time}|${r.source_end_time}|${r.platform}|${r.format}`),
+    (r) => !recentKeys.has(`${r.source_start_time}|${r.source_end_time}|${r.platform}|${r.format}`),
   );
 
   let inserted: unknown[] = [];
@@ -320,6 +322,7 @@ Deno.serve(async (req) => {
     inserted = data ?? [];
   }
   const skipped = rows.length - newRows.length;
+
 
   return json({
     success: true,
