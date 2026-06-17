@@ -68,7 +68,8 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Clips réseaux", url: "/clips-reseaux", icon: Clapperboard },
       { title: "Studio visuel", url: "/studio-visuel", icon: Palette },
-      { title: "File de contenu", url: "/content-queue", icon: Inbox, matchSection: "content-studio" },
+      // File de contenu masquée tant que la publication auto (OAuth) n'est pas là.
+      // Route + liens contextuels (Clips réseaux, Live Studio) conservés.
     ],
   },
   {

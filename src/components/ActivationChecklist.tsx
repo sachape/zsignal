@@ -81,16 +81,6 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
       href: "/studio-visuel",
       available: true,
     },
-    {
-      id: "queue",
-      done: state.hasQueueItem,
-      icon: ListChecks,
-      title: "Organise ta file de contenu",
-      description: "Retrouve tes clips et visuels dans ta file pour préparer tes prochaines publications.",
-      cta: "Voir la file de contenu",
-      href: "/content-queue",
-      available: true,
-    },
   ], [state]);
 
   const doneCount = steps.filter((s) => s.done).length;

@@ -29,7 +29,6 @@ const ITEMS = [
   { label: "Live Studio · Setup", to: "/live-setup", icon: Rocket, hint: "Préparer un live" },
   { label: "Live Studio · Titres", to: "/outils/titres", icon: Type, hint: "Générer des titres" },
   { label: "Live Studio · Planning", to: "/schedule", icon: CalendarDays, hint: "Planifier" },
-  { label: "File de contenu", to: "/content-queue", icon: Inbox, hint: "Contenus à publier" },
   { label: "Clips · Moments proposés", to: "/clips", icon: Clapperboard, hint: "Générer un clip" },
   { label: "Benchmark · Concurrents", to: "/competitors", icon: Users, hint: "Voir les concurrents" },
   { label: "Benchmark · Classements", to: "/classements", icon: Trophy },
