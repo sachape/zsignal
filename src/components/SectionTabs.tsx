@@ -24,7 +24,7 @@ const SECTIONS: Section[] = [
     tabs: [
       { label: "Queue", to: "/content-queue", matches: ["/content-queue", "/content-studio"] },
       { label: "Composer", to: "/composer", matches: ["/composer"] },
-      { label: "Clips", to: "/clips", matches: ["/clips"] },
+      { label: "Bibliothèque", to: "/clips", matches: ["/clips"] },
       { label: "Publications", to: "/publications", matches: ["/publications"] },
       { label: "Analytics", to: "#", soon: true },
     ],
