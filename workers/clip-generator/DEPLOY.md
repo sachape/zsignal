@@ -91,7 +91,7 @@ Détruis l'autre.
 
 > ⚠️ **Le worker tourne sur Fly.io, pas sur Lovable Cloud.** Toute modification de `workers/clip-generator/` nécessite un `fly deploy` manuel depuis ta machine. Lovable ne peut pas redéployer Fly à ta place.
 
-Vérifie le healthcheck **après redéploiement v3.2** :
+Vérifie le healthcheck **après redéploiement v3.6** :
 ```bash
 curl https://streamnco.fly.dev/health
 ```
@@ -100,7 +100,7 @@ Réponse attendue :
 ```json
 {
   "ok": true,
-  "worker_version": "3.2",
+  "worker_version": "3.6",
   "ffmpeg_available": true,
   "yt_dlp_available": true,
   "python_available": true,

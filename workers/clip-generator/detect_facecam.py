@@ -80,7 +80,7 @@ def main() -> int:
         return out
 
     detections: list[tuple[int, int, int, int]] = []
-    overlay_candidates: list[tuple[int, int, int, int, float, float, bool]] = []
+    overlay_candidates: list[tuple[int, int, int, int, float, float, bool, float]] = []
     sample_w = sample_h = 0
 
     def rough_skin_ratio(bgr_crop) -> float:
@@ -93,6 +93,15 @@ def main() -> int:
         mask = ((hue <= 25) | (hue >= 170)) & (sat >= 30) & (sat <= 190) & (val >= 45)
         return float(mask.mean())
 
+    def border_color_signal(bgr_crop) -> float:
+        if bgr_crop.size == 0:
+            return 0.0
+        h, w = bgr_crop.shape[:2]
+        border = max(2, int(min(w, h) * 0.08))
+        mask = cv2.cvtColor(bgr_crop, cv2.COLOR_BGR2HSV)[:, :, 1]
+        parts = [mask[:border, :], mask[-border:, :], mask[:, :border], mask[:, -border:]]
+        return max(float(p.mean()) for p in parts if p.size)
+
     def collect_overlay_candidates(img, gray_img, frame_faces):
         # Detect the whole webcam widget, not just the face. This is more robust
         # for streamer cams where the face is tiny, partially turned, hidden by
@@ -100,7 +109,7 @@ def main() -> int:
         h, w = gray_img.shape[:2]
         edges = cv2.Canny(gray_img, 50, 150)
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        out: list[tuple[int, int, int, int, float, float, bool]] = []
+        out: list[tuple[int, int, int, int, float, float, bool, float]] = []
         for c in contours:
             x, y, bw, bh = cv2.boundingRect(c)
             area_ratio = (bw * bh) / float(w * h) if w and h else 1.0
@@ -111,11 +120,12 @@ def main() -> int:
             # not contain skin tones or a Haar face inside the candidate.
             width_ratio = bw / float(w) if w else 1.0
             height_ratio = bh / float(h) if h else 1.0
-            if not (0.012 <= area_ratio <= 0.09 and 0.75 <= aspect <= 2.10 and near_edge):
+            if not (0.0015 <= area_ratio <= 0.09 and 0.55 <= aspect <= 2.30 and near_edge):
                 continue
             if width_ratio > 0.34 or height_ratio > 0.36:
                 continue
             skin = rough_skin_ratio(img[y:y + bh, x:x + bw])
+            border_signal = border_color_signal(img[y:y + bh, x:x + bw])
             pad_x = bw * 0.18
             pad_y = bh * 0.18
             face_support = any(
@@ -123,7 +133,7 @@ def main() -> int:
                 and (y - pad_y) <= (fy + fh / 2) <= (y + bh + pad_y)
                 for fx, fy, fw, fh in frame_faces
             )
-            if not face_support and skin < 0.035:
+            if not face_support and skin < 0.035 and border_signal < 95:
                 continue
             # Top HUD/header strips are the main false positive. Only keep a
             # top-wide candidate when it has direct human evidence.
@@ -133,8 +143,9 @@ def main() -> int:
             side_bonus = 0.6 if (x < w * 0.16 or (x + bw) > w * 0.84) else 0.0
             skin_bonus = 0.8 if 0.06 <= skin <= 0.45 else 0.0
             face_bonus = 1.4 if face_support else 0.0
-            score = face_bonus + lower_third_bonus + side_bonus + skin_bonus + min(1.0, area_ratio * 20)
-            out.append((int(x), int(y), int(bw), int(bh), float(score), float(skin), bool(face_support)))
+            border_bonus = 0.7 if border_signal >= 95 else 0.0
+            score = face_bonus + lower_third_bonus + side_bonus + skin_bonus + border_bonus + min(1.0, area_ratio * 20)
+            out.append((int(x), int(y), int(bw), int(bh), float(score), float(skin), bool(face_support), float(border_signal)))
         return out
 
     for fp in frames:
@@ -186,9 +197,9 @@ def main() -> int:
     # icons or in-game character faces.
     cluster_tol_x = sample_w * 0.10
     cluster_tol_y = sample_h * 0.10
-    overlay_clusters: list[list[tuple[int, int, int, int, float, float, bool]]] = []
+    overlay_clusters: list[list[tuple[int, int, int, int, float, float, bool, float]]] = []
     for det in overlay_candidates:
-        dx, dy, dw, dh, _score, _skin, _face_support = det
+        dx, dy, dw, dh, _score, _skin, _face_support, _border_signal = det
         dcx = dx + dw / 2
         dcy = dy + dh / 2
         matched = False
@@ -202,20 +213,22 @@ def main() -> int:
         if not matched:
             overlay_clusters.append([det])
 
-    def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float, float, bool]]) -> float:
+    def overlay_cluster_score(cluster: list[tuple[int, int, int, int, float, float, bool, float]]) -> float:
         # A stable webcam can be absent/partially occluded in a few frames, while
         # HUD widgets (scoreboard/minimap) are present every frame. Weight visual
         # webcam-likeness higher than raw count so persistent HUD does not win.
         skin_score = min(1.0, statistics.median([c[5] for c in cluster]) / 0.08)
         face_hits = sum(1 for c in cluster if c[6])
         face_score = min(2.0, face_hits * 0.8)
-        return len(cluster) * 0.8 + statistics.median([c[4] for c in cluster]) * 2.4 + skin_score + face_score
+        border_score = min(1.0, statistics.median([c[7] for c in cluster]) / 120.0)
+        return len(cluster) * 0.8 + statistics.median([c[4] for c in cluster]) * 2.4 + skin_score + face_score + border_score
 
     if overlay_clusters:
         best_overlay = max(overlay_clusters, key=overlay_cluster_score)
         best_has_human_signal = (
             sum(1 for c in best_overlay if c[6]) >= 1
             or statistics.median([c[5] for c in best_overlay]) >= 0.045
+            or statistics.median([c[7] for c in best_overlay]) >= 110
         )
         if len(best_overlay) >= 2 and best_has_human_signal:
             ox = statistics.median([c[0] for c in best_overlay])

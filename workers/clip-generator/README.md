@@ -4,7 +4,7 @@ Worker Fly/FFmpeg externe pour le Clip Draft Generator. Il reçoit un job depuis
 
 ## Version actuelle
 
-- `WORKER_VERSION`: `3.5`
+- `WORKER_VERSION`: `3.6`
 - App Fly: `streamnco`
 - Healthcheck prod: `https://streamnco.fly.dev/health`
 
@@ -31,7 +31,7 @@ Réponse attendue :
 ```json
 {
   "ok": true,
-  "worker_version": "3.5",
+  "worker_version": "3.6",
   "ffmpeg_available": true,
   "yt_dlp_available": true,
   "python_available": true,

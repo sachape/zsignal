@@ -1,4 +1,4 @@
-// Streamnco Clip Generator Worker — v3.5
+// Streamnco Clip Generator Worker — v3.6
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
@@ -40,7 +40,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.5";
+const WORKER_VERSION = "3.6";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -311,33 +311,15 @@ function gameplayCropFromFacecam(face, frameW, frameH) {
 function facecamBandRenderCrop(face, frameW, frameH, outW, outH, gameplayFraming) {
   if (!face || !frameW || !frameH || !outW || !outH) return face;
 
-  const camRatio = gameplayFraming === "fill_tight" ? 0.25 : 0.30;
-  const camH = Math.round(outH * camRatio);
-  const targetAspect = outW / Math.max(1, camH);
-  const widthRatio = face.width / frameW;
-  const heightRatio = face.height / frameH;
-  const areaRatio = (face.width * face.height) / (frameW * frameH);
-  const isBroadDetection = widthRatio > 0.30 || heightRatio > 0.26 || areaRatio > 0.10;
-
   let cropW = Math.max(8, face.width);
   let cropH = Math.max(8, face.height);
 
-  // When detection locks onto a top HUD/webcam strip, rendering the whole strip
-  // keeps the camera tiny. Tighten the render crop around that strip's webcam
-  // zone, then scale it to fill the top band.
-  if (isBroadDetection) {
-    cropW = Math.min(cropW, frameW * 0.32);
-    cropH = Math.min(cropH, frameH * 0.28);
-  } else {
-    cropW *= 1.08;
-    cropH *= 1.08;
-  }
-
-  if (cropW / cropH < targetAspect) {
-    cropW = cropH * targetAspect;
-  } else {
-    cropH = cropW / targetAspect;
-  }
+  // The camera crop must stay tight. FFmpeg then scales this crop with
+  // force_original_aspect_ratio=increase and crops it to the full top band,
+  // making even a tiny webcam fill the whole upper area instead of staying as a
+  // small box inside a larger strip.
+  cropW *= 1.04;
+  cropH *= 1.04;
 
   cropW = Math.min(cropW, frameW);
   cropH = Math.min(cropH, frameH);
@@ -362,6 +344,19 @@ function facecamBandRenderCrop(face, frameW, frameH, outW, outH, gameplayFraming
     y: Math.round(y),
     width: Math.max(8, Math.round(cropW)),
     height: Math.max(8, Math.round(cropH)),
+  };
+}
+
+function fallbackTopFacecamCrop(frameW, frameH, corner) {
+  if (!frameW || !frameH) return null;
+  const width = frameW * 0.36;
+  const height = Math.min(frameH * 0.32, width * 0.75);
+  const left = corner === "top_left" || corner === "bottom_left";
+  return {
+    x: left ? 0 : Math.round(frameW - width),
+    y: 0,
+    width: Math.round(width),
+    height: Math.round(height),
   };
 }
 
@@ -949,8 +944,20 @@ async function processJob({
           }
           effectiveLayout = "facecam_top_gameplay_bottom";
         } else {
-          // Silent fallback — gameplay-only vertical render.
-          effectiveLayout = "gameplay_only";
+          // If the user asked for camera + gameplay, never remove the camera
+          // band entirely. When OpenCV misses a tiny webcam, keep a conservative
+          // top-edge crop so the render still has a full-screen top band instead
+          // of regressing to gameplay-only.
+          const fallbackFace = fallbackTopFacecamCrop(actualW, actualH, detection?.corner ?? null);
+          if (fallbackFace) {
+            scaledFacecam = facecamBandRenderCrop(fallbackFace, actualW, actualH, outW ?? 1080, outH ?? 1920, gameplayFraming);
+            if (!scaledGameplay) {
+              scaledGameplay = gameplayCropFromFacecam(fallbackFace, actualW, actualH);
+            }
+            effectiveLayout = "facecam_top_gameplay_bottom";
+          } else {
+            effectiveLayout = "gameplay_only";
+          }
         }
       } else {
         console.log("[facecam_detection]", JSON.stringify({
