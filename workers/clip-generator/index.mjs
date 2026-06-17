@@ -152,6 +152,7 @@ app.post("/generate", async (req, res) => {
     captions_style,
     transcribe_url,
     transcribe_secret,
+    gameplay_framing,
   } = req.body ?? {};
 
   if (
