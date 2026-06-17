@@ -10,6 +10,8 @@ import HeroChannelSearch from "@/components/HeroChannelSearch";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 import facecamAvatar from "@/assets/avatar-gamer-1.jpg";
+import proofAvatar2 from "@/assets/avatar-gamer-2.jpg";
+import proofAvatar3 from "@/assets/avatar-gamer-3.jpg";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const CAPTION_WORDS = ["le", "clutch", "qui", "change", "TOUT"];
@@ -258,12 +260,11 @@ const HeroSection = () => {
   });
 
   return (
-    <section className="relative overflow-hidden pt-28 pb-16 sm:pt-32 md:pt-36 md:pb-24">
-      {/* Calm, single-source-of-light backdrop + grain (Stripe/Linear restraint) */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,#0a0d11_0%,#0b0f14_60%,hsl(var(--background))_100%)]" />
-      <div className="pointer-events-none absolute left-1/2 top-[-6rem] h-[44rem] w-[64rem] -translate-x-1/2 landing-aurora" aria-hidden />
-      <div className="landing-grain pointer-events-none absolute inset-0" aria-hidden />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
+    <section className="relative overflow-hidden pt-28 pb-20 sm:pt-32 md:pt-40 md:pb-28">
+      {/* Restraint: one calm light source + grain. No aurora theatrics. */}
+      <div className="pointer-events-none absolute inset-0 bg-background" />
+      <div className="pointer-events-none absolute left-1/2 top-[-10rem] h-[34rem] w-[50rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,hsl(var(--primary)/0.10),transparent_70%)] blur-2xl" aria-hidden />
+      <div className="landing-grain pointer-events-none absolute inset-0 opacity-50" aria-hidden />
 
       <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
         <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr]">
@@ -281,7 +282,7 @@ const HeroSection = () => {
               className="mt-6 max-w-3xl text-[2.75rem] font-bold leading-[0.98] tracking-[-0.02em] text-foreground sm:text-6xl md:text-[4.2rem]"
             >
               Plus de clips, plus de vues,{" "}
-              <span className="bg-gradient-to-r from-primary to-[hsl(150_80%_55%)] bg-clip-text text-transparent">plus d'abonnés.</span>
+              <span className="text-primary">plus d'abonnés.</span>
             </motion.h1>
 
             <motion.p {...rise(0.14)} className="mt-6 max-w-lg text-base leading-8 text-muted-foreground md:text-lg">
@@ -299,7 +300,25 @@ const HeroSection = () => {
               </Button>
             </motion.div>
 
-            <motion.div {...rise(0.26)} className="mt-7 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
+            {/* Social proof — real faces, no invented metric */}
+            <motion.div {...rise(0.24)} className="mt-7 flex items-center gap-3">
+              <div className="flex -space-x-2.5">
+                {[facecamAvatar, proofAvatar2, proofAvatar3].map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    alt=""
+                    aria-hidden
+                    className="h-9 w-9 rounded-full border-2 border-background object-cover"
+                  />
+                ))}
+              </div>
+              <p className="text-sm leading-snug text-muted-foreground">
+                <span className="font-semibold text-foreground">Les streamers fondateurs</span> préparent déjà leurs lives avec Streamnco.
+              </p>
+            </motion.div>
+
+            <motion.div {...rise(0.3)} className="mt-7 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
               {["Clips 9:16 prêts à poster", "Visuels réseaux en un clic", "Ta progression, en clair"].map((item) => (
                 <div key={item} className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary" />
