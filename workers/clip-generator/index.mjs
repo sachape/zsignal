@@ -940,8 +940,20 @@ async function processJob({
           }
           effectiveLayout = "facecam_top_gameplay_bottom";
         } else {
-          // Silent fallback — gameplay-only vertical render.
-          effectiveLayout = "gameplay_only";
+          // If the user asked for camera + gameplay, never remove the camera
+          // band entirely. When OpenCV misses a tiny webcam, keep a conservative
+          // top-edge crop so the render still has a full-screen top band instead
+          // of regressing to gameplay-only.
+          const fallbackFace = fallbackTopFacecamCrop(actualW, actualH);
+          if (fallbackFace) {
+            scaledFacecam = facecamBandRenderCrop(fallbackFace, actualW, actualH, outW ?? 1080, outH ?? 1920, gameplayFraming);
+            if (!scaledGameplay) {
+              scaledGameplay = gameplayCropFromFacecam(fallbackFace, actualW, actualH);
+            }
+            effectiveLayout = "facecam_top_gameplay_bottom";
+          } else {
+            effectiveLayout = "gameplay_only";
+          }
         }
       } else {
         console.log("[facecam_detection]", JSON.stringify({
