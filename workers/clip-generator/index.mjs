@@ -260,6 +260,24 @@ function gameplayCropFromFacecam(face, frameW, frameH) {
   const cy = face.y + face.height / 2;
   const horizontal = cx < frameW / 2 ? "left" : "right";
   const vertical = cy < frameH / 2 ? "top" : "bottom";
+  const touchesLeft = face.x <= frameW * 0.08;
+  const touchesRight = face.x + face.width >= frameW * 0.92;
+  const touchesTop = face.y <= frameH * 0.08;
+  const touchesBottom = face.y + face.height >= frameH * 0.92;
+
+  // If the webcam is a side overlay (common lower-left/lower-right streamer
+  // layout), trim that side first. Vertical trimming would remove the gameplay
+  // HUD/action band and cause an over-zoomed bottom crop.
+  if ((touchesLeft || touchesRight) && !touchesTop && !touchesBottom) {
+    if (touchesLeft) {
+      const cutX = Math.min(frameW - 2, face.x + face.width + 4);
+      const newW = frameW - cutX;
+      if (newW / frameW >= 0.55) return { x: cutX, y: 0, width: newW, height: frameH };
+    } else {
+      const newW = Math.max(2, face.x - 4);
+      if (newW / frameW >= 0.55) return { x: 0, y: 0, width: newW, height: frameH };
+    }
+  }
 
   // Prefer trimming vertically (most facecams sit in a top or bottom band).
   // Only do it if at least 55% of the frame height remains after the trim.
