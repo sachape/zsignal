@@ -886,7 +886,16 @@ async function processJob({
         outH: outH ?? 1920,
         facecamCrop: scaledFacecam,
         gameplayCrop: scaledGameplay,
+        gameplayFraming,
       });
+      console.log("[vertical_framing]", JSON.stringify({
+        job_id: jobId,
+        layout: effectiveLayout,
+        gameplay_framing: gameplayFraming,
+        cam_ratio: effectiveLayout === "facecam_top_gameplay_bottom"
+          ? (gameplayFraming === "fill_tight" ? 0.25 : 0.30)
+          : null,
+      }));
 
       const trimArgs = useFullSource
         ? ["-i", sourcePath]
