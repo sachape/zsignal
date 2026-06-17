@@ -16,6 +16,11 @@ export interface QuotaUsage {
   refresh: () => Promise<void>;
 }
 
+// Broadcast so every useQuotaUsage instance (page + sidebar widget) refreshes
+// after a generation, since the sidebar persists across navigation.
+const QUOTA_CHANGED_EVENT = "streamnco:quota-changed";
+export const notifyQuotaChanged = () => window.dispatchEvent(new Event(QUOTA_CHANGED_EVENT));
+
 export function useQuotaUsage(): QuotaUsage {
   const { user } = useAuth();
   const { plan, loading: planLoading } = usePlan();
@@ -42,6 +47,18 @@ export function useQuotaUsage(): QuotaUsage {
     void load();
   }, [load]);
 
+  // Refresh every instance when a generation reports a change.
+  useEffect(() => {
+    const handler = () => { void load(); };
+    window.addEventListener(QUOTA_CHANGED_EVENT, handler);
+    return () => window.removeEventListener(QUOTA_CHANGED_EVENT, handler);
+  }, [load]);
+
+  const refresh = useCallback(async () => {
+    await load();
+    notifyQuotaChanged();
+  }, [load]);
+
   const visualsLimit = quotaFor(plan, "visual");
   const clipsLimit = quotaFor(plan, "clip");
 
@@ -54,6 +71,6 @@ export function useQuotaUsage(): QuotaUsage {
     clipsLimit,
     clipsRemaining: Math.max(0, clipsLimit - clipsUsed),
     loading: loading || planLoading,
-    refresh: load,
+    refresh,
   };
 }

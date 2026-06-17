@@ -31,7 +31,6 @@ import { usePlan } from "@/hooks/usePlan";
 import { hasPlanAtLeast } from "@/lib/planAccess";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -69,7 +68,6 @@ const ClipsReseauxPage = () => {
   const { user } = useAuth();
   const { plan, loading: planLoading } = usePlan();
   const canAccess = hasPlanAtLeast(plan, "pro");
-  const quota = useQuotaUsage();
 
   const [recent, setRecent] = useState<RecentClip[]>([]);
   const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
@@ -109,13 +107,6 @@ const ClipsReseauxPage = () => {
           description="Transforme une VOD ou une vidéo en clip vertical prêt pour TikTok, Reels et Shorts."
           action={primaryCta}
         />
-
-        {canAccess && !quota.loading && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            {quota.clipsUsed} / {quota.clipsLimit} clips générés ce mois-ci
-          </p>
-        )}
-
 
         {!planLoading && !canAccess && (
           <Card className="mb-6 border-primary/30 bg-primary/5">

@@ -42,6 +42,7 @@ import { cn } from "@/lib/utils";
 import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
 import { findActiveSection } from "@/components/SectionTabs";
 import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
+import SidebarQuotaWidget from "@/components/SidebarQuotaWidget";
 
 type NavEntry = {
   title: string;
@@ -213,6 +214,8 @@ const AppSidebar = () => {
             </Link>
           );
         })()}
+
+        {user && <SidebarQuotaWidget collapsed={collapsed} />}
 
         {user && !isPro && (
           <Link

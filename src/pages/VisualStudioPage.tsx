@@ -143,12 +143,6 @@ const VisualStudioPage = () => {
           }
         />
 
-        {!quota.loading && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            {quota.visualsUsed} / {quota.visualsLimit} générations utilisées ce mois-ci
-          </p>
-        )}
-
         {/* Choix du format — switcher par catégorie + aperçu d'emplacement */}
         <section className="mt-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
