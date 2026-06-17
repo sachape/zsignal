@@ -7,7 +7,6 @@ import {
   Inbox,
   Users,
   Network,
-  Star,
   LogOut,
   ChevronUp,
   CreditCard,
@@ -184,20 +183,6 @@ const AppSidebar = () => {
 
 
       <SidebarFooter>
-        {/* Progression (secondary) */}
-        {user && (
-          <SidebarMenuButton asChild tooltip="Progression" size="sm">
-            <NavLink
-              to="/progression"
-              className="flex w-full items-center gap-2 text-muted-foreground/80"
-              activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-            >
-              <Star className="h-3.5 w-3.5 shrink-0" />
-              {!collapsed && <span className="text-[13px]">Progression</span>}
-            </NavLink>
-          </SidebarMenuButton>
-        )}
-
         {/* XP micro-widget */}
         {user && cachedTotalXp !== null && (() => {
           const xp = getXpLevel(cachedTotalXp);
