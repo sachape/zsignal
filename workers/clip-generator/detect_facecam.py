@@ -167,7 +167,7 @@ def main() -> int:
     cluster_tol_y = sample_h * 0.10
     overlay_clusters: list[list[tuple[int, int, int, int, float]]] = []
     for det in overlay_candidates:
-        dx, dy, dw, dh = det
+        dx, dy, dw, dh, _score = det
         dcx = dx + dw / 2
         dcy = dy + dh / 2
         matched = False
