@@ -27,6 +27,12 @@ import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 
+const CAT_LABELS: Record<string, string> = {
+  twitch: "Twitch",
+  social: "Réseaux sociaux",
+  branding: "Branding",
+};
+
 const VisualStudioPage = () => {
   usePageMeta({
     title: "Studio visuel · Streamnco",
@@ -111,7 +117,14 @@ const VisualStudioPage = () => {
     }
   };
 
-  const featured = useMemo(() => templates.slice(0, 4), [templates]);
+  const grouped = useMemo(() => {
+    const map = new Map<string, VisualTemplate[]>();
+    templates.forEach((t) => {
+      if (!map.has(t.category)) map.set(t.category, []);
+      map.get(t.category)!.push(t);
+    });
+    return Array.from(map.entries());
+  }, [templates]);
 
   return (
     <AppShell>
@@ -132,22 +145,30 @@ const VisualStudioPage = () => {
           </p>
         )}
 
-        {/* Quick start templates */}
-        <section className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Démarrage rapide</h2>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {featured.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => openType(t.id)}
-                className="group flex flex-col gap-2 rounded-xl border border-border/60 bg-card/60 p-4 text-left transition-all hover:border-primary/50 hover:bg-card"
-              >
-                <VisualPlacementPreview width={t.width} height={t.height} />
-                <span className="text-sm font-semibold">{t.label}</span>
-                <span className="text-xs text-muted-foreground line-clamp-2">{t.description}</span>
-              </button>
-            ))}
-          </div>
+        {/* Choix du format — tous les types, groupés, avec aperçu d'emplacement */}
+        <section className="mt-6 space-y-5">
+          <h2 className="text-sm font-semibold text-muted-foreground">Quel visuel veux-tu créer ?</h2>
+          {grouped.map(([cat, items]) => (
+            <div key={cat}>
+              <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                {CAT_LABELS[cat] ?? cat}
+              </h3>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+                {items.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => openType(t.id)}
+                    className="group flex flex-col gap-2 rounded-xl border border-border/60 bg-card/60 p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-card"
+                  >
+                    <VisualPlacementPreview width={t.width} height={t.height} />
+                    <span className="text-sm font-semibold">{t.label}</span>
+                    <span className="text-xs text-muted-foreground line-clamp-2">{t.description}</span>
+                    <span className="mt-auto text-[10px] text-muted-foreground/60">{t.width} × {t.height}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </section>
 
         {/* Library */}
