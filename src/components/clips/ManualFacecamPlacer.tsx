@@ -1,15 +1,17 @@
 // MVP — Manual facecam placement modal.
-// Lets the streamer drag/resize a rectangle over a preview frame from their
-// last Twitch VOD. The rectangle is LOCKED to the worker's output facecam
-// band ratio so the final render can always cover the band without any
-// letterbox/blur/black bars/stretching.
 //
-// The validated box is sent as-is to the backend (normalized 0..1). The
-// backend applies the canonical "safe crop" (pad + ratio + clamp/shift)
-// before handing pixel coords to the worker. The preview here reflects
-// the locked-ratio box (= what the worker will render in cover mode);
-// the extra safety padding is added server-side as a hidden safety net.
-import { useCallback, useEffect, useRef, useState } from "react";
+// Geometry contract (v2):
+//   - The preview image is rendered with object-fit: contain so the user
+//     ALWAYS sees the full source frame (no hidden left/right or top/bottom
+//     crop). When the source aspect ratio doesn't match the container, we
+//     compute the real displayed rect (offsetX/offsetY + renderedW/H) and
+//     normalize the user's selection against THAT rect — never against the
+//     raw container. This eliminates the "x shifted by ~0.31" bug.
+//   - The crop box is positioned in container pixels, but stored & sent
+//     in source-normalized 0..1 coords via displayRectToSourceNormalized.
+//   - The ratio is locked to the worker's output facecam-band ratio so the
+//     final render can render in pure cover mode (no letterbox / blur).
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, ImageOff, Check } from "lucide-react";
 import {
   Dialog,
@@ -29,8 +31,12 @@ import {
   FACECAM_TARGET_RATIO,
   MIN_BOX_SIZE,
   RESIZE_ANCHORS,
+  buildSafeFacecamCrop,
   clampBox,
+  displayRectToSourceNormalized,
   lockBoxRatio,
+  sourceToDisplayRect,
+  type DisplayRect,
   type NormalizedBox,
 } from "@/lib/facecamGeometry";
 
@@ -50,7 +56,6 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialCrop: NormalizedCrop | null;
-  /** Twitch channel login (used to scope the saved preset). */
   channelLogin: string | null;
   onValidate: (args: {
     crop: NormalizedCrop;
@@ -62,7 +67,6 @@ interface Props {
 }
 
 // Default crop = top-right overlay, locked to the band ratio (~1.875).
-// width 0.30 → height ≈ 0.16. Tweaked so it visually feels like a webcam.
 const DEFAULT_WIDTH = 0.30;
 const DEFAULT_CROP: NormalizedCrop = clampBox({
   x: 1 - DEFAULT_WIDTH - 0.02,
@@ -71,26 +75,19 @@ const DEFAULT_CROP: NormalizedCrop = clampBox({
   height: DEFAULT_WIDTH / FACECAM_TARGET_RATIO,
 });
 
+const DEBUG = (import.meta.env.MODE ?? "production") !== "production";
+
 type DragMode =
   | "move"
-  | "resize-nw"
-  | "resize-ne"
-  | "resize-sw"
-  | "resize-se"
-  | "resize-n"
-  | "resize-s"
-  | "resize-e"
-  | "resize-w"
+  | "resize-nw" | "resize-ne" | "resize-sw" | "resize-se"
+  | "resize-n"  | "resize-s"  | "resize-e"  | "resize-w"
   | null;
 
 function isValid(c: NormalizedCrop): boolean {
   return (
-    c.x >= -1e-6 &&
-    c.y >= -1e-6 &&
-    c.width >= MIN_BOX_SIZE &&
-    c.height >= MIN_BOX_SIZE &&
-    c.x + c.width <= 1 + 1e-6 &&
-    c.y + c.height <= 1 + 1e-6
+    c.x >= -1e-6 && c.y >= -1e-6 &&
+    c.width >= MIN_BOX_SIZE && c.height >= MIN_BOX_SIZE &&
+    c.x + c.width <= 1 + 1e-6 && c.y + c.height <= 1 + 1e-6
   );
 }
 
@@ -105,32 +102,50 @@ export function ManualFacecamPlacer({
   const [frame, setFrame] = useState<ReferenceFrame | null>(null);
   const [crop, setCrop] = useState<NormalizedCrop>(initialCrop ?? DEFAULT_CROP);
   const [savePreset, setSavePreset] = useState(true);
+
+  // Container & natural-image dimensions drive the display rect.
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
+  const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
+
+  const sourceW = naturalSize?.w ?? frame?.reference_width ?? 1920;
+  const sourceH = naturalSize?.h ?? frame?.reference_height ?? 1080;
+
+  const display: DisplayRect = useMemo(
+    () => sourceToDisplayRect(containerSize.w, containerSize.h, sourceW, sourceH, "contain"),
+    [containerSize, sourceW, sourceH],
+  );
+
+  // Observe container size — needed for accurate pointer math.
+  useEffect(() => {
+    if (!open) return;
+    const el = stageRef.current;
+    if (!el) return;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      setContainerSize({ w: r.width, h: r.height });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [open, loading]);
+
   const dragRef = useRef<{
     mode: DragMode;
     startX: number;
     startY: number;
     origin: NormalizedCrop;
-    rect: { width: number; height: number };
+    display: DisplayRect;
   }>({
-    mode: null,
-    startX: 0,
-    startY: 0,
-    origin: DEFAULT_CROP,
-    rect: { width: 1, height: 1 },
+    mode: null, startX: 0, startY: 0, origin: DEFAULT_CROP,
+    display: { offsetX: 0, offsetY: 0, renderedWidth: 1, renderedHeight: 1 },
   });
 
-  // Always snap any incoming crop to the locked ratio so the modal can't
-  // open on a stale free-form preset from an older client build.
   useEffect(() => {
     if (open) {
       const seed = initialCrop ?? DEFAULT_CROP;
-      const snapped = lockBoxRatio(
-        seed,
-        seed,
-        { ax: 0.5, ay: 0.5 },
-        FACECAM_TARGET_RATIO,
-      );
+      const snapped = lockBoxRatio(seed, seed, { ax: 0.5, ay: 0.5 }, FACECAM_TARGET_RATIO);
       setCrop(clampBox(snapped));
       setSavePreset(true);
     }
@@ -139,6 +154,7 @@ export function ManualFacecamPlacer({
   useEffect(() => {
     if (!open) return;
     setLoading(true);
+    setNaturalSize(null);
     void (async () => {
       try {
         const { data, error } = await supabase.functions.invoke<ReferenceFrame>(
@@ -160,25 +176,24 @@ export function ManualFacecamPlacer({
     e.stopPropagation();
     e.preventDefault();
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    const stage = stageRef.current;
-    const rect = stage?.getBoundingClientRect();
     dragRef.current = {
       mode,
       startX: e.clientX,
       startY: e.clientY,
       origin: { ...crop },
-      rect: {
-        width: rect?.width ?? 1,
-        height: rect?.height ?? 1,
-      },
+      display,
     };
   };
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     const d = dragRef.current;
     if (!d.mode) return;
-    const dx = (e.clientX - d.startX) / (d.rect.width || 1);
-    const dy = (e.clientY - d.startY) / (d.rect.height || 1);
+    // Convert pointer pixel delta into source-normalized delta using the
+    // actual rendered image size — never the container size.
+    const rw = d.display.renderedWidth || 1;
+    const rh = d.display.renderedHeight || 1;
+    const dx = (e.clientX - d.startX) / rw;
+    const dy = (e.clientY - d.startY) / rh;
     const o = d.origin;
 
     if (d.mode === "move") {
@@ -186,44 +201,19 @@ export function ManualFacecamPlacer({
       return;
     }
 
-    // Free-form resize first, then re-lock to the band ratio while pinning
-    // the appropriate anchor (opposite corner / opposite edge).
     let next: NormalizedBox = { ...o };
     switch (d.mode) {
-      case "resize-se":
-        next = { ...o, width: o.width + dx, height: o.height + dy };
-        break;
-      case "resize-sw":
-        next = { ...o, x: o.x + dx, width: o.width - dx, height: o.height + dy };
-        break;
-      case "resize-ne":
-        next = { ...o, y: o.y + dy, width: o.width + dx, height: o.height - dy };
-        break;
-      case "resize-nw":
-        next = {
-          x: o.x + dx,
-          y: o.y + dy,
-          width: o.width - dx,
-          height: o.height - dy,
-        };
-        break;
-      case "resize-n":
-        next = { ...o, y: o.y + dy, height: o.height - dy };
-        break;
-      case "resize-s":
-        next = { ...o, height: o.height + dy };
-        break;
-      case "resize-w":
-        next = { ...o, x: o.x + dx, width: o.width - dx };
-        break;
-      case "resize-e":
-        next = { ...o, width: o.width + dx };
-        break;
+      case "resize-se": next = { ...o, width: o.width + dx, height: o.height + dy }; break;
+      case "resize-sw": next = { ...o, x: o.x + dx, width: o.width - dx, height: o.height + dy }; break;
+      case "resize-ne": next = { ...o, y: o.y + dy, width: o.width + dx, height: o.height - dy }; break;
+      case "resize-nw": next = { x: o.x + dx, y: o.y + dy, width: o.width - dx, height: o.height - dy }; break;
+      case "resize-n":  next = { ...o, y: o.y + dy, height: o.height - dy }; break;
+      case "resize-s":  next = { ...o, height: o.height + dy }; break;
+      case "resize-w":  next = { ...o, x: o.x + dx, width: o.width - dx }; break;
+      case "resize-e":  next = { ...o, width: o.width + dx }; break;
     }
-
     const anchor = RESIZE_ANCHORS[d.mode as keyof typeof RESIZE_ANCHORS];
-    const locked = lockBoxRatio(next, o, anchor, FACECAM_TARGET_RATIO);
-    setCrop(clampBox(locked));
+    setCrop(clampBox(lockBoxRatio(next, o, anchor, FACECAM_TARGET_RATIO)));
   }, []);
 
   const onPointerUp = (e: React.PointerEvent) => {
@@ -247,8 +237,8 @@ export function ManualFacecamPlacer({
       crop: c,
       savePreset: savePreset && !!effectiveLogin,
       channelLogin: effectiveLogin,
-      sourceWidth: frame?.reference_width ?? null,
-      sourceHeight: frame?.reference_height ?? null,
+      sourceWidth: sourceW,
+      sourceHeight: sourceH,
     });
     onOpenChange(false);
   };
@@ -257,13 +247,15 @@ export function ManualFacecamPlacer({
   const effectiveLogin = channelLogin ?? frame?.platform_login ?? null;
   const canSavePreset = !!effectiveLogin;
 
-  // Display rectangle in percentages.
-  const boxStyle = {
-    left: `${crop.x * 100}%`,
-    top: `${crop.y * 100}%`,
-    width: `${crop.width * 100}%`,
-    height: `${crop.height * 100}%`,
-  };
+  // Crop box positioned in CONTAINER pixels = displayed rect offset + (norm × rendered).
+  const boxPxStyle = {
+    left: `${display.offsetX + crop.x * display.renderedWidth}px`,
+    top: `${display.offsetY + crop.y * display.renderedHeight}px`,
+    width: `${crop.width * display.renderedWidth}px`,
+    height: `${crop.height * display.renderedHeight}px`,
+  } as const;
+
+  const safeCrop = useMemo(() => buildSafeFacecamCrop(clampBox(crop)), [crop]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -271,15 +263,15 @@ export function ManualFacecamPlacer({
         <DialogHeader>
           <DialogTitle>Placer ma caméra</DialogTitle>
           <DialogDescription>
-            Place le cadre approximativement sur ta webcam — le ratio est verrouillé
-            pour correspondre à la bande caméra du clip vertical. On ajustera
-            automatiquement une petite marge de sécurité au rendu.
+            Place le cadre autour de ta webcam — le ratio est verrouillé pour
+            correspondre à la bande caméra du clip vertical. Une marge de
+            sécurité est ajoutée automatiquement au rendu.
           </DialogDescription>
         </DialogHeader>
 
         <div
           ref={stageRef}
-          className="relative w-full overflow-hidden rounded-lg border border-border bg-muted"
+          className="relative w-full overflow-hidden rounded-lg border border-border bg-black"
           style={{ aspectRatio: "16 / 9" }}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -291,11 +283,20 @@ export function ManualFacecamPlacer({
               Chargement d'une image de référence…
             </div>
           ) : hasImage ? (
+            // object-contain = the user sees the FULL source frame, no
+            // hidden crop. The displayed rect is letterboxed when source
+            // aspect ratio differs from the container — handled in math.
             <img
               src={frame!.thumbnail_url!}
               alt={frame?.vod_title ?? "Frame de référence"}
-              className="absolute inset-0 h-full w-full select-none object-cover"
+              className="absolute inset-0 h-full w-full select-none object-contain"
               draggable={false}
+              onLoad={(e) => {
+                const img = e.currentTarget;
+                if (img.naturalWidth && img.naturalHeight) {
+                  setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
+                }
+              }}
             />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
@@ -314,48 +315,70 @@ export function ManualFacecamPlacer({
             </div>
           )}
 
-          {/* Dim overlay */}
-          <div className="pointer-events-none absolute inset-0 bg-background/50" />
+          {/* Dim everything OUTSIDE the displayed image rect (letterbox area
+              stays fully black so the user understands it's not part of the
+              source). */}
+          <div className="pointer-events-none absolute inset-0 bg-background/40" />
 
-          {/* Crop box — locked to the facecam band ratio */}
+          {/* Crop box — positioned in container pixels via displayed rect */}
           <div
             className="absolute cursor-move ring-2 ring-primary shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]"
-            style={boxStyle}
+            style={boxPxStyle}
             onPointerDown={onPointerDown("move")}
           >
-            {/* "Clear" inset image showing original pixels — same cover-style
-                geometry as the worker render. */}
-            {hasImage && (
+            <div className="absolute -top-6 left-0 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+              Caméra · {Math.round(crop.width * 100)}% × {Math.round(crop.height * 100)}%
+            </div>
+            <Handle pos="nw" onPointerDown={onPointerDown("resize-nw")} />
+            <Handle pos="ne" onPointerDown={onPointerDown("resize-ne")} />
+            <Handle pos="sw" onPointerDown={onPointerDown("resize-sw")} />
+            <Handle pos="se" onPointerDown={onPointerDown("resize-se")} />
+            <Handle pos="n" onPointerDown={onPointerDown("resize-n")} />
+            <Handle pos="s" onPointerDown={onPointerDown("resize-s")} />
+            <Handle pos="w" onPointerDown={onPointerDown("resize-w")} />
+            <Handle pos="e" onPointerDown={onPointerDown("resize-e")} />
+          </div>
+
+          {DEBUG && (
+            <div className="pointer-events-none absolute bottom-1 left-1 max-w-[60%] rounded bg-black/70 p-1.5 font-mono text-[10px] leading-tight text-white">
+              <div>src {sourceW}×{sourceH}</div>
+              <div>cont {Math.round(containerSize.w)}×{Math.round(containerSize.h)}</div>
+              <div>off {display.offsetX.toFixed(1)},{display.offsetY.toFixed(1)} render {Math.round(display.renderedWidth)}×{Math.round(display.renderedHeight)}</div>
+              <div>raw x={crop.x.toFixed(3)} y={crop.y.toFixed(3)} w={crop.width.toFixed(3)} h={crop.height.toFixed(3)}</div>
+              <div>safe x={safeCrop.x.toFixed(3)} y={safeCrop.y.toFixed(3)} w={safeCrop.width.toFixed(3)} h={safeCrop.height.toFixed(3)}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Aperçu rendu caméra — exact preview of what the worker will render
+            in the top facecam band (cover-mode, locked ratio). */}
+        {hasImage && (
+          <div className="rounded-md border border-border bg-card p-3">
+            <div className="mb-1.5 flex items-center justify-between">
+              <Label className="text-xs">Aperçu rendu caméra (bande haute)</Label>
+              <span className="font-mono text-[10px] text-muted-foreground">
+                safe {safeCrop.x.toFixed(2)},{safeCrop.y.toFixed(2)} · {safeCrop.width.toFixed(2)}×{safeCrop.height.toFixed(2)}
+              </span>
+            </div>
+            <div
+              className="relative w-full overflow-hidden rounded bg-black"
+              style={{ aspectRatio: `${FACECAM_TARGET_RATIO}` }}
+            >
               <img
                 src={frame!.thumbnail_url!}
                 alt=""
                 draggable={false}
                 className="pointer-events-none absolute h-full w-full max-w-none select-none object-none"
                 style={{
-                  left: `-${(crop.x / crop.width) * 100}%`,
-                  top: `-${(crop.y / crop.height) * 100}%`,
-                  width: `${(1 / crop.width) * 100}%`,
-                  height: `${(1 / crop.height) * 100}%`,
+                  left: `-${(safeCrop.x / safeCrop.width) * 100}%`,
+                  top: `-${(safeCrop.y / safeCrop.height) * 100}%`,
+                  width: `${(1 / safeCrop.width) * 100}%`,
+                  height: `${(1 / safeCrop.height) * 100}%`,
                 }}
               />
-            )}
-
-            <div className="absolute -top-6 left-0 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
-              Caméra · ratio verrouillé · {Math.round(crop.width * 100)}% × {Math.round(crop.height * 100)}%
             </div>
-
-            {/* Corner handles */}
-            <Handle pos="nw" onPointerDown={onPointerDown("resize-nw")} />
-            <Handle pos="ne" onPointerDown={onPointerDown("resize-ne")} />
-            <Handle pos="sw" onPointerDown={onPointerDown("resize-sw")} />
-            <Handle pos="se" onPointerDown={onPointerDown("resize-se")} />
-            {/* Edge handles */}
-            <Handle pos="n" onPointerDown={onPointerDown("resize-n")} />
-            <Handle pos="s" onPointerDown={onPointerDown("resize-s")} />
-            <Handle pos="w" onPointerDown={onPointerDown("resize-w")} />
-            <Handle pos="e" onPointerDown={onPointerDown("resize-e")} />
           </div>
-        </div>
+        )}
 
         <div className="flex items-start gap-2 rounded-md border border-border bg-card p-3">
           <Checkbox
@@ -386,13 +409,9 @@ export function ManualFacecamPlacer({
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="ghost" size="sm" onClick={reset}>
-            Réinitialiser
-          </Button>
+          <Button variant="ghost" size="sm" onClick={reset}>Réinitialiser</Button>
           <div className="flex-1" />
-          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
-            Annuler
-          </Button>
+          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Annuler</Button>
           <Button size="sm" onClick={validate} className="gap-1">
             <Check className="h-3.5 w-3.5" /> Valider la zone
           </Button>
@@ -431,3 +450,7 @@ function Handle({
 }
 
 export default ManualFacecamPlacer;
+
+// Export the geometry helper so callers (including future debug overlays
+// and tests) can reuse the exact same mapping.
+export { displayRectToSourceNormalized, sourceToDisplayRect };
