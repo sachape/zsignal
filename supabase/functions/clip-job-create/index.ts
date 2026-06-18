@@ -307,9 +307,17 @@ Deno.serve(async (req) => {
     ? body.twitch_channel_login.toLowerCase().trim()
     : null;
   const saveFacecamPreset = body.save_facecam_preset === true;
+  const ignoreSavedFacecamPreset = body.ignore_saved_facecam_preset === true;
   const detectorStrategyHint = typeof body.detector_strategy === "string"
     ? body.detector_strategy
     : null;
+  const FACECAM_PRESET_GEOMETRY_VERSION = 3;
+  const manualCropSourceWidth = Number.isFinite(Number(body.manual_crop_source_width))
+    ? Number(body.manual_crop_source_width)
+    : 1920;
+  const manualCropSourceHeight = Number.isFinite(Number(body.manual_crop_source_height))
+    ? Number(body.manual_crop_source_height)
+    : 1080;
 
   function parseNormalizedCrop(input: unknown): { x: number; y: number; width: number; height: number } | null {
     if (!input || typeof input !== "object") return null;
@@ -334,17 +342,28 @@ Deno.serve(async (req) => {
   // or pushed against any edge.
   const FACECAM_TARGET_RATIO = 1080 / 576;
   const SAFE_PAD = 0.10;
+  function normalizedRatioForSource(sourceW: number, sourceH: number) {
+    const sourceRatio = sourceW > 0 && sourceH > 0 ? sourceW / sourceH : 16 / 9;
+    return FACECAM_TARGET_RATIO / sourceRatio;
+  }
   function buildSafeFacecamCrop(raw: { x: number; y: number; width: number; height: number }) {
+    const targetNormalizedRatio = normalizedRatioForSource(manualCropSourceWidth, manualCropSourceHeight);
+    const touchesTop = raw.y <= 0.01;
+    const touchesBottom = raw.y + raw.height >= 0.99;
     const cx = raw.x + raw.width / 2;
     const cy = raw.y + raw.height / 2;
     let w = raw.width * (1 + SAFE_PAD);
     let h = raw.height * (1 + SAFE_PAD);
-    if (w / h < FACECAM_TARGET_RATIO) w = h * FACECAM_TARGET_RATIO;
-    else h = w / FACECAM_TARGET_RATIO;
-    if (w > 1) { w = 1; h = w / FACECAM_TARGET_RATIO; }
-    if (h > 1) { h = 1; w = h * FACECAM_TARGET_RATIO; }
+    if (w / h < targetNormalizedRatio) w = h * targetNormalizedRatio;
+    else h = w / targetNormalizedRatio;
+    if (w > 1) { w = 1; h = w / targetNormalizedRatio; }
+    if (h > 1) { h = 1; w = h * targetNormalizedRatio; }
     let x = cx - w / 2;
-    let y = cy - h / 2;
+    let y = touchesTop && !touchesBottom
+      ? 0
+      : touchesBottom && !touchesTop
+        ? raw.y + raw.height - h
+        : cy - h / 2;
     if (x < 0) x = 0;
     if (y < 0) y = 0;
     if (x + w > 1) x = 1 - w;
