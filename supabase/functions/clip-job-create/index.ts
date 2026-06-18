@@ -297,13 +297,82 @@ Deno.serve(async (req) => {
     return json({ error: "output_sign_failed", detail: upSignErr?.message }, 500);
   }
 
-  // Manual layout is strictly opt-in. The default flow is pure auto-detect
-  // (OpenCV facecam detection on the worker). A previously stored preset is
-  // ONLY honored when the client explicitly sets `use_manual_layout: true`
-  // (i.e. the user opened "Forcer manuellement" in the dialog). This
-  // prevents stale/auto-saved presets from silently overriding auto-detect
-  // and turning a gameplay region into the "facecam".
-  const useManualLayout = body.use_manual_layout === true;
+  // ── MVP — Manual facecam crop (normalized 0..1) ──
+  // Priority order for facecam source of truth:
+  //   1. manual_facecam_crop in this request body
+  //   2. saved preset in user_facecam_presets for current twitch channel
+  //   3. legacy creator_video_layout_presets (only when use_manual_layout=true)
+  //   4. auto-detect on the worker
+  const twitchChannelLogin = typeof body.twitch_channel_login === "string"
+    ? body.twitch_channel_login.toLowerCase().trim()
+    : null;
+  const saveFacecamPreset = body.save_facecam_preset === true;
+  const detectorStrategyHint = typeof body.detector_strategy === "string"
+    ? body.detector_strategy
+    : null;
+
+  function parseNormalizedCrop(input: unknown): { x: number; y: number; width: number; height: number } | null {
+    if (!input || typeof input !== "object") return null;
+    const c = input as Record<string, unknown>;
+    const x = Number(c.x);
+    const y = Number(c.y);
+    const width = Number(c.width);
+    const height = Number(c.height);
+    if (![x, y, width, height].every((n) => Number.isFinite(n))) return null;
+    if (x < 0 || y < 0) return null;
+    if (width < 0.04 || height < 0.04) return null;
+    if (x + width > 1.0001 || y + height > 1.0001) return null;
+    return { x, y, width, height };
+  }
+
+  let manualNormalizedCrop = parseNormalizedCrop(body.manual_facecam_crop);
+
+  // Persist the preset when requested.
+  if (manualNormalizedCrop && saveFacecamPreset && twitchChannelLogin) {
+    const { error: presetErr } = await admin
+      .from("user_facecam_presets")
+      .upsert(
+        {
+          user_id: userId,
+          twitch_channel_login: twitchChannelLogin,
+          crop_x: manualNormalizedCrop.x,
+          crop_y: manualNormalizedCrop.y,
+          crop_width: manualNormalizedCrop.width,
+          crop_height: manualNormalizedCrop.height,
+          is_enabled: true,
+          last_used_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,twitch_channel_login" },
+      );
+    if (presetErr) {
+      console.warn(JSON.stringify({ event: "facecam_preset_upsert_failed", message: presetErr.message }));
+    }
+  }
+
+  // No inline crop? Fall back to the stored preset for this channel.
+  if (!manualNormalizedCrop && twitchChannelLogin) {
+    const { data: stored } = await admin
+      .from("user_facecam_presets")
+      .select("crop_x, crop_y, crop_width, crop_height, is_enabled")
+      .eq("user_id", userId)
+      .eq("twitch_channel_login", twitchChannelLogin)
+      .maybeSingle();
+    if (stored?.is_enabled) {
+      const parsed = parseNormalizedCrop(stored);
+      if (parsed) {
+        manualNormalizedCrop = parsed;
+        // Refresh last_used_at.
+        await admin
+          .from("user_facecam_presets")
+          .update({ last_used_at: new Date().toISOString() })
+          .eq("user_id", userId)
+          .eq("twitch_channel_login", twitchChannelLogin);
+      }
+    }
+  }
+
+  // Manual layout (legacy pixel-based preset) is strictly opt-in.
+  const useManualLayout = body.use_manual_layout === true && !manualNormalizedCrop;
 
   let preset: Record<string, unknown> | null = null;
   if (useManualLayout) {
@@ -324,7 +393,33 @@ Deno.serve(async (req) => {
     Number.isFinite(preset.facecam_width) && Number.isFinite(preset.facecam_height) &&
     ((preset.facecam_width as number) ?? 0) > 0 && ((preset.facecam_height as number) ?? 0) > 0;
 
-  const layoutPayload = (useManualLayout && hasFacecamCrop)
+  // Reference resolution used to convert normalized 0..1 crops to pixel crops.
+  // The worker re-scales these to actual probed dimensions at render time.
+  const REF_W = 1920;
+  const REF_H = 1080;
+
+  const layoutPayload = manualNormalizedCrop
+    ? {
+        output_format: "vertical_9_16",
+        layout_type: "facecam_top_gameplay_bottom",
+        output_width: 1080,
+        output_height: 1920,
+        facecam_crop: {
+          x: Math.round(manualNormalizedCrop.x * REF_W),
+          y: Math.round(manualNormalizedCrop.y * REF_H),
+          width: Math.round(manualNormalizedCrop.width * REF_W),
+          height: Math.round(manualNormalizedCrop.height * REF_H),
+        },
+        gameplay_crop: null,
+        source_reference_width: REF_W,
+        source_reference_height: REF_H,
+        auto_detect_facecam: false,
+        layout_source: "manual_override",
+        // Echo the original normalized crop + strategy hint for worker logs.
+        manual_facecam_crop: manualNormalizedCrop,
+        detector_strategy: "manual_override",
+      }
+    : (useManualLayout && hasFacecamCrop)
     ? {
         output_format: "vertical_9_16",
         layout_type: "facecam_top_gameplay_bottom",
@@ -358,6 +453,15 @@ Deno.serve(async (req) => {
         auto_detect_facecam: true,
         layout_source: "auto_detect",
       };
+
+  console.info(JSON.stringify({
+    event: "clip_job_layout_decision",
+    job_id: undefined, // not yet known
+    layout_source: layoutPayload.layout_source,
+    has_manual_override: !!manualNormalizedCrop,
+    twitch_channel_login: twitchChannelLogin,
+    detector_strategy_hint: detectorStrategyHint,
+  }));
 
   // Captions: opt-out, ON by default. Worker calls back to clip-transcribe-audio.
   const captionsEnabled = body.captions_enabled !== false;
