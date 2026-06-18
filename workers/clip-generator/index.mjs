@@ -421,6 +421,19 @@ function buildVerticalFilterComplex({
       `[cam][game]vstack=inputs=2[v]`,
     ].join(";");
 
+    // vstack puts the first input ([cam]) at y=0 and the second ([game])
+    // immediately below at y=camH. There is NO overlay offset — the
+    // facecam band is pinned to the very top of the 1080x1920 canvas.
+    console.log("[manual_layout_compose]", JSON.stringify({
+      output: `${outW}x${outH}`,
+      facecam_target: `${outW}x${camH}`,
+      facecam_y: 0,
+      gameplay_y: camH,
+      gameplay_target: `${outW}x${gameH}`,
+      cam_ratio: camRatio,
+      mode: "stack_top_bottom",
+    }));
+
     return { filterComplex: filter, mapVideo: "[v]" };
   }
 
