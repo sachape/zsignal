@@ -303,9 +303,11 @@ export function ManualFacecamPlacer({
     onOpenChange(false);
   };
 
-  const hasImage = !!frame?.thumbnail_url;
+  const hasImage = !!currentImageUrl;
   const effectiveLogin = channelLogin ?? frame?.platform_login ?? null;
   const canSavePreset = !!effectiveLogin;
+  const totalFrames = frame?.frames?.length ?? 0;
+  const canCycleFrames = totalFrames > 1;
 
   // Crop box positioned in CONTAINER pixels = displayed rect offset + (norm × rendered).
   const boxPxStyle = {
@@ -329,6 +331,17 @@ export function ManualFacecamPlacer({
           </DialogDescription>
         </DialogHeader>
 
+        {isThumbnailFallback && (
+          <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-[11px] text-amber-200">
+            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+            <span>
+              Image dégradée (miniature Twitch). Le worker n'a pas pu extraire
+              une frame réelle de la source — la position détectée peut être
+              légèrement décalée.
+            </span>
+          </div>
+        )}
+
         <div
           ref={stageRef}
           className="relative w-full overflow-hidden rounded-lg border border-border bg-black"
@@ -340,14 +353,14 @@ export function ManualFacecamPlacer({
           {loading ? (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Chargement d'une image de référence…
+              Extraction d'une frame réelle depuis la source…
             </div>
           ) : hasImage ? (
             // object-contain = the user sees the FULL source frame, no
             // hidden crop. The displayed rect is letterboxed when source
             // aspect ratio differs from the container — handled in math.
             <img
-              src={frame!.thumbnail_url!}
+              src={currentImageUrl!}
               alt={frame?.vod_title ?? "Frame de référence"}
               className="absolute inset-0 h-full w-full select-none object-contain"
               draggable={false}
@@ -395,7 +408,7 @@ export function ManualFacecamPlacer({
 
           {DEBUG && (
             <div className="pointer-events-none absolute bottom-1 left-1 max-w-[60%] rounded bg-black/70 p-1.5 font-mono text-[10px] leading-tight text-white">
-              <div>src {sourceW}×{sourceH}</div>
+              <div>src {sourceW}×{sourceH} via {frame?.extracted_via ?? "?"}</div>
               <div>cont {Math.round(containerSize.w)}×{Math.round(containerSize.h)}</div>
               <div>off {display.offsetX.toFixed(1)},{display.offsetY.toFixed(1)} render {Math.round(display.renderedWidth)}×{Math.round(display.renderedHeight)}</div>
               <div>raw x={crop.x.toFixed(3)} y={crop.y.toFixed(3)} w={crop.width.toFixed(3)} h={crop.height.toFixed(3)}</div>
@@ -403,6 +416,21 @@ export function ManualFacecamPlacer({
             </div>
           )}
         </div>
+
+        {canCycleFrames && (
+          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+            <Button variant="outline" size="sm" onClick={goPrevFrame} className="gap-1">
+              <ChevronLeft className="h-3.5 w-3.5" /> Frame précédente
+            </Button>
+            <span className="font-mono">
+              Frame {frameIndex + 1}/{totalFrames}
+              {currentFrame?.t != null && ` · t=${currentFrame.t.toFixed(1)}s`}
+            </span>
+            <Button variant="outline" size="sm" onClick={goNextFrame} className="gap-1">
+              Frame suivante <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
 
         {/* Aperçu rendu caméra — exact preview of what the worker will render
             in the top facecam band (cover-mode, locked ratio). */}
@@ -419,7 +447,7 @@ export function ManualFacecamPlacer({
               style={{ aspectRatio: `${FACECAM_TARGET_RATIO}` }}
             >
               <img
-                src={frame!.thumbnail_url!}
+                src={currentImageUrl!}
                 alt=""
                 draggable={false}
                 className="pointer-events-none absolute h-full w-full max-w-none select-none object-none"
@@ -460,10 +488,23 @@ export function ManualFacecamPlacer({
               )}
             </p>
           </div>
+          {hasSavedPreset && onResetSavedPreset && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-[11px] text-muted-foreground hover:text-destructive"
+              onClick={() => {
+                onResetSavedPreset();
+                toast({ title: "Position sauvegardée réinitialisée" });
+              }}
+            >
+              <RotateCcw className="h-3 w-3" /> Réinitialiser
+            </Button>
+          )}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="ghost" size="sm" onClick={reset}>Réinitialiser</Button>
+          <Button variant="ghost" size="sm" onClick={reset}>Réinitialiser la zone</Button>
           <div className="flex-1" />
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Annuler</Button>
           <Button size="sm" onClick={validate} className="gap-1">
