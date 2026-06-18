@@ -1421,6 +1421,34 @@ function runCommand(cmd, args, timeoutMs = 10 * 60 * 1000) {
 //   frames: [{ t, image_base64, jpeg_bytes }]
 // }
 // ──────────────────────────────────────────────────────────────────────────
+// In-memory cache for manual placement frame extraction. The same Twitch
+// clip is often opened multiple times in a row (open → close → reopen →
+// retry) and re-downloading the source each time wastes 5-15s.
+// Cache key = source_url + start + end. TTL = 10 minutes.
+const EXTRACT_FRAMES_CACHE = new Map();
+const EXTRACT_FRAMES_TTL_MS = 10 * 60 * 1000;
+const EXTRACT_FRAMES_HARD_TIMEOUT_MS = 20 * 1000;
+
+function extractFramesCacheKey(url, s, e) {
+  return `${url}|${s ?? ""}|${e ?? ""}`;
+}
+function getCachedFrames(key) {
+  const hit = EXTRACT_FRAMES_CACHE.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at > EXTRACT_FRAMES_TTL_MS) {
+    EXTRACT_FRAMES_CACHE.delete(key);
+    return null;
+  }
+  return hit.payload;
+}
+function setCachedFrames(key, payload) {
+  EXTRACT_FRAMES_CACHE.set(key, { at: Date.now(), payload });
+  if (EXTRACT_FRAMES_CACHE.size > 50) {
+    const firstKey = EXTRACT_FRAMES_CACHE.keys().next().value;
+    if (firstKey) EXTRACT_FRAMES_CACHE.delete(firstKey);
+  }
+}
+
 app.post("/extract-frames", async (req, res) => {
   const secret = req.header("X-Worker-Secret") ?? "";
   if (secret !== WORKER_SHARED_SECRET) return res.status(403).json({ error: "forbidden" });
@@ -1442,48 +1470,74 @@ app.post("/extract-frames", async (req, res) => {
     ? source_kind
     : "direct";
 
-  const wantedCount = Math.min(8, Math.max(1, Number(count) || 5));
+  const wantedCount = Math.min(5, Math.max(1, Number(count) || 3));
+  const cacheKey = extractFramesCacheKey(source_url, start_time_seconds, end_time_seconds);
+  const cached = getCachedFrames(cacheKey);
+  if (cached) {
+    console.log(`[extract_frames_cache_hit] source_url=${String(source_url).slice(0, 200)} frames_count=${cached.frames.length}`);
+    return res.json(cached);
+  }
+
+  const startedAt = Date.now();
   const workDir = await mkdtemp(join(tmpdir(), `frames-`));
   const sourcePath = join(workDir, "source.mp4");
   console.log(`[extract_frames_started] source_url=${String(source_url).slice(0, 200)} kind=${kind} count=${wantedCount}`);
 
-  try {
-    // 1) Download the source — same logic as /generate but lightweight.
+  // Hard total timeout — race the whole pipeline against a timer so the
+  // request can never hang indefinitely behind a stuck yt-dlp/ffmpeg.
+  let timedOut = false;
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      timedOut = true;
+      reject(new Error("extract_frames_timeout"));
+    }, EXTRACT_FRAMES_HARD_TIMEOUT_MS);
+  });
+
+  const runPipeline = async () => {
+    // 1) Download the source — tight timeouts for manual placement.
     if (kind === "twitch_clip") {
       await runCommand("yt-dlp", [
         "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
-        "--retries", "3", "--fragment-retries", "5",
+        "--retries", "1", "--fragment-retries", "1",
+        "--socket-timeout", "10",
         "-f", "best[ext=mp4]/best",
         "-o", sourcePath,
         source_url,
-      ], 5 * 60 * 1000);
+      ], 15 * 1000);
     } else if (kind === "twitch_vod" || kind === "youtube_vod") {
       const s = Math.max(0, Math.floor(Number(start_time_seconds) || 0));
-      const e = Math.max(s + 30, Math.ceil(Number(end_time_seconds) || s + 60));
+      const e = Math.max(s + 15, Math.ceil(Number(end_time_seconds) || s + 30));
       const section = `*${s}-${e}`;
       const ytFormat = kind === "youtube_vod"
         ? "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best"
         : "best[ext=mp4]/best";
       await runCommand("yt-dlp", [
         "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
-        "--retries", "3", "--fragment-retries", "5",
+        "--retries", "1", "--fragment-retries", "1",
+        "--socket-timeout", "10",
         "--download-sections", section,
         "--force-keyframes-at-cuts",
         "-f", ytFormat,
         "--merge-output-format", "mp4",
         "-o", sourcePath,
         source_url,
-      ], 5 * 60 * 1000);
+      ], 15 * 1000);
     } else {
-      const resp = await fetch(source_url);
-      if (!resp.ok || !resp.body) throw new Error(`download_failed_${resp.status}`);
-      await pipeline(resp.body, createWriteStream(sourcePath));
+      const ac = new AbortController();
+      const httpTimer = setTimeout(() => ac.abort(), 12 * 1000);
+      try {
+        const resp = await fetch(source_url, { signal: ac.signal });
+        if (!resp.ok || !resp.body) throw new Error(`download_failed_${resp.status}`);
+        await pipeline(resp.body, createWriteStream(sourcePath));
+      } finally {
+        clearTimeout(httpTimer);
+      }
     }
 
     // 2) Probe real source dimensions & duration.
     const probed = await probeVideoDimensions(sourcePath);
     const duration = probed.duration || 0;
-    console.log(`[extract_frames_downloaded] duration=${duration.toFixed(2)} source_width=${probed.width} source_height=${probed.height}`);
+    console.log(`[extract_frames_downloaded] duration=${duration.toFixed(2)} source_width=${probed.width} source_height=${probed.height} download_ms=${Date.now() - startedAt}`);
 
     // 3) Pick timestamps. Spread across the usable window, biased to skip
     //    intros/outros (first 5% and last 5%).
@@ -1492,7 +1546,7 @@ app.post("/extract-frames", async (req, res) => {
       targets = timestamps
         .map((t) => Number(t))
         .filter((t) => Number.isFinite(t) && t >= 0)
-        .slice(0, 8);
+        .slice(0, wantedCount);
     } else if (duration > 0) {
       const usableStart = duration * 0.05;
       const usableEnd = duration * 0.95;
@@ -1504,7 +1558,8 @@ app.post("/extract-frames", async (req, res) => {
       targets = [0.5, 1.5, 3, 5, 8].slice(0, wantedCount);
     }
 
-    // 4) Extract each timestamp as a JPEG.
+    // 4) Extract each timestamp as a JPEG — fast seek (-ss before -i),
+    //    short per-frame timeout.
     const frames = [];
     for (let i = 0; i < targets.length; i++) {
       const t = targets[i];
@@ -1515,9 +1570,9 @@ app.post("/extract-frames", async (req, res) => {
           "-ss", t.toFixed(3),
           "-i", sourcePath,
           "-frames:v", "1",
-          "-q:v", "4",
+          "-q:v", "5",
           outPath,
-        ], 60 * 1000);
+        ], 5 * 1000);
         const buf = await readFile(outPath);
         if (buf.length > 0) {
           frames.push({
@@ -1531,22 +1586,31 @@ app.post("/extract-frames", async (req, res) => {
       }
     }
 
-    if (frames.length === 0) {
-      throw new Error("no_frames_extracted");
-    }
+    if (frames.length === 0) throw new Error("no_frames_extracted");
+    return { probed, duration, frames };
+  };
 
-    console.log(`[extract_frames_completed] frames_count=${frames.length} source_width=${probed.width} source_height=${probed.height} duration=${duration.toFixed(2)}`);
-    res.json({
+  try {
+    const { probed, duration, frames } = await Promise.race([runPipeline(), timeoutPromise]);
+    const payload = {
       worker_version: WORKER_VERSION,
       source_width: probed.width,
       source_height: probed.height,
       duration,
       frames,
-    });
+    };
+    setCachedFrames(cacheKey, payload);
+    console.log(`[extract_frames_completed] frames_count=${frames.length} source_width=${probed.width} source_height=${probed.height} duration=${duration.toFixed(2)} total_ms=${Date.now() - startedAt}`);
+    res.json(payload);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error(`[extract_frames_failed] error=${message.slice(0, 400)}`);
-    res.status(500).json({ error: "extract_failed", message: message.slice(0, 400) });
+    if (timedOut || message === "extract_frames_timeout") {
+      console.error(`[extract_frames_timeout] source_url=${String(source_url).slice(0, 200)} duration_ms=${Date.now() - startedAt}`);
+      res.status(504).json({ ok: false, error: "extract_frames_timeout" });
+    } else {
+      console.error(`[extract_frames_failed] error=${message.slice(0, 400)} duration_ms=${Date.now() - startedAt}`);
+      res.status(500).json({ ok: false, error: "extract_failed", message: message.slice(0, 400) });
+    }
   } finally {
     rm(workDir, { recursive: true, force: true }).catch(() => {});
   }
