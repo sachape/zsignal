@@ -432,12 +432,27 @@ Deno.serve(async (req) => {
     ? buildSafeFacecamCrop(manualNormalizedCrop)
     : null;
   if (manualNormalizedCrop && safeNormalizedCrop) {
+    const convertedPixelCrop = {
+      x: Math.round(safeNormalizedCrop.x * REF_W),
+      y: Math.round(safeNormalizedCrop.y * REF_H),
+      width: Math.round(safeNormalizedCrop.width * REF_W),
+      height: Math.round(safeNormalizedCrop.height * REF_H),
+    };
     console.info(JSON.stringify({
       event: "facecam_safe_crop_applied",
       raw: manualNormalizedCrop,
       safe: safeNormalizedCrop,
       target_ratio: FACECAM_TARGET_RATIO,
       pad: SAFE_PAD,
+    }));
+    console.info(JSON.stringify({
+      event: "manual_crop_debug",
+      raw_crop: manualNormalizedCrop,
+      safe_crop: safeNormalizedCrop,
+      source_width: REF_W,
+      source_height: REF_H,
+      converted_pixel_crop: convertedPixelCrop,
+      twitch_channel_login: twitchChannelLogin,
     }));
   }
 
