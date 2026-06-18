@@ -292,7 +292,7 @@ export function CameraPlacementEditor({ onSaved, onClose }: Props) {
           {/* Window inside the dim — clear the area */}
           {hasImage && imgLoaded && (
             <img
-              src={frame!.thumbnail_url!}
+              src={previewImageUrl!}
               alt=""
               draggable={false}
               className="pointer-events-none absolute h-full w-full max-w-none object-none select-none"
