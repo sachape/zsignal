@@ -1058,16 +1058,12 @@ async function processJob({
           job_id: jobId, status: "processing", stage: "detecting_facecam", progress: 50,
         });
 
-        // Twitch clip URLs are already short. The UI may still send a generic
-        // 60s range, but using that for sampling makes the detector extract only
-        // ~1 frame from a 6s clip. Use the real downloaded duration when known.
-        const detectionDuration = sourceKind === "twitch_clip" && actualDuration
-          ? Math.max(1, Math.min(duration, actualDuration))
-          : duration;
+        // Sample facecam detection over the clamped effective window.
+        const detectionDuration = Math.max(1, trimDuration);
 
         const detection = await detectFacecam(
           sourcePath,
-          sourceKind === "twitch_clip" ? 0 : (trimmedAlready ? 0 : startSeconds),
+          effectiveStart,
           detectionDuration,
         );
         detectionMeta = detection;
