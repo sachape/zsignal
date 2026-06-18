@@ -27,6 +27,7 @@ interface Props {
 
 const MAX_BYTES = 500 * 1024 * 1024;
 const ACCEPT = ".mp4,.mov,video/mp4,video/quicktime";
+const FACECAM_PRESET_GEOMETRY_VERSION = 3;
 
 type Mode = "upload" | "direct_url";
 
@@ -88,6 +89,9 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [placerOpen, setPlacerOpen] = useState(false);
   const [manualCrop, setManualCrop] = useState<NormalizedCrop | null>(null);
   const [manualPresetSaved, setManualPresetSaved] = useState(false);
+  const [manualCropSourceSize, setManualCropSourceSize] = useState<{ width: number; height: number } | null>(null);
+  const [presetNeedsReplace, setPresetNeedsReplace] = useState(false);
+  const [ignoreSavedFacecamPreset, setIgnoreSavedFacecamPreset] = useState(false);
 
   const detectedLogin = useMemo(
     () => extractTwitchChannelLogin(directUrl) ?? extractTwitchChannelLogin(item.source_video_url ?? null),
@@ -105,21 +109,33 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase as any)
         .from("user_facecam_presets")
-        .select("crop_x, crop_y, crop_width, crop_height, is_enabled")
+        .select("crop_x, crop_y, crop_width, crop_height, source_width, source_height, is_enabled, geometry_version")
         .eq("user_id", user.id)
         .eq("twitch_channel_login", detectedLogin)
         .maybeSingle();
       if (cancelled) return;
-      if (data?.is_enabled && Number.isFinite(data.crop_width) && data.crop_width > 0) {
+      if (data?.is_enabled && data.geometry_version !== FACECAM_PRESET_GEOMETRY_VERSION) {
+        setManualCrop(null);
+        setManualPresetSaved(false);
+        setPresetNeedsReplace(true);
+        setIgnoreSavedFacecamPreset(true);
+      } else if (data?.is_enabled && Number.isFinite(data.crop_width) && data.crop_width > 0) {
         setManualCrop({
           x: Number(data.crop_x),
           y: Number(data.crop_y),
           width: Number(data.crop_width),
           height: Number(data.crop_height),
         });
+        setManualCropSourceSize({
+          width: Number(data.source_width) || 1920,
+          height: Number(data.source_height) || 1080,
+        });
         setManualPresetSaved(true);
+        setPresetNeedsReplace(false);
+        setIgnoreSavedFacecamPreset(false);
       } else {
         setManualPresetSaved(false);
+        setPresetNeedsReplace(false);
       }
     })();
     return () => { cancelled = true; };
@@ -133,6 +149,7 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
     setFile(null); setDirectUrl(item.source_video_url ?? "");
     setBusy(false); setPhase("idle"); setProgress(0); setError(null);
     setManualCrop(null); setManualPresetSaved(false);
+    setManualCropSourceSize(null); setPresetNeedsReplace(false); setIgnoreSavedFacecamPreset(false);
   }
 
   function handleFile(f: File | null) {
@@ -245,6 +262,9 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             detector_strategy: manualCrop ? "manual_override" : undefined,
             twitch_channel_login: detectedLogin ?? undefined,
             save_facecam_preset: manualCrop ? manualPresetSaved : false,
+            ignore_saved_facecam_preset: ignoreSavedFacecamPreset,
+            manual_crop_source_width: manualCropSourceSize?.width,
+            manual_crop_source_height: manualCropSourceSize?.height,
             captions_enabled: captionsEnabled,
             captions_language: "fr",
             captions_style: captionsStyle,
@@ -381,6 +401,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
                       ? manualPresetSaved
                         ? "Caméra sauvegardée pour cette chaîne. Elle sera utilisée pour ce clip."
                         : "Zone caméra sélectionnée pour ce clip."
+                      : presetNeedsReplace
+                        ? "Position caméra à replacer. L'ancienne position ne sera pas réutilisée."
                       : "Sélectionne manuellement la zone webcam. Plus fiable que la détection auto."}
                   </p>
                 </div>
@@ -407,7 +429,19 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
                     size="sm"
                     variant="ghost"
                     className="text-xs text-muted-foreground hover:text-destructive"
-                    onClick={() => { setManualCrop(null); setManualPresetSaved(false); }}
+                    onClick={() => {
+                      setManualCrop(null);
+                      setManualPresetSaved(false);
+                      setManualCropSourceSize(null);
+                      setIgnoreSavedFacecamPreset(true);
+                      if (detectedLogin && user) {
+                        void (supabase as any)
+                          .from("user_facecam_presets")
+                          .update({ is_enabled: false })
+                          .eq("user_id", user.id)
+                          .eq("twitch_channel_login", detectedLogin);
+                      }
+                    }}
                     disabled={busy}
                   >
                     Réinitialiser
@@ -501,9 +535,13 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
         onOpenChange={setPlacerOpen}
         initialCrop={manualCrop}
         channelLogin={detectedLogin}
-        onValidate={({ crop, savePreset, channelLogin }) => {
+        sourceUrl={mode === "direct_url" ? directUrl : item.source_video_url}
+        onValidate={({ crop, savePreset, channelLogin, sourceWidth, sourceHeight }) => {
           setManualCrop(crop);
           setManualPresetSaved(savePreset);
+          setManualCropSourceSize(sourceWidth && sourceHeight ? { width: sourceWidth, height: sourceHeight } : null);
+          setPresetNeedsReplace(false);
+          setIgnoreSavedFacecamPreset(false);
           if (savePreset && channelLogin && user) {
             // Fire-and-forget upsert. RLS scopes to the current user.
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -517,6 +555,9 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
                   crop_y: crop.y,
                   crop_width: crop.width,
                   crop_height: crop.height,
+                  source_width: sourceWidth,
+                  source_height: sourceHeight,
+                  geometry_version: FACECAM_PRESET_GEOMETRY_VERSION,
                   is_enabled: true,
                   last_used_at: new Date().toISOString(),
                 },

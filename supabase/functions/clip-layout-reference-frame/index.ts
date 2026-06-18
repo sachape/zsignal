@@ -18,6 +18,33 @@ function json(body: unknown, status = 200) {
   });
 }
 
+function parseTwitchSource(raw: unknown): { kind: "clip" | "vod"; id: string } | null {
+  if (typeof raw !== "string" || !raw.trim()) return null;
+  try {
+    const u = new URL(raw.trim());
+    const host = u.hostname.replace(/^www\./, "");
+    if (host === "clips.twitch.tv") {
+      const slug = u.pathname.replace(/^\//, "").split("/")[0];
+      return slug ? { kind: "clip", id: slug } : null;
+    }
+    if (host === "twitch.tv" || host === "m.twitch.tv") {
+      const clipMatch = u.pathname.match(/^\/[^/]+\/clip\/([A-Za-z0-9_-]+)/);
+      if (clipMatch) return { kind: "clip", id: clipMatch[1] };
+      const vodMatch = u.pathname.match(/^\/videos\/(\d+)/);
+      if (vodMatch) return { kind: "vod", id: vodMatch[1] };
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+function normalizeThumbnailUrl(url: string | null): string | null {
+  if (!url) return null;
+  return url
+    .replace("%{width}", "1920")
+    .replace("%{height}", "1080")
+    .replace(/-preview-\d+x\d+\.jpg(\?.*)?$/, "-preview-1920x1080.jpg$1");
+}
+
 async function getAppToken(clientId: string, clientSecret: string): Promise<string | null> {
   const res = await fetch("https://id.twitch.tv/oauth2/token", {
     method: "POST",
@@ -55,6 +82,8 @@ Deno.serve(async (req) => {
     const userId = claims.claims.sub as string;
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+    const requestBody = await req.json().catch(() => ({}));
+    const requestedSource = parseTwitchSource((requestBody as Record<string, unknown>).source_url);
 
     const { data: account } = await admin
       .from("connected_accounts")
@@ -78,17 +107,19 @@ Deno.serve(async (req) => {
     if (TWITCH_ID && TWITCH_SECRET) {
       const token = await getAppToken(TWITCH_ID, TWITCH_SECRET);
       if (token) {
-        const res = await fetch(
-          `https://api.twitch.tv/helix/videos?user_id=${encodeURIComponent(platformUserId)}&type=archive&first=1`,
-          { headers: { "Client-ID": TWITCH_ID, Authorization: `Bearer ${token}` } },
-        );
+        const endpoint = requestedSource?.kind === "clip"
+          ? `https://api.twitch.tv/helix/clips?id=${encodeURIComponent(requestedSource.id)}`
+          : requestedSource?.kind === "vod"
+            ? `https://api.twitch.tv/helix/videos?id=${encodeURIComponent(requestedSource.id)}`
+            : `https://api.twitch.tv/helix/videos?user_id=${encodeURIComponent(platformUserId)}&type=archive&first=1`;
+        const res = await fetch(endpoint, {
+          headers: { "Client-ID": TWITCH_ID, Authorization: `Bearer ${token}` },
+        });
         if (res.ok) {
           const body = await res.json();
           const vod = body?.data?.[0];
           if (vod?.thumbnail_url) {
-            thumbnailUrl = String(vod.thumbnail_url)
-              .replace("%{width}", "1920")
-              .replace("%{height}", "1080");
+            thumbnailUrl = normalizeThumbnailUrl(String(vod.thumbnail_url));
             vodTitle = vod.title ?? null;
           }
         }

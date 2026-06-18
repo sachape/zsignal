@@ -307,9 +307,19 @@ Deno.serve(async (req) => {
     ? body.twitch_channel_login.toLowerCase().trim()
     : null;
   const saveFacecamPreset = body.save_facecam_preset === true;
+  const ignoreSavedFacecamPreset = body.ignore_saved_facecam_preset === true;
   const detectorStrategyHint = typeof body.detector_strategy === "string"
     ? body.detector_strategy
     : null;
+  const FACECAM_PRESET_GEOMETRY_VERSION = 3;
+  let manualCropSourceWidth = Number.isFinite(Number(body.manual_crop_source_width))
+    ? Number(body.manual_crop_source_width)
+    : 1920;
+  let manualCropSourceHeight = Number.isFinite(Number(body.manual_crop_source_height))
+    ? Number(body.manual_crop_source_height)
+    : 1080;
+  let facecamPresetId: string | null = null;
+  let facecamPresetGeometryVersion: number | null = null;
 
   function parseNormalizedCrop(input: unknown): { x: number; y: number; width: number; height: number } | null {
     if (!input || typeof input !== "object") return null;
@@ -334,17 +344,28 @@ Deno.serve(async (req) => {
   // or pushed against any edge.
   const FACECAM_TARGET_RATIO = 1080 / 576;
   const SAFE_PAD = 0.10;
+  function normalizedRatioForSource(sourceW: number, sourceH: number) {
+    const sourceRatio = sourceW > 0 && sourceH > 0 ? sourceW / sourceH : 16 / 9;
+    return FACECAM_TARGET_RATIO / sourceRatio;
+  }
   function buildSafeFacecamCrop(raw: { x: number; y: number; width: number; height: number }) {
+    const targetNormalizedRatio = normalizedRatioForSource(manualCropSourceWidth, manualCropSourceHeight);
+    const touchesTop = raw.y <= 0.01;
+    const touchesBottom = raw.y + raw.height >= 0.99;
     const cx = raw.x + raw.width / 2;
     const cy = raw.y + raw.height / 2;
     let w = raw.width * (1 + SAFE_PAD);
     let h = raw.height * (1 + SAFE_PAD);
-    if (w / h < FACECAM_TARGET_RATIO) w = h * FACECAM_TARGET_RATIO;
-    else h = w / FACECAM_TARGET_RATIO;
-    if (w > 1) { w = 1; h = w / FACECAM_TARGET_RATIO; }
-    if (h > 1) { h = 1; w = h * FACECAM_TARGET_RATIO; }
+    if (w / h < targetNormalizedRatio) w = h * targetNormalizedRatio;
+    else h = w / targetNormalizedRatio;
+    if (w > 1) { w = 1; h = w / targetNormalizedRatio; }
+    if (h > 1) { h = 1; w = h * targetNormalizedRatio; }
     let x = cx - w / 2;
-    let y = cy - h / 2;
+    let y = touchesTop && !touchesBottom
+      ? 0
+      : touchesBottom && !touchesTop
+        ? raw.y + raw.height - h
+        : cy - h / 2;
     if (x < 0) x = 0;
     if (y < 0) y = 0;
     if (x + w > 1) x = 1 - w;
@@ -353,6 +374,7 @@ Deno.serve(async (req) => {
   }
 
   let manualNormalizedCrop = parseNormalizedCrop(body.manual_facecam_crop);
+  if (manualNormalizedCrop) facecamPresetGeometryVersion = FACECAM_PRESET_GEOMETRY_VERSION;
 
   // Persist the preset when requested.
   if (manualNormalizedCrop && saveFacecamPreset && twitchChannelLogin) {
@@ -366,6 +388,9 @@ Deno.serve(async (req) => {
           crop_y: manualNormalizedCrop.y,
           crop_width: manualNormalizedCrop.width,
           crop_height: manualNormalizedCrop.height,
+          source_width: Math.round(manualCropSourceWidth),
+          source_height: Math.round(manualCropSourceHeight),
+          geometry_version: FACECAM_PRESET_GEOMETRY_VERSION,
           is_enabled: true,
           last_used_at: new Date().toISOString(),
         },
@@ -377,17 +402,26 @@ Deno.serve(async (req) => {
   }
 
   // No inline crop? Fall back to the stored preset for this channel.
-  if (!manualNormalizedCrop && twitchChannelLogin) {
+  if (!manualNormalizedCrop && twitchChannelLogin && !ignoreSavedFacecamPreset) {
     const { data: stored } = await admin
       .from("user_facecam_presets")
-      .select("crop_x, crop_y, crop_width, crop_height, is_enabled")
+      .select("id, crop_x, crop_y, crop_width, crop_height, source_width, source_height, is_enabled, geometry_version")
       .eq("user_id", userId)
       .eq("twitch_channel_login", twitchChannelLogin)
       .maybeSingle();
-    if (stored?.is_enabled) {
-      const parsed = parseNormalizedCrop(stored);
+    if (stored?.is_enabled && stored.geometry_version === FACECAM_PRESET_GEOMETRY_VERSION) {
+      const parsed = parseNormalizedCrop({
+        x: stored.crop_x,
+        y: stored.crop_y,
+        width: stored.crop_width,
+        height: stored.crop_height,
+      });
       if (parsed) {
         manualNormalizedCrop = parsed;
+        manualCropSourceWidth = Number(stored.source_width) || 1920;
+        manualCropSourceHeight = Number(stored.source_height) || 1080;
+        facecamPresetId = typeof stored.id === "string" ? stored.id : null;
+        facecamPresetGeometryVersion = Number(stored.geometry_version) || null;
         // Refresh last_used_at.
         await admin
           .from("user_facecam_presets")
@@ -395,6 +429,13 @@ Deno.serve(async (req) => {
           .eq("user_id", userId)
           .eq("twitch_channel_login", twitchChannelLogin);
       }
+    } else if (stored?.is_enabled) {
+      console.info(JSON.stringify({
+        event: "facecam_preset_ignored_geometry_version",
+        preset_id: stored.id,
+        geometry_version: stored.geometry_version ?? null,
+        required_geometry_version: FACECAM_PRESET_GEOMETRY_VERSION,
+      }));
     }
   }
 
@@ -422,8 +463,8 @@ Deno.serve(async (req) => {
 
   // Reference resolution used to convert normalized 0..1 crops to pixel crops.
   // The worker re-scales these to actual probed dimensions at render time.
-  const REF_W = 1920;
-  const REF_H = 1080;
+  const REF_W = Math.round(manualCropSourceWidth);
+  const REF_H = Math.round(manualCropSourceHeight);
 
   // Keep the raw user box (already saved as-is in the preset) AND derive the
   // safe crop sent to the worker. We do NOT persist the safe crop — the raw
@@ -452,6 +493,9 @@ Deno.serve(async (req) => {
       source_width: REF_W,
       source_height: REF_H,
       converted_pixel_crop: convertedPixelCrop,
+      layout_source: "manual_override",
+      preset_id: facecamPresetId,
+      preset_geometry_version: facecamPresetGeometryVersion,
       twitch_channel_login: twitchChannelLogin,
     }));
   }

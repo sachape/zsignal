@@ -2684,6 +2684,7 @@ export type Database = {
           crop_width: number
           crop_x: number
           crop_y: number
+          geometry_version: number
           id: string
           is_enabled: boolean
           last_used_at: string | null
@@ -2700,6 +2701,7 @@ export type Database = {
           crop_width: number
           crop_x: number
           crop_y: number
+          geometry_version?: number
           id?: string
           is_enabled?: boolean
           last_used_at?: string | null
@@ -2716,6 +2718,7 @@ export type Database = {
           crop_width?: number
           crop_x?: number
           crop_y?: number
+          geometry_version?: number
           id?: string
           is_enabled?: boolean
           last_used_at?: string | null
