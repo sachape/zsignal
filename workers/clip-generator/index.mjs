@@ -574,12 +574,53 @@ function groupWordsIntoCues(words) {
     }
   }
   if (cur) cues.push(cur);
-  // Ensure no zero-length cues, clamp min duration to 0.45s for readability.
-  return cues.map((c) => ({
+  const raw = cues.map((c) => ({
     start: c.start,
-    end: Math.max(c.end, c.start + 0.45),
+    end: c.end,
     text: c.words.join(" "),
   }));
+  return sanitizeCues(raw);
+}
+
+// Enforce: sorted by start, no overlap between consecutive cues, min/max
+// duration. Guarantees only ONE active subtitle event at any timestamp so
+// libass never stacks two Dialogue blocks on top of each other.
+function sanitizeCues(input) {
+  const MIN_DUR = 0.5;
+  const MAX_DUR = 2.5;
+  const GAP = 0.04; // 40ms safety gap between consecutive cues
+  const arr = input
+    .filter((c) => Number.isFinite(c.start) && Number.isFinite(c.end) && c.text)
+    .map((c) => ({ start: Math.max(0, c.start), end: Math.max(0, c.end), text: c.text }))
+    .sort((a, b) => a.start - b.start);
+
+  const out = [];
+  for (let i = 0; i < arr.length; i++) {
+    const cue = arr[i];
+    const next = arr[i + 1];
+    const oldEnd = cue.end;
+    // Cap by next.start - GAP to prevent overlap.
+    if (next) {
+      const cap = Math.max(cue.start + 0.01, next.start - GAP);
+      if (cue.end > cap) {
+        console.log("[caption_timing_fix]", JSON.stringify({
+          cue_index: i, old_end: +oldEnd.toFixed(3),
+          new_end: +cap.toFixed(3), next_start: +next.start.toFixed(3),
+        }));
+        cue.end = cap;
+      }
+    }
+    // Enforce max duration.
+    if (cue.end - cue.start > MAX_DUR) cue.end = cue.start + MAX_DUR;
+    // Enforce min duration without overlapping the next cue.
+    if (cue.end - cue.start < MIN_DUR) {
+      const desired = cue.start + MIN_DUR;
+      cue.end = next ? Math.min(desired, next.start - GAP) : desired;
+      if (cue.end <= cue.start) cue.end = cue.start + 0.05; // degenerate guard
+    }
+    out.push(cue);
+  }
+  return out;
 }
 
 function secondsToAssTime(s) {
@@ -704,13 +745,23 @@ function buildAssFile(cues, outW, outH, stylePreset) {
     "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
   ];
 
-  const events = cues.map((c) => {
+  // Final safety net: re-sanitize and assert no overlap before writing.
+  const safeCues = sanitizeCues(cues);
+  let overlaps = 0;
+  for (let i = 0; i < safeCues.length - 1; i++) {
+    if (safeCues[i].end > safeCues[i + 1].start) overlaps++;
+  }
+  if (overlaps > 0) {
+    console.log("[caption_overlap_detected]", JSON.stringify({ overlaps }));
+  }
+  const events = safeCues.map((c) => {
     const wrapped = s.wrapText(escapeAssText(c.text));
     return `Dialogue: 0,${secondsToAssTime(c.start)},${secondsToAssTime(c.end)},TT,,0,0,0,,${wrapped}`;
   });
 
   return header.concat(events).join("\n") + "\n";
-}
+
+
 
 async function transcribeAudioViaProxy({ jobId, audioPath, transcribeUrl, transcribeSecret, language }) {
   const audioBuf = await readFile(audioPath);
