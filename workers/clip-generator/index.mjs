@@ -433,21 +433,21 @@ function buildVerticalFilterComplex({
     const gameH = outH - camH;
 
     const camCrop = `crop=${facecamCrop.width}:${facecamCrop.height}:${facecamCrop.x}:${facecamCrop.y}`;
-    const camScale = `scale=${outW}:${camH}:force_original_aspect_ratio=increase,crop=${outW}:${camH}`;
+    const camScale = `scale=${outW}:${camH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${camH}`;
 
     let gameBranch;
     if (gameplayCrop) {
       const gCrop = `crop=${gameplayCrop.width}:${gameplayCrop.height}:${gameplayCrop.x}:${gameplayCrop.y}`;
-      gameBranch = `[b]${gCrop},scale=${outW}:${gameH}:force_original_aspect_ratio=increase,crop=${outW}:${gameH}[game]`;
+      gameBranch = `[b]${gCrop},scale=${outW}:${gameH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${gameH}[game]`;
     } else {
-      gameBranch = `[b]scale=${outW}:${gameH}:force_original_aspect_ratio=increase,crop=${outW}:${gameH}[game]`;
+      gameBranch = `[b]scale=${outW}:${gameH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${gameH}[game]`;
     }
 
     const filter = [
       `[0:v]split=2[a][b]`,
       `[a]${camCrop},${camScale}[cam]`,
       gameBranch,
-      `[cam][game]vstack=inputs=2[v]`,
+      `[cam][game]vstack=inputs=2,${HQ_UNSHARP},${HQ_FPS_CAP}[v]`,
     ].join(";");
 
     // vstack puts the first input ([cam]) at y=0 and the second ([game])
@@ -469,7 +469,7 @@ function buildVerticalFilterComplex({
   // gameplay_only or fallback when no facecam crop.
   // Already minimum-cover (no extra zoom applied) — cannot relax further
   // without introducing letterbox or blur, which the product rules forbid.
-  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[v]`;
+  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${outH},${HQ_UNSHARP},${HQ_FPS_CAP}[v]`;
   return { filterComplex: filter, mapVideo: "[v]" };
 }
 
