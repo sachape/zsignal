@@ -173,14 +173,16 @@ export function ManualFacecamPlacer({
   useEffect(() => {
     if (!open) return;
     setLoading(true);
+    setFrameIndex(0);
     void (async () => {
       try {
-        const { data, error } = await supabase.functions.invoke<ReferenceFrame>(
+        const { data, error } = await supabase.functions.invoke<ReferenceFrameResponse>(
           "clip-layout-reference-frame",
-          { body: { source_url: sourceUrl } },
+          { body: { source_url: sourceUrl, count: 5 } },
         );
         if (error) throw error;
         setFrame(data ?? null);
+        setFrameIndex(Math.floor(((data?.frames?.length ?? 1) - 1) / 2));
       } catch (err) {
         console.warn("[ManualFacecamPlacer] reference frame unavailable", err);
         setFrame(null);
@@ -189,6 +191,15 @@ export function ManualFacecamPlacer({
       }
     })();
   }, [open, sourceUrl]);
+
+  const goPrevFrame = () => {
+    if (!frame?.frames?.length) return;
+    setFrameIndex((i) => (i - 1 + frame.frames.length) % frame.frames.length);
+  };
+  const goNextFrame = () => {
+    if (!frame?.frames?.length) return;
+    setFrameIndex((i) => (i + 1) % frame.frames.length);
+  };
 
   const onPointerDown = (mode: DragMode) => (e: React.PointerEvent) => {
     e.stopPropagation();
