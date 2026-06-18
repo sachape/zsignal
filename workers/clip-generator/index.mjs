@@ -798,13 +798,14 @@ async function maybeBurnCaptions({
     const ffEscaped = assPath.replace(/\\/g, "\\\\").replace(/:/g, "\\:").replace(/'/g, "\\'");
     const captionsStart = Date.now();
     try {
-      await runCommand("ffmpeg", [
+      await runFfmpegWithProgress([
         "-y", "-i", composedPath,
-        "-vf", `ass=${ffEscaped}`,
+        "-vf", `ass=${ffEscaped},fps=${DEFAULT_OUTPUT_FPS}`,
         ...hqVideoEncodeArgs(),
+        "-r", String(DEFAULT_OUTPUT_FPS),
         "-c:a", "copy",
         finalPath,
-      ], 5 * 60 * 1000);
+      ], { jobId, stage: "captions_burn", timeoutMs: 5 * 60 * 1000 });
     } catch (err) {
       if (err?.message === "ffmpeg_timeout") {
         throw new Error("captions_burn_timeout");
