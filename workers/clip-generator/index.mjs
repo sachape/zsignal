@@ -1177,21 +1177,17 @@ async function processJob({
       var loggedFps = targetFps ?? sourceFps ?? null;
     } else {
       // Legacy 16:9 pipeline — backward compatible. Same HQ defaults.
-      let legacyFps = null;
-      try {
-        const lp = await probeVideoDimensions(sourcePath);
-        legacyFps = computeTargetFps(lp?.fps ?? null);
-      } catch {}
+      const legacyFps = computeTargetFps(mainProbe?.fps ?? null);
       const fpsF = fpsFilter(legacyFps);
       const legacyVf = [
         `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS}`,
         fpsF,
       ].filter(Boolean).join(",");
       const baseIn = useFullSource
-        ? ["-y", "-i", sourcePath]
+        ? ["-y", "-i", sourcePath, "-t", String(trimDuration)]
         : trimmedAlready
-        ? ["-y", "-i", sourcePath, "-t", String(duration)]
-        : ["-y", "-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration)];
+        ? ["-y", "-i", sourcePath, "-t", String(trimDuration)]
+        : ["-y", "-ss", String(effectiveStart), "-i", sourcePath, "-t", String(trimDuration)];
       ffArgs = [
         ...baseIn,
         "-vf", legacyVf,
