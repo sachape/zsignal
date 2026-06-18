@@ -936,6 +936,78 @@ async function processJob({
     const sourceStat = await stat(sourcePath);
     console.log("[download_completed]", JSON.stringify({ job_id: jobId, size_bytes: sourceStat.size, duration_ms: Date.now() - startedAt }));
 
+    // Probe real source duration immediately so every downstream stage
+    // (first pass, facecam detection, captions, burn-in) operates on the
+    // actual content length instead of the UI-requested 60s window.
+    let mainProbe = null;
+    try {
+      mainProbe = await probeVideoDimensions(sourcePath);
+    } catch (probeErr) {
+      console.log("[probe_failed]", JSON.stringify({
+        job_id: jobId, stage: "post_download", message: probeErr?.message,
+      }));
+    }
+    const sourceDurationSeconds = (typeof mainProbe?.duration === "number" && mainProbe.duration > 0)
+      ? mainProbe.duration
+      : null;
+
+    const requestedStartSec = Math.max(0, Number.isFinite(startSeconds) ? startSeconds : 0);
+    const requestedEndSec = Number.isFinite(endSeconds) ? endSeconds : 0;
+    const requestedDurationSec = Math.max(0, requestedEndSec - requestedStartSec);
+
+    // For twitch_clip, yt-dlp downloads the entire (already short) clip, so
+    // start is always 0 against the downloaded file. For VOD pipelines the
+    // downloader trims at the section boundary, so start is also 0 against
+    // the downloaded file. Only the legacy "full source" + ss path actually
+    // applies the requested start.
+    const startBasis = (sourceKind === "twitch_clip" || sourceKind === "twitch_vod" || sourceKind === "youtube_vod")
+      ? 0
+      : requestedStartSec;
+
+    let effectiveStart = sourceDurationSeconds != null
+      ? Math.min(startBasis, Math.max(0, sourceDurationSeconds - 0.1))
+      : startBasis;
+    let effectiveDuration;
+    if (sourceDurationSeconds != null) {
+      const availableDuration = Math.max(0, sourceDurationSeconds - effectiveStart);
+      effectiveDuration = requestedDurationSec > 0
+        ? Math.min(requestedDurationSec, availableDuration)
+        : availableDuration;
+    } else {
+      effectiveDuration = Math.max(1, requestedDurationSec || 0);
+    }
+    effectiveStart = Math.max(0, Math.round(effectiveStart * 100) / 100);
+    effectiveDuration = Math.max(0, Math.round(effectiveDuration * 100) / 100);
+
+    console.log("[source_probe]", JSON.stringify({
+      job_id: jobId,
+      source_duration: sourceDurationSeconds,
+      source_width: mainProbe?.width ?? null,
+      source_height: mainProbe?.height ?? null,
+      requested_start: requestedStartSec,
+      requested_end: requestedEndSec,
+      requested_duration: requestedDurationSec,
+      effective_start: effectiveStart,
+      effective_duration: effectiveDuration,
+    }));
+
+    if (!(effectiveDuration > 0)) {
+      throw new Error("invalid_effective_duration");
+    }
+    if (sourceDurationSeconds != null && effectiveDuration > sourceDurationSeconds + 0.05) {
+      console.error("[duration_clamp_failed]", JSON.stringify({
+        job_id: jobId,
+        source_duration: sourceDurationSeconds,
+        effective_duration: effectiveDuration,
+      }));
+      throw new Error("duration_clamp_failed");
+    }
+
+    // Override the legacy "duration" name used throughout the pipeline so
+    // every existing reference (detection, trim, captions) now reflects the
+    // clamped value.
+    const trimDuration = effectiveDuration;
+
     await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId, status: "processing", stage: "cutting", progress: 40,
     });
@@ -949,12 +1021,14 @@ async function processJob({
     let detectionMeta = null;
     let effectiveLayout = layoutType ?? "gameplay_only";
     if (isVertical) {
-      // Probe actual dimensions so we can scale crops from the preset reference.
-      let probed = null;
-      try {
-        probed = await probeVideoDimensions(sourcePath);
-      } catch (probeErr) {
-        console.log("[probe_failed]", JSON.stringify({ job_id: jobId, message: probeErr?.message }));
+      // Reuse the post-download probe so we don't pay for ffprobe twice.
+      let probed = mainProbe;
+      if (!probed) {
+        try {
+          probed = await probeVideoDimensions(sourcePath);
+        } catch (probeErr) {
+          console.log("[probe_failed]", JSON.stringify({ job_id: jobId, message: probeErr?.message }));
+        }
       }
       const actualW = probed?.width ?? sourceReferenceWidth ?? null;
       const actualH = probed?.height ?? sourceReferenceHeight ?? null;
@@ -984,16 +1058,12 @@ async function processJob({
           job_id: jobId, status: "processing", stage: "detecting_facecam", progress: 50,
         });
 
-        // Twitch clip URLs are already short. The UI may still send a generic
-        // 60s range, but using that for sampling makes the detector extract only
-        // ~1 frame from a 6s clip. Use the real downloaded duration when known.
-        const detectionDuration = sourceKind === "twitch_clip" && actualDuration
-          ? Math.max(1, Math.min(duration, actualDuration))
-          : duration;
+        // Sample facecam detection over the clamped effective window.
+        const detectionDuration = Math.max(1, trimDuration);
 
         const detection = await detectFacecam(
           sourcePath,
-          sourceKind === "twitch_clip" ? 0 : (trimmedAlready ? 0 : startSeconds),
+          effectiveStart,
           detectionDuration,
         );
         detectionMeta = detection;
@@ -1010,7 +1080,7 @@ async function processJob({
           fallback_reason: detection?.detected ? null : (detection?.reason ?? "no_detection"),
           actual_width: actualW,
           actual_height: actualH,
-          requested_duration: duration,
+          requested_duration: trimDuration,
           detection_duration: detectionDuration,
         }));
 
@@ -1085,11 +1155,14 @@ async function processJob({
         target_fps: targetFps ?? sourceFps ?? null,
       }));
 
+      // Always pass -t with the clamped effectiveDuration, even for
+      // twitch_clip "full source" mode — this is the safety net that
+      // prevents encoding 60s when the source is only 27s.
       const trimArgs = useFullSource
-        ? ["-i", sourcePath]
+        ? ["-i", sourcePath, "-t", String(trimDuration)]
         : trimmedAlready
-        ? ["-i", sourcePath, "-t", String(duration)]
-        : ["-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration)];
+        ? ["-i", sourcePath, "-t", String(trimDuration)]
+        : ["-ss", String(effectiveStart), "-i", sourcePath, "-t", String(trimDuration)];
 
       ffArgs = [
         "-y",
@@ -1104,21 +1177,17 @@ async function processJob({
       var loggedFps = targetFps ?? sourceFps ?? null;
     } else {
       // Legacy 16:9 pipeline — backward compatible. Same HQ defaults.
-      let legacyFps = null;
-      try {
-        const lp = await probeVideoDimensions(sourcePath);
-        legacyFps = computeTargetFps(lp?.fps ?? null);
-      } catch {}
+      const legacyFps = computeTargetFps(mainProbe?.fps ?? null);
       const fpsF = fpsFilter(legacyFps);
       const legacyVf = [
         `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS}`,
         fpsF,
       ].filter(Boolean).join(",");
       const baseIn = useFullSource
-        ? ["-y", "-i", sourcePath]
+        ? ["-y", "-i", sourcePath, "-t", String(trimDuration)]
         : trimmedAlready
-        ? ["-y", "-i", sourcePath, "-t", String(duration)]
-        : ["-y", "-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration)];
+        ? ["-y", "-i", sourcePath, "-t", String(trimDuration)]
+        : ["-y", "-ss", String(effectiveStart), "-i", sourcePath, "-t", String(trimDuration)];
       ffArgs = [
         ...baseIn,
         "-vf", legacyVf,
@@ -1143,7 +1212,14 @@ async function processJob({
     }));
 
 
-    console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, vertical: isVertical, duration }));
+    console.log("[ffmpeg_started]", JSON.stringify({
+      job_id: jobId,
+      vertical: isVertical,
+      duration: trimDuration,
+      effective_start: effectiveStart,
+      effective_duration: trimDuration,
+      source_duration: sourceDurationSeconds,
+    }));
     const firstPassStart = Date.now();
     try {
       await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);
@@ -1156,8 +1232,9 @@ async function processJob({
 
     const outStat = await stat(outputPath);
     if (outStat.size === 0) throw new Error("empty_output");
+    const firstPassMs = Date.now() - firstPassStart;
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
-    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - firstPassStart, crf: HQ_CRF, preset: HQ_PRESET, stage: "first_pass" }));
+    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: firstPassMs, crf: HQ_CRF, preset: HQ_PRESET, stage: "first_pass" }));
 
 
     // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
@@ -1165,7 +1242,9 @@ async function processJob({
     //      without captions and a [captions_failed] / [captions_skipped]
     //      log is emitted.
     let finalOutputPath = outputPath;
+    let captionsMs = 0;
     if (captionsEnabled && transcribeUrl && isVertical) {
+      const captionsStartedAt = Date.now();
       const captionsResult = await maybeBurnCaptions({
         jobId,
         workDir,
@@ -1179,6 +1258,7 @@ async function processJob({
         callbackUrl,
         callbackSecret,
       });
+      captionsMs = Date.now() - captionsStartedAt;
       if (captionsResult?.finalPath) {
         finalOutputPath = captionsResult.finalPath;
       }
@@ -1216,8 +1296,23 @@ async function processJob({
       const detail = await upRes.text().catch(() => "");
       throw new Error(`upload_failed_${upRes.status}:${detail.slice(0, 200)}`);
     }
-    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: Date.now() - uploadStart }));
+    const uploadMs = Date.now() - uploadStart;
+    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: uploadMs }));
 
+    console.log("[pipeline_timing]", JSON.stringify({
+      job_id: jobId,
+      source_duration: sourceDurationSeconds,
+      requested_start: requestedStartSec,
+      requested_end: requestedEndSec,
+      requested_duration: requestedDurationSec,
+      effective_start: effectiveStart,
+      effective_duration: trimDuration,
+      download_ms: downloadMs,
+      ffmpeg_first_pass_ms: firstPassMs,
+      captions_burn_ms: captionsMs,
+      upload_ms: uploadMs,
+      total_ms: Date.now() - startedAt,
+    }));
 
     const callbackAccepted = await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
