@@ -49,14 +49,14 @@ import { pipeline } from "node:stream/promises";
 const WORKER_VERSION = "3.15";
 
 // Single default export mode — production-safe high quality. No selector.
-// Tuned for Fly shared-cpu-2x: veryfast/CRF20 keeps a 60s clip well under
-// ~90s encode while staying visibly cleaner than the legacy ultrafast/CRF23.
+// v3.16: locked to 30fps output by default. 60fps doubles encoding workload
+// on Fly shared-cpu-2x for zero perceptible gain on Shorts/TikTok/Reels.
 const HQ_CRF = "20";
 const HQ_PRESET = "veryfast";
 const HQ_AUDIO_BITRATE = "192k";
 const HQ_SCALE_FLAGS = "lanczos";
 // Unsharp removed in v3.15 — too costly on Fly shared CPUs, marginal visual gain.
-const HQ_FPS_HARD_CAP = 60;
+const DEFAULT_OUTPUT_FPS = 30;
 
 function hqVideoEncodeArgs() {
   return [
@@ -74,17 +74,25 @@ function hqAudioEncodeArgs() {
   return ["-c:a", "aac", "-b:a", HQ_AUDIO_BITRATE, "-ar", "48000"];
 }
 
-// Compute the numeric target FPS in JS. Never use ffmpeg's `min(60,source_fps)`
-// expression — some builds parse it inconsistently and it forces a re-timing
-// filter even when source is ≤ 60. We pass a concrete integer or null.
-function computeTargetFps(sourceFps) {
-  if (!Number.isFinite(sourceFps) || sourceFps <= 0) return null;
-  if (sourceFps <= HQ_FPS_HARD_CAP + 0.5) return null; // no fps filter needed
-  return HQ_FPS_HARD_CAP;
+// Always output 30fps. Numeric, applied early in the filter chain so the
+// pipeline does not waste cycles compositing 60fps frames that will be
+// dropped at the encoder.
+function computeTargetFps(_sourceFps) {
+  return DEFAULT_OUTPUT_FPS;
 }
 
 function fpsFilter(targetFps) {
   return targetFps ? `fps=${targetFps}` : null;
+}
+
+// First-pass timeout scales with the clamped clip duration. Keeps a "silent
+// stuck" job from running forever while still allowing legitimate jobs to
+// finish. Floor 60s, ceiling 240s.
+function firstPassTimeoutMs(effectiveDurationSeconds) {
+  const d = Number(effectiveDurationSeconds);
+  if (!Number.isFinite(d) || d <= 0) return 180_000;
+  // 30s → 120s, 60s → 180s, scales ~4× clip duration.
+  return Math.max(60_000, Math.min(240_000, Math.round(d * 4_000)));
 }
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
