@@ -936,6 +936,78 @@ async function processJob({
     const sourceStat = await stat(sourcePath);
     console.log("[download_completed]", JSON.stringify({ job_id: jobId, size_bytes: sourceStat.size, duration_ms: Date.now() - startedAt }));
 
+    // Probe real source duration immediately so every downstream stage
+    // (first pass, facecam detection, captions, burn-in) operates on the
+    // actual content length instead of the UI-requested 60s window.
+    let mainProbe = null;
+    try {
+      mainProbe = await probeVideoDimensions(sourcePath);
+    } catch (probeErr) {
+      console.log("[probe_failed]", JSON.stringify({
+        job_id: jobId, stage: "post_download", message: probeErr?.message,
+      }));
+    }
+    const sourceDurationSeconds = (typeof mainProbe?.duration === "number" && mainProbe.duration > 0)
+      ? mainProbe.duration
+      : null;
+
+    const requestedStartSec = Math.max(0, Number.isFinite(startSeconds) ? startSeconds : 0);
+    const requestedEndSec = Number.isFinite(endSeconds) ? endSeconds : 0;
+    const requestedDurationSec = Math.max(0, requestedEndSec - requestedStartSec);
+
+    // For twitch_clip, yt-dlp downloads the entire (already short) clip, so
+    // start is always 0 against the downloaded file. For VOD pipelines the
+    // downloader trims at the section boundary, so start is also 0 against
+    // the downloaded file. Only the legacy "full source" + ss path actually
+    // applies the requested start.
+    const startBasis = (sourceKind === "twitch_clip" || sourceKind === "twitch_vod" || sourceKind === "youtube_vod")
+      ? 0
+      : requestedStartSec;
+
+    let effectiveStart = sourceDurationSeconds != null
+      ? Math.min(startBasis, Math.max(0, sourceDurationSeconds - 0.1))
+      : startBasis;
+    let effectiveDuration;
+    if (sourceDurationSeconds != null) {
+      const availableDuration = Math.max(0, sourceDurationSeconds - effectiveStart);
+      effectiveDuration = requestedDurationSec > 0
+        ? Math.min(requestedDurationSec, availableDuration)
+        : availableDuration;
+    } else {
+      effectiveDuration = Math.max(1, requestedDurationSec || 0);
+    }
+    effectiveStart = Math.max(0, Math.round(effectiveStart * 100) / 100);
+    effectiveDuration = Math.max(0, Math.round(effectiveDuration * 100) / 100);
+
+    console.log("[source_probe]", JSON.stringify({
+      job_id: jobId,
+      source_duration: sourceDurationSeconds,
+      source_width: mainProbe?.width ?? null,
+      source_height: mainProbe?.height ?? null,
+      requested_start: requestedStartSec,
+      requested_end: requestedEndSec,
+      requested_duration: requestedDurationSec,
+      effective_start: effectiveStart,
+      effective_duration: effectiveDuration,
+    }));
+
+    if (!(effectiveDuration > 0)) {
+      throw new Error("invalid_effective_duration");
+    }
+    if (sourceDurationSeconds != null && effectiveDuration > sourceDurationSeconds + 0.05) {
+      console.error("[duration_clamp_failed]", JSON.stringify({
+        job_id: jobId,
+        source_duration: sourceDurationSeconds,
+        effective_duration: effectiveDuration,
+      }));
+      throw new Error("duration_clamp_failed");
+    }
+
+    // Override the legacy "duration" name used throughout the pipeline so
+    // every existing reference (detection, trim, captions) now reflects the
+    // clamped value.
+    const trimDuration = effectiveDuration;
+
     await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId, status: "processing", stage: "cutting", progress: 40,
     });
