@@ -1232,8 +1232,9 @@ async function processJob({
 
     const outStat = await stat(outputPath);
     if (outStat.size === 0) throw new Error("empty_output");
+    const firstPassMs = Date.now() - firstPassStart;
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
-    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - firstPassStart, crf: HQ_CRF, preset: HQ_PRESET, stage: "first_pass" }));
+    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: firstPassMs, crf: HQ_CRF, preset: HQ_PRESET, stage: "first_pass" }));
 
 
     // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
@@ -1241,7 +1242,9 @@ async function processJob({
     //      without captions and a [captions_failed] / [captions_skipped]
     //      log is emitted.
     let finalOutputPath = outputPath;
+    let captionsMs = 0;
     if (captionsEnabled && transcribeUrl && isVertical) {
+      const captionsStartedAt = Date.now();
       const captionsResult = await maybeBurnCaptions({
         jobId,
         workDir,
@@ -1255,6 +1258,7 @@ async function processJob({
         callbackUrl,
         callbackSecret,
       });
+      captionsMs = Date.now() - captionsStartedAt;
       if (captionsResult?.finalPath) {
         finalOutputPath = captionsResult.finalPath;
       }
@@ -1292,8 +1296,23 @@ async function processJob({
       const detail = await upRes.text().catch(() => "");
       throw new Error(`upload_failed_${upRes.status}:${detail.slice(0, 200)}`);
     }
-    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: Date.now() - uploadStart }));
+    const uploadMs = Date.now() - uploadStart;
+    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: uploadMs }));
 
+    console.log("[pipeline_timing]", JSON.stringify({
+      job_id: jobId,
+      source_duration: sourceDurationSeconds,
+      requested_start: requestedStartSec,
+      requested_end: requestedEndSec,
+      requested_duration: requestedDurationSec,
+      effective_start: effectiveStart,
+      effective_duration: trimDuration,
+      download_ms: downloadMs,
+      ffmpeg_first_pass_ms: firstPassMs,
+      captions_burn_ms: captionsMs,
+      upload_ms: uploadMs,
+      total_ms: Date.now() - startedAt,
+    }));
 
     const callbackAccepted = await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
