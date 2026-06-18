@@ -325,6 +325,33 @@ Deno.serve(async (req) => {
     return { x, y, width, height };
   }
 
+  // ── Safe crop algorithm (mirrors src/lib/facecamGeometry.ts) ──
+  // Pad the user's raw box by 10% around its center, snap it to the worker's
+  // facecam-band ratio (1080/576 ≈ 1.875), then clamp inside [0,1] — shifting
+  // the box instead of shrinking it so the ratio is preserved. The worker
+  // then renders this crop in pure cover mode → no letterbox / blur / bars,
+  // even when the user's selection was a bit too tight, too narrow, too tall
+  // or pushed against any edge.
+  const FACECAM_TARGET_RATIO = 1080 / 576;
+  const SAFE_PAD = 0.10;
+  function buildSafeFacecamCrop(raw: { x: number; y: number; width: number; height: number }) {
+    const cx = raw.x + raw.width / 2;
+    const cy = raw.y + raw.height / 2;
+    let w = raw.width * (1 + SAFE_PAD);
+    let h = raw.height * (1 + SAFE_PAD);
+    if (w / h < FACECAM_TARGET_RATIO) w = h * FACECAM_TARGET_RATIO;
+    else h = w / FACECAM_TARGET_RATIO;
+    if (w > 1) { w = 1; h = w / FACECAM_TARGET_RATIO; }
+    if (h > 1) { h = 1; w = h * FACECAM_TARGET_RATIO; }
+    let x = cx - w / 2;
+    let y = cy - h / 2;
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x + w > 1) x = 1 - w;
+    if (y + h > 1) y = 1 - h;
+    return { x, y, width: w, height: h };
+  }
+
   let manualNormalizedCrop = parseNormalizedCrop(body.manual_facecam_crop);
 
   // Persist the preset when requested.
