@@ -1183,17 +1183,18 @@ async function processJob({
         "-map", mapVideo,
         "-map", "0:a?",
         ...hqVideoEncodeArgs(),
+        "-r", String(DEFAULT_OUTPUT_FPS),
         ...hqAudioEncodeArgs(),
         outputPath,
       ];
-      var loggedFps = targetFps ?? sourceFps ?? null;
+      var loggedFps = targetFps ?? DEFAULT_OUTPUT_FPS;
     } else {
       // Legacy 16:9 pipeline — backward compatible. Same HQ defaults.
       const legacyFps = computeTargetFps(mainProbe?.fps ?? null);
       const fpsF = fpsFilter(legacyFps);
       const legacyVf = [
-        `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS}`,
         fpsF,
+        `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS}`,
       ].filter(Boolean).join(",");
       const baseIn = useFullSource
         ? ["-y", "-i", sourcePath, "-t", String(trimDuration)]
@@ -1204,6 +1205,7 @@ async function processJob({
         ...baseIn,
         "-vf", legacyVf,
         ...hqVideoEncodeArgs(),
+        "-r", String(DEFAULT_OUTPUT_FPS),
         ...hqAudioEncodeArgs(),
         outputPath,
       ];
@@ -1217,8 +1219,8 @@ async function processJob({
       preset: HQ_PRESET,
       scaler: HQ_SCALE_FLAGS,
       sharpen: "off",
-      fps: loggedFps ?? "source",
-      fps_cap: HQ_FPS_HARD_CAP,
+      output_fps: DEFAULT_OUTPUT_FPS,
+      source_fps: mainProbe?.fps ?? null,
       output: isVertical ? `${outW ?? 1080}x${outH ?? 1920}` : "≤1920x1080",
       audio_bitrate: HQ_AUDIO_BITRATE,
     }));
@@ -1231,12 +1233,19 @@ async function processJob({
       effective_start: effectiveStart,
       effective_duration: trimDuration,
       source_duration: sourceDurationSeconds,
+      output_fps: DEFAULT_OUTPUT_FPS,
     }));
     const firstPassStart = Date.now();
+    const firstPassTimeout = firstPassTimeoutMs(trimDuration);
     try {
-      await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);
+      await runFfmpegWithProgress(ffArgs, {
+        jobId, stage: "first_pass", timeoutMs: firstPassTimeout,
+      });
     } catch (err) {
       if (err?.message === "ffmpeg_timeout") {
+        console.error("[ffmpeg_first_pass_timeout]", JSON.stringify({
+          job_id: jobId, timeout_ms: firstPassTimeout, effective_duration: trimDuration,
+        }));
         throw new Error("ffmpeg_first_pass_timeout");
       }
       throw err;
@@ -1246,7 +1255,8 @@ async function processJob({
     if (outStat.size === 0) throw new Error("empty_output");
     const firstPassMs = Date.now() - firstPassStart;
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
-    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: firstPassMs, crf: HQ_CRF, preset: HQ_PRESET, stage: "first_pass" }));
+    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: firstPassMs, output_fps: DEFAULT_OUTPUT_FPS, crf: HQ_CRF, preset: HQ_PRESET, stage: "first_pass" }));
+
 
 
     // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
