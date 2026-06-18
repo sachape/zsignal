@@ -74,7 +74,7 @@ const DEFAULT_CROP: NormalizedCrop = clampBox({
   x: 1 - DEFAULT_WIDTH - 0.02,
   y: 0.03,
   width: DEFAULT_WIDTH,
-  height: DEFAULT_WIDTH / FACECAM_TARGET_RATIO,
+  height: DEFAULT_WIDTH / (FACECAM_TARGET_RATIO / (16 / 9)),
 });
 
 const DEBUG = (import.meta.env.MODE ?? "production") !== "production";
@@ -222,7 +222,7 @@ export function ManualFacecamPlacer({
     dragRef.current.mode = null;
   };
 
-  const reset = () => setCrop(DEFAULT_CROP);
+  const reset = () => setCrop(clampBox(lockBoxRatio(DEFAULT_CROP, DEFAULT_CROP, { ax: 0.5, ay: 0.5 }, cropRatio)));
 
   const validate = () => {
     const c = clampBox(crop);
