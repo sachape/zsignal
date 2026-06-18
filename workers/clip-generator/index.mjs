@@ -46,7 +46,36 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.13";
+const WORKER_VERSION = "3.14";
+
+// High-quality export defaults — applied to EVERY generated clip. There is no
+// "quality mode" selector exposed to the user; this is the single default.
+// CRF 18 = visually transparent. Bump to 20 if file size becomes an issue in
+// production. preset=medium balances quality and encode time on Fly's CPUs.
+const HQ_CRF = "18";
+const HQ_PRESET = "medium";
+const HQ_AUDIO_BITRATE = "192k";
+const HQ_SCALE_FLAGS = "lanczos";
+// Subtle post-scale sharpening. Tuned to NOT oversharpen gameplay textures.
+const HQ_UNSHARP = "unsharp=5:5:0.4:3:3:0.2";
+// Cap output framerate at 60 while preserving source fps when lower.
+const HQ_FPS_CAP = "fps=fps='min(60,source_fps)'";
+
+function hqVideoEncodeArgs() {
+  return [
+    "-c:v", "libx264",
+    "-preset", HQ_PRESET,
+    "-crf", HQ_CRF,
+    "-pix_fmt", "yuv420p",
+    "-profile:v", "high",
+    "-level", "4.2",
+    "-movflags", "+faststart",
+  ];
+}
+
+function hqAudioEncodeArgs() {
+  return ["-c:a", "aac", "-b:a", HQ_AUDIO_BITRATE, "-ar", "48000"];
+}
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -404,21 +433,21 @@ function buildVerticalFilterComplex({
     const gameH = outH - camH;
 
     const camCrop = `crop=${facecamCrop.width}:${facecamCrop.height}:${facecamCrop.x}:${facecamCrop.y}`;
-    const camScale = `scale=${outW}:${camH}:force_original_aspect_ratio=increase,crop=${outW}:${camH}`;
+    const camScale = `scale=${outW}:${camH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${camH}`;
 
     let gameBranch;
     if (gameplayCrop) {
       const gCrop = `crop=${gameplayCrop.width}:${gameplayCrop.height}:${gameplayCrop.x}:${gameplayCrop.y}`;
-      gameBranch = `[b]${gCrop},scale=${outW}:${gameH}:force_original_aspect_ratio=increase,crop=${outW}:${gameH}[game]`;
+      gameBranch = `[b]${gCrop},scale=${outW}:${gameH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${gameH}[game]`;
     } else {
-      gameBranch = `[b]scale=${outW}:${gameH}:force_original_aspect_ratio=increase,crop=${outW}:${gameH}[game]`;
+      gameBranch = `[b]scale=${outW}:${gameH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${gameH}[game]`;
     }
 
     const filter = [
       `[0:v]split=2[a][b]`,
       `[a]${camCrop},${camScale}[cam]`,
       gameBranch,
-      `[cam][game]vstack=inputs=2[v]`,
+      `[cam][game]vstack=inputs=2,${HQ_UNSHARP},${HQ_FPS_CAP}[v]`,
     ].join(";");
 
     // vstack puts the first input ([cam]) at y=0 and the second ([game])
@@ -440,7 +469,7 @@ function buildVerticalFilterComplex({
   // gameplay_only or fallback when no facecam crop.
   // Already minimum-cover (no extra zoom applied) — cannot relax further
   // without introducing letterbox or blur, which the product rules forbid.
-  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[v]`;
+  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${outH},${HQ_UNSHARP},${HQ_FPS_CAP}[v]`;
   return { filterComplex: filter, mapVideo: "[v]" };
 }
 
@@ -752,10 +781,8 @@ async function maybeBurnCaptions({
     await runCommand("ffmpeg", [
       "-y", "-i", composedPath,
       "-vf", `ass=${ffEscaped}`,
-      "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
-      "-pix_fmt", "yuv420p",
+      ...hqVideoEncodeArgs(),
       "-c:a", "copy",
-      "-movflags", "+faststart",
       finalPath,
     ], 5 * 60 * 1000);
 
@@ -1044,41 +1071,38 @@ async function processJob({
         "-filter_complex", filterComplex,
         "-map", mapVideo,
         "-map", "0:a?",
-        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
-        "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "128k", "-ar", "48000",
-        "-movflags", "+faststart",
+        ...hqVideoEncodeArgs(),
+        ...hqAudioEncodeArgs(),
         outputPath,
       ];
     } else {
-      // Legacy 16:9 pipeline — backward compatible.
-      ffArgs = useFullSource
-        ? [
-            "-y", "-i", sourcePath,
-            "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
-            "-c:a", "aac", "-b:a", "128k",
-            "-movflags", "+faststart",
-            outputPath,
-          ]
+      // Legacy 16:9 pipeline — backward compatible. Same HQ defaults.
+      const legacyVf = `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS},${HQ_UNSHARP},${HQ_FPS_CAP}`;
+      const baseIn = useFullSource
+        ? ["-y", "-i", sourcePath]
         : trimmedAlready
-        ? [
-            "-y", "-i", sourcePath, "-t", String(duration),
-            "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
-            "-c:a", "aac", "-b:a", "128k",
-            "-movflags", "+faststart",
-            outputPath,
-          ]
-        : [
-            "-y", "-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration),
-            "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
-            "-c:a", "aac", "-b:a", "128k",
-            "-movflags", "+faststart",
-            outputPath,
-          ];
+        ? ["-y", "-i", sourcePath, "-t", String(duration)]
+        : ["-y", "-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration)];
+      ffArgs = [
+        ...baseIn,
+        "-vf", legacyVf,
+        ...hqVideoEncodeArgs(),
+        ...hqAudioEncodeArgs(),
+        outputPath,
+      ];
     }
+
+    console.log("[export_quality]", JSON.stringify({
+      job_id: jobId,
+      mode: "default_high",
+      crf: HQ_CRF,
+      preset: HQ_PRESET,
+      scaler: HQ_SCALE_FLAGS,
+      sharpen: HQ_UNSHARP,
+      fps_cap: 60,
+      output: isVertical ? `${outW ?? 1080}x${outH ?? 1920}` : "≤1920x1080",
+      audio_bitrate: HQ_AUDIO_BITRATE,
+    }));
 
 
     console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, vertical: isVertical, duration }));
@@ -1087,6 +1111,7 @@ async function processJob({
     const outStat = await stat(outputPath);
     if (outStat.size === 0) throw new Error("empty_output");
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
+    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt, crf: HQ_CRF, preset: HQ_PRESET }));
 
     // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
     //      vertical clip. Failures here NEVER fail the job — clip ships
