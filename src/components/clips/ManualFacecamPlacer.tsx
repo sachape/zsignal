@@ -12,7 +12,7 @@
 //   - The ratio is locked to the worker's output facecam-band ratio so the
 //     final render can render in pure cover mode (no letterbox / blur).
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, ImageOff, Check } from "lucide-react";
+import { Loader2, ImageOff, Check, ChevronLeft, ChevronRight, AlertTriangle, RotateCcw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -43,14 +43,22 @@ import {
 
 export type NormalizedCrop = NormalizedBox;
 
-interface ReferenceFrame {
+interface ReferenceFrameItem {
+  t: number;
+  image_data_url: string | null;
+}
+
+interface ReferenceFrameResponse {
   platform: "twitch";
-  platform_user_id: string;
+  platform_user_id: string | null;
   platform_login: string | null;
   reference_width: number;
   reference_height: number;
-  thumbnail_url: string | null;
+  duration: number | null;
   vod_title: string | null;
+  extracted_via: "worker" | "thumbnail_fallback" | "none";
+  frames: ReferenceFrameItem[];
+  thumbnail_url: string | null;
 }
 
 interface Props {
@@ -59,6 +67,8 @@ interface Props {
   initialCrop: NormalizedCrop | null;
   channelLogin: string | null;
   sourceUrl: string | null;
+  hasSavedPreset?: boolean;
+  onResetSavedPreset?: () => void;
   onValidate: (args: {
     crop: NormalizedCrop;
     savePreset: boolean;
