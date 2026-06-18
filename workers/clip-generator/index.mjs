@@ -1155,11 +1155,14 @@ async function processJob({
         target_fps: targetFps ?? sourceFps ?? null,
       }));
 
+      // Always pass -t with the clamped effectiveDuration, even for
+      // twitch_clip "full source" mode — this is the safety net that
+      // prevents encoding 60s when the source is only 27s.
       const trimArgs = useFullSource
-        ? ["-i", sourcePath]
+        ? ["-i", sourcePath, "-t", String(trimDuration)]
         : trimmedAlready
-        ? ["-i", sourcePath, "-t", String(duration)]
-        : ["-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration)];
+        ? ["-i", sourcePath, "-t", String(trimDuration)]
+        : ["-ss", String(effectiveStart), "-i", sourcePath, "-t", String(trimDuration)];
 
       ffArgs = [
         "-y",
