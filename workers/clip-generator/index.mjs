@@ -760,10 +760,8 @@ function buildAssFile(cues, outW, outH, stylePreset) {
   });
 
   return header.concat(events).join("\n") + "\n";
-}
 
-  return header.concat(events).join("\n") + "\n";
-}
+
 
 async function transcribeAudioViaProxy({ jobId, audioPath, transcribeUrl, transcribeSecret, language }) {
   const audioBuf = await readFile(audioPath);
