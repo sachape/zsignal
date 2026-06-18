@@ -40,6 +40,7 @@ import {
   type DisplayRect,
   type NormalizedBox,
 } from "@/lib/facecamGeometry";
+import { RenderCroppedSourceImage } from "./RenderCroppedSourceImage";
 
 export type NormalizedCrop = NormalizedBox;
 
