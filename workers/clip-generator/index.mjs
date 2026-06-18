@@ -785,18 +785,31 @@ async function maybeBurnCaptions({
 
     // Escape ass path for ffmpeg filter syntax.
     const ffEscaped = assPath.replace(/\\/g, "\\\\").replace(/:/g, "\\:").replace(/'/g, "\\'");
-    await runCommand("ffmpeg", [
-      "-y", "-i", composedPath,
-      "-vf", `ass=${ffEscaped}`,
-      ...hqVideoEncodeArgs(),
-      "-c:a", "copy",
-      finalPath,
-    ], 5 * 60 * 1000);
+    const captionsStart = Date.now();
+    try {
+      await runCommand("ffmpeg", [
+        "-y", "-i", composedPath,
+        "-vf", `ass=${ffEscaped}`,
+        ...hqVideoEncodeArgs(),
+        "-c:a", "copy",
+        finalPath,
+      ], 5 * 60 * 1000);
+    } catch (err) {
+      if (err?.message === "ffmpeg_timeout") {
+        throw new Error("captions_burn_timeout");
+      }
+      throw err;
+    }
 
     const st = await stat(finalPath);
     if (st.size === 0) throw new Error("captions_empty_output");
     console.log("[captions_burned]", JSON.stringify({ job_id: jobId, size_bytes: st.size }));
+    console.log("[caption_export_output]", JSON.stringify({
+      job_id: jobId, size_bytes: st.size, duration_ms: Date.now() - captionsStart,
+      crf: HQ_CRF, preset: HQ_PRESET, stage: "captions_burn",
+    }));
     return { finalPath };
+
   } catch (err) {
     const message = err?.message ?? "unknown_error";
     console.error("[captions_failed]", JSON.stringify({ job_id: jobId, message: message.slice(0, 300) }));
