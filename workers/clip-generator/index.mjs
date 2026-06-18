@@ -46,20 +46,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.14";
+const WORKER_VERSION = "3.15";
 
-// High-quality export defaults — applied to EVERY generated clip. There is no
-// "quality mode" selector exposed to the user; this is the single default.
-// CRF 18 = visually transparent. Bump to 20 if file size becomes an issue in
-// production. preset=medium balances quality and encode time on Fly's CPUs.
-const HQ_CRF = "18";
-const HQ_PRESET = "medium";
+// Single default export mode — production-safe high quality. No selector.
+// Tuned for Fly shared-cpu-2x: veryfast/CRF20 keeps a 60s clip well under
+// ~90s encode while staying visibly cleaner than the legacy ultrafast/CRF23.
+const HQ_CRF = "20";
+const HQ_PRESET = "veryfast";
 const HQ_AUDIO_BITRATE = "192k";
 const HQ_SCALE_FLAGS = "lanczos";
-// Subtle post-scale sharpening. Tuned to NOT oversharpen gameplay textures.
-const HQ_UNSHARP = "unsharp=5:5:0.4:3:3:0.2";
-// Cap output framerate at 60 while preserving source fps when lower.
-const HQ_FPS_CAP = "fps=fps='min(60,source_fps)'";
+// Unsharp removed in v3.15 — too costly on Fly shared CPUs, marginal visual gain.
+const HQ_FPS_HARD_CAP = 60;
 
 function hqVideoEncodeArgs() {
   return [
@@ -75,6 +72,19 @@ function hqVideoEncodeArgs() {
 
 function hqAudioEncodeArgs() {
   return ["-c:a", "aac", "-b:a", HQ_AUDIO_BITRATE, "-ar", "48000"];
+}
+
+// Compute the numeric target FPS in JS. Never use ffmpeg's `min(60,source_fps)`
+// expression — some builds parse it inconsistently and it forces a re-timing
+// filter even when source is ≤ 60. We pass a concrete integer or null.
+function computeTargetFps(sourceFps) {
+  if (!Number.isFinite(sourceFps) || sourceFps <= 0) return null;
+  if (sourceFps <= HQ_FPS_HARD_CAP + 0.5) return null; // no fps filter needed
+  return HQ_FPS_HARD_CAP;
+}
+
+function fpsFilter(targetFps) {
+  return targetFps ? `fps=${targetFps}` : null;
 }
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
@@ -426,7 +436,10 @@ function buildVerticalFilterComplex({
   facecamCrop,
   gameplayCrop,
   gameplayFraming,
+  targetFps,
 }) {
+  const fpsF = fpsFilter(targetFps);
+  const tail = fpsF ? `,${fpsF}` : "";
   if (layoutType === "facecam_top_gameplay_bottom" && facecamCrop) {
     const camRatio = gameplayFraming === "fill_tight" ? 0.25 : 0.30;
     const camH = Math.round(outH * camRatio);
@@ -447,12 +460,9 @@ function buildVerticalFilterComplex({
       `[0:v]split=2[a][b]`,
       `[a]${camCrop},${camScale}[cam]`,
       gameBranch,
-      `[cam][game]vstack=inputs=2,${HQ_UNSHARP},${HQ_FPS_CAP}[v]`,
+      `[cam][game]vstack=inputs=2${tail}[v]`,
     ].join(";");
 
-    // vstack puts the first input ([cam]) at y=0 and the second ([game])
-    // immediately below at y=camH. There is NO overlay offset — the
-    // facecam band is pinned to the very top of the 1080x1920 canvas.
     console.log("[manual_layout_compose]", JSON.stringify({
       output: `${outW}x${outH}`,
       facecam_target: `${outW}x${camH}`,
@@ -466,10 +476,7 @@ function buildVerticalFilterComplex({
     return { filterComplex: filter, mapVideo: "[v]" };
   }
 
-  // gameplay_only or fallback when no facecam crop.
-  // Already minimum-cover (no extra zoom applied) — cannot relax further
-  // without introducing letterbox or blur, which the product rules forbid.
-  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${outH},${HQ_UNSHARP},${HQ_FPS_CAP}[v]`;
+  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${outH}${tail}[v]`;
   return { filterComplex: filter, mapVideo: "[v]" };
 }
 
@@ -778,18 +785,31 @@ async function maybeBurnCaptions({
 
     // Escape ass path for ffmpeg filter syntax.
     const ffEscaped = assPath.replace(/\\/g, "\\\\").replace(/:/g, "\\:").replace(/'/g, "\\'");
-    await runCommand("ffmpeg", [
-      "-y", "-i", composedPath,
-      "-vf", `ass=${ffEscaped}`,
-      ...hqVideoEncodeArgs(),
-      "-c:a", "copy",
-      finalPath,
-    ], 5 * 60 * 1000);
+    const captionsStart = Date.now();
+    try {
+      await runCommand("ffmpeg", [
+        "-y", "-i", composedPath,
+        "-vf", `ass=${ffEscaped}`,
+        ...hqVideoEncodeArgs(),
+        "-c:a", "copy",
+        finalPath,
+      ], 5 * 60 * 1000);
+    } catch (err) {
+      if (err?.message === "ffmpeg_timeout") {
+        throw new Error("captions_burn_timeout");
+      }
+      throw err;
+    }
 
     const st = await stat(finalPath);
     if (st.size === 0) throw new Error("captions_empty_output");
     console.log("[captions_burned]", JSON.stringify({ job_id: jobId, size_bytes: st.size }));
+    console.log("[caption_export_output]", JSON.stringify({
+      job_id: jobId, size_bytes: st.size, duration_ms: Date.now() - captionsStart,
+      crf: HQ_CRF, preset: HQ_PRESET, stage: "captions_burn",
+    }));
     return { finalPath };
+
   } catch (err) {
     const message = err?.message ?? "unknown_error";
     console.error("[captions_failed]", JSON.stringify({ job_id: jobId, message: message.slice(0, 300) }));
@@ -1042,6 +1062,9 @@ async function processJob({
         job_id: jobId, status: "processing", stage: "compositing", progress: 60,
       });
 
+      const sourceFps = probed?.fps ?? null;
+      const targetFps = computeTargetFps(sourceFps);
+
       const { filterComplex, mapVideo } = buildVerticalFilterComplex({
         layoutType: effectiveLayout,
         outW: outW ?? 1080,
@@ -1049,6 +1072,7 @@ async function processJob({
         facecamCrop: scaledFacecam,
         gameplayCrop: scaledGameplay,
         gameplayFraming,
+        targetFps,
       });
       console.log("[vertical_framing]", JSON.stringify({
         job_id: jobId,
@@ -1057,6 +1081,8 @@ async function processJob({
         cam_ratio: effectiveLayout === "facecam_top_gameplay_bottom"
           ? (gameplayFraming === "fill_tight" ? 0.25 : 0.30)
           : null,
+        source_fps: sourceFps,
+        target_fps: targetFps ?? sourceFps ?? null,
       }));
 
       const trimArgs = useFullSource
@@ -1075,9 +1101,19 @@ async function processJob({
         ...hqAudioEncodeArgs(),
         outputPath,
       ];
+      var loggedFps = targetFps ?? sourceFps ?? null;
     } else {
       // Legacy 16:9 pipeline — backward compatible. Same HQ defaults.
-      const legacyVf = `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS},${HQ_UNSHARP},${HQ_FPS_CAP}`;
+      let legacyFps = null;
+      try {
+        const lp = await probeVideoDimensions(sourcePath);
+        legacyFps = computeTargetFps(lp?.fps ?? null);
+      } catch {}
+      const fpsF = fpsFilter(legacyFps);
+      const legacyVf = [
+        `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS}`,
+        fpsF,
+      ].filter(Boolean).join(",");
       const baseIn = useFullSource
         ? ["-y", "-i", sourcePath]
         : trimmedAlready
@@ -1090,28 +1126,39 @@ async function processJob({
         ...hqAudioEncodeArgs(),
         outputPath,
       ];
+      var loggedFps = legacyFps;
     }
 
     console.log("[export_quality]", JSON.stringify({
       job_id: jobId,
-      mode: "default_high",
+      mode: "default_high_balanced",
       crf: HQ_CRF,
       preset: HQ_PRESET,
       scaler: HQ_SCALE_FLAGS,
-      sharpen: HQ_UNSHARP,
-      fps_cap: 60,
+      sharpen: "off",
+      fps: loggedFps ?? "source",
+      fps_cap: HQ_FPS_HARD_CAP,
       output: isVertical ? `${outW ?? 1080}x${outH ?? 1920}` : "≤1920x1080",
       audio_bitrate: HQ_AUDIO_BITRATE,
     }));
 
 
     console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, vertical: isVertical, duration }));
-    await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);
+    const firstPassStart = Date.now();
+    try {
+      await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);
+    } catch (err) {
+      if (err?.message === "ffmpeg_timeout") {
+        throw new Error("ffmpeg_first_pass_timeout");
+      }
+      throw err;
+    }
 
     const outStat = await stat(outputPath);
     if (outStat.size === 0) throw new Error("empty_output");
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
-    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt, crf: HQ_CRF, preset: HQ_PRESET }));
+    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - firstPassStart, crf: HQ_CRF, preset: HQ_PRESET, stage: "first_pass" }));
+
 
     // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
     //      vertical clip. Failures here NEVER fail the job — clip ships
@@ -1150,16 +1197,27 @@ async function processJob({
 
     // 3) Upload.
     const buf = await readFile(finalOutputPath);
-    const upRes = await fetch(outputUploadUrl, {
-      method: "PUT",
-      headers: { "Content-Type": "video/mp4" },
-      body: buf,
-    });
+    const uploadStart = Date.now();
+    let upRes;
+    try {
+      upRes = await fetch(outputUploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "video/mp4" },
+        body: buf,
+        signal: AbortSignal.timeout(2 * 60 * 1000),
+      });
+    } catch (err) {
+      if (err?.name === "TimeoutError" || /timeout/i.test(err?.message ?? "")) {
+        throw new Error("upload_timeout");
+      }
+      throw err;
+    }
     if (!upRes.ok) {
       const detail = await upRes.text().catch(() => "");
       throw new Error(`upload_failed_${upRes.status}:${detail.slice(0, 200)}`);
     }
-    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: Date.now() - startedAt }));
+    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: Date.now() - uploadStart }));
+
 
     const callbackAccepted = await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
@@ -1192,7 +1250,7 @@ function probeVideoDimensions(path) {
     const p = spawn("ffprobe", [
       "-v", "error",
       "-select_streams", "v:0",
-      "-show_entries", "stream=width,height:format=duration",
+      "-show_entries", "stream=width,height,r_frame_rate,avg_frame_rate:format=duration",
       "-of", "json",
       path,
     ], { stdio: ["ignore", "pipe", "pipe"] });
@@ -1212,14 +1270,23 @@ function probeVideoDimensions(path) {
       const h = Number(stream?.height);
       if (!w || !h) return reject(new Error("ffprobe_no_dims"));
       const duration = Number(parsed?.format?.duration);
+      const parseFps = (rate) => {
+        if (!rate || typeof rate !== "string") return null;
+        const [num, den] = rate.split("/").map(Number);
+        if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return null;
+        return num / den;
+      };
+      const fps = parseFps(stream?.avg_frame_rate) ?? parseFps(stream?.r_frame_rate) ?? null;
       resolve({
         width: w,
         height: h,
         duration: Number.isFinite(duration) && duration > 0 ? duration : null,
+        fps: Number.isFinite(fps) && fps > 0 ? fps : null,
       });
     });
   });
 }
+
 
 function runCommand(cmd, args, timeoutMs = 10 * 60 * 1000) {
   return new Promise((resolve, reject) => {
