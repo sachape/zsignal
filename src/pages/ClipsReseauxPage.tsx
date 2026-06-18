@@ -78,6 +78,29 @@ const ClipsReseauxPage = () => {
 
   const [recent, setRecent] = useState<RecentClip[]>([]);
   const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const handleDownload = useCallback(async (clip: RecentClip) => {
+    setDownloadingId(clip.id);
+    try {
+      await downloadClip({
+        clipId: clip.id,
+        storageBucket: GENERATED_CLIPS_BUCKET,
+        storagePath: clip.output_storage_path,
+        fallbackUrl: clip.output_url,
+        platform: clip.output_format,
+        createdAt: clip.created_at,
+      });
+    } catch {
+      toast({
+        title: "Téléchargement impossible",
+        description: "Impossible de télécharger le clip. Réessaie.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingId(null);
+    }
+  }, []);
 
   const loadRecent = useCallback(async () => {
     if (!user) return;
