@@ -312,12 +312,14 @@ Deno.serve(async (req) => {
     ? body.detector_strategy
     : null;
   const FACECAM_PRESET_GEOMETRY_VERSION = 3;
-  const manualCropSourceWidth = Number.isFinite(Number(body.manual_crop_source_width))
+  let manualCropSourceWidth = Number.isFinite(Number(body.manual_crop_source_width))
     ? Number(body.manual_crop_source_width)
     : 1920;
-  const manualCropSourceHeight = Number.isFinite(Number(body.manual_crop_source_height))
+  let manualCropSourceHeight = Number.isFinite(Number(body.manual_crop_source_height))
     ? Number(body.manual_crop_source_height)
     : 1080;
+  let facecamPresetId: string | null = null;
+  let facecamPresetGeometryVersion: number | null = manualNormalizedCrop ? FACECAM_PRESET_GEOMETRY_VERSION : null;
 
   function parseNormalizedCrop(input: unknown): { x: number; y: number; width: number; height: number } | null {
     if (!input || typeof input !== "object") return null;
@@ -415,6 +417,10 @@ Deno.serve(async (req) => {
       });
       if (parsed) {
         manualNormalizedCrop = parsed;
+        manualCropSourceWidth = Number(stored.source_width) || 1920;
+        manualCropSourceHeight = Number(stored.source_height) || 1080;
+        facecamPresetId = typeof stored.id === "string" ? stored.id : null;
+        facecamPresetGeometryVersion = Number(stored.geometry_version) || null;
         // Refresh last_used_at.
         await admin
           .from("user_facecam_presets")
@@ -486,6 +492,9 @@ Deno.serve(async (req) => {
       source_width: REF_W,
       source_height: REF_H,
       converted_pixel_crop: convertedPixelCrop,
+      layout_source: "manual_override",
+      preset_id: facecamPresetId,
+      preset_geometry_version: facecamPresetGeometryVersion,
       twitch_channel_login: twitchChannelLogin,
     }));
   }
