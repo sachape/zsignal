@@ -46,7 +46,36 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.13";
+const WORKER_VERSION = "3.14";
+
+// High-quality export defaults — applied to EVERY generated clip. There is no
+// "quality mode" selector exposed to the user; this is the single default.
+// CRF 18 = visually transparent. Bump to 20 if file size becomes an issue in
+// production. preset=medium balances quality and encode time on Fly's CPUs.
+const HQ_CRF = "18";
+const HQ_PRESET = "medium";
+const HQ_AUDIO_BITRATE = "192k";
+const HQ_SCALE_FLAGS = "lanczos";
+// Subtle post-scale sharpening. Tuned to NOT oversharpen gameplay textures.
+const HQ_UNSHARP = "unsharp=5:5:0.4:3:3:0.2";
+// Cap output framerate at 60 while preserving source fps when lower.
+const HQ_FPS_CAP = "fps=fps='min(60,source_fps)'";
+
+function hqVideoEncodeArgs() {
+  return [
+    "-c:v", "libx264",
+    "-preset", HQ_PRESET,
+    "-crf", HQ_CRF,
+    "-pix_fmt", "yuv420p",
+    "-profile:v", "high",
+    "-level", "4.2",
+    "-movflags", "+faststart",
+  ];
+}
+
+function hqAudioEncodeArgs() {
+  return ["-c:a", "aac", "-b:a", HQ_AUDIO_BITRATE, "-ar", "48000"];
+}
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
