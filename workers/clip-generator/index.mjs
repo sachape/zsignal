@@ -1245,6 +1245,7 @@ app.post("/extract-frames", async (req, res) => {
   const wantedCount = Math.min(8, Math.max(1, Number(count) || 5));
   const workDir = await mkdtemp(join(tmpdir(), `frames-`));
   const sourcePath = join(workDir, "source.mp4");
+  console.log(`[extract_frames_started] source_url=${String(source_url).slice(0, 200)} kind=${kind} count=${wantedCount}`);
 
   try {
     // 1) Download the source — same logic as /generate but lightweight.
@@ -1282,6 +1283,7 @@ app.post("/extract-frames", async (req, res) => {
     // 2) Probe real source dimensions & duration.
     const probed = await probeVideoDimensions(sourcePath);
     const duration = probed.duration || 0;
+    console.log(`[extract_frames_downloaded] duration=${duration.toFixed(2)} source_width=${probed.width} source_height=${probed.height}`);
 
     // 3) Pick timestamps. Spread across the usable window, biased to skip
     //    intros/outros (first 5% and last 5%).
@@ -1333,6 +1335,7 @@ app.post("/extract-frames", async (req, res) => {
       throw new Error("no_frames_extracted");
     }
 
+    console.log(`[extract_frames_completed] frames_count=${frames.length} source_width=${probed.width} source_height=${probed.height} duration=${duration.toFixed(2)}`);
     res.json({
       worker_version: WORKER_VERSION,
       source_width: probed.width,
@@ -1342,7 +1345,7 @@ app.post("/extract-frames", async (req, res) => {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[extract-frames] failed", message);
+    console.error(`[extract_frames_failed] error=${message.slice(0, 400)}`);
     res.status(500).json({ error: "extract_failed", message: message.slice(0, 400) });
   } finally {
     rm(workDir, { recursive: true, force: true }).catch(() => {});

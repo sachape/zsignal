@@ -17,7 +17,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const WORKER_BASE_URL = Deno.env.get("WORKER_BASE_URL") ?? "";
+const WORKER_BASE_URL = Deno.env.get("WORKER_BASE_URL") ?? "https://streamnco.fly.dev";
 const WORKER_SHARED_SECRET = Deno.env.get("WORKER_SHARED_SECRET") ?? "";
 
 function json(body: unknown, status = 200) {
@@ -88,9 +88,24 @@ async function extractFramesViaWorker(args: {
   duration: number | null;
   frames: WorkerFrame[];
 } | null> {
-  if (!WORKER_BASE_URL || !WORKER_SHARED_SECRET) return null;
+  if (!WORKER_BASE_URL || !WORKER_SHARED_SECRET) {
+    console.warn("[clip-layout-reference-frame] missing worker config", {
+      has_worker_url: !!WORKER_BASE_URL,
+      has_worker_secret: !!WORKER_SHARED_SECRET,
+    });
+    return null;
+  }
+  const workerUrl = `${WORKER_BASE_URL.replace(/\/$/, "")}/extract-frames`;
+  console.info("reference_frame_edge_request", {
+    source_url: args.sourceUrl,
+    source_kind: args.sourceKind,
+    worker_url: workerUrl,
+    requested_frames: args.count,
+    has_worker_secret: !!WORKER_SHARED_SECRET,
+  });
+  const startedAt = Date.now();
   try {
-    const res = await fetch(`${WORKER_BASE_URL.replace(/\/$/, "")}/extract-frames`, {
+    const res = await fetch(workerUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -106,11 +121,36 @@ async function extractFramesViaWorker(args: {
       }),
     });
     if (!res.ok) {
-      console.warn("[clip-layout-reference-frame] worker extract-frames failed", res.status);
+      const errText = await res.text().catch(() => "");
+      console.warn("reference_frame_edge_response", {
+        ok: false,
+        status: res.status,
+        elapsed_ms: Date.now() - startedAt,
+        error: errText.slice(0, 400),
+      });
       return null;
     }
     const body = await res.json();
-    if (!Array.isArray(body?.frames) || body.frames.length === 0) return null;
+    if (!Array.isArray(body?.frames) || body.frames.length === 0) {
+      console.warn("reference_frame_edge_response", {
+        ok: true,
+        status: res.status,
+        extracted_via: "worker",
+        frames_count: 0,
+        elapsed_ms: Date.now() - startedAt,
+      });
+      return null;
+    }
+    console.info("reference_frame_edge_response", {
+      ok: true,
+      status: res.status,
+      extracted_via: "worker",
+      frames_count: body.frames.length,
+      source_width: Number(body.source_width) || 1920,
+      source_height: Number(body.source_height) || 1080,
+      duration: Number.isFinite(body.duration) ? Number(body.duration) : null,
+      elapsed_ms: Date.now() - startedAt,
+    });
     return {
       source_width: Number(body.source_width) || 1920,
       source_height: Number(body.source_height) || 1080,
@@ -118,7 +158,12 @@ async function extractFramesViaWorker(args: {
       frames: body.frames,
     };
   } catch (err) {
-    console.warn("[clip-layout-reference-frame] worker call threw", err);
+    console.warn("reference_frame_edge_response", {
+      ok: false,
+      status: 0,
+      elapsed_ms: Date.now() - startedAt,
+      error: err instanceof Error ? err.message : String(err),
+    });
     return null;
   }
 }
@@ -218,6 +263,12 @@ Deno.serve(async (req) => {
       }
     }
 
+    // If we still have a URL but couldn't classify it as Twitch, fall back
+    // to "direct" so the worker downloads it via plain HTTP fetch.
+    if (workerSourceUrl && !workerSourceKind) {
+      workerSourceKind = "direct";
+    }
+
     let frames: WorkerFrame[] = [];
     let sourceWidth = 1920;
     let sourceHeight = 1080;
@@ -240,6 +291,13 @@ Deno.serve(async (req) => {
         duration = result.duration;
         extractedVia = "worker";
       }
+    } else {
+      console.warn("reference_frame_edge_request_skipped", {
+        reason: "no_source_url_resolved",
+        raw_source_url: rawSourceUrl || null,
+        parsed_kind: parsed?.kind ?? null,
+        platform_user_id: platformUserId,
+      });
     }
 
     // 2) FALLBACK — thumbnail only. The client MUST display a warning since

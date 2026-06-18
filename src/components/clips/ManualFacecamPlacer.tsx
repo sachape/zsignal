@@ -118,6 +118,20 @@ export function ManualFacecamPlacer({
   const [frameIndex, setFrameIndex] = useState(0);
   const [crop, setCrop] = useState<NormalizedCrop>(initialCrop ?? DEFAULT_CROP);
   const [savePreset, setSavePreset] = useState(true);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // A source is considered a Twitch source (and therefore MUST display a
+  // real extracted frame — no empty-grid fallback) when either the URL
+  // looks like a Twitch URL or a Twitch channelLogin is known.
+  const isTwitchSource = (() => {
+    if (channelLogin) return true;
+    if (!sourceUrl) return false;
+    try {
+      const h = new URL(sourceUrl).hostname.replace(/^www\./, "");
+      return h.endsWith("twitch.tv");
+    } catch { return false; }
+  })();
 
   const currentFrame = frame?.frames?.[frameIndex] ?? null;
   const currentImageUrl = currentFrame?.image_data_url ?? frame?.thumbnail_url ?? null;
@@ -173,7 +187,25 @@ export function ManualFacecamPlacer({
   useEffect(() => {
     if (!open) return;
     setLoading(true);
+    setLoadError(null);
     setFrameIndex(0);
+    const sourceKind = (() => {
+      if (!sourceUrl) return "none";
+      try {
+        const h = new URL(sourceUrl).hostname.replace(/^www\./, "");
+        if (h === "clips.twitch.tv") return "twitch_clip";
+        if (h.endsWith("twitch.tv")) return "twitch_vod_or_clip";
+      } catch { /* ignore */ }
+      return "direct";
+    })();
+    console.info("manual_reference_frame_request", {
+      source_url: sourceUrl,
+      twitch_url: sourceKind.startsWith("twitch") ? sourceUrl : null,
+      content_item_id: null,
+      source_kind: sourceKind,
+      has_source_url: !!sourceUrl,
+      channel_login: channelLogin,
+    });
     void (async () => {
       try {
         const { data, error } = await supabase.functions.invoke<ReferenceFrameResponse>(
@@ -183,14 +215,19 @@ export function ManualFacecamPlacer({
         if (error) throw error;
         setFrame(data ?? null);
         setFrameIndex(Math.floor(((data?.frames?.length ?? 1) - 1) / 2));
+        const framesCount = data?.frames?.length ?? 0;
+        if (framesCount === 0) {
+          setLoadError("no_frames");
+        }
       } catch (err) {
         console.warn("[ManualFacecamPlacer] reference frame unavailable", err);
         setFrame(null);
+        setLoadError(err instanceof Error ? err.message : "unknown");
       } finally {
         setLoading(false);
       }
     })();
-  }, [open, sourceUrl]);
+  }, [open, sourceUrl, loadAttempt, channelLogin]);
 
   const goPrevFrame = () => {
     if (!frame?.frames?.length) return;
@@ -365,6 +402,27 @@ export function ManualFacecamPlacer({
               className="absolute inset-0 h-full w-full select-none object-contain"
               draggable={false}
             />
+          ) : isTwitchSource ? (
+            // Twitch sources MUST display a real extracted frame. The
+            // empty-grid fallback is explicitly forbidden here because it
+            // would force the user to guess the webcam position.
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center text-muted-foreground">
+              <AlertTriangle className="h-6 w-6 text-amber-400" />
+              <p className="text-xs">
+                Impossible de charger une frame de référence. Réessaie ou importe un média.
+              </p>
+              {loadError && (
+                <p className="font-mono text-[10px] text-muted-foreground/70">{loadError}</p>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1"
+                onClick={() => setLoadAttempt((n) => n + 1)}
+              >
+                <RotateCcw className="h-3 w-3" /> Réessayer
+              </Button>
+            </div>
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
               <ImageOff className="h-6 w-6" />
@@ -462,55 +520,79 @@ export function ManualFacecamPlacer({
           </div>
         )}
 
-        <div className="flex items-start gap-2 rounded-md border border-border bg-card p-3">
-          <Checkbox
-            id="save-facecam-preset"
-            checked={savePreset && canSavePreset}
-            disabled={!canSavePreset}
-            onCheckedChange={(v) => setSavePreset(v === true)}
-            className="mt-0.5"
-          />
-          <div className="flex-1">
-            <Label
-              htmlFor="save-facecam-preset"
-              className={cn("cursor-pointer text-xs", !canSavePreset && "text-muted-foreground")}
-            >
-              Sauvegarder cette position pour les prochains clips
-            </Label>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
-              {canSavePreset ? (
-                <>
-                  Caméra mémorisée pour{" "}
-                  <span className="font-medium text-foreground">@{effectiveLogin}</span>. Tu pourras la modifier à tout moment.
-                </>
-              ) : (
-                "Aucune chaîne Twitch détectée — la zone sera utilisée uniquement pour ce clip."
-              )}
-            </p>
-          </div>
-          {hasSavedPreset && onResetSavedPreset && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1 text-[11px] text-muted-foreground hover:text-destructive"
-              onClick={() => {
-                onResetSavedPreset();
-                toast({ title: "Position sauvegardée réinitialisée" });
-              }}
-            >
-              <RotateCcw className="h-3 w-3" /> Réinitialiser
-            </Button>
-          )}
-        </div>
+        {/*
+          For Twitch sources without a real extracted frame, saving a preset
+          or validating a crop is FORBIDDEN — the user would be saving
+          coordinates relative to an empty grid, which never matches the
+          worker's pixel space.
+        */}
+        {(() => {
+          const blockTwitchNoFrame = isTwitchSource && !hasImage && !loading;
+          return (
+            <>
+              <div className="flex items-start gap-2 rounded-md border border-border bg-card p-3">
+                <Checkbox
+                  id="save-facecam-preset"
+                  checked={savePreset && canSavePreset && !blockTwitchNoFrame}
+                  disabled={!canSavePreset || blockTwitchNoFrame}
+                  onCheckedChange={(v) => setSavePreset(v === true)}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <Label
+                    htmlFor="save-facecam-preset"
+                    className={cn(
+                      "cursor-pointer text-xs",
+                      (!canSavePreset || blockTwitchNoFrame) && "text-muted-foreground",
+                    )}
+                  >
+                    Sauvegarder cette position pour les prochains clips
+                  </Label>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    {blockTwitchNoFrame ? (
+                      "Sauvegarde désactivée tant qu'une frame réelle n'a pas été chargée."
+                    ) : canSavePreset ? (
+                      <>
+                        Caméra mémorisée pour{" "}
+                        <span className="font-medium text-foreground">@{effectiveLogin}</span>. Tu pourras la modifier à tout moment.
+                      </>
+                    ) : (
+                      "Aucune chaîne Twitch détectée — la zone sera utilisée uniquement pour ce clip."
+                    )}
+                  </p>
+                </div>
+                {hasSavedPreset && onResetSavedPreset && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1 text-[11px] text-muted-foreground hover:text-destructive"
+                    onClick={() => {
+                      onResetSavedPreset();
+                      toast({ title: "Position sauvegardée réinitialisée" });
+                    }}
+                  >
+                    <RotateCcw className="h-3 w-3" /> Réinitialiser
+                  </Button>
+                )}
+              </div>
 
-        <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="ghost" size="sm" onClick={reset}>Réinitialiser la zone</Button>
-          <div className="flex-1" />
-          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Annuler</Button>
-          <Button size="sm" onClick={validate} className="gap-1">
-            <Check className="h-3.5 w-3.5" /> Valider la zone
-          </Button>
-        </DialogFooter>
+              <DialogFooter className="gap-2 sm:gap-2">
+                <Button variant="ghost" size="sm" onClick={reset}>Réinitialiser la zone</Button>
+                <div className="flex-1" />
+                <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Annuler</Button>
+                <Button
+                  size="sm"
+                  onClick={validate}
+                  className="gap-1"
+                  disabled={blockTwitchNoFrame || loading}
+                  title={blockTwitchNoFrame ? "Charge une frame de référence avant de valider." : undefined}
+                >
+                  <Check className="h-3.5 w-3.5" /> Valider la zone
+                </Button>
+              </DialogFooter>
+            </>
+          );
+        })()}
       </DialogContent>
     </Dialog>
   );
