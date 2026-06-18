@@ -109,6 +109,8 @@ export function ManualFacecamPlacer({
   initialCrop,
   channelLogin,
   sourceUrl,
+  hasSavedPreset,
+  onResetSavedPreset,
   onValidate,
 }: Props) {
   const [loading, setLoading] = useState(true);
