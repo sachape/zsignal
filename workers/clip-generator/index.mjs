@@ -1197,16 +1197,27 @@ async function processJob({
 
     // 3) Upload.
     const buf = await readFile(finalOutputPath);
-    const upRes = await fetch(outputUploadUrl, {
-      method: "PUT",
-      headers: { "Content-Type": "video/mp4" },
-      body: buf,
-    });
+    const uploadStart = Date.now();
+    let upRes;
+    try {
+      upRes = await fetch(outputUploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "video/mp4" },
+        body: buf,
+        signal: AbortSignal.timeout(2 * 60 * 1000),
+      });
+    } catch (err) {
+      if (err?.name === "TimeoutError" || /timeout/i.test(err?.message ?? "")) {
+        throw new Error("upload_timeout");
+      }
+      throw err;
+    }
     if (!upRes.ok) {
       const detail = await upRes.text().catch(() => "");
       throw new Error(`upload_failed_${upRes.status}:${detail.slice(0, 200)}`);
     }
-    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: Date.now() - startedAt }));
+    console.log("[upload_completed]", JSON.stringify({ job_id: jobId, duration_ms: Date.now() - uploadStart }));
+
 
     const callbackAccepted = await postCallback(callbackUrl, callbackSecret, {
       job_id: jobId,
