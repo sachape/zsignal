@@ -325,6 +325,33 @@ Deno.serve(async (req) => {
     return { x, y, width, height };
   }
 
+  // ── Safe crop algorithm (mirrors src/lib/facecamGeometry.ts) ──
+  // Pad the user's raw box by 10% around its center, snap it to the worker's
+  // facecam-band ratio (1080/576 ≈ 1.875), then clamp inside [0,1] — shifting
+  // the box instead of shrinking it so the ratio is preserved. The worker
+  // then renders this crop in pure cover mode → no letterbox / blur / bars,
+  // even when the user's selection was a bit too tight, too narrow, too tall
+  // or pushed against any edge.
+  const FACECAM_TARGET_RATIO = 1080 / 576;
+  const SAFE_PAD = 0.10;
+  function buildSafeFacecamCrop(raw: { x: number; y: number; width: number; height: number }) {
+    const cx = raw.x + raw.width / 2;
+    const cy = raw.y + raw.height / 2;
+    let w = raw.width * (1 + SAFE_PAD);
+    let h = raw.height * (1 + SAFE_PAD);
+    if (w / h < FACECAM_TARGET_RATIO) w = h * FACECAM_TARGET_RATIO;
+    else h = w / FACECAM_TARGET_RATIO;
+    if (w > 1) { w = 1; h = w / FACECAM_TARGET_RATIO; }
+    if (h > 1) { h = 1; w = h * FACECAM_TARGET_RATIO; }
+    let x = cx - w / 2;
+    let y = cy - h / 2;
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x + w > 1) x = 1 - w;
+    if (y + h > 1) y = 1 - h;
+    return { x, y, width: w, height: h };
+  }
+
   let manualNormalizedCrop = parseNormalizedCrop(body.manual_facecam_crop);
 
   // Persist the preset when requested.
@@ -398,25 +425,42 @@ Deno.serve(async (req) => {
   const REF_W = 1920;
   const REF_H = 1080;
 
-  const layoutPayload = manualNormalizedCrop
+  // Keep the raw user box (already saved as-is in the preset) AND derive the
+  // safe crop sent to the worker. We do NOT persist the safe crop — the raw
+  // user box stays editable, and the safe crop is always recomputed from it.
+  const safeNormalizedCrop = manualNormalizedCrop
+    ? buildSafeFacecamCrop(manualNormalizedCrop)
+    : null;
+  if (manualNormalizedCrop && safeNormalizedCrop) {
+    console.info(JSON.stringify({
+      event: "facecam_safe_crop_applied",
+      raw: manualNormalizedCrop,
+      safe: safeNormalizedCrop,
+      target_ratio: FACECAM_TARGET_RATIO,
+      pad: SAFE_PAD,
+    }));
+  }
+
+  const layoutPayload = (manualNormalizedCrop && safeNormalizedCrop)
     ? {
         output_format: "vertical_9_16",
         layout_type: "facecam_top_gameplay_bottom",
         output_width: 1080,
         output_height: 1920,
         facecam_crop: {
-          x: Math.round(manualNormalizedCrop.x * REF_W),
-          y: Math.round(manualNormalizedCrop.y * REF_H),
-          width: Math.round(manualNormalizedCrop.width * REF_W),
-          height: Math.round(manualNormalizedCrop.height * REF_H),
+          x: Math.round(safeNormalizedCrop.x * REF_W),
+          y: Math.round(safeNormalizedCrop.y * REF_H),
+          width: Math.round(safeNormalizedCrop.width * REF_W),
+          height: Math.round(safeNormalizedCrop.height * REF_H),
         },
         gameplay_crop: null,
         source_reference_width: REF_W,
         source_reference_height: REF_H,
         auto_detect_facecam: false,
         layout_source: "manual_override",
-        // Echo the original normalized crop + strategy hint for worker logs.
-        manual_facecam_crop: manualNormalizedCrop,
+        // Echo both the raw and safe crops + strategy hint for worker logs.
+        manual_facecam_crop: safeNormalizedCrop,
+        manual_facecam_crop_raw: manualNormalizedCrop,
         detector_strategy: "manual_override",
       }
     : (useManualLayout && hasFacecamCrop)

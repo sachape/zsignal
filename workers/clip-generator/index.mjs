@@ -1,4 +1,10 @@
-// Streamnco Clip Generator Worker — v3.11
+// Streamnco Clip Generator Worker — v3.12
+// v3.12 — Manual facecam crops are now pre-processed by clip-job-create with
+// the canonical "safe crop" (10% padding, snapped to the band ratio
+// 1080/576, clamped with shift). The worker still renders facecam strictly
+// in cover mode (scale=force_original_aspect_ratio=increase + crop) → no
+// letterbox, no blur, no black bars, no stretching, no matter how loose
+// the user's selection was.
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
@@ -40,7 +46,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.11";
+const WORKER_VERSION = "3.12";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
