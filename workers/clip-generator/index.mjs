@@ -1245,6 +1245,7 @@ app.post("/extract-frames", async (req, res) => {
   const wantedCount = Math.min(8, Math.max(1, Number(count) || 5));
   const workDir = await mkdtemp(join(tmpdir(), `frames-`));
   const sourcePath = join(workDir, "source.mp4");
+  console.log(`[extract_frames_started] source_url=${String(source_url).slice(0, 200)} kind=${kind} count=${wantedCount}`);
 
   try {
     // 1) Download the source — same logic as /generate but lightweight.
