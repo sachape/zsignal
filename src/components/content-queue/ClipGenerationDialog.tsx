@@ -536,6 +536,21 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
         initialCrop={manualCrop}
         channelLogin={detectedLogin}
         sourceUrl={mode === "direct_url" ? directUrl : item.source_video_url}
+        hasSavedPreset={!!manualCrop && manualPresetSaved && !!detectedLogin}
+        onResetSavedPreset={() => {
+          setManualCrop(null);
+          setManualPresetSaved(false);
+          setManualCropSourceSize(null);
+          setIgnoreSavedFacecamPreset(true);
+          if (detectedLogin && user) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            void (supabase as any)
+              .from("user_facecam_presets")
+              .update({ is_enabled: false })
+              .eq("user_id", user.id)
+              .eq("twitch_channel_login", detectedLogin);
+          }
+        }}
         onValidate={({ crop, savePreset, channelLogin, sourceWidth, sourceHeight }) => {
           setManualCrop(crop);
           setManualPresetSaved(savePreset);

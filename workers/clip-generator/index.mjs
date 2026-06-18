@@ -46,7 +46,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.12";
+const WORKER_VERSION = "3.13";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -1200,6 +1200,154 @@ function runCommand(cmd, args, timeoutMs = 10 * 60 * 1000) {
     });
   });
 }
+
+// ──────────────────────────────────────────────────────────────────────────
+// POST /extract-frames
+// Returns real JPEG frames extracted from the EXACT source media the
+// /generate pipeline would download. Used by the manual facecam placement
+// modal so the user can draw on top of the real source frame instead of
+// guessing on a thumbnail.
+//
+// Body: {
+//   source_url, source_kind,                    // same vocabulary as /generate
+//   start_time_seconds?, end_time_seconds?,     // for VODs, restricts the window
+//   timestamps?: number[],                      // optional explicit list (seconds)
+//   count?: number,                             // default 5, max 8
+// }
+//
+// Response: {
+//   worker_version,
+//   source_width, source_height, duration,
+//   frames: [{ t, image_base64, jpeg_bytes }]
+// }
+// ──────────────────────────────────────────────────────────────────────────
+app.post("/extract-frames", async (req, res) => {
+  const secret = req.header("X-Worker-Secret") ?? "";
+  if (secret !== WORKER_SHARED_SECRET) return res.status(403).json({ error: "forbidden" });
+
+  const {
+    source_url,
+    source_kind,
+    start_time_seconds,
+    end_time_seconds,
+    timestamps,
+    count,
+  } = req.body ?? {};
+
+  if (!source_url || typeof source_url !== "string") {
+    return res.status(400).json({ error: "missing_source_url" });
+  }
+
+  const kind = source_kind === "twitch_vod" || source_kind === "youtube_vod" || source_kind === "twitch_clip" || source_kind === "direct"
+    ? source_kind
+    : "direct";
+
+  const wantedCount = Math.min(8, Math.max(1, Number(count) || 5));
+  const workDir = await mkdtemp(join(tmpdir(), `frames-`));
+  const sourcePath = join(workDir, "source.mp4");
+
+  try {
+    // 1) Download the source — same logic as /generate but lightweight.
+    if (kind === "twitch_clip") {
+      await runCommand("yt-dlp", [
+        "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
+        "--retries", "3", "--fragment-retries", "5",
+        "-f", "best[ext=mp4]/best",
+        "-o", sourcePath,
+        source_url,
+      ], 5 * 60 * 1000);
+    } else if (kind === "twitch_vod" || kind === "youtube_vod") {
+      const s = Math.max(0, Math.floor(Number(start_time_seconds) || 0));
+      const e = Math.max(s + 30, Math.ceil(Number(end_time_seconds) || s + 60));
+      const section = `*${s}-${e}`;
+      const ytFormat = kind === "youtube_vod"
+        ? "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best"
+        : "best[ext=mp4]/best";
+      await runCommand("yt-dlp", [
+        "--no-warnings", "--no-playlist", "--no-part", "--force-overwrites",
+        "--retries", "3", "--fragment-retries", "5",
+        "--download-sections", section,
+        "--force-keyframes-at-cuts",
+        "-f", ytFormat,
+        "--merge-output-format", "mp4",
+        "-o", sourcePath,
+        source_url,
+      ], 5 * 60 * 1000);
+    } else {
+      const resp = await fetch(source_url);
+      if (!resp.ok || !resp.body) throw new Error(`download_failed_${resp.status}`);
+      await pipeline(resp.body, createWriteStream(sourcePath));
+    }
+
+    // 2) Probe real source dimensions & duration.
+    const probed = await probeVideoDimensions(sourcePath);
+    const duration = probed.duration || 0;
+
+    // 3) Pick timestamps. Spread across the usable window, biased to skip
+    //    intros/outros (first 5% and last 5%).
+    let targets;
+    if (Array.isArray(timestamps) && timestamps.length > 0) {
+      targets = timestamps
+        .map((t) => Number(t))
+        .filter((t) => Number.isFinite(t) && t >= 0)
+        .slice(0, 8);
+    } else if (duration > 0) {
+      const usableStart = duration * 0.05;
+      const usableEnd = duration * 0.95;
+      const span = Math.max(0.1, usableEnd - usableStart);
+      targets = Array.from({ length: wantedCount }, (_, i) =>
+        usableStart + (span * (i + 1)) / (wantedCount + 1),
+      );
+    } else {
+      targets = [0.5, 1.5, 3, 5, 8].slice(0, wantedCount);
+    }
+
+    // 4) Extract each timestamp as a JPEG.
+    const frames = [];
+    for (let i = 0; i < targets.length; i++) {
+      const t = targets[i];
+      const outPath = join(workDir, `f${i}.jpg`);
+      try {
+        await runCommand("ffmpeg", [
+          "-y",
+          "-ss", t.toFixed(3),
+          "-i", sourcePath,
+          "-frames:v", "1",
+          "-q:v", "4",
+          outPath,
+        ], 60 * 1000);
+        const buf = await readFile(outPath);
+        if (buf.length > 0) {
+          frames.push({
+            t: Number(t.toFixed(3)),
+            image_base64: buf.toString("base64"),
+            jpeg_bytes: buf.length,
+          });
+        }
+      } catch (err) {
+        console.warn(`[extract-frames] skip t=${t}`, String(err).slice(0, 200));
+      }
+    }
+
+    if (frames.length === 0) {
+      throw new Error("no_frames_extracted");
+    }
+
+    res.json({
+      worker_version: WORKER_VERSION,
+      source_width: probed.width,
+      source_height: probed.height,
+      duration,
+      frames,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[extract-frames] failed", message);
+    res.status(500).json({ error: "extract_failed", message: message.slice(0, 400) });
+  } finally {
+    rm(workDir, { recursive: true, force: true }).catch(() => {});
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Streamnco Clip Generator Worker — v${WORKER_VERSION} listening on :${PORT}`);

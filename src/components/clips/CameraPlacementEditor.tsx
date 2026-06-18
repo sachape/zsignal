@@ -19,6 +19,9 @@ interface ReferenceFrame {
   reference_height: number;
   thumbnail_url: string | null;
   vod_title: string | null;
+  // New: real frames extracted from the source via the worker.
+  frames?: Array<{ t: number; image_data_url: string | null }>;
+  extracted_via?: "worker" | "thumbnail_fallback" | "none";
 }
 
 interface Crop {
@@ -219,7 +222,8 @@ export function CameraPlacementEditor({ onSaved, onClose }: Props) {
     );
   }
 
-  const hasImage = !!frame?.thumbnail_url;
+  const previewImageUrl = frame?.frames?.[0]?.image_data_url ?? frame?.thumbnail_url ?? null;
+  const hasImage = !!previewImageUrl;
 
   return (
     <div className="space-y-4">
@@ -254,7 +258,7 @@ export function CameraPlacementEditor({ onSaved, onClose }: Props) {
       >
         {hasImage ? (
           <img
-            src={frame!.thumbnail_url!}
+            src={previewImageUrl!}
             alt={frame?.vod_title ?? "Dernière VOD"}
             className="absolute inset-0 h-full w-full object-cover select-none"
             draggable={false}
@@ -288,7 +292,7 @@ export function CameraPlacementEditor({ onSaved, onClose }: Props) {
           {/* Window inside the dim — clear the area */}
           {hasImage && imgLoaded && (
             <img
-              src={frame!.thumbnail_url!}
+              src={previewImageUrl!}
               alt=""
               draggable={false}
               className="pointer-events-none absolute h-full w-full max-w-none object-none select-none"
