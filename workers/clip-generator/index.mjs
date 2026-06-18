@@ -1113,6 +1113,7 @@ async function processJob({
     const outStat = await stat(outputPath);
     if (outStat.size === 0) throw new Error("empty_output");
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
+    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt, crf: HQ_CRF, preset: HQ_PRESET }));
 
     // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
     //      vertical clip. Failures here NEVER fail the job — clip ships
