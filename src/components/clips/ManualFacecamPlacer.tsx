@@ -187,7 +187,25 @@ export function ManualFacecamPlacer({
   useEffect(() => {
     if (!open) return;
     setLoading(true);
+    setLoadError(null);
     setFrameIndex(0);
+    const sourceKind = (() => {
+      if (!sourceUrl) return "none";
+      try {
+        const h = new URL(sourceUrl).hostname.replace(/^www\./, "");
+        if (h === "clips.twitch.tv") return "twitch_clip";
+        if (h.endsWith("twitch.tv")) return "twitch_vod_or_clip";
+      } catch { /* ignore */ }
+      return "direct";
+    })();
+    console.info("manual_reference_frame_request", {
+      source_url: sourceUrl,
+      twitch_url: sourceKind.startsWith("twitch") ? sourceUrl : null,
+      content_item_id: null,
+      source_kind: sourceKind,
+      has_source_url: !!sourceUrl,
+      channel_login: channelLogin,
+    });
     void (async () => {
       try {
         const { data, error } = await supabase.functions.invoke<ReferenceFrameResponse>(
@@ -197,14 +215,19 @@ export function ManualFacecamPlacer({
         if (error) throw error;
         setFrame(data ?? null);
         setFrameIndex(Math.floor(((data?.frames?.length ?? 1) - 1) / 2));
+        const framesCount = data?.frames?.length ?? 0;
+        if (framesCount === 0) {
+          setLoadError("no_frames");
+        }
       } catch (err) {
         console.warn("[ManualFacecamPlacer] reference frame unavailable", err);
         setFrame(null);
+        setLoadError(err instanceof Error ? err.message : "unknown");
       } finally {
         setLoading(false);
       }
     })();
-  }, [open, sourceUrl]);
+  }, [open, sourceUrl, loadAttempt, channelLogin]);
 
   const goPrevFrame = () => {
     if (!frame?.frames?.length) return;
