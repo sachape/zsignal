@@ -1073,41 +1073,38 @@ async function processJob({
         "-filter_complex", filterComplex,
         "-map", mapVideo,
         "-map", "0:a?",
-        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
-        "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "128k", "-ar", "48000",
-        "-movflags", "+faststart",
+        ...hqVideoEncodeArgs(),
+        ...hqAudioEncodeArgs(),
         outputPath,
       ];
     } else {
-      // Legacy 16:9 pipeline — backward compatible.
-      ffArgs = useFullSource
-        ? [
-            "-y", "-i", sourcePath,
-            "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
-            "-c:a", "aac", "-b:a", "128k",
-            "-movflags", "+faststart",
-            outputPath,
-          ]
+      // Legacy 16:9 pipeline — backward compatible. Same HQ defaults.
+      const legacyVf = `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS},${HQ_UNSHARP},${HQ_FPS_CAP}`;
+      const baseIn = useFullSource
+        ? ["-y", "-i", sourcePath]
         : trimmedAlready
-        ? [
-            "-y", "-i", sourcePath, "-t", String(duration),
-            "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
-            "-c:a", "aac", "-b:a", "128k",
-            "-movflags", "+faststart",
-            outputPath,
-          ]
-        : [
-            "-y", "-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration),
-            "-vf", "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
-            "-c:a", "aac", "-b:a", "128k",
-            "-movflags", "+faststart",
-            outputPath,
-          ];
+        ? ["-y", "-i", sourcePath, "-t", String(duration)]
+        : ["-y", "-ss", String(startSeconds), "-i", sourcePath, "-t", String(duration)];
+      ffArgs = [
+        ...baseIn,
+        "-vf", legacyVf,
+        ...hqVideoEncodeArgs(),
+        ...hqAudioEncodeArgs(),
+        outputPath,
+      ];
     }
+
+    console.log("[export_quality]", JSON.stringify({
+      job_id: jobId,
+      mode: "default_high",
+      crf: HQ_CRF,
+      preset: HQ_PRESET,
+      scaler: HQ_SCALE_FLAGS,
+      sharpen: HQ_UNSHARP,
+      fps_cap: 60,
+      output: isVertical ? `${outW ?? 1080}x${outH ?? 1920}` : "≤1920x1080",
+      audio_bitrate: HQ_AUDIO_BITRATE,
+    }));
 
 
     console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, vertical: isVertical, duration }));
