@@ -37,6 +37,8 @@ import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useActiveVideoJob } from "@/hooks/useVideoJobs";
 import { getGenerationStageLabel } from "@/services/videoGeneration";
+import { downloadClip } from "@/lib/downloadClip";
+import { toast } from "@/hooks/use-toast";
 
 interface RecentClip {
   id: string;
@@ -76,6 +78,29 @@ const ClipsReseauxPage = () => {
 
   const [recent, setRecent] = useState<RecentClip[]>([]);
   const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const handleDownload = useCallback(async (clip: RecentClip) => {
+    setDownloadingId(clip.id);
+    try {
+      await downloadClip({
+        clipId: clip.id,
+        storageBucket: GENERATED_CLIPS_BUCKET,
+        storagePath: clip.output_storage_path,
+        fallbackUrl: clip.output_url,
+        platform: clip.output_format,
+        createdAt: clip.created_at,
+      });
+    } catch {
+      toast({
+        title: "Téléchargement impossible",
+        description: "Impossible de télécharger le clip. Réessaie.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingId(null);
+    }
+  }, []);
 
   const loadRecent = useCallback(async () => {
     if (!user) return;
@@ -314,11 +339,23 @@ const ClipsReseauxPage = () => {
                       })}
                     </p>
                     <div className="flex gap-1.5">
-                      {clip.output_url && (
-                        <Button asChild size="sm" variant="outline" className="h-7 gap-1 px-2 text-[11px]">
-                          <a href={clip.output_url} download target="_blank" rel="noopener noreferrer">
-                            <Download className="h-3 w-3" /> Télécharger
-                          </a>
+                      {(clip.output_url || clip.output_storage_path) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 gap-1 px-2 text-[11px]"
+                          onClick={() => handleDownload(clip)}
+                          disabled={downloadingId === clip.id}
+                        >
+                          {downloadingId === clip.id ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" /> Préparation…
+                            </>
+                          ) : (
+                            <>
+                              <Download className="h-3 w-3" /> Télécharger
+                            </>
+                          )}
                         </Button>
                       )}
                       <Button asChild size="sm" className="h-7 gap-1 px-2 text-[11px]">
