@@ -1423,6 +1423,64 @@ function runCommand(cmd, args, timeoutMs = 10 * 60 * 1000) {
   });
 }
 
+// Wraps an ffmpeg invocation with periodic progress logging parsed from
+// `-progress pipe:1`. Emits [ffmpeg_progress] roughly every 10s so a stuck
+// encode is visible in Fly logs instead of being a silent timeout.
+function runFfmpegWithProgress(args, { jobId, stage, timeoutMs }) {
+  return new Promise((resolve, reject) => {
+    const fullArgs = ["-nostats", "-progress", "pipe:1", ...args];
+    const proc = spawn("ffmpeg", fullArgs, { stdio: ["ignore", "pipe", "pipe"] });
+    let stderr = "";
+    let progressBuf = "";
+    const latest = {};
+    let lastLogAt = 0;
+
+    const flushProgress = (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastLogAt < 10_000) return;
+      if (!latest.out_time_ms && !latest.frame) return;
+      lastLogAt = now;
+      const timeSec = latest.out_time_ms ? (Number(latest.out_time_ms) / 1_000_000).toFixed(2) : null;
+      console.log("[ffmpeg_progress]", JSON.stringify({
+        job_id: jobId,
+        stage,
+        time: timeSec,
+        frame: latest.frame ? Number(latest.frame) : null,
+        fps: latest.fps ? Number(latest.fps) : null,
+        speed: latest.speed ?? null,
+      }));
+    };
+
+    const timer = setTimeout(() => {
+      proc.kill("SIGTERM");
+      reject(new Error("ffmpeg_timeout"));
+    }, timeoutMs);
+
+    proc.stdout.on("data", (d) => {
+      progressBuf += d.toString();
+      let idx;
+      while ((idx = progressBuf.indexOf("\n")) !== -1) {
+        const line = progressBuf.slice(0, idx).trim();
+        progressBuf = progressBuf.slice(idx + 1);
+        const eq = line.indexOf("=");
+        if (eq === -1) continue;
+        const key = line.slice(0, eq).trim();
+        const val = line.slice(eq + 1).trim();
+        latest[key] = val;
+        if (key === "progress") flushProgress(false);
+      }
+    });
+    proc.stderr.on("data", (d) => { stderr += d.toString(); if (stderr.length > 8000) stderr = stderr.slice(-4000); });
+    proc.on("error", (err) => { clearTimeout(timer); reject(new Error(`ffmpeg_spawn_error: ${err.message}`)); });
+    proc.on("close", (code) => {
+      clearTimeout(timer);
+      flushProgress(true);
+      if (code === 0) resolve();
+      else reject(new Error(`ffmpeg_exit_${code}: ${stderr.slice(-400)}`));
+    });
+  });
+}
+
 // ──────────────────────────────────────────────────────────────────────────
 // POST /extract-frames
 // Returns real JPEG frames extracted from the EXACT source media the
