@@ -447,7 +447,10 @@ function buildVerticalFilterComplex({
   targetFps,
 }) {
   const fpsF = fpsFilter(targetFps);
-  const tail = fpsF ? `,${fpsF}` : "";
+  // Apply fps at the very start of the chain so downstream split/scale/vstack
+  // operate on already-decimated frames. Massive saving when source is 60fps.
+  const head = fpsF ? `${fpsF},` : "";
+  const tail = ""; // fps already applied early
   if (layoutType === "facecam_top_gameplay_bottom" && facecamCrop) {
     const camRatio = gameplayFraming === "fill_tight" ? 0.25 : 0.30;
     const camH = Math.round(outH * camRatio);
@@ -465,7 +468,7 @@ function buildVerticalFilterComplex({
     }
 
     const filter = [
-      `[0:v]split=2[a][b]`,
+      `[0:v]${head}split=2[a][b]`,
       `[a]${camCrop},${camScale}[cam]`,
       gameBranch,
       `[cam][game]vstack=inputs=2${tail}[v]`,
@@ -484,7 +487,7 @@ function buildVerticalFilterComplex({
     return { filterComplex: filter, mapVideo: "[v]" };
   }
 
-  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${outH}${tail}[v]`;
+  const filter = `[0:v]${head}scale=${outW}:${outH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${outH}[v]`;
   return { filterComplex: filter, mapVideo: "[v]" };
 }
 
