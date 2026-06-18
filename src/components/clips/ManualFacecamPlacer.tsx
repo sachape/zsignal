@@ -402,6 +402,27 @@ export function ManualFacecamPlacer({
               className="absolute inset-0 h-full w-full select-none object-contain"
               draggable={false}
             />
+          ) : isTwitchSource ? (
+            // Twitch sources MUST display a real extracted frame. The
+            // empty-grid fallback is explicitly forbidden here because it
+            // would force the user to guess the webcam position.
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center text-muted-foreground">
+              <AlertTriangle className="h-6 w-6 text-amber-400" />
+              <p className="text-xs">
+                Impossible de charger une frame de référence. Réessaie ou importe un média.
+              </p>
+              {loadError && (
+                <p className="font-mono text-[10px] text-muted-foreground/70">{loadError}</p>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1"
+                onClick={() => setLoadAttempt((n) => n + 1)}
+              >
+                <RotateCcw className="h-3 w-3" /> Réessayer
+              </Button>
+            </div>
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
               <ImageOff className="h-6 w-6" />
