@@ -1212,7 +1212,14 @@ async function processJob({
     }));
 
 
-    console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, vertical: isVertical, duration }));
+    console.log("[ffmpeg_started]", JSON.stringify({
+      job_id: jobId,
+      vertical: isVertical,
+      duration: trimDuration,
+      effective_start: effectiveStart,
+      effective_duration: trimDuration,
+      source_duration: sourceDurationSeconds,
+    }));
     const firstPassStart = Date.now();
     try {
       await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);
