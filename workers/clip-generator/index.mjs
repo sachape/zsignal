@@ -436,7 +436,10 @@ function buildVerticalFilterComplex({
   facecamCrop,
   gameplayCrop,
   gameplayFraming,
+  targetFps,
 }) {
+  const fpsF = fpsFilter(targetFps);
+  const tail = fpsF ? `,${fpsF}` : "";
   if (layoutType === "facecam_top_gameplay_bottom" && facecamCrop) {
     const camRatio = gameplayFraming === "fill_tight" ? 0.25 : 0.30;
     const camH = Math.round(outH * camRatio);
@@ -457,12 +460,9 @@ function buildVerticalFilterComplex({
       `[0:v]split=2[a][b]`,
       `[a]${camCrop},${camScale}[cam]`,
       gameBranch,
-      `[cam][game]vstack=inputs=2,${HQ_UNSHARP},${HQ_FPS_CAP}[v]`,
+      `[cam][game]vstack=inputs=2${tail}[v]`,
     ].join(";");
 
-    // vstack puts the first input ([cam]) at y=0 and the second ([game])
-    // immediately below at y=camH. There is NO overlay offset — the
-    // facecam band is pinned to the very top of the 1080x1920 canvas.
     console.log("[manual_layout_compose]", JSON.stringify({
       output: `${outW}x${outH}`,
       facecam_target: `${outW}x${camH}`,
@@ -476,10 +476,7 @@ function buildVerticalFilterComplex({
     return { filterComplex: filter, mapVideo: "[v]" };
   }
 
-  // gameplay_only or fallback when no facecam crop.
-  // Already minimum-cover (no extra zoom applied) — cannot relax further
-  // without introducing letterbox or blur, which the product rules forbid.
-  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${outH},${HQ_UNSHARP},${HQ_FPS_CAP}[v]`;
+  const filter = `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase:flags=${HQ_SCALE_FLAGS},crop=${outW}:${outH}${tail}[v]`;
   return { filterComplex: filter, mapVideo: "[v]" };
 }
 
