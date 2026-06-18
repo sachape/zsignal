@@ -385,6 +385,9 @@ Deno.serve(async (req) => {
           crop_y: manualNormalizedCrop.y,
           crop_width: manualNormalizedCrop.width,
           crop_height: manualNormalizedCrop.height,
+          source_width: Math.round(manualCropSourceWidth),
+          source_height: Math.round(manualCropSourceHeight),
+          geometry_version: FACECAM_PRESET_GEOMETRY_VERSION,
           is_enabled: true,
           last_used_at: new Date().toISOString(),
         },
@@ -396,15 +399,20 @@ Deno.serve(async (req) => {
   }
 
   // No inline crop? Fall back to the stored preset for this channel.
-  if (!manualNormalizedCrop && twitchChannelLogin) {
+  if (!manualNormalizedCrop && twitchChannelLogin && !ignoreSavedFacecamPreset) {
     const { data: stored } = await admin
       .from("user_facecam_presets")
-      .select("crop_x, crop_y, crop_width, crop_height, is_enabled")
+      .select("id, crop_x, crop_y, crop_width, crop_height, source_width, source_height, is_enabled, geometry_version")
       .eq("user_id", userId)
       .eq("twitch_channel_login", twitchChannelLogin)
       .maybeSingle();
-    if (stored?.is_enabled) {
-      const parsed = parseNormalizedCrop(stored);
+    if (stored?.is_enabled && stored.geometry_version === FACECAM_PRESET_GEOMETRY_VERSION) {
+      const parsed = parseNormalizedCrop({
+        x: stored.crop_x,
+        y: stored.crop_y,
+        width: stored.crop_width,
+        height: stored.crop_height,
+      });
       if (parsed) {
         manualNormalizedCrop = parsed;
         // Refresh last_used_at.
@@ -414,6 +422,13 @@ Deno.serve(async (req) => {
           .eq("user_id", userId)
           .eq("twitch_channel_login", twitchChannelLogin);
       }
+    } else if (stored?.is_enabled) {
+      console.info(JSON.stringify({
+        event: "facecam_preset_ignored_geometry_version",
+        preset_id: stored.id,
+        geometry_version: stored.geometry_version ?? null,
+        required_geometry_version: FACECAM_PRESET_GEOMETRY_VERSION,
+      }));
     }
   }
 
@@ -441,8 +456,8 @@ Deno.serve(async (req) => {
 
   // Reference resolution used to convert normalized 0..1 crops to pixel crops.
   // The worker re-scales these to actual probed dimensions at render time.
-  const REF_W = 1920;
-  const REF_H = 1080;
+  const REF_W = Math.round(manualCropSourceWidth);
+  const REF_H = Math.round(manualCropSourceHeight);
 
   // Keep the raw user box (already saved as-is in the preset) AND derive the
   // safe crop sent to the worker. We do NOT persist the safe crop — the raw
