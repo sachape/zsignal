@@ -124,3 +124,51 @@ export const RESIZE_ANCHORS = {
   "resize-w":  { ax: 1,   ay: 0.5 },
   "resize-e":  { ax: 0,   ay: 0.5 },
 } as const;
+
+/**
+ * Rect of the source image as displayed in a container using object-fit.
+ * Manual-placement coords MUST be normalized against THIS rect, not the raw
+ * container — otherwise letterbox/cover offsets corrupt x/y.
+ */
+export interface DisplayRect {
+  offsetX: number;
+  offsetY: number;
+  renderedWidth: number;
+  renderedHeight: number;
+}
+
+export function sourceToDisplayRect(
+  containerW: number,
+  containerH: number,
+  sourceW: number,
+  sourceH: number,
+  fit: "contain" | "cover" = "contain",
+): DisplayRect {
+  if (!(containerW > 0) || !(containerH > 0) || !(sourceW > 0) || !(sourceH > 0)) {
+    return { offsetX: 0, offsetY: 0, renderedWidth: containerW, renderedHeight: containerH };
+  }
+  const scale = fit === "contain"
+    ? Math.min(containerW / sourceW, containerH / sourceH)
+    : Math.max(containerW / sourceW, containerH / sourceH);
+  const renderedWidth = sourceW * scale;
+  const renderedHeight = sourceH * scale;
+  return {
+    offsetX: (containerW - renderedWidth) / 2,
+    offsetY: (containerH - renderedHeight) / 2,
+    renderedWidth,
+    renderedHeight,
+  };
+}
+
+/** Container-pixel rect → source-normalized 0..1, accounting for offset. */
+export function displayRectToSourceNormalized(
+  rect: { left: number; top: number; width: number; height: number },
+  display: DisplayRect,
+): NormalizedBox {
+  return clampBox({
+    x: (rect.left - display.offsetX) / display.renderedWidth,
+    y: (rect.top - display.offsetY) / display.renderedHeight,
+    width: rect.width / display.renderedWidth,
+    height: rect.height / display.renderedHeight,
+  });
+}
