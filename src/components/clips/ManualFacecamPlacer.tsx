@@ -118,6 +118,20 @@ export function ManualFacecamPlacer({
   const [frameIndex, setFrameIndex] = useState(0);
   const [crop, setCrop] = useState<NormalizedCrop>(initialCrop ?? DEFAULT_CROP);
   const [savePreset, setSavePreset] = useState(true);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // A source is considered a Twitch source (and therefore MUST display a
+  // real extracted frame — no empty-grid fallback) when either the URL
+  // looks like a Twitch URL or a Twitch channelLogin is known.
+  const isTwitchSource = (() => {
+    if (channelLogin) return true;
+    if (!sourceUrl) return false;
+    try {
+      const h = new URL(sourceUrl).hostname.replace(/^www\./, "");
+      return h.endsWith("twitch.tv");
+    } catch { return false; }
+  })();
 
   const currentFrame = frame?.frames?.[frameIndex] ?? null;
   const currentImageUrl = currentFrame?.image_data_url ?? frame?.thumbnail_url ?? null;
