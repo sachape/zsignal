@@ -19,6 +19,9 @@ interface ReferenceFrame {
   reference_height: number;
   thumbnail_url: string | null;
   vod_title: string | null;
+  // New: real frames extracted from the source via the worker.
+  frames?: Array<{ t: number; image_data_url: string | null }>;
+  extracted_via?: "worker" | "thumbnail_fallback" | "none";
 }
 
 interface Crop {
