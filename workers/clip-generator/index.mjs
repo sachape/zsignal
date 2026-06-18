@@ -781,10 +781,8 @@ async function maybeBurnCaptions({
     await runCommand("ffmpeg", [
       "-y", "-i", composedPath,
       "-vf", `ass=${ffEscaped}`,
-      "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
-      "-pix_fmt", "yuv420p",
+      ...hqVideoEncodeArgs(),
       "-c:a", "copy",
-      "-movflags", "+faststart",
       finalPath,
     ], 5 * 60 * 1000);
 
