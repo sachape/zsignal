@@ -37,6 +37,8 @@ import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useActiveVideoJob } from "@/hooks/useVideoJobs";
 import { getGenerationStageLabel } from "@/services/videoGeneration";
+import { downloadClip } from "@/lib/downloadClip";
+import { toast } from "@/hooks/use-toast";
 
 interface RecentClip {
   id: string;
