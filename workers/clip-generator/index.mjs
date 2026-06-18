@@ -1199,7 +1199,7 @@ function probeVideoDimensions(path) {
     const p = spawn("ffprobe", [
       "-v", "error",
       "-select_streams", "v:0",
-      "-show_entries", "stream=width,height:format=duration",
+      "-show_entries", "stream=width,height,r_frame_rate,avg_frame_rate:format=duration",
       "-of", "json",
       path,
     ], { stdio: ["ignore", "pipe", "pipe"] });
@@ -1219,14 +1219,23 @@ function probeVideoDimensions(path) {
       const h = Number(stream?.height);
       if (!w || !h) return reject(new Error("ffprobe_no_dims"));
       const duration = Number(parsed?.format?.duration);
+      const parseFps = (rate) => {
+        if (!rate || typeof rate !== "string") return null;
+        const [num, den] = rate.split("/").map(Number);
+        if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return null;
+        return num / den;
+      };
+      const fps = parseFps(stream?.avg_frame_rate) ?? parseFps(stream?.r_frame_rate) ?? null;
       resolve({
         width: w,
         height: h,
         duration: Number.isFinite(duration) && duration > 0 ? duration : null,
+        fps: Number.isFinite(fps) && fps > 0 ? fps : null,
       });
     });
   });
 }
+
 
 function runCommand(cmd, args, timeoutMs = 10 * 60 * 1000) {
   return new Promise((resolve, reject) => {
