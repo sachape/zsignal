@@ -112,9 +112,14 @@ export function ManualFacecamPlacer({
   onValidate,
 }: Props) {
   const [loading, setLoading] = useState(true);
-  const [frame, setFrame] = useState<ReferenceFrame | null>(null);
+  const [frame, setFrame] = useState<ReferenceFrameResponse | null>(null);
+  const [frameIndex, setFrameIndex] = useState(0);
   const [crop, setCrop] = useState<NormalizedCrop>(initialCrop ?? DEFAULT_CROP);
   const [savePreset, setSavePreset] = useState(true);
+
+  const currentFrame = frame?.frames?.[frameIndex] ?? null;
+  const currentImageUrl = currentFrame?.image_data_url ?? frame?.thumbnail_url ?? null;
+  const isThumbnailFallback = frame?.extracted_via === "thumbnail_fallback";
 
   // Container & natural-image dimensions drive the display rect.
   const stageRef = useRef<HTMLDivElement | null>(null);
