@@ -1,4 +1,4 @@
-// Streamnco Clip Generator Worker — v3.10
+// Streamnco Clip Generator Worker — v3.11
 // Stateless ffmpeg worker. Receives a job from the Lovable Edge Function and
 // produces either:
 //   - a legacy 16:9 clip (when no layout is provided — backward compatible),
@@ -40,7 +40,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.10";
+const WORKER_VERSION = "3.11";
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
 
@@ -153,7 +153,19 @@ app.post("/generate", async (req, res) => {
     transcribe_url,
     transcribe_secret,
     gameplay_framing,
+    manual_facecam_crop,
+    detector_strategy,
   } = req.body ?? {};
+
+  // MVP — Manual facecam placement. The dispatcher already converted the
+  // normalized crop to a pixel `facecam_crop`; this block only logs the
+  // override so it's traceable end-to-end in Fly logs.
+  if (detector_strategy === "manual_override" && manual_facecam_crop) {
+    const c = manual_facecam_crop;
+    console.log(
+      `[manual_override] using manual_facecam_crop x=${c.x} y=${c.y} w=${c.width} h=${c.height} job_id=${job_id}`,
+    );
+  }
 
   if (
     !job_id ||

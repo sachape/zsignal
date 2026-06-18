@@ -2677,6 +2677,57 @@ export type Database = {
         }
         Relationships: []
       }
+      user_facecam_presets: {
+        Row: {
+          created_at: string
+          crop_height: number
+          crop_width: number
+          crop_x: number
+          crop_y: number
+          id: string
+          is_enabled: boolean
+          last_used_at: string | null
+          source_height: number | null
+          source_width: number | null
+          twitch_channel_id: string | null
+          twitch_channel_login: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          crop_height: number
+          crop_width: number
+          crop_x: number
+          crop_y: number
+          id?: string
+          is_enabled?: boolean
+          last_used_at?: string | null
+          source_height?: number | null
+          source_width?: number | null
+          twitch_channel_id?: string | null
+          twitch_channel_login: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          crop_height?: number
+          crop_width?: number
+          crop_x?: number
+          crop_y?: number
+          id?: string
+          is_enabled?: boolean
+          last_used_at?: string | null
+          source_height?: number | null
+          source_width?: number | null
+          twitch_channel_id?: string | null
+          twitch_channel_login?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_onboarding: {
         Row: {
           completed_at: string | null

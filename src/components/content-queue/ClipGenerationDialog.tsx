@@ -1,6 +1,6 @@
 // V3D — Dialog to upload a source video (or paste a direct URL) and launch generation.
-import { useState } from "react";
-import { Loader2, Upload, AlertCircle, Wand2, Link as LinkIcon, FileVideo, Sparkles, ChevronDown, Captions } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Upload, AlertCircle, Wand2, Link as LinkIcon, FileVideo, Sparkles, ChevronDown, Captions, Camera, Check, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,12 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { CaptionStylePreviewGrid, type CaptionStyle } from "@/components/clips/CaptionStylePreviewGrid";
 import type { ContentItem } from "@/hooks/useContentItems";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
 import { QuickCameraPicker } from "@/components/clips/QuickCameraPicker";
+import { ManualFacecamPlacer, type NormalizedCrop } from "@/components/clips/ManualFacecamPlacer";
 
 interface Props {
   item: ContentItem;
@@ -50,8 +52,25 @@ function reasonLabel(reason: string): string {
   }
 }
 
+function extractTwitchChannelLogin(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    const host = u.hostname.replace(/^www\./, "");
+    if (host === "twitch.tv" || host === "m.twitch.tv") {
+      const clipMatch = u.pathname.match(/^\/([^/]+)\/clip\/[A-Za-z0-9_-]+/);
+      if (clipMatch) return clipMatch[1].toLowerCase();
+      // /<channel> live URL fallback
+      const liveMatch = u.pathname.match(/^\/([A-Za-z0-9_]+)\/?$/);
+      if (liveMatch && liveMatch[1] !== "videos") return liveMatch[1].toLowerCase();
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
 const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [directUrl, setDirectUrl] = useState(item.source_video_url ?? "");
@@ -65,6 +84,47 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
   const [captionsStyle, setCaptionsStyle] = useState<CaptionStyle>("clean");
 
+  // ── Manual facecam placement (MVP) ──
+  const [placerOpen, setPlacerOpen] = useState(false);
+  const [manualCrop, setManualCrop] = useState<NormalizedCrop | null>(null);
+  const [manualPresetSaved, setManualPresetSaved] = useState(false);
+
+  const detectedLogin = useMemo(
+    () => extractTwitchChannelLogin(directUrl) ?? extractTwitchChannelLogin(item.source_video_url ?? null),
+    [directUrl, item.source_video_url],
+  );
+
+  // On open / when channel changes, prefill from a stored preset for this channel.
+  useEffect(() => {
+    if (!open || !user || !detectedLogin) {
+      if (open && !detectedLogin) setManualPresetSaved(false);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
+        .from("user_facecam_presets")
+        .select("crop_x, crop_y, crop_width, crop_height, is_enabled")
+        .eq("user_id", user.id)
+        .eq("twitch_channel_login", detectedLogin)
+        .maybeSingle();
+      if (cancelled) return;
+      if (data?.is_enabled && Number.isFinite(data.crop_width) && data.crop_width > 0) {
+        setManualCrop({
+          x: Number(data.crop_x),
+          y: Number(data.crop_y),
+          width: Number(data.crop_width),
+          height: Number(data.crop_height),
+        });
+        setManualPresetSaved(true);
+      } else {
+        setManualPresetSaved(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, user, detectedLogin]);
+
   const start = item.source_start_time;
   const end = item.source_end_time;
   const validTimestamps = start != null && end != null && end > start && (end - start) >= 5 && (end - start) <= 180;
@@ -72,6 +132,7 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   function reset() {
     setFile(null); setDirectUrl(item.source_video_url ?? "");
     setBusy(false); setPhase("idle"); setProgress(0); setError(null);
+    setManualCrop(null); setManualPresetSaved(false);
   }
 
   function handleFile(f: File | null) {
@@ -179,6 +240,11 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             // Opt-in only: a stored preset is used ONLY when the user explicitly
             // opened "Forcer manuellement". Default flow = pure auto-detect.
             use_manual_layout: showAdvanced,
+            // MVP — manual facecam placement. Takes priority over auto-detect.
+            manual_facecam_crop: manualCrop ?? undefined,
+            detector_strategy: manualCrop ? "manual_override" : undefined,
+            twitch_channel_login: detectedLogin ?? undefined,
+            save_facecam_preset: manualCrop ? manualPresetSaved : false,
             captions_enabled: captionsEnabled,
             captions_language: "fr",
             captions_style: captionsStyle,
@@ -303,13 +369,63 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             </div>
           )}
 
+          {/* MVP — Manual facecam placement (primary CTA). */}
+          <div className="rounded-md border border-border bg-card p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2">
+                <Camera className="mt-0.5 h-3.5 w-3.5 text-primary" />
+                <div>
+                  <p className="text-xs font-medium text-foreground">Placer ma caméra</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    {manualCrop
+                      ? manualPresetSaved
+                        ? "Caméra sauvegardée pour cette chaîne. Elle sera utilisée pour ce clip."
+                        : "Zone caméra sélectionnée pour ce clip."
+                      : "Sélectionne manuellement la zone webcam. Plus fiable que la détection auto."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                {manualCrop && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
+                    <Check className="h-3 w-3" /> Active
+                  </span>
+                )}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={manualCrop ? "outline" : "default"}
+                  className="gap-1 text-xs"
+                  onClick={() => setPlacerOpen(true)}
+                  disabled={busy}
+                >
+                  {manualCrop ? <><Pencil className="h-3 w-3" /> Modifier</> : <><Camera className="h-3 w-3" /> Placer ma caméra</>}
+                </Button>
+                {manualCrop && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="text-xs text-muted-foreground hover:text-destructive"
+                    onClick={() => { setManualCrop(null); setManualPresetSaved(false); }}
+                    disabled={busy}
+                  >
+                    Réinitialiser
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
             <p className="flex items-center gap-2 text-xs font-medium text-foreground">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               Détection automatique de la facecam
             </p>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              Streamnco repère ta caméra dans la vidéo et la place en haut du clip vertical. Si aucune caméra n'est détectée, le rendu sort en gameplay seul.
+              {manualCrop
+                ? "Désactivée — ta zone manuelle sera utilisée."
+                : "Streamnco repère ta caméra dans la vidéo et la place en haut du clip vertical. Si aucune caméra n'est détectée, le rendu sort en gameplay seul."}
             </p>
             <button
               type="button"
@@ -379,6 +495,46 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <ManualFacecamPlacer
+        open={placerOpen}
+        onOpenChange={setPlacerOpen}
+        initialCrop={manualCrop}
+        channelLogin={detectedLogin}
+        onValidate={({ crop, savePreset, channelLogin }) => {
+          setManualCrop(crop);
+          setManualPresetSaved(savePreset);
+          if (savePreset && channelLogin && user) {
+            // Fire-and-forget upsert. RLS scopes to the current user.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            void (supabase as any)
+              .from("user_facecam_presets")
+              .upsert(
+                {
+                  user_id: user.id,
+                  twitch_channel_login: channelLogin,
+                  crop_x: crop.x,
+                  crop_y: crop.y,
+                  crop_width: crop.width,
+                  crop_height: crop.height,
+                  is_enabled: true,
+                  last_used_at: new Date().toISOString(),
+                },
+                { onConflict: "user_id,twitch_channel_login" },
+              )
+              .then(({ error }: { error: unknown }) => {
+                if (error) {
+                  console.error("[ClipGenerationDialog] preset upsert failed", error);
+                  toast.error("Impossible de sauvegarder la position");
+                } else {
+                  toast.success("Caméra sauvegardée pour cette chaîne");
+                }
+              });
+          } else {
+            toast.success("Zone caméra appliquée pour ce clip");
+          }
+        }}
+      />
     </Dialog>
   );
 };
