@@ -490,35 +490,76 @@ export function ManualFacecamPlacer({
           </div>
         )}
 
-        {/* Aperçu rendu caméra — exact preview of what the worker will render
-            in the top facecam band (cover-mode, locked ratio). */}
-        {hasImage && (
-          <div className="rounded-md border border-border bg-card p-3">
-            <div className="mb-1.5 flex items-center justify-between">
-              <Label className="text-xs">Aperçu rendu caméra (bande haute)</Label>
-              <span className="font-mono text-[10px] text-muted-foreground">
-                safe {safeCrop.x.toFixed(2)},{safeCrop.y.toFixed(2)} · {safeCrop.width.toFixed(2)}×{safeCrop.height.toFixed(2)}
-              </span>
+        {/* Aperçu final 9:16 — full vertical composition. The facecam band
+            is pinned to y=0 (top 30%), gameplay fills the bottom 70%, with
+            no gap and no black margin — exactly matching the worker's
+            vstack(cam, game) output at 1080x1920. */}
+        {hasImage && (() => {
+          const CAM_RATIO = 0.30; // keep in sync with worker default
+          return (
+            <div className="rounded-md border border-border bg-card p-3">
+              <div className="mb-1.5 flex items-center justify-between">
+                <Label className="text-xs">Aperçu final 9:16</Label>
+                <span className="font-mono text-[10px] text-muted-foreground">
+                  cam y=0 · {Math.round(CAM_RATIO * 100)}% / gameplay {Math.round((1 - CAM_RATIO) * 100)}%
+                </span>
+              </div>
+              <div className="flex justify-center">
+                <div
+                  className="relative overflow-hidden rounded bg-black"
+                  style={{ aspectRatio: "9 / 16", height: 360 }}
+                >
+                  {/* Facecam band — pinned to the very top (y=0), full width,
+                      cover-rendered from the safe crop. */}
+                  <div
+                    className="absolute left-0 right-0 top-0 overflow-hidden"
+                    style={{ height: `${CAM_RATIO * 100}%` }}
+                  >
+                    <img
+                      src={currentImageUrl!}
+                      alt=""
+                      draggable={false}
+                      className="pointer-events-none absolute max-w-none select-none object-none"
+                      style={{
+                        left: `-${(safeCrop.x / safeCrop.width) * 100}%`,
+                        top: `-${(safeCrop.y / safeCrop.height) * 100}%`,
+                        width: `${(1 / safeCrop.width) * 100}%`,
+                        height: `${(1 / safeCrop.height) * 100}%`,
+                      }}
+                    />
+                    <div className="pointer-events-none absolute left-1 top-1 rounded bg-primary/90 px-1.5 py-0.5 text-[9px] font-medium text-primary-foreground">
+                      Caméra (y=0)
+                    </div>
+                  </div>
+
+                  {/* Gameplay band — immediately below the facecam (no gap),
+                      cover-fit from the full source frame to mirror the
+                      worker's gameplay scale+crop. */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 overflow-hidden"
+                    style={{ height: `${(1 - CAM_RATIO) * 100}%` }}
+                  >
+                    <img
+                      src={currentImageUrl!}
+                      alt=""
+                      draggable={false}
+                      className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+                    />
+                    <div className="pointer-events-none absolute left-1 top-1 rounded bg-background/70 px-1.5 py-0.5 text-[9px] font-medium text-foreground">
+                      Gameplay
+                    </div>
+                  </div>
+
+                  {/* Separator hairline between the two bands (purely visual). */}
+                  <div
+                    className="pointer-events-none absolute left-0 right-0 h-px bg-primary/40"
+                    style={{ top: `${CAM_RATIO * 100}%` }}
+                  />
+                </div>
+              </div>
             </div>
-            <div
-              className="relative w-full overflow-hidden rounded bg-black"
-              style={{ aspectRatio: `${FACECAM_TARGET_RATIO}` }}
-            >
-              <img
-                src={currentImageUrl!}
-                alt=""
-                draggable={false}
-                className="pointer-events-none absolute h-full w-full max-w-none select-none object-none"
-                style={{
-                  left: `-${(safeCrop.x / safeCrop.width) * 100}%`,
-                  top: `-${(safeCrop.y / safeCrop.height) * 100}%`,
-                  width: `${(1 / safeCrop.width) * 100}%`,
-                  height: `${(1 / safeCrop.height) * 100}%`,
-                }}
-              />
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/*
           For Twitch sources without a real extracted frame, saving a preset
