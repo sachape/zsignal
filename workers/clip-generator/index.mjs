@@ -46,20 +46,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const WORKER_VERSION = "3.14";
+const WORKER_VERSION = "3.15";
 
-// High-quality export defaults — applied to EVERY generated clip. There is no
-// "quality mode" selector exposed to the user; this is the single default.
-// CRF 18 = visually transparent. Bump to 20 if file size becomes an issue in
-// production. preset=medium balances quality and encode time on Fly's CPUs.
-const HQ_CRF = "18";
-const HQ_PRESET = "medium";
+// Single default export mode — production-safe high quality. No selector.
+// Tuned for Fly shared-cpu-2x: veryfast/CRF20 keeps a 60s clip well under
+// ~90s encode while staying visibly cleaner than the legacy ultrafast/CRF23.
+const HQ_CRF = "20";
+const HQ_PRESET = "veryfast";
 const HQ_AUDIO_BITRATE = "192k";
 const HQ_SCALE_FLAGS = "lanczos";
-// Subtle post-scale sharpening. Tuned to NOT oversharpen gameplay textures.
-const HQ_UNSHARP = "unsharp=5:5:0.4:3:3:0.2";
-// Cap output framerate at 60 while preserving source fps when lower.
-const HQ_FPS_CAP = "fps=fps='min(60,source_fps)'";
+// Unsharp removed in v3.15 — too costly on Fly shared CPUs, marginal visual gain.
+const HQ_FPS_HARD_CAP = 60;
 
 function hqVideoEncodeArgs() {
   return [
@@ -75,6 +72,19 @@ function hqVideoEncodeArgs() {
 
 function hqAudioEncodeArgs() {
   return ["-c:a", "aac", "-b:a", HQ_AUDIO_BITRATE, "-ar", "48000"];
+}
+
+// Compute the numeric target FPS in JS. Never use ffmpeg's `min(60,source_fps)`
+// expression — some builds parse it inconsistently and it forces a re-timing
+// filter even when source is ≤ 60. We pass a concrete integer or null.
+function computeTargetFps(sourceFps) {
+  if (!Number.isFinite(sourceFps) || sourceFps <= 0) return null;
+  if (sourceFps <= HQ_FPS_HARD_CAP + 0.5) return null; // no fps filter needed
+  return HQ_FPS_HARD_CAP;
+}
+
+function fpsFilter(targetFps) {
+  return targetFps ? `fps=${targetFps}` : null;
 }
 const PORT = Number(process.env.PORT || 8080);
 const WORKER_SHARED_SECRET = process.env.WORKER_SHARED_SECRET;
