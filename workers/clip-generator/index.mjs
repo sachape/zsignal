@@ -1283,6 +1283,7 @@ app.post("/extract-frames", async (req, res) => {
     // 2) Probe real source dimensions & duration.
     const probed = await probeVideoDimensions(sourcePath);
     const duration = probed.duration || 0;
+    console.log(`[extract_frames_downloaded] duration=${duration.toFixed(2)} source_width=${probed.width} source_height=${probed.height}`);
 
     // 3) Pick timestamps. Spread across the usable window, biased to skip
     //    intros/outros (first 5% and last 5%).
