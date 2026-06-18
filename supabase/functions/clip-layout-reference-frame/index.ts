@@ -17,7 +17,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const WORKER_BASE_URL = Deno.env.get("WORKER_BASE_URL") ?? "";
+const WORKER_BASE_URL = Deno.env.get("WORKER_BASE_URL") ?? "https://streamnco.fly.dev";
 const WORKER_SHARED_SECRET = Deno.env.get("WORKER_SHARED_SECRET") ?? "";
 
 function json(body: unknown, status = 200) {
