@@ -339,11 +339,23 @@ const ClipsReseauxPage = () => {
                       })}
                     </p>
                     <div className="flex gap-1.5">
-                      {clip.output_url && (
-                        <Button asChild size="sm" variant="outline" className="h-7 gap-1 px-2 text-[11px]">
-                          <a href={clip.output_url} download target="_blank" rel="noopener noreferrer">
-                            <Download className="h-3 w-3" /> Télécharger
-                          </a>
+                      {(clip.output_url || clip.output_storage_path) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 gap-1 px-2 text-[11px]"
+                          onClick={() => handleDownload(clip)}
+                          disabled={downloadingId === clip.id}
+                        >
+                          {downloadingId === clip.id ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" /> Préparation…
+                            </>
+                          ) : (
+                            <>
+                              <Download className="h-3 w-3" /> Télécharger
+                            </>
+                          )}
                         </Button>
                       )}
                       <Button asChild size="sm" className="h-7 gap-1 px-2 text-[11px]">
