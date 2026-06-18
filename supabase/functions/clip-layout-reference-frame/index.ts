@@ -104,6 +104,8 @@ async function extractFramesViaWorker(args: {
     has_worker_secret: !!WORKER_SHARED_SECRET,
   });
   const startedAt = Date.now();
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 25_000);
   try {
     const res = await fetch(workerUrl, {
       method: "POST",
@@ -119,6 +121,7 @@ async function extractFramesViaWorker(args: {
         start_time_seconds: args.startSeconds,
         end_time_seconds: args.endSeconds,
       }),
+      signal: ac.signal,
     });
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
@@ -158,13 +161,23 @@ async function extractFramesViaWorker(args: {
       frames: body.frames,
     };
   } catch (err) {
-    console.warn("reference_frame_edge_response", {
-      ok: false,
-      status: 0,
-      elapsed_ms: Date.now() - startedAt,
-      error: err instanceof Error ? err.message : String(err),
-    });
+    const isAbort = err instanceof Error && err.name === "AbortError";
+    if (isAbort) {
+      console.warn("reference_frame_edge_timeout", {
+        elapsed_ms: Date.now() - startedAt,
+        timeout_ms: 25_000,
+      });
+    } else {
+      console.warn("reference_frame_edge_response", {
+        ok: false,
+        status: 0,
+        elapsed_ms: Date.now() - startedAt,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 

@@ -185,8 +185,24 @@ export function ManualFacecamPlacer({
     }
   }, [open, initialCrop, cropRatio]);
 
+  const inflightRef = useRef<AbortController | null>(null);
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      // Modal closed — cancel any in-flight request so it doesn't
+      // resolve later and stomp state for the next open.
+      if (inflightRef.current) {
+        inflightRef.current.abort();
+        inflightRef.current = null;
+      }
+      return;
+    }
+    // Prevent duplicate concurrent requests (e.g. fast re-renders).
+    if (inflightRef.current) {
+      inflightRef.current.abort();
+    }
+    const ac = new AbortController();
+    inflightRef.current = ac;
+
     setLoading(true);
     setLoadError(null);
     setFrameIndex(0);
@@ -199,13 +215,13 @@ export function ManualFacecamPlacer({
       } catch { /* ignore */ }
       return "direct";
     })();
-    console.info("manual_reference_frame_request", {
+    const requestStartedAt = Date.now();
+    console.info("manual_reference_frame_request_started", {
       source_url: sourceUrl,
-      twitch_url: sourceKind.startsWith("twitch") ? sourceUrl : null,
-      content_item_id: null,
       source_kind: sourceKind,
       has_source_url: !!sourceUrl,
       channel_login: channelLogin,
+      attempt: loadAttempt,
     });
     void (async () => {
       try {
@@ -213,21 +229,43 @@ export function ManualFacecamPlacer({
           "clip-layout-reference-frame",
           { body: { source_url: sourceUrl, count: 5 } },
         );
+        if (ac.signal.aborted) return;
         if (error) throw error;
+        const framesCount = data?.frames?.length ?? 0;
         setFrame(data ?? null);
         setFrameIndex(Math.floor(((data?.frames?.length ?? 1) - 1) / 2));
-        const framesCount = data?.frames?.length ?? 0;
         if (framesCount === 0) {
           setLoadError("no_frames");
+          console.warn("manual_reference_frame_request_failed", {
+            error: "no_frames",
+            duration_ms: Date.now() - requestStartedAt,
+          });
+        } else {
+          console.info("manual_reference_frame_request_success", {
+            frames_count: framesCount,
+            extracted_via: data?.extracted_via,
+            duration_ms: Date.now() - requestStartedAt,
+          });
         }
       } catch (err) {
-        console.warn("[ManualFacecamPlacer] reference frame unavailable", err);
+        if (ac.signal.aborted) return;
+        const msg = err instanceof Error ? err.message : "unknown";
+        console.warn("manual_reference_frame_request_failed", {
+          error: msg,
+          duration_ms: Date.now() - requestStartedAt,
+        });
         setFrame(null);
-        setLoadError(err instanceof Error ? err.message : "unknown");
+        setLoadError(msg);
       } finally {
-        setLoading(false);
+        if (!ac.signal.aborted) setLoading(false);
+        if (inflightRef.current === ac) inflightRef.current = null;
       }
     })();
+
+    return () => {
+      ac.abort();
+      if (inflightRef.current === ac) inflightRef.current = null;
+    };
   }, [open, sourceUrl, loadAttempt, channelLogin]);
 
   const goPrevFrame = () => {
