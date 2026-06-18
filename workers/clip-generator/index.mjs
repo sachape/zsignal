@@ -745,10 +745,22 @@ function buildAssFile(cues, outW, outH, stylePreset) {
     "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
   ];
 
-  const events = cues.map((c) => {
+  // Final safety net: re-sanitize and assert no overlap before writing.
+  const safeCues = sanitizeCues(cues);
+  let overlaps = 0;
+  for (let i = 0; i < safeCues.length - 1; i++) {
+    if (safeCues[i].end > safeCues[i + 1].start) overlaps++;
+  }
+  if (overlaps > 0) {
+    console.log("[caption_overlap_detected]", JSON.stringify({ overlaps }));
+  }
+  const events = safeCues.map((c) => {
     const wrapped = s.wrapText(escapeAssText(c.text));
     return `Dialogue: 0,${secondsToAssTime(c.start)},${secondsToAssTime(c.end)},TT,,0,0,0,,${wrapped}`;
   });
+
+  return header.concat(events).join("\n") + "\n";
+}
 
   return header.concat(events).join("\n") + "\n";
 }
