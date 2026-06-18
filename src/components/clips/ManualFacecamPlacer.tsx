@@ -35,6 +35,7 @@ import {
   clampBox,
   displayRectToSourceNormalized,
   lockBoxRatio,
+  normalizedRatioForSource,
   sourceToDisplayRect,
   type DisplayRect,
   type NormalizedBox,
@@ -110,6 +111,7 @@ export function ManualFacecamPlacer({
 
   const sourceW = naturalSize?.w ?? frame?.reference_width ?? 1920;
   const sourceH = naturalSize?.h ?? frame?.reference_height ?? 1080;
+  const cropRatio = useMemo(() => normalizedRatioForSource(sourceW, sourceH), [sourceW, sourceH]);
 
   const display: DisplayRect = useMemo(
     () => sourceToDisplayRect(containerSize.w, containerSize.h, sourceW, sourceH, "contain"),
@@ -145,11 +147,11 @@ export function ManualFacecamPlacer({
   useEffect(() => {
     if (open) {
       const seed = initialCrop ?? DEFAULT_CROP;
-      const snapped = lockBoxRatio(seed, seed, { ax: 0.5, ay: 0.5 }, FACECAM_TARGET_RATIO);
+      const snapped = lockBoxRatio(seed, seed, { ax: 0.5, ay: 0.5 }, cropRatio);
       setCrop(clampBox(snapped));
       setSavePreset(true);
     }
-  }, [open, initialCrop]);
+  }, [open, initialCrop, cropRatio]);
 
   useEffect(() => {
     if (!open) return;
@@ -213,8 +215,8 @@ export function ManualFacecamPlacer({
       case "resize-e":  next = { ...o, width: o.width + dx }; break;
     }
     const anchor = RESIZE_ANCHORS[d.mode as keyof typeof RESIZE_ANCHORS];
-    setCrop(clampBox(lockBoxRatio(next, o, anchor, FACECAM_TARGET_RATIO)));
-  }, []);
+    setCrop(clampBox(lockBoxRatio(next, o, anchor, cropRatio)));
+  }, [cropRatio]);
 
   const onPointerUp = (e: React.PointerEvent) => {
     (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
@@ -225,6 +227,37 @@ export function ManualFacecamPlacer({
 
   const validate = () => {
     const c = clampBox(crop);
+    const rectMetrics = {
+      rectLeft: display.offsetX + c.x * display.renderedWidth,
+      rectTop: display.offsetY + c.y * display.renderedHeight,
+      rectW: c.width * display.renderedWidth,
+      rectH: c.height * display.renderedHeight,
+    };
+    const normalizedRaw = displayRectToSourceNormalized({
+      left: rectMetrics.rectLeft,
+      top: rectMetrics.rectTop,
+      width: rectMetrics.rectW,
+      height: rectMetrics.rectH,
+    }, display);
+    const normalizedSafe = buildSafeFacecamCrop(normalizedRaw, cropRatio);
+    if (DEBUG && Math.abs(rectMetrics.rectTop - display.offsetY) <= 3 && normalizedRaw.y > 0.01) {
+      throw new Error("manual_placer_assertion_failed: top-aligned selection must normalize to y<=0.01");
+    }
+    if (DEBUG) {
+      console.info("manual_placer_debug", {
+        sourceNaturalWidth: sourceW,
+        sourceNaturalHeight: sourceH,
+        containerW: containerSize.w,
+        containerH: containerSize.h,
+        renderedW: display.renderedWidth,
+        renderedH: display.renderedHeight,
+        offsetX: display.offsetX,
+        offsetY: display.offsetY,
+        ...rectMetrics,
+        normalizedRaw,
+        normalizedSafe,
+      });
+    }
     if (!isValid(c)) {
       toast({
         title: "Zone invalide",
@@ -234,7 +267,7 @@ export function ManualFacecamPlacer({
       return;
     }
     onValidate({
-      crop: c,
+      crop: normalizedRaw,
       savePreset: savePreset && !!effectiveLogin,
       channelLogin: effectiveLogin,
       sourceWidth: sourceW,
@@ -255,7 +288,7 @@ export function ManualFacecamPlacer({
     height: `${crop.height * display.renderedHeight}px`,
   } as const;
 
-  const safeCrop = useMemo(() => buildSafeFacecamCrop(clampBox(crop)), [crop]);
+  const safeCrop = useMemo(() => buildSafeFacecamCrop(clampBox(crop), cropRatio), [crop, cropRatio]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
