@@ -319,7 +319,7 @@ Deno.serve(async (req) => {
     ? Number(body.manual_crop_source_height)
     : 1080;
   let facecamPresetId: string | null = null;
-  let facecamPresetGeometryVersion: number | null = manualNormalizedCrop ? FACECAM_PRESET_GEOMETRY_VERSION : null;
+  let facecamPresetGeometryVersion: number | null = null;
 
   function parseNormalizedCrop(input: unknown): { x: number; y: number; width: number; height: number } | null {
     if (!input || typeof input !== "object") return null;
@@ -374,6 +374,7 @@ Deno.serve(async (req) => {
   }
 
   let manualNormalizedCrop = parseNormalizedCrop(body.manual_facecam_crop);
+  if (manualNormalizedCrop) facecamPresetGeometryVersion = FACECAM_PRESET_GEOMETRY_VERSION;
 
   // Persist the preset when requested.
   if (manualNormalizedCrop && saveFacecamPreset && twitchChannelLogin) {
