@@ -58,6 +58,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   initialCrop: NormalizedCrop | null;
   channelLogin: string | null;
+  sourceUrl: string | null;
   onValidate: (args: {
     crop: NormalizedCrop;
     savePreset: boolean;
@@ -97,6 +98,7 @@ export function ManualFacecamPlacer({
   onOpenChange,
   initialCrop,
   channelLogin,
+  sourceUrl,
   onValidate,
 }: Props) {
   const [loading, setLoading] = useState(true);
@@ -109,8 +111,8 @@ export function ManualFacecamPlacer({
   const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
 
-  const sourceW = naturalSize?.w ?? frame?.reference_width ?? 1920;
-  const sourceH = naturalSize?.h ?? frame?.reference_height ?? 1080;
+  const sourceW = frame?.reference_width ?? 1920;
+  const sourceH = frame?.reference_height ?? 1080;
   const cropRatio = useMemo(() => normalizedRatioForSource(sourceW, sourceH), [sourceW, sourceH]);
 
   const display: DisplayRect = useMemo(
@@ -161,7 +163,7 @@ export function ManualFacecamPlacer({
       try {
         const { data, error } = await supabase.functions.invoke<ReferenceFrame>(
           "clip-layout-reference-frame",
-          { body: {} },
+          { body: { source_url: sourceUrl } },
         );
         if (error) throw error;
         setFrame(data ?? null);
@@ -172,7 +174,7 @@ export function ManualFacecamPlacer({
         setLoading(false);
       }
     })();
-  }, [open]);
+  }, [open, sourceUrl]);
 
   const onPointerDown = (mode: DragMode) => (e: React.PointerEvent) => {
     e.stopPropagation();
