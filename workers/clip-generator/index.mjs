@@ -1049,6 +1049,9 @@ async function processJob({
         job_id: jobId, status: "processing", stage: "compositing", progress: 60,
       });
 
+      const sourceFps = probed?.fps ?? null;
+      const targetFps = computeTargetFps(sourceFps);
+
       const { filterComplex, mapVideo } = buildVerticalFilterComplex({
         layoutType: effectiveLayout,
         outW: outW ?? 1080,
@@ -1056,6 +1059,7 @@ async function processJob({
         facecamCrop: scaledFacecam,
         gameplayCrop: scaledGameplay,
         gameplayFraming,
+        targetFps,
       });
       console.log("[vertical_framing]", JSON.stringify({
         job_id: jobId,
@@ -1064,6 +1068,8 @@ async function processJob({
         cam_ratio: effectiveLayout === "facecam_top_gameplay_bottom"
           ? (gameplayFraming === "fill_tight" ? 0.25 : 0.30)
           : null,
+        source_fps: sourceFps,
+        target_fps: targetFps ?? sourceFps ?? null,
       }));
 
       const trimArgs = useFullSource
@@ -1082,9 +1088,19 @@ async function processJob({
         ...hqAudioEncodeArgs(),
         outputPath,
       ];
+      var loggedFps = targetFps ?? sourceFps ?? null;
     } else {
       // Legacy 16:9 pipeline — backward compatible. Same HQ defaults.
-      const legacyVf = `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS},${HQ_UNSHARP},${HQ_FPS_CAP}`;
+      let legacyFps = null;
+      try {
+        const lp = await probeVideoDimensions(sourcePath);
+        legacyFps = computeTargetFps(lp?.fps ?? null);
+      } catch {}
+      const fpsF = fpsFilter(legacyFps);
+      const legacyVf = [
+        `scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease:flags=${HQ_SCALE_FLAGS}`,
+        fpsF,
+      ].filter(Boolean).join(",");
       const baseIn = useFullSource
         ? ["-y", "-i", sourcePath]
         : trimmedAlready
@@ -1097,28 +1113,39 @@ async function processJob({
         ...hqAudioEncodeArgs(),
         outputPath,
       ];
+      var loggedFps = legacyFps;
     }
 
     console.log("[export_quality]", JSON.stringify({
       job_id: jobId,
-      mode: "default_high",
+      mode: "default_high_balanced",
       crf: HQ_CRF,
       preset: HQ_PRESET,
       scaler: HQ_SCALE_FLAGS,
-      sharpen: HQ_UNSHARP,
-      fps_cap: 60,
+      sharpen: "off",
+      fps: loggedFps ?? "source",
+      fps_cap: HQ_FPS_HARD_CAP,
       output: isVertical ? `${outW ?? 1080}x${outH ?? 1920}` : "≤1920x1080",
       audio_bitrate: HQ_AUDIO_BITRATE,
     }));
 
 
     console.log("[ffmpeg_started]", JSON.stringify({ job_id: jobId, vertical: isVertical, duration }));
-    await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);
+    const firstPassStart = Date.now();
+    try {
+      await runCommand("ffmpeg", ffArgs, 5 * 60 * 1000);
+    } catch (err) {
+      if (err?.message === "ffmpeg_timeout") {
+        throw new Error("ffmpeg_first_pass_timeout");
+      }
+      throw err;
+    }
 
     const outStat = await stat(outputPath);
     if (outStat.size === 0) throw new Error("empty_output");
     console.log("[ffmpeg_completed]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt }));
-    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - startedAt, crf: HQ_CRF, preset: HQ_PRESET }));
+    console.log("[export_output]", JSON.stringify({ job_id: jobId, size_bytes: outStat.size, duration_ms: Date.now() - firstPassStart, crf: HQ_CRF, preset: HQ_PRESET, stage: "first_pass" }));
+
 
     // 2.5) Optional auto-captions. Burn-in subtitles on top of the composed
     //      vertical clip. Failures here NEVER fail the job — clip ships
