@@ -452,7 +452,7 @@ export function ManualFacecamPlacer({
             onPointerDown={onPointerDown("move")}
           >
             <div className="absolute -top-6 left-0 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
-              Caméra · {Math.round(crop.width * 100)}% × {Math.round(crop.height * 100)}%
+              Zone caméra sélectionnée · {Math.round(crop.width * 100)}% × {Math.round(crop.height * 100)}%
             </div>
             <Handle pos="nw" onPointerDown={onPointerDown("resize-nw")} />
             <Handle pos="ne" onPointerDown={onPointerDown("resize-ne")} />
