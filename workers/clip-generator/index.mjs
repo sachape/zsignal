@@ -1021,12 +1021,14 @@ async function processJob({
     let detectionMeta = null;
     let effectiveLayout = layoutType ?? "gameplay_only";
     if (isVertical) {
-      // Probe actual dimensions so we can scale crops from the preset reference.
-      let probed = null;
-      try {
-        probed = await probeVideoDimensions(sourcePath);
-      } catch (probeErr) {
-        console.log("[probe_failed]", JSON.stringify({ job_id: jobId, message: probeErr?.message }));
+      // Reuse the post-download probe so we don't pay for ffprobe twice.
+      let probed = mainProbe;
+      if (!probed) {
+        try {
+          probed = await probeVideoDimensions(sourcePath);
+        } catch (probeErr) {
+          console.log("[probe_failed]", JSON.stringify({ job_id: jobId, message: probeErr?.message }));
+        }
       }
       const actualW = probed?.width ?? sourceReferenceWidth ?? null;
       const actualH = probed?.height ?? sourceReferenceHeight ?? null;
