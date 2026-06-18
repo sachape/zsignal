@@ -15,6 +15,7 @@
 export const FACECAM_OUTPUT_WIDTH = 1080;
 export const FACECAM_BAND_HEIGHT = 576;
 export const FACECAM_TARGET_RATIO = FACECAM_OUTPUT_WIDTH / FACECAM_BAND_HEIGHT; // ≈ 1.875
+export const DEFAULT_SOURCE_ASPECT_RATIO = 16 / 9;
 
 export interface NormalizedBox {
   x: number;
@@ -24,6 +25,17 @@ export interface NormalizedBox {
 }
 
 export const MIN_BOX_SIZE = 0.04;
+
+export function normalizedRatioForSource(
+  sourceW: number,
+  sourceH: number,
+  outputRatio: number = FACECAM_TARGET_RATIO,
+): number {
+  const sourceRatio = sourceW > 0 && sourceH > 0
+    ? sourceW / sourceH
+    : DEFAULT_SOURCE_ASPECT_RATIO;
+  return outputRatio / sourceRatio;
+}
 
 /** Clamp a normalized box into the [0,1] canvas without changing its size. */
 export function clampBox(b: NormalizedBox): NormalizedBox {
@@ -88,9 +100,11 @@ export function lockBoxRatio(
  */
 export function buildSafeFacecamCrop(
   raw: NormalizedBox,
-  ratio: number = FACECAM_TARGET_RATIO,
+  ratio: number = normalizedRatioForSource(1920, 1080),
   pad: number = 0.10,
 ): NormalizedBox {
+  const touchesTop = raw.y <= 0.01;
+  const touchesBottom = raw.y + raw.height >= 0.99;
   const cx = raw.x + raw.width / 2;
   const cy = raw.y + raw.height / 2;
 
@@ -104,7 +118,11 @@ export function buildSafeFacecamCrop(
   if (h > 1) { h = 1; w = h * ratio; }
 
   let x = cx - w / 2;
-  let y = cy - h / 2;
+  let y = touchesTop && !touchesBottom
+    ? 0
+    : touchesBottom && !touchesTop
+      ? raw.y + raw.height - h
+      : cy - h / 2;
   if (x < 0) x = 0;
   if (y < 0) y = 0;
   if (x + w > 1) x = 1 - w;
