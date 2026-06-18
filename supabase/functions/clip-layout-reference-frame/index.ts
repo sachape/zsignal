@@ -263,6 +263,12 @@ Deno.serve(async (req) => {
       }
     }
 
+    // If we still have a URL but couldn't classify it as Twitch, fall back
+    // to "direct" so the worker downloads it via plain HTTP fetch.
+    if (workerSourceUrl && !workerSourceKind) {
+      workerSourceKind = "direct";
+    }
+
     let frames: WorkerFrame[] = [];
     let sourceWidth = 1920;
     let sourceHeight = 1080;
@@ -285,6 +291,13 @@ Deno.serve(async (req) => {
         duration = result.duration;
         extractedVia = "worker";
       }
+    } else {
+      console.warn("reference_frame_edge_request_skipped", {
+        reason: "no_source_url_resolved",
+        raw_source_url: rawSourceUrl || null,
+        parsed_kind: parsed?.kind ?? null,
+        platform_user_id: platformUserId,
+      });
     }
 
     // 2) FALLBACK — thumbnail only. The client MUST display a warning since
