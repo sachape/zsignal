@@ -1335,6 +1335,7 @@ app.post("/extract-frames", async (req, res) => {
       throw new Error("no_frames_extracted");
     }
 
+    console.log(`[extract_frames_completed] frames_count=${frames.length} source_width=${probed.width} source_height=${probed.height} duration=${duration.toFixed(2)}`);
     res.json({
       worker_version: WORKER_VERSION,
       source_width: probed.width,
@@ -1344,7 +1345,7 @@ app.post("/extract-frames", async (req, res) => {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[extract-frames] failed", message);
+    console.error(`[extract_frames_failed] error=${message.slice(0, 400)}`);
     res.status(500).json({ error: "extract_failed", message: message.slice(0, 400) });
   } finally {
     rm(workDir, { recursive: true, force: true }).catch(() => {});
