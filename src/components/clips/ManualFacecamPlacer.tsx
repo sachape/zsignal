@@ -109,8 +109,6 @@ export function ManualFacecamPlacer({
   // Container & natural-image dimensions drive the display rect.
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
-  const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
-
   const sourceW = frame?.reference_width ?? 1920;
   const sourceH = frame?.reference_height ?? 1080;
   const cropRatio = useMemo(() => normalizedRatioForSource(sourceW, sourceH), [sourceW, sourceH]);
@@ -158,7 +156,6 @@ export function ManualFacecamPlacer({
   useEffect(() => {
     if (!open) return;
     setLoading(true);
-    setNaturalSize(null);
     void (async () => {
       try {
         const { data, error } = await supabase.functions.invoke<ReferenceFrame>(
@@ -326,12 +323,6 @@ export function ManualFacecamPlacer({
               alt={frame?.vod_title ?? "Frame de référence"}
               className="absolute inset-0 h-full w-full select-none object-contain"
               draggable={false}
-              onLoad={(e) => {
-                const img = e.currentTarget;
-                if (img.naturalWidth && img.naturalHeight) {
-                  setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
-                }
-              }}
             />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
