@@ -40,6 +40,7 @@ import {
   type DisplayRect,
   type NormalizedBox,
 } from "@/lib/facecamGeometry";
+import { RenderCroppedSourceImage } from "./RenderCroppedSourceImage";
 
 export type NormalizedCrop = NormalizedBox;
 
@@ -510,22 +511,21 @@ export function ManualFacecamPlacer({
                   style={{ aspectRatio: "9 / 16", height: 360 }}
                 >
                   {/* Facecam band — pinned to the very top (y=0), full width,
-                      cover-rendered from the safe crop. */}
+                      cover-rendered from the safe crop via the shared
+                      RenderCroppedSourceImage component (single source of
+                      truth, agrees pixel-for-pixel with the worker). */}
                   <div
-                    className="absolute left-0 right-0 top-0 overflow-hidden"
+                    className="absolute left-0 right-0 top-0"
                     style={{ height: `${CAM_RATIO * 100}%` }}
                   >
-                    <img
-                      src={currentImageUrl!}
-                      alt=""
-                      draggable={false}
-                      className="pointer-events-none absolute max-w-none select-none object-none"
-                      style={{
-                        left: `-${(safeCrop.x / safeCrop.width) * 100}%`,
-                        top: `-${(safeCrop.y / safeCrop.height) * 100}%`,
-                        width: `${(1 / safeCrop.width) * 100}%`,
-                        height: `${(1 / safeCrop.height) * 100}%`,
-                      }}
+                    <RenderCroppedSourceImage
+                      imageUrl={currentImageUrl!}
+                      cropNormalized={safeCrop}
+                      sourceWidth={sourceW}
+                      sourceHeight={sourceH}
+                      className="h-full w-full"
+                      debug={DEBUG}
+                      debugLabel="preview-facecam-band"
                     />
                     <div className="pointer-events-none absolute left-1 top-1 rounded bg-primary/90 px-1.5 py-0.5 text-[9px] font-medium text-primary-foreground">
                       Caméra (y=0)
