@@ -1080,7 +1080,7 @@ async function processJob({
           fallback_reason: detection?.detected ? null : (detection?.reason ?? "no_detection"),
           actual_width: actualW,
           actual_height: actualH,
-          requested_duration: duration,
+          requested_duration: trimDuration,
           detection_duration: detectionDuration,
         }));
 
