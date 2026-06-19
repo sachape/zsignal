@@ -257,12 +257,10 @@ const ClipsReseauxPage = () => {
           {recent.length === 0 && !activeJob ? (
             <EmptyState
               icon={Clapperboard}
-              title="Tu n'as pas encore créé de clip"
-              description="Colle un Clip Twitch ou importe une VOD, et Streamnco génère une vidéo verticale prête pour TikTok, Reels ou Shorts — avec facecam, gameplay et sous-titres."
-              ctaLabel={canAccess ? "Créer mon premier clip" : "Passer au Pro"}
+              title="Tes clips générés apparaîtront ici."
+              description="Crée ton premier clip vertical depuis l'onglet Créer — Streamnco le prépare avec facecam, gameplay et sous-titres."
+              ctaLabel={canAccess ? "Créer un clip" : "Passer au Pro"}
               ctaTo={canAccess ? "/clips/vod-import" : "/billing"}
-              secondaryLabel="Voir mes clips Twitch"
-              secondaryTo="/clips"
             />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
