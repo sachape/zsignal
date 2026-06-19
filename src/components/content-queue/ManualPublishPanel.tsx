@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ContentItem } from "@/hooks/useContentItems";
 import { resolveFreshMediaUrl } from "@/services/mediaStorage";
+import { normalizeClipTitle } from "@/lib/clipTitle";
 
 interface Props {
   item: ContentItem;
