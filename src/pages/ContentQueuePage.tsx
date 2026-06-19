@@ -331,6 +331,7 @@ const ContentQueuePage = () => {
             {filtered.map(item => (
               <ContentRow key={item.id} item={item}
                 youtubeConnected={youtubeConnected}
+                defaultExpanded={defaultExpandedId === item.id}
                 onUpload={() => setUploadItem(item)}
                 onManualUpload={() => setManualUploadItem(item)}
                 onEditSource={() => setSourceItem(item)}
