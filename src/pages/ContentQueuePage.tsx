@@ -840,7 +840,7 @@ function ContentRow({
                 to={(() => {
                   const fmt = (item.format || "").toLowerCase();
                   const igFormat = fmt.includes("reel") ? "reel" : fmt.includes("story") ? "story" : "post";
-                  const caption = item.description || item.title || "";
+                  const caption = item.description || normalizeClipTitle(item.title) || "";
                   const tags = (item.selected_hashtags && item.selected_hashtags.length > 0
                     ? item.selected_hashtags
                     : item.hashtags || []).join(" ");
