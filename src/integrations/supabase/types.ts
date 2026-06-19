@@ -696,6 +696,7 @@ export type Database = {
           selected_description_variant: string | null
           selected_hashtags: Json
           selected_title_variant: string | null
+          source_channel_login: string | null
           source_duration: number | null
           source_end_time: number | null
           source_idea_id: string | null
@@ -748,6 +749,7 @@ export type Database = {
           selected_description_variant?: string | null
           selected_hashtags?: Json
           selected_title_variant?: string | null
+          source_channel_login?: string | null
           source_duration?: number | null
           source_end_time?: number | null
           source_idea_id?: string | null
@@ -800,6 +802,7 @@ export type Database = {
           selected_description_variant?: string | null
           selected_hashtags?: Json
           selected_title_variant?: string | null
+          source_channel_login?: string | null
           source_duration?: number | null
           source_end_time?: number | null
           source_idea_id?: string | null

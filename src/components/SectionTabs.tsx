@@ -13,7 +13,6 @@ const SECTIONS: Section[] = [
     tabs: [
       { label: "Créer", to: "/clips-reseaux", matches: ["/clips-reseaux", "/clips/vod-import"] },
       { label: "Queue", to: "/content-queue", matches: ["/content-queue"] },
-      { label: "Moments proposés", to: "/clips", exact: true },
     ],
   },
   {

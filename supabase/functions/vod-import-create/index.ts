@@ -12,7 +12,7 @@
 //   timestamps?: { start_seconds: number; end_seconds: number; title?: string }[]
 // }
 //
-// Returns: { success, source: "twitch"|"youtube", reason: "vod_manual_timestamp"|"vod_auto_suggestion", items: ContentItem[] }
+// Returns: { success, source: "twitch"|"youtube", reason: "vod_manual_timestamp"|"vod_auto_suggestion"|"twitch_clip_full", items: ContentItem[] }
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -25,6 +25,8 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const TWITCH_CLIENT_ID = Deno.env.get("TWITCH_CLIENT_ID") ?? "";
+const TWITCH_CLIENT_SECRET = Deno.env.get("TWITCH_CLIENT_SECRET") ?? "";
 
 const MIN_CLIP_SEC = 10;
 const MAX_CLIP_SEC = 180;
@@ -38,7 +40,14 @@ function json(body: unknown, status = 200) {
 
 type Source = "twitch" | "twitch_clip" | "youtube";
 
-function detectSource(rawUrl: string): { source: Source; url: string } | null {
+interface DetectedSource {
+  source: Source;
+  url: string;
+  id?: string;
+  channelLogin?: string | null;
+}
+
+function detectSource(rawUrl: string): DetectedSource | null {
   let u: URL;
   try { u = new URL(rawUrl); } catch { return null; }
   if (u.protocol !== "https:" && u.protocol !== "http:") return null;
@@ -48,18 +57,19 @@ function detectSource(rawUrl: string): { source: Source; url: string } | null {
   if (host === "clips.twitch.tv") {
     const slug = u.pathname.replace(/^\//, "").split("/")[0];
     if (slug && /^[A-Za-z0-9_-]+$/.test(slug)) {
-      return { source: "twitch_clip", url: `https://clips.twitch.tv/${slug}` };
+      return { source: "twitch_clip", url: `https://clips.twitch.tv/${slug}`, id: slug };
     }
     return null;
   }
   if (host === "twitch.tv" || host === "m.twitch.tv") {
     const vodMatch = u.pathname.match(/^\/videos\/(\d+)/);
     if (vodMatch) {
-      return { source: "twitch", url: `https://www.twitch.tv/videos/${vodMatch[1]}` };
+      return { source: "twitch", url: `https://www.twitch.tv/videos/${vodMatch[1]}`, id: vodMatch[1] };
     }
     const clipMatch = u.pathname.match(/^\/[^/]+\/clip\/([A-Za-z0-9_-]+)/);
     if (clipMatch) {
-      return { source: "twitch_clip", url: `https://clips.twitch.tv/${clipMatch[1]}` };
+      const channelLogin = u.pathname.split("/")[1]?.toLowerCase() ?? null;
+      return { source: "twitch_clip", url: `https://clips.twitch.tv/${clipMatch[1]}`, id: clipMatch[1], channelLogin };
     }
   }
   if (host === "youtube.com" || host === "m.youtube.com") {
@@ -101,6 +111,55 @@ function buildHashtags(category: string | null, source: Source): string[] {
     if (slug) base.unshift(`#${slug}`);
   }
   return base.slice(0, 5);
+}
+
+async function getTwitchAppToken(): Promise<string | null> {
+  if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) return null;
+  const res = await fetch("https://id.twitch.tv/oauth2/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: TWITCH_CLIENT_ID,
+      client_secret: TWITCH_CLIENT_SECRET,
+      grant_type: "client_credentials",
+    }),
+  });
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => null) as { access_token?: string } | null;
+  return data?.access_token ?? null;
+}
+
+async function resolveTwitchChannelLogin(detected: DetectedSource): Promise<string | null> {
+  if (detected.channelLogin) return detected.channelLogin;
+  if (!detected.id || (detected.source !== "twitch_clip" && detected.source !== "twitch")) return null;
+  const token = await getTwitchAppToken();
+  if (!token) return null;
+  const endpoint = detected.source === "twitch_clip"
+    ? `https://api.twitch.tv/helix/clips?id=${encodeURIComponent(detected.id)}`
+    : `https://api.twitch.tv/helix/videos?id=${encodeURIComponent(detected.id)}`;
+  const res = await fetch(endpoint, {
+    headers: { "Client-ID": TWITCH_CLIENT_ID, Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => null) as { data?: Array<Record<string, unknown>> } | null;
+  const item = data?.data?.[0];
+  let login = typeof item?.broadcaster_login === "string"
+    ? item.broadcaster_login
+    : typeof item?.user_login === "string"
+      ? item.user_login
+      : null;
+  const broadcasterId = typeof item?.broadcaster_id === "string" ? item.broadcaster_id : null;
+  if (!login && broadcasterId) {
+    const userRes = await fetch(`https://api.twitch.tv/helix/users?id=${encodeURIComponent(broadcasterId)}`, {
+      headers: { "Client-ID": TWITCH_CLIENT_ID, Authorization: `Bearer ${token}` },
+    });
+    if (userRes.ok) {
+      const userData = await userRes.json().catch(() => null) as { data?: Array<Record<string, unknown>> } | null;
+      const user = userData?.data?.[0];
+      login = typeof user?.login === "string" ? user.login : null;
+    }
+  }
+  return login ? login.toLowerCase() : null;
 }
 
 interface CandidateRow {
@@ -159,6 +218,7 @@ Deno.serve(async (req) => {
     }, 400);
   }
   const { source, url } = detected;
+  const sourceChannelLogin = await resolveTwitchChannelLogin(detected);
 
   // V1: YouTube est désactivé côté produit. On rejette proprement.
   if (source === "youtube") {
@@ -280,6 +340,7 @@ Deno.serve(async (req) => {
     reason: c.reason_code,
     source_platform: source === "twitch_clip" ? "twitch" : source,
     source_video_url: url,
+    source_channel_login: sourceChannelLogin,
     source_start_time: c.start,
     source_end_time: c.end,
     source_duration: c.end - c.start,
