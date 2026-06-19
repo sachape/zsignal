@@ -369,11 +369,11 @@ const VodImportPage = () => {
         setPreparedItemId(newId);
         setSearchParams({ continue: newId }, { replace: true });
         toast({ title: "Clip prêt à configurer", description: "Configure la caméra et les sous-titres ci-dessous." });
-        setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
         return;
       }
-      setPrepareError("Impossible d’ouvrir la configuration du clip.");
+      setPrepareError(PREPARATION_ERROR_MESSAGE);
     } catch (err) {
+      setPrepareError(PREPARATION_ERROR_MESSAGE);
       toast({
         title: "Échec",
         description: err instanceof Error ? err.message : "Réessaie dans quelques instants.",
