@@ -170,7 +170,10 @@ Deno.serve(async (req) => {
   }
 
   const subjectFallback = source === "twitch_clip" ? "ton Clip Twitch" : "ta VOD";
-  const subject = (typeof body.subject === "string" ? body.subject.trim() : "") || subjectFallback;
+  const userSubject = (typeof body.subject === "string" ? body.subject.trim() : "");
+  const subject = userSubject || subjectFallback;
+  // Clean title used to persist the row (no auto "Clip Twitch — " prefix).
+  const cleanTitle = userSubject || "Nouveau clip";
   const category = typeof body.category === "string" && body.category.trim()
     ? body.category.trim()
     : null;
