@@ -155,7 +155,7 @@ const VisualStudioPage = () => {
                   className={cn(
                     "rounded-md px-3 py-1 text-xs font-medium transition-colors",
                     cat === currentCat
-                      ? "bg-primary/15 text-primary"
+                      ? "bg-primary/15 text-foreground"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >

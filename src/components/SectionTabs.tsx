@@ -101,7 +101,7 @@ const SectionTabs = () => {
               className={cn(
                 "shrink-0 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
                 active
-                  ? "bg-primary/15 text-primary"
+                  ? "bg-primary/15 text-foreground"
                   : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
               )}
             >
