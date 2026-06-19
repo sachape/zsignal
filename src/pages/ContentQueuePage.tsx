@@ -461,7 +461,7 @@ function ContentRow({
   const anotherJobIsActive = activeJobContentItemId !== null && activeJobContentItemId !== item.id;
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [title, setTitle] = useState(item.title);
+  const [title, setTitle] = useState(normalizeClipTitle(item.title));
   const [description, setDescription] = useState(item.description ?? "");
   const [hashtagsRaw, setHashtagsRaw] = useState(item.hashtags.join(" "));
   const [notes, setNotes] = useState(item.notes ?? "");
