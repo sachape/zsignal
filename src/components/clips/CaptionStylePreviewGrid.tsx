@@ -5,7 +5,13 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type CaptionStyle = "clean" | "bold_tiktok" | "gaming_neon" | "minimal";
+export type CaptionStyle =
+  | "clean"
+  | "bold_tiktok"
+  | "gaming_neon"
+  | "minimal"
+  | "creator_pop"
+  | "punchline";
 
 interface Preset {
   id: CaptionStyle;
@@ -18,6 +24,8 @@ const PRESETS: Preset[] = [
   { id: "bold_tiktok", name: "Bold TikTok", promise: "Impact fort" },
   { id: "gaming_neon", name: "Gaming Neon", promise: "Énergique" },
   { id: "minimal", name: "Minimal", promise: "Discret et élégant" },
+  { id: "creator_pop", name: "Creator Pop", promise: "Dynamique et moderne" },
+  { id: "punchline", name: "Punchline", promise: "Gros impact" },
 ];
 
 // Three short cues cycled in every preview to mimic real subtitle rhythm.
