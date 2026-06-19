@@ -96,9 +96,10 @@ export function useActiveVideoJob() {
   const [activeJob, setActiveJob] = useState<VideoGenerationJob | null>(null);
   const [loading, setLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastStatusRef = useRef<VideoJobStatus | null>(null);
 
   const fetchActive = useCallback(async () => {
-    if (!user) { setActiveJob(null); return; }
+    if (!user) { setActiveJob(null); lastStatusRef.current = null; return; }
     setLoading(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
@@ -109,7 +110,9 @@ export function useActiveVideoJob() {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    setActiveJob(error ? null : ((data as VideoGenerationJob | null) ?? null));
+    const job = error ? null : ((data as VideoGenerationJob | null) ?? null);
+    setActiveJob(job);
+    lastStatusRef.current = job?.status ?? null;
     setLoading(false);
   }, [user]);
 
@@ -119,6 +122,12 @@ export function useActiveVideoJob() {
       if (cancelled) return;
       await fetchActive();
       if (cancelled) return;
+      // Stop polling when no active job (terminal/none) — restart on user/auth change.
+      if (!ACTIVE_STATUSES.includes(lastStatusRef.current as VideoJobStatus)) {
+        // Slow poll to discover a newly enqueued job (e.g. user clicks "Lancer").
+        timerRef.current = setTimeout(loop, 15000);
+        return;
+      }
       timerRef.current = setTimeout(loop, 4000);
     }
     loop();

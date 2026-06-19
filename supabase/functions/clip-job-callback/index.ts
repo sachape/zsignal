@@ -64,6 +64,19 @@ Deno.serve(async (req) => {
     .maybeSingle();
   if (jobErr || !job) return json({ error: "job_not_found" }, 404);
 
+  // Idempotency: once a job has reached a terminal state, accept the callback
+  // but never regress status/progress/output. Worker may retry callbacks.
+  const TERMINAL = new Set(["completed", "failed", "cancelled"]);
+  if (TERMINAL.has(String(job.status))) {
+    console.info(JSON.stringify({
+      event: "clip_job_callback_ignored_terminal",
+      job_id: jobId,
+      current_status: job.status,
+      incoming_status: status,
+    }));
+    return json({ success: true, ignored: "already_terminal", status: job.status });
+  }
+
   if (status === "processing") {
     const progress = typeof body.progress === "number" ? Math.max(0, Math.min(100, Math.round(body.progress))) : null;
     const generationStage = stage ?? (progress !== null && progress >= 80 ? "uploading" : progress !== null && progress >= 45 ? "cutting" : progress !== null && progress >= 5 ? "downloading" : "worker_started");

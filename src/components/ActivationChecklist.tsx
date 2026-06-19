@@ -58,7 +58,7 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
       title: "Découvre ton StreamScore",
       description: "Identifie tes forces, tes points faibles et les actions prioritaires pour progresser.",
       cta: "Voir mon analyse",
-      href: "/streamscore",
+      href: "/analyse",
       available: state.twitchConnected,
     },
     {
