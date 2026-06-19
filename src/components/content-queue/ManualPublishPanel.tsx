@@ -46,7 +46,8 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
   const [url, setUrl] = useState(item.published_url ?? "");
   const hashtags = (item.selected_hashtags?.length ? item.selected_hashtags : item.hashtags) || [];
   const hashtagsText = hashtags.map(h => (h.startsWith("#") ? h : `#${h}`)).join(" ");
-  const fullText = [item.title, item.description ?? "", hashtagsText].filter(Boolean).join("\n\n");
+  const displayTitle = normalizeClipTitle(item.title);
+  const fullText = [displayTitle, item.description ?? "", hashtagsText].filter(Boolean).join("\n\n");
 
   const isPublished = item.status === "published_manually" || item.status === "published";
   const detectedPlatform = item.published_platform ?? (item.published_url ? detectPlatform(item.published_url) : null);
