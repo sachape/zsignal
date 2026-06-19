@@ -67,7 +67,6 @@ const ClipsReseauxPage = () => {
   const canAccess = hasPlanAtLeast(plan, "pro");
 
   const [recent, setRecent] = useState<RecentClip[]>([]);
-  const [cameraDialogOpen, setCameraDialogOpen] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const handleDownload = useCallback(async (clip: RecentClip) => {
