@@ -72,9 +72,13 @@ function extractTwitchChannelLogin(raw: string | null | undefined): string | nul
 const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [mode, setMode] = useState<Mode>("upload");
+  // If the item already carries a source URL (Twitch flow), default to the
+  // direct URL mode so the user never has to re-paste or pick "Upload source".
+  const initialMode: Mode = item.source_video_url ? "direct_url" : "upload";
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [file, setFile] = useState<File | null>(null);
   const [directUrl, setDirectUrl] = useState(item.source_video_url ?? "");
+  const [editingUrl, setEditingUrl] = useState(false);
   const [busy, setBusy] = useState(false);
   const [phase, setPhase] = useState<"idle" | "uploading" | "creating">("idle");
   const [progress, setProgress] = useState(0);
@@ -84,6 +88,13 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   // Auto subtitles are ON by default. The user can opt out.
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
   const [captionsStyle, setCaptionsStyle] = useState<CaptionStyle>("clean");
+
+  // Keep state in sync if the parent swaps the item while open.
+  useEffect(() => {
+    setMode(item.source_video_url ? "direct_url" : "upload");
+    setDirectUrl(item.source_video_url ?? "");
+    setEditingUrl(false);
+  }, [item.id, item.source_video_url]);
 
   // ── Manual facecam placement (MVP) ──
   const [placerOpen, setPlacerOpen] = useState(false);
@@ -147,6 +158,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
 
   function reset() {
     setFile(null); setDirectUrl(item.source_video_url ?? "");
+    setMode(item.source_video_url ? "direct_url" : "upload");
+    setEditingUrl(false);
     setBusy(false); setPhase("idle"); setProgress(0); setError(null);
     setManualCrop(null); setManualPresetSaved(false);
     setManualCropSourceSize(null); setPresetNeedsReplace(false); setIgnoreSavedFacecamPreset(false);
@@ -297,223 +310,276 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
     }
   }
 
+  // Compact source summary for the Twitch/URL flow.
+  const twitchInfo = detectTwitchUrl(directUrl || "");
+  const sourceLabel =
+    twitchInfo.kind === "twitch_clip" ? "Clip Twitch détecté"
+    : twitchInfo.kind === "twitch_vod" ? "VOD Twitch détectée"
+    : directUrl ? "URL vidéo"
+    : null;
+
   return (
     <Dialog open={open} onOpenChange={(o) => { onOpenChange(o); if (!o) reset(); }}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent
+        className="flex max-h-[90vh] w-[95vw] flex-col gap-0 overflow-hidden p-0 sm:max-w-[1100px]"
+      >
+        <DialogHeader className="border-b border-border/60 px-5 py-4">
           <DialogTitle className="flex items-center gap-2">
-            <Wand2 className="h-5 w-5 text-primary" /> Générer le clip
+            <Wand2 className="h-5 w-5 text-primary" /> Lancer la génération
           </DialogTitle>
           <DialogDescription>
-            Streamnco découpe ton extrait via un worker FFmpeg externe et stocke le clip dans ton espace privé.
+            Configure ton clip vertical. Streamnco découpe, recadre et exporte automatiquement.
           </DialogDescription>
         </DialogHeader>
 
-        {!validTimestamps && (
-          <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200">
-            <AlertCircle className="mr-1.5 inline h-3.5 w-3.5" />
-            Ajoute d'abord une source et des timestamps valides (5–180 s) depuis « Modifier la source ».
-          </div>
-        )}
-
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button" disabled={busy}
-              onClick={() => setMode("upload")}
-              className={`rounded-md border p-3 text-left transition ${mode === "upload" ? "border-primary bg-primary/10" : "border-border bg-card hover:border-border/80"}`}
-            >
-              <FileVideo className="mb-1 h-4 w-4 text-primary" />
-              <p className="text-xs font-semibold text-foreground">Upload source</p>
-              <p className="text-[10px] text-muted-foreground">Recommandé. Max 500 Mo, .mp4 / .mov.</p>
-            </button>
-            <button
-              type="button" disabled={busy}
-              onClick={() => setMode("direct_url")}
-              className={`rounded-md border p-3 text-left transition ${mode === "direct_url" ? "border-primary bg-primary/10" : "border-border bg-card hover:border-border/80"}`}
-            >
-              <LinkIcon className="mb-1 h-4 w-4 text-primary" />
-              <p className="text-xs font-semibold text-foreground">URL directe</p>
-              <p className="text-[10px] text-muted-foreground">Fichier vidéo accessible publiquement.</p>
-            </button>
-          </div>
-
-          {mode === "upload" ? (
-            <div className="space-y-1.5">
-              <Label className="text-xs">Fichier vidéo (max {MAX_BYTES / 1024 / 1024} Mo)</Label>
-              <Input type="file" accept={ACCEPT} disabled={busy}
-                onChange={(e) => handleFile(e.target.files?.[0] ?? null)} />
-              {file && (
-                <p className="text-[11px] text-muted-foreground">
-                  {file.name} · {(file.size / 1024 / 1024).toFixed(1)} Mo
-                </p>
-              )}
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {!validTimestamps && (
+            <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200">
+              <AlertCircle className="mr-1.5 inline h-3.5 w-3.5" />
+              Ajoute d'abord une source et des timestamps valides (5–180 s) depuis « Modifier la source ».
             </div>
-          ) : (
-            <div className="space-y-1.5">
-              <Label className="text-xs">URL vidéo (.mp4)</Label>
-              <Input
-                type="url" disabled={busy}
-                value={directUrl} onChange={(e) => setDirectUrl(e.target.value)}
-                placeholder="https://example.com/clip.mp4"
-              />
-              <p className="text-[10px] text-muted-foreground">
-                Les VOD Twitch/YouTube ne sont pas téléchargeables directement. L'upload reste le parcours le plus fiable.
-              </p>
-            </div>
-          )}
-
-          {busy && phase === "uploading" && (
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>Upload de la source vers Streamnco…</span>
-                <span className="tabular-nums">{progress}%</span>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-              </div>
-            </div>
-          )}
-
-          {busy && phase === "creating" && (
-            <p className="text-[11px] text-muted-foreground">
-              <Loader2 className="mr-1.5 inline h-3 w-3 animate-spin" />
-              Création du job…
-            </p>
           )}
 
           {error && (
-            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-[11px] text-destructive">
+            <div className="mb-4 rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-[11px] text-destructive">
               <AlertCircle className="mr-1.5 inline h-3.5 w-3.5" />
               {reasonLabel(error)}
             </div>
           )}
 
-          {/* MVP — Manual facecam placement (primary CTA). */}
-          <div className="rounded-md border border-border bg-card p-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-2">
-                <Camera className="mt-0.5 h-3.5 w-3.5 text-primary" />
-                <div>
-                  <p className="text-xs font-medium text-foreground">Placer ma caméra</p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {manualCrop
-                      ? manualPresetSaved
-                        ? "Caméra sauvegardée pour cette chaîne. Elle sera utilisée pour ce clip."
-                        : "Zone caméra sélectionnée pour ce clip."
-                      : presetNeedsReplace
-                        ? "Position caméra à replacer. L'ancienne position ne sera pas réutilisée."
-                      : "Sélectionne manuellement la zone webcam. Plus fiable que la détection auto."}
-                  </p>
+          <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            {/* ── Left column : source + camera + captions toggle ── */}
+            <div className="space-y-4">
+              {/* Source summary */}
+              <div className="rounded-md border border-border bg-card p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-foreground">Source</p>
+                  {sourceLabel && (
+                    <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                      {sourceLabel}
+                    </span>
+                  )}
                 </div>
-              </div>
-              <div className="flex items-center gap-1">
-                {manualCrop && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
-                    <Check className="h-3 w-3" /> Active
-                  </span>
+
+                {mode === "direct_url" ? (
+                  <div className="mt-2 space-y-2">
+                    {editingUrl ? (
+                      <Input
+                        type="url"
+                        disabled={busy}
+                        value={directUrl}
+                        onChange={(e) => setDirectUrl(e.target.value)}
+                        placeholder="https://www.twitch.tv/…/clip/…"
+                      />
+                    ) : directUrl ? (
+                      <p className="break-all rounded-md border border-border/60 bg-background/40 px-2 py-1.5 text-[11px] text-muted-foreground">
+                        {directUrl}
+                      </p>
+                    ) : (
+                      <p className="text-[11px] italic text-muted-foreground">
+                        Source introuvable. Colle à nouveau le lien Twitch.
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button" size="sm" variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => setEditingUrl((v) => !v)}
+                        disabled={busy}
+                      >
+                        <Pencil className="mr-1 h-3 w-3" />
+                        {editingUrl ? "Terminer" : "Modifier le lien"}
+                      </Button>
+                      <Button
+                        type="button" size="sm" variant="ghost"
+                        className="h-7 text-[11px] text-muted-foreground"
+                        onClick={() => { setMode("upload"); setEditingUrl(false); }}
+                        disabled={busy}
+                      >
+                        <FileVideo className="mr-1 h-3 w-3" />
+                        Remplacer par un fichier
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    <Label className="text-xs">Fichier vidéo (max {MAX_BYTES / 1024 / 1024} Mo)</Label>
+                    <Input type="file" accept={ACCEPT} disabled={busy}
+                      onChange={(e) => handleFile(e.target.files?.[0] ?? null)} />
+                    {file && (
+                      <p className="text-[11px] text-muted-foreground">
+                        {file.name} · {(file.size / 1024 / 1024).toFixed(1)} Mo
+                      </p>
+                    )}
+                    {item.source_video_url && (
+                      <Button
+                        type="button" size="sm" variant="ghost"
+                        className="h-7 text-[11px] text-muted-foreground"
+                        onClick={() => { setMode("direct_url"); }}
+                        disabled={busy}
+                      >
+                        <LinkIcon className="mr-1 h-3 w-3" />
+                        Revenir au lien Twitch
+                      </Button>
+                    )}
+                  </div>
                 )}
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={manualCrop ? "outline" : "default"}
-                  className="gap-1 text-xs"
-                  onClick={() => setPlacerOpen(true)}
-                  disabled={busy}
-                >
-                  {manualCrop ? <><Pencil className="h-3 w-3" /> Modifier</> : <><Camera className="h-3 w-3" /> Placer ma caméra</>}
-                </Button>
-                {manualCrop && (
+
+                {/* Timestamps summary */}
+                {validTimestamps && (
+                  <p className="mt-3 border-t border-border/60 pt-2 text-[11px] text-muted-foreground">
+                    Moment : <span className="font-medium text-foreground">{start}s → {end}s</span>
+                    <span className="ml-1 text-muted-foreground/70">· {Number(end) - Number(start)}s</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Manual facecam */}
+              <div className="rounded-md border border-border bg-card p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2">
+                    <Camera className="mt-0.5 h-3.5 w-3.5 text-primary" />
+                    <div>
+                      <p className="text-xs font-medium text-foreground">Option avancée : placer ma caméra</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        {manualCrop
+                          ? manualPresetSaved
+                            ? "Caméra mémorisée pour cette chaîne."
+                            : "Zone caméra sélectionnée pour ce clip."
+                          : presetNeedsReplace
+                            ? "Position caméra à replacer. L'ancienne ne sera pas réutilisée."
+                          : "Utilise-le si tu veux ta caméra en haut et le gameplay en bas. Sinon Streamnco génère un clip gameplay seul."}
+                      </p>
+                    </div>
+                  </div>
+                  {manualCrop && (
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
+                      <Check className="h-3 w-3" /> Active
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-1">
                   <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    className="text-xs text-muted-foreground hover:text-destructive"
-                    onClick={() => {
-                      setManualCrop(null);
-                      setManualPresetSaved(false);
-                      setManualCropSourceSize(null);
-                      setIgnoreSavedFacecamPreset(true);
-                      if (detectedLogin && user) {
-                        void (supabase as any)
-                          .from("user_facecam_presets")
-                          .update({ is_enabled: false })
-                          .eq("user_id", user.id)
-                          .eq("twitch_channel_login", detectedLogin);
-                      }
-                    }}
+                    type="button" size="sm"
+                    variant={manualCrop ? "outline" : "default"}
+                    className="gap-1 text-xs"
+                    onClick={() => setPlacerOpen(true)}
                     disabled={busy}
                   >
-                    Réinitialiser
+                    {manualCrop ? <><Pencil className="h-3 w-3" /> Modifier</> : <><Camera className="h-3 w-3" /> Placer ma caméra</>}
                   </Button>
+                  {manualCrop && (
+                    <Button
+                      type="button" size="sm" variant="ghost"
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                      onClick={() => {
+                        setManualCrop(null);
+                        setManualPresetSaved(false);
+                        setManualCropSourceSize(null);
+                        setIgnoreSavedFacecamPreset(true);
+                        if (detectedLogin && user) {
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          void (supabase as any)
+                            .from("user_facecam_presets")
+                            .update({ is_enabled: false })
+                            .eq("user_id", user.id)
+                            .eq("twitch_channel_login", detectedLogin);
+                        }
+                      }}
+                      disabled={busy}
+                    >
+                      Supprimer
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Auto facecam explanation */}
+              <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
+                <p className="flex items-center gap-2 text-xs font-medium text-foreground">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  Détection automatique de la facecam
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {manualCrop
+                    ? "Désactivée — ta zone manuelle sera utilisée."
+                    : "Streamnco repère ta caméra dans la vidéo et la place en haut du clip. Sinon le rendu sort en gameplay seul."}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                >
+                  <ChevronDown className={`h-3 w-3 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
+                  {showAdvanced ? "Masquer" : "Forcer manuellement la position (avancé)"}
+                </button>
+                {showAdvanced && (
+                  <div className="mt-3 border-t border-border/60 pt-3">
+                    <QuickCameraPicker onReady={() => { /* server-side */ }} />
+                  </div>
+                )}
+              </div>
+
+              {/* Progress + creating */}
+              {busy && phase === "uploading" && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span>Upload de la source vers Streamnco…</span>
+                    <span className="tabular-nums">{progress}%</span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+                  </div>
+                </div>
+              )}
+              {busy && phase === "creating" && (
+                <p className="text-[11px] text-muted-foreground">
+                  <Loader2 className="mr-1.5 inline h-3 w-3 animate-spin" />
+                  Création du job…
+                </p>
+              )}
+            </div>
+
+            {/* ── Right column : captions + previews ── */}
+            <div className="space-y-4">
+              <div className="rounded-md border border-border bg-card p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2">
+                    <Captions className="mt-0.5 h-3.5 w-3.5 text-primary" />
+                    <div>
+                      <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        Ajoute les sous-titres quand tu parles. Incrustés dans la vidéo.
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={captionsEnabled}
+                    onCheckedChange={setCaptionsEnabled}
+                    disabled={busy}
+                    aria-label="Activer les sous-titres automatiques"
+                  />
+                </div>
+
+                {captionsEnabled && (
+                  <div className="mt-3 space-y-2 border-t border-border/60 pt-3">
+                    <Label className="text-xs">Style des sous-titres</Label>
+                    <CaptionStylePreviewGrid
+                      value={captionsStyle}
+                      onChange={setCaptionsStyle}
+                      disabled={busy}
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      Aperçu animé du rendu réel dans ton clip.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
           </div>
-
-          <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
-            <p className="flex items-center gap-2 text-xs font-medium text-foreground">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              Détection automatique de la facecam
-            </p>
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              {manualCrop
-                ? "Désactivée — ta zone manuelle sera utilisée."
-                : "Streamnco repère ta caméra dans la vidéo et la place en haut du clip vertical. Si aucune caméra n'est détectée, le rendu sort en gameplay seul."}
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowAdvanced((v) => !v)}
-              className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
-            >
-              <ChevronDown className={`h-3 w-3 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
-              {showAdvanced ? "Masquer" : "Forcer manuellement la position de la caméra (avancé)"}
-            </button>
-            {showAdvanced && (
-              <div className="mt-3 border-t border-border/60 pt-3">
-                <QuickCameraPicker onReady={() => { /* optional override saved server-side */ }} />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3 rounded-md border border-border bg-card p-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-2">
-                <Captions className="mt-0.5 h-3.5 w-3.5 text-primary" />
-                <div>
-                  <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    Ajoute automatiquement les sous-titres quand tu parles. Incrustés dans la vidéo.
-                  </p>
-                </div>
-              </div>
-              <Switch
-                checked={captionsEnabled}
-                onCheckedChange={setCaptionsEnabled}
-                disabled={busy}
-                aria-label="Activer les sous-titres automatiques"
-              />
-            </div>
-
-            {captionsEnabled && (
-              <div className="space-y-2 border-t border-border/60 pt-3">
-                <Label className="text-xs">Style des sous-titres</Label>
-                <CaptionStylePreviewGrid
-                  value={captionsStyle}
-                  onChange={setCaptionsStyle}
-                  disabled={busy}
-                />
-                <p className="text-[10px] text-muted-foreground">
-                  Aperçu animé du rendu réel dans ton clip.
-                </p>
-              </div>
-
-            )}
-          </div>
-
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-2">
+        <DialogFooter className="sticky bottom-0 z-10 gap-2 border-t border-border/60 bg-background/95 px-5 py-3 backdrop-blur sm:gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Annuler</Button>
           <Button
             onClick={handleLaunch}
@@ -524,11 +590,12 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
             }
           >
             {busy
-              ? <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> En cours…</>
+              ? <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> Génération en cours…</>
               : <><Upload className="mr-1.5 h-3.5 w-3.5" /> Lancer la génération</>}
           </Button>
         </DialogFooter>
       </DialogContent>
+
 
       <ManualFacecamPlacer
         open={placerOpen}

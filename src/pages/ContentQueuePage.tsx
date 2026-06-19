@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
@@ -126,12 +126,38 @@ const ContentQueuePage = () => {
   const { accounts } = useConnectedNetworks();
   const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const navigate = useNavigate();
+  const location = useLocation();
   const [filter, setFilter] = useState<FilterKey>("all");
   const [hideIgnored, setHideIgnored] = useState(true);
   const [uploadItem, setUploadItem] = useState<ContentItem | null>(null);
   const [generateItem, setGenerateItem] = useState<ContentItem | null>(null);
   const [newOpen, setNewOpen] = useState(false);
   const [manualUploadItem, setManualUploadItem] = useState<ContentItem | null>(null);
+
+  // Direct flow from Create page: auto-open the generation modal for the
+  // freshly created item and expand its row. Consumed once.
+  const navState = (location.state ?? null) as {
+    openGenerateForItemId?: string;
+    expandItemId?: string;
+  } | null;
+  const [autoOpenItemId, setAutoOpenItemId] = useState<string | null>(
+    navState?.openGenerateForItemId ?? null,
+  );
+  const [defaultExpandedId, setDefaultExpandedId] = useState<string | null>(
+    navState?.expandItemId ?? null,
+  );
+  const autoOpenConsumedRef = useRef(false);
+  useEffect(() => {
+    if (autoOpenConsumedRef.current) return;
+    if (!autoOpenItemId) return;
+    const target = items.find((i) => i.id === autoOpenItemId);
+    if (!target) return;
+    autoOpenConsumedRef.current = true;
+    setGenerateItem(target);
+    // Clear the router state so a refresh doesn't reopen the modal.
+    navigate(location.pathname, { replace: true, state: {} });
+    setAutoOpenItemId(null);
+  }, [autoOpenItemId, items, navigate, location.pathname]);
 
   const youtubeAccount = accounts.find(a => a.platform === "youtube");
   const youtubeConnected = youtubeAccount?.connection_status === "connected";
@@ -305,6 +331,7 @@ const ContentQueuePage = () => {
             {filtered.map(item => (
               <ContentRow key={item.id} item={item}
                 youtubeConnected={youtubeConnected}
+                defaultExpanded={defaultExpandedId === item.id}
                 onUpload={() => setUploadItem(item)}
                 onManualUpload={() => setManualUploadItem(item)}
                 onEditSource={() => setSourceItem(item)}
@@ -410,7 +437,7 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload, onManualUpload, onEditSource, onGenerate, onJobUpdate, activeJobContentItemId,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onManualUpload, onEditSource, onGenerate, onJobUpdate, activeJobContentItemId, defaultExpanded = false,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
@@ -422,6 +449,7 @@ function ContentRow({
   onGenerate: () => void;
   onJobUpdate: () => void;
   activeJobContentItemId: string | null;
+  defaultExpanded?: boolean;
 }) {
   const isVideo = VIDEO_PLATFORMS.includes(item.platform);
   const hasGeneratedClip = !!item.generated_video_url || !!item.generated_video_storage_path;
@@ -431,7 +459,7 @@ function ContentRow({
   const freshMediaUrl = useFreshMediaUrl(item);
   const anotherJobIsActive = activeJobContentItemId !== null && activeJobContentItemId !== item.id;
   const [editing, setEditing] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
   const [hashtagsRaw, setHashtagsRaw] = useState(item.hashtags.join(" "));

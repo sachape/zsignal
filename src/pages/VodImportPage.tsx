@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { ToastAction } from "@/components/ui/toast";
 import {
   Scissors,
@@ -136,6 +137,7 @@ const VodImportPage = () => {
   });
 
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { items, refetch, updateItem } = useContentItems();
   const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const [url, setUrl] = useState("");
@@ -247,12 +249,42 @@ const VodImportPage = () => {
       }
       setLastImportedUrl(url.trim());
       await refetch();
+
+      // Direct flow: when a single clip was created (Twitch Clip OR one
+      // explicit timestamp), jump straight to the queue and open the
+      // generation modal pre-filled with this item.
+      const singleDirect =
+        result.reason === "twitch_clip_full" ||
+        (result.reason === "vod_manual_timestamp" && (result.count ?? 0) === 1);
+      if (singleDirect && user) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: latest } = await (supabase as any)
+          .from("content_items")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("source_video_url", url.trim())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        const newId = (latest as { id?: string } | null)?.id ?? null;
+        if (newId) {
+          toast({
+            title: detectedSource === "twitch_clip" ? "Lien Twitch détecté" : "Clip ajouté à la file",
+            description: "Prépare ton clip avant génération.",
+          });
+          navigate("/content-queue", {
+            state: { openGenerateForItemId: newId, expandItemId: newId },
+          });
+          return;
+        }
+      }
+
       toast({
-        title: result.reason === "vod_manual_timestamp" ? "Clips créés" : "Suggestions à vérifier",
+        title: "Clip ajouté à la file",
         description:
           result.reason === "vod_manual_timestamp"
-            ? `${result.count} clip${(result.count ?? 0) > 1 ? "s" : ""} prêt${(result.count ?? 0) > 1 ? "s" : ""} à générer.`
-            : "Ajoute des timestamps pour de meilleurs résultats.",
+            ? `${result.count} clip${(result.count ?? 0) > 1 ? "s" : ""} prêt${(result.count ?? 0) > 1 ? "s" : ""} à configurer.`
+            : "Ouvre la file pour configurer et générer ton clip.",
       });
     } catch (err) {
       toast({
@@ -587,7 +619,7 @@ const VodImportPage = () => {
                 <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/[0.06] px-3 py-2 text-xs">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
                   <span>
-                    Suggestions à vérifier — ajoute des timestamps pour de meilleurs résultats.
+                    Moments proposés automatiquement — ajoute des timestamps précis pour de meilleurs résultats.
                   </span>
                 </div>
               )}
