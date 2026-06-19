@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ElementType } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Clapperboard,
@@ -20,7 +20,6 @@ import { usePlan } from "@/hooks/usePlan";
 import { hasPlanAtLeast } from "@/lib/planAccess";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useActiveVideoJob } from "@/hooks/useVideoJobs";
 import { getGenerationStageLabel } from "@/services/videoGeneration";
@@ -285,41 +284,6 @@ const ClipsReseauxPage = () => {
         </section>
       </PageContainer>
     </AppShell>
-  );
-};
-
-interface SourceCardProps {
-  icon: ElementType;
-  title: string;
-  description: string;
-  to: string;
-  disabled?: boolean;
-}
-
-const SourceCard = ({ icon: Icon, title, description, to, disabled }: SourceCardProps) => {
-  const content = (
-    <Card
-      className={cn(
-        "h-full border-border/60 bg-card/60 transition-all",
-        disabled
-          ? "opacity-60"
-          : "hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5",
-      )}
-    >
-      <CardContent className="flex flex-col gap-2 p-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
-          <Icon className="h-4 w-4" />
-        </div>
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
-  );
-  if (disabled) return content;
-  return (
-    <Link to={to} className="block">
-      {content}
-    </Link>
   );
 };
 

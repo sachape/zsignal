@@ -26,7 +26,7 @@ const SECTIONS: Section[] = [
       { label: "Historique", to: "/lives", matches: ["/lives"] },
       { label: "Planning", to: "/schedule", matches: ["/schedule"] },
       { label: "Simulateur", to: "/simulator", matches: ["/simulator"] },
-      { label: "Multistream", to: "#", soon: true },
+      
     ],
   },
   {
@@ -36,7 +36,7 @@ const SECTIONS: Section[] = [
       { label: "Queue", to: "/content-queue", matches: ["/content-queue", "/content-studio"] },
       { label: "Composer", to: "/composer", matches: ["/composer"] },
       { label: "Publications", to: "/publications", matches: ["/publications"] },
-      { label: "Analytics", to: "#", soon: true },
+      
     ],
   },
   {

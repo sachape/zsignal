@@ -37,7 +37,7 @@ const QuestesPage = lazy(() => import("./pages/QuestesPage.tsx"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
 const TwitchAccountsPage = lazy(() => import("./pages/TwitchAccountsPage.tsx"));
 const TitleGeneratorPage = lazy(() => import("./pages/TitleGeneratorPage.tsx"));
-const ClipAnalyticsPage = lazy(() => import("./pages/ClipAnalyticsPage.tsx"));
+// ClipAnalyticsPage import removed: no route mounts it (legacy /clips conflict).
 const SchedulePage = lazy(() => import("./pages/SchedulePage.tsx"));
 const FeaturesPage = lazy(() => import("./pages/FeaturesPage.tsx"));
 const SolutionsPage = lazy(() => import("./pages/SolutionsPage.tsx"));
