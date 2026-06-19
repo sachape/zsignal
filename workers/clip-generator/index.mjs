@@ -32,7 +32,7 @@
 //
 //     // Captions — optional, enabled by default by clip-job-create.
 //     captions_enabled?, captions_language?,
-//     captions_style?,                            // "clean" | "bold_tiktok" | "gaming_neon" | "minimal"
+//     captions_style?,                            // "clean" | "bold_tiktok" | "gaming_neon" | "minimal" | "creator_pop" | "punchline"
 //     transcribe_url?, transcribe_secret?
 //   }
 //
