@@ -208,7 +208,6 @@ const VodImportPage = () => {
   // Premium loading microcopy for the preparation CTA / panel hydration.
   const [prepMessageIndex, setPrepMessageIndex] = useState(0);
   const [prepStartAt, setPrepStartAt] = useState<number | null>(null);
-  const [prepTick, setPrepTick] = useState(0);
   const hasScrolledToPrepRef = useRef(false);
   const isPrepLoading = submitting || (!!preparedItemId && !preparedItem && itemsLoading);
 
@@ -223,12 +222,9 @@ const VodImportPage = () => {
       () => setPrepMessageIndex((i) => (i + 1) % PREPARATION_MESSAGES.length),
       1200,
     );
-    const tickInterval = window.setInterval(() => setPrepTick((t) => t + 1), 500);
-    return () => {
-      window.clearInterval(messageInterval);
-      window.clearInterval(tickInterval);
-    };
+    return () => window.clearInterval(messageInterval);
   }, [isPrepLoading]);
+
 
   const prepElapsed = prepStartAt ? Date.now() - prepStartAt : 0;
   const prepMessage =
