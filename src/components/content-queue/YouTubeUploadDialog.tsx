@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import type { ContentItem, YouTubePrivacyStatus } from "@/hooks/useContentItems";
+import { normalizeClipTitle } from "@/lib/clipTitle";
 
 interface Props {
   item: ContentItem;
