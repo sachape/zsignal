@@ -127,7 +127,7 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
       {/* Copy actions */}
       <div className="flex flex-wrap gap-1.5">
         <Button size="sm" variant="outline" className="h-7 text-[11px]"
-          onClick={() => copyText(item.title, "Titre copié")}>
+          onClick={() => copyText(displayTitle, "Titre copié")}>
           <Copy className="mr-1 h-3 w-3" /> Titre
         </Button>
         <Button size="sm" variant="outline" className="h-7 text-[11px]"
