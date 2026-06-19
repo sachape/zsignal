@@ -26,6 +26,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { normalizeClipTitle } from "@/lib/clipTitle";
 import {
   useContentItems, type ContentItem, type ContentPlatform,
   type ContentPriority, type ContentStatus,
