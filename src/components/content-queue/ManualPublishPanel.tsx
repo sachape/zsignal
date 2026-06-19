@@ -67,7 +67,7 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
       const a = document.createElement("a");
       const ext = (blob.type.split("/")[1] || "mp4").split(";")[0];
       a.href = URL.createObjectURL(blob);
-      a.download = `${(item.title || "media").replace(/[^a-z0-9-_]+/gi, "_").slice(0, 60)}.${ext}`;
+      a.download = `${(displayTitle || "media").replace(/[^a-z0-9-_]+/gi, "_").slice(0, 60)}.${ext}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
