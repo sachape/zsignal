@@ -9,7 +9,7 @@ type Section = { id: string; label: string; tabs: Tab[] };
 const SECTIONS: Section[] = [
   {
     id: "clips",
-    label: "Clips réseaux",
+    label: "Clipping",
     tabs: [
       { label: "Mes clips", to: "/clips-reseaux", matches: ["/clips-reseaux"], exact: true },
       { label: "Créer", to: "/clips/vod-import", matches: ["/clips/vod-import"] },

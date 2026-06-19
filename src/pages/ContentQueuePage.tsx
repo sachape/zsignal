@@ -322,7 +322,7 @@ const ContentQueuePage = () => {
                   <Plus className="h-4 w-4" /> Nouveau contenu
                 </Button>
                 <Button asChild variant="ghost" size="sm">
-                  <Link to="/clips-reseaux">Créer un clip réseau</Link>
+                  <Link to="/clips-reseaux">Créer un clip</Link>
                 </Button>
               </div>
             </CardContent>

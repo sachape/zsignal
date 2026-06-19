@@ -105,7 +105,7 @@ const Index = () => {
       {/* 3. Les 3 piliers — vue d'ensemble de la proposition de valeur */}
       <AudienceValueSection />
 
-      {/* 4. Pilier 1 + 2 en profondeur — Clips réseaux + Studio visuel */}
+      {/* 4. Pilier 1 + 2 en profondeur — Clipping + Studio visuel */}
       <WowFeaturesSection />
 
       {/* 5. Pilier 3 en profondeur — Progression + récap après live */}

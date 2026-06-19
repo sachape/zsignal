@@ -3,7 +3,7 @@ import { ArrowRight, Clapperboard, Palette } from "lucide-react";
 
 /**
  * "Créer maintenant" — premium dashboard block highlighting the two
- * creation features (Clips réseaux + Studio visuel). Sits above the
+ * creation features (Clipping + Studio visuel). Sits above the
  * legacy quick actions row.
  */
 const CreateNowBlock = () => {
@@ -24,7 +24,7 @@ const CreateNowBlock = () => {
         <CreateCard
           to="/clips-reseaux"
           icon={Clapperboard}
-          title="Créer un clip réseau"
+          title="Créer un clip"
           description="Transforme un Clip Twitch ou une VOD en vidéo verticale avec facecam, gameplay et sous-titres."
           cta="Lancer la création"
         />

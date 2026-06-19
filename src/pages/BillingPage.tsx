@@ -120,7 +120,7 @@ const BillingPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Clips réseaux</p>
+                  <p className="text-xs text-muted-foreground">Clipping</p>
                   <p className="mt-1 text-sm font-medium text-foreground">
                     {quota.clipsUsed} / {quota.clipsLimit} clips
                   </p>

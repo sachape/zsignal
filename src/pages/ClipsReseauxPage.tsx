@@ -54,7 +54,7 @@ const withFreshClipUrl = async (clip: RecentClip): Promise<RecentClip> => {
 
 const ClipsReseauxPage = () => {
   usePageMeta({
-    title: "Clips réseaux · Streamnco",
+    title: "Clipping · Streamnco",
     description:
       "Transforme une VOD ou une vidéo en clip vertical prêt pour TikTok, Reels et Shorts.",
   });
@@ -133,7 +133,7 @@ const ClipsReseauxPage = () => {
     <AppShell>
       <PageContainer size="lg">
         <PageHeader
-          title="Clips réseaux"
+          title="Clipping"
           description="Transforme une VOD ou une vidéo en clip vertical prêt pour TikTok, Reels et Shorts."
           action={primaryCta}
         />

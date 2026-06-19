@@ -36,7 +36,7 @@ const WowFeaturesSection = () => {
           transition: "opacity 700ms cubic-bezier(0.16,1,0.3,1), transform 700ms cubic-bezier(0.16,1,0.3,1)",
         }}
       >
-        {/* ── Clips réseaux ─────────────────────────────────────────── */}
+        {/* ── Clipping ─────────────────────────────────────────── */}
         <article className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-[0_30px_80px_-30px_hsl(220_28%_10%/0.18)] transition-all hover:-translate-y-0.5 hover:border-primary/30">
           <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl transition-opacity group-hover:opacity-90" aria-hidden />
 
@@ -45,7 +45,7 @@ const WowFeaturesSection = () => {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
                 <Clapperboard className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Clips réseaux</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Clipping</span>
             </div>
 
             <h3 className="relative mt-4 text-2xl font-semibold tracking-tight text-foreground md:text-[26px]">

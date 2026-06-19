@@ -65,7 +65,7 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
       id: "clip",
       done: state.hasClip,
       icon: Clapperboard,
-      title: "Crée ton premier clip réseau",
+      title: "Crée ton premier clip",
       description: "Transforme un Clip Twitch, une VOD ou un upload en vidéo verticale prête à publier.",
       cta: "Créer un clip",
       href: "/clips-reseaux",
