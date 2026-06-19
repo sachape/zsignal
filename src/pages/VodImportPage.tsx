@@ -700,7 +700,7 @@ const VodImportPage = () => {
               <div className="flex items-start gap-2 text-destructive">
                 <AlertCircle className="mt-0.5 h-4 w-4" />
                 <div>
-                  <p className="font-semibold">Impossible d’ouvrir la configuration du clip.</p>
+                  <p className="font-semibold">{PREPARATION_ERROR_MESSAGE}</p>
                   <p className="mt-1 text-xs text-destructive/80">Réessaie ou consulte la Queue si le clip a déjà été créé.</p>
                 </div>
               </div>
