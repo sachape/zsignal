@@ -437,7 +437,7 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
 }
 
 function ContentRow({
-  item, onUpdate, onDelete, youtubeConnected, onUpload, onManualUpload, onEditSource, onGenerate, onJobUpdate, activeJobContentItemId,
+  item, onUpdate, onDelete, youtubeConnected, onUpload, onManualUpload, onEditSource, onGenerate, onJobUpdate, activeJobContentItemId, defaultExpanded = false,
 }: {
   item: ContentItem;
   onUpdate: (patch: Partial<ContentItem>) => void;
@@ -449,6 +449,7 @@ function ContentRow({
   onGenerate: () => void;
   onJobUpdate: () => void;
   activeJobContentItemId: string | null;
+  defaultExpanded?: boolean;
 }) {
   const isVideo = VIDEO_PLATFORMS.includes(item.platform);
   const hasGeneratedClip = !!item.generated_video_url || !!item.generated_video_storage_path;
@@ -458,7 +459,7 @@ function ContentRow({
   const freshMediaUrl = useFreshMediaUrl(item);
   const anotherJobIsActive = activeJobContentItemId !== null && activeJobContentItemId !== item.id;
   const [editing, setEditing] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
   const [hashtagsRaw, setHashtagsRaw] = useState(item.hashtags.join(" "));
