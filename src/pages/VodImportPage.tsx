@@ -613,6 +613,33 @@ const VodImportPage = () => {
           </CardContent>
         </Card>
 
+        {/* Inline preparation panel — same page as the analyze form. */}
+        {preparedItem && (
+          <div ref={prepRef} className="mb-5">
+            <ClipPreparationPanel
+              item={preparedItem}
+              variant="inline"
+              onLaunched={() => {
+                void refetch();
+                void refetchActiveJob();
+                // Keep the panel open so the user can launch another if needed,
+                // but offer a quick path to monitor the job.
+                toast({
+                  title: "Génération lancée",
+                  description: "Suis l'avancement dans la file de contenus.",
+                  action: (
+                    <ToastAction altText="Voir dans la Queue" onClick={() => navigate("/content-queue")}>
+                      Voir dans la Queue
+                    </ToastAction>
+                  ),
+                });
+              }}
+            />
+          </div>
+        )}
+
+
+
         {candidates.length > 0 && (
           <Card className="mb-4 border-primary/30 bg-primary/[0.03]">
             <CardContent className="space-y-4 p-5">
