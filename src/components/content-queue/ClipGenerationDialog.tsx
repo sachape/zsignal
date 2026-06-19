@@ -158,6 +158,8 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
 
   function reset() {
     setFile(null); setDirectUrl(item.source_video_url ?? "");
+    setMode(item.source_video_url ? "direct_url" : "upload");
+    setEditingUrl(false);
     setBusy(false); setPhase("idle"); setProgress(0); setError(null);
     setManualCrop(null); setManualPresetSaved(false);
     setManualCropSourceSize(null); setPresetNeedsReplace(false); setIgnoreSavedFacecamPreset(false);
