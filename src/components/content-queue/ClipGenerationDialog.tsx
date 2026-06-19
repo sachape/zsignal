@@ -435,40 +435,33 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
               </div>
 
               {/* Manual facecam */}
-              <div className="rounded-md border border-border bg-card p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-2">
-                    <Camera className="mt-0.5 h-3.5 w-3.5 text-primary" />
-                    <div>
-                      <p className="text-xs font-medium text-foreground">Option avancée : placer ma caméra</p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        {manualCrop
-                          ? manualPresetSaved
-                            ? "Caméra mémorisée pour cette chaîne."
-                            : "Zone caméra sélectionnée pour ce clip."
-                          : presetNeedsReplace
-                            ? "Position caméra à replacer. L'ancienne ne sera pas réutilisée."
-                          : "Utilise-le si tu veux ta caméra en haut et le gameplay en bas. Sinon Streamnco génère un clip gameplay seul."}
-                      </p>
+              {manualCrop && manualPresetSaved && detectedLogin ? (
+                /* Saved preset state — prominent confirmation, no need to re-place */
+                <div className="rounded-md border border-primary/40 bg-primary/[0.07] p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2">
+                      <div className="mt-0.5 rounded-full bg-primary/20 p-1 text-primary">
+                        <Check className="h-3 w-3" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">
+                          Caméra mémorisée pour @{detectedLogin}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          Streamnco utilisera automatiquement cette position pour ce clip.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  {manualCrop && (
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
-                      <Check className="h-3 w-3" /> Active
-                    </span>
-                  )}
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-1">
-                  <Button
-                    type="button" size="sm"
-                    variant={manualCrop ? "outline" : "default"}
-                    className="gap-1 text-xs"
-                    onClick={() => setPlacerOpen(true)}
-                    disabled={busy}
-                  >
-                    {manualCrop ? <><Pencil className="h-3 w-3" /> Modifier</> : <><Camera className="h-3 w-3" /> Placer ma caméra</>}
-                  </Button>
-                  {manualCrop && (
+                  <div className="mt-2 flex flex-wrap items-center gap-1">
+                    <Button
+                      type="button" size="sm" variant="outline"
+                      className="gap-1 text-xs"
+                      onClick={() => setPlacerOpen(true)}
+                      disabled={busy}
+                    >
+                      <Pencil className="h-3 w-3" /> Modifier
+                    </Button>
                     <Button
                       type="button" size="sm" variant="ghost"
                       className="text-xs text-muted-foreground hover:text-destructive"
@@ -485,40 +478,93 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
                             .eq("user_id", user.id)
                             .eq("twitch_channel_login", detectedLogin);
                         }
+                        toast.success("Position caméra supprimée");
                       }}
                       disabled={busy}
                     >
                       Supprimer
                     </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Auto facecam explanation */}
-              <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
-                <p className="flex items-center gap-2 text-xs font-medium text-foreground">
-                  <Sparkles className="h-3.5 w-3.5 text-primary" />
-                  Détection automatique de la facecam
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {manualCrop
-                    ? "Désactivée — ta zone manuelle sera utilisée."
-                    : "Streamnco repère ta caméra dans la vidéo et la place en haut du clip. Sinon le rendu sort en gameplay seul."}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowAdvanced((v) => !v)}
-                  className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
-                >
-                  <ChevronDown className={`h-3 w-3 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
-                  {showAdvanced ? "Masquer" : "Forcer manuellement la position (avancé)"}
-                </button>
-                {showAdvanced && (
-                  <div className="mt-3 border-t border-border/60 pt-3">
-                    <QuickCameraPicker onReady={() => { /* server-side */ }} />
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <>
+                  {/* Default / unsaved manual placement */}
+                  <div className="rounded-md border border-border bg-card p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2">
+                        <Camera className="mt-0.5 h-3.5 w-3.5 text-primary" />
+                        <div>
+                          <p className="text-xs font-medium text-foreground">Option avancée : placer ma caméra</p>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground">
+                            {manualCrop
+                              ? "Zone caméra sélectionnée pour ce clip."
+                              : presetNeedsReplace
+                                ? "Position caméra à replacer. L'ancienne ne sera pas réutilisée."
+                                : "Utile si tu veux ta caméra en haut et le gameplay en bas. Sinon Streamnco génère un clip gameplay seul."}
+                          </p>
+                        </div>
+                      </div>
+                      {manualCrop && (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
+                          <Check className="h-3 w-3" /> Active
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-1">
+                      <Button
+                        type="button" size="sm"
+                        variant={manualCrop ? "outline" : "default"}
+                        className="gap-1 text-xs"
+                        onClick={() => setPlacerOpen(true)}
+                        disabled={busy}
+                      >
+                        {manualCrop ? <><Pencil className="h-3 w-3" /> Modifier</> : <><Camera className="h-3 w-3" /> Placer ma caméra</>}
+                      </Button>
+                      {manualCrop && (
+                        <Button
+                          type="button" size="sm" variant="ghost"
+                          className="text-xs text-muted-foreground hover:text-destructive"
+                          onClick={() => {
+                            setManualCrop(null);
+                            setManualPresetSaved(false);
+                            setManualCropSourceSize(null);
+                            setIgnoreSavedFacecamPreset(true);
+                          }}
+                          disabled={busy}
+                        >
+                          Supprimer
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Auto facecam explanation */}
+                  <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
+                    <p className="flex items-center gap-2 text-xs font-medium text-foreground">
+                      <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      Détection automatique de la facecam
+                    </p>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {manualCrop
+                        ? "Désactivée — ta zone manuelle sera utilisée."
+                        : "Streamnco repère ta caméra dans la vidéo et la place en haut du clip. Sinon le rendu sort en gameplay seul."}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowAdvanced((v) => !v)}
+                      className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                    >
+                      <ChevronDown className={`h-3 w-3 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
+                      {showAdvanced ? "Masquer" : "Forcer manuellement la position (avancé)"}
+                    </button>
+                    {showAdvanced && (
+                      <div className="mt-3 border-t border-border/60 pt-3">
+                        <QuickCameraPicker onReady={() => { /* server-side */ }} />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
 
               {/* Progress + creating */}
               {busy && phase === "uploading" && (
