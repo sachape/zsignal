@@ -137,6 +137,7 @@ const VodImportPage = () => {
   });
 
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { items, refetch, updateItem } = useContentItems();
   const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const [url, setUrl] = useState("");
