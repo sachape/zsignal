@@ -175,6 +175,12 @@ const VodImportPage = () => {
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [items, lastImportedUrl]);
 
+  // Inline preparation panel target: an item the user is configuring on this page.
+  const preparedItem = useMemo(
+    () => (preparedItemId ? items.find((i) => i.id === preparedItemId) ?? null : null),
+    [items, preparedItemId],
+  );
+
   // Poll while jobs are processing + drive a clock for stuck-job detection.
   const [now, setNow] = useState(() => Date.now());
   const [processingSince, setProcessingSince] = useState<Record<string, number>>({});
