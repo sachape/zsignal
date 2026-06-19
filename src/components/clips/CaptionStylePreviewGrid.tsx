@@ -75,6 +75,35 @@ function CaptionCue({ style }: CueProps) {
       </div>
     );
   }
+  if (style === "creator_pop") {
+    return (
+      <div
+        className={cn(base, "text-[12px]")}
+        style={{
+          color: "#FFFFFF",
+          textShadow:
+            "0 0 2px #000, 1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 0 2px 4px rgba(0,0,0,0.5)",
+        }}
+      >
+        <CueText accentColor="#2DD4A8" />
+      </div>
+    );
+  }
+  if (style === "punchline") {
+    return (
+      <div
+        className={cn(base, "text-[14px] uppercase")}
+        style={{
+          color: "#FFFFFF",
+          textShadow:
+            "0 0 2px #000, 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 6px rgba(0,0,0,0.9)",
+          letterSpacing: "0.02em",
+        }}
+      >
+        <CueText />
+      </div>
+    );
+  }
   // minimal
   return (
     <div
