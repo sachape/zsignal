@@ -728,13 +728,23 @@ const VodImportPage = () => {
                   void refetchActiveJob();
                 }}
               />
+            ) : itemsLoading ? (
+              <Card className="border-primary/30 bg-primary/[0.04]">
+                <CardContent className="flex items-center gap-3 p-5">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Ça arrive…</p>
+                    <p className="text-[11px] text-muted-foreground">{prepMessage}</p>
+                  </div>
+                </CardContent>
+              </Card>
             ) : (
               <Card className="border-destructive/40 bg-destructive/10">
                 <CardContent className="flex flex-col gap-3 p-5 text-sm">
                   <div className="flex items-start gap-2 text-destructive">
                     <AlertCircle className="mt-0.5 h-4 w-4" />
                     <div>
-                      <p className="font-semibold">Impossible d’ouvrir la configuration du clip.</p>
+                      <p className="font-semibold">{PREPARATION_ERROR_MESSAGE}</p>
                       <p className="mt-1 text-xs text-destructive/80">Réessaie ou consulte la Queue si le clip a déjà été créé.</p>
                     </div>
                   </div>
@@ -742,7 +752,7 @@ const VodImportPage = () => {
                     <Button size="sm" variant="outline" onClick={() => void refetch()}>
                       Réessayer
                     </Button>
-                    <Button asChild size="sm" variant="outline">
+                    <Button asChild size="sm" variant="ghost">
                       <Link to="/content-queue">Voir dans la Queue</Link>
                     </Button>
                   </div>
