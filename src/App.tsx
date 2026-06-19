@@ -196,7 +196,7 @@ const App = () => (
                   path="/clips-reseaux"
                   element={
                     <ProtectedRoute>
-                      <VodImportPage />
+                      <ClipsReseauxPage />
                     </ProtectedRoute>
                   }
                 />
