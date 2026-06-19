@@ -704,6 +704,44 @@ function getCaptionStyleParams(stylePreset, outW, outH) {
       wrapText: (t) => t,
     };
   }
+  if (stylePreset === "creator_pop") {
+    const fs = Math.round(baseFont * 1.10);
+    // Teal accent (#2DD4A8) → BGR &H00A8D42D
+    const accent = "&H00A8D42D";
+    return {
+      name: "creator_pop",
+      fontName: "DejaVu Sans",
+      fontSize: fs,
+      bold: -1,
+      primary: "&H00FFFFFF",
+      outlineColor: "&H00000000",
+      backColor: "&H60000000",
+      outline: Math.max(5, Math.round(fs * 0.11)),
+      shadow: 3,
+      wrapText: (t) => {
+        const words = t.trim().split(/\s+/);
+        if (words.length <= 2) return `{\\c${accent}}${t}{\\c&H00FFFFFF&}`;
+        // Highlight the last word as the "key word".
+        const last = words.pop();
+        return `${words.join(" ")} {\\c${accent}}${last}{\\c&H00FFFFFF&}`;
+      },
+    };
+  }
+  if (stylePreset === "punchline") {
+    const fs = Math.round(baseFont * 1.28);
+    return {
+      name: "punchline",
+      fontName: "DejaVu Sans",
+      fontSize: fs,
+      bold: -1,
+      primary: "&H00FFFFFF",
+      outlineColor: "&H00000000",
+      backColor: "&H90000000",
+      outline: Math.max(8, Math.round(fs * 0.16)),
+      shadow: 3,
+      wrapText: (t) => `{\\fscx105\\fscy105}${t.toUpperCase()}`,
+    };
+  }
   // "clean" — default: white bold + thick black outline, premium readable.
   return {
     name: "clean",
