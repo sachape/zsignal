@@ -189,7 +189,7 @@ const FeaturesPage = () => {
           <div className="grid gap-4">
             <FadeIn delay={0.06}>
               <FeaturePanel
-                id="clips-reseaux"
+                id="clipping"
                 icon={Clapperboard}
                 eyebrow="Clipping"
                 title="Transforme tes moments Twitch en vidéos verticales 9:16."

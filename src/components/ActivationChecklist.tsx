@@ -68,7 +68,7 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
       title: "Crée ton premier clip",
       description: "Transforme un Clip Twitch, une VOD ou un upload en vidéo verticale prête à publier.",
       cta: "Créer un clip",
-      href: "/clips-reseaux",
+      href: "/clipping",
       available: state.twitchConnected,
     },
     {

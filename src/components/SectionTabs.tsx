@@ -11,7 +11,7 @@ const SECTIONS: Section[] = [
     id: "clips",
     label: "Clipping",
     tabs: [
-      { label: "Mes clips", to: "/clips-reseaux", matches: ["/clips-reseaux"], exact: true },
+      { label: "Mes clips", to: "/clipping", matches: ["/clipping"], exact: true },
       { label: "Créer", to: "/clips/vod-import", matches: ["/clips/vod-import"] },
       { label: "Queue", to: "/content-queue", matches: ["/content-queue"] },
       { label: "Moments proposés", to: "/clips", matches: ["/clips"], exact: true },

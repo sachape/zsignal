@@ -84,7 +84,7 @@ const WowFeaturesSection = () => {
 
             <div className="relative mt-6">
               <Button asChild size="sm" variant="outline" className="group/btn">
-                <Link to="/fonctionnalites#clips-reseaux">
+                <Link to="/fonctionnalites#clipping">
                   Voir comment ça marche
                   <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
                 </Link>

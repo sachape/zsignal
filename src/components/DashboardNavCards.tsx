@@ -5,7 +5,7 @@ import { Activity, ArrowUpRight, Clapperboard, Palette, Radio, Users } from "luc
 // Replaces the old CreateNowBlock + DashboardQuickActions + NetworksTeaser,
 // giving a single clear "what do you want to do?" surface.
 const NAV = [
-  { to: "/clips-reseaux", icon: Clapperboard, title: "Créer un clip", desc: "Un live → une vidéo 9:16 prête à poster", featured: true },
+  { to: "/clipping", icon: Clapperboard, title: "Créer un clip", desc: "Un live → une vidéo 9:16 prête à poster", featured: true },
   { to: "/studio-visuel", icon: Palette, title: "Générer un visuel", desc: "Bannière, story, annonce de live", featured: false },
   { to: "/analyse", icon: Activity, title: "Mon StreamScore", desc: "Score, dimensions, reco prioritaire", featured: false },
   { to: "/live-setup", icon: Radio, title: "Préparer mon live", desc: "Titre, setup, planning", featured: false },

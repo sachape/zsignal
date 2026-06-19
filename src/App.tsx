@@ -193,12 +193,16 @@ const App = () => (
                   }
                 />
                 <Route
-                  path="/clips-reseaux"
+                  path="/clipping"
                   element={
                     <ProtectedRoute>
                       <ClipsReseauxPage />
                     </ProtectedRoute>
                   }
+                />
+                <Route
+                  path="/clips-reseaux"
+                  element={<Navigate to={{ pathname: "/clipping", search: window.location.search }} replace />}
                 />
                 <Route
                   path="/clips/vod-import"
