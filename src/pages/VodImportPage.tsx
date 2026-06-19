@@ -679,9 +679,17 @@ const VodImportPage = () => {
                 className="gap-2"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                Préparer le clip
+                {submitting ? "Ça arrive…" : "Continuer la préparation"}
               </Button>
             </div>
+
+            {submitting && (
+              <div className="mt-2 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-primary/80">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                {prepMessage}
+              </div>
+            )}
+
 
           </CardContent>
         </Card>
