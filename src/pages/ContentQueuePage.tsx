@@ -1070,5 +1070,74 @@ function ClipJobStatus({ contentItemId, onTerminal }: { contentItemId: string; o
     </div>
   );
 }
+const PREPARATION_MESSAGES = [
+  "On récupère la source…",
+  "On prépare ton clip…",
+  "On charge les options…",
+  "On vérifie la caméra…",
+  "Encore quelques secondes…",
+];
+const PREPARATION_SLOW_MESSAGE = "C’est un peu plus long que prévu, mais on est dessus…";
+
+function ContinuePreparationButton({
+  item, anotherJobIsActive, onGenerate,
+}: {
+  item: ContentItem;
+  anotherJobIsActive: boolean;
+  onGenerate: () => void;
+}) {
+  const isProcessing = item.generation_status === "queued" || item.generation_status === "processing";
+  const [loading, setLoading] = useState(false);
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [startAt, setStartAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!loading) return;
+    setStartAt(Date.now());
+    const id = window.setInterval(
+      () => setMessageIndex((i) => (i + 1) % PREPARATION_MESSAGES.length),
+      1200,
+    );
+    // Safety: release the loading state if the user navigates back without nav firing.
+    const release = window.setTimeout(() => setLoading(false), 8000);
+    return () => {
+      window.clearInterval(id);
+      window.clearTimeout(release);
+    };
+  }, [loading]);
+
+  const elapsed = startAt ? Date.now() - startAt : 0;
+  const message = elapsed > 10000 ? PREPARATION_SLOW_MESSAGE : PREPARATION_MESSAGES[messageIndex];
+  const disabled = loading || item.source_start_time == null || item.source_end_time == null || isProcessing || anotherJobIsActive;
+  const label = loading
+    ? "Ça arrive…"
+    : item.generation_status === "failed"
+      ? "Réessayer"
+      : item.source_video_url
+        ? "Continuer la préparation"
+        : "Générer le clip";
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Button
+        size="sm" className="h-7 text-[11px]"
+        onClick={() => { if (item.source_video_url) setLoading(true); onGenerate(); }}
+        disabled={disabled}
+        title={anotherJobIsActive ? "Une génération est déjà en cours" : "Lancer la génération du clip"}
+      >
+        {loading || isProcessing
+          ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+          : <Wand2 className="mr-1.5 h-3.5 w-3.5" />}
+        {label}
+      </Button>
+      {loading && (
+        <span className="inline-flex items-center gap-1 text-[11px] text-primary/80">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          {message}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export default ContentQueuePage;
