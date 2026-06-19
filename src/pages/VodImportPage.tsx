@@ -205,6 +205,47 @@ const VodImportPage = () => {
     setTarget(preparedItem.platform ?? "youtube_shorts");
   }, [preparedItem]);
 
+  // Premium loading microcopy for the preparation CTA / panel hydration.
+  const [prepMessageIndex, setPrepMessageIndex] = useState(0);
+  const [prepStartAt, setPrepStartAt] = useState<number | null>(null);
+  const [prepTick, setPrepTick] = useState(0);
+  const hasScrolledToPrepRef = useRef(false);
+  const isPrepLoading = submitting || (!!preparedItemId && !preparedItem && itemsLoading);
+
+  useEffect(() => {
+    if (!isPrepLoading) {
+      if (prepStartAt) setPrepStartAt(null);
+      setPrepMessageIndex(0);
+      return;
+    }
+    if (!prepStartAt) setPrepStartAt(Date.now());
+    const messageInterval = window.setInterval(
+      () => setPrepMessageIndex((i) => (i + 1) % PREPARATION_MESSAGES.length),
+      1200,
+    );
+    const tickInterval = window.setInterval(() => setPrepTick((t) => t + 1), 500);
+    return () => {
+      window.clearInterval(messageInterval);
+      window.clearInterval(tickInterval);
+    };
+  }, [isPrepLoading]);
+
+  const prepElapsed = prepStartAt ? Date.now() - prepStartAt : 0;
+  const prepMessage =
+    prepElapsed > 10000 ? PREPARATION_SLOW_MESSAGE : PREPARATION_MESSAGES[prepMessageIndex % PREPARATION_MESSAGES.length];
+
+  // Scroll to the configuration panel once it becomes available.
+  useEffect(() => {
+    if (preparedItem && !hasScrolledToPrepRef.current) {
+      hasScrolledToPrepRef.current = true;
+      setTimeout(
+        () => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        120,
+      );
+    }
+  }, [preparedItem]);
+
+
   // Poll while jobs are processing + drive a clock for stuck-job detection.
   const [now, setNow] = useState(() => Date.now());
   const [processingSince, setProcessingSince] = useState<Record<string, number>>({});
