@@ -165,54 +165,6 @@ const ClipsReseauxPage = () => {
 
         {/* Source picker removed — section tabs (Mes clips / Créer / Queue / Moments proposés) handle navigation. */}
 
-
-        {/* Camera config — optional, never blocks generation */}
-        <section className="mb-8">
-          <Card className="border-border/60 bg-card/60">
-            <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-3">
-                <div className="rounded-md bg-primary/10 p-2 text-primary">
-                  <Video className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-foreground">Option avancée : placer ma caméra</h3>
-                    <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                      Optionnel
-                    </Badge>
-                  </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Utile si tu veux un rendu avec ta caméra en haut et le gameplay en bas.
-                    Par défaut, Streamnco génère un clip vertical en gameplay seul.
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                className="gap-2"
-                onClick={() => setCameraDialogOpen(true)}
-              >
-                <SettingsIcon className="h-4 w-4" />
-                Placer ma caméra
-              </Button>
-            </CardContent>
-          </Card>
-        </section>
-
-        <Dialog open={cameraDialogOpen} onOpenChange={setCameraDialogOpen}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>Placer ma caméra</DialogTitle>
-              <DialogDescription>
-                On utilise une image de ton dernier live Twitch pour cadrer précisément
-                ta caméra. Tes prochains clips Twitch reprendront automatiquement ce cadrage.
-              </DialogDescription>
-            </DialogHeader>
-            <CameraPlacementEditor onClose={() => setCameraDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
-
-
         {/* Recent clips */}
         <section>
           <div className="mb-3 flex items-center justify-between">
