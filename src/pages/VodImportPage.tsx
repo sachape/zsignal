@@ -159,6 +159,8 @@ const VodImportPage = () => {
   const [target, setTarget] = useState<string>("youtube_shorts");
   const [timestampsRaw, setTimestampsRaw] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [sourceMode, setSourceMode] = useState<"twitch" | "upload">("twitch");
+  const [creatingUploadDraft, setCreatingUploadDraft] = useState(false);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [editing, setEditing] = useState<ContentItem | null>(null);
   const [editStart, setEditStart] = useState(0);
