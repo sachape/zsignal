@@ -517,7 +517,7 @@ function ContentRow({
             {editing ? (
               <Input value={title} onChange={(e) => setTitle(e.target.value)} className="font-medium" maxLength={140} />
             ) : (
-              <p className="truncate text-sm font-semibold text-foreground">{item.title}</p>
+              <p className="truncate text-sm font-semibold text-foreground">{normalizeClipTitle(item.title)}</p>
             )}
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
               <Badge variant="outline" className="text-[10px]">{platform.label}</Badge>
