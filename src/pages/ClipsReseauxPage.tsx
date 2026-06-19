@@ -3,9 +3,6 @@ import { Link } from "react-router-dom";
 import {
   Clapperboard,
   Sparkles,
-  Upload,
-  Tv,
-  Wand2,
   Video,
   Download,
   Send,
