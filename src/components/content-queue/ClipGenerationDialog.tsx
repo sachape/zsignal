@@ -72,9 +72,13 @@ function extractTwitchChannelLogin(raw: string | null | undefined): string | nul
 const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [mode, setMode] = useState<Mode>("upload");
+  // If the item already carries a source URL (Twitch flow), default to the
+  // direct URL mode so the user never has to re-paste or pick "Upload source".
+  const initialMode: Mode = item.source_video_url ? "direct_url" : "upload";
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [file, setFile] = useState<File | null>(null);
   const [directUrl, setDirectUrl] = useState(item.source_video_url ?? "");
+  const [editingUrl, setEditingUrl] = useState(false);
   const [busy, setBusy] = useState(false);
   const [phase, setPhase] = useState<"idle" | "uploading" | "creating">("idle");
   const [progress, setProgress] = useState(0);
@@ -84,6 +88,13 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
   // Auto subtitles are ON by default. The user can opt out.
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
   const [captionsStyle, setCaptionsStyle] = useState<CaptionStyle>("clean");
+
+  // Keep state in sync if the parent swaps the item while open.
+  useEffect(() => {
+    setMode(item.source_video_url ? "direct_url" : "upload");
+    setDirectUrl(item.source_video_url ?? "");
+    setEditingUrl(false);
+  }, [item.id, item.source_video_url]);
 
   // ── Manual facecam placement (MVP) ──
   const [placerOpen, setPlacerOpen] = useState(false);
