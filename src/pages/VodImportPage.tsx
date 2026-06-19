@@ -153,6 +153,8 @@ const VodImportPage = () => {
   const [editStart, setEditStart] = useState(0);
   const [editEnd, setEditEnd] = useState(0);
   const [lastImportedUrl, setLastImportedUrl] = useState<string | null>(null);
+  const [prepareError, setPrepareError] = useState<string | null>(null);
+  const [preparedItemOverride, setPreparedItemOverride] = useState<ContentItem | null>(null);
   // Inline preparation: id of the item to configure on this page.
   const [preparedItemId, setPreparedItemId] = useState<string | null>(
     searchParams.get("continue"),
@@ -177,9 +179,20 @@ const VodImportPage = () => {
 
   // Inline preparation panel target: an item the user is configuring on this page.
   const preparedItem = useMemo(
-    () => (preparedItemId ? items.find((i) => i.id === preparedItemId) ?? null : null),
-    [items, preparedItemId],
+    () => {
+      if (!preparedItemId) return null;
+      if (preparedItemOverride?.id === preparedItemId) return preparedItemOverride;
+      return items.find((i) => i.id === preparedItemId) ?? null;
+    },
+    [items, preparedItemId, preparedItemOverride],
   );
+
+  useEffect(() => {
+    if (!preparedItem) return;
+    setUrl(preparedItem.source_video_url ?? "");
+    setSubject(preparedItem.title ?? "");
+    setTarget(preparedItem.platform ?? "youtube_shorts");
+  }, [preparedItem]);
 
   // Poll while jobs are processing + drive a clock for stuck-job detection.
   const [now, setNow] = useState(() => Date.now());
@@ -221,6 +234,10 @@ const VodImportPage = () => {
       toast({ title: "Lien manquant", description: "Colle un lien Twitch.", variant: "destructive" });
       return;
     }
+    if (!subject.trim()) {
+      toast({ title: "Titre manquant", description: "Ajoute un titre pour ton clip.", variant: "destructive" });
+      return;
+    }
     if (detectedSource === "youtube") {
       toast({
         title: "YouTube arrive bientôt",
@@ -236,7 +253,19 @@ const VodImportPage = () => {
       });
       return;
     }
-    const parsed = parseTimestamps(timestampsRaw);
+    const parsed = detectedSource === "twitch_vod" ? parseTimestamps(timestampsRaw) : [];
+    if (detectedSource === "twitch_vod" && timestampsRaw.trim() && parsed.length === 0) {
+      toast({
+        title: "Timestamps invalides",
+        description: "Utilise le format mm:ss-mm:ss ou laisse vide pour préparer les 60 premières secondes.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const timestamps = detectedSource === "twitch_vod"
+      ? (parsed.length > 0 ? [parsed[0]] : [{ start_seconds: 0, end_seconds: 60, title: subject.trim() }])
+      : undefined;
+    setPrepareError(null);
     setSubmitting(true);
     try {
       const targetMeta = TARGET_PLATFORMS.find((t) => t.value === target);
@@ -247,7 +276,7 @@ const VodImportPage = () => {
           category: category.trim() || undefined,
           target_platform: target,
           format: targetMeta?.format,
-          timestamps: parsed.length > 0 ? parsed : undefined,
+          timestamps,
         },
       });
       if (error) throw error;
@@ -256,7 +285,7 @@ const VodImportPage = () => {
         message?: string;
         count?: number;
         reason?: string;
-        items?: Array<{ id?: string }>;
+        items?: ContentItem[];
       };
       if (!result?.success) {
         throw new Error(result?.message ?? "Impossible d'analyser cette VOD.");
@@ -264,51 +293,34 @@ const VodImportPage = () => {
       setLastImportedUrl(url.trim());
       await refetch();
 
-      // Direct flow: when a single clip was created (Twitch Clip OR one
-      // explicit timestamp), mount the inline preparation panel on this page.
-      const singleDirect =
-        result.reason === "twitch_clip_full" ||
-        (result.reason === "vod_manual_timestamp" && (result.count ?? 0) === 1);
-      const returnedId = result.items?.[0]?.id ?? null;
+      const returnedItem = result.items?.[0] ?? null;
+      const returnedId = returnedItem?.id ?? null;
       // Fallback: look up the most recently created item for this URL (covers
       // dedup paths where the edge function returned no fresh inserts).
       let newId: string | null = returnedId;
+      let resolvedItem: ContentItem | null = returnedItem;
       if (!newId && user) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: latest } = await (supabase as any)
           .from("creator_content_items")
-          .select("id")
+          .select("*")
           .eq("user_id", user.id)
           .eq("source_video_url", url.trim())
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
         newId = (latest as { id?: string } | null)?.id ?? null;
+        resolvedItem = (latest as ContentItem | null) ?? null;
       }
-      // eslint-disable-next-line no-console
-      console.info("[clip_inline_analyze_result]", {
-        createdItemId: returnedId,
-        resolvedItemId: newId,
-        source_url: url.trim(),
-        source_kind: detectedSource,
-        reason: result.reason,
-        count: result.count,
-      });
-      if (singleDirect && newId) {
+      if (newId) {
+        setPreparedItemOverride(resolvedItem);
         setPreparedItemId(newId);
         setSearchParams({ continue: newId }, { replace: true });
-        toast({ title: "Lien analysé", description: "Clip prêt à configurer." });
+        toast({ title: "Clip prêt à configurer", description: "Configure la caméra et les sous-titres ci-dessous." });
         setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
         return;
       }
-
-      toast({
-        title: "Lien analysé",
-        description:
-          result.reason === "vod_manual_timestamp"
-            ? `${result.count} clip${(result.count ?? 0) > 1 ? "s" : ""} prêt${(result.count ?? 0) > 1 ? "s" : ""} à configurer.`
-            : "Moments proposés ci-dessous. Ajuste-les avant génération.",
-      });
+      setPrepareError("Impossible d’ouvrir la configuration du clip.");
     } catch (err) {
       toast({
         title: "Échec",
@@ -467,6 +479,7 @@ const VodImportPage = () => {
   };
 
   const hasManualTimestamps = parseTimestamps(timestampsRaw).length > 0;
+  const showLegacyCandidates = false;
 
   return (
     <AppShell>
@@ -509,7 +522,7 @@ const VodImportPage = () => {
                 />
               </div>
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                <span>Fonctionne avec les VOD Twitch, les Clips Twitch et les vidéos importées.</span>
+                <span>Fonctionne avec les VOD Twitch et les Clips Twitch.</span>
                 {detectedSource === "twitch_vod" && (
                   <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
                     VOD Twitch détectée
@@ -528,7 +541,7 @@ const VodImportPage = () => {
               </div>
               {detectedSource === "twitch_clip" && (
                 <p className="text-[11px] text-primary">
-                  Clip Twitch détecté. Streamnco va le transformer en clip vertical, pas besoin d'indiquer un moment.
+                  Clip Twitch détecté. Streamnco utilisera le clip complet, sans timestamps.
                 </p>
               )}
               {detectedSource === "youtube" && (
@@ -542,13 +555,13 @@ const VodImportPage = () => {
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="vod-subject" className="text-xs font-semibold">
-                  Sujet de la vidéo <span className="font-normal text-muted-foreground">(optionnel)</span>
+                  Titre du clip
                 </Label>
                 <Input
                   id="vod-subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Ex. Run no-hit Elden Ring"
+                  placeholder="Ex. Ma meilleure action du live"
                 />
               </div>
               <div className="space-y-1.5">
@@ -583,18 +596,18 @@ const VodImportPage = () => {
               {detectedSource !== "twitch_clip" && (
                 <div className="space-y-1.5">
                   <Label htmlFor="vod-timestamps" className="text-xs font-semibold">
-                    Moments à découper <span className="font-normal text-muted-foreground">(optionnel)</span>
+                    Timestamp du clip <span className="font-normal text-muted-foreground">(optionnel)</span>
                   </Label>
                   <Textarea
                     id="vod-timestamps"
                     value={timestampsRaw}
                     onChange={(e) => setTimestampsRaw(e.target.value)}
-                    placeholder={"Une ligne par clip\n1:23-1:48 Réaction\n12:05-12:30 Punchline"}
+                    placeholder={"Ex. 1:23-1:48 Réaction"}
                     rows={3}
                     className="font-mono text-xs"
                   />
                   <p className="text-[11px] text-muted-foreground">
-                    Format : <code>mm:ss-mm:ss</code> ou <code>hh:mm:ss-hh:mm:ss</code>. Durée 10 à 180 s.
+                    Format : <code>mm:ss-mm:ss</code> ou <code>hh:mm:ss-hh:mm:ss</code>. Si vide, les 60 premières secondes seront préparées.
                   </p>
                 </div>
               )}
@@ -605,8 +618,8 @@ const VodImportPage = () => {
                 {detectedSource === "twitch_clip"
                   ? "Streamnco va utiliser tout le Clip Twitch pour générer ton clip vertical."
                   : hasManualTimestamps
-                  ? "Tes timestamps seront utilisés pour créer les clips."
-                  : "Sans timestamps : Streamnco propose 3 fenêtres réparties dans la VOD à ajuster avant génération."}
+                  ? "Ce timestamp sera utilisé pour préparer ton clip."
+                  : "Sans timestamp, Streamnco prépare les 60 premières secondes de la VOD."}
               </p>
               <Button
                 onClick={handleSubmit}
@@ -614,12 +627,34 @@ const VodImportPage = () => {
                 className="gap-2"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                Analyser le lien
+                Préparer le clip
               </Button>
             </div>
 
           </CardContent>
         </Card>
+
+        {prepareError && !preparedItemId && (
+          <Card className="mb-5 border-destructive/40 bg-destructive/10">
+            <CardContent className="flex flex-col gap-3 p-5 text-sm">
+              <div className="flex items-start gap-2 text-destructive">
+                <AlertCircle className="mt-0.5 h-4 w-4" />
+                <div>
+                  <p className="font-semibold">Impossible d’ouvrir la configuration du clip.</p>
+                  <p className="mt-1 text-xs text-destructive/80">Réessaie ou consulte la Queue si le clip a déjà été créé.</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={handleSubmit} disabled={submitting}>
+                  Réessayer
+                </Button>
+                <Button asChild size="sm" variant="ghost">
+                  <Link to="/content-queue">Voir dans la Queue</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Inline preparation panel — same page as the analyze form. */}
         {preparedItemId && (
@@ -631,37 +666,21 @@ const VodImportPage = () => {
                 onLaunched={() => {
                   void refetch();
                   void refetchActiveJob();
-                  toast({
-                    title: "Génération lancée",
-                    description: "Suis l'avancement dans la file de contenus.",
-                    action: (
-                      <ToastAction altText="Voir dans la Queue" onClick={() => navigate("/content-queue")}>
-                        Voir dans la Queue
-                      </ToastAction>
-                    ),
-                  });
                 }}
               />
             ) : (
-              <Card className="border-border/60 bg-card/60">
+              <Card className="border-destructive/40 bg-destructive/10">
                 <CardContent className="flex flex-col gap-3 p-5 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Préparation du clip…
+                  <div className="flex items-start gap-2 text-destructive">
+                    <AlertCircle className="mt-0.5 h-4 w-4" />
+                    <div>
+                      <p className="font-semibold">Impossible d’ouvrir la configuration du clip.</p>
+                      <p className="mt-1 text-xs text-destructive/80">Réessaie ou consulte la Queue si le clip a déjà été créé.</p>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => void refetch()}>
+                    <Button size="sm" variant="outline" onClick={() => void refetch()}>
                       Réessayer
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        setPreparedItemId(null);
-                        setSearchParams({}, { replace: true });
-                      }}
-                    >
-                      Annuler
                     </Button>
                     <Button asChild size="sm" variant="outline">
                       <Link to="/content-queue">Voir dans la Queue</Link>
@@ -676,7 +695,7 @@ const VodImportPage = () => {
 
 
 
-        {candidates.length > 0 && (
+        {showLegacyCandidates && candidates.length > 0 && (
           <Card className="mb-4 border-primary/30 bg-primary/[0.03]">
             <CardContent className="space-y-4 p-5">
               <div className="flex items-start gap-3">
@@ -697,7 +716,7 @@ const VodImportPage = () => {
                 <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/[0.06] px-3 py-2 text-xs">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
                   <span>
-                    Moments proposés automatiquement — ajoute des timestamps précis pour de meilleurs résultats.
+                    Sélection VOD automatique — ajoute un timestamp précis pour de meilleurs résultats.
                   </span>
                 </div>
               )}

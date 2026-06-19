@@ -5,10 +5,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Loader2, Upload, AlertCircle, Wand2, Link as LinkIcon, FileVideo,
-  Sparkles, ChevronDown, Captions, Camera, Check, Pencil,
+  Captions, Camera, Check, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { CaptionStylePreviewGrid, type CaptionStyle } from "@/components/clips/CaptionStylePreviewGrid";
 import type { ContentItem } from "@/hooks/useContentItems";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
-import { QuickCameraPicker } from "@/components/clips/QuickCameraPicker";
 import { ManualFacecamPlacer, type NormalizedCrop } from "@/components/clips/ManualFacecamPlacer";
 
 export interface ClipPreparationPanelProps {
@@ -54,6 +53,7 @@ function reasonLabel(reason: string): string {
     case "active_job_exists": return "Une génération est déjà en cours. Attends la fin avant d'en lancer une autre.";
     case "quota_exceeded": return "Tu as atteint ta limite de clips générés ce mois-ci. Passe à un plan supérieur pour augmenter ton quota.";
     case "worker_no_callback": return "Le worker vidéo n'a pas répondu.";
+    case "missing_title": return "Ajoute un titre pour ton clip.";
     default: return "Échec. Réessaie.";
   }
 }
@@ -73,6 +73,15 @@ function extractTwitchChannelLogin(raw: string | null | undefined): string | nul
   return null;
 }
 
+function formatSourceDuration(start: number | null, end: number | null): string | null {
+  if (start == null || end == null || end <= start) return null;
+  const duration = Math.round(end - start);
+  if (duration < 60) return `${duration}s`;
+  const minutes = Math.floor(duration / 60);
+  const seconds = duration % 60;
+  return seconds > 0 ? `${minutes}min ${seconds}s` : `${minutes}min`;
+}
+
 export const ClipPreparationPanel = ({
   item, onLaunched, variant = "inline", onCancel,
 }: ClipPreparationPanelProps) => {
@@ -87,15 +96,18 @@ export const ClipPreparationPanel = ({
   const [phase, setPhase] = useState<"idle" | "uploading" | "creating">("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [localTitle, setLocalTitle] = useState(item.title ?? "");
+  const [launched, setLaunched] = useState(false);
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
   const [captionsStyle, setCaptionsStyle] = useState<CaptionStyle>("clean");
 
   useEffect(() => {
     setMode(item.source_video_url ? "direct_url" : "upload");
     setDirectUrl(item.source_video_url ?? "");
+    setLocalTitle(item.title ?? "");
+    setLaunched(false);
     setEditingUrl(false);
-  }, [item.id, item.source_video_url]);
+  }, [item.id, item.source_video_url, item.title]);
 
   const [placerOpen, setPlacerOpen] = useState(false);
   const [manualCrop, setManualCrop] = useState<NormalizedCrop | null>(null);
@@ -105,8 +117,8 @@ export const ClipPreparationPanel = ({
   const [ignoreSavedFacecamPreset, setIgnoreSavedFacecamPreset] = useState(false);
 
   const detectedLogin = useMemo(
-    () => extractTwitchChannelLogin(directUrl) ?? extractTwitchChannelLogin(item.source_video_url ?? null),
-    [directUrl, item.source_video_url],
+    () => item.source_channel_login ?? extractTwitchChannelLogin(directUrl) ?? extractTwitchChannelLogin(item.source_video_url ?? null),
+    [directUrl, item.source_channel_login, item.source_video_url],
   );
 
   useEffect(() => {
@@ -207,6 +219,8 @@ export const ClipPreparationPanel = ({
     try {
       const token = await getToken();
       if (!token) { setError("network"); setBusy(false); return; }
+      const title = localTitle.trim();
+      if (!title) { setError("missing_title"); setBusy(false); return; }
 
       let sourcePayload: Record<string, unknown> = {};
       if (mode === "upload") {
@@ -231,6 +245,20 @@ export const ClipPreparationPanel = ({
 
       setPhase("creating");
 
+      if (title !== item.title) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: titleError } = await (supabase as any)
+          .from("creator_content_items")
+          .update({ title })
+          .eq("id", item.id)
+          .eq("user_id", user?.id);
+        if (titleError) {
+          setError("job_insert_failed");
+          setBusy(false); setPhase("idle");
+          return;
+        }
+      }
+
       const createRes = await fetch(
         `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/clip-job-create`,
         {
@@ -241,7 +269,7 @@ export const ClipPreparationPanel = ({
             ...sourcePayload,
             start_time_seconds: start,
             end_time_seconds: end,
-            use_manual_layout: showAdvanced,
+            use_manual_layout: Boolean(manualCrop),
             manual_facecam_crop: manualCrop ?? undefined,
             detector_strategy: manualCrop ? "manual_override" : undefined,
             twitch_channel_login: detectedLogin ?? undefined,
@@ -272,6 +300,7 @@ export const ClipPreparationPanel = ({
         description: "Suis l'avancement dans la queue.",
         action: { label: "Voir la queue", onClick: () => navigate("/content-queue") },
       });
+      setLaunched(true);
       onLaunched();
       setBusy(false);
       setPhase("idle");
@@ -287,6 +316,7 @@ export const ClipPreparationPanel = ({
     : twitchInfo.kind === "twitch_vod" ? "VOD Twitch détectée"
     : directUrl ? "URL vidéo"
     : null;
+  const durationLabel = formatSourceDuration(start, end);
 
   const launchDisabled =
     busy || !validTimestamps || (mode === "upload" ? !file : !directUrl.trim());
@@ -302,7 +332,7 @@ export const ClipPreparationPanel = ({
           <div className="flex items-center gap-2">
             <Wand2 className="h-4 w-4 text-primary" />
             <div>
-              <p className="text-sm font-semibold text-foreground">Préparer le clip</p>
+              <p className="text-sm font-semibold text-foreground">Configurer ton clip</p>
               <p className="text-[11px] text-muted-foreground">
                 Source détectée. Ajuste la caméra et les sous-titres, puis lance la génération.
               </p>
@@ -336,7 +366,7 @@ export const ClipPreparationPanel = ({
           <div className="space-y-4">
             <div className="rounded-md border border-border bg-card p-3">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold text-foreground">Source</p>
+                <p className="text-xs font-semibold text-foreground">Source : {sourceLabel ?? "vidéo"}</p>
                 {sourceLabel && variant === "dialog" && (
                   <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
                     {sourceLabel}
@@ -346,6 +376,15 @@ export const ClipPreparationPanel = ({
 
               {mode === "direct_url" ? (
                 <div className="mt-2 space-y-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor={`clip-title-${item.id}`} className="text-xs">Titre du clip</Label>
+                    <Input
+                      id={`clip-title-${item.id}`}
+                      value={localTitle}
+                      onChange={(event) => setLocalTitle(event.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
                   {editingUrl ? (
                     <Input
                       type="url" disabled={busy}
@@ -398,7 +437,7 @@ export const ClipPreparationPanel = ({
                 </div>
               )}
 
-              {validTimestamps && (
+              {validTimestamps && twitchInfo.kind !== "twitch_clip" && (
                 <p className="mt-3 border-t border-border/60 pt-2 text-[11px] text-muted-foreground">
                   Moment : <span className="font-medium text-foreground">{start}s → {end}s</span>
                   <span className="ml-1 text-muted-foreground/70">· {Number(end) - Number(start)}s</span>
@@ -461,7 +500,7 @@ export const ClipPreparationPanel = ({
                             ? "Zone caméra sélectionnée pour ce clip."
                             : presetNeedsReplace
                               ? "Position caméra à replacer. L'ancienne ne sera pas réutilisée."
-                              : "Optionnel — placer ta caméra en haut du clip."}
+                              : "Optionnel — place ta caméra si tu veux un rendu caméra + gameplay."}
                         </p>
                       </div>
                     </div>
@@ -494,29 +533,6 @@ export const ClipPreparationPanel = ({
                       </Button>
                     )}
                   </div>
-                </div>
-
-                <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
-                  <p className="flex items-center gap-2 text-xs font-medium text-foreground">
-                    <Sparkles className="h-3.5 w-3.5 text-primary" />
-                    Détection automatique de la facecam
-                  </p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {manualCrop
-                      ? "Désactivée — ta zone manuelle sera utilisée."
-                      : "Streamnco repère ta caméra dans la vidéo et la place en haut du clip. Sinon le rendu sort en gameplay seul."}
-                  </p>
-                  <button type="button"
-                    onClick={() => setShowAdvanced((v) => !v)}
-                    className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline">
-                    <ChevronDown className={`h-3 w-3 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
-                    {showAdvanced ? "Masquer" : "Forcer manuellement la position (avancé)"}
-                  </button>
-                  {showAdvanced && (
-                    <div className="mt-3 border-t border-border/60 pt-3">
-                      <QuickCameraPicker onReady={() => { /* server-side */ }} />
-                    </div>
-                  )}
                 </div>
               </>
             )}
@@ -583,9 +599,12 @@ export const ClipPreparationPanel = ({
                 <li>· Format : 9:16 vertical (TikTok / Reels / Shorts)</li>
                 <li>· Sous-titres : {captionsEnabled ? `activés (${captionsStyle})` : "désactivés"}</li>
                 <li>· Caméra : {manualCrop ? (manualPresetSaved ? "preset mémorisé" : "zone manuelle") : "détection auto"}</li>
-                {validTimestamps && (
+                  {validTimestamps && twitchInfo.kind !== "twitch_clip" && (
                   <li>· Durée : {Number(end) - Number(start)} s</li>
                 )}
+                  {validTimestamps && twitchInfo.kind === "twitch_clip" && durationLabel && (
+                    <li>· Source : Clip Twitch complet ({durationLabel})</li>
+                  )}
               </ul>
             </div>
           </div>
@@ -599,6 +618,11 @@ export const ClipPreparationPanel = ({
       }>
         {variant === "dialog" && (
           <Button variant="outline" onClick={onCancel} disabled={busy}>Annuler</Button>
+        )}
+        {launched && (
+          <Button asChild variant="outline">
+            <Link to="/content-queue">Voir dans la Queue</Link>
+          </Button>
         )}
         <Button onClick={handleLaunch} disabled={launchDisabled}>
           {busy

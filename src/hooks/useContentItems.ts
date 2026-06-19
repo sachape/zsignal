@@ -49,6 +49,7 @@ export interface ContentItem {
   // V3C — Clip Draft Generator
   source_platform: SourcePlatform | null;
   source_video_url: string | null;
+  source_channel_login: string | null;
   source_start_time: number | null;
   source_end_time: number | null;
   source_duration: number | null;
@@ -96,6 +97,7 @@ export interface NewContentItem {
   reason?: string | null;
   source_platform?: SourcePlatform | null;
   source_video_url?: string | null;
+  source_channel_login?: string | null;
   source_start_time?: number | null;
   source_end_time?: number | null;
   // V3.5
@@ -151,6 +153,7 @@ export function useContentItems() {
       reason: r.reason ?? null,
       source_platform: r.source_platform ?? null,
       source_video_url: r.source_video_url ?? null,
+      source_channel_login: r.source_channel_login ?? null,
       source_start_time: r.source_start_time ?? null,
       source_end_time: r.source_end_time ?? null,
       title_variants: r.title_variants ?? [],
