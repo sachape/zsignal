@@ -197,7 +197,7 @@ export function CaptionStylePreviewGrid({ value, onChange, disabled }: Props) {
           100% { transform: translateX(3%) scale(1.1); }
         }
       `}</style>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 max-h-[360px] overflow-y-auto pr-1">
         {PRESETS.map((p) => {
           const selected = value === p.id;
           return (
