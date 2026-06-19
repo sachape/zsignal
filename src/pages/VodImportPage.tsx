@@ -600,7 +600,7 @@ const VodImportPage = () => {
                 className="gap-2"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                {detectedSource === "twitch_clip" ? "Générer en format réseaux" : "Analyser le lien"}
+                Analyser le lien
               </Button>
             </div>
 
