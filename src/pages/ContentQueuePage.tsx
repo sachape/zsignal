@@ -734,7 +734,11 @@ function ContentRow({
                   {item.generation_status === "queued" || item.generation_status === "processing"
                     ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     : <Wand2 className="mr-1.5 h-3.5 w-3.5" />}
-                  {item.generation_status === "failed" ? "Réessayer" : "Générer le clip"}
+                  {item.generation_status === "failed"
+                    ? "Réessayer"
+                    : item.source_video_url
+                      ? "Continuer la préparation"
+                      : "Générer le clip"}
                 </Button>
               )}
               {anotherJobIsActive && !hasGeneratedClip && (
