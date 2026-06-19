@@ -8,7 +8,7 @@ import { ArrowRight, Clapperboard, Palette } from "lucide-react";
  */
 const CreateNowBlock = () => {
   return (
-    <section className="mb-6 overflow-hidden rounded-2xl border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.10),transparent_55%)] bg-card/50 p-5">
+    <section className="mb-6 overflow-hidden rounded-2xl border border-foreground/[0.08] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.10),transparent_55%)] bg-card/50 p-5">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
@@ -51,7 +51,7 @@ interface CreateCardProps {
 const CreateCard = ({ to, icon: Icon, title, description, cta }: CreateCardProps) => (
   <Link
     to={to}
-    className="group relative flex flex-col gap-3 overflow-hidden rounded-xl border border-white/[0.08] bg-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/[0.04]"
+    className="group relative flex flex-col gap-3 overflow-hidden rounded-xl border border-foreground/[0.08] bg-background/40 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/[0.04]"
   >
     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 transition-transform group-hover:scale-105">
       <Icon className="h-5 w-5" />

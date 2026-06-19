@@ -43,6 +43,7 @@ import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine
 import { findActiveSection } from "@/components/SectionTabs";
 import SidebarStreamerSearch from "@/components/SidebarStreamerSearch";
 import SidebarQuotaWidget from "@/components/SidebarQuotaWidget";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type NavEntry = {
   title: string;
@@ -311,6 +312,10 @@ const AppSidebar = () => {
                 <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
                 Support
               </button>
+
+              <div className="my-1 h-px bg-border/60" />
+
+              <ThemeToggle />
 
               <div className="my-1 h-px bg-border/60" />
 

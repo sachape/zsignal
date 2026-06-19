@@ -310,7 +310,7 @@ const AnalysePage = () => {
         {/* Hero card — compact analysis summary */}
         <div
           style={anim(80)}
-          className="relative mb-4 overflow-hidden rounded-3xl border border-white/[0.08] bg-card/40 backdrop-blur-xl shadow-[0_32px_100px_-32px_hsl(var(--primary)/0.35)]"
+          className="relative mb-4 overflow-hidden rounded-3xl border border-foreground/[0.08] bg-card/40 backdrop-blur-xl shadow-[0_32px_100px_-32px_hsl(var(--primary)/0.35)]"
         >
           <div className="pointer-events-none absolute -top-24 left-1/3 h-64 w-64 rounded-full bg-primary/12 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-20 right-0 h-56 w-56 rounded-full bg-primary/8 blur-3xl" />
@@ -354,7 +354,7 @@ const AnalysePage = () => {
                       </span>
                     )}
                     {summary.broadcaster_type === "affiliate" && (
-                      <span className="rounded-full border border-white/10 bg-card/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                      <span className="rounded-full border border-foreground/10 bg-card/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                         Affilié
                       </span>
                     )}
@@ -399,7 +399,7 @@ const AnalysePage = () => {
                 ].map(({ icon: Icon, label, value, sub }) => (
                   <div
                     key={label}
-                    className="flex min-w-0 flex-col gap-1 rounded-xl border border-white/[0.06] bg-background/30 p-3"
+                    className="flex min-w-0 flex-col gap-1 rounded-xl border border-foreground/[0.06] bg-background/30 p-3"
                   >
                     <div className="flex items-center gap-1.5">
                       <Icon className="h-3 w-3 text-muted-foreground/50" />
@@ -417,7 +417,7 @@ const AnalysePage = () => {
             </div>
 
             {/* Right: Score */}
-            <div className="flex flex-col items-center justify-center gap-3 md:min-w-[200px] md:border-l md:border-white/[0.06] md:pl-8">
+            <div className="flex flex-col items-center justify-center gap-3 md:min-w-[200px] md:border-l md:border-foreground/[0.06] md:pl-8">
               <AnimatedScoreRing score={score.overall} strokeVar={theme.strokeVar} size={168} />
               <span
                 className={cn(
@@ -753,7 +753,7 @@ const AnalysePage = () => {
               return (
                 <div
                   key={rec.id}
-                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card/40 p-5 backdrop-blur-xl transition-all duration-300 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)]"
+                  className="group relative overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card/40 p-5 backdrop-blur-xl transition-all duration-300 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)]"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 transition-colors group-hover:bg-primary/25">
                     <Icon className="h-4 w-4 text-primary" />

@@ -69,7 +69,7 @@ const LivePostGenerator = ({ session, debrief, open, onClose }: Props) => {
           <SheetTitle className="text-base">Contenu à publier</SheetTitle>
 
           {/* Session summary strip */}
-          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-white/[0.06] bg-card/60 px-4 py-3 text-xs">
+          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-foreground/[0.06] bg-card/60 px-4 py-3 text-xs">
             {session.category_name && (
               <span className="flex items-center gap-1.5 text-foreground">
                 <Gamepad2 className="h-3 w-3 text-primary" />
@@ -120,7 +120,7 @@ const LivePostGenerator = ({ session, debrief, open, onClose }: Props) => {
             return (
               <div
                 key={post.format}
-                className="overflow-hidden rounded-xl border border-white/[0.06] bg-card/40"
+                className="overflow-hidden rounded-xl border border-foreground/[0.06] bg-card/40"
               >
                 {/* Card header */}
                 <div className="flex items-center justify-between border-b border-border/40 px-4 py-3">

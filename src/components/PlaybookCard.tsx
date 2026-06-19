@@ -27,7 +27,7 @@ const PlaybookCard = ({ playbook, highlighted = false }: Props) => {
         "group flex flex-col rounded-2xl border p-5 backdrop-blur-sm transition-all hover:bg-card/60 hover:shadow-[0_0_24px_-8px] hover:shadow-primary/15",
         highlighted
           ? "border-primary/30 bg-primary/[0.03] hover:border-primary/50"
-          : "border-white/[0.08] bg-card/40 hover:border-primary/20",
+          : "border-foreground/[0.08] bg-card/40 hover:border-primary/20",
       )}
     >
       {/* Header */}
@@ -43,7 +43,7 @@ const PlaybookCard = ({ playbook, highlighted = false }: Props) => {
             {playbook.summary}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-1 rounded-full border border-white/[0.08] bg-muted/60 px-2 py-0.5 text-[10px] text-muted-foreground">
+        <div className="flex shrink-0 items-center gap-1 rounded-full border border-foreground/[0.08] bg-muted/60 px-2 py-0.5 text-[10px] text-muted-foreground">
           <Clock className="h-2.5 w-2.5" /> {playbook.timeMinutes} min
         </div>
       </div>
