@@ -143,11 +143,22 @@ async function resolveTwitchChannelLogin(detected: DetectedSource): Promise<stri
   if (!res.ok) return null;
   const data = await res.json().catch(() => null) as { data?: Array<Record<string, unknown>> } | null;
   const item = data?.data?.[0];
-  const login = typeof item?.broadcaster_login === "string"
+  let login = typeof item?.broadcaster_login === "string"
     ? item.broadcaster_login
     : typeof item?.user_login === "string"
       ? item.user_login
       : null;
+  const broadcasterId = typeof item?.broadcaster_id === "string" ? item.broadcaster_id : null;
+  if (!login && broadcasterId) {
+    const userRes = await fetch(`https://api.twitch.tv/helix/users?id=${encodeURIComponent(broadcasterId)}`, {
+      headers: { "Client-ID": TWITCH_CLIENT_ID, Authorization: `Bearer ${token}` },
+    });
+    if (userRes.ok) {
+      const userData = await userRes.json().catch(() => null) as { data?: Array<Record<string, unknown>> } | null;
+      const user = userData?.data?.[0];
+      login = typeof user?.login === "string" ? user.login : null;
+    }
+  }
   return login ? login.toLowerCase() : null;
 }
 
