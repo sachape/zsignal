@@ -622,29 +622,57 @@ const VodImportPage = () => {
         </Card>
 
         {/* Inline preparation panel — same page as the analyze form. */}
-        {preparedItem && (
+        {preparedItemId && (
           <div ref={prepRef} className="mb-5">
-            <ClipPreparationPanel
-              item={preparedItem}
-              variant="inline"
-              onLaunched={() => {
-                void refetch();
-                void refetchActiveJob();
-                // Keep the panel open so the user can launch another if needed,
-                // but offer a quick path to monitor the job.
-                toast({
-                  title: "Génération lancée",
-                  description: "Suis l'avancement dans la file de contenus.",
-                  action: (
-                    <ToastAction altText="Voir dans la Queue" onClick={() => navigate("/content-queue")}>
-                      Voir dans la Queue
-                    </ToastAction>
-                  ),
-                });
-              }}
-            />
+            {preparedItem ? (
+              <ClipPreparationPanel
+                item={preparedItem}
+                variant="inline"
+                onLaunched={() => {
+                  void refetch();
+                  void refetchActiveJob();
+                  toast({
+                    title: "Génération lancée",
+                    description: "Suis l'avancement dans la file de contenus.",
+                    action: (
+                      <ToastAction altText="Voir dans la Queue" onClick={() => navigate("/content-queue")}>
+                        Voir dans la Queue
+                      </ToastAction>
+                    ),
+                  });
+                }}
+              />
+            ) : (
+              <Card className="border-border/60 bg-card/60">
+                <CardContent className="flex flex-col gap-3 p-5 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Préparation du clip…
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="ghost" onClick={() => void refetch()}>
+                      Réessayer
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setPreparedItemId(null);
+                        setSearchParams({}, { replace: true });
+                      }}
+                    >
+                      Annuler
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/content-queue">Voir dans la Queue</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
+
 
 
 
