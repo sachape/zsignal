@@ -116,7 +116,7 @@ function copy(value: string) {
 }
 
 function buildCopyPayload(item: ContentItem): string {
-  const parts: string[] = [item.title];
+  const parts: string[] = [normalizeClipTitle(item.title)];
   if (item.description) parts.push("", item.description);
   if (item.hashtags.length > 0) parts.push("", item.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" "));
   return parts.join("\n");
