@@ -9,25 +9,15 @@ import {
   Video,
   Download,
   Send,
-  Settings as SettingsIcon,
   Loader2,
   AlertTriangle,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import CameraPlacementEditor from "@/components/clips/CameraPlacementEditor";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
 import { hasPlanAtLeast } from "@/lib/planAccess";
