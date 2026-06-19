@@ -150,7 +150,7 @@ const VodImportPage = () => {
 
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { items, refetch, updateItem } = useContentItems();
+  const { items, loading: itemsLoading, refetch, updateItem } = useContentItems();
   const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const [searchParams, setSearchParams] = useSearchParams();
   const [url, setUrl] = useState("");
