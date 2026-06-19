@@ -72,6 +72,17 @@ const TONE_CLASS: Record<string, string> = {
   destructive: "border-destructive/40 bg-destructive/10 text-destructive",
 };
 
+const PREPARATION_MESSAGES = [
+  "On récupère la source…",
+  "On prépare ton clip…",
+  "On charge les options…",
+  "On vérifie la caméra…",
+  "Encore quelques secondes…",
+];
+const PREPARATION_SLOW_MESSAGE = "C’est un peu plus long que prévu, mais on est dessus…";
+const PREPARATION_ERROR_MESSAGE = "Impossible d’ouvrir la préparation du clip.";
+
+
 const TARGET_PLATFORMS = [
   { value: "youtube_shorts", label: "YouTube Shorts", format: "short" },
   { value: "tiktok", label: "TikTok", format: "tiktok" },
