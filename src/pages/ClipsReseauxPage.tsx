@@ -173,33 +173,8 @@ const ClipsReseauxPage = () => {
           </Card>
         )}
 
-        {/* Sources */}
-        <section className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">Choisis une source</h2>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <SourceCard
-              icon={Tv}
-              title="Coller un lien Twitch"
-              description="VOD ou Clip Twitch."
-              to="/clips/vod-import"
-              disabled={!canAccess}
-            />
-            <SourceCard
-              icon={Upload}
-              title="Importer une vidéo"
-              description="Upload une vidéo depuis ton ordinateur."
-              to="/clips/vod-import"
-              disabled={!canAccess}
-            />
-            <SourceCard
-              icon={Wand2}
-              title="Moments proposés"
-              description="Utilise les suggestions détectées par Streamnco."
-              to="/clips"
-              disabled={!canAccess}
-            />
-          </div>
-        </section>
+        {/* Source picker removed — section tabs (Mes clips / Créer / Queue / Moments proposés) handle navigation. */}
+
 
         {/* Camera config — optional, never blocks generation */}
         <section className="mb-8">
@@ -251,7 +226,8 @@ const ClipsReseauxPage = () => {
         {/* Recent clips */}
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Mes clips réseaux</h2>
+            <h2 className="text-sm font-semibold text-foreground">Mes clips</h2>
+
           </div>
 
           {activeJob && (
@@ -281,12 +257,10 @@ const ClipsReseauxPage = () => {
           {recent.length === 0 && !activeJob ? (
             <EmptyState
               icon={Clapperboard}
-              title="Tu n'as pas encore créé de clip"
-              description="Colle un Clip Twitch ou importe une VOD, et Streamnco génère une vidéo verticale prête pour TikTok, Reels ou Shorts — avec facecam, gameplay et sous-titres."
-              ctaLabel={canAccess ? "Créer mon premier clip" : "Passer au Pro"}
+              title="Tes clips générés apparaîtront ici."
+              description="Crée ton premier clip vertical depuis l'onglet Créer — Streamnco le prépare avec facecam, gameplay et sous-titres."
+              ctaLabel={canAccess ? "Créer un clip" : "Passer au Pro"}
               ctaTo={canAccess ? "/clips/vod-import" : "/billing"}
-              secondaryLabel="Voir mes clips Twitch"
-              secondaryTo="/clips"
             />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

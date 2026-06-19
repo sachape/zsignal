@@ -159,6 +159,8 @@ const VodImportPage = () => {
   const [target, setTarget] = useState<string>("youtube_shorts");
   const [timestampsRaw, setTimestampsRaw] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [sourceMode, setSourceMode] = useState<"twitch" | "upload">("twitch");
+  const [creatingUploadDraft, setCreatingUploadDraft] = useState(false);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [editing, setEditing] = useState<ContentItem | null>(null);
   const [editStart, setEditStart] = useState(0);
@@ -553,8 +555,110 @@ const VodImportPage = () => {
           </Badge>
         </div>
 
+        {/* Source switcher: Lien Twitch / Import vidéo */}
+        <div className="mb-3 inline-flex rounded-md border border-border/60 bg-card/60 p-1">
+          <button
+            type="button"
+            onClick={() => setSourceMode("twitch")}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition ${sourceMode === "twitch" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <Link2 className="h-3.5 w-3.5" /> Lien Twitch
+          </button>
+          <button
+            type="button"
+            onClick={() => setSourceMode("upload")}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition ${sourceMode === "upload" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <Upload className="h-3.5 w-3.5" /> Import vidéo
+          </button>
+        </div>
+
+        {sourceMode === "upload" ? (
+          <Card className="mb-5 border-border/60 bg-card/60">
+            <CardContent className="space-y-4 p-5">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="upload-subject" className="text-xs font-semibold">Titre du clip</Label>
+                  <Input
+                    id="upload-subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Ex. Ma meilleure action"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Objectif du contenu</Label>
+                  <Select value={target} onValueChange={setTarget}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {TARGET_PLATFORMS.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                <p className="text-[11px] text-muted-foreground">
+                  Tu choisiras le fichier .mp4/.mov dans le panneau de préparation. Par défaut, Streamnco prépare les 60 premières secondes.
+                </p>
+                <Button
+                  onClick={async () => {
+                    if (!user) return;
+                    const title = subject.trim() || "Nouveau clip";
+                    setCreatingUploadDraft(true);
+                    setPrepareError(null);
+                    try {
+                      const targetMeta = TARGET_PLATFORMS.find((t) => t.value === target);
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const { data, error } = await (supabase as any)
+                        .from("creator_content_items")
+                        .insert({
+                          user_id: user.id,
+                          platform: target,
+                          title,
+                          status: "to_produce",
+                          format: targetMeta?.format ?? null,
+                          source_platform: "manual",
+                          source_video_url: null,
+                          source_start_time: 0,
+                          source_end_time: 60,
+                          source_duration: 60,
+                          hashtags: [],
+                        })
+                        .select()
+                        .single();
+                      if (error) throw error;
+                      const created = data as ContentItem;
+                      setPreparedItemOverride(created);
+                      setPreparedItemId(created.id);
+                      setSearchParams({ continue: created.id }, { replace: true });
+                      await refetch();
+                      toast({ title: "Brouillon créé", description: "Importe ta vidéo ci-dessous." });
+                      setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+                    } catch (err) {
+                      toast({
+                        title: "Impossible de créer le brouillon",
+                        description: err instanceof Error ? err.message : "Réessaie.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setCreatingUploadDraft(false);
+                    }
+                  }}
+                  disabled={creatingUploadDraft}
+                  className="gap-2"
+                >
+                  {creatingUploadDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  {creatingUploadDraft ? "Ça arrive…" : "Préparer le clip"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
         <Card className="mb-5 border-border/60 bg-card/60">
           <CardContent className="space-y-4 p-5">
+
             <div className="space-y-1.5">
               <Label htmlFor="vod-url" className="text-xs font-semibold">
                 Lien Twitch
@@ -689,6 +793,8 @@ const VodImportPage = () => {
 
           </CardContent>
         </Card>
+        )}
+
 
         {prepareError && !preparedItemId && (
           <Card className="mb-5 border-destructive/40 bg-destructive/10">
