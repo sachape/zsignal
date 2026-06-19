@@ -793,6 +793,8 @@ const VodImportPage = () => {
 
           </CardContent>
         </Card>
+        )}
+
 
         {prepareError && !preparedItemId && (
           <Card className="mb-5 border-destructive/40 bg-destructive/10">
