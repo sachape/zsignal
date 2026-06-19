@@ -341,6 +341,12 @@ const ContentQueuePage = () => {
                     toast.error("Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.");
                     return;
                   }
+                  // Twitch / URL drafts → continue on the inline Create page.
+                  // Upload-only drafts → open the legacy modal (no Create-page UX yet).
+                  if (item.source_video_url) {
+                    navigate(`/clips-reseaux?continue=${item.id}`);
+                    return;
+                  }
                   if (item.source_start_time == null || item.source_end_time == null) {
                     toast.error("Ajoute d'abord des timestamps valides (5–180 s).");
                     setSourceItem(item);
