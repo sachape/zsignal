@@ -619,7 +619,7 @@ const VodImportPage = () => {
                 <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/[0.06] px-3 py-2 text-xs">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
                   <span>
-                    Suggestions à vérifier — ajoute des timestamps pour de meilleurs résultats.
+                    Moments proposés automatiquement — ajoute des timestamps précis pour de meilleurs résultats.
                   </span>
                 </div>
               )}
