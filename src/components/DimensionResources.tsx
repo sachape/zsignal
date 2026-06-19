@@ -58,7 +58,7 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card/50 backdrop-blur-xl transition-all duration-300",
+        "group relative overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-xl transition-all duration-300",
         meta.hoverBorder,
         meta.hoverGlow,
         "hover:-translate-y-0.5",
@@ -92,7 +92,7 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
         </p>
 
         {/* Footer */}
-        <div className="mt-4 flex items-center justify-between border-t border-foreground/[0.05] pt-3">
+        <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
           <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/40">
             <Clock className="h-3 w-3" />
             {resource.duration}
@@ -125,7 +125,7 @@ const DimensionResources = ({ breakdown, maxDimensions = 2 }: Props) => {
   return (
     <div className="mb-8">
       {/* Premium section header */}
-      <div className="relative mb-10 overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card/40 p-5 backdrop-blur-xl">
+      <div className="relative mb-10 overflow-hidden rounded-2xl border border-border bg-card/40 p-5 backdrop-blur-xl">
         <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/8 blur-3xl" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.06),transparent_60%)]" />
         <div className="relative flex items-center justify-between gap-4">

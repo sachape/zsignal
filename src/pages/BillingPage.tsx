@@ -189,7 +189,7 @@ const BillingPage = () => {
                   <div className={`mt-4 flex items-center gap-2 rounded-lg px-3 py-2 text-xs ${
                     sub.cancel_at_period_end
                       ? "border border-orange-500/20 bg-orange-500/[0.08] text-orange-400"
-                      : "border border-foreground/[0.06] bg-background/40 text-muted-foreground"
+                      : "border border-border bg-background/40 text-muted-foreground"
                   }`}>
                     {sub.cancel_at_period_end
                       ? <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
@@ -206,7 +206,7 @@ const BillingPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-4 w-full border-foreground/[0.08] bg-background/40 text-sm hover:bg-background/70"
+                  className="mt-4 w-full border-border bg-background/40 text-sm hover:bg-background/70"
                   onClick={handlePortal}
                   disabled={portalLoading}
                 >

@@ -159,7 +159,7 @@ const WeeklyQuestCard = ({ weeklyQuests, onToggle, linkToQuests = false }: Props
   const totalXp = quests.reduce((sum, q) => sum + (q.completed ? q.xp : 0), 0);
 
   return (
-    <div className="relative mb-6 overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card/40 p-5 backdrop-blur-xl">
+    <div className="relative mb-6 overflow-hidden rounded-2xl border border-border bg-card/40 p-5 backdrop-blur-xl">
       {/* Subtle glow */}
       <div
         className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl"

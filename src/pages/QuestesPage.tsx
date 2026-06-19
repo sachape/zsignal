@@ -129,7 +129,7 @@ const TieredBadgeCard = ({ badge }: { badge: TieredBadge }) => {
 // ─── XP Level card ───────────────────────────────────────────────────────────
 
 const XpCard = ({ xpLevel, season }: { xpLevel: XpLevelData; season: SeasonData }) => (
-  <div className="relative mb-6 overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card/40 p-5 backdrop-blur-xl">
+  <div className="relative mb-6 overflow-hidden rounded-2xl border border-border bg-card/40 p-5 backdrop-blur-xl">
     <div
       className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full blur-3xl"
       style={{ background: "hsl(var(--primary) / 0.08)" }}

@@ -79,8 +79,12 @@
     a lime button must look the same in both themes.
   */
   .light {
-    /* ── Surfaces (the only thing that flips between themes) ──────── */
-    --background: 210 36% 98%;
+    /* ── Surfaces (the only thing that flips between themes) ──────────
+       Elevation hierarchy (light → dark): card (white) is the LIGHTEST so
+       cards pop above the grey page; muted/secondary sit BELOW the page as
+       recessed chips. The page is a clear grey so semi-transparent white
+       cards (bg-card/60 etc.) still separate visually. */
+    --background: 220 22% 94%;
     --foreground: 220 28% 12%;
 
     --card: 0 0% 100%;
@@ -89,14 +93,14 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 28% 12%;
 
-    --muted: 220 18% 95%;
+    --muted: 220 16% 92%;
     --muted-foreground: 220 10% 40%;
 
-    --secondary: 220 18% 94%;
+    --secondary: 220 16% 91%;
     --secondary-foreground: 220 24% 22%;
 
-    --border: 220 16% 89%;
-    --input: 220 16% 89%;
+    --border: 220 13% 85%;
+    --input: 220 13% 85%;
 
     /* ── Brand + semantic: unchanged from dark (consistency) ─────── */
     --primary: 95 98% 61%;

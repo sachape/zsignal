@@ -25,7 +25,7 @@ const DashboardNavCards = () => (
           className={`group relative overflow-hidden rounded-2xl border p-4 transition-all hover:-translate-y-0.5 ${
             featured
               ? "border-primary/40 bg-primary/[0.07] hover:border-primary/60 hover:bg-primary/[0.11]"
-              : "border-foreground/[0.08] bg-card/60 hover:border-primary/30 hover:bg-card/80"
+              : "border-border bg-card/60 hover:border-primary/30 hover:bg-card/80"
           }`}
         >
           {featured && (

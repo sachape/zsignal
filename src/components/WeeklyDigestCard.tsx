@@ -120,7 +120,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
           {items.map(({ icon: Icon, label, value, color }) => (
             <div
               key={label}
-              className="flex flex-col gap-1 rounded-xl border border-foreground/[0.07] bg-muted/20 px-3 py-2.5"
+              className="flex flex-col gap-1 rounded-xl border border-border bg-muted/20 px-3 py-2.5"
             >
               <div className="flex items-center gap-1.5">
                 <Icon className="h-3 w-3 shrink-0 text-muted-foreground/50" />

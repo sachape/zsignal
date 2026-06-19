@@ -592,7 +592,7 @@ const DashboardPage = () => {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <div className="relative shrink-0">
-              <div className="h-11 w-11 overflow-hidden rounded-xl bg-muted ring-1 ring-foreground/10">
+              <div className="h-11 w-11 overflow-hidden rounded-xl bg-muted ring-1 ring-border">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={headerTitle} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                 ) : (
@@ -631,7 +631,7 @@ const DashboardPage = () => {
           </div>
           <div className="flex items-center gap-2">
             <ShareScoreButton score={score} displayName={headerTitle} login={platformLogin} date={formatDate(currentReport.created_at)} variant="icon" />
-            <Button asChild size="sm" variant="outline" className="border-foreground/10">
+            <Button asChild size="sm" variant="outline" className="border-border">
               <Link to="/analyse"><FileText className="h-3.5 w-3.5" />Voir l'analyse</Link>
             </Button>
           </div>
@@ -642,7 +642,7 @@ const DashboardPage = () => {
           {/* StreamScore */}
           <Link
             to="/analyse"
-            className={`group rounded-2xl border border-foreground/[0.08] bg-card/60 p-4 transition-all hover:border-primary/30 hover:bg-card/80 ${score.overall < 40 ? "border-l-2 border-l-destructive/50" : score.overall < 65 ? "border-l-2 border-l-amber-500/50" : "border-l-2 border-l-primary/50"}`}
+            className={`group rounded-2xl border border-border bg-card/60 p-4 transition-all hover:border-primary/30 hover:bg-card/80 ${score.overall < 40 ? "border-l-2 border-l-destructive/50" : score.overall < 65 ? "border-l-2 border-l-amber-500/50" : "border-l-2 border-l-primary/50"}`}
           >
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">StreamScore</p>
             <div className="mt-2 flex items-baseline gap-1.5">
@@ -659,7 +659,7 @@ const DashboardPage = () => {
           </Link>
 
           {/* Lives 30j */}
-          <div className="rounded-2xl border border-foreground/[0.08] bg-card/60 p-4">
+          <div className="rounded-2xl border border-border bg-card/60 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Lives (30j)</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">{lives30d}</p>
             <p className="mt-0.5 text-[10px] text-muted-foreground">
@@ -668,7 +668,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Viewers moy */}
-          <div className="rounded-2xl border border-foreground/[0.08] bg-card/60 p-4">
+          <div className="rounded-2xl border border-border bg-card/60 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Viewers moy.</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
               {liveSnapshot?.current ? (liveSnapshot.current.peak_viewers ?? "—") : (viewersMoy ?? "—")}
@@ -679,7 +679,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Followers */}
-          <div className="rounded-2xl border border-foreground/[0.08] bg-card/60 p-4">
+          <div className="rounded-2xl border border-border bg-card/60 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Followers</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
               {followersAvailable ? (summary.follower_count != null ? summary.follower_count.toLocaleString("fr-FR") : "—") : "—"}
@@ -717,7 +717,7 @@ const DashboardPage = () => {
               </div>
             </div>
             {/* Prochain palier — compact */}
-            <div className="shrink-0 rounded-2xl border border-foreground/[0.06] bg-background/40 p-4">
+            <div className="shrink-0 rounded-2xl border border-border bg-background/40 p-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/55">Prochain palier</p>
               <p className="mt-2 text-sm font-semibold text-foreground">{nextMilestone.label}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">{nextMilestone.current}/{nextMilestone.target} · {nextMilestone.pct}%</p>
@@ -793,7 +793,7 @@ const DashboardPage = () => {
           <div className="mb-6">
             <button
               onClick={() => setShowPostGen(true)}
-              className="group relative w-full overflow-hidden rounded-xl border border-foreground/[0.06] bg-card/40 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04]"
+              className="group relative w-full overflow-hidden rounded-xl border border-border bg-card/40 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04]"
             >
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative flex items-center justify-between gap-3">
