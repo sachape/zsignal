@@ -261,7 +261,7 @@ const ContentQueuePage = () => {
                           {i.opportunity_score ?? "—"}
                         </span>
                       </div>
-                      <p className="mt-1.5 line-clamp-2 text-xs font-medium text-foreground">{i.title}</p>
+                      <p className="mt-1.5 line-clamp-2 text-xs font-medium text-foreground">{normalizeClipTitle(i.title)}</p>
                       {i.opportunity_label && (
                         <p className="mt-1 text-[10px] text-primary/80">{i.opportunity_label}</p>
                       )}
