@@ -1,4 +1,4 @@
-// Inline preparation panel for a Clip Réseau.
+// Inline preparation panel for a Clip.
 // Same UI as the legacy ClipGenerationDialog body but rendered inline on
 // the Create page. The dialog wrapper (ClipGenerationDialog) reuses this
 // component so the experience matches when triggered from the Queue.

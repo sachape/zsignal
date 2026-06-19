@@ -194,7 +194,7 @@ const SolutionsPage = () => {
 
             <div className="grid gap-px bg-white/[0.055] sm:grid-cols-2">
               {[
-                { icon: Clapperboard, label: "Clips réseaux", copy: "Transformer les moments Twitch en assets verticaux." },
+                { icon: Clapperboard, label: "Clipping", copy: "Transformer les moments Twitch en assets verticaux." },
                 { icon: Palette, label: "Studio visuel", copy: "Maintenir une image de chaîne plus cohérente." },
                 { icon: TrendingUp, label: "StreamScore", copy: "Lire les signaux Twitch sans dashboard brut." },
                 { icon: Sparkles, label: "Live Studio", copy: "Préparer titres, planning et intentions de live." },

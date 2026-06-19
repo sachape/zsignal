@@ -5,7 +5,7 @@ import { GlassCard, MicroLabel, SectionHeading, SectionShell } from "./primitive
 const PILLARS = [
   {
     icon: Clapperboard,
-    label: "Clips réseaux",
+    label: "Clipping",
     title: "Tes meilleurs moments deviennent des clips qui tournent.",
     description:
       "Clip Twitch, VOD ou upload → une vidéo verticale 9:16 avec facecam et sous-titres, prête à poster sur TikTok, Reels et Shorts.",

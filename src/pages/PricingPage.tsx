@@ -46,7 +46,7 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
         agency: "Sur mesure",
       },
       {
-        label: "Clips réseaux (vidéos / mois)",
+        label: "Clipping (vidéos / mois)",
         free: "3",
         pro: "30",
         growth: "200",
@@ -105,7 +105,7 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
     group: "Création",
     rows: [
       {
-        label: "Clips réseaux 9:16",
+        label: "Clipping 9:16",
         free: "Découverte",
         pro: true,
         growth: true,

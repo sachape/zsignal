@@ -9,7 +9,7 @@ import { SectionShell, SectionBadge, GlassCard } from "./primitives";
 import { Reveal, Stagger, StaggerItem } from "./motion";
 
 const FEATURES = [
-  { icon: Clapperboard, label: "Clips réseaux", copy: "Vertical 9:16, facecam, sous-titres." },
+  { icon: Clapperboard, label: "Clipping", copy: "Vertical 9:16, facecam, sous-titres." },
   { icon: Palette, label: "Studio visuel", copy: "Formats Twitch et social prêts." },
   { icon: Search, label: "Diagnostic Twitch", copy: "Score, benchmark, recommandations." },
 ];

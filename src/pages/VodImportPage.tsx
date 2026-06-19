@@ -143,7 +143,7 @@ const VOD_REASONS = new Set([
 
 const VodImportPage = () => {
   usePageMeta({
-    title: "Créer un clip réseau · Streamnco",
+    title: "Créer un clip · Streamnco",
     description:
       "Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts.",
   });
@@ -503,7 +503,7 @@ const VodImportPage = () => {
     try {
       await updateItem(item.id, { status: "idea" });
       toast({
-        title: "Ajouté à tes clips réseaux",
+        title: "Ajouté à tes clips",
         description: "Le clip est marqué « À préparer ».",
       });
     } catch (err) {
@@ -535,8 +535,8 @@ const VodImportPage = () => {
     <AppShell>
       <PageContainer size="lg">
         <PageHeader
-          eyebrow="Clips réseaux"
-          title="Créer un clip réseau"
+          eyebrow="Clipping"
+          title="Créer un clip"
           description="Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts."
         />
 
@@ -879,7 +879,7 @@ const VodImportPage = () => {
                     Clips proposés ({candidates.length})
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Ajuste les moments puis génère le MP4. Le clip arrive dans tes clips réseaux.
+                    Ajuste les moments puis génère le MP4. Le clip arrive dans tes clips.
                   </p>
                 </div>
               </div>
@@ -1022,7 +1022,7 @@ const VodImportPage = () => {
             <div className="flex items-start gap-2 text-xs text-muted-foreground">
               <Upload className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                Pas de lien Twitch ? Tu peux aussi importer un fichier vidéo et le transformer en clip réseau.
+                Pas de lien Twitch ? Tu peux aussi importer un fichier vidéo et le transformer en clip.
               </span>
             </div>
             <Button asChild variant="outline" size="sm">

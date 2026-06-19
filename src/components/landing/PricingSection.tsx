@@ -44,7 +44,7 @@ const GROWTH_FUTURE_ANNUAL = 179;
 
 const FREE_FEATURES = [
   "StreamScore calculé instantanément",
-  "5 visuels et 3 clips réseaux par mois",
+  "5 visuels et 3 clips par mois",
   "Le blocage #1 identifié avec précision",
   "Téléchargement de tes clips et visuels",
   "Sans connexion Twitch requise pour démarrer",
@@ -53,7 +53,7 @@ const FREE_FEATURES = [
 
 const PRO_FEATURES = [
   "Tout le plan Gratuit",
-  "100 visuels et 30 clips réseaux par mois",
+  "100 visuels et 30 clips par mois",
   "Évolution sur 30, 60 et 90 jours",
   "Plan d'action personnalisé chaque semaine",
   "Sous-titres et styles de captions",
@@ -63,7 +63,7 @@ const PRO_FEATURES = [
 
 const GROWTH_FEATURES = [
   "Tout le plan Pro",
-  "300 visuels et 200 clips réseaux par mois",
+  "300 visuels et 200 clips par mois",
   "Jusqu'à 3 chaînes Twitch connectées",
   "Benchmark et watchlist avancés",
   "Préparation live plus complète",

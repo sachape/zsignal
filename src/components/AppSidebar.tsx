@@ -66,10 +66,10 @@ const navGroups: NavGroup[] = [
   {
     label: "Créer",
     items: [
-      { title: "Clips réseaux", url: "/clips-reseaux", icon: Clapperboard, matchSection: "clips" },
+      { title: "Clipping", url: "/clips-reseaux", icon: Clapperboard, matchSection: "clips" },
       { title: "Studio visuel", url: "/studio-visuel", icon: Palette },
       // File de contenu masquée tant que la publication auto (OAuth) n'est pas là.
-      // Route + liens contextuels (Clips réseaux, Live Studio) conservés.
+      // Route + liens contextuels (Clipping, Live Studio) conservés.
     ],
   },
   {

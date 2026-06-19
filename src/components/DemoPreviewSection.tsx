@@ -44,7 +44,7 @@ const DemoPreviewSection = () => {
             <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
               <div className="flex items-center gap-2">
                 <Clapperboard className="h-4 w-4 text-primary" />
-                <p className="text-sm font-semibold text-foreground">Clips réseaux</p>
+                <p className="text-sm font-semibold text-foreground">Clipping</p>
               </div>
               <span className="rounded-full border border-white/[0.08] px-2.5 py-1 text-[10px] text-muted-foreground">
                 9:16 · export manuel

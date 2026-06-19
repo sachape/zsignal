@@ -119,7 +119,7 @@ const FeaturesPage = () => {
   usePageMeta({
     title: "Fonctionnalités — Streamnco",
     description:
-      "Clips réseaux 9:16, visuels prêts à poster et suivi de progression : tout ce qu'il faut pour faire grandir ta chaîne Twitch.",
+      "Clipping 9:16, visuels prêts à poster et suivi de progression : tout ce qu'il faut pour faire grandir ta chaîne Twitch.",
     canonical: "https://streamnco.fr/fonctionnalites",
     ogUrl: "https://streamnco.fr/fonctionnalites",
     robots: "index, follow",
@@ -191,7 +191,7 @@ const FeaturesPage = () => {
               <FeaturePanel
                 id="clips-reseaux"
                 icon={Clapperboard}
-                eyebrow="Clips réseaux"
+                eyebrow="Clipping"
                 title="Transforme tes moments Twitch en vidéos verticales 9:16."
                 description="Tu pars d'un Clip Twitch, d'une VOD ou d'un upload. Streamnco assemble un format vertical avec facecam, gameplay, sous-titres et styles de captions, puis te laisse télécharger le résultat."
               >
