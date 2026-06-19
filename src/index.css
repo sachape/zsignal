@@ -73,12 +73,13 @@
 
   /*
     Light theme — applied via class="light" on <html> (next-themes).
-    Overrides the dark defaults above. Same token contract: components keep
-    consuming semantic tokens, never hex literals, so they adapt automatically.
-    Brand hue (lime, 95°) is darkened for readable contrast on light surfaces.
+    ONLY surfaces (backgrounds, text, borders) change between themes.
+    Brand + semantic colors (primary lime, accent, success/warning/destructive/
+    info, twitch) are kept IDENTICAL to dark so the brand stays consistent —
+    a lime button must look the same in both themes.
   */
   .light {
-    /* ── Surfaces ────────────────────────────────────────────────── */
+    /* ── Surfaces (the only thing that flips between themes) ──────── */
     --background: 210 36% 98%;
     --foreground: 220 28% 12%;
 
@@ -97,40 +98,38 @@
     --border: 220 16% 89%;
     --input: 220 16% 89%;
 
-    /* ── Brand: lime accent, darkened for contrast on light ──────── */
-    --primary: 95 60% 36%;
-    --primary-foreground: 0 0% 100%;
+    /* ── Brand + semantic: unchanged from dark (consistency) ─────── */
+    --primary: 95 98% 61%;
+    --primary-foreground: 0 0% 7%;
 
-    --accent: 172 62% 33%;
-    --accent-foreground: 0 0% 100%;
-    --ring: 95 60% 36%;
+    --accent: 172 66% 50%;
+    --accent-foreground: 220 20% 6%;
+    --ring: 95 98% 61%;
 
-    /* ── Semantic states ─────────────────────────────────────────── */
-    --success: 142 64% 35%;
-    --success-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 7%;
 
-    --warning: 35 92% 44%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 7%;
 
-    --destructive: 0 72% 48%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 98%;
 
-    --info: 217 86% 50%;
-    --info-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 7%;
 
-    /* ── Third-party brand colors ────────────────────────────────── */
-    --twitch: 264 72% 56%;
+    --twitch: 264 100% 64%;
     --twitch-foreground: 0 0% 100%;
 
-    /* ── Sidebar ─────────────────────────────────────────────────── */
+    /* ── Sidebar (surface light, brand accents unchanged) ────────── */
     --sidebar-background: 220 28% 97%;
     --sidebar-foreground: 220 18% 30%;
-    --sidebar-primary: 95 60% 36%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 95 98% 61%;
+    --sidebar-primary-foreground: 0 0% 7%;
     --sidebar-accent: 220 18% 92%;
     --sidebar-accent-foreground: 220 28% 16%;
     --sidebar-border: 220 16% 88%;
-    --sidebar-ring: 95 60% 36%;
+    --sidebar-ring: 95 98% 61%;
   }
 }
 
