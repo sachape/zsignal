@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
     candidates.push({
       platform: target.platform,
       format: target.format,
-      title: `Clip Twitch — ${subject}`.slice(0, 200),
+      title: cleanTitle.slice(0, 200),
       description: `Clip Twitch transformé en format vertical${category ? ` (${category})` : ""}.`,
       hashtags: tags,
       start: 0,
