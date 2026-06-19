@@ -72,6 +72,17 @@ const TONE_CLASS: Record<string, string> = {
   destructive: "border-destructive/40 bg-destructive/10 text-destructive",
 };
 
+const PREPARATION_MESSAGES = [
+  "On récupère la source…",
+  "On prépare ton clip…",
+  "On charge les options…",
+  "On vérifie la caméra…",
+  "Encore quelques secondes…",
+];
+const PREPARATION_SLOW_MESSAGE = "C’est un peu plus long que prévu, mais on est dessus…";
+const PREPARATION_ERROR_MESSAGE = "Impossible d’ouvrir la préparation du clip.";
+
+
 const TARGET_PLATFORMS = [
   { value: "youtube_shorts", label: "YouTube Shorts", format: "short" },
   { value: "tiktok", label: "TikTok", format: "tiktok" },
@@ -139,7 +150,7 @@ const VodImportPage = () => {
 
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { items, refetch, updateItem } = useContentItems();
+  const { items, loading: itemsLoading, refetch, updateItem } = useContentItems();
   const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
   const [searchParams, setSearchParams] = useSearchParams();
   const [url, setUrl] = useState("");
@@ -193,6 +204,43 @@ const VodImportPage = () => {
     setSubject(preparedItem.title ?? "");
     setTarget(preparedItem.platform ?? "youtube_shorts");
   }, [preparedItem]);
+
+  // Premium loading microcopy for the preparation CTA / panel hydration.
+  const [prepMessageIndex, setPrepMessageIndex] = useState(0);
+  const [prepStartAt, setPrepStartAt] = useState<number | null>(null);
+  const hasScrolledToPrepRef = useRef(false);
+  const isPrepLoading = submitting || (!!preparedItemId && !preparedItem && itemsLoading);
+
+  useEffect(() => {
+    if (!isPrepLoading) {
+      if (prepStartAt) setPrepStartAt(null);
+      setPrepMessageIndex(0);
+      return;
+    }
+    if (!prepStartAt) setPrepStartAt(Date.now());
+    const messageInterval = window.setInterval(
+      () => setPrepMessageIndex((i) => (i + 1) % PREPARATION_MESSAGES.length),
+      1200,
+    );
+    return () => window.clearInterval(messageInterval);
+  }, [isPrepLoading]);
+
+
+  const prepElapsed = prepStartAt ? Date.now() - prepStartAt : 0;
+  const prepMessage =
+    prepElapsed > 10000 ? PREPARATION_SLOW_MESSAGE : PREPARATION_MESSAGES[prepMessageIndex % PREPARATION_MESSAGES.length];
+
+  // Scroll to the configuration panel once it becomes available.
+  useEffect(() => {
+    if (preparedItem && !hasScrolledToPrepRef.current) {
+      hasScrolledToPrepRef.current = true;
+      setTimeout(
+        () => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        120,
+      );
+    }
+  }, [preparedItem]);
+
 
   // Poll while jobs are processing + drive a clock for stuck-job detection.
   const [now, setNow] = useState(() => Date.now());
@@ -317,11 +365,11 @@ const VodImportPage = () => {
         setPreparedItemId(newId);
         setSearchParams({ continue: newId }, { replace: true });
         toast({ title: "Clip prêt à configurer", description: "Configure la caméra et les sous-titres ci-dessous." });
-        setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
         return;
       }
-      setPrepareError("Impossible d’ouvrir la configuration du clip.");
+      setPrepareError(PREPARATION_ERROR_MESSAGE);
     } catch (err) {
+      setPrepareError(PREPARATION_ERROR_MESSAGE);
       toast({
         title: "Échec",
         description: err instanceof Error ? err.message : "Réessaie dans quelques instants.",
@@ -627,9 +675,17 @@ const VodImportPage = () => {
                 className="gap-2"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                Préparer le clip
+                {submitting ? "Ça arrive…" : "Continuer la préparation"}
               </Button>
             </div>
+
+            {submitting && (
+              <div className="mt-2 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-primary/80">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                {prepMessage}
+              </div>
+            )}
+
 
           </CardContent>
         </Card>
@@ -640,7 +696,7 @@ const VodImportPage = () => {
               <div className="flex items-start gap-2 text-destructive">
                 <AlertCircle className="mt-0.5 h-4 w-4" />
                 <div>
-                  <p className="font-semibold">Impossible d’ouvrir la configuration du clip.</p>
+                  <p className="font-semibold">{PREPARATION_ERROR_MESSAGE}</p>
                   <p className="mt-1 text-xs text-destructive/80">Réessaie ou consulte la Queue si le clip a déjà été créé.</p>
                 </div>
               </div>
@@ -668,13 +724,23 @@ const VodImportPage = () => {
                   void refetchActiveJob();
                 }}
               />
+            ) : itemsLoading ? (
+              <Card className="border-primary/30 bg-primary/[0.04]">
+                <CardContent className="flex items-center gap-3 p-5">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Ça arrive…</p>
+                    <p className="text-[11px] text-muted-foreground">{prepMessage}</p>
+                  </div>
+                </CardContent>
+              </Card>
             ) : (
               <Card className="border-destructive/40 bg-destructive/10">
                 <CardContent className="flex flex-col gap-3 p-5 text-sm">
                   <div className="flex items-start gap-2 text-destructive">
                     <AlertCircle className="mt-0.5 h-4 w-4" />
                     <div>
-                      <p className="font-semibold">Impossible d’ouvrir la configuration du clip.</p>
+                      <p className="font-semibold">{PREPARATION_ERROR_MESSAGE}</p>
                       <p className="mt-1 text-xs text-destructive/80">Réessaie ou consulte la Queue si le clip a déjà été créé.</p>
                     </div>
                   </div>
@@ -682,7 +748,7 @@ const VodImportPage = () => {
                     <Button size="sm" variant="outline" onClick={() => void refetch()}>
                       Réessayer
                     </Button>
-                    <Button asChild size="sm" variant="outline">
+                    <Button asChild size="sm" variant="ghost">
                       <Link to="/content-queue">Voir dans la Queue</Link>
                     </Button>
                   </div>
