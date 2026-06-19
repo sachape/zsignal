@@ -14,7 +14,7 @@ const FEATURE_GROUPS = [
     href: "/fonctionnalites#creer",
     description: "Crée des clips et visuels prêts à publier.",
     links: [
-      { label: "Clipping", href: "/fonctionnalites#clips-reseaux" },
+      { label: "Clipping", href: "/fonctionnalites#clipping" },
       { label: "Studio visuel", href: "/fonctionnalites#studio-visuel" },
     ],
   },
