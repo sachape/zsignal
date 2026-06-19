@@ -173,33 +173,8 @@ const ClipsReseauxPage = () => {
           </Card>
         )}
 
-        {/* Sources */}
-        <section className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">Choisis une source</h2>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <SourceCard
-              icon={Tv}
-              title="Coller un lien Twitch"
-              description="VOD ou Clip Twitch."
-              to="/clips/vod-import"
-              disabled={!canAccess}
-            />
-            <SourceCard
-              icon={Upload}
-              title="Importer une vidéo"
-              description="Upload une vidéo depuis ton ordinateur."
-              to="/clips/vod-import"
-              disabled={!canAccess}
-            />
-            <SourceCard
-              icon={Wand2}
-              title="Moments proposés"
-              description="Utilise les suggestions détectées par Streamnco."
-              to="/clips"
-              disabled={!canAccess}
-            />
-          </div>
-        </section>
+        {/* Source picker removed — section tabs (Mes clips / Créer / Queue / Moments proposés) handle navigation. */}
+
 
         {/* Camera config — optional, never blocks generation */}
         <section className="mb-8">
