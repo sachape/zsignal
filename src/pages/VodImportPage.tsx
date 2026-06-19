@@ -258,8 +258,8 @@ const VodImportPage = () => {
       await refetch();
 
       // Direct flow: when a single clip was created (Twitch Clip OR one
-      // explicit timestamp), jump straight to the queue and open the
-      // generation modal pre-filled with this item.
+      // explicit timestamp), mount the inline preparation panel on this page.
+      // No navigation. The user configures camera/captions and launches here.
       const singleDirect =
         result.reason === "twitch_clip_full" ||
         (result.reason === "vod_manual_timestamp" && (result.count ?? 0) === 1);
@@ -275,23 +275,25 @@ const VodImportPage = () => {
           .maybeSingle();
         const newId = (latest as { id?: string } | null)?.id ?? null;
         if (newId) {
+          setPreparedItemId(newId);
+          // Reflect in URL so the user can reopen / share the draft.
+          setSearchParams({ continue: newId }, { replace: true });
           toast({
-            title: detectedSource === "twitch_clip" ? "Lien Twitch détecté" : "Clip ajouté à la file",
-            description: "Prépare ton clip avant génération.",
+            title: "Lien analysé",
+            description: "Clip prêt à configurer.",
           });
-          navigate("/content-queue", {
-            state: { openGenerateForItemId: newId, expandItemId: newId },
-          });
+          // Scroll the preparation panel into view.
+          setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
           return;
         }
       }
 
       toast({
-        title: "Clip ajouté à la file",
+        title: "Lien analysé",
         description:
           result.reason === "vod_manual_timestamp"
             ? `${result.count} clip${(result.count ?? 0) > 1 ? "s" : ""} prêt${(result.count ?? 0) > 1 ? "s" : ""} à configurer.`
-            : "Ouvre la file pour configurer et générer ton clip.",
+            : "Moments proposés ci-dessous. Ajuste-les avant génération.",
       });
     } catch (err) {
       toast({
