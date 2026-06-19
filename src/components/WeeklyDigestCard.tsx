@@ -156,7 +156,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
                 {nextAction.title}
               </p>
             </div>
-            <Button asChild size="sm" variant="ghost" className="h-7 shrink-0 px-2 text-xs text-primary hover:bg-primary/10">
+            <Button asChild size="sm" variant="outline" className="h-7 shrink-0 px-2 text-xs border-border">
               <Link to="/plan">
                 Plan <ArrowRight className="ml-1 h-3 w-3" />
               </Link>

@@ -1116,7 +1116,7 @@ const LiveSetupPage = () => {
 
                 <div className="flex items-center justify-between gap-2 pb-1">
                   <p className="text-xs font-medium text-muted-foreground">Checklist OBS</p>
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-primary hover:bg-primary/10" onClick={checkAllObs}>
+                  <Button variant="outline" size="sm" className="h-6 px-2 text-xs border-border" onClick={checkAllObs}>
                     Tout cocher
                   </Button>
                 </div>
@@ -1173,7 +1173,7 @@ const LiveSetupPage = () => {
                 </div>
                 <div className="flex items-center justify-between gap-2 pb-1">
                   <p className="text-xs font-medium text-muted-foreground">Points à valider</p>
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-primary hover:bg-primary/10" onClick={checkAllPrelive}>
+                  <Button variant="outline" size="sm" className="h-6 px-2 text-xs border-border" onClick={checkAllPrelive}>
                     Tout cocher
                   </Button>
                 </div>

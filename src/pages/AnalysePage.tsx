@@ -611,7 +611,7 @@ const AnalysePage = () => {
               )}
               {/* CTA */}
               <div className="mt-3 flex items-center justify-end">
-                <Button asChild size="sm" variant="ghost" className="h-7 gap-1 text-xs text-primary hover:bg-primary/10">
+                <Button asChild size="sm" variant="outline" className="h-7 gap-1 text-xs border-border">
                   <Link to="/plan">
                     Voir le plan <ArrowRight className="h-3 w-3" />
                   </Link>

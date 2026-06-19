@@ -7,6 +7,7 @@ import { InlineLock } from "@/components/PaywallGate";
 import {
   ArrowRight,
   FileText,
+  ListChecks,
   AlertCircle,
   Sparkles,
   X,
@@ -711,8 +712,8 @@ const DashboardPage = () => {
                 <Button asChild size="lg" className="shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.55)]">
                   <Link to="/clipping">Passer à l'action <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
-                <Button asChild variant="ghost" size="sm" className="h-auto px-1.5 text-xs text-primary hover:bg-primary/10">
-                  <Link to="/plan">Voir le plan complet →</Link>
+                <Button asChild size="lg" variant="outline" className="border-border">
+                  <Link to="/plan"><ListChecks className="h-4 w-4" />Voir le plan complet</Link>
                 </Button>
               </div>
             </div>
@@ -738,8 +739,8 @@ const DashboardPage = () => {
               <Radio className={`h-3.5 w-3.5 ${summary.is_live ? "text-destructive" : "text-muted-foreground/60"}`} />
               <p className="text-sm font-medium text-foreground">{summary.is_live ? "Live en cours" : "Prochain live"}</p>
             </div>
-            <Button asChild size="sm" variant="ghost" className="h-auto px-0 text-xs text-primary hover:bg-transparent">
-              <Link to={summary.is_live ? "/lives/last" : "/live-setup"}>{summary.is_live ? "Cockpit live →" : "Préparer →"}</Link>
+            <Button asChild size="sm" variant="outline" className="border-border">
+              <Link to={summary.is_live ? "/lives/last" : "/live-setup"}>{summary.is_live ? "Cockpit live" : "Préparer"}</Link>
             </Button>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
