@@ -32,7 +32,7 @@
 //
 //     // Captions — optional, enabled by default by clip-job-create.
 //     captions_enabled?, captions_language?,
-//     captions_style?,                            // "clean" | "bold_tiktok" | "gaming_neon" | "minimal"
+//     captions_style?,                            // "clean" | "bold_tiktok" | "gaming_neon" | "minimal" | "creator_pop" | "punchline"
 //     transcribe_url?, transcribe_secret?
 //   }
 //
@@ -264,7 +264,7 @@ app.post("/generate", async (req, res) => {
     layoutSource: typeof layout_source === "string" ? layout_source : null,
     captionsEnabled: captions_enabled !== false && !!transcribe_url,
     captionsLanguage: typeof captions_language === "string" ? captions_language : "fr",
-    captionsStyle: (["clean", "bold_tiktok", "gaming_neon", "minimal"].includes(captions_style)) ? captions_style : "clean",
+    captionsStyle: (["clean", "bold_tiktok", "gaming_neon", "minimal", "creator_pop", "punchline"].includes(captions_style)) ? captions_style : "clean",
     transcribeUrl: typeof transcribe_url === "string" ? transcribe_url : null,
     transcribeSecret: typeof transcribe_secret === "string" ? transcribe_secret : WORKER_SHARED_SECRET,
     // Default to "fill_relaxed" — gameplay band gets a bit more height so the
@@ -702,6 +702,44 @@ function getCaptionStyleParams(stylePreset, outW, outH) {
       outline: Math.max(5, Math.round(fs * 0.11)),
       shadow: 4,                     // larger soft shadow → glow feel
       wrapText: (t) => t,
+    };
+  }
+  if (stylePreset === "creator_pop") {
+    const fs = Math.round(baseFont * 1.10);
+    // Teal accent (#2DD4A8) → BGR &H00A8D42D
+    const accent = "&H00A8D42D";
+    return {
+      name: "creator_pop",
+      fontName: "DejaVu Sans",
+      fontSize: fs,
+      bold: -1,
+      primary: "&H00FFFFFF",
+      outlineColor: "&H00000000",
+      backColor: "&H60000000",
+      outline: Math.max(5, Math.round(fs * 0.11)),
+      shadow: 3,
+      wrapText: (t) => {
+        const words = t.trim().split(/\s+/);
+        if (words.length <= 2) return `{\\c${accent}}${t}{\\c&H00FFFFFF&}`;
+        // Highlight the last word as the "key word".
+        const last = words.pop();
+        return `${words.join(" ")} {\\c${accent}}${last}{\\c&H00FFFFFF&}`;
+      },
+    };
+  }
+  if (stylePreset === "punchline") {
+    const fs = Math.round(baseFont * 1.28);
+    return {
+      name: "punchline",
+      fontName: "DejaVu Sans",
+      fontSize: fs,
+      bold: -1,
+      primary: "&H00FFFFFF",
+      outlineColor: "&H00000000",
+      backColor: "&H90000000",
+      outline: Math.max(8, Math.round(fs * 0.16)),
+      shadow: 3,
+      wrapText: (t) => `{\\fscx105\\fscy105}${t.toUpperCase()}`,
     };
   }
   // "clean" — default: white bold + thick black outline, premium readable.
