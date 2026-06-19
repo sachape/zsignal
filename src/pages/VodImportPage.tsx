@@ -141,6 +141,7 @@ const VodImportPage = () => {
   const { user } = useAuth();
   const { items, refetch, updateItem } = useContentItems();
   const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [url, setUrl] = useState("");
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("");
@@ -152,6 +153,11 @@ const VodImportPage = () => {
   const [editStart, setEditStart] = useState(0);
   const [editEnd, setEditEnd] = useState(0);
   const [lastImportedUrl, setLastImportedUrl] = useState<string | null>(null);
+  // Inline preparation: id of the item to configure on this page.
+  const [preparedItemId, setPreparedItemId] = useState<string | null>(
+    searchParams.get("continue"),
+  );
+  const prepRef = useRef<HTMLDivElement | null>(null);
 
   const autoGenEnabled = isFeatureEnabled("TWITCH_AUTO_CLIP_GENERATION_ENABLED");
 
