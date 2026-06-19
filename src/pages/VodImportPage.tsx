@@ -256,6 +256,7 @@ const VodImportPage = () => {
         message?: string;
         count?: number;
         reason?: string;
+        items?: Array<{ id?: string }>;
       };
       if (!result?.success) {
         throw new Error(result?.message ?? "Impossible d'analyser cette VOD.");
@@ -265,33 +266,40 @@ const VodImportPage = () => {
 
       // Direct flow: when a single clip was created (Twitch Clip OR one
       // explicit timestamp), mount the inline preparation panel on this page.
-      // No navigation. The user configures camera/captions and launches here.
       const singleDirect =
         result.reason === "twitch_clip_full" ||
         (result.reason === "vod_manual_timestamp" && (result.count ?? 0) === 1);
-      if (singleDirect && user) {
+      const returnedId = result.items?.[0]?.id ?? null;
+      // Fallback: look up the most recently created item for this URL (covers
+      // dedup paths where the edge function returned no fresh inserts).
+      let newId: string | null = returnedId;
+      if (!newId && user) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: latest } = await (supabase as any)
-          .from("content_items")
+          .from("creator_content_items")
           .select("id")
           .eq("user_id", user.id)
           .eq("source_video_url", url.trim())
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
-        const newId = (latest as { id?: string } | null)?.id ?? null;
-        if (newId) {
-          setPreparedItemId(newId);
-          // Reflect in URL so the user can reopen / share the draft.
-          setSearchParams({ continue: newId }, { replace: true });
-          toast({
-            title: "Lien analysé",
-            description: "Clip prêt à configurer.",
-          });
-          // Scroll the preparation panel into view.
-          setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-          return;
-        }
+        newId = (latest as { id?: string } | null)?.id ?? null;
+      }
+      // eslint-disable-next-line no-console
+      console.info("[clip_inline_analyze_result]", {
+        createdItemId: returnedId,
+        resolvedItemId: newId,
+        source_url: url.trim(),
+        source_kind: detectedSource,
+        reason: result.reason,
+        count: result.count,
+      });
+      if (singleDirect && newId) {
+        setPreparedItemId(newId);
+        setSearchParams({ continue: newId }, { replace: true });
+        toast({ title: "Lien analysé", description: "Clip prêt à configurer." });
+        setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+        return;
       }
 
       toast({
@@ -614,29 +622,57 @@ const VodImportPage = () => {
         </Card>
 
         {/* Inline preparation panel — same page as the analyze form. */}
-        {preparedItem && (
+        {preparedItemId && (
           <div ref={prepRef} className="mb-5">
-            <ClipPreparationPanel
-              item={preparedItem}
-              variant="inline"
-              onLaunched={() => {
-                void refetch();
-                void refetchActiveJob();
-                // Keep the panel open so the user can launch another if needed,
-                // but offer a quick path to monitor the job.
-                toast({
-                  title: "Génération lancée",
-                  description: "Suis l'avancement dans la file de contenus.",
-                  action: (
-                    <ToastAction altText="Voir dans la Queue" onClick={() => navigate("/content-queue")}>
-                      Voir dans la Queue
-                    </ToastAction>
-                  ),
-                });
-              }}
-            />
+            {preparedItem ? (
+              <ClipPreparationPanel
+                item={preparedItem}
+                variant="inline"
+                onLaunched={() => {
+                  void refetch();
+                  void refetchActiveJob();
+                  toast({
+                    title: "Génération lancée",
+                    description: "Suis l'avancement dans la file de contenus.",
+                    action: (
+                      <ToastAction altText="Voir dans la Queue" onClick={() => navigate("/content-queue")}>
+                        Voir dans la Queue
+                      </ToastAction>
+                    ),
+                  });
+                }}
+              />
+            ) : (
+              <Card className="border-border/60 bg-card/60">
+                <CardContent className="flex flex-col gap-3 p-5 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Préparation du clip…
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="ghost" onClick={() => void refetch()}>
+                      Réessayer
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setPreparedItemId(null);
+                        setSearchParams({}, { replace: true });
+                      }}
+                    >
+                      Annuler
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/content-queue">Voir dans la Queue</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
+
 
 
 
