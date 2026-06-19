@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ToastAction } from "@/components/ui/toast";
 import {
@@ -53,6 +53,7 @@ import {
   buildVodDeepLink,
 } from "@/services/contentStatusLabels";
 import { getGenerationErrorMessage, getGenerationStageLabel } from "@/services/videoGeneration";
+import ClipPreparationPanel from "@/components/content-queue/ClipPreparationPanel";
 
 const PLATFORM_LABEL: Record<string, string> = {
   youtube_shorts: "YouTube Shorts",
@@ -140,6 +141,7 @@ const VodImportPage = () => {
   const { user } = useAuth();
   const { items, refetch, updateItem } = useContentItems();
   const { activeJob, refetch: refetchActiveJob } = useActiveVideoJob();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [url, setUrl] = useState("");
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("");
@@ -151,6 +153,11 @@ const VodImportPage = () => {
   const [editStart, setEditStart] = useState(0);
   const [editEnd, setEditEnd] = useState(0);
   const [lastImportedUrl, setLastImportedUrl] = useState<string | null>(null);
+  // Inline preparation: id of the item to configure on this page.
+  const [preparedItemId, setPreparedItemId] = useState<string | null>(
+    searchParams.get("continue"),
+  );
+  const prepRef = useRef<HTMLDivElement | null>(null);
 
   const autoGenEnabled = isFeatureEnabled("TWITCH_AUTO_CLIP_GENERATION_ENABLED");
 
@@ -167,6 +174,12 @@ const VodImportPage = () => {
       )
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [items, lastImportedUrl]);
+
+  // Inline preparation panel target: an item the user is configuring on this page.
+  const preparedItem = useMemo(
+    () => (preparedItemId ? items.find((i) => i.id === preparedItemId) ?? null : null),
+    [items, preparedItemId],
+  );
 
   // Poll while jobs are processing + drive a clock for stuck-job detection.
   const [now, setNow] = useState(() => Date.now());
@@ -251,8 +264,8 @@ const VodImportPage = () => {
       await refetch();
 
       // Direct flow: when a single clip was created (Twitch Clip OR one
-      // explicit timestamp), jump straight to the queue and open the
-      // generation modal pre-filled with this item.
+      // explicit timestamp), mount the inline preparation panel on this page.
+      // No navigation. The user configures camera/captions and launches here.
       const singleDirect =
         result.reason === "twitch_clip_full" ||
         (result.reason === "vod_manual_timestamp" && (result.count ?? 0) === 1);
@@ -268,23 +281,25 @@ const VodImportPage = () => {
           .maybeSingle();
         const newId = (latest as { id?: string } | null)?.id ?? null;
         if (newId) {
+          setPreparedItemId(newId);
+          // Reflect in URL so the user can reopen / share the draft.
+          setSearchParams({ continue: newId }, { replace: true });
           toast({
-            title: detectedSource === "twitch_clip" ? "Lien Twitch détecté" : "Clip ajouté à la file",
-            description: "Prépare ton clip avant génération.",
+            title: "Lien analysé",
+            description: "Clip prêt à configurer.",
           });
-          navigate("/content-queue", {
-            state: { openGenerateForItemId: newId, expandItemId: newId },
-          });
+          // Scroll the preparation panel into view.
+          setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
           return;
         }
       }
 
       toast({
-        title: "Clip ajouté à la file",
+        title: "Lien analysé",
         description:
           result.reason === "vod_manual_timestamp"
             ? `${result.count} clip${(result.count ?? 0) > 1 ? "s" : ""} prêt${(result.count ?? 0) > 1 ? "s" : ""} à configurer.`
-            : "Ouvre la file pour configurer et générer ton clip.",
+            : "Moments proposés ci-dessous. Ajuste-les avant génération.",
       });
     } catch (err) {
       toast({
@@ -591,12 +606,39 @@ const VodImportPage = () => {
                 className="gap-2"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                {detectedSource === "twitch_clip" ? "Générer en format réseaux" : "Analyser le lien"}
+                Analyser le lien
               </Button>
             </div>
 
           </CardContent>
         </Card>
+
+        {/* Inline preparation panel — same page as the analyze form. */}
+        {preparedItem && (
+          <div ref={prepRef} className="mb-5">
+            <ClipPreparationPanel
+              item={preparedItem}
+              variant="inline"
+              onLaunched={() => {
+                void refetch();
+                void refetchActiveJob();
+                // Keep the panel open so the user can launch another if needed,
+                // but offer a quick path to monitor the job.
+                toast({
+                  title: "Génération lancée",
+                  description: "Suis l'avancement dans la file de contenus.",
+                  action: (
+                    <ToastAction altText="Voir dans la Queue" onClick={() => navigate("/content-queue")}>
+                      Voir dans la Queue
+                    </ToastAction>
+                  ),
+                });
+              }}
+            />
+          </div>
+        )}
+
+
 
         {candidates.length > 0 && (
           <Card className="mb-4 border-primary/30 bg-primary/[0.03]">
