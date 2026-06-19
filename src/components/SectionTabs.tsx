@@ -11,10 +11,13 @@ const SECTIONS: Section[] = [
     id: "clips",
     label: "Clips réseaux",
     tabs: [
-      { label: "Créer", to: "/clips-reseaux", matches: ["/clips-reseaux", "/clips/vod-import"] },
+      { label: "Mes clips", to: "/clips-reseaux", matches: ["/clips-reseaux"], exact: true },
+      { label: "Créer", to: "/clips/vod-import", matches: ["/clips/vod-import"] },
       { label: "Queue", to: "/content-queue", matches: ["/content-queue"] },
+      { label: "Moments proposés", to: "/clips", matches: ["/clips"], exact: true },
     ],
   },
+
   {
     id: "live-studio",
     label: "Live Studio",
