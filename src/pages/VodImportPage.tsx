@@ -936,7 +936,7 @@ const VodImportPage = () => {
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         {isReady ? (
                           <Button asChild size="sm">
-                            <Link to="/clips-reseaux">
+                            <Link to="/clipping">
                               <Sparkles className="h-3.5 w-3.5" />
                               Voir le clip généré
                             </Link>

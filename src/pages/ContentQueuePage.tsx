@@ -322,7 +322,7 @@ const ContentQueuePage = () => {
                   <Plus className="h-4 w-4" /> Nouveau contenu
                 </Button>
                 <Button asChild variant="ghost" size="sm">
-                  <Link to="/clips-reseaux">Créer un clip</Link>
+                  <Link to="/clipping">Créer un clip</Link>
                 </Button>
               </div>
             </CardContent>
@@ -344,7 +344,7 @@ const ContentQueuePage = () => {
                   // Twitch / URL drafts → continue on the inline Create page.
                   // Upload-only drafts → open the legacy modal (no Create-page UX yet).
                   if (item.source_video_url) {
-                    navigate(`/clips-reseaux?continue=${item.id}`);
+                    navigate(`/clipping?continue=${item.id}`);
                     return;
                   }
                   if (item.source_start_time == null || item.source_end_time == null) {

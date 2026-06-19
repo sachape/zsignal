@@ -22,7 +22,7 @@ const CreateNowBlock = () => {
 
       <div className="grid gap-3 md:grid-cols-2">
         <CreateCard
-          to="/clips-reseaux"
+          to="/clipping"
           icon={Clapperboard}
           title="Créer un clip"
           description="Transforme un Clip Twitch ou une VOD en vidéo verticale avec facecam, gameplay et sous-titres."
