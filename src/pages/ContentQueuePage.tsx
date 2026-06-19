@@ -725,21 +725,11 @@ function ContentRow({
                 {item.source_start_time != null ? "Modifier les timestamps" : "Définir les timestamps"}
               </Button>
               {!hasGeneratedClip && (
-                <Button
-                  size="sm" className="h-7 text-[11px]"
-                  onClick={onGenerate}
-                  disabled={item.source_start_time == null || item.source_end_time == null || item.generation_status === "queued" || item.generation_status === "processing" || anotherJobIsActive}
-                  title={anotherJobIsActive ? "Une génération est déjà en cours" : "Lancer la génération du clip"}
-                >
-                  {item.generation_status === "queued" || item.generation_status === "processing"
-                    ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                    : <Wand2 className="mr-1.5 h-3.5 w-3.5" />}
-                  {item.generation_status === "failed"
-                    ? "Réessayer"
-                    : item.source_video_url
-                      ? "Continuer la préparation"
-                      : "Générer le clip"}
-                </Button>
+                <ContinuePreparationButton
+                  item={item}
+                  anotherJobIsActive={anotherJobIsActive}
+                  onGenerate={onGenerate}
+                />
               )}
               {anotherJobIsActive && !hasGeneratedClip && (
                 <p className="basis-full text-[11px] text-warning">
