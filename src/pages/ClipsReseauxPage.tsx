@@ -226,7 +226,8 @@ const ClipsReseauxPage = () => {
         {/* Recent clips */}
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Mes clips réseaux</h2>
+            <h2 className="text-sm font-semibold text-foreground">Mes clips</h2>
+
           </div>
 
           {activeJob && (
