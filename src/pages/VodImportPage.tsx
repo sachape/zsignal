@@ -53,6 +53,7 @@ import {
   buildVodDeepLink,
 } from "@/services/contentStatusLabels";
 import { getGenerationErrorMessage, getGenerationStageLabel } from "@/services/videoGeneration";
+import ClipPreparationPanel from "@/components/content-queue/ClipPreparationPanel";
 
 const PLATFORM_LABEL: Record<string, string> = {
   youtube_shorts: "YouTube Shorts",
