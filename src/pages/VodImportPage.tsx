@@ -256,6 +256,7 @@ const VodImportPage = () => {
         message?: string;
         count?: number;
         reason?: string;
+        items?: Array<{ id?: string }>;
       };
       if (!result?.success) {
         throw new Error(result?.message ?? "Impossible d'analyser cette VOD.");
@@ -265,33 +266,40 @@ const VodImportPage = () => {
 
       // Direct flow: when a single clip was created (Twitch Clip OR one
       // explicit timestamp), mount the inline preparation panel on this page.
-      // No navigation. The user configures camera/captions and launches here.
       const singleDirect =
         result.reason === "twitch_clip_full" ||
         (result.reason === "vod_manual_timestamp" && (result.count ?? 0) === 1);
-      if (singleDirect && user) {
+      const returnedId = result.items?.[0]?.id ?? null;
+      // Fallback: look up the most recently created item for this URL (covers
+      // dedup paths where the edge function returned no fresh inserts).
+      let newId: string | null = returnedId;
+      if (!newId && user) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: latest } = await (supabase as any)
-          .from("content_items")
+          .from("creator_content_items")
           .select("id")
           .eq("user_id", user.id)
           .eq("source_video_url", url.trim())
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
-        const newId = (latest as { id?: string } | null)?.id ?? null;
-        if (newId) {
-          setPreparedItemId(newId);
-          // Reflect in URL so the user can reopen / share the draft.
-          setSearchParams({ continue: newId }, { replace: true });
-          toast({
-            title: "Lien analysé",
-            description: "Clip prêt à configurer.",
-          });
-          // Scroll the preparation panel into view.
-          setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-          return;
-        }
+        newId = (latest as { id?: string } | null)?.id ?? null;
+      }
+      // eslint-disable-next-line no-console
+      console.info("[clip_inline_analyze_result]", {
+        createdItemId: returnedId,
+        resolvedItemId: newId,
+        source_url: url.trim(),
+        source_kind: detectedSource,
+        reason: result.reason,
+        count: result.count,
+      });
+      if (singleDirect && newId) {
+        setPreparedItemId(newId);
+        setSearchParams({ continue: newId }, { replace: true });
+        toast({ title: "Lien analysé", description: "Clip prêt à configurer." });
+        setTimeout(() => prepRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+        return;
       }
 
       toast({
