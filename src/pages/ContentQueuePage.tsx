@@ -26,6 +26,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { normalizeClipTitle } from "@/lib/clipTitle";
 import {
   useContentItems, type ContentItem, type ContentPlatform,
   type ContentPriority, type ContentStatus,
@@ -115,7 +116,7 @@ function copy(value: string) {
 }
 
 function buildCopyPayload(item: ContentItem): string {
-  const parts: string[] = [item.title];
+  const parts: string[] = [normalizeClipTitle(item.title)];
   if (item.description) parts.push("", item.description);
   if (item.hashtags.length > 0) parts.push("", item.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" "));
   return parts.join("\n");
@@ -260,7 +261,7 @@ const ContentQueuePage = () => {
                           {i.opportunity_score ?? "—"}
                         </span>
                       </div>
-                      <p className="mt-1.5 line-clamp-2 text-xs font-medium text-foreground">{i.title}</p>
+                      <p className="mt-1.5 line-clamp-2 text-xs font-medium text-foreground">{normalizeClipTitle(i.title)}</p>
                       {i.opportunity_label && (
                         <p className="mt-1 text-[10px] text-primary/80">{i.opportunity_label}</p>
                       )}
@@ -460,7 +461,7 @@ function ContentRow({
   const anotherJobIsActive = activeJobContentItemId !== null && activeJobContentItemId !== item.id;
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [title, setTitle] = useState(item.title);
+  const [title, setTitle] = useState(normalizeClipTitle(item.title));
   const [description, setDescription] = useState(item.description ?? "");
   const [hashtagsRaw, setHashtagsRaw] = useState(item.hashtags.join(" "));
   const [notes, setNotes] = useState(item.notes ?? "");
@@ -516,7 +517,7 @@ function ContentRow({
             {editing ? (
               <Input value={title} onChange={(e) => setTitle(e.target.value)} className="font-medium" maxLength={140} />
             ) : (
-              <p className="truncate text-sm font-semibold text-foreground">{item.title}</p>
+              <p className="truncate text-sm font-semibold text-foreground">{normalizeClipTitle(item.title)}</p>
             )}
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
               <Badge variant="outline" className="text-[10px]">{platform.label}</Badge>
@@ -839,7 +840,7 @@ function ContentRow({
                 to={(() => {
                   const fmt = (item.format || "").toLowerCase();
                   const igFormat = fmt.includes("reel") ? "reel" : fmt.includes("story") ? "story" : "post";
-                  const caption = item.description || item.title || "";
+                  const caption = item.description || normalizeClipTitle(item.title) || "";
                   const tags = (item.selected_hashtags && item.selected_hashtags.length > 0
                     ? item.selected_hashtags
                     : item.hashtags || []).join(" ");

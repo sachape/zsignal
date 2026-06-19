@@ -170,7 +170,10 @@ Deno.serve(async (req) => {
   }
 
   const subjectFallback = source === "twitch_clip" ? "ton Clip Twitch" : "ta VOD";
-  const subject = (typeof body.subject === "string" ? body.subject.trim() : "") || subjectFallback;
+  const userSubject = (typeof body.subject === "string" ? body.subject.trim() : "");
+  const subject = userSubject || subjectFallback;
+  // Clean title used to persist the row (no auto "Clip Twitch — " prefix).
+  const cleanTitle = userSubject || "Nouveau clip";
   const category = typeof body.category === "string" && body.category.trim()
     ? body.category.trim()
     : null;
@@ -194,7 +197,7 @@ Deno.serve(async (req) => {
     candidates.push({
       platform: target.platform,
       format: target.format,
-      title: `Clip Twitch — ${subject}`.slice(0, 200),
+      title: cleanTitle.slice(0, 200),
       description: `Clip Twitch transformé en format vertical${category ? ` (${category})` : ""}.`,
       hashtags: tags,
       start: 0,

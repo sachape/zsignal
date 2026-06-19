@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ContentItem } from "@/hooks/useContentItems";
 import { resolveFreshMediaUrl } from "@/services/mediaStorage";
+import { normalizeClipTitle } from "@/lib/clipTitle";
 
 interface Props {
   item: ContentItem;
@@ -45,7 +46,8 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
   const [url, setUrl] = useState(item.published_url ?? "");
   const hashtags = (item.selected_hashtags?.length ? item.selected_hashtags : item.hashtags) || [];
   const hashtagsText = hashtags.map(h => (h.startsWith("#") ? h : `#${h}`)).join(" ");
-  const fullText = [item.title, item.description ?? "", hashtagsText].filter(Boolean).join("\n\n");
+  const displayTitle = normalizeClipTitle(item.title);
+  const fullText = [displayTitle, item.description ?? "", hashtagsText].filter(Boolean).join("\n\n");
 
   const isPublished = item.status === "published_manually" || item.status === "published";
   const detectedPlatform = item.published_platform ?? (item.published_url ? detectPlatform(item.published_url) : null);
@@ -65,7 +67,7 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
       const a = document.createElement("a");
       const ext = (blob.type.split("/")[1] || "mp4").split(";")[0];
       a.href = URL.createObjectURL(blob);
-      a.download = `${(item.title || "media").replace(/[^a-z0-9-_]+/gi, "_").slice(0, 60)}.${ext}`;
+      a.download = `${(displayTitle || "media").replace(/[^a-z0-9-_]+/gi, "_").slice(0, 60)}.${ext}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -125,7 +127,7 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
       {/* Copy actions */}
       <div className="flex flex-wrap gap-1.5">
         <Button size="sm" variant="outline" className="h-7 text-[11px]"
-          onClick={() => copyText(item.title, "Titre copié")}>
+          onClick={() => copyText(displayTitle, "Titre copié")}>
           <Copy className="mr-1 h-3 w-3" /> Titre
         </Button>
         <Button size="sm" variant="outline" className="h-7 text-[11px]"
