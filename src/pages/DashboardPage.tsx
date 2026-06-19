@@ -642,7 +642,7 @@ const DashboardPage = () => {
           {/* StreamScore */}
           <Link
             to="/analyse"
-            className={`group rounded-2xl border border-border bg-card/60 p-4 transition-all hover:border-primary/30 hover:bg-card/80 ${score.overall < 40 ? "border-l-2 border-l-destructive/50" : score.overall < 65 ? "border-l-2 border-l-amber-500/50" : "border-l-2 border-l-primary/50"}`}
+            className={`group rounded-2xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-muted ${score.overall < 40 ? "border-l-2 border-l-destructive/50" : score.overall < 65 ? "border-l-2 border-l-amber-500/50" : "border-l-2 border-l-primary/50"}`}
           >
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">StreamScore</p>
             <div className="mt-2 flex items-baseline gap-1.5">
@@ -659,7 +659,7 @@ const DashboardPage = () => {
           </Link>
 
           {/* Lives 30j */}
-          <div className="rounded-2xl border border-border bg-card/60 p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Lives (30j)</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">{lives30d}</p>
             <p className="mt-0.5 text-[10px] text-muted-foreground">
@@ -668,7 +668,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Viewers moy */}
-          <div className="rounded-2xl border border-border bg-card/60 p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Viewers moy.</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
               {liveSnapshot?.current ? (liveSnapshot.current.peak_viewers ?? "—") : (viewersMoy ?? "—")}
@@ -679,7 +679,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Followers */}
-          <div className="rounded-2xl border border-border bg-card/60 p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Followers</p>
             <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
               {followersAvailable ? (summary.follower_count != null ? summary.follower_count.toLocaleString("fr-FR") : "—") : "—"}
@@ -696,7 +696,7 @@ const DashboardPage = () => {
         </div>
 
         {/* ── TON FOCUS — point focal unique ───────────────────────────── */}
-        <section className="mb-6 overflow-hidden rounded-[22px] border border-primary/[0.18] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.10),transparent_50%)] bg-card/50 p-5 md:p-6">
+        <section className="mb-6 overflow-hidden rounded-[22px] border border-primary/[0.18] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.10),transparent_50%)] bg-card p-5 md:p-6">
           <p className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary/70">
             <Target className="h-3.5 w-3.5" /> Ton focus
           </p>
@@ -732,7 +732,7 @@ const DashboardPage = () => {
         <DashboardNavCards />
 
         {/* ── Suivre — résumé live (cockpit complet dans Live Studio) ───── */}
-        <div className={`mb-6 rounded-xl border px-4 py-3 ${summary.is_live ? "border-destructive/25 bg-destructive/[0.04]" : "border-border/50 bg-card/40"}`}>
+        <div className={`mb-6 rounded-xl border px-4 py-3 ${summary.is_live ? "border-destructive/25 bg-destructive/[0.04]" : "border-border/50 bg-card"}`}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Radio className={`h-3.5 w-3.5 ${summary.is_live ? "text-destructive" : "text-muted-foreground/60"}`} />
@@ -793,7 +793,7 @@ const DashboardPage = () => {
           <div className="mb-6">
             <button
               onClick={() => setShowPostGen(true)}
-              className="group relative w-full overflow-hidden rounded-xl border border-border bg-card/40 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04]"
+              className="group relative w-full overflow-hidden rounded-xl border border-border bg-card p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04]"
             >
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,hsl(var(--primary)/0.08),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative flex items-center justify-between gap-3">
