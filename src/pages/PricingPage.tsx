@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { startCheckout } from "@/services/billingService";
 import { Loader2, Check, Minus, Mail, ArrowRight } from "lucide-react";
 import SiteNav from "@/components/site/SiteNav";
@@ -158,8 +158,8 @@ const PricingPage = () => {
     },
   });
 
-  if (user) return <Navigate to="/billing" replace />;
-
+  // Public marketing pricing page: always show it (no redirect to in-app
+  // /billing) so the header "Tarifs" link works for logged-in users too.
   const handleCheckout = async (plan: "pro" | "growth") => {
     if (!user) {
       openAuthModal("signup");

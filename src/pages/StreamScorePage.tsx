@@ -2,14 +2,14 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  Activity, ArrowRight, BarChart2, Calendar, Check,
+  Activity, BarChart2, Calendar, Check,
   Clapperboard, Eye, ListChecks, TrendingUp,
 } from "lucide-react";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
 import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
+import DiagnosticForm from "@/components/site/DiagnosticForm";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { useAuthModal } from "@/contexts/AuthModalContext";
 
 const AnimBar = ({ val, delay }: { val: number; delay: number }) => {
   const ref = useRef(null);
@@ -86,8 +86,6 @@ const FAQ = [
 ];
 
 const StreamScorePage = () => {
-  const { openAuthModal } = useAuthModal();
-
   usePageMeta({
     title: "StreamScore — Analyse ta chaîne Twitch avec Streamnco",
     description:
@@ -121,13 +119,12 @@ const StreamScorePage = () => {
               Streamnco analyse ta chaîne et génère un StreamScore pour comprendre où tu en es, ce qui bloque ta progression et quelles actions prioriser.
             </p>
           </Reveal>
-          <Reveal delay={120} className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button onClick={() => openAuthModal("signup")} className="inline-flex h-12 items-center gap-2 rounded-full bg-el-ink px-7 font-el-sans text-[16px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft">
-              Découvrir mon StreamScore <ArrowRight className="h-4 w-4" />
-            </button>
-            <a href="#comment" className="inline-flex h-12 items-center rounded-full border border-el-hairline-strong px-7 font-el-sans text-[16px] font-medium text-el-ink transition-colors hover:bg-el-strong">
-              Voir comment ça marche
-            </a>
+          <Reveal delay={120} className="mt-8">
+            <DiagnosticForm />
+            <p className="mt-4 font-el-sans text-[14px] text-el-muted">
+              Gratuit · sans compte · résultat en 60 s —{" "}
+              <a href="#comment" className="text-el-ink underline underline-offset-4 hover:opacity-80">voir comment ça marche</a>
+            </p>
           </Reveal>
           <Reveal delay={220} className="mt-14 flex justify-center">
             <ScoreRing score={74} size={170} />
@@ -323,14 +320,11 @@ const StreamScorePage = () => {
             <p className="mx-auto mt-4 max-w-md font-el-sans text-[17px] leading-[1.6] text-el-on-dark-soft">
               Entre ton pseudo Twitch et obtiens une analyse claire de ta chaîne en quelques secondes.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <button onClick={() => openAuthModal("signup")} className="inline-flex h-12 items-center gap-2 rounded-full bg-el-on-dark px-7 font-el-sans text-[16px] font-medium text-el-ink transition-opacity hover:opacity-90">
-                Analyser ma chaîne Twitch <ArrowRight className="h-4 w-4" />
-              </button>
-              <Link to="/fonctionnalites" className="inline-flex h-12 items-center rounded-full border border-el-on-dark-soft/40 px-7 font-el-sans text-[16px] font-medium text-el-on-dark transition-colors hover:bg-white/10">
-                Voir les fonctionnalités
-              </Link>
-            </div>
+            <DiagnosticForm tone="dark" className="mt-8" />
+            <p className="mt-4 font-el-sans text-[14px] text-el-on-dark-soft">
+              Gratuit · sans compte —{" "}
+              <Link to="/fonctionnalites" className="text-el-on-dark underline underline-offset-4 hover:opacity-80">voir les fonctionnalités</Link>
+            </p>
           </Reveal>
         </Container>
       </section>

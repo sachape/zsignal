@@ -1,10 +1,9 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowRight, Check, Clapperboard, Palette, Activity, Sparkles } from "lucide-react";
-import { normalizeChannelInput } from "@/services/channelInputNormalizer";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
 import PlanCard from "@/components/site/PlanCard";
+import DiagnosticForm from "@/components/site/DiagnosticForm";
 import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -80,22 +79,6 @@ const STEPS = [
 const Index = () => {
   const { openAuthModal } = useAuthModal();
   const signup = () => openAuthModal("signup");
-  const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [inputError, setInputError] = useState<string | null>(null);
-
-  // Free diagnostic — the homepage hook. Give value before asking for signup:
-  // normalize the pseudo/URL then jump straight to the teaser StreamScore.
-  const handleAnalyze = (e: React.FormEvent) => {
-    e.preventDefault();
-    const login = normalizeChannelInput(username);
-    if (!login) {
-      setInputError("Entre un pseudo Twitch valide ou une URL twitch.tv/…");
-      return;
-    }
-    setInputError(null);
-    navigate(`/analyze?channel=${encodeURIComponent(login)}&mode=teaser`);
-  };
 
   usePageMeta({
     title: "Streamnco — Transforme tes lives en clips, visuels et croissance",
@@ -168,29 +151,7 @@ const Index = () => {
               </p>
             </Reveal>
             <Reveal delay={240}>
-              <form onSubmit={handleAnalyze} className="mx-auto mt-9 max-w-lg">
-                <div className="flex flex-col gap-2 rounded-2xl border border-el-hairline-strong bg-el-card p-2 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.18)] transition-colors focus-within:border-el-ink/40 sm:flex-row sm:items-center sm:rounded-full">
-                  <input
-                    value={username}
-                    onChange={(e) => {
-                      setUsername(e.target.value);
-                      if (inputError) setInputError(null);
-                    }}
-                    placeholder="Ton pseudo Twitch (ex. ninja)"
-                    aria-label="Pseudo ou URL de ta chaîne Twitch"
-                    className="h-11 flex-1 bg-transparent px-4 font-el-sans text-[16px] text-el-ink outline-none placeholder:text-el-muted-soft"
-                  />
-                  <button
-                    type="submit"
-                    className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft"
-                  >
-                    Analyser ma chaîne <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-                {inputError && (
-                  <p className="mt-2 text-left font-el-sans text-[13px] text-[#dc2626] sm:text-center">{inputError}</p>
-                )}
-              </form>
+              <DiagnosticForm className="mt-9" />
             </Reveal>
             <Reveal delay={320}>
               <p className="mt-4 font-el-sans text-[14px] text-el-muted">
@@ -484,16 +445,12 @@ const Index = () => {
               Crée ton compte gratuit et transforme ton premier live en clips et
               visuels dès aujourd'hui.
             </p>
-            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <button
-                onClick={signup}
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-el-on-dark px-7 font-el-sans text-[16px] font-medium text-el-ink transition-opacity hover:opacity-90"
-              >
-                Créer mon compte gratuit <ArrowRight className="h-4 w-4" />
+            <DiagnosticForm tone="dark" className="mt-9" />
+            <p className="mt-4 font-el-sans text-[14px] text-el-on-dark-soft">
+              Gratuit · sans compte · résultat en 60 s —{" "}
+              <button onClick={signup} className="text-el-on-dark underline underline-offset-4 hover:opacity-80">
+                ou crée ton compte
               </button>
-            </div>
-            <p className="mt-5 font-el-sans text-[14px] text-el-on-dark-soft">
-              Gratuit · sans carte bancaire · annulable en 1 clic
             </p>
           </Reveal>
         </Container>

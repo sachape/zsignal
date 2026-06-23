@@ -8,6 +8,7 @@ import { Container } from "./el";
 
 const NAV_LINKS = [
   { label: "Fonctionnalités", href: "/fonctionnalites" },
+  { label: "Solutions", href: "/solutions" },
   { label: "StreamScore", href: "/streamscore" },
   { label: "Tarifs", href: "/pricing" },
   { label: "Blog", href: "/articles" },
