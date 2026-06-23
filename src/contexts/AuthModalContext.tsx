@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, type CSSProperties, type ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,8 +6,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Zap } from "lucide-react";
 import AuthForm from "@/components/auth/AuthForm";
+
+// Force the auth modal into the editorial site palette: light surfaces + an
+// ink (near-black) primary instead of lime, so the CTA matches the ElevenLabs
+// marketing site. Scoped to the modal subtree via inline CSS vars.
+const EDITORIAL_VARS = {
+  "--primary": "20 14% 4%",
+  "--primary-foreground": "0 0% 100%",
+  "--ring": "20 14% 4%",
+} as CSSProperties;
 
 interface OpenAuthModalOptions {
   redirectTo?: string;
@@ -43,23 +51,23 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
     <AuthModalContext.Provider value={{ openAuthModal, closeAuthModal }}>
       {children}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-sm gap-5 rounded-lg p-6 sm:max-w-sm">
+        <DialogContent
+          className="light max-w-sm gap-5 rounded-2xl border-el-hairline bg-el-card p-7 text-el-ink sm:max-w-sm"
+          style={EDITORIAL_VARS}
+        >
           <DialogHeader className="space-y-3">
-            <div className="mx-auto flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-                <Zap className="h-3.5 w-3.5 text-primary-foreground" />
-              </div>
-              <span className="text-sm font-semibold text-foreground">
-                Streamnco
+            <div className="mx-auto">
+              <span className="font-el-sans text-[18px] font-semibold tracking-[-0.02em] text-el-ink">
+                streamnco
               </span>
             </div>
-            <DialogTitle className="text-center text-base">
+            <DialogTitle className="text-center font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
               {opts.mode === "login"
                 ? "Connecte-toi à Streamnco"
                 : "Crée ton compte Streamnco"}
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Crée ton compte Streamnco pour sauvegarder ton diagnostic. Tu pourras connecter Twitch juste après.
+              Crée ton compte Streamnco pour sauvegarder ta progression. Tu pourras connecter Twitch juste après.
             </DialogDescription>
           </DialogHeader>
           <AuthForm
