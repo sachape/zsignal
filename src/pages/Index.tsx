@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Clapperboard, Palette, Activity, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Clapperboard, Palette, Activity, Sparkles, Star } from "lucide-react";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
 import PlanCard from "@/components/site/PlanCard";
@@ -43,16 +43,19 @@ const HOMEPAGE_FAQ = [
 const PILLARS = [
   {
     icon: Clapperboard,
+    tint: "bg-el-peach",
     title: "Clips réseaux",
     body: "Tes meilleurs moments découpés en clips 9:16 prêts pour TikTok, Reels et Shorts — facecam, gameplay et sous-titres compris.",
   },
   {
     icon: Palette,
+    tint: "bg-el-lavender",
     title: "Studio visuel",
     body: "Bannières, stories, annonces de live et posts, générés aux bonnes dimensions en quelques secondes. Plus jamais de Canva à 2h du matin.",
   },
   {
     icon: Activity,
+    tint: "bg-el-mint",
     title: "StreamScore",
     body: "Un score clair de ta chaîne, ton blocage n°1 identifié, et un plan d'action concret chaque semaine pour progresser.",
   },
@@ -61,16 +64,19 @@ const PILLARS = [
 const STEPS = [
   {
     n: "01",
+    tint: "bg-el-mint",
     title: "Colle ta VOD ou ton clip",
     body: "Une URL Twitch, une VOD ou un upload vidéo suffisent. Aucune installation, aucune config compliquée.",
   },
   {
     n: "02",
+    tint: "bg-el-peach",
     title: "Streamnco produit tout",
     body: "Clips verticaux sous-titrés, visuels aux bons formats, et l'analyse de ta chaîne — pendant que tu fais autre chose.",
   },
   {
     n: "03",
+    tint: "bg-el-lavender",
     title: "Télécharge et poste",
     body: "Tu récupères des fichiers prêts à publier. Tu gardes le contrôle total sur ce qui sort et sur ton calendrier.",
   },
@@ -163,37 +169,45 @@ const Index = () => {
             </Reveal>
           </div>
 
-          {/* Product showcase */}
+          {/* Product showcase — screenshot resting on a pastel atmospheric pedestal */}
           <Reveal delay={200} className="relative mx-auto mt-16 max-w-5xl md:mt-20">
-            <div className="overflow-hidden rounded-2xl border border-el-hairline bg-el-card shadow-[0_40px_80px_-40px_rgba(0,0,0,0.35)]">
-              <div className="flex h-9 items-center gap-1.5 border-b border-el-hairline bg-el-canvas-soft px-4">
-                <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
-                <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
-                <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
+            <Orb color="bg-el-peach" className="left-[12%] top-8 h-[20rem] w-[40%] opacity-60" />
+            <Orb color="bg-el-sky" className="right-[10%] top-16 h-[18rem] w-[36%] opacity-50" animate="fast" />
+            <div className="relative overflow-hidden rounded-[20px] border border-el-hairline bg-el-card p-1.5 shadow-[0_50px_100px_-40px_rgba(0,0,0,0.4)] ring-1 ring-black/[0.04]">
+              <div className="overflow-hidden rounded-[14px] border border-el-hairline">
+                <div className="flex h-9 items-center gap-1.5 border-b border-el-hairline bg-el-canvas-soft px-4">
+                  <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
+                </div>
+                <img src={shotStudio} alt="Aperçu du Studio visuel Streamnco" className="block w-full" loading="lazy" />
               </div>
-              <img src={shotStudio} alt="Aperçu du Studio visuel Streamnco" className="block w-full" loading="lazy" />
             </div>
           </Reveal>
         </Container>
       </section>
 
       {/* ── SOCIAL PROOF ──────────────────────────────────────────────── */}
-      <section className="border-y border-el-hairline bg-el-canvas-soft py-10">
-        <Container className="flex flex-col items-center justify-center gap-4 text-center sm:flex-row sm:gap-6">
-          <div className="flex -space-x-3">
-            {[avatar1, avatar2, avatar3].map((a, i) => (
-              <img
-                key={i}
-                src={a}
-                alt=""
-                className="h-10 w-10 rounded-full border-2 border-el-canvas-soft object-cover"
-                loading="lazy"
-              />
-            ))}
+      <section className="border-y border-el-hairline bg-el-canvas-soft py-9">
+        <Container className="flex flex-col items-center justify-center gap-6 text-center sm:flex-row sm:gap-8">
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-3">
+              {[avatar1, avatar2, avatar3].map((a, i) => (
+                <img key={i} src={a} alt="" className="h-10 w-10 rounded-full border-2 border-el-canvas-soft object-cover" loading="lazy" />
+              ))}
+            </div>
+            <div className="flex flex-col items-start">
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-el-ink text-el-ink" />
+                ))}
+              </div>
+              <span className="mt-1 font-el-sans text-[13px] text-el-muted">Adopté par les premiers fondateurs</span>
+            </div>
           </div>
+          <span className="hidden h-9 w-px bg-el-hairline-strong sm:block" />
           <p className="font-el-sans text-[15px] text-el-body">
-            Rejoint par les streamers fondateurs qui veulent percer —{" "}
-            <span className="font-medium text-el-ink">offre fondateur, 150 places.</span>
+            <span className="font-medium text-el-ink">Offre fondateur</span> — prix bloqués pour les 150 premiers streamers.
           </p>
         </Container>
       </section>
@@ -216,14 +230,15 @@ const Index = () => {
           <div className="mt-14 grid gap-5 md:grid-cols-3">
             {PILLARS.map((p, i) => (
               <Reveal key={p.title} delay={i * 90}>
-                <div className="group h-full rounded-2xl border border-el-hairline bg-el-card p-7 transition-shadow hover:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.18)]">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-el-strong text-el-ink">
+                <div className="group relative h-full overflow-hidden rounded-[20px] border border-el-hairline bg-el-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-el-hairline-strong hover:shadow-[0_24px_50px_-24px_rgba(0,0,0,0.22)]">
+                  <div className={`pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full ${p.tint} opacity-50 blur-2xl transition-opacity duration-300 group-hover:opacity-90`} />
+                  <span className={`relative inline-flex h-12 w-12 items-center justify-center rounded-2xl ${p.tint} text-el-ink`}>
                     <p.icon className="h-5 w-5" />
                   </span>
-                  <h3 className="mt-5 font-el-sans text-[20px] font-medium tracking-[-0.01em] text-el-ink">
+                  <h3 className="relative mt-5 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
                     {p.title}
                   </h3>
-                  <p className="mt-2.5 font-el-sans text-[15px] leading-[1.6] text-el-body">
+                  <p className="relative mt-2.5 font-el-sans text-[15px] leading-[1.6] text-el-body">
                     {p.body}
                   </p>
                 </div>
@@ -259,9 +274,10 @@ const Index = () => {
               Créer mon premier clip <ArrowRight className="h-4 w-4" />
             </button>
           </Reveal>
-          <Reveal delay={120} className="flex justify-center">
-            <div className="overflow-hidden rounded-2xl border border-el-hairline bg-el-card p-2 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.35)]">
-              <img src={shotClip} alt="Clip vertical 9:16 généré par Streamnco" className="block w-full max-w-[300px] rounded-xl" loading="lazy" />
+          <Reveal delay={120} className="relative flex justify-center">
+            <Orb color="bg-el-mint" className="left-1/2 top-1/2 h-[18rem] w-[18rem] -translate-x-1/2 -translate-y-1/2 opacity-70" />
+            <div className="relative overflow-hidden rounded-[20px] border border-el-hairline bg-el-card p-2 shadow-[0_40px_80px_-32px_rgba(0,0,0,0.4)] ring-1 ring-black/[0.04]">
+              <img src={shotClip} alt="Clip vertical 9:16 généré par Streamnco" className="block w-full max-w-[300px] rounded-[14px]" loading="lazy" />
             </div>
           </Reveal>
         </Container>
@@ -271,9 +287,10 @@ const Index = () => {
       <section className="relative overflow-hidden py-24 md:py-32">
         <Orb color="bg-el-lavender" className="right-[-8rem] top-1/4 h-[26rem] w-[26rem] opacity-60" />
         <Container className="relative grid items-center gap-12 md:grid-cols-2 md:gap-16">
-          <Reveal className="order-2 flex justify-center md:order-1">
-            <div className="overflow-hidden rounded-2xl border border-el-hairline bg-el-card shadow-[0_30px_70px_-30px_rgba(0,0,0,0.35)]">
-              <img src={shotStudio} alt="Studio visuel Streamnco" className="block w-full" loading="lazy" />
+          <Reveal className="relative order-2 flex justify-center md:order-1">
+            <Orb color="bg-el-rose" className="left-1/2 top-1/2 h-[20rem] w-[70%] -translate-x-1/2 -translate-y-1/2 opacity-60" />
+            <div className="relative overflow-hidden rounded-[20px] border border-el-hairline bg-el-card p-1.5 shadow-[0_40px_80px_-32px_rgba(0,0,0,0.4)] ring-1 ring-black/[0.04]">
+              <img src={shotStudio} alt="Studio visuel Streamnco" className="block w-full rounded-[14px]" loading="lazy" />
             </div>
           </Reveal>
           <Reveal delay={120} className="order-1 md:order-2">
@@ -313,11 +330,12 @@ const Index = () => {
           <div className="mt-14 grid gap-10 md:grid-cols-3">
             {STEPS.map((s, i) => (
               <Reveal key={s.n} delay={i * 90}>
-                <div className="border-t border-el-hairline-strong pt-6">
-                  <span className="font-el-display text-[40px] font-light leading-none tracking-[-0.02em] text-el-muted-soft">
+                <div className="relative pt-7">
+                  <span className={`absolute left-0 top-0 h-[3px] w-14 rounded-full ${s.tint}`} />
+                  <span className="font-el-display text-[44px] font-light leading-none tracking-[-0.02em] text-el-ink">
                     {s.n}
                   </span>
-                  <h3 className="mt-4 font-el-sans text-[20px] font-medium tracking-[-0.01em] text-el-ink">
+                  <h3 className="mt-4 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
                     {s.title}
                   </h3>
                   <p className="mt-2.5 font-el-sans text-[15px] leading-[1.6] text-el-body">
