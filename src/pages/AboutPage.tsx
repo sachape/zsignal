@@ -95,10 +95,10 @@ const DimensionBar = ({ label, val, weight, delay }: {
   return (
     <div ref={ref} className="group">
       <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{label}</span>
+        <span className="text-sm font-medium text-foreground group-hover:text-primary-strong transition-colors">{label}</span>
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-bold tabular-nums text-foreground">{val}/100</span>
-          <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">{weight}</span>
+          <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary-strong">{weight}</span>
         </div>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-muted/40">
@@ -205,14 +205,14 @@ const AboutPage = () => {
             <div className="w-[220px] rounded-2xl border border-white/10 bg-card/70 p-4 backdrop-blur-xl shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.3)]">
               <div className="flex items-center gap-2">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
-                  <ListChecks className="h-3.5 w-3.5 text-primary" />
+                  <ListChecks className="h-3.5 w-3.5 text-primary-strong" />
                 </div>
                 <span className="text-[9px] font-semibold uppercase tracking-widest text-foreground/50">Plan d'action</span>
               </div>
               <ul className="mt-2.5 space-y-1.5 text-[11px]">
                 {["Fixer 2 créneaux récurrents", "Créer 1 clip par live", "Cibler 1 catégorie pivot"].map((s, i) => (
                   <li key={s} className="flex items-start gap-1.5 text-foreground/85">
-                    <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+                    <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-primary-strong" />
                     {s}
                   </li>
                 ))}
@@ -242,7 +242,7 @@ const AboutPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary shadow-[0_0_24px_hsl(var(--primary)/0.18)]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-strong shadow-[0_0_24px_hsl(var(--primary)/0.18)]">
               <Sparkles className="h-3 w-3" /> À propos
             </span>
 
@@ -327,7 +327,7 @@ const AboutPage = () => {
 
             {/* Left — text */}
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-strong">
                 Méthodologie
               </span>
               <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
@@ -388,7 +388,7 @@ const AboutPage = () => {
                         />
                       ))}
                     </div>
-                    <div className="mt-1 text-right text-[10px] font-bold text-primary">74 / 100</div>
+                    <div className="mt-1 text-right text-[10px] font-bold text-primary-strong">74 / 100</div>
                   </div>
                 ),
               },
@@ -448,7 +448,7 @@ const AboutPage = () => {
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.06),transparent_55%)]" />
                   <div className="relative">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 shadow-[0_0_20px_hsl(var(--primary)/0.15)] transition-all group-hover:bg-primary/15">
-                      <p.icon className="h-5 w-5 text-primary" />
+                      <p.icon className="h-5 w-5 text-primary-strong" />
                     </div>
                     <p className="mt-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">Principe</p>
                     <h3 className="mt-1 text-base font-semibold text-foreground">{p.label}</h3>
@@ -470,7 +470,7 @@ const AboutPage = () => {
         <div className="container mx-auto max-w-5xl px-4 md:px-6">
           <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:items-center">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-strong">
                 Audience
               </span>
               <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
@@ -499,7 +499,7 @@ const AboutPage = () => {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xl">{p.emoji}</span>
-                    <span className="text-[10px] font-bold tabular-nums text-primary">{p.score}/100</span>
+                    <span className="text-[10px] font-bold tabular-nums text-primary-strong">{p.score}/100</span>
                   </div>
                   <p className="text-xs font-semibold text-foreground">{p.tag}</p>
                   <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground/70">{p.body}</p>
@@ -527,7 +527,7 @@ const AboutPage = () => {
 
               <div className="relative grid lg:grid-cols-2">
                 <div className="flex flex-col justify-center p-8 sm:p-10 md:p-12 lg:p-14">
-                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary-strong">
                     <Zap className="h-3 w-3" /> Gratuit · Sans compte
                   </span>
                   <h2 className="mt-5 text-3xl font-bold leading-tight text-foreground md:text-4xl">

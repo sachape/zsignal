@@ -55,8 +55,8 @@ const HowItWorksSection = () => {
             <GlassCard className="relative h-full p-5 md:p-6">
               <div className="flex items-center gap-3">
                 <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
-                  <Icon className="h-5 w-5 text-primary" />
-                  <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-primary/30 bg-background text-[10px] font-bold text-primary">
+                  <Icon className="h-5 w-5 text-primary-strong" />
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-primary/30 bg-background text-[10px] font-bold text-primary-strong">
                     {i + 1}
                   </span>
                 </div>
@@ -74,7 +74,7 @@ const HowItWorksSection = () => {
       </div>
 
       <p className="mx-auto mt-8 flex max-w-2xl items-center justify-center gap-2 text-center text-sm text-muted-foreground">
-        <Download className="h-4 w-4 text-primary" />
+        <Download className="h-4 w-4 text-primary-strong" />
         Des fichiers prêts à poster, optimisés pour chaque réseau — tu gardes le contrôle total sur ce qui sort.
       </p>
     </SectionShell>

@@ -49,7 +49,7 @@ const STATE_META: Record<
   },
   first_analysis_in_progress: {
     icon: Loader2,
-    iconClass: "text-primary animate-spin",
+    iconClass: "text-primary-strong animate-spin",
     title: "Première analyse en cours",
     tone: "border-primary/30 bg-primary/5",
   },
@@ -61,7 +61,7 @@ const STATE_META: Record<
   },
   update_in_progress: {
     icon: Loader2,
-    iconClass: "text-primary animate-spin",
+    iconClass: "text-primary-strong animate-spin",
     title: "Mise à jour en cours",
     tone: "border-primary/30 bg-primary/5",
   },

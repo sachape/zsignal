@@ -24,7 +24,7 @@ const DIR_ICON: Record<Direction, typeof Minus> = {
 };
 
 const DIR_COLOR: Record<Direction, string> = {
-  above: "text-primary",
+  above: "text-primary-strong",
   below: "text-warning",
   near: "text-muted-foreground",
 };

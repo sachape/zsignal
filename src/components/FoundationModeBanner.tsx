@@ -24,10 +24,10 @@ const FoundationModeBanner = ({ streams30d }: Props) => {
     <Card className="mb-4 border-primary/30 bg-primary/5">
       <CardContent className="flex flex-wrap items-start gap-3 p-4">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10">
-          <Compass className="h-4 w-4 text-primary" />
+          <Compass className="h-4 w-4 text-primary-strong" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary-strong">
             Mode structuration
           </p>
           <p className="mt-1 text-sm font-semibold text-foreground">

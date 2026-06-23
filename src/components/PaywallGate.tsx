@@ -23,11 +23,11 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
 
       {/* Icon */}
       <div className="relative mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
-        {icon ?? <Lock className="h-6 w-6 text-primary" />}
+        {icon ?? <Lock className="h-6 w-6 text-primary-strong" />}
       </div>
 
       {/* Text */}
-      <p className="relative text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70">
+      <p className="relative text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong/70">
         Fonctionnalité Pro
       </p>
       <h2 className="relative mt-2 text-xl font-bold text-foreground">{feature}</h2>
@@ -38,7 +38,7 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
         <ul className="relative mt-4 space-y-1.5 text-left">
           {bullets.map((b) => (
             <li key={b} className="flex items-start gap-2 text-sm text-muted-foreground">
-              <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/60" />
+              <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary-strong/60" />
               {b}
             </li>
           ))}
@@ -94,7 +94,7 @@ export const InlineLock = ({
     {/* Lock overlay */}
     <div className="relative mt-1 flex flex-col items-center gap-3 rounded-xl border border-primary/15 bg-card/60 px-5 py-5 text-center backdrop-blur-sm">
       <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
-        <Lock className="h-3.5 w-3.5 text-primary" />
+        <Lock className="h-3.5 w-3.5 text-primary-strong" />
       </div>
       <div>
         <p className="text-sm font-semibold text-foreground">{feature}</p>
@@ -102,7 +102,7 @@ export const InlineLock = ({
           <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
         )}
       </div>
-      <Button asChild size="sm" variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
+      <Button asChild size="sm" variant="outline" className="border-primary/30 text-primary-strong hover:bg-primary/10">
         <Link to="/billing" onClick={() => analytics.upgradeClicked(feature, "inline")}>
           <Sparkles className="mr-1.5 h-3 w-3" />
           Passer au Pro
@@ -132,7 +132,7 @@ export const LimitBanner = ({ current, max, label }: LimitBannerProps) => {
         {" "}utilisé{current > 1 ? "s" : ""} sur le plan gratuit.
       </p>
     </div>
-    <Button asChild size="sm" variant="outline" className="shrink-0 border-primary/30 text-primary hover:bg-primary/10">
+    <Button asChild size="sm" variant="outline" className="shrink-0 border-primary/30 text-primary-strong hover:bg-primary/10">
       <Link to="/billing" onClick={() => analytics.upgradeClicked(label, "limit_banner")}>
         <Sparkles className="mr-1 h-3 w-3" />
         Pro

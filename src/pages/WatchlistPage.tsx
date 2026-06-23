@@ -49,7 +49,7 @@ const ALERT_META: Record<AlertType, { label: (a: CompetitorAlert) => string; col
   },
   clips_spike: {
     label: (a) => `+${a.delta} clips`,
-    color: "text-primary",
+    color: "text-primary-strong",
     icon: Zap,
   },
 };
@@ -207,11 +207,11 @@ const WatchlistPage = () => {
           <div className="mb-6 overflow-hidden rounded-xl border border-primary/20 bg-primary/[0.04]">
             <div className="flex items-center justify-between gap-3 px-4 py-3">
               <div className="flex items-center gap-2">
-                <Bell className="h-3.5 w-3.5 text-primary" />
+                <Bell className="h-3.5 w-3.5 text-primary-strong" />
                 <span className="text-xs font-semibold text-foreground">
                   Cette semaine dans ta watchlist
                 </span>
-                <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary tabular-nums">
+                <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary-strong tabular-nums">
                   {alerts.length}
                 </span>
               </div>
@@ -262,7 +262,7 @@ const WatchlistPage = () => {
               <div className="relative">
                 <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl" />
                 <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/[0.06]">
-                  <Bookmark className="h-7 w-7 text-primary" />
+                  <Bookmark className="h-7 w-7 text-primary-strong" />
                 </div>
               </div>
 

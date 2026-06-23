@@ -220,7 +220,7 @@ const StreamScorePage = () => {
       <SectionShell id="definition" glow={false} grid={false}>
         <div className="mx-auto max-w-3xl">
           <FadeIn>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-strong">
               Définition
             </span>
             <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
@@ -262,7 +262,7 @@ const StreamScorePage = () => {
               <GlassCard interactive className="h-full p-6">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                    <d.icon className="h-5 w-5 text-primary" />
+                    <d.icon className="h-5 w-5 text-primary-strong" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground">{d.label}</h3>
                 </div>
@@ -280,7 +280,7 @@ const StreamScorePage = () => {
       <SectionShell id="comment-ca-marche" glow={false} grid={false}>
         <div className="mx-auto max-w-3xl">
           <FadeIn>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-strong">
               Méthodologie
             </span>
             <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
@@ -302,7 +302,7 @@ const StreamScorePage = () => {
                   transition={{ delay: 0.1 + i * 0.08, duration: 0.5 }}
                   className="flex items-center gap-3 text-sm text-foreground/80"
                 >
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-[9px] font-bold text-primary">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-[9px] font-bold text-primary-strong">
                     {i + 1}
                   </span>
                   {s}
@@ -332,7 +332,7 @@ const StreamScorePage = () => {
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.06),transparent_55%)]" />
                 <div className="relative">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-                    <o.icon className="h-4.5 w-4.5 text-primary" />
+                    <o.icon className="h-4.5 w-4.5 text-primary-strong" />
                   </div>
                   <h3 className="mt-3 text-sm font-semibold text-foreground">{o.title}</h3>
                   <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{o.body}</p>
@@ -349,7 +349,7 @@ const StreamScorePage = () => {
       <SectionShell glow={false} grid={false}>
         <div className="mx-auto max-w-3xl">
           <FadeIn>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-strong">
               Exemple concret
             </span>
             <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
@@ -391,9 +391,9 @@ const StreamScorePage = () => {
 
                 {/* Priority */}
                 <div className="mt-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary/80">Priorité recommandée</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-primary-strong/80">Priorité recommandée</p>
                     <p className="mt-1 text-sm text-foreground/80 leading-relaxed">
                       Commencer par clipper et republier tes meilleurs moments pour créer plus de points d'entrée vers ta chaîne.
                     </p>
@@ -429,7 +429,7 @@ const StreamScorePage = () => {
               </div>
               {/* After */}
               <div className="flex flex-col gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-primary/70">Avec StreamScore</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-primary-strong/70">Avec StreamScore</p>
                 <p className="text-lg font-bold text-foreground leading-snug">"Je dois améliorer ma régularité, mieux exploiter mes clips et structurer mon planning."</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">Précis. Priorisé. Actionnable dès aujourd'hui.</p>
               </div>
@@ -473,7 +473,7 @@ const StreamScorePage = () => {
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_60%)]" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:20px_20px] opacity-40" />
             <div className="relative px-8 py-14 text-center md:px-16 md:py-20">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-primary/70">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-primary-strong/70">
                 Gratuit · Sans compte
               </p>
               <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">

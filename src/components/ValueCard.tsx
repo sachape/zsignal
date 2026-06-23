@@ -12,7 +12,7 @@ const ValueCard = ({ icon: Icon, title, description }: ValueCardProps) => {
     <Card className="transition-colors hover:border-primary/40">
       <CardContent className="p-6">
         <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" />
+          <Icon className="h-5 w-5 text-primary-strong" />
         </div>
         <h3 className="mb-1.5 text-base font-semibold text-foreground">{title}</h3>
         <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>

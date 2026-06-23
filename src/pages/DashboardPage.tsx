@@ -425,7 +425,7 @@ const DashboardPage = () => {
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <Sparkles className="h-4 w-4 text-primary-strong" />
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-base font-semibold text-foreground">
@@ -573,7 +573,7 @@ const DashboardPage = () => {
         {/* Welcome banner */}
         {showWelcome && (
           <div className="mb-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-4 sm:items-center sm:p-5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary-strong">
               <Sparkles className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
@@ -612,7 +612,7 @@ const DashboardPage = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-base font-bold text-foreground">{headerTitle}</h1>
                 {summary.broadcaster_type === "partner" && (
-                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">Partenaire</span>
+                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">Partenaire</span>
                 )}
                 {summary.broadcaster_type === "affiliate" && (
                   <span className="rounded-full border border-border/50 bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Affilié</span>
@@ -652,7 +652,7 @@ const DashboardPage = () => {
             </div>
             <p className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider ${theme.textClass}`}>{theme.label}</p>
             {delta !== null && delta !== 0 && (
-              <p className={`mt-1 text-[11px] font-medium ${delta > 0 ? "text-primary" : "text-destructive"}`}>
+              <p className={`mt-1 text-[11px] font-medium ${delta > 0 ? "text-primary-strong" : "text-destructive"}`}>
                 {delta > 0 ? `+${delta}` : delta} pts
               </p>
             )}
@@ -698,7 +698,7 @@ const DashboardPage = () => {
 
         {/* ── TON FOCUS — point focal unique ───────────────────────────── */}
         <section className="mb-6 overflow-hidden rounded-[22px] border border-primary/[0.18] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.10),transparent_50%)] bg-card p-5 md:p-6">
-          <p className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary/70">
+          <p className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary-strong/70">
             <Target className="h-3.5 w-3.5" /> Ton focus
           </p>
           <div className="grid gap-5 md:grid-cols-[1fr_220px] md:items-center">
@@ -802,7 +802,7 @@ const DashboardPage = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-base leading-none">✍️</span>
                     <span className="text-sm font-semibold text-foreground">Contenu à publier</span>
-                    <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">Nouveau</span>
+                    <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-strong">Nouveau</span>
                   </div>
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
                     {liveSnapshot.last.category_name
@@ -810,7 +810,7 @@ const DashboardPage = () => {
                       : "Posts prêts à partir de ton dernier live — tweet, discord, caption, annonce"}
                   </p>
                 </div>
-                <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
+                <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary-strong" />
               </div>
             </button>
           </div>

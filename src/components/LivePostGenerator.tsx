@@ -72,7 +72,7 @@ const LivePostGenerator = ({ session, debrief, open, onClose }: Props) => {
           <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card/60 px-4 py-3 text-xs">
             {session.category_name && (
               <span className="flex items-center gap-1.5 text-foreground">
-                <Gamepad2 className="h-3 w-3 text-primary" />
+                <Gamepad2 className="h-3 w-3 text-primary-strong" />
                 {session.category_name}
               </span>
             )}

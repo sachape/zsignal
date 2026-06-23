@@ -86,7 +86,7 @@ export default function NewContentDialog({ open, onOpenChange, onCreate }: Props
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5 text-primary" /> Nouveau contenu
+            <Plus className="h-5 w-5 text-primary-strong" /> Nouveau contenu
           </DialogTitle>
           <DialogDescription>
             Crée un contenu à préparer et publier manuellement.

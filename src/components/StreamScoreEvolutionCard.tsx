@@ -191,7 +191,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-primary" />
+            <Zap className="h-4 w-4 text-primary-strong" />
             <h3 className="text-sm font-semibold text-foreground">
               Évolution du StreamScore
             </h3>
@@ -202,7 +202,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
               className={cn(
                 "flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold tabular-nums",
                 (overallDelta ?? 0) > 0
-                  ? "border-primary/30 bg-primary/10 text-primary"
+                  ? "border-primary/30 bg-primary/10 text-primary-strong"
                   : (overallDelta ?? 0) < 0
                     ? "border-destructive/30 bg-destructive/10 text-destructive"
                     : "border-border bg-muted/40 text-muted-foreground",
@@ -293,7 +293,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
                     !deltaStr
                       ? "invisible"
                       : deltaPositive
-                        ? "text-primary"
+                        ? "text-primary-strong"
                         : deltaNegative
                           ? "text-destructive"
                           : "text-muted-foreground/50",

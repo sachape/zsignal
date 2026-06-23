@@ -77,7 +77,7 @@ export default function ManualMediaUploadDialog({ item, open, onOpenChange, onUp
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5 text-primary" /> Importer un média
+            <Upload className="h-5 w-5 text-primary-strong" /> Importer un média
           </DialogTitle>
           <DialogDescription>
             Tu as déjà monté ton clip ailleurs&nbsp;? Importe-le directement, sans passer par la génération.

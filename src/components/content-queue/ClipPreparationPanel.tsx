@@ -330,7 +330,7 @@ export const ClipPreparationPanel = ({
       {variant === "inline" && (
         <div className="flex items-center justify-between gap-3 border-b border-border/60 px-5 py-4">
           <div className="flex items-center gap-2">
-            <Wand2 className="h-4 w-4 text-primary" />
+            <Wand2 className="h-4 w-4 text-primary-strong" />
             <div>
               <p className="text-sm font-semibold text-foreground">Configurer ton clip</p>
               <p className="text-[11px] text-muted-foreground">
@@ -339,7 +339,7 @@ export const ClipPreparationPanel = ({
             </div>
           </div>
           {sourceLabel && (
-            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary-strong">
               {sourceLabel}
             </span>
           )}
@@ -368,7 +368,7 @@ export const ClipPreparationPanel = ({
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs font-semibold text-foreground">Source : {sourceLabel ?? "vidéo"}</p>
                 {sourceLabel && variant === "dialog" && (
-                  <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                  <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary-strong">
                     {sourceLabel}
                   </span>
                 )}
@@ -448,7 +448,7 @@ export const ClipPreparationPanel = ({
             {manualCrop && manualPresetSaved && detectedLogin ? (
               <div className="rounded-md border border-primary/40 bg-primary/[0.07] p-3">
                 <div className="flex items-start gap-2">
-                  <div className="mt-0.5 rounded-full bg-primary/20 p-1 text-primary">
+                  <div className="mt-0.5 rounded-full bg-primary/20 p-1 text-primary-strong">
                     <Check className="h-3 w-3" />
                   </div>
                   <div>
@@ -492,7 +492,7 @@ export const ClipPreparationPanel = ({
                 <div className="rounded-md border border-border bg-card p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2">
-                      <Camera className="mt-0.5 h-3.5 w-3.5 text-primary" />
+                      <Camera className="mt-0.5 h-3.5 w-3.5 text-primary-strong" />
                       <div>
                         <p className="text-xs font-medium text-foreground">Caméra</p>
                         <p className="mt-0.5 text-[11px] text-muted-foreground">
@@ -505,7 +505,7 @@ export const ClipPreparationPanel = ({
                       </div>
                     </div>
                     {manualCrop && (
-                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary-strong">
                         <Check className="h-3 w-3" /> Active
                       </span>
                     )}
@@ -561,7 +561,7 @@ export const ClipPreparationPanel = ({
             <div className="rounded-md border border-border bg-card p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-2">
-                  <Captions className="mt-0.5 h-3.5 w-3.5 text-primary" />
+                  <Captions className="mt-0.5 h-3.5 w-3.5 text-primary-strong" />
                   <div>
                     <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">

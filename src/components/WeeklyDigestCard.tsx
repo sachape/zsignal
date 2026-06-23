@@ -137,7 +137,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
         {alertCount > 0 && (
           <Link
             to="/watchlist"
-            className="mb-3 flex items-center gap-2 text-xs text-primary hover:underline"
+            className="mb-3 flex items-center gap-2 text-xs text-primary-strong hover:underline"
           >
             <Zap className="h-3.5 w-3.5" />
             {alertCount} alerte{alertCount > 1 ? "s" : ""} concurrents
@@ -149,7 +149,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
         {nextAction && (
           <div className="flex items-start justify-between gap-4 rounded-lg border border-primary/15 bg-primary/[0.04] px-3 py-2.5">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-primary/70">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-primary-strong/70">
                 Action prioritaire cette semaine
               </p>
               <p className="mt-0.5 text-xs font-medium text-foreground leading-snug">

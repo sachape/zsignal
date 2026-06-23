@@ -141,7 +141,7 @@ const ClipsReseauxPage = () => {
           <Card className="mb-6 border-primary/30 bg-primary/5">
             <CardContent className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <Badge variant="outline" className="mb-2 border-primary/40 bg-primary/10 text-primary">
+                <Badge variant="outline" className="mb-2 border-primary/40 bg-primary/10 text-primary-strong">
                   Fonctionnalité Pro
                 </Badge>
                 <p className="text-sm font-medium text-foreground">
@@ -170,7 +170,7 @@ const ClipsReseauxPage = () => {
           {activeJob && (
             <div className="mb-3 rounded-xl border border-primary/30 bg-primary/[0.06] p-4">
               <div className="flex items-center gap-3">
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary-strong" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-foreground">Génération de ton clip en cours…</p>
                   <p className="text-xs text-muted-foreground">
@@ -178,7 +178,7 @@ const ClipsReseauxPage = () => {
                   </p>
                 </div>
                 {typeof activeJob.progress === "number" && (
-                  <span className="shrink-0 text-sm font-semibold tabular-nums text-primary">{activeJob.progress}%</span>
+                  <span className="shrink-0 text-sm font-semibold tabular-nums text-primary-strong">{activeJob.progress}%</span>
                 )}
               </div>
               <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted/40">
@@ -234,7 +234,7 @@ const ClipsReseauxPage = () => {
                       </div>
                     )}
                     <div className="absolute left-2 top-2 flex gap-1.5">
-                      <Badge variant="outline" className="border-primary/40 bg-background/80 text-[10px] text-primary">
+                      <Badge variant="outline" className="border-primary/40 bg-background/80 text-[10px] text-primary-strong">
                         9:16
                       </Badge>
                       <Badge variant="outline" className="border-border/60 bg-background/80 text-[10px] text-muted-foreground">

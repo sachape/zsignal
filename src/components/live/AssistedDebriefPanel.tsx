@@ -174,7 +174,7 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
       <CardContent className="space-y-4 p-5">
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-            <Sparkles className="h-4 w-4 text-primary" />
+            <Sparkles className="h-4 w-4 text-primary-strong" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">

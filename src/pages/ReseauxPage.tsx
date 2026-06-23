@@ -57,7 +57,7 @@ const PM: Record<Platform, { label: string; color: string; iconBg: string; Icon:
 };
 
 const IMPACT: Record<string, { label: string; cls: string }> = {
-  high:   { label: "Impact élevé",  cls: "text-primary border-primary/30 bg-primary/5"         },
+  high:   { label: "Impact élevé",  cls: "text-primary-strong border-primary/30 bg-primary/5"         },
   medium: { label: "Impact moyen",  cls: "text-amber-400 border-amber-400/30 bg-amber-400/5"   },
   low:    { label: "Impact faible", cls: "text-muted-foreground border-border bg-muted/30"      },
 };
@@ -81,7 +81,7 @@ function ScoreRing({ score }: { score: number }) {
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
   const c = ({
-    connected:    { label: "Connecté",            cls: "text-primary border-primary/30 bg-primary/5"                  },
+    connected:    { label: "Connecté",            cls: "text-primary-strong border-primary/30 bg-primary/5"                  },
     manual:       { label: "Ajouté manuellement", cls: "text-sky-400 border-sky-400/30 bg-sky-400/5"                  },
     expired:      { label: "À reconnecter",       cls: "text-amber-400 border-amber-400/30 bg-amber-400/5"            },
     error:        { label: "Erreur de synchro",   cls: "text-destructive border-destructive/30 bg-destructive/5"      },
@@ -172,7 +172,7 @@ function PlatformCard({
   const meta = PM[platform];
   const isActive = status === "connected" || status === "manual";
   const isExpired = status === "expired";
-  const scoreColor = platformScore >= 70 ? "text-primary" : platformScore >= 40 ? "text-amber-400" : "text-muted-foreground";
+  const scoreColor = platformScore >= 70 ? "text-primary-strong" : platformScore >= 40 ? "text-amber-400" : "text-muted-foreground";
 
   const syncLabel = lastSyncedAt
     ? `Synchro ${new Date(lastSyncedAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}`
@@ -269,7 +269,7 @@ function ScoreHistoryMini({ history }: { history: { score: number; snapshot_date
   const previous = history[1].score;
   const delta = current - previous;
   const TrendIcon = delta > 0 ? TrendingUp : delta < 0 ? TrendingDown : Minus;
-  const trendCls = delta > 0 ? "text-primary" : delta < 0 ? "text-destructive" : "text-muted-foreground";
+  const trendCls = delta > 0 ? "text-primary-strong" : delta < 0 ? "text-destructive" : "text-muted-foreground";
 
   return (
     <div className="flex items-center gap-2">
@@ -678,7 +678,7 @@ export default function ReseauxPage() {
                 <p className="font-semibold text-sm">Diagnostic multi-plateforme</p>
                 <div className="grid gap-2.5 sm:grid-cols-2">
                   {[
-                    { icon: Star,         color: "text-primary",           bg: "bg-primary/5 border-primary/10",           label: "Point fort",            text: diagnostic.strongPoint       },
+                    { icon: Star,         color: "text-primary-strong",           bg: "bg-primary/5 border-primary/10",           label: "Point fort",            text: diagnostic.strongPoint       },
                     { icon: AlertTriangle, color: "text-amber-400",         bg: "bg-amber-400/5 border-amber-400/10",       label: "Point faible",          text: diagnostic.weakPoint         },
                     { icon: ShieldAlert,  color: "text-destructive",        bg: "bg-destructive/5 border-destructive/10",   label: "Risque principal",      text: diagnostic.mainRisk          },
                     { icon: Lightbulb,    color: "text-sky-400",            bg: "bg-sky-400/5 border-sky-400/10",           label: "Opportunité principale", text: diagnostic.mainOpportunity   },
@@ -694,10 +694,10 @@ export default function ReseauxPage() {
                 </div>
                 {diagnostic.priorityPlatform && (
                   <div className="flex items-center gap-2 rounded-lg bg-muted/30 border border-border px-3 py-2">
-                    <TrendingUp className="h-4 w-4 shrink-0 text-primary" />
+                    <TrendingUp className="h-4 w-4 shrink-0 text-primary-strong" />
                     <p className="text-sm">
                       <span className="font-medium">Plateforme prioritaire :</span>{" "}
-                      <span className="capitalize text-primary">{PM[diagnostic.priorityPlatform].label}</span>
+                      <span className="capitalize text-primary-strong">{PM[diagnostic.priorityPlatform].label}</span>
                     </p>
                   </div>
                 )}

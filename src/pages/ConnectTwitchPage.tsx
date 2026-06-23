@@ -103,7 +103,7 @@ const ConnectTwitchPage = () => {
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-                <LinkIcon className="h-4 w-4 text-primary" />
+                <LinkIcon className="h-4 w-4 text-primary-strong" />
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-base font-semibold text-foreground">
@@ -143,7 +143,7 @@ const ConnectTwitchPage = () => {
         <Card className="mb-10">
           <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-              <Zap className="h-4 w-4 text-primary" />
+              <Zap className="h-4 w-4 text-primary-strong" />
             </div>
             <div className="space-y-1.5">
               <h3 className="text-base font-semibold text-foreground">

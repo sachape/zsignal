@@ -11,7 +11,7 @@ const QualitativeScoreCard = () => {
     <Card>
       <CardContent className="flex h-full flex-col items-center justify-center p-5 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-          <Compass className="h-5 w-5 text-primary" />
+          <Compass className="h-5 w-5 text-primary-strong" />
         </div>
         <p className="mt-3 text-sm font-semibold text-foreground">
           Signal insuffisant pour un score fiable

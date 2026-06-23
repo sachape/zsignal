@@ -530,7 +530,7 @@ const CompetitorsPage = () => {
         {mode === "exploration" && (
           <Card className="mb-6 border-primary/30 bg-primary/5">
             <CardContent className="flex items-start gap-3 p-4">
-              <Compass className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <Compass className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground">
                   Ton signal est encore trop faible pour un benchmark direct fiable.
@@ -599,7 +599,7 @@ const CompetitorsPage = () => {
             return (
               <section key={section.key} className="mb-8">
                 <div className="mb-3 flex items-center gap-2">
-                  <Badge variant="outline" className="text-[10px] text-primary">
+                  <Badge variant="outline" className="text-[10px] text-primary-strong">
                     {section.badge}
                   </Badge>
                   <SectionHeader
@@ -644,7 +644,7 @@ const CompetitorsPage = () => {
         })() : mode === "personal" ? (
           <section className="mb-8">
             <div className="mb-3 flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px] text-primary">
+              <Badge variant="outline" className="text-[10px] text-primary-strong">
                 Benchmark
               </Badge>
               <SectionHeader
@@ -669,7 +669,7 @@ const CompetitorsPage = () => {
         {(nicheLeaders.length > 0 || nicheLeadersLoading || (mode === "exploration" && !!category)) && (
           <section className="mb-8">
             <div className="mb-3 flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px] text-primary">
+              <Badge variant="outline" className="text-[10px] text-primary-strong">
                 Leader de niche
               </Badge>
               <SectionHeader
@@ -756,7 +756,7 @@ const CompetitorsPage = () => {
                             </p>
                           </div>
                           <div className="shrink-0 text-right">
-                            <p className="text-sm font-bold tabular-nums text-primary">
+                            <p className="text-sm font-bold tabular-nums text-primary-strong">
                               {c.stream_score}
                             </p>
                             <p className="text-[10px] text-muted-foreground">score</p>

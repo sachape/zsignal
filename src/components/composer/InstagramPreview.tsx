@@ -54,7 +54,7 @@ function CaptionBlock({ caption, hashtags, username }: { caption: string; hashta
     <div className="px-3 py-2 text-sm">
       <span className="font-semibold mr-1.5">{username}</span>
       <span className="text-foreground/90 whitespace-pre-wrap">{caption}</span>
-      {tags && <span className="text-primary ml-1.5">{tags}</span>}
+      {tags && <span className="text-primary-strong ml-1.5">{tags}</span>}
     </div>
   );
 }

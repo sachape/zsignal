@@ -48,7 +48,7 @@ const BadgePopover = ({ badge, open, onOpenChange }: {
             />
           </div>
           {badge.unlocked && (
-            <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+            <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
               Débloqué ✓
             </p>
           )}

@@ -66,7 +66,7 @@ const PLATFORM_LABEL: Record<string, string> = {
 const TONE_CLASS: Record<string, string> = {
   default: "",
   muted: "",
-  info: "border-primary/40 bg-primary/10 text-primary",
+  info: "border-primary/40 bg-primary/10 text-primary-strong",
   success: "border-success/40 bg-success/10 text-success",
   warning: "border-warning/40 bg-warning/10 text-warning",
   destructive: "border-destructive/40 bg-destructive/10 text-destructive",
@@ -560,14 +560,14 @@ const VodImportPage = () => {
           <button
             type="button"
             onClick={() => setSourceMode("twitch")}
-            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition ${sourceMode === "twitch" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition ${sourceMode === "twitch" ? "bg-primary/15 text-primary-strong" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Link2 className="h-3.5 w-3.5" /> Lien Twitch
           </button>
           <button
             type="button"
             onClick={() => setSourceMode("upload")}
-            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition ${sourceMode === "upload" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition ${sourceMode === "upload" ? "bg-primary/15 text-primary-strong" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Upload className="h-3.5 w-3.5" /> Import vidéo
           </button>
@@ -676,12 +676,12 @@ const VodImportPage = () => {
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                 <span>Fonctionne avec les VOD Twitch et les Clips Twitch.</span>
                 {detectedSource === "twitch_vod" && (
-                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
+                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary-strong text-[10px]">
                     VOD Twitch détectée
                   </Badge>
                 )}
                 {detectedSource === "twitch_clip" && (
-                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[10px]">
+                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary-strong text-[10px]">
                     Clip Twitch détecté
                   </Badge>
                 )}
@@ -692,7 +692,7 @@ const VodImportPage = () => {
                 )}
               </div>
               {detectedSource === "twitch_clip" && (
-                <p className="text-[11px] text-primary">
+                <p className="text-[11px] text-primary-strong">
                   Clip Twitch détecté. Streamnco utilisera le clip complet, sans timestamps.
                 </p>
               )}
@@ -784,7 +784,7 @@ const VodImportPage = () => {
             </div>
 
             {submitting && (
-              <div className="mt-2 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-primary/80">
+              <div className="mt-2 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-primary-strong/80">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 {prepMessage}
               </div>
@@ -833,7 +833,7 @@ const VodImportPage = () => {
             ) : itemsLoading ? (
               <Card className="border-primary/30 bg-primary/[0.04]">
                 <CardContent className="flex items-center gap-3 p-5">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <Loader2 className="h-5 w-5 animate-spin text-primary-strong" />
                   <div>
                     <p className="text-sm font-semibold text-foreground">Ça arrive…</p>
                     <p className="text-[11px] text-muted-foreground">{prepMessage}</p>
@@ -872,7 +872,7 @@ const VodImportPage = () => {
             <CardContent className="space-y-4 p-5">
               <div className="flex items-start gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-                  <Scissors className="h-4 w-4 text-primary" />
+                  <Scissors className="h-4 w-4 text-primary-strong" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-foreground">
@@ -990,7 +990,7 @@ const VodImportPage = () => {
                       </div>
 
                       {activeStageLabel && isProcessing && (
-                        <p className="mt-2 text-[11px] text-primary">
+                        <p className="mt-2 text-[11px] text-primary-strong">
                           {activeStageLabel}
                         </p>
                       )}

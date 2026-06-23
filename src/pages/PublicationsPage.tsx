@@ -167,7 +167,7 @@ const ManualSection = ({ items }: ManualSectionProps) => {
                     href={i.published_url}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                    className="inline-flex items-center gap-1 text-[11px] text-primary-strong hover:underline"
                   >
                     Ouvrir le post <ExternalLink className="h-3 w-3" />
                   </a>

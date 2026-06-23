@@ -58,7 +58,7 @@ const PreLiveChecklistCard = ({ current, last, lastDebrief }: Props) => {
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10">
-            <ListChecks className="h-4 w-4 text-primary" />
+            <ListChecks className="h-4 w-4 text-primary-strong" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-foreground">
@@ -78,7 +78,7 @@ const PreLiveChecklistCard = ({ current, last, lastDebrief }: Props) => {
               key={item}
               className="flex items-start gap-2 text-sm text-foreground"
             >
-              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/70" />
+              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary-strong/70" />
               <span className="leading-snug">{item}</span>
             </li>
           ))}

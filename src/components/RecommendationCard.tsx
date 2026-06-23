@@ -21,7 +21,7 @@ const RecommendationCard = ({
     <Card className={cn("relative", locked && "opacity-60")}>
       <CardContent className="p-5">
         <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-          <Icon className="h-4 w-4 text-primary" />
+          <Icon className="h-4 w-4 text-primary-strong" />
         </div>
         <h4 className="text-sm font-semibold text-foreground">{title}</h4>
         {locked ? (
@@ -33,7 +33,7 @@ const RecommendationCard = ({
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
               {reason}
             </p>
-            <p className="mt-2 text-xs font-medium text-primary">{action}</p>
+            <p className="mt-2 text-xs font-medium text-primary-strong">{action}</p>
           </>
         )}
       </CardContent>

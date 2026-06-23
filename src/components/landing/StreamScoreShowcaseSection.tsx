@@ -26,7 +26,7 @@ const DIMENSIONS = [
 const barColor = (v: number) =>
   v >= 70 ? "bg-primary" : v >= 50 ? "bg-warning" : "bg-destructive";
 const valColor = (v: number) =>
-  v >= 70 ? "text-primary" : v >= 50 ? "text-warning" : "text-destructive";
+  v >= 70 ? "text-primary-strong" : v >= 50 ? "text-warning" : "text-destructive";
 
 // Upward evolution sparkline (normalised 0–100 → SVG path).
 const TREND = [40, 44, 42, 50, 58, 56, 63, 68, 72];
@@ -73,13 +73,13 @@ const StreamScoreShowcaseSection = () => {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-foreground">Ta chaîne</span>
-                <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-primary">
+                <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-primary-strong">
                   Régulier
                 </span>
               </div>
               <span className="text-xs text-muted-foreground">Résumé d'analyse</span>
             </div>
-            <div className="ml-auto flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary">
+            <div className="ml-auto flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary-strong">
               <TrendingUp className="h-3 w-3" /> +6 cette semaine
             </div>
           </div>
@@ -122,8 +122,8 @@ const StreamScoreShowcaseSection = () => {
           {/* Priority reco */}
           <div className="mt-4 rounded-2xl border border-primary/20 bg-primary/[0.06] p-4">
             <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-primary" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">Action prioritaire</span>
+              <Target className="h-4 w-4 text-primary-strong" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary-strong">Action prioritaire</span>
             </div>
             <p className="mt-2 text-sm font-semibold text-foreground">Stabilise 2 créneaux récurrents par semaine</p>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
@@ -137,10 +137,10 @@ const StreamScoreShowcaseSection = () => {
           {/* Evolution sparkline */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-primary" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Évolution du StreamScore</span>
+              <Gauge className="h-4 w-4 text-primary-strong" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong/80">Évolution du StreamScore</span>
             </div>
-            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-primary">90 jours</span>
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-primary-strong">90 jours</span>
           </div>
           <div className="relative mt-4 h-16 w-full">
             <svg viewBox="0 0 280 56" preserveAspectRatio="none" className="h-full w-full overflow-visible">
@@ -187,14 +187,14 @@ const StreamScoreShowcaseSection = () => {
                 { label: "Top 10%", value: 88, highlight: false },
               ].map((row) => (
                 <div key={row.label} className="flex items-center gap-3">
-                  <span className={`w-32 text-xs ${row.highlight ? "font-semibold text-primary" : "text-muted-foreground"}`}>{row.label}</span>
+                  <span className={`w-32 text-xs ${row.highlight ? "font-semibold text-primary-strong" : "text-muted-foreground"}`}>{row.label}</span>
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/25">
                     <div
                       className={`h-full rounded-full ${row.highlight ? "bg-primary" : "bg-muted-foreground/40"}`}
                       style={{ width: inView ? `${row.value}%` : "0%", transition: "width 1100ms cubic-bezier(0.16,1,0.3,1) 250ms" }}
                     />
                   </div>
-                  <span className={`w-7 text-right text-xs font-semibold tabular-nums ${row.highlight ? "text-primary" : "text-muted-foreground"}`}>{row.value}</span>
+                  <span className={`w-7 text-right text-xs font-semibold tabular-nums ${row.highlight ? "text-primary-strong" : "text-muted-foreground"}`}>{row.value}</span>
                 </div>
               ))}
             </div>

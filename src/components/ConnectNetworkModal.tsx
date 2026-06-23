@@ -135,7 +135,7 @@ export default function ConnectNetworkModal({
     if (selected === "twitch") {
       return hasTwitchOAuth ? (
         <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5 text-sm">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-primary-strong" />
           <span>Twitch est déjà connecté via ton compte Streamnco.</span>
         </div>
       ) : (
@@ -252,7 +252,7 @@ export default function ConnectNetworkModal({
                 <div className="flex w-full items-center justify-between">
                   <Icon className={cn("h-5 w-5", color)} />
                   {isConnected && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-primary border-primary/30">
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-primary-strong border-primary/30">
                       Connecté
                     </Badge>
                   )}

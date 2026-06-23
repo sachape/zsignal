@@ -202,7 +202,7 @@ const LandingNav = () => {
                         className="group inline-flex items-center gap-2 text-sm font-semibold text-foreground"
                       >
                         {group.title}
-                        <ArrowRight className="h-3.5 w-3.5 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
+                        <ArrowRight className="h-3.5 w-3.5 text-primary-strong opacity-0 transition-opacity group-hover:opacity-100" />
                       </Link>
                       <p className="mt-2 min-h-[48px] text-xs leading-relaxed text-muted-foreground">
                         {group.description}
@@ -238,7 +238,7 @@ const LandingNav = () => {
                     >
                       <div className="flex items-center justify-between gap-4">
                         <p className="text-sm font-semibold text-foreground">{item.label}</p>
-                        <ArrowRight className="h-4 w-4 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
+                        <ArrowRight className="h-4 w-4 text-primary-strong opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
                       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                         {item.description}

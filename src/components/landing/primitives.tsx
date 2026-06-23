@@ -97,7 +97,7 @@ export const SectionBadge = ({ children, tone = "default" }: { children: ReactNo
     className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
       tone === "light"
         ? "border-foreground/15 bg-foreground/[0.04] text-foreground/70"
-        : "border-primary/20 bg-primary/10 text-primary shadow-[0_0_24px_hsl(var(--primary)/0.18)]"
+        : "border-primary/20 bg-primary/10 text-primary-strong shadow-[0_0_24px_hsl(var(--primary)/0.18)]"
     }`}
   >
     {children}

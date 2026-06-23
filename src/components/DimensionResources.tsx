@@ -14,8 +14,8 @@ const TYPE_META = {
   conseil: {
     label: "Conseil",
     icon: Lightbulb,
-    iconBg: "bg-primary/15 border-primary/25 text-primary shadow-[0_0_20px_hsl(var(--primary)/0.25)]",
-    badge: "border-primary/20 bg-primary/[0.07] text-primary",
+    iconBg: "bg-primary/15 border-primary/25 text-primary-strong shadow-[0_0_20px_hsl(var(--primary)/0.25)]",
+    badge: "border-primary/20 bg-primary/[0.07] text-primary-strong",
     topLine: "from-primary/40 via-primary/20 to-transparent",
     hoverBorder: "hover:border-primary/30",
     hoverGlow: "hover:shadow-[0_0_40px_hsl(var(--primary)/0.10)]",
@@ -100,7 +100,7 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
           {hasMore && (
             <button
               onClick={() => setExpanded((e) => !e)}
-              className="flex items-center gap-0.5 text-[10px] font-semibold text-primary/60 transition-colors hover:text-primary"
+              className="flex items-center gap-0.5 text-[10px] font-semibold text-primary-strong/60 transition-colors hover:text-primary-strong"
             >
               {expanded ? (
                 <>Réduire <ChevronUp className="h-3 w-3" /></>
@@ -131,7 +131,7 @@ const DimensionResources = ({ breakdown, maxDimensions = 2 }: Props) => {
         <div className="relative flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/25 bg-primary/15 shadow-[0_0_24px_hsl(var(--primary)/0.3)]">
-              <BookOpen className="h-5 w-5 text-primary" />
+              <BookOpen className="h-5 w-5 text-primary-strong" />
             </div>
             <div>
               <h2 className="text-base font-semibold text-foreground">Ressources pour progresser</h2>
@@ -139,8 +139,8 @@ const DimensionResources = ({ breakdown, maxDimensions = 2 }: Props) => {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.07] px-3 py-1">
-            <Sparkles className="h-3 w-3 text-primary" />
-            <span className="text-[11px] font-semibold text-primary">{totalResources} ressources</span>
+            <Sparkles className="h-3 w-3 text-primary-strong" />
+            <span className="text-[11px] font-semibold text-primary-strong">{totalResources} ressources</span>
           </div>
         </div>
       </div>

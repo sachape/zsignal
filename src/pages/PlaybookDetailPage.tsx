@@ -34,7 +34,7 @@ function DifficultyBadge({ difficulty }: { difficulty: "easy" | "medium" | "hard
 function ImpactBadge({ impact }: { impact: "medium" | "high" }) {
   const config = {
     medium: { label: "Impact moyen", color: "text-muted-foreground bg-muted/60 border-border/60" },
-    high: { label: "Fort impact", color: "text-primary bg-primary/10 border-primary/20" },
+    high: { label: "Fort impact", color: "text-primary-strong bg-primary/10 border-primary/20" },
   }[impact];
   return (
     <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", config.color)}>
@@ -54,7 +54,7 @@ function RelatedCard({ slug, title, summary, timeMinutes }: {
       className="group flex items-start gap-3 rounded-xl border border-white/[0.06] bg-card/30 p-4 transition-colors hover:border-primary/20 hover:bg-card/50"
     >
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-accent/10 transition-colors group-hover:bg-primary/10">
-        <BookOpen className="h-4 w-4 text-accent transition-colors group-hover:text-primary" />
+        <BookOpen className="h-4 w-4 text-accent transition-colors group-hover:text-primary-strong" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-foreground">{title}</p>
@@ -63,7 +63,7 @@ function RelatedCard({ slug, title, summary, timeMinutes }: {
           <Clock className="h-3 w-3" /> {timeMinutes} min
         </div>
       </div>
-      <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-primary/60" />
+      <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-primary-strong/60" />
     </Link>
   );
 }
@@ -106,7 +106,7 @@ const PlaybookDetailPage = () => {
           <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-accent/[0.06] blur-2xl" aria-hidden />
 
           <div className="relative">
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-strong">
               <BookOpen className="h-3 w-3" /> Playbook
             </div>
 
@@ -131,8 +131,8 @@ const PlaybookDetailPage = () => {
         {/* ── Key insight ── */}
         <div className="mb-6 rounded-2xl border border-primary/20 bg-primary/[0.04] p-5">
           <div className="mb-2 flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-primary" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Insight clé</span>
+            <Lightbulb className="h-4 w-4 text-primary-strong" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-primary-strong">Insight clé</span>
           </div>
           <p className="text-sm font-semibold leading-relaxed text-foreground">
             "{playbook.keyInsight}"
@@ -172,7 +172,7 @@ const PlaybookDetailPage = () => {
                 <div className={cn("min-w-0 flex-1", i < playbook.steps.length - 1 ? "pb-4" : "")}>
                   <div className="rounded-xl border border-white/[0.06] bg-card/30 px-4 py-3.5 transition-colors hover:border-white/[0.10] hover:bg-card/40">
                     <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/50" />
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary-strong/50" />
                       <p className="text-sm leading-relaxed text-foreground">{step}</p>
                     </div>
                   </div>

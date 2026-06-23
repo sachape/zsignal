@@ -29,7 +29,7 @@ const PLAN_META: Record<
 > = {
   pro: {
     label: "Pro",
-    icon: <Sparkles className="h-4 w-4 text-primary" />,
+    icon: <Sparkles className="h-4 w-4 text-primary-strong" />,
     price: "7,99",
     priceAnnual: "4,92",
     color: "primary",
@@ -162,7 +162,7 @@ const BillingPage = () => {
                         <span className="text-base font-bold text-foreground">
                           Plan {planMeta.label}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
                           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                           Actif
                         </span>
@@ -255,7 +255,7 @@ const BillingPage = () => {
 
                 <div className="rounded-xl border border-primary/20 bg-primary/[0.05] p-4">
                   <div className="mb-2 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-primary" />
+                    <Sparkles className="h-4 w-4 text-primary-strong" />
                     <p className="text-sm font-semibold text-foreground">
                       Passe au Pro et débloque tout
                     </p>

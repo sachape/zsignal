@@ -331,7 +331,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
                       >
                         <VisualPlacementPreview width={t.width} height={t.height} />
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary-strong">
                             <Icon className="h-4 w-4" />
                           </div>
                           <span className="text-sm font-semibold text-foreground">{t.label}</span>
@@ -484,7 +484,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
           <div className="space-y-4">
             {jobStatus !== "succeeded" && jobStatus !== "failed" && (
               <div className="flex flex-col items-center justify-center gap-3 py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary-strong" />
                 <p className="text-sm text-muted-foreground">
                   Streamnco compose tes visuels — ça prend ~30 secondes.
                 </p>
@@ -543,7 +543,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
                     </div>
                     <div className="flex items-center justify-between gap-1 p-2">
                       <Button size="icon" variant="ghost" onClick={() => handleFavorite(v)} title="Favori">
-                        <Star className={cn("h-4 w-4", v.is_favorite && "fill-primary text-primary")} />
+                        <Star className={cn("h-4 w-4", v.is_favorite && "fill-primary text-primary-strong")} />
                       </Button>
                       <Button size="icon" variant="ghost" onClick={() => handleDownload(v)} title="Télécharger">
                         <Download className="h-4 w-4" />

@@ -129,7 +129,7 @@ const ClipAnalyticsPage = () => {
                 <Card key={label}>
                   <CardContent className="flex items-center gap-3 p-4">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                      <Icon className="h-4 w-4 text-primary" />
+                      <Icon className="h-4 w-4 text-primary-strong" />
                     </div>
                     <div>
                       <p className="text-lg font-bold tabular-nums text-foreground">{value}</p>
@@ -198,7 +198,7 @@ const ClipAnalyticsPage = () => {
                         <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                         <span className={cn(
                           "text-sm font-semibold tabular-nums",
-                          (clip.view_count ?? 0) >= 100 ? "text-primary" : "text-foreground",
+                          (clip.view_count ?? 0) >= 100 ? "text-primary-strong" : "text-foreground",
                         )}>
                           {formatViews(clip.view_count ?? 0)}
                         </span>
@@ -208,7 +208,7 @@ const ClipAnalyticsPage = () => {
                           href={clip.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="shrink-0 text-[11px] text-primary opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
+                          className="shrink-0 text-[11px] text-primary-strong opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
                         >
                           Voir
                         </a>

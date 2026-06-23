@@ -111,7 +111,7 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
       {/* Header */}
       <div className="flex items-center gap-3 p-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
-          <Sparkles className="h-4 w-4 text-primary" />
+          <Sparkles className="h-4 w-4 text-primary-strong" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground">Prends en main Streamnco</p>
@@ -171,7 +171,7 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
                   className={cn(
                     "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
                     step.done
-                      ? "border-primary/30 bg-primary/15 text-primary"
+                      ? "border-primary/30 bg-primary/15 text-primary-strong"
                       : "border-border/60 bg-muted/40 text-muted-foreground",
                   )}
                 >
@@ -183,7 +183,7 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
                       {step.title}
                     </p>
                     {step.done && (
-                      <span className="shrink-0 rounded-full border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">
+                      <span className="shrink-0 rounded-full border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-strong">
                         Fait
                       </span>
                     )}
@@ -192,7 +192,7 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
                     {step.description}
                   </p>
                   {!step.done && step.available && (
-                    <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                    <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary-strong">
                       {step.cta}
                       <ArrowRight className="h-3 w-3" />
                     </div>

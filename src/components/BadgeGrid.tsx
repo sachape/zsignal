@@ -41,7 +41,7 @@ const BadgeCell = ({ badge }: { badge: Badge }) => {
 
       {/* Progress bar (locked) or check (unlocked) */}
       {badge.unlocked ? (
-        <span className="text-[9px] font-semibold uppercase tracking-wider text-primary">
+        <span className="text-[9px] font-semibold uppercase tracking-wider text-primary-strong">
           Débloqué
         </span>
       ) : (

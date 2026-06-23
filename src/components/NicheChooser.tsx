@@ -70,12 +70,12 @@ const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
     <Card className="mb-6 border-border/70 bg-card/40">
       <CardContent className="p-4">
         <div className="mb-3 flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
+          <Sparkles className="h-4 w-4 text-primary-strong" />
           <p className="text-sm font-semibold text-foreground">
             Choisir ma niche de référence
           </p>
           {selected && (
-            <Badge variant="outline" className="text-[10px] text-primary">
+            <Badge variant="outline" className="text-[10px] text-primary-strong">
               Niche : {selected}
             </Badge>
           )}

@@ -208,7 +208,7 @@ export default function ReseauxPlatformPage() {
               )}
               <span className={cn(
                 "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                status === "connected" ? "text-primary border-primary/30 bg-primary/5" :
+                status === "connected" ? "text-primary-strong border-primary/30 bg-primary/5" :
                 status === "manual"    ? "text-sky-400 border-sky-400/30 bg-sky-400/5" :
                 status === "expired"   ? "text-amber-400 border-amber-400/30 bg-amber-400/5" :
                 "text-muted-foreground border-border bg-transparent"
@@ -218,7 +218,7 @@ export default function ReseauxPlatformPage() {
             </div>
             {username && <p className="text-sm text-muted-foreground mt-0.5">@{username}</p>}
             {profileUrl && (
-              <a href={profileUrl} target="_blank" rel="noopener" className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground/60 hover:text-primary transition-colors">
+              <a href={profileUrl} target="_blank" rel="noopener" className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground/60 hover:text-primary-strong transition-colors">
                 {profileUrl.replace(/^https?:\/\//, "").slice(0, 40)}<ExternalLink className="h-3 w-3" />
               </a>
             )}
@@ -326,8 +326,8 @@ export default function ReseauxPlatformPage() {
             {platform === "twitch" && (
               <div className="rounded-xl border border-border bg-muted/20 p-4 text-sm text-muted-foreground">
                 Les métriques Twitch (followers, viewers, clips…) sont disponibles dans ton{" "}
-                <Link to="/dashboard" className="text-primary hover:underline">Tableau de bord</Link> et ta page{" "}
-                <Link to="/analyse" className="text-primary hover:underline">Analyse</Link>.
+                <Link to="/dashboard" className="text-primary-strong hover:underline">Tableau de bord</Link> et ta page{" "}
+                <Link to="/analyse" className="text-primary-strong hover:underline">Analyse</Link>.
               </div>
             )}
             {platform !== "twitch" && (
@@ -417,7 +417,7 @@ export default function ReseauxPlatformPage() {
             {platform === "twitch" && hasTwitchOAuth && (
               <div className="rounded-xl border border-border p-3 text-sm">
                 📊 Consulte ton{" "}
-                <Link to="/analyse" className="text-primary hover:underline">rapport d'analyse</Link>{" "}
+                <Link to="/analyse" className="text-primary-strong hover:underline">rapport d'analyse</Link>{" "}
                 pour des recommandations spécifiques à ta chaîne.
               </div>
             )}

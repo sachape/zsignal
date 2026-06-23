@@ -118,7 +118,7 @@ const SocialProofSection = () => {
           >
             <div className="flex items-center gap-0.5 mb-1">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-3 w-3 fill-primary text-primary" />
+                <Star key={i} className="h-3 w-3 fill-primary text-primary-strong" />
               ))}
             </div>
             <p className="text-3xl font-bold tabular-nums text-foreground md:text-4xl">
@@ -161,7 +161,7 @@ const SocialProofSection = () => {
               <div>
                 <div className="flex items-center gap-0.5 mb-3">
                   {Array.from({ length: 5 }).map((_, j) => (
-                    <Star key={j} className="h-2.5 w-2.5 fill-primary text-primary" />
+                    <Star key={j} className="h-2.5 w-2.5 fill-primary text-primary-strong" />
                   ))}
                 </div>
                 <p className="text-sm leading-relaxed text-foreground/80">{t.quote}</p>

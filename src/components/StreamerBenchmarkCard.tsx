@@ -82,7 +82,7 @@ const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel 
 
         {copyMechanic && (
           <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
               À copier
             </p>
             <p className="mt-0.5 text-xs text-foreground">{copyMechanic}</p>
@@ -96,7 +96,7 @@ const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel 
           </span>
           <Link
             to={`/streamer/${competitor.competitor_login}`}
-            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-medium text-primary-strong hover:underline"
           >
             Voir profil <ArrowRight className="h-3 w-3" />
           </Link>

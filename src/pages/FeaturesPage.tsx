@@ -80,7 +80,7 @@ const FeaturePanel = ({
   accent?: "primary" | "cyan" | "amber";
 }) => {
   const accentClasses = {
-    primary: "border-primary/[0.18] bg-primary/[0.045] text-primary",
+    primary: "border-primary/[0.18] bg-primary/[0.045] text-primary-strong",
     cyan: "border-cyan-200/[0.18] bg-cyan-200/[0.045] text-cyan-100",
     amber: "border-amber-200/[0.18] bg-amber-200/[0.045] text-amber-100",
   };
@@ -175,7 +175,7 @@ const FeaturesPage = () => {
           <FadeIn>
             <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Créer</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">Créer</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   Des assets propres, sans repartir de zéro.
                 </h2>
@@ -231,7 +231,7 @@ const FeaturesPage = () => {
           <FadeIn>
             <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Organiser</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">Organiser</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   Une file claire avant publication.
                 </h2>
@@ -274,7 +274,7 @@ const FeaturesPage = () => {
                 <div className="grid grid-cols-2 gap-2">
                   {["TikTok", "Reels", "Shorts", "Twitch", "X / Twitter", "Discord"].map((dest) => (
                     <div key={dest} className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.035] px-3 py-2 text-xs text-foreground">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary-strong" />
                       {dest}
                     </div>
                   ))}
@@ -288,7 +288,7 @@ const FeaturesPage = () => {
           <FadeIn>
             <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Analyser</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">Analyser</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   Des données Twitch transformées en priorités.
                 </h2>
@@ -314,7 +314,7 @@ const FeaturesPage = () => {
                       <p className="text-5xl font-bold text-foreground">73</p>
                       <p className="mt-1 text-xs text-muted-foreground">Score global</p>
                     </div>
-                    <CheckCircle2 className="mb-2 h-5 w-5 text-primary" />
+                    <CheckCircle2 className="mb-2 h-5 w-5 text-primary-strong" />
                   </div>
                   <div className="mt-4 space-y-2">
                     {["Régularité", "Contenu", "Positionnement"].map((label, index) => (
@@ -350,7 +350,7 @@ const FeaturesPage = () => {
                   ].map((row) => (
                     <div key={row.name} className="flex items-center justify-between rounded-lg bg-white/[0.035] px-3 py-2">
                       <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-primary">{row.rank}</span>
+                        <span className="text-xs font-bold text-primary-strong">{row.rank}</span>
                         <span className="text-xs text-foreground">{row.name}</span>
                       </div>
                       <span className="text-xs font-semibold text-muted-foreground">{row.score}</span>
@@ -366,7 +366,7 @@ const FeaturesPage = () => {
           <FadeIn>
             <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Progresser</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">Progresser</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   Prépare le prochain live avec plus d'intention.
                 </h2>
@@ -390,7 +390,7 @@ const FeaturesPage = () => {
                 <div className="space-y-2">
                   {["Générateur de titres", "Planning", "Setup live", "Moments à provoquer"].map((item) => (
                     <div key={item} className="flex items-center gap-2 rounded-lg bg-white/[0.035] px-3 py-2 text-xs text-foreground">
-                      <Target className="h-3.5 w-3.5 text-primary" />
+                      <Target className="h-3.5 w-3.5 text-primary-strong" />
                       {item}
                     </div>
                   ))}
@@ -400,7 +400,7 @@ const FeaturesPage = () => {
 
             <FadeIn delay={0.12}>
               <section className="rounded-2xl border border-primary/[0.18] bg-primary/[0.045] p-6 md:p-8">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong">
                   Plan d'action
                 </p>
                 <h3 className="mt-3 text-2xl font-bold tracking-tight text-foreground">
@@ -423,7 +423,7 @@ const FeaturesPage = () => {
 
         <FadeIn>
           <section className="rounded-2xl border border-white/[0.08] bg-[#0d1116] p-7 text-center md:p-10">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">Résumé</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary-strong">Résumé</p>
             <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-bold tracking-tight text-foreground">
               Crée plus vite, publie plus souvent, et vois ta chaîne grandir.
             </h2>

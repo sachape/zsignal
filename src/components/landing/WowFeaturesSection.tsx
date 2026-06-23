@@ -43,9 +43,9 @@ const WowFeaturesSection = () => {
           <div className="relative p-6 md:p-8">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
-                <Clapperboard className="h-5 w-5 text-primary" />
+                <Clapperboard className="h-5 w-5 text-primary-strong" />
               </div>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Clipping</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong/80">Clipping</span>
             </div>
 
             <h3 className="relative mt-4 text-2xl font-semibold tracking-tight text-foreground md:text-[26px]">
@@ -76,7 +76,7 @@ const WowFeaturesSection = () => {
             <ul className="relative mt-6 flex flex-wrap gap-1.5">
               {clipTags.map(({ icon: Icon, label }) => (
                 <li key={label} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-[11px] text-foreground/85">
-                  <Icon className="h-3 w-3 text-primary" />
+                  <Icon className="h-3 w-3 text-primary-strong" />
                   {label}
                 </li>
               ))}
@@ -100,9 +100,9 @@ const WowFeaturesSection = () => {
           <div className="relative p-6 md:p-8">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
-                <Palette className="h-5 w-5 text-primary" />
+                <Palette className="h-5 w-5 text-primary-strong" />
               </div>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">Studio visuel</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong/80">Studio visuel</span>
             </div>
 
             <h3 className="relative mt-4 text-2xl font-semibold tracking-tight text-foreground md:text-[26px]">
@@ -136,7 +136,7 @@ const WowFeaturesSection = () => {
                   key={format}
                   className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-[11px] text-foreground/85"
                 >
-                  <Sparkles className="h-3 w-3 text-primary/80" />
+                  <Sparkles className="h-3 w-3 text-primary-strong/80" />
                   {format}
                 </li>
               ))}

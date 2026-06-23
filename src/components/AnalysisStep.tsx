@@ -18,9 +18,9 @@ const AnalysisStep = ({ label, status }: AnalysisStepProps) => {
       )}
     >
       <span className="flex h-5 w-5 shrink-0 items-center justify-center">
-        {status === "done" && <Check className="h-3.5 w-3.5 text-primary" />}
+        {status === "done" && <Check className="h-3.5 w-3.5 text-primary-strong" />}
         {status === "active" && (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-primary-strong" />
         )}
         {status === "pending" && (
           <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />

@@ -263,7 +263,7 @@ const TIERS: Tier[] = [
 
 function CellValue({ value }: { value: string | boolean }) {
   if (value === true)
-    return <Check className="mx-auto h-4 w-4 text-primary" />;
+    return <Check className="mx-auto h-4 w-4 text-primary-strong" />;
   if (value === false)
     return <Minus className="mx-auto h-4 w-4 text-muted-foreground/30" />;
   return (
@@ -339,13 +339,13 @@ const PricingPage = () => {
       <div className="container relative mx-auto max-w-5xl px-4 pt-28 pb-20 md:px-6 md:pt-32">
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-strong">
             <Zap className="h-3 w-3" /> Tarifs simples et transparents
           </div>
           <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Commence gratuitement,
             <br />
-            <span className="text-primary">évolue à ton rythme.</span>
+            <span className="text-primary-strong">évolue à ton rythme.</span>
           </h1>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
             Aucune carte bancaire requise pour démarrer. Passe au niveau supérieur quand tu es prêt.
@@ -355,9 +355,9 @@ const PricingPage = () => {
         {/* Founding member banner */}
         {FOUNDING_MEMBER && (
           <div className="mb-6 flex items-center gap-3 rounded-xl border border-primary/25 bg-primary/[0.06] px-4 py-3">
-            <Clock className="h-4 w-4 shrink-0 text-primary" />
+            <Clock className="h-4 w-4 shrink-0 text-primary-strong" />
             <p className="text-xs text-foreground">
-              <span className="font-semibold text-primary">Offre Fondateur · {FOUNDING_SPOTS} places au tarif de lancement.</span>
+              <span className="font-semibold text-primary-strong">Offre Fondateur · {FOUNDING_SPOTS} places au tarif de lancement.</span>
               {" "}Prix locké à vie pour les premiers abonnés — le Pro passera à {PRO_FUTURE} € et le Growth à {GROWTH_FUTURE} € ensuite.
             </p>
           </div>
@@ -370,7 +370,7 @@ const PricingPage = () => {
               onClick={() => setBilling("monthly")}
               className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
                 billing === "monthly"
-                  ? "bg-primary/10 border border-primary/25 text-primary"
+                  ? "bg-primary/10 border border-primary/25 text-primary-strong"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -380,12 +380,12 @@ const PricingPage = () => {
               onClick={() => setBilling("annual")}
               className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
                 billing === "annual"
-                  ? "bg-primary/10 border border-primary/25 text-primary"
+                  ? "bg-primary/10 border border-primary/25 text-primary-strong"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Annuel
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums ${billing === "annual" ? "bg-primary text-background" : "bg-primary/20 text-primary"}`}>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums ${billing === "annual" ? "bg-primary text-background" : "bg-primary/20 text-primary-strong"}`}>
                 -38%
               </span>
             </button>
@@ -406,7 +406,7 @@ const PricingPage = () => {
             >
               {tier.badge && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-background px-1.5">
-                  <Badge className="gap-1 border-primary/40 bg-primary/10 text-primary shadow-none">
+                  <Badge className="gap-1 border-primary/40 bg-primary/10 text-primary-strong shadow-none">
                     <Sparkles className="h-3 w-3" />
                     {tier.badge}
                   </Badge>
@@ -419,7 +419,7 @@ const PricingPage = () => {
                     {tier.name}
                   </p>
                   {FOUNDING_MEMBER && tier.id !== "free" && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary-strong">
                       Fondateur
                     </span>
                   )}
@@ -511,7 +511,7 @@ const PricingPage = () => {
                     key={name}
                     className={cn(
                       "px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-widest",
-                      name === "Pro" ? "text-primary" : "text-muted-foreground",
+                      name === "Pro" ? "text-primary-strong" : "text-muted-foreground",
                     )}
                   >
                     {name}
@@ -595,7 +595,7 @@ const PricingPage = () => {
 
         {/* Bottom CTA */}
         <div className="rounded-2xl border border-primary/20 bg-primary/[0.04] p-8 text-center">
-          <Sparkles className="mx-auto mb-3 h-6 w-6 text-primary" />
+          <Sparkles className="mx-auto mb-3 h-6 w-6 text-primary-strong" />
           <h2 className="text-xl font-bold text-foreground">
             Prêt à progresser ?
           </h2>

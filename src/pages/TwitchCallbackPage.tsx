@@ -225,7 +225,7 @@ const TwitchCallbackPage = () => {
           <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
             {state === "processing" && (
               <>
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <Loader2 className="h-6 w-6 animate-spin text-primary-strong" />
                 <div className="space-y-2">
                   <h2 className="text-base font-semibold text-foreground">
                     {PROGRESS_STEPS[stepIndex]}

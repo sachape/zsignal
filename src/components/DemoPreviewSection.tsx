@@ -19,7 +19,7 @@ const DemoPreviewSection = () => {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(190,255,90,0.12),transparent_58%)]" />
       <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary-strong">
             <Sparkles className="h-3 w-3" />
             Aperçu produit
           </span>
@@ -43,7 +43,7 @@ const DemoPreviewSection = () => {
           <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d1116]">
             <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
               <div className="flex items-center gap-2">
-                <Clapperboard className="h-4 w-4 text-primary" />
+                <Clapperboard className="h-4 w-4 text-primary-strong" />
                 <p className="text-sm font-semibold text-foreground">Clipping</p>
               </div>
               <span className="rounded-full border border-white/[0.08] px-2.5 py-1 text-[10px] text-muted-foreground">
@@ -73,7 +73,7 @@ const DemoPreviewSection = () => {
                 <div className="grid gap-3 sm:grid-cols-3">
                   {CAPTION_STYLES.map((style) => (
                     <div key={style} className="rounded-xl border border-white/[0.07] bg-white/[0.035] p-3">
-                      <Type className="h-4 w-4 text-primary" />
+                      <Type className="h-4 w-4 text-primary-strong" />
                       <p className="mt-3 text-sm font-semibold text-foreground">{style}</p>
                       <p className="mt-1 text-xs text-muted-foreground">Style sous-titres</p>
                     </div>
@@ -85,7 +85,7 @@ const DemoPreviewSection = () => {
                   <div className="mt-4 grid gap-2">
                     {["Source", "Facecam + gameplay", "Sous-titres", "Téléchargement"].map((item, index) => (
                       <div key={item} className="flex items-center gap-3 rounded-lg bg-black/20 px-3 py-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary-strong">
                           {index + 1}
                         </span>
                         <span className="text-sm text-foreground">{item}</span>
@@ -136,7 +136,7 @@ const DemoPreviewSection = () => {
 
               <div className="rounded-2xl border border-white/[0.08] bg-[#0d1116] p-5">
                 <div className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-primary" />
+                  <Activity className="h-4 w-4 text-primary-strong" />
                   <p className="text-sm font-semibold text-foreground">StreamScore</p>
                 </div>
                 <div className="mt-5 flex items-end justify-between">
@@ -144,7 +144,7 @@ const DemoPreviewSection = () => {
                     <p className="text-5xl font-bold text-foreground">73</p>
                     <p className="mt-1 text-xs text-muted-foreground">Score global</p>
                   </div>
-                  <ArrowRight className="mb-3 h-5 w-5 text-primary" />
+                  <ArrowRight className="mb-3 h-5 w-5 text-primary-strong" />
                 </div>
                 <div className="mt-5 space-y-2">
                   {["Régularité", "Contenus", "Positionnement"].map((item, index) => (

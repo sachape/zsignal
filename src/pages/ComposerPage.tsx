@@ -238,7 +238,7 @@ const ComposerPage = () => {
             {!isInstagramConnected && (
               <>
                 {" "}
-                <Link to="/reseaux/instagram" className="text-primary underline">
+                <Link to="/reseaux/instagram" className="text-primary-strong underline">
                   Aller dans Réseaux
                 </Link>
               </>
@@ -280,7 +280,7 @@ const ComposerPage = () => {
                     Réseau
                   </Label>
                   <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-1.5 text-sm">
-                    <Camera className="h-4 w-4 text-primary" />
+                    <Camera className="h-4 w-4 text-primary-strong" />
                     Instagram
                     <Badge variant="outline" className="text-[10px]">V1</Badge>
                   </div>
@@ -306,7 +306,7 @@ const ComposerPage = () => {
                               : "border-border hover:border-border/80 hover:bg-muted/30",
                           )}
                         >
-                          <Icon className={cn("h-4 w-4", active ? "text-primary" : "text-muted-foreground")} />
+                          <Icon className={cn("h-4 w-4", active ? "text-primary-strong" : "text-muted-foreground")} />
                           <span className="text-sm font-medium">{f.label}</span>
                           <span className="text-[10px] text-muted-foreground leading-tight">{f.hint}</span>
                         </button>
@@ -394,7 +394,7 @@ const ComposerPage = () => {
 
                 {pickedFormat === "story" && (
                   <div className="rounded-md border border-border bg-muted/20 p-3 text-xs text-muted-foreground">
-                    <Sparkles className="inline h-3.5 w-3.5 mr-1 text-primary" />
+                    <Sparkles className="inline h-3.5 w-3.5 mr-1 text-primary-strong" />
                     Les stories ne nécessitent pas de caption. Stickers et liens seront ajoutés plus tard.
                   </div>
                 )}

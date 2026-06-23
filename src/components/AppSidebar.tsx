@@ -270,7 +270,7 @@ const AppSidebar = () => {
                     className={cn(
                       "mt-0.5 inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
                       isPro
-                        ? "border-primary/30 bg-primary/10 text-primary"
+                        ? "border-primary/30 bg-primary/10 text-primary-strong"
                         : "border-border/60 bg-muted/60 text-muted-foreground",
                     )}
                   >

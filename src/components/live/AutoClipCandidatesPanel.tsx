@@ -50,7 +50,7 @@ const PLATFORM_LABEL: Record<string, string> = {
 const TONE_CLASS: Record<string, string> = {
   default: "",
   muted: "",
-  info: "border-primary/40 bg-primary/10 text-primary",
+  info: "border-primary/40 bg-primary/10 text-primary-strong",
   success: "border-success/40 bg-success/10 text-success",
   warning: "border-warning/40 bg-warning/10 text-warning",
   destructive: "border-destructive/40 bg-destructive/10 text-destructive",
@@ -259,7 +259,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
         <CardContent className="space-y-4 p-5">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-              <Scissors className="h-4 w-4 text-primary" />
+              <Scissors className="h-4 w-4 text-primary-strong" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">

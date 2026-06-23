@@ -19,7 +19,7 @@ const TIER_VISUAL = {
   rebuild: {
     Icon: RotateCcw,
     iconWrap: "bg-primary/10",
-    icon: "text-primary",
+    icon: "text-primary-strong",
   },
 } as const;
 

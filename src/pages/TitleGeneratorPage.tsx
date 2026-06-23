@@ -19,7 +19,7 @@ function ScoreBar({ score }: { score: number }) {
   const label =
     score >= 80 ? "Fort" : score >= 65 ? "Bon" : "Moyen";
   const labelColor =
-    score >= 80 ? "text-emerald-400" : score >= 65 ? "text-primary" : "text-warning";
+    score >= 80 ? "text-emerald-400" : score >= 65 ? "text-primary-strong" : "text-warning";
 
   return (
     <div className="flex items-center gap-2">
@@ -128,7 +128,7 @@ const TitleGeneratorPage = () => {
                         className={cn(
                           "rounded-lg border px-2.5 py-1.5 text-left text-xs font-medium transition-all",
                           game === g
-                            ? "border-primary/50 bg-primary/10 text-primary"
+                            ? "border-primary/50 bg-primary/10 text-primary-strong"
                             : "border-border/50 bg-muted/20 text-muted-foreground hover:border-border hover:text-foreground",
                         )}
                       >
@@ -161,7 +161,7 @@ const TitleGeneratorPage = () => {
             <Card className="border-border/40 bg-muted/10">
               <CardContent className="p-4">
                 <div className="flex items-start gap-2.5">
-                  <Zap className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <Zap className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
                   <div>
                     <p className="text-xs font-semibold text-foreground">Astuce</p>
                     <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">

@@ -7,9 +7,9 @@ import { ARTICLES, getArticle } from "@/data/articles";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Croissance: "border-primary/30 bg-primary/10 text-primary",
+  Croissance: "border-primary/30 bg-primary/10 text-primary-strong",
   Affiliation: "border-accent/30 bg-accent/10 text-accent",
-  Stratégie: "border-primary/30 bg-primary/10 text-primary",
+  Stratégie: "border-primary/30 bg-primary/10 text-primary-strong",
   Outils: "border-info/30 bg-info/10 text-info",
   Analytics: "border-info/30 bg-info/10 text-info",
 };
@@ -203,7 +203,7 @@ const BlogArticlePage = () => {
                   <ArrowLeft className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
                   <div className="min-w-0">
                     <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider">Précédent</p>
-                    <p className="mt-0.5 truncate text-sm font-medium text-foreground group-hover:text-primary">
+                    <p className="mt-0.5 truncate text-sm font-medium text-foreground group-hover:text-primary-strong">
                       {prevArticle.title}
                     </p>
                   </div>
@@ -216,7 +216,7 @@ const BlogArticlePage = () => {
                 >
                   <div className="min-w-0">
                     <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider">Suivant</p>
-                    <p className="mt-0.5 truncate text-sm font-medium text-foreground group-hover:text-primary">
+                    <p className="mt-0.5 truncate text-sm font-medium text-foreground group-hover:text-primary-strong">
                       {nextArticle.title}
                     </p>
                   </div>
@@ -243,7 +243,7 @@ const BlogArticlePage = () => {
                     }}
                     className={`block rounded-lg px-3 py-1.5 text-[13px] transition-all ${
                       activeSection === item.id
-                        ? "bg-primary/10 font-medium text-primary"
+                        ? "bg-primary/10 font-medium text-primary-strong"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -284,7 +284,7 @@ const BlogArticlePage = () => {
                 <span className={`self-start rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${CATEGORY_COLORS[a.category] ?? "border-border/40 bg-muted/30 text-muted-foreground"}`}>
                   {a.category}
                 </span>
-                <p className="text-sm font-semibold leading-snug text-foreground group-hover:text-primary/90 transition-colors">
+                <p className="text-sm font-semibold leading-snug text-foreground group-hover:text-primary-strong/90 transition-colors">
                   {a.title}
                 </p>
                 <span className="flex items-center gap-1 text-[11px] text-muted-foreground/50">

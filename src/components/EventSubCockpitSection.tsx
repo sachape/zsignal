@@ -50,7 +50,7 @@ const SEVERITY_TONE: Record<string, { wrap: string; iconWrap: string; icon: stri
   success: {
     wrap: "border-primary/25 bg-primary/[0.03]",
     iconWrap: "bg-primary/10",
-    icon: "text-primary",
+    icon: "text-primary-strong",
   },
   info: {
     wrap: "border-border/50 bg-card/40",
@@ -222,7 +222,7 @@ const EventSubCockpitSection = ({ broadcasterUserId }: Props) => {
         <CardContent className="space-y-3 p-5">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 text-primary" />
+              <Bell className="h-4 w-4 text-primary-strong" />
               <h3 className="text-sm font-semibold text-foreground">
                 Activité Twitch
               </h3>
@@ -324,7 +324,7 @@ const EventSubCockpitSection = ({ broadcasterUserId }: Props) => {
       <Card>
         <CardContent className="space-y-3 p-5">
           <div className="flex items-center gap-2">
-            <Heart className="h-4 w-4 text-primary" />
+            <Heart className="h-4 w-4 text-primary-strong" />
             <h3 className="text-sm font-semibold text-foreground">
               Communauté
             </h3>

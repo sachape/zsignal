@@ -193,7 +193,7 @@ const LastLivePage = () => {
           <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10">
-                <span className="text-2xl font-semibold text-primary tabular-nums">
+                <span className="text-2xl font-semibold text-primary-strong tabular-nums">
                   {score ?? "—"}
                 </span>
               </div>
@@ -264,7 +264,7 @@ const LastLivePage = () => {
 
           <Card className="border-primary/30 bg-primary/[0.04]">
             <CardContent className="p-4">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-primary">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-primary-strong">
                 Action prioritaire pour le prochain stream
               </p>
               <p className="mt-1 text-sm font-medium text-foreground">

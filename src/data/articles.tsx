@@ -59,7 +59,7 @@ const Callout = ({
       <div className="mb-2 flex items-center gap-2">
         {icon && <span className="text-base">{icon}</span>}
         {title && (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary-strong">
             {title}
           </p>
         )}
@@ -117,13 +117,13 @@ const ToolCard = ({
     <p className="mt-1.5 text-sm text-muted-foreground">{desc}</p>
     <div className="mt-4 grid grid-cols-2 gap-4 text-[13px]">
       <div>
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary/70">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary-strong/70">
           Points forts
         </p>
         <ul className="space-y-1">
           {pros.map((p) => (
             <li key={p} className="flex items-start gap-1.5 text-foreground/70">
-              <span className="mt-0.5 text-primary">+</span> {p}
+              <span className="mt-0.5 text-primary-strong">+</span> {p}
             </li>
           ))}
         </ul>
@@ -154,7 +154,7 @@ const NumberedStep = ({
   children: ReactNode;
 }) => (
   <div className="mt-8 flex gap-4">
-    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-sm font-bold tabular-nums text-primary">
+    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-sm font-bold tabular-nums text-primary-strong">
       {n}
     </div>
     <div className="min-w-0 flex-1 pt-0.5">
@@ -1152,7 +1152,7 @@ export const ARTICLES: Article[] = [
         </P>
         <P>
           Tu peux calculer un proxy de rétention avec les données du dashboard natif Twitch :
-          <code className="mx-1 rounded bg-muted/50 px-1.5 py-0.5 text-[13px] font-mono text-primary">
+          <code className="mx-1 rounded bg-muted/50 px-1.5 py-0.5 text-[13px] font-mono text-primary-strong">
             Watch Time total ÷ (Viewers uniques × Durée du stream)
           </code>
         </P>
@@ -1611,7 +1611,7 @@ export const ARTICLES: Article[] = [
                 <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">Fonctionnalité</th>
                 <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">TwitchTracker</th>
                 <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">SullyGnome</th>
-                <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-primary/80">Streamnco</th>
+                <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-primary-strong/80">Streamnco</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
@@ -1632,7 +1632,7 @@ export const ARTICLES: Article[] = [
                   <td className="px-4 py-2.5 text-foreground/70">{feat}</td>
                   <td className={`px-4 py-2.5 text-center ${tt === "✓" ? "text-foreground/50" : tt === "✗" ? "text-foreground/20" : "text-foreground/40"}`}>{tt}</td>
                   <td className={`px-4 py-2.5 text-center ${sg === "✓" ? "text-foreground/50" : sg === "✗" ? "text-foreground/20" : "text-foreground/40"}`}>{sg}</td>
-                  <td className={`px-4 py-2.5 text-center font-semibold ${sn === "✓" ? "text-primary" : sn === "✗" ? "text-foreground/20" : "text-foreground/40"}`}>{sn}</td>
+                  <td className={`px-4 py-2.5 text-center font-semibold ${sn === "✓" ? "text-primary-strong" : sn === "✗" ? "text-foreground/20" : "text-foreground/40"}`}>{sn}</td>
                 </tr>
               ))}
             </tbody>

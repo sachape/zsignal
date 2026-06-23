@@ -205,7 +205,7 @@ const AnalysePage = () => {
       <AppShell>
         <PageContainer size="sm">
           <div className="flex flex-col items-center gap-4 py-20 text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary-strong" />
             <p className="text-sm font-medium text-foreground">Analyse en cours…</p>
             <p className="text-xs text-muted-foreground">On lit tes 30 derniers jours de stream et on calcule ton StreamScore.</p>
           </div>
@@ -228,7 +228,7 @@ const AnalysePage = () => {
             <Card>
               <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
                 <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-                  <AlertCircle className="h-4 w-4 text-primary" />
+                  <AlertCircle className="h-4 w-4 text-primary-strong" />
                 </div>
                 <div className="space-y-1.5">
                   <h2 className="text-base font-semibold text-foreground">Diagnostic introuvable</h2>
@@ -349,7 +349,7 @@ const AnalysePage = () => {
                       @{report.identity?.platform_login ?? summary.channel_name}
                     </span>
                     {summary.category && summary.category !== "unknown" && (
-                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
                         {summary.category}
                       </span>
                     )}
@@ -359,7 +359,7 @@ const AnalysePage = () => {
                       </span>
                     )}
                     {summary.broadcaster_type === "partner" && (
-                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
                         Partenaire
                       </span>
                     )}
@@ -444,7 +444,7 @@ const AnalysePage = () => {
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
+                <Zap className="h-4 w-4 text-primary-strong" />
                 <CardTitle className="text-sm font-semibold text-foreground">
                   Décomposition du StreamScore
                 </CardTitle>
@@ -535,7 +535,7 @@ const AnalysePage = () => {
                           )}
                         </div>
                         <div>
-                          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary/70 mb-1.5">
+                          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong/70 mb-1.5">
                             <ArrowRight className="h-3 w-3" /> Pour progresser
                           </p>
                           {levers.length > 0 ? (
@@ -590,7 +590,7 @@ const AnalysePage = () => {
               {/* Header row: mode chip only — no technical signal chips. */}
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 {(isReconstruction || isExploration) && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
                     <Zap className="h-2.5 w-2.5" />
                     {isReconstruction ? "Mode structuration" : "Mode exploration"}
                   </span>
@@ -756,7 +756,7 @@ const AnalysePage = () => {
                   className="group relative overflow-hidden rounded-2xl border border-border bg-card/40 p-5 backdrop-blur-xl transition-all duration-300 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)]"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 transition-colors group-hover:bg-primary/25">
-                    <Icon className="h-4 w-4 text-primary" />
+                    <Icon className="h-4 w-4 text-primary-strong" />
                   </div>
                   <h3 className="mt-3 text-sm font-semibold leading-snug text-foreground">
                     {rec.title}
@@ -765,7 +765,7 @@ const AnalysePage = () => {
                     {rec.reason}
                   </p>
                   {rec.action && (
-                    <p className="mt-3 text-xs font-medium text-primary">{rec.action}</p>
+                    <p className="mt-3 text-xs font-medium text-primary-strong">{rec.action}</p>
                   )}
                 </div>
               );

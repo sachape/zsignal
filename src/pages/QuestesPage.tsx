@@ -116,7 +116,7 @@ const TieredBadgeCard = ({ badge }: { badge: TieredBadge }) => {
 
           {/* All tiers unlocked */}
           {!badge.nextTier && badge.currentTier && (
-            <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-primary">
+            <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
               ✓ Tous les tiers débloqués
             </p>
           )}
@@ -173,7 +173,7 @@ const XpCard = ({ xpLevel, season }: { xpLevel: XpLevelData; season: SeasonData 
 
     {xpLevel.level === 5 && (
       <div className="relative mt-4 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-center">
-        <p className="text-[11px] font-semibold text-primary">Niveau maximum atteint · Legend</p>
+        <p className="text-[11px] font-semibold text-primary-strong">Niveau maximum atteint · Legend</p>
       </div>
     )}
 
@@ -346,7 +346,7 @@ const QuestesPage = () => {
           {loading ? (
             <div className="rounded-2xl border border-border/40 bg-card/30 p-5">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
+                <Zap className="h-4 w-4 text-primary-strong" />
                 <p className="text-sm font-semibold text-foreground">Quêtes de la semaine</p>
               </div>
               <div className="mt-4 space-y-2">
@@ -363,10 +363,10 @@ const QuestesPage = () => {
         {/* Badges */}
         <div>
           <div className="mb-4 flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-primary" />
+            <Trophy className="h-4 w-4 text-primary-strong" />
             <h2 className="text-sm font-semibold text-foreground">Badges</h2>
             {unlockedBadges.length > 0 && (
-              <span className="rounded-full border border-primary/25 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+              <span className="rounded-full border border-primary/25 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary-strong">
                 {unlockedBadges.length}/{badges.length}
               </span>
             )}

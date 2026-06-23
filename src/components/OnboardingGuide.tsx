@@ -162,7 +162,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
       {/* Header */}
       <div className="mb-10 text-center">
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10 shadow-[0_0_24px_hsl(var(--primary)/0.25)]">
-          <Sparkles className="h-5 w-5 text-primary" />
+          <Sparkles className="h-5 w-5 text-primary-strong" />
         </div>
         <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
           Prêt à prendre le contrôle ?
@@ -200,7 +200,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                 <div className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-all",
                   done
-                    ? "border-primary/30 bg-primary/15 text-primary"
+                    ? "border-primary/30 bg-primary/15 text-primary-strong"
                     : "border-border/60 bg-muted/40 text-muted-foreground",
                 )}>
                   {done ? (
@@ -215,7 +215,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                 {/* Content */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <Icon className={cn("h-4 w-4 shrink-0", done ? "text-primary" : "text-muted-foreground")} />
+                    <Icon className={cn("h-4 w-4 shrink-0", done ? "text-primary-strong" : "text-muted-foreground")} />
                     <p className={cn(
                       "text-sm font-semibold",
                       done ? "text-foreground" : "text-foreground/80",
@@ -223,7 +223,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                       {step.id === "score" && done ? "Premier StreamScore calculé" : step.label}
                     </p>
                     {done && (
-                      <span className="ml-auto shrink-0 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                      <span className="ml-auto shrink-0 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
                         Fait
                       </span>
                     )}

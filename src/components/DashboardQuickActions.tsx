@@ -26,7 +26,7 @@ const DashboardQuickActions = () => {
             to={action.to}
             className="group flex flex-col gap-1.5 rounded-xl border border-border/50 bg-background/40 p-3 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5"
           >
-            <action.icon className="h-4 w-4 text-primary" />
+            <action.icon className="h-4 w-4 text-primary-strong" />
             <span className="text-xs font-medium text-foreground">{action.label}</span>
             <span className="text-[10px] text-muted-foreground/70">{action.hint}</span>
           </Link>

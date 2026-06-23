@@ -8,8 +8,8 @@ const COLOR_CLASSES: Record<StreamerDNA["color"], { border: string; bg: string; 
   primary: {
     border: "border-primary/30",
     bg: "bg-primary/5",
-    text: "text-primary",
-    badge: "bg-primary/10 text-primary border-primary/20",
+    text: "text-primary-strong",
+    badge: "bg-primary/10 text-primary-strong border-primary/20",
   },
   warning: {
     border: "border-warning/30",

@@ -136,7 +136,7 @@ const StarterPlanCard = ({ userId }: { userId: string }) => {
           <div className="mb-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-                <Rocket className="h-4 w-4 text-primary" />
+                <Rocket className="h-4 w-4 text-primary-strong" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground">Plan d'amorce</p>
@@ -160,7 +160,7 @@ const StarterPlanCard = ({ userId }: { userId: string }) => {
         <CardContent className="p-5">
           {allDone ? (
             <div className="rounded-xl border border-primary/25 bg-primary/[0.06] p-4 text-center">
-              <Sparkles className="mx-auto mb-2 h-5 w-5 text-primary" />
+              <Sparkles className="mx-auto mb-2 h-5 w-5 text-primary-strong" />
               <p className="text-sm font-semibold text-foreground">Chaîne prête !</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 Lance ton premier live — ton plan complet s'activera automatiquement.
@@ -186,7 +186,7 @@ const StarterPlanCard = ({ userId }: { userId: string }) => {
                       className="mt-0.5 shrink-0 transition-opacity hover:opacity-80"
                     >
                       {done ? (
-                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                        <CheckCircle2 className="h-4 w-4 text-primary-strong" />
                       ) : (
                         <Circle className="h-4 w-4 text-muted-foreground/50" />
                       )}
@@ -208,7 +208,7 @@ const StarterPlanCard = ({ userId }: { userId: string }) => {
                       {step.playbookSlug && !done && (
                         <Link
                           to={`/playbooks/${step.playbookSlug}`}
-                          className="mt-1 inline-flex items-center gap-0.5 text-xs text-primary hover:underline"
+                          className="mt-1 inline-flex items-center gap-0.5 text-xs text-primary-strong hover:underline"
                         >
                           Voir le playbook <ChevronRight className="h-3 w-3" />
                         </Link>
@@ -308,10 +308,10 @@ interface ActionCardProps {
 const ActionCard = ({ action, label = "Action prioritaire" }: ActionCardProps) => (
   <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-4">
     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-      <Target className="h-4 w-4 text-primary" />
+      <Target className="h-4 w-4 text-primary-strong" />
     </div>
     <div className="min-w-0 flex-1">
-      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-primary/60">
+      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-primary-strong/60">
         {label}
       </p>
       <p className="text-sm font-semibold leading-snug text-foreground">{action.title}</p>
@@ -356,7 +356,7 @@ const TodayTab = ({
       {inLive ? (
         <div className="flex items-center gap-3 rounded-xl border border-primary/25 bg-primary/[0.06] p-4">
           <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <Radio className="h-4 w-4 text-primary" />
+            <Radio className="h-4 w-4 text-primary-strong" />
             <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5 items-center justify-center">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
@@ -376,7 +376,7 @@ const TodayTab = ({
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
                   streamToday ? "bg-primary/10" : "bg-muted/60",
                 )}>
-                  <Radio className={cn("h-4 w-4", streamToday ? "text-primary" : "text-muted-foreground")} />
+                  <Radio className={cn("h-4 w-4", streamToday ? "text-primary-strong" : "text-muted-foreground")} />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">
@@ -396,7 +396,7 @@ const TodayTab = ({
                 </div>
               </div>
               {streamToday && (
-                <span className="shrink-0 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                <span className="shrink-0 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary-strong">
                   Prévu
                 </span>
               )}
@@ -411,7 +411,7 @@ const TodayTab = ({
       ) : !hasAnySessions ? (
         <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-4">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <Rocket className="h-4 w-4 text-primary" />
+            <Rocket className="h-4 w-4 text-primary-strong" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-foreground">Avant ton premier live</p>
@@ -420,7 +420,7 @@ const TodayTab = ({
             </p>
             <button
               onClick={onSwitchToWeek}
-              className="mt-2 inline-flex items-center gap-0.5 text-xs font-medium text-primary hover:underline"
+              className="mt-2 inline-flex items-center gap-0.5 text-xs font-medium text-primary-strong hover:underline"
             >
               Voir le plan d'amorce <ChevronRight className="h-3 w-3" />
             </button>
@@ -487,7 +487,7 @@ const WeekTab = ({
       <Card>
         <CardContent className="flex items-start gap-4 p-6">
           <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-            <Radio className="h-4 w-4 text-primary" />
+            <Radio className="h-4 w-4 text-primary-strong" />
           </div>
           <div className="space-y-1">
             <h2 className="text-base font-medium text-foreground">Ton live est en cours.</h2>
@@ -524,7 +524,7 @@ const WeekTab = ({
         <CardContent className="space-y-3 p-5">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-              <Target className="h-4 w-4 text-primary" />
+              <Target className="h-4 w-4 text-primary-strong" />
             </div>
             <Badge variant="secondary" className="text-xs">Cap de la semaine</Badge>
           </div>
@@ -560,7 +560,7 @@ const WeekTab = ({
 
             {allDone ? (
               <div className="rounded-xl border border-primary/25 bg-primary/[0.06] p-4 text-center">
-                <Sparkles className="mx-auto mb-2 h-5 w-5 text-primary" />
+                <Sparkles className="mx-auto mb-2 h-5 w-5 text-primary-strong" />
                 <p className="text-sm font-semibold text-foreground">Semaine complète !</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   Toutes les actions cochées — reviens lundi pour la suite.
@@ -585,7 +585,7 @@ const WeekTab = ({
                     >
                       <div className="mt-0.5 shrink-0">
                         {done ? (
-                          <CheckCircle2 className="h-4 w-4 text-primary" />
+                          <CheckCircle2 className="h-4 w-4 text-primary-strong" />
                         ) : skipped ? (
                           <XCircle className="h-4 w-4 text-muted-foreground/60" />
                         ) : (
@@ -722,7 +722,7 @@ const MonthTab = ({
         <CardContent className="p-5">
           <div className="mb-3 flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-              <Flame className="h-4 w-4 text-primary" />
+              <Flame className="h-4 w-4 text-primary-strong" />
             </div>
             <Badge variant="secondary" className="text-xs capitalize">
               Objectif {monthName}
@@ -765,7 +765,7 @@ const MonthTab = ({
                   <p
                     className={cn(
                       "mt-1 text-xs font-semibold",
-                      scoreDelta > 0 ? "text-primary" : scoreDelta < 0 ? "text-destructive" : "text-muted-foreground",
+                      scoreDelta > 0 ? "text-primary-strong" : scoreDelta < 0 ? "text-destructive" : "text-muted-foreground",
                     )}
                   >
                     {scoreDelta > 0 ? `+${scoreDelta}` : scoreDelta} pts ce mois

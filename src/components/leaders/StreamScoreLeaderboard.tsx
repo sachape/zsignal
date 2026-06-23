@@ -127,7 +127,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
           className={cn(
             "w-7 shrink-0 text-right text-xs font-bold tabular-nums",
             c.rank === 1
-              ? "text-primary"
+              ? "text-primary-strong"
               : isPodium
                 ? "text-foreground/80"
                 : "text-muted-foreground",
@@ -257,7 +257,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
       {showFreePaywall && (
         <div className="mt-2 flex flex-col items-center gap-3 rounded-xl border border-primary/20 bg-card/60 px-5 py-5 text-center">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
-            <Lock className="h-4 w-4 text-primary" />
+            <Lock className="h-4 w-4 text-primary-strong" />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">
@@ -275,7 +275,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
             asChild
             size="sm"
             variant="outline"
-            className="border-primary/30 text-primary hover:bg-primary/10"
+            className="border-primary/30 text-primary-strong hover:bg-primary/10"
           >
             <Link
               to="/billing"

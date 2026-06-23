@@ -234,7 +234,7 @@ const TeaserResultLayout = ({
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/[0.06] px-4 py-3"
       >
         <div className="flex min-w-0 items-center gap-2.5">
-          <Zap className="h-4 w-4 shrink-0 text-primary" />
+          <Zap className="h-4 w-4 shrink-0 text-primary-strong" />
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">
               Aperçu public · données Twitch publiques
@@ -290,7 +290,7 @@ const TeaserResultLayout = ({
             <div className="flex flex-wrap items-center justify-center gap-2">
               <span className="text-sm text-muted-foreground">@{login}</span>
               {category && (
-                <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
                   {category}
                 </span>
               )}
@@ -300,7 +300,7 @@ const TeaserResultLayout = ({
                 </span>
               )}
               {summary.broadcaster_type === "partner" && (
-                <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
                   Partenaire
                 </span>
               )}
@@ -311,10 +311,10 @@ const TeaserResultLayout = ({
           {isReconstruction ? (
             <div className="flex flex-col items-center gap-3">
               <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 shadow-[0_0_32px_hsl(var(--primary)/0.25)]">
-                <Compass className="h-8 w-8 text-primary" />
+                <Compass className="h-8 w-8 text-primary-strong" />
               </div>
               <div className="max-w-sm">
-                <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+                <p className="text-sm font-semibold uppercase tracking-wider text-primary-strong">
                   Mode structuration
                 </p>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
@@ -359,10 +359,10 @@ const TeaserResultLayout = ({
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-                <Compass className="h-4 w-4 text-primary" />
+                <Compass className="h-4 w-4 text-primary-strong" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong">
                   Mode structuration
                 </p>
                 <p className="mt-1 text-sm font-semibold text-foreground">
@@ -386,9 +386,9 @@ const TeaserResultLayout = ({
             <div className="h-full rounded-2xl border border-primary/20 bg-primary/[0.06] p-6 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)] backdrop-blur-xl">
               <div className="mb-3 flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
-                  <Zap className="h-4 w-4 text-primary" />
+                  <Zap className="h-4 w-4 text-primary-strong" />
                 </div>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong">
                   Action prioritaire
                 </span>
               </div>
@@ -505,7 +505,7 @@ const TeaserResultLayout = ({
                     }`}
                   >
                     <Icon
-                      className={`h-4 w-4 ${locked ? "text-muted-foreground/25" : "text-primary"}`}
+                      className={`h-4 w-4 ${locked ? "text-muted-foreground/25" : "text-primary-strong"}`}
                     />
                   </div>
                   <h3
@@ -523,7 +523,7 @@ const TeaserResultLayout = ({
                     {rec.reason}
                   </p>
                   {!locked && rec.action && (
-                    <p className="mt-3 text-xs font-medium text-primary">{rec.action}</p>
+                    <p className="mt-3 text-xs font-medium text-primary-strong">{rec.action}</p>
                   )}
                 </div>
               );
@@ -608,7 +608,7 @@ const TeaserResultLayout = ({
         {/* Lock overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/45 backdrop-blur-[1px]">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.1] bg-card/70 shadow-[0_8px_48px_hsl(var(--primary)/0.3)]">
-            <Lock className="h-6 w-6 text-primary" />
+            <Lock className="h-6 w-6 text-primary-strong" />
           </div>
           <p className="mt-3 text-sm font-semibold text-foreground">
             Analyse complète disponible
@@ -636,7 +636,7 @@ const TeaserResultLayout = ({
         <div className="relative">
           <div className="mx-auto max-w-2xl text-center">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 shadow-[0_0_48px_hsl(var(--primary)/0.4)]">
-              <Sparkles className="h-7 w-7 text-primary" />
+              <Sparkles className="h-7 w-7 text-primary-strong" />
             </div>
 
             <h2 className="bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-2xl font-bold tracking-tight text-transparent md:text-3xl">
@@ -699,7 +699,7 @@ const TeaserResultLayout = ({
                 }}
               >
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-                  <Icon className="h-3.5 w-3.5 text-primary" />
+                  <Icon className="h-3.5 w-3.5 text-primary-strong" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">{title}</p>

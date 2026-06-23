@@ -262,7 +262,7 @@ const TwitchAccountsPage = () => {
                               {display}
                             </p>
                             {isActive && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-strong">
                                 <Check className="h-3 w-3" /> Active
                               </span>
                             )}
@@ -323,7 +323,7 @@ const TwitchAccountsPage = () => {
           <Card className="border-dashed">
             <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary-strong">
                   <PlusCircle className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">

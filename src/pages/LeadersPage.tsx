@@ -73,7 +73,7 @@ function getSecondarySignal(
 }
 
 const SIGNAL_TONE_CLASS: Record<"primary" | "warning" | "muted" | "destructive", string> = {
-  primary: "border-primary/30 bg-primary/10 text-primary",
+  primary: "border-primary/30 bg-primary/10 text-primary-strong",
   warning: "border-warning/30 bg-warning/10 text-warning",
   destructive: "border-destructive/30 bg-destructive/10 text-destructive",
   muted: "border-border bg-muted/40 text-muted-foreground",
@@ -390,7 +390,7 @@ const LeadersPage = () => {
                                     <span className="truncate font-medium">{c.name}</span>
                                     <Check
                                       className={cn(
-                                        "ml-auto h-3.5 w-3.5 shrink-0 text-primary",
+                                        "ml-auto h-3.5 w-3.5 shrink-0 text-primary-strong",
                                         selected ? "opacity-100" : "opacity-0",
                                       )}
                                     />
@@ -513,7 +513,7 @@ const LeadersPage = () => {
             {/* Personal position banner */}
             {user && userAvgViewers && estimatedRank && !loading && filtered.length > 0 && (
               <div className="mb-4 flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary-strong">
                   #{estimatedRank}
                 </div>
                 <div className="min-w-0">
@@ -587,7 +587,7 @@ const LeadersPage = () => {
                         className={cn(
                           "w-7 shrink-0 text-right text-xs font-bold tabular-nums",
                           c.rank === 1
-                            ? "text-primary"
+                            ? "text-primary-strong"
                             : isPodium
                               ? "text-foreground/80"
                               : "text-muted-foreground",
@@ -679,7 +679,7 @@ const LeadersPage = () => {
                         </div>
                       </div>
 
-                      <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary sm:block" />
+                      <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-primary-strong sm:block" />
                     </Link>
                   </React.Fragment>
                 );
@@ -839,7 +839,7 @@ const LeadersPage = () => {
                                   <div className="mb-1 flex items-center justify-between">
                                     <span className="text-xs font-medium text-foreground">{d.label}</span>
                                     <div className="flex items-center gap-2 text-xs">
-                                      <span className="font-semibold tabular-nums text-primary">{d.mine}</span>
+                                      <span className="font-semibold tabular-nums text-primary-strong">{d.mine}</span>
                                       <span className="text-muted-foreground/40">vs</span>
                                       <span className="font-semibold tabular-nums text-muted-foreground">{d.theirs}</span>
                                       {iAhead && <TrendingUp className="h-3 w-3 text-emerald-400" />}

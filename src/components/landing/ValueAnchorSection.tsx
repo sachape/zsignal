@@ -45,14 +45,14 @@ const ValueAnchorSection = () => {
   return (
     <SectionShell id="value-anchor" glow={false}>
       <div className="mx-auto max-w-3xl text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong">
           Positionnement
         </span>
 
         <h2 className="mt-5 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
           Créer un clip, c'est facile.
           <br className="hidden sm:block" />
-          <span className="text-primary"> Le faire après chaque live, c'est le vrai travail.</span>
+          <span className="text-primary-strong"> Le faire après chaque live, c'est le vrai travail.</span>
         </h2>
 
         <p className="mt-4 text-base leading-relaxed text-foreground/70 md:text-lg">
@@ -76,10 +76,10 @@ const ValueAnchorSection = () => {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
-                  <opt.icon className={opt.muted ? "h-5 w-5 text-muted-foreground" : "h-5 w-5 text-primary"} />
+                  <opt.icon className={opt.muted ? "h-5 w-5 text-muted-foreground" : "h-5 w-5 text-primary-strong"} />
                 </div>
                 {!opt.muted && (
-                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary">
+                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary-strong">
                     Recommandé
                   </span>
                 )}
@@ -97,7 +97,7 @@ const ValueAnchorSection = () => {
                 className={
                   opt.muted
                     ? "mt-5 inline-block rounded-full bg-muted/60 px-2.5 py-1 text-[10px] font-semibold text-muted-foreground"
-                    : "mt-5 inline-block rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-semibold text-primary"
+                    : "mt-5 inline-block rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-semibold text-primary-strong"
                 }
               >
                 {opt.verdict}
@@ -109,7 +109,7 @@ const ValueAnchorSection = () => {
 
       <div className="mx-auto mt-12 max-w-2xl text-center md:mt-16">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
-          <Activity className="h-5 w-5 text-primary" />
+          <Activity className="h-5 w-5 text-primary-strong" />
         </div>
         <p className="mt-5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           Crée, publie, progresse — sans jongler entre dix outils.

@@ -283,7 +283,7 @@ const HelpPage = () => {
           />
           <div className="container mx-auto max-w-4xl px-4 py-16 text-center md:px-6 md:py-24">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-muted-foreground">
-              <LifeBuoy className="h-3.5 w-3.5 text-primary" />
+              <LifeBuoy className="h-3.5 w-3.5 text-primary-strong" />
               Support Streamnco
             </div>
             <h1 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
@@ -312,7 +312,7 @@ const HelpPage = () => {
           <div className="mb-12 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-white/[0.02] to-transparent p-6 md:p-8">
             <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-start gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary-strong">
                   <MessageCircle className="h-5 w-5" />
                 </div>
                 <div>
@@ -350,7 +350,7 @@ const HelpPage = () => {
                       onClick={() => scrollToCategory(c.id)}
                       className="group flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 text-left transition-all hover:border-primary/30 hover:bg-white/[0.04]"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-strong transition-colors group-hover:bg-primary/20">
                         <Icon className="h-4.5 w-4.5" />
                       </div>
                       <div className="min-w-0">
@@ -414,7 +414,7 @@ const HelpPage = () => {
                     className="scroll-mt-28"
                   >
                     <div className="mb-4 flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary-strong">
                         <Icon className="h-4 w-4" />
                       </div>
                       <h2 className="text-xl font-semibold text-foreground">

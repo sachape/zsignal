@@ -78,7 +78,7 @@ const FeatureList = ({ features }: { features: string[] }) => (
     {features.map((f) => (
       <li key={f} className="flex items-start gap-2.5 text-sm">
         <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/[0.15]">
-          <Check className="h-2.5 w-2.5 text-primary" />
+          <Check className="h-2.5 w-2.5 text-primary-strong" />
         </span>
         <span className="text-muted-foreground">{f}</span>
       </li>
@@ -146,7 +146,7 @@ const PricingSection = () => {
             onClick={() => setBilling("monthly")}
             className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
               billing === "monthly"
-                ? "bg-primary/[0.12] border border-primary/25 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+                ? "bg-primary/[0.12] border border-primary/25 text-primary-strong shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -156,7 +156,7 @@ const PricingSection = () => {
             onClick={() => setBilling("annual")}
             className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
               billing === "annual"
-                ? "bg-primary/[0.12] border border-primary/25 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+                ? "bg-primary/[0.12] border border-primary/25 text-primary-strong shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -165,7 +165,7 @@ const PricingSection = () => {
               className={`rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums transition-colors duration-200 ${
                 billing === "annual"
                   ? "bg-primary text-background"
-                  : "bg-primary/20 text-primary"
+                  : "bg-primary/20 text-primary-strong"
               }`}
             >
               -{PRO_SAVINGS_PCT}%
@@ -176,9 +176,9 @@ const PricingSection = () => {
         {/* Founding member banner */}
         {FOUNDING_MEMBER && (
           <div className="flex w-full max-w-5xl items-center gap-3 rounded-xl border border-primary/25 bg-primary/[0.06] px-4 py-3">
-            <Clock className="h-4 w-4 shrink-0 text-primary" />
+            <Clock className="h-4 w-4 shrink-0 text-primary-strong" />
             <p className="text-xs text-foreground">
-              <span className="font-semibold text-primary">Offre Fondateur · {FOUNDING_SPOTS} places au tarif de lancement.</span>
+              <span className="font-semibold text-primary-strong">Offre Fondateur · {FOUNDING_SPOTS} places au tarif de lancement.</span>
               {" "}Prix locké à vie pour les premiers abonnés — augmentation à {PRO_FUTURE} € / {GROWTH_FUTURE} € ensuite.
             </p>
           </div>
@@ -222,12 +222,12 @@ const PricingSection = () => {
                   <h3 className="mt-1 text-xl font-semibold text-foreground">Pro</h3>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-primary-strong">
                     <Sparkles className="h-2.5 w-2.5" />
                     Recommandé
                   </span>
                   {FOUNDING_MEMBER && (
-                    <span className="rounded-full bg-primary/[0.15] px-2 py-0.5 text-[9px] font-bold text-primary">
+                    <span className="rounded-full bg-primary/[0.15] px-2 py-0.5 text-[9px] font-bold text-primary-strong">
                       Fondateur
                     </span>
                   )}
@@ -257,7 +257,7 @@ const PricingSection = () => {
                 ) : (
                   <p className="mt-1.5 text-xs text-muted-foreground">
                     ou{" "}
-                    <button onClick={() => setBilling("annual")} className="font-semibold text-primary underline-offset-2 hover:underline">
+                    <button onClick={() => setBilling("annual")} className="font-semibold text-primary-strong underline-offset-2 hover:underline">
                       {PRO_ANNUAL} € / an
                     </button>
                     {" "}(-{PRO_SAVINGS_PCT}%)
@@ -290,7 +290,7 @@ const PricingSection = () => {
                   <h3 className="mt-1 text-xl font-semibold text-foreground">Growth</h3>
                 </div>
                 {FOUNDING_MEMBER && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary">
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary-strong">
                     Fondateur
                   </span>
                 )}
@@ -319,7 +319,7 @@ const PricingSection = () => {
                 ) : (
                   <p className="mt-1.5 text-xs text-muted-foreground">
                     ou{" "}
-                    <button onClick={() => setBilling("annual")} className="font-semibold text-primary underline-offset-2 hover:underline">
+                    <button onClick={() => setBilling("annual")} className="font-semibold text-primary-strong underline-offset-2 hover:underline">
                       {GROWTH_ANNUAL} € / an
                     </button>
                     {" "}(-{GROWTH_SAVINGS_PCT}%)

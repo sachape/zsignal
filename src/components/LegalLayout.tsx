@@ -35,7 +35,7 @@ export const LegalLayout = ({
         aria-hidden
       />
       <div className="container relative mx-auto max-w-3xl px-4 md:px-6">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary shadow-[0_0_24px_hsl(var(--primary)/0.18)]">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-strong shadow-[0_0_24px_hsl(var(--primary)/0.18)]">
           Légal
         </span>
         <h1 className="font-display mt-4 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl md:text-5xl">
@@ -59,7 +59,7 @@ export const LegalSection = ({ title, children }: { title: string; children: Rea
 );
 
 export const LegalPlaceholder = ({ label }: { label: string }) => (
-  <span className="rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 text-[11px] font-medium text-primary">
+  <span className="rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 text-[11px] font-medium text-primary-strong">
     [{label}]
   </span>
 );

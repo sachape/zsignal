@@ -5,12 +5,12 @@ import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { SectionShell, SectionHeading, SectionBadge } from "./primitives";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Croissance: "border-primary/30 bg-primary/10 text-primary",
-  Affiliation: "border-primary/25 bg-primary/[0.08] text-primary/80",
-  Stratégie: "border-primary/30 bg-primary/10 text-primary",
+  Croissance: "border-primary/30 bg-primary/10 text-primary-strong",
+  Affiliation: "border-primary/25 bg-primary/[0.08] text-primary-strong/80",
+  Stratégie: "border-primary/30 bg-primary/10 text-primary-strong",
   Outils: "border-foreground/15 bg-foreground/[0.05] text-foreground/60",
   Analytics: "border-foreground/15 bg-foreground/[0.05] text-foreground/60",
-  Produit: "border-primary/30 bg-primary/10 text-primary",
+  Produit: "border-primary/30 bg-primary/10 text-primary-strong",
 };
 
 const FEATURED_ARTICLES = ARTICLES.slice(0, 3);
@@ -59,14 +59,14 @@ const ArticleCard = ({
         {article.readingTime} min de lecture
       </div>
 
-      <h3 className="mt-2.5 text-sm font-bold leading-snug tracking-tight text-foreground transition-colors duration-200 group-hover:text-primary/90 line-clamp-2">
+      <h3 className="mt-2.5 text-sm font-bold leading-snug tracking-tight text-foreground transition-colors duration-200 group-hover:text-primary-strong/90 line-clamp-2">
         {article.title}
       </h3>
       <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground/60 line-clamp-3">
         {article.excerpt}
       </p>
 
-      <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-muted-foreground/60 transition-colors duration-200 group-hover:text-primary">
+      <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-muted-foreground/60 transition-colors duration-200 group-hover:text-primary-strong">
         Lire l'article
         <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
       </div>
@@ -116,7 +116,7 @@ const ArticlesSection = () => {
         >
           <Link
             to="/articles"
-            className="group inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.06] px-6 py-2.5 text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary/10 hover:border-primary/40 hover:shadow-[0_0_24px_hsl(var(--primary)/0.2)]"
+            className="group inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.06] px-6 py-2.5 text-sm font-semibold text-primary-strong transition-all duration-200 hover:bg-primary/10 hover:border-primary/40 hover:shadow-[0_0_24px_hsl(var(--primary)/0.2)]"
           >
             Voir tous les articles
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />

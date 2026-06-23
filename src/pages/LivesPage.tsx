@@ -118,7 +118,7 @@ const LiveRow = ({
               <p
                 className={cn(
                   "text-[10px] font-semibold tabular-nums",
-                  delta > 0 ? "text-primary" : "text-destructive",
+                  delta > 0 ? "text-primary-strong" : "text-destructive",
                 )}
               >
                 {delta > 0 ? `+${delta}` : delta} vs moy.

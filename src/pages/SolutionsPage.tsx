@@ -72,7 +72,7 @@ const FadeIn = ({ children, delay = 0, className = "" }: {
 );
 
 const toneClasses = {
-  primary: "border-primary/20 bg-primary/[0.055] text-primary",
+  primary: "border-primary/20 bg-primary/[0.055] text-primary-strong",
   cyan: "border-cyan-200/20 bg-cyan-200/[0.055] text-cyan-100",
   amber: "border-amber-200/20 bg-amber-200/[0.055] text-amber-100",
 };
@@ -134,7 +134,7 @@ const SolutionsPage = () => {
                 <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl border", toneClasses[solution.tone])}>
                   <solution.icon className="h-6 w-6" />
                 </div>
-                <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+                <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">
                   {solution.label}
                 </p>
                 <h2 className="mt-3 text-2xl font-bold leading-tight text-foreground">
@@ -151,7 +151,7 @@ const SolutionsPage = () => {
                   <div className="mt-3 space-y-2">
                     {solution.focus.map((item) => (
                       <div key={item} className="flex items-center gap-2 rounded-lg bg-white/[0.035] px-3 py-2 text-sm text-foreground">
-                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                        <CheckCircle2 className="h-4 w-4 text-primary-strong" />
                         {item}
                       </div>
                     ))}
@@ -174,7 +174,7 @@ const SolutionsPage = () => {
         <FadeIn className="mt-14">
           <section className="grid overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0d1116] lg:grid-cols-[0.95fr_1.05fr]">
             <div className="border-b border-white/[0.06] p-7 md:p-9 lg:border-b-0 lg:border-r">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">Parcours recommandé</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary-strong">Parcours recommandé</p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground">
                 Créer, organiser, analyser, progresser.
               </h2>
@@ -200,7 +200,7 @@ const SolutionsPage = () => {
                 { icon: Sparkles, label: "Live Studio", copy: "Préparer titres, planning et intentions de live." },
               ].map(({ icon: Icon, label, copy }) => (
                 <div key={label} className="bg-[#0d1116] p-6">
-                  <Icon className="h-5 w-5 text-primary" />
+                  <Icon className="h-5 w-5 text-primary-strong" />
                   <p className="mt-4 text-base font-semibold text-foreground">{label}</p>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{copy}</p>
                 </div>

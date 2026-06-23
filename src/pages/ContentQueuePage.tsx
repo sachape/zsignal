@@ -59,7 +59,7 @@ const STATUS_META: Record<ContentStatus, { label: string; cls: string }> = {
   to_generate:        { label: "À générer",           cls: "border-violet-500/40 bg-violet-500/10 text-violet-300" },
   generating:         { label: "Génération en cours", cls: "border-violet-500/40 bg-violet-500/15 text-violet-200" },
   draft_ready:        { label: "Brouillon prêt",      cls: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300" },
-  ready:              { label: "Prêt à publier",      cls: "border-primary/40 bg-primary/10 text-primary" },
+  ready:              { label: "Prêt à publier",      cls: "border-primary/40 bg-primary/10 text-primary-strong" },
   uploaded:           { label: "Importé",             cls: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
   published:          { label: "Publié",              cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
   published_manually: { label: "Publié manuellement", cls: "border-emerald-500/30 bg-emerald-500/5 text-emerald-200" },
@@ -68,7 +68,7 @@ const STATUS_META: Record<ContentStatus, { label: string; cls: string }> = {
 
 const PRIORITY_META: Record<ContentPriority, { label: string; cls: string }> = {
   high: { label: "Élevée", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
-  medium: { label: "Moyenne", cls: "border-primary/40 bg-primary/10 text-primary" },
+  medium: { label: "Moyenne", cls: "border-primary/40 bg-primary/10 text-primary-strong" },
   low: { label: "Faible", cls: "border-border bg-muted text-muted-foreground" },
 };
 
@@ -219,7 +219,7 @@ const ContentQueuePage = () => {
 
         {/* Banner — manual publish info */}
         <div className="mb-4 flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2.5 text-[12px] text-foreground/90">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
           <p>
             Publication automatique bientôt disponible après validation des plateformes.
             En attendant, tu peux télécharger tes médias, copier tes textes et publier manuellement
@@ -241,7 +241,7 @@ const ContentQueuePage = () => {
           <Card className="mb-5 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
             <CardContent className="space-y-3 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Flame className="h-4 w-4 text-primary" />
+                <Flame className="h-4 w-4 text-primary-strong" />
                 À traiter en priorité
                 <span className="ml-auto text-[10px] font-normal text-muted-foreground">
                   Score éditorial — pas une prédiction de performance
@@ -254,16 +254,16 @@ const ContentQueuePage = () => {
                   return (
                     <div key={i.id} className="rounded-md border border-border/60 bg-background/60 p-3">
                       <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                        <Ico className="h-3 w-3 text-primary" />
+                        <Ico className="h-3 w-3 text-primary-strong" />
                         {meta.label}
-                        <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-semibold text-primary">
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-semibold text-primary-strong">
                           <TrendingUp className="h-2.5 w-2.5" />
                           {i.opportunity_score ?? "—"}
                         </span>
                       </div>
                       <p className="mt-1.5 line-clamp-2 text-xs font-medium text-foreground">{normalizeClipTitle(i.title)}</p>
                       {i.opportunity_label && (
-                        <p className="mt-1 text-[10px] text-primary/80">{i.opportunity_label}</p>
+                        <p className="mt-1 text-[10px] text-primary-strong/80">{i.opportunity_label}</p>
                       )}
                     </div>
                   );
@@ -283,7 +283,7 @@ const ContentQueuePage = () => {
               className={cn(
                 "rounded-full border px-3 py-1 text-xs transition",
                 filter === f.key
-                  ? "border-primary bg-primary/10 text-primary"
+                  ? "border-primary bg-primary/10 text-primary-strong"
                   : "border-border bg-card hover:border-border/80 text-muted-foreground",
               )}
             >
@@ -308,7 +308,7 @@ const ContentQueuePage = () => {
         ) : filtered.length === 0 ? (
           <Card className="border-dashed border-border/50 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.06),transparent_60%)] bg-card/40">
             <CardContent className="flex flex-col items-center gap-4 px-6 py-12 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary-strong ring-1 ring-primary/20">
                 <Inbox className="h-6 w-6" />
               </div>
               <div className="space-y-1.5">
@@ -430,7 +430,7 @@ const ContentQueuePage = () => {
 function StatCell({ label, value, accent }: { label: string; value: number; accent?: "amber" | "primary" | "emerald" | "violet" | "cyan" }) {
   const cls =
     accent === "amber" ? "border-amber-500/30 bg-amber-500/5 text-amber-300"
-    : accent === "primary" ? "border-primary/30 bg-primary/5 text-primary"
+    : accent === "primary" ? "border-primary/30 bg-primary/5 text-primary-strong"
     : accent === "emerald" ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
     : accent === "violet" ? "border-violet-500/30 bg-violet-500/5 text-violet-300"
     : accent === "cyan" ? "border-cyan-500/30 bg-cyan-500/5 text-cyan-300"
@@ -511,12 +511,12 @@ function ContentRow({
                 />
               )}
               <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border border-background bg-card">
-                <PlatformIcon className="h-2.5 w-2.5 text-primary" />
+                <PlatformIcon className="h-2.5 w-2.5 text-primary-strong" />
               </span>
             </div>
           ) : (
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/60 bg-background/40">
-              <PlatformIcon className="h-4 w-4 text-primary" />
+              <PlatformIcon className="h-4 w-4 text-primary-strong" />
             </div>
           )}
           <div className="min-w-0 flex-1">
@@ -536,7 +536,7 @@ function ContentRow({
               {typeof item.opportunity_score === "number" && (
                 <span
                   title={item.opportunity_reason ?? undefined}
-                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary"
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary-strong"
                 >
                   <TrendingUp className="h-2.5 w-2.5" />
                   {item.opportunity_score}
@@ -560,7 +560,7 @@ function ContentRow({
                       className={cn(
                         "rounded-full border px-2 py-0.5 text-[10px] transition",
                         active
-                          ? "border-primary bg-primary/10 text-primary"
+                          ? "border-primary bg-primary/10 text-primary-strong"
                           : "border-border bg-card text-muted-foreground hover:border-border/80",
                       )}
                       title={v.value}
@@ -656,7 +656,7 @@ function ContentRow({
             )}
             {item.reason && (
               <p className="rounded-md border border-border/60 bg-background/40 p-2 text-[11px] italic text-muted-foreground">
-                <Sparkles className="mr-1 inline h-3 w-3 text-primary" />
+                <Sparkles className="mr-1 inline h-3 w-3 text-primary-strong" />
                 {humanizeReason(item.reason)}
               </p>
             )}
@@ -672,7 +672,7 @@ function ContentRow({
         {isVideo && item.status !== "ignored" && (
           <div className="space-y-2 rounded-md border border-border/60 bg-background/40 p-3">
             <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
-              <Film className="h-3.5 w-3.5 text-primary" />
+              <Film className="h-3.5 w-3.5 text-primary-strong" />
               Clip Draft
             </div>
 
@@ -697,7 +697,7 @@ function ContentRow({
                   <span className="font-medium text-foreground">Source : </span>
                   {item.source_video_url
                     ? <a href={item.source_video_url} target="_blank" rel="noreferrer noopener"
-                        className="text-primary hover:underline break-all">
+                        className="text-primary-strong hover:underline break-all">
                         {item.reason === "twitch_clip_full" ? "Clip Twitch" : humanizeSourcePlatform(item.source_platform)} <ExternalLink className="inline h-3 w-3" />
                       </a>
                     : <span className="italic">Aucune source enregistrée (l'upload se fait à la génération)</span>}
@@ -793,7 +793,7 @@ function ContentRow({
           <div className="ml-auto flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
             {item.youtube_url && (
               <a href={item.youtube_url} target="_blank" rel="noreferrer noopener"
-                className="inline-flex items-center gap-1 text-primary hover:underline">
+                className="inline-flex items-center gap-1 text-primary-strong hover:underline">
                 Voir sur YouTube <ExternalLink className="h-3 w-3" />
               </a>
             )}
@@ -804,7 +804,7 @@ function ContentRow({
               </span>
             )}
             {item.live_session_id && (
-              <Link to="/live-setup" className="inline-flex items-center gap-1 text-primary hover:underline">
+              <Link to="/live-setup" className="inline-flex items-center gap-1 text-primary-strong hover:underline">
                 Live source <ExternalLink className="h-3 w-3" />
               </Link>
             )}
@@ -853,7 +853,7 @@ function ContentRow({
                   }
                   return `/composer?${params.toString()}`;
                 })()}
-                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary hover:bg-primary/20"
+                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary-strong hover:bg-primary/20"
                 title="Créer une publication Instagram à partir de cet item"
               >
                 <Camera className="h-3 w-3" />
@@ -967,7 +967,7 @@ function SourceVideoDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Film className="h-5 w-5 text-primary" /> Source vidéo
+            <Film className="h-5 w-5 text-primary-strong" /> Source vidéo
           </DialogTitle>
           <DialogDescription>
             Colle l'URL de la VOD Twitch / YouTube source, puis indique le moment à clipper.
@@ -1131,7 +1131,7 @@ function ContinuePreparationButton({
         {label}
       </Button>
       {loading && (
-        <span className="inline-flex items-center gap-1 text-[11px] text-primary/80">
+        <span className="inline-flex items-center gap-1 text-[11px] text-primary-strong/80">
           <Loader2 className="h-3 w-3 animate-spin" />
           {message}
         </span>

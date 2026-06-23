@@ -181,7 +181,7 @@ function getActiveTierIndex(broadcasterType: string, progress: RawProgress | nul
 }
 
 function getColor(pct: number) {
-  if (pct >= 100) return { bar: "bg-primary", text: "text-primary", border: "border-primary/30", bg: "bg-primary/[0.05]" };
+  if (pct >= 100) return { bar: "bg-primary", text: "text-primary-strong", border: "border-primary/30", bg: "bg-primary/[0.05]" };
   if (pct >= 60)  return { bar: "bg-warning",  text: "text-warning",  border: "border-warning/30",  bg: "bg-warning/[0.05]"  };
   return { bar: "bg-destructive", text: "text-destructive", border: "border-destructive/30", bg: "bg-destructive/[0.05]" };
 }
@@ -215,7 +215,7 @@ function MilestoneStepper({ activeTierIndex, completedUpTo }: {
                   isCompleted
                     ? "border-primary bg-primary text-primary-foreground shadow-[0_0_12px_-2px] shadow-primary/40"
                     : isActive
-                      ? "border-primary bg-primary/10 text-primary"
+                      ? "border-primary bg-primary/10 text-primary-strong"
                       : "border-border/30 bg-muted/20 text-muted-foreground/40",
                 )}
               >
@@ -304,7 +304,7 @@ function CriteriaGrid({ progress, tier }: { progress: RawProgress; tier: TierDef
                 <p className="mt-0.5 text-[11px] text-muted-foreground">{meta.desc}</p>
               </div>
               {done ? (
-                <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-primary-strong" />
               ) : (
                 <Circle className="h-5 w-5 shrink-0 text-muted-foreground/20" />
               )}
@@ -324,7 +324,7 @@ function CriteriaGrid({ progress, tier }: { progress: RawProgress; tier: TierDef
             </div>
 
             {done ? (
-              <p className="mt-2 text-[10px] font-semibold text-primary">Atteint ✓</p>
+              <p className="mt-2 text-[10px] font-semibold text-primary-strong">Atteint ✓</p>
             ) : (
               <div className="mt-2 flex flex-wrap items-center gap-x-3">
                 <p className={cn("text-[10px] font-semibold tabular-nums", colors.text)}>
@@ -433,7 +433,7 @@ const AffiliationPage = () => {
             )}
           </div>
           {(isAffiliate || isPartner) && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary-strong">
               <Sparkles className="h-4 w-4" />
               {isPartner ? "Partenaire" : "Affilié"} ✓
             </span>
@@ -464,7 +464,7 @@ const AffiliationPage = () => {
         {isPartner && (
           <div className="mb-8 overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.04] p-7">
             <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/[0.08] blur-3xl" aria-hidden />
-            <Star className="mb-3 h-8 w-8 text-primary" />
+            <Star className="mb-3 h-8 w-8 text-primary-strong" />
             <h2 className="text-xl font-bold text-foreground">Tu es Partenaire Twitch !</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               Statut le plus élevé sur Twitch. Concentre-toi maintenant sur la croissance durable, la monétisation et la fidélisation de ta communauté.
@@ -491,7 +491,7 @@ const AffiliationPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold tabular-nums text-foreground">{overallPct}%</span>
-                  {overallPct > 0 && <TrendingUp className="h-5 w-5 text-primary" />}
+                  {overallPct > 0 && <TrendingUp className="h-5 w-5 text-primary-strong" />}
                 </div>
               </div>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
@@ -516,7 +516,7 @@ const AffiliationPage = () => {
               <div className="grid gap-2 sm:grid-cols-2">
                 {activeTier.unlocks.map((unlock) => (
                   <div key={unlock} className="flex items-center gap-2 text-sm text-foreground">
-                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary/60" />
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary-strong/60" />
                     {unlock}
                   </div>
                 ))}

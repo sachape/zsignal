@@ -95,7 +95,7 @@ const StudioWindow = () => {
             <span className="h-3 w-3 rounded-full bg-[#28c840]" />
           </div>
           <div className="flex items-center gap-1.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2.5 py-1">
-            <Clapperboard className="h-3 w-3 text-primary" />
+            <Clapperboard className="h-3 w-3 text-primary-strong" />
             <span className="text-[10px] font-medium text-muted-foreground">app.streamnco.fr / studio</span>
           </div>
           <div className="w-12" />
@@ -111,7 +111,7 @@ const StudioWindow = () => {
               <div className="absolute inset-x-0 bottom-0 top-[44%] bg-[linear-gradient(160deg,#1c2a16,#0a0d0c)]" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(190,255,90,0.18),transparent_55%)]" />
               {/* facecam chip */}
-              <div className="absolute left-2 top-2 rounded-md border border-white/15 bg-black/45 px-1.5 py-0.5 text-[7px] font-semibold uppercase tracking-wide text-primary backdrop-blur-sm">
+              <div className="absolute left-2 top-2 rounded-md border border-white/15 bg-black/45 px-1.5 py-0.5 text-[7px] font-semibold uppercase tracking-wide text-primary-strong backdrop-blur-sm">
                 Facecam
               </div>
               {/* typing caption */}
@@ -167,7 +167,7 @@ const StudioWindow = () => {
                     initial={reduce ? false : { opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={reduce ? undefined : { opacity: 0, scale: 0.9 }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/15 px-2.5 py-1 text-[10px] font-semibold text-primary"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/15 px-2.5 py-1 text-[10px] font-semibold text-primary-strong"
                   >
                     <CheckCircle2 className="h-3 w-3" /> Prêt
                   </motion.span>
@@ -189,7 +189,7 @@ const StudioWindow = () => {
                   transition={{ duration: 0.5, ease: EASE, delay: 0.5 + i * 0.12 }}
                   className="rounded-lg border border-white/[0.07] bg-white/[0.03] p-2"
                 >
-                  <Icon className="h-3.5 w-3.5 text-primary" />
+                  <Icon className="h-3.5 w-3.5 text-primary-strong" />
                   <p className="mt-1.5 text-[9px] font-medium text-foreground/90">{label}</p>
                 </motion.div>
               ))}
@@ -211,7 +211,7 @@ const StudioWindow = () => {
                 <span className="absolute inset-0 flex items-center justify-center text-sm font-bold tabular-nums text-foreground">{score}</span>
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/80">StreamScore</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary-strong/80">StreamScore</p>
                 <div className="mt-1.5 space-y-1">
                   {SCORE_DIMS.map((d, i) => (
                     <div key={d.label} className="flex items-center gap-2">
@@ -272,7 +272,7 @@ const HeroSection = () => {
           <div>
             <motion.span
               {...rise(0)}
-              className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-strong"
             >
               <Sparkles className="h-3.5 w-3.5" /> Pour les streamers qui veulent grandir
             </motion.span>
@@ -282,7 +282,7 @@ const HeroSection = () => {
               className="mt-6 max-w-3xl text-[2.75rem] font-bold leading-[0.98] tracking-[-0.02em] text-foreground sm:text-6xl md:text-[4.2rem]"
             >
               Plus de clips, plus de vues,{" "}
-              <span className="text-primary">plus d'abonnés.</span>
+              <span className="text-primary-strong">plus d'abonnés.</span>
             </motion.h1>
 
             <motion.p {...rise(0.14)} className="mt-6 max-w-lg text-base leading-8 text-muted-foreground md:text-lg">
@@ -321,7 +321,7 @@ const HeroSection = () => {
             <motion.div {...rise(0.3)} className="mt-7 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
               {["Clips 9:16 prêts à poster", "Visuels réseaux en un clic", "Ta progression, en clair"].map((item) => (
                 <div key={item} className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  <CheckCircle2 className="h-4 w-4 text-primary-strong" />
                   <span>{item}</span>
                 </div>
               ))}
@@ -356,7 +356,7 @@ const HeroSection = () => {
                   { icon: Activity, label: "Score + recommandations" },
                 ].map(({ icon: Icon, label }) => (
                   <li key={label} className="inline-flex items-center gap-1.5">
-                    <Icon className="h-3 w-3 text-primary" />
+                    <Icon className="h-3 w-3 text-primary-strong" />
                     <span>{label}</span>
                   </li>
                 ))}

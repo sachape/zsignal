@@ -82,7 +82,7 @@ const FinalCtaSection = () => {
                     y={14}
                     className="group rounded-xl border border-white/[0.07] bg-white/[0.035] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-white/[0.06] sm:last:col-span-2"
                   >
-                    <Icon className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
+                    <Icon className="h-4 w-4 text-primary-strong transition-transform duration-300 group-hover:scale-110" />
                     <p className="mt-3 text-sm font-semibold text-foreground">{label}</p>
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{copy}</p>
                   </StaggerItem>

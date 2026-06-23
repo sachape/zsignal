@@ -7,9 +7,9 @@ import { ARTICLES } from "@/data/articles";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Croissance: "border-primary/30 bg-primary/10 text-primary",
+  Croissance: "border-primary/30 bg-primary/10 text-primary-strong",
   Affiliation: "border-accent/30 bg-accent/10 text-accent",
-  Stratégie: "border-primary/30 bg-primary/10 text-primary",
+  Stratégie: "border-primary/30 bg-primary/10 text-primary-strong",
   Outils: "border-info/30 bg-info/10 text-info",
   Analytics: "border-info/30 bg-info/10 text-info",
 };
@@ -44,14 +44,14 @@ const ArticleCard = ({ article, featured = false }: { article: typeof ARTICLES[n
         </span>
       </div>
 
-      <h2 className={`mt-3 font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary/90 ${featured ? "text-xl" : "text-base"}`}>
+      <h2 className={`mt-3 font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary-strong/90 ${featured ? "text-xl" : "text-base"}`}>
         {article.title}
       </h2>
       <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground/70">
         {article.excerpt}
       </p>
 
-      <div className="mt-4 flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
+      <div className="mt-4 flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary-strong">
         Lire l'article
         <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </div>

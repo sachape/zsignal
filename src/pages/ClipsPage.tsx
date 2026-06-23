@@ -86,7 +86,7 @@ function formatViews(n: number | null | undefined): string {
 function labelBadgeClass(label: ClipInsight["label"]): string {
   switch (label) {
     case "high":
-      return "border-primary/40 bg-primary/15 text-primary";
+      return "border-primary/40 bg-primary/15 text-primary-strong";
     case "good":
       return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
     case "rework":
@@ -290,7 +290,7 @@ const SummaryTile = ({
 }) => (
   <Card className="border-border/60 bg-card/60">
     <CardContent className="flex items-start gap-3 p-4">
-      <div className="rounded-md bg-primary/10 p-2 text-primary">
+      <div className="rounded-md bg-primary/10 p-2 text-primary-strong">
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0">
@@ -428,7 +428,7 @@ const ClipsPage = () => {
         {status === "ready" && result && result.total === 0 && (
           <Card className="border-border/60 bg-card/40">
             <CardContent className="flex flex-col items-center gap-3 p-10 text-center">
-              <div className="rounded-full bg-primary/10 p-3 text-primary">
+              <div className="rounded-full bg-primary/10 p-3 text-primary-strong">
                 <Scissors className="h-6 w-6" />
               </div>
               <h2 className="text-lg font-semibold text-foreground">Aucun clip Twitch récent détecté.</h2>
@@ -493,7 +493,7 @@ const ClipsPage = () => {
                     className={cn(
                       "rounded-full border px-3 py-1 text-xs transition-colors",
                       filter === f.id
-                        ? "border-primary/40 bg-primary/15 text-primary"
+                        ? "border-primary/40 bg-primary/15 text-primary-strong"
                         : "border-border/60 bg-card/40 text-muted-foreground hover:bg-muted/40",
                     )}
                   >

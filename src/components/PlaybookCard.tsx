@@ -33,7 +33,7 @@ const PlaybookCard = ({ playbook, highlighted = false }: Props) => {
       {/* Header */}
       <div className="mb-3 flex items-start gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent/10 transition-colors group-hover:bg-primary/10">
-          <BookOpen className="h-4 w-4 text-accent transition-colors group-hover:text-primary" />
+          <BookOpen className="h-4 w-4 text-accent transition-colors group-hover:text-primary-strong" />
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold text-foreground leading-snug">
@@ -61,7 +61,7 @@ const PlaybookCard = ({ playbook, highlighted = false }: Props) => {
             {playbook.impact === "high" ? "Fort impact" : "Impact moyen"}
           </span>
         </div>
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary-strong opacity-0 transition-opacity group-hover:opacity-100">
           Lire le playbook <ArrowRight className="h-3 w-3" />
         </span>
       </div>

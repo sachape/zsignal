@@ -33,6 +33,8 @@
     /* ── Brand: lime accent (#89FD3A) ────────────────────────────── */
     --primary: 95 98% 61%;
     --primary-foreground: 0 0% 7%;
+    /* Lime used as TEXT/icon color (vivid in dark; darkened in .light). */
+    --primary-strong: 95 98% 61%;
 
     /* Supporting accent — used for non-CTA visual differentiation
        (competitor markers, "next action" callout). Never used for primary actions. */
@@ -105,6 +107,8 @@
     /* ── Brand + semantic: unchanged from dark (consistency) ─────── */
     --primary: 95 98% 61%;
     --primary-foreground: 0 0% 7%;
+    /* But lime-as-TEXT is darkened so it stays readable on light surfaces. */
+    --primary-strong: 96 60% 30%;
 
     --accent: 172 66% 50%;
     --accent-foreground: 220 20% 6%;

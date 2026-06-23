@@ -186,7 +186,7 @@ interface ObservedMechanic {
 }
 
 const usefulnessMeta: Record<MechanicUsefulness, { label: string; tone: string }> = {
-  copy: { label: "Utile à copier", tone: "border-primary/40 bg-primary/10 text-primary" },
+  copy: { label: "Utile à copier", tone: "border-primary/40 bg-primary/10 text-primary-strong" },
   observe: { label: "À observer", tone: "border-border bg-muted/30 text-muted-foreground" },
   inspiring: {
     label: "Inspiration",
@@ -713,7 +713,7 @@ const StreamerProfilePage = () => {
         <Card className="mb-6 border-primary/20 bg-primary/5">
           <CardContent className="p-5">
             <div className="mb-2 flex items-center gap-2">
-              <Compass className="h-4 w-4 text-primary" />
+              <Compass className="h-4 w-4 text-primary-strong" />
               <h3 className="text-sm font-semibold text-foreground">
                 Pourquoi inspecter ce profil
               </h3>
@@ -978,7 +978,7 @@ const StreamerProfilePage = () => {
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="p-5">
               <div className="mb-2 flex items-center gap-2">
-                <Copy className="h-4 w-4 text-primary" />
+                <Copy className="h-4 w-4 text-primary-strong" />
                 <h3 className="text-sm font-semibold text-foreground">
                   Ce qui vaut le coup d'être copié
                 </h3>
@@ -989,7 +989,7 @@ const StreamerProfilePage = () => {
               <ul className="space-y-2">
                 {copyableMechanics.map((m, i) => (
                   <li key={i} className="flex gap-2 text-sm text-foreground">
-                    <Lightbulb className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                    <Lightbulb className="h-4 w-4 shrink-0 text-primary-strong mt-0.5" />
                     <span>{m}</span>
                   </li>
                 ))}
@@ -1095,12 +1095,12 @@ const StreamerProfilePage = () => {
 
                     {mainGap && (
                       <div className="mt-3 rounded-md border border-primary/30 bg-primary/5 p-3">
-                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
+                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary-strong">
                           <Lightbulb className="h-3.5 w-3.5" />
                           Première mécanique à copier
                         </div>
                         <p className="text-sm text-foreground flex items-start gap-2">
-                          <ArrowRight className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                          <ArrowRight className="h-4 w-4 shrink-0 text-primary-strong mt-0.5" />
                           <span>{mainGap.mechanic}</span>
                         </p>
                       </div>

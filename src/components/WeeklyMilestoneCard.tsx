@@ -108,7 +108,7 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
               reached ? "bg-primary/15" : "bg-primary/10"
             }`}
           >
-            <Target className="h-4 w-4 text-primary" />
+            <Target className="h-4 w-4 text-primary-strong" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
@@ -147,7 +147,7 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
                 >
                   <div className="mt-0.5 shrink-0">
                     {done ? (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary-strong" />
                     ) : skipped ? (
                       <XCircle className="h-3.5 w-3.5 text-muted-foreground/60" />
                     ) : (
@@ -180,7 +180,7 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
                   {item.status === "todo" ? (
                     <button
                       onClick={() => handleStatus(item.id, "done")}
-                      className="shrink-0 text-[10px] font-medium text-primary hover:underline"
+                      className="shrink-0 text-[10px] font-medium text-primary-strong hover:underline"
                     >
                       Fait
                     </button>

@@ -103,7 +103,7 @@ const AuthForm = ({
     return (
       <div className="flex flex-col items-center gap-4 py-4 text-center">
         <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-          <Mail className="h-4 w-4 text-primary" />
+          <Mail className="h-4 w-4 text-primary-strong" />
         </div>
         <div className="space-y-1.5">
           <h2 className="text-base font-semibold text-foreground">
@@ -126,7 +126,7 @@ const AuthForm = ({
             <p className="text-sm text-muted-foreground">{contextText}</p>
           )}
           {pendingChannel && (
-            <p className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+            <p className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary-strong">
               Chaîne en attente d'analyse&nbsp;:{" "}
               <span className="font-semibold">{pendingChannel}</span>
             </p>
@@ -246,7 +246,7 @@ const AuthForm = ({
           <button
             type="button"
             onClick={() => setMode("signup")}
-            className="font-medium text-primary hover:underline"
+            className="font-medium text-primary-strong hover:underline"
           >
             Crée-en un
           </button>

@@ -73,7 +73,7 @@ const FaqSection = () => {
             >
               <AccordionTrigger className="py-4 text-left text-sm font-medium text-foreground hover:no-underline md:text-base">
                 <span className="flex items-start gap-3 pr-3">
-                  <HelpCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary/70" />
+                  <HelpCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong/70" />
                   {item.q}
                 </span>
               </AccordionTrigger>

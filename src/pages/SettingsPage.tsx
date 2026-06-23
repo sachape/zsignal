@@ -134,7 +134,7 @@ const SettingsPage = () => {
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary-strong">
                     Connecté
                   </span>
                 </div>

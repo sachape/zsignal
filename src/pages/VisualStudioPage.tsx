@@ -224,13 +224,13 @@ const VisualStudioPage = () => {
                     )}
                     {v.is_favorite && (
                       <div className="absolute right-2 top-2 rounded-full bg-background/80 p-1">
-                        <Star className="h-3 w-3 fill-primary text-primary" />
+                        <Star className="h-3 w-3 fill-primary text-primary-strong" />
                       </div>
                     )}
                   </div>
                   <div className="flex items-center justify-between gap-1 p-2 opacity-80 transition-opacity group-hover:opacity-100">
                     <Button size="icon" variant="ghost" onClick={() => handleFavorite(v)} title="Favori">
-                      <Star className={cn("h-4 w-4", v.is_favorite && "fill-primary text-primary")} />
+                      <Star className={cn("h-4 w-4", v.is_favorite && "fill-primary text-primary-strong")} />
                     </Button>
                     <Button size="icon" variant="ghost" onClick={() => handleDownload(v)} title="Télécharger">
                       <Download className="h-4 w-4" />

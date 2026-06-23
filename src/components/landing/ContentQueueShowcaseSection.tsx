@@ -38,7 +38,7 @@ const COLUMNS: { title: string; status: Status; icon: typeof Clock; items: { typ
 ];
 
 const statusTone: Record<Status, string> = {
-  ready: "text-primary",
+  ready: "text-primary-strong",
   draft: "text-muted-foreground",
   scheduled: "text-info",
 };
@@ -93,7 +93,7 @@ const ContentQueueShowcaseSection = () => {
                     className="group/item rounded-xl border border-border bg-background/60 p-3 transition-all hover:border-primary/25 hover:bg-background/60"
                   >
                     <div className="flex items-start gap-2.5">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-strong ring-1 ring-primary/20">
                         <Icon className="h-3.5 w-3.5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -124,7 +124,7 @@ const ContentQueueShowcaseSection = () => {
         ].map(({ icon: Icon, label, desc }) => (
           <div key={label} className="rounded-2xl border border-border bg-background/60 p-4">
             <div className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-primary" />
+              <Icon className="h-4 w-4 text-primary-strong" />
               <span className="text-sm font-semibold text-foreground">{label}</span>
             </div>
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{desc}</p>

@@ -127,10 +127,10 @@ const AccountMenu = () => {
               <span className="flex-1 truncate font-medium">{accName}</span>
               {isActive && (
                 <>
-                  <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary">
+                  <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary-strong">
                     Active
                   </span>
-                  <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary-strong" />
                 </>
               )}
             </DropdownMenuItem>
@@ -159,9 +159,9 @@ const AccountMenu = () => {
             className="gap-2.5 px-2.5 py-2 text-xs"
             onClick={() => navigate("/billing")}
           >
-            <PlusCircle className="h-3.5 w-3.5 shrink-0 text-primary" />
+            <PlusCircle className="h-3.5 w-3.5 shrink-0 text-primary-strong" />
             <span className="flex-1">Passe à Growth pour connecter jusqu’à 3 chaînes</span>
-            <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary">
+            <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary-strong">
               Growth
             </span>
           </DropdownMenuItem>
@@ -181,7 +181,7 @@ const AccountMenu = () => {
             <PlusCircle className="h-3.5 w-3.5 shrink-0" />
             <span className="flex-1">Ajouter une chaîne Twitch</span>
             {!isGrowth && (
-              <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary">
+              <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary-strong">
                 Growth
               </span>
             )}

@@ -17,7 +17,7 @@ const WeeklySequenceCard = ({ actions, showPlanLink }: Props) => {
       <CardContent className="p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
           <div className="flex min-w-0 flex-1 items-start gap-2">
-            <ListChecks className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <ListChecks className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
             <div className="min-w-0">
               <h3 className="text-sm font-semibold text-foreground">
                 Ce que tu fais cette semaine
@@ -42,7 +42,7 @@ const WeeklySequenceCard = ({ actions, showPlanLink }: Props) => {
               className="rounded-md border border-border/60 bg-muted/20 p-3"
             >
               <div className="flex items-start gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary-strong">
                   {a.order}
                 </div>
                 <div className="min-w-0 flex-1">

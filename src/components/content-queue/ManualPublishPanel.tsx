@@ -113,7 +113,7 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
   return (
     <div className="space-y-3 rounded-md border border-primary/30 bg-primary/5 p-3">
       <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
-        <Send className="h-3.5 w-3.5 text-primary" />
+        <Send className="h-3.5 w-3.5 text-primary-strong" />
         Publication manuelle
         <span className="ml-auto text-[10px] font-normal text-muted-foreground">
           Publie sur la plateforme, puis colle l'URL ici

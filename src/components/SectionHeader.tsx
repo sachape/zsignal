@@ -22,7 +22,7 @@ const SectionHeader = ({
     >
       {label &&
         (isCenter ? (
-          <span className="mb-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+          <span className="mb-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-strong">
             {label}
           </span>
         ) : (

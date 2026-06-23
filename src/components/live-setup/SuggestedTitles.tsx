@@ -62,7 +62,7 @@ export default function SuggestedTitles({
     <div className="space-y-3 rounded-xl border border-primary/25 bg-primary/[0.04] p-4">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Sparkles className="h-4 w-4 text-primary" />
+          <Sparkles className="h-4 w-4 text-primary-strong" />
           Titres suggérés
         </div>
         <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setSeed(s => s + 1)}>

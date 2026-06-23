@@ -103,7 +103,7 @@ export default function AfterPublishPanel({ item, onSynced }: Props) {
               href={item.published_url ?? item.youtube_url ?? "#"}
               target="_blank"
               rel="noreferrer noopener"
-              className="text-primary hover:underline break-all"
+              className="text-primary-strong hover:underline break-all"
             >
               voir la vidéo <ExternalLink className="inline h-3 w-3" />
             </a>
@@ -128,7 +128,7 @@ export default function AfterPublishPanel({ item, onSynced }: Props) {
             <Metric label="Commentaires" value={stored!.comments} />
           </div>
           <div className="flex items-center gap-2 pt-1">
-            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary-strong">
               <Sparkles className="h-2.5 w-2.5" />
               {perf.text}
             </span>

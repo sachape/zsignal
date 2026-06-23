@@ -23,7 +23,7 @@ const ClipGenerationDialog = ({ item, open, onOpenChange, onLaunched }: Props) =
       >
         <DialogHeader className="border-b border-border/60 px-5 py-4">
           <DialogTitle className="flex items-center gap-2">
-            <Wand2 className="h-5 w-5 text-primary" /> Préparer le clip
+            <Wand2 className="h-5 w-5 text-primary-strong" /> Préparer le clip
           </DialogTitle>
           <DialogDescription>
             Source détectée. Ajuste la caméra et les sous-titres, puis lance la génération.

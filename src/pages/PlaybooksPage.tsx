@@ -69,7 +69,7 @@ const PlaybooksPage = () => {
         {recommended.length > 0 && (
           <div className="mb-8">
             <div className="mb-3 flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
+              <Sparkles className="h-3.5 w-3.5 text-primary-strong" aria-hidden />
               <h2 className="text-sm font-semibold text-foreground">Recommandé pour toi</h2>
               {!isPro && <Lock className="h-3 w-3 text-muted-foreground/40" />}
               <span className="text-[11px] text-muted-foreground">

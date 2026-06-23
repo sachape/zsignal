@@ -380,7 +380,7 @@ const ResultPage = () => {
           />
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-              <Sparkles className="h-5 w-5 text-primary" />
+              <Sparkles className="h-5 w-5 text-primary-strong" />
               <h3 className="text-base font-semibold text-foreground">
                 Aucun diagnostic disponible pour le moment
               </h3>
@@ -635,7 +635,7 @@ const ResultPage = () => {
                   @{report.identity?.platform_login ?? summary.channel_name}
                 </span>
                 {summary.category && summary.category !== "unknown" && (
-                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
                     {summary.category}
                   </span>
                 )}
@@ -645,7 +645,7 @@ const ResultPage = () => {
                   </span>
                 )}
                 {summary.broadcaster_type === "partner" && (
-                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
                     Partenaire
                   </span>
                 )}
@@ -656,10 +656,10 @@ const ResultPage = () => {
             {isReconstruction ? (
               <div className="flex flex-col items-center gap-3">
                 <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 shadow-[0_0_32px_hsl(var(--primary)/0.25)]">
-                  <Compass className="h-8 w-8 text-primary" />
+                  <Compass className="h-8 w-8 text-primary-strong" />
                 </div>
                 <div className="max-w-sm">
-                  <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+                  <p className="text-sm font-semibold uppercase tracking-wider text-primary-strong">
                     Mode structuration
                   </p>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
@@ -787,9 +787,9 @@ const ResultPage = () => {
               <div className="h-full rounded-2xl border border-primary/20 bg-primary/[0.06] p-6 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)] backdrop-blur-xl">
                 <div className="mb-3 flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
-                    <Zap className="h-4 w-4 text-primary" />
+                    <Zap className="h-4 w-4 text-primary-strong" />
                   </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong">
                     Action prioritaire
                   </span>
                 </div>
@@ -1040,7 +1040,7 @@ const ResultPage = () => {
                       locked ? "bg-muted/20" : "bg-primary/15 group-hover:bg-primary/25"
                     }`}
                   >
-                    <Icon className={`h-4 w-4 ${locked ? "text-muted-foreground/25" : "text-primary"}`} />
+                    <Icon className={`h-4 w-4 ${locked ? "text-muted-foreground/25" : "text-primary-strong"}`} />
                   </div>
                   <h3
                     className={`mt-3 text-sm font-semibold leading-snug ${
@@ -1057,7 +1057,7 @@ const ResultPage = () => {
                     {rec.reason}
                   </p>
                   {!locked && rec.action && (
-                    <p className="mt-3 text-xs font-medium text-primary">{rec.action}</p>
+                    <p className="mt-3 text-xs font-medium text-primary-strong">{rec.action}</p>
                   )}
                 </div>
               );
@@ -1068,7 +1068,7 @@ const ResultPage = () => {
         {!isPersisted && (
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-              <Lock className="h-5 w-5 text-primary" />
+              <Lock className="h-5 w-5 text-primary-strong" />
               <h3 className="text-base font-semibold text-foreground">
                 Tu veux l'analyse complète ?
               </h3>

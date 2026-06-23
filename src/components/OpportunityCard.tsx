@@ -47,7 +47,7 @@ const OpportunityCard = ({ opportunity, index, locked = false }: Props) => {
               className={cn(
                 "gap-1 text-[10px] font-semibold",
                 isFoundation
-                  ? "border-primary/30 bg-primary/5 text-primary"
+                  ? "border-primary/30 bg-primary/5 text-primary-strong"
                   : "border-accent/30 bg-accent/5 text-accent",
               )}
             >
@@ -92,13 +92,13 @@ const OpportunityCard = ({ opportunity, index, locked = false }: Props) => {
               <FlaskConical
                 className={cn(
                   "h-3 w-3",
-                  isFoundation ? "text-primary" : "text-accent",
+                  isFoundation ? "text-primary-strong" : "text-accent",
                 )}
               />
               <span
                 className={cn(
                   "text-[9px] font-bold uppercase tracking-widest",
-                  isFoundation ? "text-primary" : "text-accent",
+                  isFoundation ? "text-primary-strong" : "text-accent",
                 )}
               >
                 Cette semaine

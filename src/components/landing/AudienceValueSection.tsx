@@ -52,7 +52,7 @@ const AudienceValueSection = () => {
           >
             <GlassCard interactive className="flex h-full flex-col p-5 md:p-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
-                <Icon className="h-5 w-5 text-primary" />
+                <Icon className="h-5 w-5 text-primary-strong" />
               </div>
               <MicroLabel>{label}</MicroLabel>
               <h3 className="mt-2 text-base font-semibold leading-snug text-foreground">
@@ -62,7 +62,7 @@ const AudienceValueSection = () => {
                 {description}
               </p>
               <div className="mt-5 border-t border-white/[0.06] pt-4">
-                <span className="text-[11px] font-semibold text-primary/[0.85]">{stat}</span>
+                <span className="text-[11px] font-semibold text-primary-strong/[0.85]">{stat}</span>
               </div>
             </GlassCard>
           </div>

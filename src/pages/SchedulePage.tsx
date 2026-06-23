@@ -130,13 +130,13 @@ const SchedulePage = () => {
                           variant="outline"
                           className={cn(
                             "text-[10px] font-bold",
-                            i === 0 && "border-primary/40 text-primary",
+                            i === 0 && "border-primary/40 text-primary-strong",
                           )}
                         >
                           #{i + 1} créneau
                         </Badge>
                         {i === 0 && (
-                          <span className="text-[10px] font-semibold text-primary">Recommandé</span>
+                          <span className="text-[10px] font-semibold text-primary-strong">Recommandé</span>
                         )}
                       </div>
                       <p className="mt-2 text-2xl font-bold tabular-nums text-foreground">
@@ -243,7 +243,7 @@ const SchedulePage = () => {
             {/* Summary */}
             <Card className="border-border/40 bg-muted/10">
               <CardContent className="flex items-start gap-3 p-4">
-                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
                 <div>
                   <p className="text-xs font-semibold text-foreground">
                     Basé sur {sessions.length} session{sessions.length > 1 ? "s" : ""}

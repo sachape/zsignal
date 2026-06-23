@@ -18,7 +18,7 @@ const StatBlock = ({ label, value, subtext, accent }: StatBlockProps) => {
         <p
           className={cn(
             "mt-1 text-2xl font-semibold tracking-tight",
-            accent ? "text-primary" : "text-foreground",
+            accent ? "text-primary-strong" : "text-foreground",
           )}
         >
           {value}

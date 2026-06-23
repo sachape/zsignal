@@ -777,7 +777,7 @@ const LiveSetupPage = () => {
                       step.done
                         ? "border-emerald-500/60 bg-emerald-500/15 text-emerald-400"
                         : currentStep === idx
-                          ? "border-primary bg-primary/10 text-primary shadow-[0_0_14px_hsl(var(--primary)/0.35)]"
+                          ? "border-primary bg-primary/10 text-primary-strong shadow-[0_0_14px_hsl(var(--primary)/0.35)]"
                           : "border-border/50 bg-background/60 text-muted-foreground/40",
                     )}>
                       {step.done
@@ -821,7 +821,7 @@ const LiveSetupPage = () => {
                   return (
                     <button key={value} type="button" onClick={() => !soon && togglePlatform(value)} disabled={soon}
                       className={cn("inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
-                        active ? "border-primary bg-primary/10 text-primary" : "border-border bg-card hover:border-border/80",
+                        active ? "border-primary bg-primary/10 text-primary-strong" : "border-border bg-card hover:border-border/80",
                         soon && "cursor-not-allowed opacity-60")}>
                       <Icon className="h-4 w-4" />{label}
                       {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
@@ -837,7 +837,7 @@ const LiveSetupPage = () => {
                 <StepSectionHeader
                   title="Pré-configuration"
                   description="Un preset adapte automatiquement le ton, la checklist OBS, les moments à provoquer et les clips à viser."
-                  icon={<Settings2 className="h-4 w-4 text-primary" />}
+                  icon={<Settings2 className="h-4 w-4 text-primary-strong" />}
                 />
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {LIVE_PRESETS.map((p) => {
@@ -855,8 +855,8 @@ const LiveSetupPage = () => {
                       >
                         {active && (
                           <div className="mb-2 flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3 text-primary" />
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Actif</span>
+                            <CheckCircle2 className="h-3 w-3 text-primary-strong" />
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-strong">Actif</span>
                           </div>
                         )}
                         <div className={cn("text-sm font-semibold", active ? "text-foreground" : "text-foreground/90")}>{p.label}</div>
@@ -875,7 +875,7 @@ const LiveSetupPage = () => {
                   step="01"
                   title="Prépare l'idée du live"
                   description="Commence par l'angle, la catégorie et l'objectif."
-                  icon={<Wand2 className="h-4 w-4 text-primary" />}
+                  icon={<Wand2 className="h-4 w-4 text-primary-strong" />}
                 />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
@@ -909,7 +909,7 @@ const LiveSetupPage = () => {
                                       <div className="h-7 w-5 shrink-0 rounded-sm border border-border/60 bg-muted" />
                                     )}
                                     <span className="truncate font-medium">{category.name}</span>
-                                    <CheckCircle2 className={cn("ml-auto h-3.5 w-3.5 shrink-0 text-primary", category.name === input.gameCategory ? "opacity-100" : "opacity-0")} />
+                                    <CheckCircle2 className={cn("ml-auto h-3.5 w-3.5 shrink-0 text-primary-strong", category.name === input.gameCategory ? "opacity-100" : "opacity-0")} />
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
@@ -1024,7 +1024,7 @@ const LiveSetupPage = () => {
                   step="02"
                   title="Génère puis pousse les métadonnées"
                   description="Affiche uniquement les destinations utiles pour alléger la lecture."
-                  icon={<Sparkles className="h-4 w-4 text-primary" />}
+                  icon={<Sparkles className="h-4 w-4 text-primary-strong" />}
                 />
                 <Tabs defaultValue={selectedMetadataTabs[0] ?? "social"} className="mt-5">
                   <TabsList className={cn("grid w-full",
@@ -1095,7 +1095,7 @@ const LiveSetupPage = () => {
                     step="03"
                     title="Valide le setup OBS"
                     description="La partie technique doit être rapide à relire."
-                    icon={<MonitorPlay className="h-4 w-4 text-primary" />}
+                    icon={<MonitorPlay className="h-4 w-4 text-primary-strong" />}
                   />
                   <Badge variant="outline" className="shrink-0 text-xs">{obsProgress.done}/{obsProgress.total}</Badge>
                 </div>
@@ -1137,7 +1137,7 @@ const LiveSetupPage = () => {
                   <div className="grid gap-4 pt-2 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                        <Flag className="h-3.5 w-3.5 text-primary" /> Moments à prévoir
+                        <Flag className="h-3.5 w-3.5 text-primary-strong" /> Moments à prévoir
                       </div>
                       <ul className="space-y-1 text-xs text-muted-foreground">
                         {activePreset.momentsToPlan.map((m, i) => (<li key={i} className="flex gap-1.5"><span>•</span><span>{m}</span></li>))}
@@ -1145,7 +1145,7 @@ const LiveSetupPage = () => {
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                        <Film className="h-3.5 w-3.5 text-primary" /> Clips à viser
+                        <Film className="h-3.5 w-3.5 text-primary-strong" /> Clips à viser
                       </div>
                       <ul className="space-y-1 text-xs text-muted-foreground">
                         {activePreset.clipRecommendations.map((c, i) => (<li key={i} className="flex gap-1.5"><span>•</span><span>{c}</span></li>))}
@@ -1164,7 +1164,7 @@ const LiveSetupPage = () => {
                     step="03"
                     title="Checklist générale"
                     description="Les derniers points non techniques avant le départ."
-                    icon={<ListChecks className="h-4 w-4 text-primary" />}
+                    icon={<ListChecks className="h-4 w-4 text-primary-strong" />}
                   />
                   <Badge variant="outline" className="shrink-0 text-xs">{preliveProgress.done}/{preliveProgress.total}</Badge>
                 </div>
@@ -1208,7 +1208,7 @@ const LiveSetupPage = () => {
                   step="04"
                   title="Plan de lancement"
                   description="Le dernier contrôle avant le live."
-                  icon={<Rocket className="h-4 w-4 text-primary" />}
+                  icon={<Rocket className="h-4 w-4 text-primary-strong" />}
                 />
                 <ul className="space-y-2 text-sm">
                   <LaunchStep done={readyToGo.titleOk} label="Titre validé"
@@ -1272,7 +1272,7 @@ const LiveSetupPage = () => {
         <div className="mt-8 border-t border-border/40 pt-6">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Clock className="h-4 w-4 text-primary" />
+              <Clock className="h-4 w-4 text-primary-strong" />
               Sessions sauvegardées
               <Badge variant="outline" className="text-xs">{sessions.length}</Badge>
             </div>
@@ -1384,12 +1384,12 @@ function StepSectionHeader({
 }) {
   return (
     <div className="flex items-start gap-3.5">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary-strong ring-1 ring-inset ring-primary/15">
         {icon}
       </div>
       <div className="min-w-0 flex-1 pt-0.5">
         {step && (
-          <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary/60">
+          <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary-strong/60">
             Étape {step}
           </p>
         )}
@@ -1459,7 +1459,7 @@ function PushHistory({ entry, platform }: { entry?: PushEntry; platform: "twitch
         )}
         {platform === "youtube" && entry.youtube_watch_url && (
           <a href={entry.youtube_watch_url} target="_blank" rel="noreferrer"
-            className="inline-flex items-center gap-1 text-primary hover:underline">
+            className="inline-flex items-center gap-1 text-primary-strong hover:underline">
             Ouvrir dans YouTube <ExternalLink className="h-3 w-3" />
           </a>
         )}
@@ -1487,7 +1487,7 @@ function LaunchStep({
         {detail && <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>}
         {link && (
           <a href={link.href} target="_blank" rel="noreferrer"
-            className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+            className="mt-1 inline-flex items-center gap-1 text-xs text-primary-strong hover:underline">
             {link.label} <ExternalLink className="h-3 w-3" />
           </a>
         )}
@@ -1500,7 +1500,7 @@ function LaunchStep({
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     draft: { label: "Brouillon", cls: "border-border bg-muted text-muted-foreground" },
-    ready: { label: "Prêt", cls: "border-primary/40 bg-primary/10 text-primary" },
+    ready: { label: "Prêt", cls: "border-primary/40 bg-primary/10 text-primary-strong" },
     pushed: { label: "Poussé", cls: "border-blue-500/40 bg-blue-500/10 text-blue-400" },
     ready_to_go: { label: "Prêt à lancer", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" },
     completed: { label: "Terminé", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" },
@@ -1517,7 +1517,7 @@ function PriorityBadge({ priority }: { priority: ContentPriority }) {
   const cls = priority === "high"
     ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
     : priority === "medium"
-      ? "border-primary/40 bg-primary/10 text-primary"
+      ? "border-primary/40 bg-primary/10 text-primary-strong"
       : "border-border bg-muted text-muted-foreground";
   return (
     <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", cls)}>
@@ -1643,7 +1643,7 @@ function PostLiveBriefCard({
 
         <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 bg-background/40 p-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Inbox className="h-3.5 w-3.5 text-primary" />
+            <Inbox className="h-3.5 w-3.5 text-primary-strong" />
             {alreadyQueued > 0
               ? `${alreadyQueued} contenu(s) déjà dans la queue pour ce live`
               : "Envoie les idées dans la file de contenu pour les produire."}
@@ -1676,7 +1676,7 @@ function PostLiveBriefCard({
         {/* Content opportunities */}
         <div className="space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-            <Lightbulb className="h-3.5 w-3.5 text-primary" /> Opportunités de contenu
+            <Lightbulb className="h-3.5 w-3.5 text-primary-strong" /> Opportunités de contenu
           </div>
           <ul className="space-y-1 text-xs text-muted-foreground">
             {brief.content_opportunities.map((o, i) => (
@@ -1688,7 +1688,7 @@ function PostLiveBriefCard({
         {/* Recommended actions */}
         <div className="space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-            <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Actions recommandées
+            <CheckCircle2 className="h-3.5 w-3.5 text-primary-strong" /> Actions recommandées
           </div>
           <ul className="space-y-1 text-xs text-muted-foreground">
             {brief.recommended_actions.map((a, i) => (
@@ -1700,7 +1700,7 @@ function PostLiveBriefCard({
         {/* Content ideas */}
         <div className="space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-            <Film className="h-3.5 w-3.5 text-primary" /> Moments à produire
+            <Film className="h-3.5 w-3.5 text-primary-strong" /> Moments à produire
           </div>
           <ul className="space-y-2">
             {brief.content_ideas.map((idea) => (<ContentIdeaRow key={idea.id} idea={idea} />))}
@@ -1710,12 +1710,12 @@ function PostLiveBriefCard({
         {/* Recycling plan */}
         <div className="space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-            <Repeat2 className="h-3.5 w-3.5 text-primary" /> Plan de recyclage 48h
+            <Repeat2 className="h-3.5 w-3.5 text-primary-strong" /> Plan de recyclage 48h
           </div>
           <ul className="space-y-1.5">
             {brief.recycling_plan.map((step, i) => (
               <li key={i} className="flex items-start gap-2 rounded-md border border-border/60 bg-background/40 p-2 text-xs">
-                <CalendarDays className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                <CalendarDays className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary-strong" />
                 <span className="font-medium text-foreground">{step.day}</span>
                 <span className="text-muted-foreground">{step.action}</span>
               </li>
@@ -1734,7 +1734,7 @@ function SummaryRow({ label, value, link }: { label: string; value: string; link
       <div className="mt-0.5 truncate text-sm font-medium text-foreground">{value}</div>
       {link && (
         <a href={link} target="_blank" rel="noreferrer"
-          className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+          className="mt-1 inline-flex items-center gap-1 text-xs text-primary-strong hover:underline">
           Ouvrir <ExternalLink className="h-3 w-3" />
         </a>
       )}

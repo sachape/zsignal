@@ -190,8 +190,8 @@ const CriterionRow = ({ label, description, icon: Icon, current, target, unit, e
           <div className="space-y-0.5">
             {etaBoosted !== null && (
               <div className="flex items-center justify-end gap-1">
-                <Zap className="h-2.5 w-2.5 text-primary" />
-                <span className="text-[11px] font-bold tabular-nums text-primary">~{etaBoosted} sem.</span>
+                <Zap className="h-2.5 w-2.5 text-primary-strong" />
+                <span className="text-[11px] font-bold tabular-nums text-primary-strong">~{etaBoosted} sem.</span>
               </div>
             )}
             {etaBase !== null && etaBase !== etaBoosted && (
@@ -327,10 +327,10 @@ const SimulatorPage = () => {
         {/* ── Demo banner ── */}
         {isDemo && !loading && (
           <div className="mb-5 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3">
-            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
             <p className="text-sm text-muted-foreground">
               Simulation avec des données types.{" "}
-              <Link to="/connect-twitch" className="font-semibold text-primary hover:underline">
+              <Link to="/connect-twitch" className="font-semibold text-primary-strong hover:underline">
                 Connecte Twitch
               </Link>{" "}
               pour une projection sur ta vraie chaîne.
@@ -382,10 +382,10 @@ const SimulatorPage = () => {
                   {/* Flèche + gain */}
                   <div className="flex flex-col items-center gap-1">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
-                      <Zap className="h-4 w-4 text-primary" />
+                      <Zap className="h-4 w-4 text-primary-strong" />
                     </div>
                     {savings > 0 && (
-                      <span className="whitespace-nowrap rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
+                      <span className="whitespace-nowrap rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary-strong">
                         -{savings} sem.
                       </span>
                     )}
@@ -393,7 +393,7 @@ const SimulatorPage = () => {
 
                   {/* Avec Streamnco */}
                   <div className="text-center">
-                    <p className="mb-1 text-[11px] font-semibold text-primary/70">Avec Streamnco</p>
+                    <p className="mb-1 text-[11px] font-semibold text-primary-strong/70">Avec Streamnco</p>
                     <p className="text-3xl font-bold tabular-nums text-foreground">
                       {overallBoostedEta !== null ? `~${overallBoostedEta}` : "?"}
                       <span className="text-lg text-muted-foreground"> sem.</span>
@@ -402,7 +402,7 @@ const SimulatorPage = () => {
                 </div>
 
                 {savings > 0 && (
-                  <p className="mt-4 text-center text-sm font-semibold text-primary">
+                  <p className="mt-4 text-center text-sm font-semibold text-primary-strong">
                     Tu arrives {savings} semaine{savings > 1 ? "s" : ""} plus tôt avec Streamnco.
                   </p>
                 )}
@@ -422,7 +422,7 @@ const SimulatorPage = () => {
                 className={cn(
                   "rounded-xl border py-2.5 text-xs font-semibold transition-all duration-150",
                   activePreset === i
-                    ? "border-primary/40 bg-primary/10 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
+                    ? "border-primary/40 bg-primary/10 text-primary-strong shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
                     : "border-border/50 bg-card/40 text-muted-foreground hover:border-primary/20 hover:text-foreground",
                 )}
               >
@@ -440,7 +440,7 @@ const SimulatorPage = () => {
               className={cn(
                 "rounded-xl border py-2.5 text-xs font-semibold transition-all duration-150",
                 activePreset === null
-                  ? "border-primary/40 bg-primary/10 text-primary"
+                  ? "border-primary/40 bg-primary/10 text-primary-strong"
                   : "border-border/50 bg-card/40 text-muted-foreground hover:border-primary/20 hover:text-foreground",
               )}
             >
@@ -459,7 +459,7 @@ const SimulatorPage = () => {
             <div>
               <div className="mb-3 flex items-center justify-between">
                 <label className="text-sm font-medium text-foreground">Sessions par semaine</label>
-                <span className="text-sm font-bold tabular-nums text-primary">{sessionsPerWeek}×</span>
+                <span className="text-sm font-bold tabular-nums text-primary-strong">{sessionsPerWeek}×</span>
               </div>
               <Slider
                 min={1} max={7} step={1}
@@ -475,7 +475,7 @@ const SimulatorPage = () => {
             <div>
               <div className="mb-3 flex items-center justify-between">
                 <label className="text-sm font-medium text-foreground">Durée par session</label>
-                <span className="text-sm font-bold tabular-nums text-primary">{durationHours}h</span>
+                <span className="text-sm font-bold tabular-nums text-primary-strong">{durationHours}h</span>
               </div>
               <Slider
                 min={1} max={5} step={0.5}
@@ -512,8 +512,8 @@ const SimulatorPage = () => {
             <h2 className="text-sm font-semibold text-foreground">Les 5 critères</h2>
             {overallBoostedEta !== null && overallBoostedEta > 0 && (
               <div className="flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1">
-                <Zap className="h-3 w-3 text-primary" />
-                <span className="text-[11px] font-bold text-primary">~{overallBoostedEta} sem. avec Streamnco</span>
+                <Zap className="h-3 w-3 text-primary-strong" />
+                <span className="text-[11px] font-bold text-primary-strong">~{overallBoostedEta} sem. avec Streamnco</span>
               </div>
             )}
           </div>
@@ -586,7 +586,7 @@ const SimulatorPage = () => {
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="h-0.5 w-4 rounded-full bg-primary" />
-                    <span className="font-semibold text-primary">Avec Streamnco</span>
+                    <span className="font-semibold text-primary-strong">Avec Streamnco</span>
                   </span>
                 </div>
               </div>

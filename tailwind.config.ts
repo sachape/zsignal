@@ -29,6 +29,10 @@ export default {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        // Lime brand used as TEXT/icon color. Same vivid lime in dark, but a
+        // darkened readable green in light (lime text on light is illegible).
+        // Use text-primary-strong wherever the brand color is the foreground.
+        "primary-strong": "hsl(var(--primary-strong))",
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",

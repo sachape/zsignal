@@ -29,17 +29,17 @@ const DashboardNavCards = () => (
           }`}
         >
           {featured && (
-            <span className="absolute right-2.5 top-2.5 rounded-full bg-primary/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-primary">
+            <span className="absolute right-2.5 top-2.5 rounded-full bg-primary/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-primary-strong">
               Recommandé
             </span>
           )}
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary-strong">
             <Icon className="h-4 w-4" />
           </div>
           <p className="mt-3 text-sm font-semibold leading-tight text-foreground">{title}</p>
           <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{desc}</p>
           {!featured && (
-            <ArrowUpRight className="absolute right-3 top-3 h-3.5 w-3.5 text-muted-foreground/30 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" />
+            <ArrowUpRight className="absolute right-3 top-3 h-3.5 w-3.5 text-muted-foreground/30 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary-strong" />
           )}
         </Link>
       ))}

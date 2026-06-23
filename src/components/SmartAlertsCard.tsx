@@ -31,7 +31,7 @@ const TONE_STYLES: Record<
   positive: {
     wrap: "border-primary/25 bg-primary/[0.03]",
     iconWrap: "bg-primary/10",
-    icon: "text-primary",
+    icon: "text-primary-strong",
   },
   warning: {
     wrap: "border-warning/30 bg-warning/[0.04]",
