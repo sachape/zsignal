@@ -1,66 +1,31 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Activity,
   ArrowRight,
   CalendarDays,
-  CheckCircle2,
+  Check,
   Clapperboard,
   ListChecks,
   Palette,
   Radio,
-  Sparkles,
   Target,
   Users,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import LandingNav from "@/components/LandingNav";
-import LandingFooter from "@/components/landing/LandingFooter";
-import { SectionBadge } from "@/components/landing/primitives";
+import SiteNav from "@/components/site/SiteNav";
+import SiteFooter from "@/components/site/SiteFooter";
+import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { cn } from "@/lib/utils";
 
 const NAV_ANCHORS = [
   { label: "Créer", href: "#creer" },
   { label: "Organiser", href: "#organiser" },
   { label: "Analyser", href: "#analyser" },
   { label: "Progresser", href: "#progresser" },
-] as const;
+];
 
-const CREATION_FEATURES = [
-  "Clip Twitch, VOD ou upload",
-  "Vertical 9:16",
-  "Facecam + gameplay",
-  "Sous-titres automatiques",
-  "Styles de captions",
-  "Téléchargement du clip",
-] as const;
-
-const VISUAL_FORMATS = [
-  "Bannière Twitch",
-  "Story verticale",
-  "Post carré",
-  "Annonce live",
-  "Cover / header",
-  "Offline screen",
-] as const;
-
-const FadeIn = ({ children, delay = 0, className = "" }: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 22 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-60px" }}
-    transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
+const CREATION_FEATURES = ["Clip Twitch, VOD ou upload", "Vertical 9:16", "Facecam + gameplay", "Sous-titres automatiques", "Styles de captions", "Téléchargement du clip"];
+const VISUAL_FORMATS = ["Bannière Twitch", "Story verticale", "Post carré", "Annonce live", "Cover / header", "Offline screen"];
 
 const FeaturePanel = ({
   id,
@@ -69,49 +34,42 @@ const FeaturePanel = ({
   title,
   description,
   children,
-  accent = "primary",
 }: {
-  id: string;
+  id?: string;
   icon: React.ComponentType<{ className?: string }>;
   eyebrow: string;
   title: string;
   description: string;
   children?: React.ReactNode;
-  accent?: "primary" | "cyan" | "amber";
-}) => {
-  const accentClasses = {
-    primary: "border-primary/[0.18] bg-primary/[0.045] text-primary-strong",
-    cyan: "border-cyan-200/[0.18] bg-cyan-200/[0.045] text-cyan-100",
-    amber: "border-amber-200/[0.18] bg-amber-200/[0.045] text-amber-100",
-  };
-
-  return (
-    <section
-      id={id}
-      className="scroll-mt-28 rounded-2xl border border-white/[0.08] bg-[#0d1116] p-5 md:p-7"
-    >
-      <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-        <div className="max-w-xl">
-          <div className="flex items-center gap-3">
-            <span className={cn("flex h-10 w-10 items-center justify-center rounded-lg border", accentClasses[accent])}>
-              <Icon className="h-5 w-5" />
-            </span>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {eyebrow}
-            </p>
-          </div>
-          <h3 className="mt-4 text-2xl font-bold tracking-tight text-foreground">
-            {title}
-          </h3>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            {description}
-          </p>
+}) => (
+  <section id={id} className="scroll-mt-28 rounded-2xl border border-el-hairline bg-el-card p-6 md:p-8">
+    <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+      <div className="max-w-xl">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-el-strong text-el-ink">
+            <Icon className="h-5 w-5" />
+          </span>
+          <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-el-muted">{eyebrow}</p>
         </div>
-        {children ? <div className="w-full md:max-w-sm">{children}</div> : null}
+        <h3 className="mt-4 font-el-display text-[26px] font-light leading-[1.18] tracking-[-0.01em] text-el-ink">{title}</h3>
+        <p className="mt-3 font-el-sans text-[15px] leading-[1.6] text-el-body">{description}</p>
       </div>
-    </section>
-  );
-};
+      {children ? <div className="w-full md:max-w-sm">{children}</div> : null}
+    </div>
+  </section>
+);
+
+const GroupHead = ({ kicker, title, lead }: { kicker: string; title: string; lead: string }) => (
+  <Reveal>
+    <div className="mb-7 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
+      <div>
+        <Eyebrow>{kicker}</Eyebrow>
+        <h2 className="mt-3 font-el-display text-[clamp(1.9rem,3.5vw,2.5rem)] font-light leading-[1.12] tracking-[-0.02em] text-el-ink">{title}</h2>
+      </div>
+      <p className="font-el-sans text-[16px] leading-[1.6] text-el-body">{lead}</p>
+    </div>
+  </Reveal>
+);
 
 const FeaturesPage = () => {
   const { openAuthModal } = useAuthModal();
@@ -126,324 +84,206 @@ const FeaturesPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <LandingNav />
+    <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
+      <SiteNav />
 
-      <section className="relative overflow-hidden pt-32 pb-12 md:pt-40 md:pb-16">
-        <div className="pointer-events-none absolute left-1/2 top-0 h-[40rem] w-[58rem] -translate-x-1/2 landing-aurora" aria-hidden />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,hsl(var(--primary)/0.08),transparent_55%)]" />
-        <div className="container relative mx-auto max-w-6xl px-4 md:px-6">
-          <FadeIn className="max-w-3xl">
-            <SectionBadge>
-              <Sparkles className="h-3 w-3" /> Fonctionnalités
-            </SectionBadge>
-            <h1 className="font-display mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+      {/* Hero */}
+      <section className="relative overflow-hidden pt-36 pb-12 md:pt-44 md:pb-16">
+        <Orb color="bg-el-lavender" className="left-[-6rem] top-12 h-[26rem] w-[26rem] opacity-50" />
+        <Orb color="bg-el-sky" className="right-[-6rem] top-24 h-[26rem] w-[26rem] opacity-50" animate="fast" />
+        <Container className="relative">
+          <Reveal className="max-w-3xl">
+            <Eyebrow>Fonctionnalités</Eyebrow>
+            <h1 className="mt-5 font-el-display text-[clamp(2.4rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
               Tout ce qu'il faut pour faire grandir ta chaîne.
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
+            <p className="mt-5 max-w-2xl font-el-sans text-[17px] leading-[1.6] text-el-body">
               Des clips prêts à poster, des visuels en un clic et une vision claire de ta progression — plus tout ce qui t'aide à publier vite et régulièrement.
             </p>
-          </FadeIn>
-
-          <FadeIn delay={0.12} className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          </Reveal>
+          <Reveal delay={120} className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap gap-2">
-              {NAV_ANCHORS.map((anchor) => (
-                <a
-                  key={anchor.href}
-                  href={anchor.href}
-                  className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/25 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  {anchor.label}
+              {NAV_ANCHORS.map((a) => (
+                <a key={a.href} href={a.href} className="rounded-full border border-el-hairline bg-el-card px-4 py-2 font-el-sans text-[14px] text-el-body transition-colors hover:border-el-hairline-strong hover:text-el-ink">
+                  {a.label}
                 </a>
               ))}
             </div>
             <div className="flex gap-3">
-              <Button onClick={() => openAuthModal("signup")} className="gap-2">
-                Essayer gratuitement
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/pricing">Voir les tarifs</Link>
-              </Button>
+              <button onClick={() => openAuthModal("signup")} className="inline-flex h-11 items-center gap-2 rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft">
+                Essayer gratuitement <ArrowRight className="h-4 w-4" />
+              </button>
+              <Link to="/pricing" className="inline-flex h-11 items-center rounded-full border border-el-hairline-strong px-6 font-el-sans text-[15px] font-medium text-el-ink transition-colors hover:bg-el-strong">
+                Voir les tarifs
+              </Link>
             </div>
-          </FadeIn>
-        </div>
+          </Reveal>
+        </Container>
       </section>
 
-      <main className="container mx-auto max-w-6xl space-y-14 px-4 pb-24 md:px-6">
-        <section id="creer" className="scroll-mt-28">
-          <FadeIn>
-            <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">Créer</p>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                  Des assets propres, sans repartir de zéro.
-                </h2>
-              </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                La création suit une chaîne simple : une source réelle, un format clair, un export prêt à poster que tu publies où tu veux, quand tu veux.
-              </p>
-            </div>
-          </FadeIn>
-
-          <div className="grid gap-4">
-            <FadeIn delay={0.06}>
-              <FeaturePanel
-                id="clipping"
-                icon={Clapperboard}
-                eyebrow="Clipping"
-                title="Transforme tes moments Twitch en vidéos verticales 9:16."
-                description="Tu pars d'un Clip Twitch, d'une VOD ou d'un upload. Streamnco assemble un format vertical avec facecam, gameplay, sous-titres et styles de captions, puis te laisse télécharger le résultat."
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  {CREATION_FEATURES.map((feature) => (
-                    <div key={feature} className="rounded-lg border border-white/[0.07] bg-white/[0.035] px-3 py-2 text-xs text-muted-foreground">
-                      {feature}
-                    </div>
-                  ))}
-                </div>
-              </FeaturePanel>
-            </FadeIn>
-
-            <FadeIn delay={0.12}>
-              <FeaturePanel
-                id="studio-visuel"
-                icon={Palette}
-                eyebrow="Studio visuel"
-                title="Génère des visuels Twitch et sociaux aux bonnes dimensions."
-                description="Le Studio visuel produit 3 variantes par génération, sur 8 formats pensés pour l'écosystème streamer : live, profil, réseaux, covers et écrans."
-                accent="cyan"
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  {VISUAL_FORMATS.map((format) => (
-                    <div key={format} className="rounded-lg border border-cyan-200/10 bg-cyan-200/[0.045] p-3">
-                      <div className="h-10 rounded-md bg-[linear-gradient(135deg,rgba(103,232,249,0.2),rgba(255,255,255,0.04))]" />
-                      <p className="mt-2 text-xs font-medium text-foreground">{format}</p>
-                    </div>
-                  ))}
-                </div>
-              </FeaturePanel>
-            </FadeIn>
-          </div>
-        </section>
-
-        <section id="organiser" className="scroll-mt-28">
-          <FadeIn>
-            <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">Organiser</p>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                  Une file claire avant publication.
-                </h2>
-              </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Tes contenus prêts, tes brouillons et tes exports restent visibles au même endroit — prêts à télécharger et publier en un clic.
-              </p>
-            </div>
-          </FadeIn>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            <FadeIn delay={0.06}>
-              <FeaturePanel
-                id="file-de-contenu"
-                icon={ListChecks}
-                eyebrow="File de contenu"
-                title="Retrouve clips, visuels et brouillons au même endroit."
-                description="Un clip généré ou un visuel préparé n'est pas perdu dans un dossier. Il rejoint une file où tu peux distinguer ce qui est prêt, ce qui demande une vérification et ce qui reste en brouillon."
-                accent="amber"
-              >
-                <div className="space-y-2">
-                  {["Clip vertical prêt", "Visuel annonce live", "Brouillon de publication"].map((item, index) => (
-                    <div key={item} className="flex items-center justify-between rounded-lg bg-white/[0.035] px-3 py-2">
-                      <span className="text-xs text-foreground">{item}</span>
-                      <span className="text-[10px] text-muted-foreground">0{index + 1}</span>
-                    </div>
-                  ))}
-                </div>
-              </FeaturePanel>
-            </FadeIn>
-
-            <FadeIn delay={0.12}>
-              <FeaturePanel
-                id="export-publication"
-                icon={Radio}
-                eyebrow="Export & publication"
-                title="Prêt à poster, partout où tu es présent."
-                description="Tes clips et visuels s'exportent aux bons formats pour TikTok, Reels, Shorts, Twitch et X. Tu télécharges et tu publies où tu veux, quand tu veux — tu gardes le contrôle total."
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  {["TikTok", "Reels", "Shorts", "Twitch", "X / Twitter", "Discord"].map((dest) => (
-                    <div key={dest} className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.035] px-3 py-2 text-xs text-foreground">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary-strong" />
-                      {dest}
-                    </div>
-                  ))}
-                </div>
-              </FeaturePanel>
-            </FadeIn>
-          </div>
-        </section>
-
-        <section id="analyser" className="scroll-mt-28">
-          <FadeIn>
-            <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">Analyser</p>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                  Des données Twitch transformées en priorités.
-                </h2>
-              </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Tes stats Twitch deviennent des priorités claires : tu sais exactement quoi faire au prochain live pour progresser.
-              </p>
-            </div>
-          </FadeIn>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            <FadeIn delay={0.06}>
-              <FeaturePanel
-                id="streamscore"
-                icon={Activity}
-                eyebrow="StreamScore"
-                title="Un score global, des dimensions et une progression."
-                description="Analyse une chaîne Twitch, comprends ses dimensions de progression, consulte l'historique et transforme le diagnostic en recommandations concrètes."
-              >
-                <div className="rounded-xl border border-white/[0.07] bg-white/[0.035] p-4">
-                  <div className="flex items-end justify-between">
-                    <div>
-                      <p className="text-5xl font-bold text-foreground">73</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Score global</p>
-                    </div>
-                    <CheckCircle2 className="mb-2 h-5 w-5 text-primary-strong" />
+      <main className="pb-24">
+        <Container className="space-y-20">
+          {/* Créer */}
+          <section id="creer" className="scroll-mt-28">
+            <GroupHead kicker="Créer" title="Des assets propres, sans repartir de zéro." lead="Une source réelle, un format clair, un export prêt à poster que tu publies où tu veux, quand tu veux." />
+            <div className="grid gap-4">
+              <Reveal>
+                <FeaturePanel icon={Clapperboard} eyebrow="Clipping" title="Transforme tes moments Twitch en vidéos verticales 9:16." description="Tu pars d'un Clip Twitch, d'une VOD ou d'un upload. Streamnco assemble un format vertical avec facecam, gameplay, sous-titres et styles de captions, puis te laisse télécharger le résultat.">
+                  <div className="grid grid-cols-2 gap-2">
+                    {CREATION_FEATURES.map((f) => (
+                      <div key={f} className="rounded-lg border border-el-hairline bg-el-canvas px-3 py-2 text-[13px] text-el-body">{f}</div>
+                    ))}
                   </div>
-                  <div className="mt-4 space-y-2">
-                    {["Régularité", "Contenu", "Positionnement"].map((label, index) => (
-                      <div key={label}>
-                        <div className="mb-1 flex justify-between text-[10px] text-muted-foreground">
-                          <span>{label}</span>
-                          <span>{[78, 54, 69][index]}</span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-white/10">
-                          <div className="h-full rounded-full bg-primary" style={{ width: `${[78, 54, 69][index]}%` }} />
-                        </div>
+                </FeaturePanel>
+              </Reveal>
+              <Reveal delay={80}>
+                <FeaturePanel icon={Palette} eyebrow="Studio visuel" title="Génère des visuels Twitch et sociaux aux bonnes dimensions." description="Le Studio visuel produit plusieurs variantes par génération, sur les formats pensés pour l'écosystème streamer : live, profil, réseaux, covers et écrans.">
+                  <div className="grid grid-cols-2 gap-2">
+                    {VISUAL_FORMATS.map((format, i) => (
+                      <div key={format} className="rounded-lg border border-el-hairline bg-el-canvas p-3">
+                        <div className={`h-10 rounded-md ${["bg-el-mint", "bg-el-peach", "bg-el-lavender", "bg-el-sky", "bg-el-rose", "bg-el-mint"][i]} opacity-70`} />
+                        <p className="mt-2 text-[13px] font-medium text-el-ink">{format}</p>
                       </div>
                     ))}
                   </div>
-                </div>
-              </FeaturePanel>
-            </FadeIn>
-
-            <FadeIn delay={0.12}>
-              <FeaturePanel
-                id="benchmark"
-                icon={Users}
-                eyebrow="Benchmark"
-                title="Compare ta chaîne à d'autres streamers."
-                description="Le benchmark aide à identifier les écarts visibles : catégorie, rythme, contenus, positionnement. L'objectif est de repérer des opportunités, pas de copier."
-                accent="cyan"
-              >
-                <div className="space-y-2">
-                  {[
-                    { rank: "#1", name: "Streamer A", score: 82 },
-                    { rank: "#2", name: "Ta chaîne", score: 73 },
-                    { rank: "#3", name: "Streamer B", score: 68 },
-                  ].map((row) => (
-                    <div key={row.name} className="flex items-center justify-between rounded-lg bg-white/[0.035] px-3 py-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-primary-strong">{row.rank}</span>
-                        <span className="text-xs text-foreground">{row.name}</span>
-                      </div>
-                      <span className="text-xs font-semibold text-muted-foreground">{row.score}</span>
-                    </div>
-                  ))}
-                </div>
-              </FeaturePanel>
-            </FadeIn>
-          </div>
-        </section>
-
-        <section id="progresser" className="scroll-mt-28">
-          <FadeIn>
-            <div className="mb-6 grid gap-4 lg:grid-cols-[0.7fr_1fr] lg:items-end">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-strong">Progresser</p>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                  Prépare le prochain live avec plus d'intention.
-                </h2>
-              </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Les recommandations, le plan d'action, les titres et le planning servent à transformer l'analyse en prochaine action.
-              </p>
-            </div>
-          </FadeIn>
-
-          <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-            <FadeIn delay={0.06}>
-              <FeaturePanel
-                id="live-studio"
-                icon={CalendarDays}
-                eyebrow="Live Studio"
-                title="Titres, planning et setup live dans un espace plus calme."
-                description="Prépare tes prochains lives avec des titres, un planning, des checklists et des intentions de contenu. Le but : arriver en live avec une direction plus claire."
-                accent="amber"
-              >
-                <div className="space-y-2">
-                  {["Générateur de titres", "Planning", "Setup live", "Moments à provoquer"].map((item) => (
-                    <div key={item} className="flex items-center gap-2 rounded-lg bg-white/[0.035] px-3 py-2 text-xs text-foreground">
-                      <Target className="h-3.5 w-3.5 text-primary-strong" />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </FeaturePanel>
-            </FadeIn>
-
-            <FadeIn delay={0.12}>
-              <section className="rounded-2xl border border-primary/[0.18] bg-primary/[0.045] p-6 md:p-8">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong">
-                  Plan d'action
-                </p>
-                <h3 className="mt-3 text-2xl font-bold tracking-tight text-foreground">
-                  Une recommandation ne vaut que si elle devient une tâche.
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  Streamnco relie les signaux Twitch à des actions concrètes : produire un clip, retravailler un titre, stabiliser un créneau, tester une catégorie ou préparer un visuel.
-                </p>
-                <div className="mt-6 grid gap-2 sm:grid-cols-2">
-                  {["Recommandations", "Plan d'action", "Titres", "Planning"].map((item) => (
-                    <div key={item} className="rounded-lg border border-primary/[0.15] bg-background/40 px-3 py-2 text-sm text-foreground">
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            </FadeIn>
-          </div>
-        </section>
-
-        <FadeIn>
-          <section className="rounded-2xl border border-white/[0.08] bg-[#0d1116] p-7 text-center md:p-10">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary-strong">Résumé</p>
-            <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-bold tracking-tight text-foreground">
-              Crée plus vite, publie plus souvent, et vois ta chaîne grandir.
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Des clips et visuels prêts à poster, une progression claire, et tout ce qui t'aide à publier régulièrement. Tout part de ton stream.
-            </p>
-            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-              <Button size="lg" onClick={() => openAuthModal("signup")} className="gap-2">
-                Essayer gratuitement
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/solutions">Voir les solutions</Link>
-              </Button>
+                </FeaturePanel>
+              </Reveal>
             </div>
           </section>
-        </FadeIn>
+
+          {/* Organiser */}
+          <section id="organiser" className="scroll-mt-28">
+            <GroupHead kicker="Organiser" title="Une file claire avant publication." lead="Tes contenus prêts, tes brouillons et tes exports restent visibles au même endroit — prêts à télécharger et publier en un clic." />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Reveal>
+                <FeaturePanel icon={ListChecks} eyebrow="File de contenu" title="Retrouve clips, visuels et brouillons au même endroit." description="Un clip généré ou un visuel préparé n'est pas perdu dans un dossier. Il rejoint une file où tu distingues ce qui est prêt, ce qui demande une vérification et ce qui reste en brouillon.">
+                  <div className="space-y-2">
+                    {["Clip vertical prêt", "Visuel annonce live", "Brouillon de publication"].map((item, i) => (
+                      <div key={item} className="flex items-center justify-between rounded-lg border border-el-hairline bg-el-canvas px-3 py-2">
+                        <span className="text-[13px] text-el-ink">{item}</span>
+                        <span className="text-[11px] text-el-muted">0{i + 1}</span>
+                      </div>
+                    ))}
+                  </div>
+                </FeaturePanel>
+              </Reveal>
+              <Reveal delay={80}>
+                <FeaturePanel icon={Radio} eyebrow="Export & publication" title="Prêt à poster, partout où tu es présent." description="Tes clips et visuels s'exportent aux bons formats pour TikTok, Reels, Shorts, Twitch et X. Tu télécharges et tu publies où tu veux — tu gardes le contrôle total.">
+                  <div className="grid grid-cols-2 gap-2">
+                    {["TikTok", "Reels", "Shorts", "Twitch", "X / Twitter", "Discord"].map((d) => (
+                      <div key={d} className="flex items-center gap-2 rounded-lg border border-el-hairline bg-el-canvas px-3 py-2 text-[13px] text-el-ink">
+                        <Check className="h-3.5 w-3.5 text-el-ink" /> {d}
+                      </div>
+                    ))}
+                  </div>
+                </FeaturePanel>
+              </Reveal>
+            </div>
+          </section>
+
+          {/* Analyser */}
+          <section id="analyser" className="scroll-mt-28">
+            <GroupHead kicker="Analyser" title="Des données Twitch transformées en priorités." lead="Tes stats Twitch deviennent des priorités claires : tu sais exactement quoi faire au prochain live pour progresser." />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Reveal>
+                <FeaturePanel icon={Activity} eyebrow="StreamScore" title="Un score global, des dimensions et une progression." description="Analyse une chaîne Twitch, comprends ses dimensions de progression, consulte l'historique et transforme le diagnostic en recommandations concrètes.">
+                  <div className="rounded-xl border border-el-hairline bg-el-canvas p-4">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="font-el-display text-[48px] font-light leading-none text-el-ink">73</p>
+                        <p className="mt-1 text-[13px] text-el-muted">Score global</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 space-y-2.5">
+                      {["Régularité", "Contenu", "Positionnement"].map((label, i) => (
+                        <div key={label}>
+                          <div className="mb-1 flex justify-between text-[11px] text-el-muted">
+                            <span>{label}</span>
+                            <span>{[78, 54, 69][i]}</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-el-strong">
+                            <div className="h-full rounded-full bg-el-ink" style={{ width: `${[78, 54, 69][i]}%` }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </FeaturePanel>
+              </Reveal>
+              <Reveal delay={80}>
+                <FeaturePanel icon={Users} eyebrow="Benchmark" title="Compare ta chaîne à d'autres streamers." description="Le benchmark aide à identifier les écarts visibles : catégorie, rythme, contenus, positionnement. L'objectif est de repérer des opportunités, pas de copier.">
+                  <div className="space-y-2">
+                    {[{ rank: "#1", name: "Streamer A", score: 82 }, { rank: "#2", name: "Ta chaîne", score: 73 }, { rank: "#3", name: "Streamer B", score: 68 }].map((row) => (
+                      <div key={row.name} className="flex items-center justify-between rounded-lg border border-el-hairline bg-el-canvas px-3 py-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-[13px] font-bold text-el-ink">{row.rank}</span>
+                          <span className="text-[13px] text-el-body">{row.name}</span>
+                        </div>
+                        <span className="text-[13px] font-semibold text-el-muted">{row.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </FeaturePanel>
+              </Reveal>
+            </div>
+          </section>
+
+          {/* Progresser */}
+          <section id="progresser" className="scroll-mt-28">
+            <GroupHead kicker="Progresser" title="Prépare le prochain live avec plus d'intention." lead="Les recommandations, le plan d'action, les titres et le planning transforment l'analyse en prochaine action." />
+            <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+              <Reveal>
+                <FeaturePanel icon={CalendarDays} eyebrow="Live Studio" title="Titres, planning et setup live dans un espace plus calme." description="Prépare tes prochains lives avec des titres, un planning, des checklists et des intentions de contenu. Le but : arriver en live avec une direction claire.">
+                  <div className="space-y-2">
+                    {["Générateur de titres", "Planning", "Setup live", "Moments à provoquer"].map((item) => (
+                      <div key={item} className="flex items-center gap-2 rounded-lg border border-el-hairline bg-el-canvas px-3 py-2 text-[13px] text-el-ink">
+                        <Target className="h-3.5 w-3.5 text-el-ink" /> {item}
+                      </div>
+                    ))}
+                  </div>
+                </FeaturePanel>
+              </Reveal>
+              <Reveal delay={80}>
+                <section className="h-full rounded-2xl bg-el-dark p-7 text-el-on-dark md:p-8">
+                  <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-el-on-dark-soft">Plan d'action</p>
+                  <h3 className="mt-3 font-el-display text-[26px] font-light leading-[1.18] tracking-[-0.01em] text-el-on-dark">
+                    Une recommandation ne vaut que si elle devient une tâche.
+                  </h3>
+                  <p className="mt-3 font-el-sans text-[15px] leading-[1.6] text-el-on-dark-soft">
+                    Streamnco relie les signaux Twitch à des actions concrètes : produire un clip, retravailler un titre, stabiliser un créneau, tester une catégorie ou préparer un visuel.
+                  </p>
+                  <div className="mt-6 grid gap-2 sm:grid-cols-2">
+                    {["Recommandations", "Plan d'action", "Titres", "Planning"].map((item) => (
+                      <div key={item} className="rounded-lg bg-el-dark-elevated px-3 py-2 text-[14px] text-el-on-dark">{item}</div>
+                    ))}
+                  </div>
+                </section>
+              </Reveal>
+            </div>
+          </section>
+
+          {/* Summary CTA */}
+          <Reveal>
+            <section className="relative overflow-hidden rounded-2xl bg-el-dark p-10 text-center md:p-14">
+              <Orb color="bg-el-sky" className="right-[-4rem] top-[-4rem] h-[18rem] w-[18rem] opacity-25" />
+              <p className="relative font-el-sans text-[12px] font-semibold uppercase tracking-[0.16em] text-el-on-dark-soft">Résumé</p>
+              <h2 className="relative mx-auto mt-3 max-w-2xl font-el-display text-[clamp(2rem,4vw,2.75rem)] font-light leading-[1.1] tracking-[-0.02em] text-el-on-dark">
+                Crée plus vite, publie plus souvent, vois ta chaîne grandir.
+              </h2>
+              <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <button onClick={() => openAuthModal("signup")} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-el-on-dark px-7 font-el-sans text-[16px] font-medium text-el-ink transition-opacity hover:opacity-90">
+                  Essayer gratuitement <ArrowRight className="h-4 w-4" />
+                </button>
+                <Link to="/solutions" className="inline-flex h-12 items-center justify-center rounded-full border border-el-on-dark-soft/40 px-7 font-el-sans text-[16px] font-medium text-el-on-dark transition-colors hover:bg-white/10">
+                  Voir les solutions
+                </Link>
+              </div>
+            </section>
+          </Reveal>
+        </Container>
       </main>
 
-      <LandingFooter />
+      <SiteFooter />
     </div>
   );
 };
