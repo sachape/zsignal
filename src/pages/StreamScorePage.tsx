@@ -2,38 +2,22 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  Activity, AlertTriangle, ArrowRight, BarChart2, Calendar,
-  CheckCircle2, Clapperboard, Eye, ListChecks, Sparkles, TrendingUp, Zap,
+  Activity, ArrowRight, BarChart2, Calendar, Check,
+  Clapperboard, Eye, ListChecks, TrendingUp,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import LandingNav from "@/components/LandingNav";
-import LandingFooter from "@/components/landing/LandingFooter";
-import { GlassCard, SectionBadge, SectionShell } from "@/components/landing/primitives";
+import SiteNav from "@/components/site/SiteNav";
+import SiteFooter from "@/components/site/SiteFooter";
+import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const FadeIn = ({ children, delay = 0, className = "" }: {
-  children: React.ReactNode; delay?: number; className?: string;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 22 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-40px" }}
-    transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
-
-const AnimBar = ({ val, delay, color = "bg-primary" }: { val: number; delay: number; color?: string }) => {
+const AnimBar = ({ val, delay }: { val: number; delay: number }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
   return (
-    <div ref={ref} className="h-1.5 overflow-hidden rounded-full bg-muted/40">
+    <div ref={ref} className="h-1.5 overflow-hidden rounded-full bg-el-strong">
       <motion.div
-        className={`h-full rounded-full ${color}`}
+        className="h-full rounded-full bg-el-ink"
         initial={{ width: 0 }}
         animate={inView ? { width: `${val}%` } : {}}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay }}
@@ -42,20 +26,20 @@ const AnimBar = ({ val, delay, color = "bg-primary" }: { val: number; delay: num
   );
 };
 
-// ── Animated score ring ───────────────────────────────────────────────────────
 const ScoreRing = ({ score, size = 120 }: { score: number; size?: number }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
-  const r = size * 0.38; const circ = 2 * Math.PI * r; const cx = size / 2; const cy = size / 2;
-  const color = score >= 70 ? "hsl(var(--primary))" : score >= 45 ? "hsl(var(--warning))" : "hsl(var(--destructive))";
+  const r = size * 0.38;
+  const circ = 2 * Math.PI * r;
+  const cx = size / 2;
+  const cy = size / 2;
   return (
     <div ref={ref} style={{ width: size, height: size }} className="relative shrink-0">
-      <div className="pointer-events-none absolute inset-0 rounded-full blur-2xl" style={{ background: `${color}20` }} />
       <svg viewBox={`0 0 ${size} ${size}`} className="relative h-full w-full -rotate-90">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="hsl(var(--border)/0.25)" strokeWidth={size * 0.052} />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#e7e5e4" strokeWidth={size * 0.05} />
         <motion.circle
           cx={cx} cy={cy} r={r} fill="none"
-          stroke={color} strokeWidth={size * 0.052} strokeLinecap="round"
+          stroke="#0c0a09" strokeWidth={size * 0.05} strokeLinecap="round"
           strokeDasharray={circ}
           initial={{ strokeDashoffset: circ }}
           animate={inView ? { strokeDashoffset: circ * (1 - score / 100) } : {}}
@@ -63,46 +47,25 @@ const ScoreRing = ({ score, size = 120 }: { score: number; size?: number }) => {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-bold tabular-nums text-foreground" style={{ fontSize: size * 0.22 }}>{score}</span>
-        <span className="font-semibold uppercase tracking-widest text-muted-foreground" style={{ fontSize: size * 0.07 }}>/ 100</span>
+        <span className="font-el-display font-light tabular-nums text-el-ink" style={{ fontSize: size * 0.26 }}>{score}</span>
+        <span className="font-el-sans font-semibold uppercase tracking-widest text-el-muted" style={{ fontSize: size * 0.07 }}>/ 100</span>
       </div>
     </div>
   );
 };
 
-// ── Data ──────────────────────────────────────────────────────────────────────
 const DIMENSIONS = [
-  {
-    icon: Calendar,
-    label: "Régularité",
-    description: "Analyse la fréquence de tes streams, les jours actifs et la cohérence de ton planning.",
-    detail: "Un streamer régulier construit une habitude chez ses viewers. Sans planning stable, la croissance reste aléatoire.",
-  },
-  {
-    icon: Clapperboard,
-    label: "Contenu",
-    description: "Analyse ta capacité à transformer tes lives en moments forts, clips et contenus réutilisables.",
-    detail: "Un live ne dure que quelques heures. Un clip ou une VOD continue d'exister et d'attirer des viewers bien après.",
-  },
-  {
-    icon: Eye,
-    label: "Visibilité",
-    description: "Analyse les signaux qui peuvent aider ta chaîne à être plus facilement découverte.",
-    detail: "La visibilité repose sur des signaux comme la stabilité de ta catégorie, tes titres et ta cohérence de positionnement.",
-  },
-  {
-    icon: TrendingUp,
-    label: "Progression",
-    description: "Analyse les signaux d'évolution de ta chaîne pour comprendre si tu avances, stagnes ou régresses.",
-    detail: "Un score de progression mesure la dynamique de la chaîne sur les 7 et 30 derniers jours — pas juste une photo figée.",
-  },
+  { icon: Calendar, label: "Régularité", description: "Analyse la fréquence de tes streams, les jours actifs et la cohérence de ton planning.", detail: "Un streamer régulier construit une habitude chez ses viewers. Sans planning stable, la croissance reste aléatoire." },
+  { icon: Clapperboard, label: "Contenu", description: "Analyse ta capacité à transformer tes lives en moments forts, clips et contenus réutilisables.", detail: "Un live ne dure que quelques heures. Un clip ou une VOD continue d'exister et d'attirer des viewers bien après." },
+  { icon: Eye, label: "Visibilité", description: "Analyse les signaux qui peuvent aider ta chaîne à être plus facilement découverte.", detail: "La visibilité repose sur des signaux comme la stabilité de ta catégorie, tes titres et ta cohérence de positionnement." },
+  { icon: TrendingUp, label: "Progression", description: "Analyse les signaux d'évolution de ta chaîne pour comprendre si tu avances, stagnes ou régresses.", detail: "Un score de progression mesure la dynamique de la chaîne sur les 7 et 30 derniers jours — pas juste une photo figée." },
 ];
 
 const OUTPUTS = [
-  { icon: BarChart2, title: "Une note claire", body: "Pour savoir immédiatement où ta chaîne se situe — sans avoir à interpréter des dizaines de métriques." },
+  { icon: BarChart2, title: "Une note claire", body: "Pour savoir immédiatement où ta chaîne se situe — sans interpréter des dizaines de métriques." },
   { icon: Activity, title: "Un diagnostic par dimension", body: "Pour comprendre ce qui fonctionne et ce qui bloque, dimension par dimension." },
   { icon: ListChecks, title: "Des recommandations concrètes", body: "Pour savoir quoi améliorer en priorité, avec le levier le plus impactant d'abord." },
-  { icon: CheckCircle2, title: "Un plan d'action", body: "Pour transformer l'analyse en prochaines étapes simples et actionnables dès aujourd'hui." },
+  { icon: Check, title: "Un plan d'action", body: "Pour transformer l'analyse en prochaines étapes simples, actionnables dès aujourd'hui." },
 ];
 
 const SIGNALS = [
@@ -115,29 +78,13 @@ const SIGNALS = [
 ];
 
 const FAQ = [
-  {
-    q: "Le StreamScore est-il gratuit ?",
-    a: "Oui, l'analyse de base peut être lancée gratuitement. Entre ton pseudo Twitch, Streamnco génère un premier diagnostic sans compte requis.",
-  },
-  {
-    q: "Comment le StreamScore m'aide à gagner des viewers ?",
-    a: "Il met en lumière tes leviers de croissance prioritaires et te dit quoi améliorer en premier — régularité, contenu, positionnement. Tu avances sur les bonnes actions, dans le bon ordre.",
-  },
-  {
-    q: "Est-ce que Streamnco est connecté à Twitch ?",
-    a: "Streamnco analyse les données disponibles de ta chaîne Twitch pour générer un diagnostic de progression. Le diagnostic de base utilise les données publiques. Le suivi complet utilise les données authentifiées.",
-  },
-  {
-    q: "À quelle fréquence faut-il vérifier son StreamScore ?",
-    a: "Idéalement après plusieurs streams ou chaque semaine, pour suivre l'évolution de ta régularité, de ton contenu et de ta progression.",
-  },
-  {
-    q: "Un mauvais StreamScore veut dire que ma chaîne est mauvaise ?",
-    a: "Non. Un score faible indique surtout qu'il existe des axes d'amélioration clairs. C'est un point de départ, pas un jugement.",
-  },
+  { q: "Le StreamScore est-il gratuit ?", a: "Oui, l'analyse de base peut être lancée gratuitement. Entre ton pseudo Twitch, Streamnco génère un premier diagnostic sans compte requis." },
+  { q: "Comment le StreamScore m'aide à gagner des viewers ?", a: "Il met en lumière tes leviers de croissance prioritaires et te dit quoi améliorer en premier — régularité, contenu, positionnement." },
+  { q: "Est-ce que Streamnco est connecté à Twitch ?", a: "Streamnco analyse les données disponibles de ta chaîne Twitch. Le diagnostic de base utilise les données publiques. Le suivi complet utilise les données authentifiées." },
+  { q: "À quelle fréquence vérifier son StreamScore ?", a: "Idéalement après plusieurs streams ou chaque semaine, pour suivre l'évolution de ta régularité, de ton contenu et de ta progression." },
+  { q: "Un mauvais StreamScore veut dire que ma chaîne est mauvaise ?", a: "Non. Un score faible indique surtout qu'il existe des axes d'amélioration clairs. C'est un point de départ, pas un jugement." },
 ];
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 const StreamScorePage = () => {
   const { openAuthModal } = useAuthModal();
 
@@ -151,358 +98,244 @@ const StreamScorePage = () => {
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        mainEntity: FAQ.map(({ q, a }) => ({
-          "@type": "Question",
-          name: q,
-          acceptedAnswer: { "@type": "Answer", text: a },
-        })),
+        mainEntity: FAQ.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
       },
     ],
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <LandingNav />
+    <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
+      <SiteNav />
 
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 1. HERO                                                   */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden pt-32 pb-20 md:pt-44 md:pb-28">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.12),transparent_55%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.035)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)] opacity-45" />
-        <motion.div
-          className="pointer-events-none absolute left-[8%] top-[35%] h-64 w-64 rounded-full bg-primary/8 blur-3xl"
-          animate={{ scale: [1, 1.18, 1] }} transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="pointer-events-none absolute right-[8%] top-[20%] h-48 w-48 rounded-full bg-primary/6 blur-3xl"
-          animate={{ scale: [1.1, 1, 1.1] }} transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-        />
-
-        <div className="container relative mx-auto max-w-4xl px-4 text-center md:px-6">
-          <FadeIn>
-            <SectionBadge>
-              <Activity className="h-3 w-3" /> Concept Streamnco
-            </SectionBadge>
-
-            {/* H1 — required verbatim */}
-            <h1 className="font-display mx-auto mt-5 max-w-3xl bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-[3.25rem] md:leading-[1.08]">
+      {/* Hero */}
+      <section className="relative overflow-hidden pt-36 pb-20 md:pt-44 md:pb-24">
+        <Orb color="bg-el-mint" className="left-1/4 top-12 h-[26rem] w-[26rem] opacity-50" />
+        <Orb color="bg-el-sky" className="right-[-4rem] top-24 h-[24rem] w-[24rem] opacity-50" animate="fast" />
+        <Container className="relative text-center">
+          <Reveal>
+            <Eyebrow className="justify-center"><Activity className="h-3.5 w-3.5" /> Concept Streamnco</Eyebrow>
+            <h1 className="mx-auto mt-5 max-w-3xl font-el-display text-[clamp(2.4rem,5vw,3.75rem)] font-light leading-[1.06] tracking-[-0.03em] text-el-ink">
               StreamScore : le score de progression de ta chaîne Twitch
             </h1>
-
-            <p className="mx-auto mt-5 max-w-xl text-base text-foreground/70 md:text-lg">
-              Streamnco analyse ta chaîne Twitch et génère un StreamScore pour t'aider à comprendre où tu en es, ce qui bloque ta progression et quelles actions prioriser.
+            <p className="mx-auto mt-5 max-w-xl font-el-sans text-[17px] leading-[1.6] text-el-body">
+              Streamnco analyse ta chaîne et génère un StreamScore pour comprendre où tu en es, ce qui bloque ta progression et quelles actions prioriser.
             </p>
-          </FadeIn>
-
-          <FadeIn delay={0.15} className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" className="gap-2" onClick={() => openAuthModal("signup")}>
-              <Sparkles className="h-4 w-4" /> Découvrir mon StreamScore
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <a href="#comment-ca-marche">Voir comment ça marche <ArrowRight className="ml-1 h-4 w-4" /></a>
-            </Button>
-          </FadeIn>
-
-          {/* Score ring hero visual */}
-          <FadeIn delay={0.3} className="mt-14 flex justify-center">
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-0 rounded-full bg-primary/10 blur-3xl" />
-              <ScoreRing score={74} size={160} />
-            </div>
-          </FadeIn>
-        </div>
+          </Reveal>
+          <Reveal delay={120} className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <button onClick={() => openAuthModal("signup")} className="inline-flex h-12 items-center gap-2 rounded-full bg-el-ink px-7 font-el-sans text-[16px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft">
+              Découvrir mon StreamScore <ArrowRight className="h-4 w-4" />
+            </button>
+            <a href="#comment" className="inline-flex h-12 items-center rounded-full border border-el-hairline-strong px-7 font-el-sans text-[16px] font-medium text-el-ink transition-colors hover:bg-el-strong">
+              Voir comment ça marche
+            </a>
+          </Reveal>
+          <Reveal delay={220} className="mt-14 flex justify-center">
+            <ScoreRing score={74} size={170} />
+          </Reveal>
+        </Container>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 2. DÉFINITION                                             */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <SectionShell id="definition" glow={false} grid={false}>
-        <div className="mx-auto max-w-3xl">
-          <FadeIn>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-strong">
-              Définition
-            </span>
-            <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
+      {/* Définition */}
+      <section className="border-t border-el-hairline bg-el-canvas-soft py-20 md:py-28">
+        <Container className="max-w-3xl">
+          <Reveal>
+            <Eyebrow>Définition</Eyebrow>
+            <h2 className="mt-4 font-el-display text-[clamp(2rem,4vw,2.75rem)] font-light leading-[1.12] tracking-[-0.02em] text-el-ink">
               Qu'est-ce que le StreamScore ?
             </h2>
-            <div className="mt-5 space-y-4 text-base leading-relaxed text-foreground/70">
-              <p>
-                Le StreamScore est un score généré par Streamnco pour mesurer la{" "}
-                <strong className="text-foreground">santé globale d'une chaîne Twitch</strong>.
-              </p>
-              <p>
-                Il ne sert pas seulement à donner une note. Il sert à transformer les données de ta chaîne en{" "}
-                <strong className="text-foreground">diagnostic clair</strong>, puis en{" "}
-                <strong className="text-foreground">plan d'action concret</strong>.
-              </p>
-              <p>
-                L'objectif : t'aider à progresser stream après stream, sans te perdre dans des statistiques brutes.
-              </p>
+            <div className="mt-6 space-y-4 font-el-sans text-[17px] leading-[1.65] text-el-body">
+              <p>Le StreamScore est un score généré par Streamnco pour mesurer la <span className="text-el-ink">santé globale d'une chaîne Twitch</span>.</p>
+              <p>Il ne sert pas seulement à donner une note. Il transforme les données de ta chaîne en <span className="text-el-ink">diagnostic clair</span>, puis en <span className="text-el-ink">plan d'action concret</span>.</p>
+              <p>L'objectif : t'aider à progresser stream après stream, sans te perdre dans des statistiques brutes.</p>
             </div>
-          </FadeIn>
-        </div>
-      </SectionShell>
+          </Reveal>
+        </Container>
+      </section>
 
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 3. 4 DIMENSIONS                                           */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <SectionShell glow={false}>
-        <div className="mb-10 text-center">
-          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-            Les dimensions analysées
-          </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
-            Quatre axes complémentaires pour une lecture complète de ta progression.
-          </p>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2">
-          {DIMENSIONS.map((d, i) => (
-            <FadeIn key={d.label} delay={i * 0.1}>
-              <GlassCard interactive className="h-full p-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                    <d.icon className="h-5 w-5 text-primary-strong" />
+      {/* 4 dimensions */}
+      <section className="py-20 md:py-28">
+        <Container>
+          <Reveal className="mb-12 text-center">
+            <h2 className="font-el-display text-[clamp(2rem,4vw,2.75rem)] font-light tracking-[-0.02em] text-el-ink">Les dimensions analysées</h2>
+            <p className="mx-auto mt-3 max-w-md font-el-sans text-[16px] text-el-body">Quatre axes complémentaires pour une lecture complète de ta progression.</p>
+          </Reveal>
+          <div className="grid gap-5 sm:grid-cols-2">
+            {DIMENSIONS.map((d, i) => (
+              <Reveal key={d.label} delay={i * 80}>
+                <div className="h-full rounded-2xl border border-el-hairline bg-el-card p-7">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-el-strong text-el-ink"><d.icon className="h-5 w-5" /></span>
+                    <h3 className="font-el-sans text-[18px] font-medium text-el-ink">{d.label}</h3>
                   </div>
-                  <h3 className="text-base font-semibold text-foreground">{d.label}</h3>
+                  <p className="mt-4 font-el-sans text-[15px] font-medium text-el-ink">{d.description}</p>
+                  <p className="mt-2 font-el-sans text-[14px] leading-[1.6] text-el-body">{d.detail}</p>
                 </div>
-                <p className="mt-3 text-sm font-medium text-foreground/80">{d.description}</p>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{d.detail}</p>
-              </GlassCard>
-            </FadeIn>
-          ))}
-        </div>
-      </SectionShell>
-
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 4. CALCUL                                                 */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <SectionShell id="comment-ca-marche" glow={false} grid={false}>
-        <div className="mx-auto max-w-3xl">
-          <FadeIn>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-strong">
-              Méthodologie
-            </span>
-            <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
-              Comment est calculé le StreamScore ?
-            </h2>
-            <p className="mt-4 text-base leading-relaxed text-foreground/70">
-              Le StreamScore est calculé à partir de plusieurs signaux issus de ta chaîne Twitch.
-            </p>
-            <p className="mt-2 text-base leading-relaxed text-foreground/70">
-              Streamnco observe notamment :
-            </p>
-            <ul className="mt-4 space-y-2.5">
-              {SIGNALS.map((s, i) => (
-                <motion.li
-                  key={s}
-                  initial={{ opacity: 0, x: -12 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.1 + i * 0.08, duration: 0.5 }}
-                  className="flex items-center gap-3 text-sm text-foreground/80"
-                >
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-[9px] font-bold text-primary-strong">
-                    {i + 1}
-                  </span>
-                  {s}
-                </motion.li>
-              ))}
-            </ul>
-            <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-              Chaque dimension contribue à une lecture globale de ta chaîne. Quand un signal est manquant, il est neutralisé plutôt qu'artificiellement gonflé — pour garantir un score honnête.
-            </p>
-          </FadeIn>
-        </div>
-      </SectionShell>
-
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 5. CE QUE L'UTILISATEUR OBTIENT                           */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <SectionShell glow={false}>
-        <div className="mb-10 text-center">
-          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-            Ce que tu obtiens après ton analyse
-          </h2>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {OUTPUTS.map((o, i) => (
-            <FadeIn key={o.title} delay={i * 0.09}>
-              <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-card/70 to-card/30 p-5 backdrop-blur-sm">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.06),transparent_55%)]" />
-                <div className="relative">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-                    <o.icon className="h-4.5 w-4.5 text-primary-strong" />
-                  </div>
-                  <h3 className="mt-3 text-sm font-semibold text-foreground">{o.title}</h3>
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{o.body}</p>
-                </div>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
-      </SectionShell>
-
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 6. EXEMPLE DE LECTURE                                     */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <SectionShell glow={false} grid={false}>
-        <div className="mx-auto max-w-3xl">
-          <FadeIn>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-strong">
-              Exemple concret
-            </span>
-            <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
-              Exemple de lecture
-            </h2>
-          </FadeIn>
-
-          <FadeIn delay={0.1} className="mt-8">
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card/50 p-6 backdrop-blur-xl md:p-8">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.08),transparent_55%)]" />
-              <div className="relative">
-                {/* Score global */}
-                <div className="flex items-center gap-5 border-b border-white/[0.06] pb-6">
-                  <ScoreRing score={48} size={96} />
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">StreamScore global</p>
-                    <p className="mt-1 text-2xl font-bold text-foreground">48 / 100</p>
-                    <p className="mt-1 text-sm text-muted-foreground">En construction — des axes clairs à améliorer.</p>
-                  </div>
-                </div>
-
-                {/* Dimensions */}
-                <div className="mt-6 space-y-5">
-                  {[
-                    { label: "Régularité", score: 72, comment: "Tu streams souvent, mais ton planning manque encore de cohérence.", color: "bg-primary" },
-                    { label: "Contenu", score: 34, comment: "Tes lives existent, mais tes meilleurs moments ne sont pas assez transformés en contenu.", color: "bg-warning" },
-                    { label: "Visibilité", score: 41, comment: "Ta chaîne manque de signaux qui facilitent la découverte.", color: "bg-warning" },
-                  ].map((d, i) => (
-                    <div key={d.label}>
-                      <div className="mb-1.5 flex items-center justify-between">
-                        <span className="text-sm font-semibold text-foreground">{d.label}</span>
-                        <span className="text-sm font-bold tabular-nums text-foreground">{d.score}/100</span>
-                      </div>
-                      <AnimBar val={d.score} delay={0.3 + i * 0.1} color={d.color} />
-                      <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{d.comment}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Priority */}
-                <div className="mt-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary-strong/80">Priorité recommandée</p>
-                    <p className="mt-1 text-sm text-foreground/80 leading-relaxed">
-                      Commencer par clipper et republier tes meilleurs moments pour créer plus de points d'entrée vers ta chaîne.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
-      </SectionShell>
-
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 7. POURQUOI C'EST UTILE                                   */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <SectionShell glow={false} grid={false}>
-        <div className="mx-auto max-w-3xl">
-          <FadeIn>
-            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-              Pourquoi le StreamScore est utile ?
-            </h2>
-            <p className="mt-4 text-base leading-relaxed text-foreground/70">
-              Beaucoup de streamers savent qu'ils doivent progresser, mais ne savent pas exactement où agir.
-            </p>
-          </FadeIn>
-
-          <FadeIn delay={0.1} className="mt-8">
-            <div className="grid gap-4 sm:grid-cols-2">
-              {/* Before */}
-              <div className="flex flex-col gap-2 rounded-2xl border border-destructive/15 bg-destructive/5 p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-destructive/60">Sans StreamScore</p>
-                <p className="text-lg font-bold text-foreground leading-snug">"Je dois faire mieux."</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">Vague. Pas actionnable. Tu ne sais pas par où commencer.</p>
-              </div>
-              {/* After */}
-              <div className="flex flex-col gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-primary-strong/70">Avec StreamScore</p>
-                <p className="text-lg font-bold text-foreground leading-snug">"Je dois améliorer ma régularité, mieux exploiter mes clips et structurer mon planning."</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">Précis. Priorisé. Actionnable dès aujourd'hui.</p>
-              </div>
-            </div>
-            <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-              C'est une lecture simple, actionnable et pensée pour les streamers.
-            </p>
-          </FadeIn>
-        </div>
-      </SectionShell>
-
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 8. FAQ                                                    */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <SectionShell glow={false} grid={false}>
-        <div className="mx-auto max-w-3xl">
-          <FadeIn>
-            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-              Questions fréquentes
-            </h2>
-          </FadeIn>
-          <div className="mt-8 space-y-4">
-            {FAQ.map((item, i) => (
-              <FadeIn key={item.q} delay={i * 0.08}>
-                <div className="rounded-2xl border border-white/[0.06] bg-card/30 p-5">
-                  <p className="text-sm font-semibold text-foreground">{item.q}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
-                </div>
-              </FadeIn>
+              </Reveal>
             ))}
           </div>
-        </div>
-      </SectionShell>
+        </Container>
+      </section>
 
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* 9. CTA FINAL                                              */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      <SectionShell grid={false}>
-        <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background shadow-[0_40px_120px_-40px_hsl(var(--primary)/0.2)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_60%)]" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:20px_20px] opacity-40" />
-            <div className="relative px-8 py-14 text-center md:px-16 md:py-20">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-primary-strong/70">
-                Gratuit · Sans compte
-              </p>
-              <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
-                Découvre ton StreamScore
-              </h2>
-              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-                Entre ton pseudo Twitch et obtiens une analyse claire de ta chaîne en quelques secondes.
-              </p>
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                <Button size="lg" className="gap-2" onClick={() => openAuthModal("signup")}>
-                  <Zap className="h-4 w-4" /> Analyser ma chaîne Twitch
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link to="/fonctionnalites">Voir toutes les fonctionnalités</Link>
-                </Button>
+      {/* Méthodologie */}
+      <section id="comment" className="border-t border-el-hairline bg-el-canvas-soft py-20 md:py-28">
+        <Container className="max-w-3xl">
+          <Reveal>
+            <Eyebrow>Méthodologie</Eyebrow>
+            <h2 className="mt-4 font-el-display text-[clamp(2rem,4vw,2.75rem)] font-light leading-[1.12] tracking-[-0.02em] text-el-ink">Comment est calculé le StreamScore ?</h2>
+            <p className="mt-5 font-el-sans text-[17px] leading-[1.6] text-el-body">Le StreamScore est calculé à partir de plusieurs signaux issus de ta chaîne Twitch. Streamnco observe notamment :</p>
+            <ul className="mt-5 space-y-3">
+              {SIGNALS.map((s, i) => (
+                <li key={s} className="flex items-center gap-3 font-el-sans text-[15px] text-el-ink">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-el-ink text-[11px] font-bold text-el-on-dark">{i + 1}</span>
+                  {s}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 font-el-sans text-[14px] leading-[1.6] text-el-muted">
+              Quand un signal est manquant, il est neutralisé plutôt qu'artificiellement gonflé — pour garantir un score honnête.
+            </p>
+          </Reveal>
+        </Container>
+      </section>
+
+      {/* Ce que tu obtiens */}
+      <section className="py-20 md:py-28">
+        <Container>
+          <Reveal className="mb-12 text-center">
+            <h2 className="font-el-display text-[clamp(2rem,4vw,2.75rem)] font-light tracking-[-0.02em] text-el-ink">Ce que tu obtiens après ton analyse</h2>
+          </Reveal>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {OUTPUTS.map((o, i) => (
+              <Reveal key={o.title} delay={i * 70}>
+                <div className="h-full rounded-2xl border border-el-hairline bg-el-card p-6">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-el-strong text-el-ink"><o.icon className="h-5 w-5" /></span>
+                  <h3 className="mt-4 font-el-sans text-[16px] font-medium text-el-ink">{o.title}</h3>
+                  <p className="mt-2 font-el-sans text-[14px] leading-[1.6] text-el-body">{o.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Exemple de lecture */}
+      <section className="border-t border-el-hairline bg-el-canvas-soft py-20 md:py-28">
+        <Container className="max-w-3xl">
+          <Reveal>
+            <Eyebrow>Exemple concret</Eyebrow>
+            <h2 className="mt-4 font-el-display text-[clamp(2rem,4vw,2.75rem)] font-light tracking-[-0.02em] text-el-ink">Exemple de lecture</h2>
+          </Reveal>
+          <Reveal delay={100} className="mt-8">
+            <div className="rounded-2xl border border-el-hairline bg-el-card p-6 md:p-8">
+              <div className="flex items-center gap-5 border-b border-el-hairline pb-6">
+                <ScoreRing score={48} size={100} />
+                <div>
+                  <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.12em] text-el-muted">StreamScore global</p>
+                  <p className="mt-1 font-el-display text-[28px] font-light text-el-ink">48 / 100</p>
+                  <p className="mt-1 font-el-sans text-[15px] text-el-body">En construction — des axes clairs à améliorer.</p>
+                </div>
               </div>
-              <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[11px] text-muted-foreground/60">
-                {["Sans connexion Twitch requise", "Résultat en 60 secondes", "8 000+ chaînes analysées"].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />{t}
-                  </span>
+              <div className="mt-6 space-y-5">
+                {[
+                  { label: "Régularité", score: 72, comment: "Tu streams souvent, mais ton planning manque encore de cohérence." },
+                  { label: "Contenu", score: 34, comment: "Tes lives existent, mais tes meilleurs moments ne sont pas assez transformés en contenu." },
+                  { label: "Visibilité", score: 41, comment: "Ta chaîne manque de signaux qui facilitent la découverte." },
+                ].map((d, i) => (
+                  <div key={d.label}>
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <span className="font-el-sans text-[15px] font-medium text-el-ink">{d.label}</span>
+                      <span className="font-el-sans text-[15px] font-semibold tabular-nums text-el-ink">{d.score}/100</span>
+                    </div>
+                    <AnimBar val={d.score} delay={0.3 + i * 0.1} />
+                    <p className="mt-1.5 font-el-sans text-[13px] leading-[1.55] text-el-body">{d.comment}</p>
+                  </div>
                 ))}
               </div>
+              <div className="mt-6 flex items-start gap-3 rounded-xl bg-el-dark p-4 text-el-on-dark">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-el-mint" />
+                <div>
+                  <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.1em] text-el-on-dark-soft">Priorité recommandée</p>
+                  <p className="mt-1 font-el-sans text-[15px] leading-[1.55] text-el-on-dark">
+                    Commencer par clipper et republier tes meilleurs moments pour créer plus de points d'entrée vers ta chaîne.
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        </FadeIn>
-      </SectionShell>
+          </Reveal>
+        </Container>
+      </section>
 
-      <LandingFooter />
+      {/* Pourquoi utile */}
+      <section className="py-20 md:py-28">
+        <Container className="max-w-3xl">
+          <Reveal>
+            <h2 className="font-el-display text-[clamp(2rem,4vw,2.75rem)] font-light tracking-[-0.02em] text-el-ink">Pourquoi le StreamScore est utile ?</h2>
+            <p className="mt-4 font-el-sans text-[17px] leading-[1.6] text-el-body">Beaucoup de streamers savent qu'ils doivent progresser, mais ne savent pas exactement où agir.</p>
+          </Reveal>
+          <Reveal delay={100} className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-el-hairline bg-el-card p-6">
+              <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.12em] text-el-muted">Sans StreamScore</p>
+              <p className="mt-2 font-el-display text-[22px] font-light leading-snug text-el-ink">« Je dois faire mieux. »</p>
+              <p className="mt-2 font-el-sans text-[15px] text-el-body">Vague. Pas actionnable. Tu ne sais pas par où commencer.</p>
+            </div>
+            <div className="rounded-2xl bg-el-dark p-6 text-el-on-dark">
+              <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.12em] text-el-on-dark-soft">Avec StreamScore</p>
+              <p className="mt-2 font-el-display text-[22px] font-light leading-snug text-el-on-dark">« J'améliore ma régularité, j'exploite mes clips, je structure mon planning. »</p>
+              <p className="mt-2 font-el-sans text-[15px] text-el-on-dark-soft">Précis. Priorisé. Actionnable dès aujourd'hui.</p>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      {/* FAQ */}
+      <section className="border-t border-el-hairline bg-el-canvas-soft py-20 md:py-28">
+        <Container className="grid gap-12 md:grid-cols-[0.8fr_1.2fr]">
+          <Reveal>
+            <Eyebrow>FAQ</Eyebrow>
+            <h2 className="mt-4 font-el-display text-[clamp(1.9rem,3.5vw,2.5rem)] font-light tracking-[-0.02em] text-el-ink">Questions fréquentes</h2>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="divide-y divide-el-hairline border-t border-el-hairline">
+              {FAQ.map((item) => (
+                <details key={item.q} className="group py-5">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-el-sans text-[17px] font-medium text-el-ink">
+                    {item.q}
+                    <span className="text-el-muted transition-transform group-open:rotate-45">＋</span>
+                  </summary>
+                  <p className="mt-3 font-el-sans text-[15px] leading-[1.65] text-el-body">{item.a}</p>
+                </details>
+              ))}
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      {/* CTA final */}
+      <section className="relative overflow-hidden bg-el-dark py-24">
+        <Orb color="bg-el-mint" className="left-[-6rem] top-0 h-[24rem] w-[24rem] opacity-25" />
+        <Orb color="bg-el-peach" className="bottom-[-8rem] right-0 h-[26rem] w-[26rem] opacity-20" animate="fast" />
+        <Container className="relative text-center">
+          <Reveal>
+            <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.16em] text-el-on-dark-soft">Gratuit · sans compte</p>
+            <h2 className="mx-auto mt-3 max-w-2xl font-el-display text-[clamp(2.2rem,4.5vw,3.25rem)] font-light leading-[1.08] tracking-[-0.02em] text-el-on-dark">
+              Découvre ton StreamScore
+            </h2>
+            <p className="mx-auto mt-4 max-w-md font-el-sans text-[17px] leading-[1.6] text-el-on-dark-soft">
+              Entre ton pseudo Twitch et obtiens une analyse claire de ta chaîne en quelques secondes.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <button onClick={() => openAuthModal("signup")} className="inline-flex h-12 items-center gap-2 rounded-full bg-el-on-dark px-7 font-el-sans text-[16px] font-medium text-el-ink transition-opacity hover:opacity-90">
+                Analyser ma chaîne Twitch <ArrowRight className="h-4 w-4" />
+              </button>
+              <Link to="/fonctionnalites" className="inline-flex h-12 items-center rounded-full border border-el-on-dark-soft/40 px-7 font-el-sans text-[16px] font-medium text-el-on-dark transition-colors hover:bg-white/10">
+                Voir les fonctionnalités
+              </Link>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      <SiteFooter />
     </div>
   );
 };
