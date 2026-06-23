@@ -18,6 +18,9 @@ export default {
         mono: ["JetBrains Mono", "monospace"],
         display: ["Instrument Sans", "DM Sans", "system-ui", "sans-serif"],
         brand: ["Boogaloo", "system-ui", "sans-serif"],
+        // ElevenLabs marketing site: editorial light serif display + Inter body.
+        "el-display": ["Fraunces", "Georgia", "Times New Roman", "serif"],
+        "el-sans": ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -83,6 +86,30 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // ── ElevenLabs marketing palette (scoped to the public site only;
+        //    fixed hex, independent of the product's dark/lime tokens) ──────
+        el: {
+          canvas: "#f5f5f5",
+          "canvas-soft": "#fafafa",
+          ink: "#0c0a09",
+          "ink-soft": "#292524",
+          body: "#4e4e4e",
+          muted: "#777169",
+          "muted-soft": "#a8a29e",
+          card: "#ffffff",
+          strong: "#f0efed",
+          hairline: "#e7e5e4",
+          "hairline-strong": "#d6d3d1",
+          dark: "#0c0a09",
+          "dark-elevated": "#1c1917",
+          "on-dark": "#ffffff",
+          "on-dark-soft": "#a8a29e",
+          mint: "#a7e5d3",
+          peach: "#f4c5a8",
+          lavender: "#c8b8e0",
+          sky: "#a8c8e8",
+          rose: "#e8b8c4",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -102,11 +129,17 @@ export default {
           from: { opacity: "0", transform: "translateY(14px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "el-float": {
+          "0%": { transform: "translate3d(0,0,0) scale(1)" },
+          "100%": { transform: "translate3d(0,-26px,0) scale(1.07)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-up": "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "el-float": "el-float 16s ease-in-out infinite alternate",
+        "el-float-slow": "el-float 26s ease-in-out infinite alternate",
       },
     },
   },

@@ -1,4 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=DM+Sans:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* ElevenLabs marketing site — editorial serif display (Fraunces Light) + Inter body */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Respect reduced motion for the site's atmospheric orbs */
+@media (prefers-reduced-motion: reduce) {
+  .animate-el-float,
+  .animate-el-float-slow {
+    animation: none !important;
+  }
+}
 
 @tailwind base;
 @tailwind components;
