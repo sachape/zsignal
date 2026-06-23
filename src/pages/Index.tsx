@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Check, Clapperboard, Palette, Activity, Sparkles } from "lucide-react";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
+import PlanCard from "@/components/site/PlanCard";
 import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -73,75 +74,6 @@ const STEPS = [
     body: "Tu récupères des fichiers prêts à publier. Tu gardes le contrôle total sur ce qui sort et sur ton calendrier.",
   },
 ];
-
-const PlanCard = ({
-  name,
-  price,
-  future,
-  features,
-  featured,
-  badge,
-  onCta,
-}: {
-  name: string;
-  price: string;
-  future?: string;
-  features: string[];
-  featured?: boolean;
-  badge?: string;
-  onCta: () => void;
-}) => (
-  <div
-    className={
-      featured
-        ? "relative flex flex-col rounded-2xl bg-el-dark p-8 text-el-on-dark shadow-[0_24px_60px_-24px_rgba(0,0,0,0.45)]"
-        : "relative flex flex-col rounded-2xl border border-el-hairline bg-el-card p-8 text-el-ink"
-    }
-  >
-    {badge && (
-      <span
-        className={
-          featured
-            ? "absolute -top-3 left-8 rounded-full bg-el-on-dark px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-ink"
-            : "absolute -top-3 left-8 rounded-full bg-el-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-on-dark"
-        }
-      >
-        {badge}
-      </span>
-    )}
-    <p className={featured ? "font-el-sans text-[15px] font-medium text-el-on-dark" : "font-el-sans text-[15px] font-medium text-el-ink"}>
-      {name}
-    </p>
-    <div className="mt-3 flex items-end gap-2">
-      <span className="font-el-display text-[40px] font-light leading-none tracking-[-0.02em]">{price}</span>
-      {future && (
-        <span className={featured ? "mb-1 text-[14px] text-el-on-dark-soft line-through" : "mb-1 text-[14px] text-el-muted-soft line-through"}>
-          {future}
-        </span>
-      )}
-    </div>
-    <button
-      onClick={onCta}
-      className={
-        featured
-          ? "mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-el-on-dark font-el-sans text-[15px] font-medium text-el-ink transition-opacity hover:opacity-90"
-          : "mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-el-ink font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft"
-      }
-    >
-      Commencer
-    </button>
-    <ul className="mt-7 space-y-3">
-      {features.map((f) => (
-        <li key={f} className="flex items-start gap-2.5">
-          <Check className={featured ? "mt-0.5 h-4 w-4 shrink-0 text-el-mint" : "mt-0.5 h-4 w-4 shrink-0 text-el-ink"} />
-          <span className={featured ? "font-el-sans text-[15px] leading-snug text-el-on-dark-soft" : "font-el-sans text-[15px] leading-snug text-el-body"}>
-            {f}
-          </span>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
 
 const Index = () => {
   const { openAuthModal } = useAuthModal();
