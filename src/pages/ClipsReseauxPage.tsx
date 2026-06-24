@@ -25,6 +25,7 @@ import { useActiveVideoJob } from "@/hooks/useVideoJobs";
 import { getGenerationStageLabel } from "@/services/videoGeneration";
 import { downloadClip } from "@/lib/downloadClip";
 import { toast } from "@/hooks/use-toast";
+import PublishClipDialog from "@/components/PublishClipDialog";
 
 interface RecentClip {
   id: string;
@@ -33,6 +34,7 @@ interface RecentClip {
   output_url: string | null;
   created_at: string;
   output_format: string;
+  content_item_id: string | null;
 }
 
 const GENERATED_CLIPS_BUCKET = "creator-generated-clips";
