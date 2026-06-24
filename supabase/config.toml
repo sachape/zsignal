@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.clip-layout-reference-frame]
 verify_jwt = false
+
+[functions.zernio-webhook]
+verify_jwt = false
