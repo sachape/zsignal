@@ -265,3 +265,52 @@ export async function ingestClipsFor(
     categories_synced: categoriesSynced,
   };
 }
+
+/**
+ * Best-effort ingest of clips for a live session that just closed.
+ * - Never throws: failures are logged and swallowed so the caller's
+ *   close path (status='ended', debrief, …) is never blocked.
+ * - Buffers started_at by -5min and ended_at by +5min to catch clips
+ *   created right around the live boundary.
+ * - Idempotent: ingestClipsFor upserts on twitch_clip_id.
+ *
+ * Known limitation: Twitch may take a few minutes to expose newly created
+ * clips and their vod_offset. This helper does a single immediate pass; a
+ * later refresh happens via the existing weekly batch cron (any broadcaster
+ * with a live_session updated in the last 7 days is re-ingested) or via
+ * the manual "Rafraîchir mes clips" button in the UI.
+ */
+export async function ingestClipsForClosedSession(
+  admin: ReturnType<typeof createClient>,
+  params: { user_id: string; broadcaster_id: string; started_at: string; ended_at: string; live_session_id?: string },
+): Promise<{ ok: boolean; fetched?: number; upserted?: number; error?: string }> {
+  try {
+    const startedMs = Date.parse(params.started_at);
+    const endedMs = Date.parse(params.ended_at);
+    if (!Number.isFinite(startedMs) || !Number.isFinite(endedMs)) {
+      return { ok: false, error: "invalid_timestamps" };
+    }
+    const startedBuffered = new Date(startedMs - 5 * 60_000).toISOString();
+    const endedBuffered = new Date(endedMs + 5 * 60_000).toISOString();
+    const res = await ingestClipsFor(admin, {
+      user_id: params.user_id,
+      broadcaster_id: params.broadcaster_id,
+      started_at: startedBuffered,
+      ended_at: endedBuffered,
+    });
+    console.log(JSON.stringify({
+      event: "clips_ingest_post_live",
+      live_session_id: params.live_session_id ?? null,
+      fetched: res.fetched,
+      upserted: res.upserted,
+    }));
+    return { ok: true, fetched: res.fetched, upserted: res.upserted };
+  } catch (err) {
+    console.log(JSON.stringify({
+      event: "clips_ingest_post_live_error",
+      live_session_id: params.live_session_id ?? null,
+      message: err instanceof Error ? err.message : "unknown",
+    }));
+    return { ok: false, error: err instanceof Error ? err.message : "unknown" };
+  }
+}
