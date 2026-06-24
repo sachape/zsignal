@@ -290,6 +290,15 @@ const ClipsReseauxPage = () => {
           )}
         </section>
       </PageContainer>
+      {publishClip && publishClip.content_item_id && (
+        <PublishClipDialog
+          open={!!publishClip}
+          onOpenChange={(v) => { if (!v) setPublishClip(null); }}
+          contentItemId={publishClip.content_item_id}
+          videoUrl={publishClip.output_url}
+          onPublished={() => void loadRecent()}
+        />
+      )}
     </AppShell>
   );
 };
