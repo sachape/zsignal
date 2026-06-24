@@ -624,6 +624,7 @@ export type Database = {
           updated_at: string
           user_id: string
           username: string | null
+          zernio_account_id: string | null
         }
         Insert: {
           access_token_encrypted?: string | null
@@ -641,6 +642,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           username?: string | null
+          zernio_account_id?: string | null
         }
         Update: {
           access_token_encrypted?: string | null
@@ -658,6 +660,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+          zernio_account_id?: string | null
         }
         Relationships: []
       }
@@ -1095,8 +1098,11 @@ export type Database = {
           scheduled_at: string | null
           source_content_item_id: string | null
           status: string
+          target_account_ids: Json | null
           updated_at: string
           user_id: string
+          zernio_post_id: string | null
+          zernio_raw_response: Json | null
         }
         Insert: {
           caption?: string | null
@@ -1116,8 +1122,11 @@ export type Database = {
           scheduled_at?: string | null
           source_content_item_id?: string | null
           status?: string
+          target_account_ids?: Json | null
           updated_at?: string
           user_id: string
+          zernio_post_id?: string | null
+          zernio_raw_response?: Json | null
         }
         Update: {
           caption?: string | null
@@ -1137,8 +1146,11 @@ export type Database = {
           scheduled_at?: string | null
           source_content_item_id?: string | null
           status?: string
+          target_account_ids?: Json | null
           updated_at?: string
           user_id?: string
+          zernio_post_id?: string | null
+          zernio_raw_response?: Json | null
         }
         Relationships: []
       }
@@ -1739,6 +1751,7 @@ export type Database = {
           updated_at: string
           user_id: string
           welcome_email_sent_at: string | null
+          zernio_profile_id: string | null
         }
         Insert: {
           created_at?: string
@@ -1747,6 +1760,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           welcome_email_sent_at?: string | null
+          zernio_profile_id?: string | null
         }
         Update: {
           created_at?: string
@@ -1755,6 +1769,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           welcome_email_sent_at?: string | null
+          zernio_profile_id?: string | null
         }
         Relationships: []
       }
