@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
         platform,
         format: "clip",
         status,
-        caption: fullCaption || null,
+        caption: caption || null,
         hashtags: hashtags.length > 0 ? hashtags : null,
         media_url: item.generated_video_url,
         source_content_item_id: itemId,
