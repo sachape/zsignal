@@ -15,11 +15,17 @@ const NAV_LINKS = [
   { label: "Blog", href: "/articles" },
 ];
 
-const SiteNav = () => {
+/**
+ * Public site navigation. `theme="light"` for the editorial marketing site;
+ * `theme="dark"` for the logged-out product shell (dark surfaces, e.g. the
+ * /analyze diagnostic teaser).
+ */
+const SiteNav = ({ theme = "light" }: { theme?: "light" | "dark" }) => {
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const dark = theme === "dark";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -28,7 +34,6 @@ const SiteNav = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll while the mobile menu is open.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -36,12 +41,25 @@ const SiteNav = () => {
     };
   }, [open]);
 
+  const wordmark = dark ? "text-el-on-dark" : "text-el-ink";
+  const linkCls = dark
+    ? "text-el-on-dark-soft hover:text-el-on-dark"
+    : "text-el-body hover:text-el-ink";
+  const ctaPill = dark
+    ? "bg-el-on-dark text-el-ink hover:opacity-90"
+    : "bg-el-ink text-el-on-dark hover:bg-el-ink-soft";
+  const ghostCls = dark
+    ? "text-el-on-dark hover:bg-white/10"
+    : "text-el-ink hover:bg-el-strong";
+
   return (
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
         scrolled || open
-          ? "border-b border-el-hairline bg-el-canvas/90 backdrop-blur-xl"
+          ? dark
+            ? "border-b border-white/10 bg-el-dark/90 backdrop-blur-xl"
+            : "border-b border-el-hairline bg-el-canvas/90 backdrop-blur-xl"
           : "border-b border-transparent bg-transparent",
       )}
     >
@@ -53,16 +71,12 @@ const SiteNav = () => {
           aria-label="Streamnco — accueil"
         >
           <img src={logoMark} alt="" className="h-7 w-7" />
-          <span className="font-el-sans text-[19px] font-semibold tracking-[-0.02em] text-el-ink">streamnco</span>
+          <span className={cn("font-el-sans text-[19px] font-semibold tracking-[-0.02em]", wordmark)}>streamnco</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((l) => (
-            <Link
-              key={l.href}
-              to={l.href}
-              className="font-el-sans text-[15px] font-medium text-el-body transition-colors hover:text-el-ink"
-            >
+            <Link key={l.href} to={l.href} className={cn("font-el-sans text-[15px] font-medium transition-colors", linkCls)}>
               {l.label}
             </Link>
           ))}
@@ -70,23 +84,20 @@ const SiteNav = () => {
 
         <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
-            <Link
-              to="/dashboard"
-              className="inline-flex h-10 items-center rounded-full bg-el-ink px-5 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft"
-            >
+            <Link to="/dashboard" className={cn("inline-flex h-10 items-center rounded-full px-5 font-el-sans text-[15px] font-medium transition-colors", ctaPill)}>
               Tableau de bord
             </Link>
           ) : (
             <>
               <button
                 onClick={() => openAuthModal("login")}
-                className="hidden h-10 items-center rounded-full px-4 font-el-sans text-[15px] font-medium text-el-ink transition-colors hover:bg-el-strong sm:inline-flex"
+                className={cn("hidden h-10 items-center rounded-full px-4 font-el-sans text-[15px] font-medium transition-colors sm:inline-flex", ghostCls)}
               >
                 Connexion
               </button>
               <button
                 onClick={() => openAuthModal("signup")}
-                className="inline-flex h-10 items-center rounded-full bg-el-ink px-5 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft"
+                className={cn("inline-flex h-10 items-center rounded-full px-5 font-el-sans text-[15px] font-medium transition-colors", ctaPill)}
               >
                 Essayer gratuitement
               </button>
@@ -94,7 +105,7 @@ const SiteNav = () => {
           )}
           <button
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-el-ink transition-colors hover:bg-el-strong md:hidden"
+            className={cn("inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors md:hidden", ghostCls)}
             aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={open}
           >
@@ -103,16 +114,15 @@ const SiteNav = () => {
         </div>
       </Container>
 
-      {/* Mobile panel */}
       {open && (
-        <div className="border-t border-el-hairline bg-el-canvas md:hidden">
+        <div className={cn("md:hidden", dark ? "border-t border-white/10 bg-el-dark" : "border-t border-el-hairline bg-el-canvas")}>
           <Container className="flex flex-col py-3">
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.href}
                 to={l.href}
                 onClick={() => setOpen(false)}
-                className="border-b border-el-hairline py-3.5 font-el-sans text-[16px] font-medium text-el-ink last:border-0"
+                className={cn("border-b py-3.5 font-el-sans text-[16px] font-medium last:border-0", dark ? "border-white/10 text-el-on-dark" : "border-el-hairline text-el-ink")}
               >
                 {l.label}
               </Link>
@@ -123,7 +133,7 @@ const SiteNav = () => {
                   setOpen(false);
                   openAuthModal("login");
                 }}
-                className="mt-3 inline-flex h-11 items-center justify-center rounded-full border border-el-hairline-strong font-el-sans text-[15px] font-medium text-el-ink"
+                className={cn("mt-3 inline-flex h-11 items-center justify-center rounded-full border font-el-sans text-[15px] font-medium", dark ? "border-white/20 text-el-on-dark" : "border-el-hairline-strong text-el-ink")}
               >
                 Connexion
               </button>

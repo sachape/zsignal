@@ -1,7 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import AccountMenu from "@/components/AccountMenu";
-import LandingNav from "@/components/LandingNav";
+import SiteNav from "@/components/site/SiteNav";
 import SectionTabs from "@/components/SectionTabs";
 import CommandPalette from "@/components/CommandPalette";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,8 +12,8 @@ const AppShell = ({ children }: { children: React.ReactNode }) => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <LandingNav />
-        <main className="pt-14">{children}</main>
+        <SiteNav theme="dark" />
+        <main className="pt-16">{children}</main>
       </div>
     );
   }
