@@ -680,6 +680,8 @@ const ClipsPage = () => {
                         ? categories.get(insight.clip.game_id)?.game_name ?? null
                         : null
                     }
+                    transformState={transformStates[insight.clip.twitch_clip_id] ?? "idle"}
+                    onTransform={handleTransform}
                   />
                 ))}
               </div>
