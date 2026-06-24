@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuthModal } from "@/contexts/AuthModalContext";
+import logoMark from "@/assets/logo-mark.svg";
 import { Container } from "./el";
 
 const COLUMNS: { title: string; links: { label: string; to: string; external?: boolean }[] }[] = [
@@ -38,8 +39,11 @@ const SiteFooter = () => {
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           {/* Brand + CTA */}
           <div>
-            <span className="font-el-sans text-[19px] font-semibold tracking-[-0.02em] text-el-ink">
-              streamnco
+            <span className="flex items-center gap-2">
+              <img src={logoMark} alt="" className="h-7 w-7" />
+              <span className="font-el-sans text-[19px] font-semibold tracking-[-0.02em] text-el-ink">
+                streamnco
+              </span>
             </span>
             <p className="mt-3 max-w-xs font-el-sans text-[15px] leading-relaxed text-el-body">
               Le cockpit créatif des streamers. Transforme tes lives en clips,

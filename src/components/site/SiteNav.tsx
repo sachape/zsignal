@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthModal } from "@/contexts/AuthModalContext";
+import logoMark from "@/assets/logo-mark.svg";
 import { Container } from "./el";
 
 const NAV_LINKS = [
@@ -48,10 +49,11 @@ const SiteNav = () => {
         <Link
           to="/"
           onClick={() => setOpen(false)}
-          className="font-el-sans text-[19px] font-semibold tracking-[-0.02em] text-el-ink"
+          className="flex items-center gap-2"
           aria-label="Streamnco — accueil"
         >
-          streamnco
+          <img src={logoMark} alt="" className="h-7 w-7" />
+          <span className="font-el-sans text-[19px] font-semibold tracking-[-0.02em] text-el-ink">streamnco</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

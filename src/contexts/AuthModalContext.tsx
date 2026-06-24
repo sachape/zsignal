@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import AuthForm from "@/components/auth/AuthForm";
+import logoMark from "@/assets/logo-mark.svg";
 
 // Force the auth modal into the editorial site palette: light surfaces + an
 // ink (near-black) primary instead of lime, so the CTA matches the ElevenLabs
@@ -56,7 +57,8 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
           style={EDITORIAL_VARS}
         >
           <DialogHeader className="space-y-3">
-            <div className="mx-auto">
+            <div className="mx-auto flex items-center gap-2">
+              <img src={logoMark} alt="" className="h-7 w-7" />
               <span className="font-el-sans text-[18px] font-semibold tracking-[-0.02em] text-el-ink">
                 streamnco
               </span>
