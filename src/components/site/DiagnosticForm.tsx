@@ -35,7 +35,7 @@ const DiagnosticForm = ({
   const [rect, setRect] = useState<{ top: number; left: number; width: number } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const anchorRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLFormElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
