@@ -66,6 +66,7 @@ const ClipsReseauxPage = () => {
 
   const [recent, setRecent] = useState<RecentClip[]>([]);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [publishClip, setPublishClip] = useState<RecentClip | null>(null);
 
   const handleDownload = useCallback(async (clip: RecentClip) => {
     setDownloadingId(clip.id);
