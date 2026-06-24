@@ -468,6 +468,7 @@ function ContentRow({
   const anotherJobIsActive = activeJobContentItemId !== null && activeJobContentItemId !== item.id;
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(defaultExpanded);
+  const [publishOpen, setPublishOpen] = useState(false);
   const [title, setTitle] = useState(normalizeClipTitle(item.title));
   const [description, setDescription] = useState(item.description ?? "");
   const [hashtagsRaw, setHashtagsRaw] = useState(item.hashtags.join(" "));
@@ -587,6 +588,11 @@ function ContentRow({
                 <DropdownMenuItem onClick={() => copy(buildCopyPayload(item))}>
                   <Copy className="mr-2 h-3.5 w-3.5" /> Copier titre + description
                 </DropdownMenuItem>
+                {hasGeneratedClip && !["published"].includes(item.status) && (
+                  <DropdownMenuItem onClick={() => setPublishOpen(true)}>
+                    <Send className="mr-2 h-3.5 w-3.5" /> Publier sur les réseaux
+                  </DropdownMenuItem>
+                )}
                 {hasGeneratedClip && !["ready", "published", "published_manually"].includes(item.status) && (
                   <DropdownMenuItem onClick={() => onUpdate({ status: "ready" })}>
                     <CheckCircle2 className="mr-2 h-3.5 w-3.5" /> Marquer comme prêt
