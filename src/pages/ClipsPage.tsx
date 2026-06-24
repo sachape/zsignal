@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Scissors,
   RefreshCw,
@@ -11,6 +12,8 @@ import {
   TrendingUp,
   Flame,
   Calendar,
+  Wand2,
+  Loader2,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
