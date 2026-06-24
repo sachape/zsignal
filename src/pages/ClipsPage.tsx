@@ -562,6 +562,12 @@ const ClipsPage = () => {
           action={action}
         />
 
+        <p className="-mt-2 mb-4 text-[11px] text-muted-foreground">
+          Les clips sont récupérés automatiquement après chaque live. Tu peux aussi rafraîchir manuellement.
+        </p>
+
+
+
         {status === "loading" && <LoadingState label="Chargement de tes clips…" />}
 
         {status === "error" && (
