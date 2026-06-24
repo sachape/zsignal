@@ -5,7 +5,7 @@ import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
   Film, Wand2, Clock, Flame, TrendingUp, BarChart3, Plus, Info, FileUp, Scissors,
-  MoreHorizontal, ChevronDown,
+  MoreHorizontal, ChevronDown, Send,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -33,6 +33,7 @@ import {
 } from "@/hooks/useContentItems";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
+import PublishClipDialog from "@/components/PublishClipDialog";
 import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
 import { useActiveVideoJob, useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
 import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
@@ -467,6 +468,7 @@ function ContentRow({
   const anotherJobIsActive = activeJobContentItemId !== null && activeJobContentItemId !== item.id;
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(defaultExpanded);
+  const [publishOpen, setPublishOpen] = useState(false);
   const [title, setTitle] = useState(normalizeClipTitle(item.title));
   const [description, setDescription] = useState(item.description ?? "");
   const [hashtagsRaw, setHashtagsRaw] = useState(item.hashtags.join(" "));
@@ -586,6 +588,11 @@ function ContentRow({
                 <DropdownMenuItem onClick={() => copy(buildCopyPayload(item))}>
                   <Copy className="mr-2 h-3.5 w-3.5" /> Copier titre + description
                 </DropdownMenuItem>
+                {hasGeneratedClip && !["published"].includes(item.status) && (
+                  <DropdownMenuItem onClick={() => setPublishOpen(true)}>
+                    <Send className="mr-2 h-3.5 w-3.5" /> Publier sur les réseaux
+                  </DropdownMenuItem>
+                )}
                 {hasGeneratedClip && !["ready", "published", "published_manually"].includes(item.status) && (
                   <DropdownMenuItem onClick={() => onUpdate({ status: "ready" })}>
                     <CheckCircle2 className="mr-2 h-3.5 w-3.5" /> Marquer comme prêt
@@ -878,6 +885,18 @@ function ContentRow({
           </>
         )}
       </CardContent>
+      <PublishClipDialog
+        open={publishOpen}
+        onOpenChange={setPublishOpen}
+        contentItemId={item.id}
+        videoUrl={item.generated_video_url ?? null}
+        defaultCaption={item.selected_title_variant ?? item.title ?? ""}
+        defaultHashtags={
+          Array.isArray(item.selected_hashtags)
+            ? (item.selected_hashtags as string[])
+            : Array.isArray(item.hashtags) ? (item.hashtags as string[]) : []
+        }
+      />
     </Card>
   );
 }

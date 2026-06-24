@@ -27,6 +27,7 @@ import { usePresenceScoreHistory } from "@/hooks/usePresenceScoreHistory";
 import { computePresenceScore, getPlatformScore } from "@/services/presenceScore";
 import { computeRecommendations, computeDiagnostic } from "@/services/networkRecommendations";
 import ConnectNetworkModal from "@/components/ConnectNetworkModal";
+import SocialPublishingSection from "@/components/SocialPublishingSection";
 import PlatformValidationNotice from "@/components/PlatformValidationNotice";
 import type { Platform } from "@/types/networks";
 import { supabase } from "@/integrations/supabase/client";
@@ -483,6 +484,8 @@ export default function ReseauxPage() {
           <div className="flex items-center justify-center py-24 text-sm text-muted-foreground">Chargement…</div>
         ) : (
           <div className="space-y-6">
+            <SocialPublishingSection />
+
 
             {/* ── Creator Presence Score ── */}
             <Card>
