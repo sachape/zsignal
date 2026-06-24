@@ -63,36 +63,54 @@ Deno.serve(async (req) => {
       .select("id, zernio_account_id, platform")
       .eq("user_id", userId)
       .in("zernio_account_id", accountIds);
-    const validAccountIds = (ownedAccounts ?? [])
-      .map((a) => a.zernio_account_id)
-      .filter((id): id is string => Boolean(id));
-    if (validAccountIds.length === 0) {
+    const validAccounts = (ownedAccounts ?? [])
+      .filter((a): a is { id: string; zernio_account_id: string; platform: string } =>
+        Boolean(a.zernio_account_id) && ["youtube", "tiktok", "instagram"].includes((a.platform ?? "").toLowerCase()));
+    if (validAccounts.length === 0) {
       return json({ error: "Aucun compte connecté valide." }, 400);
     }
+    const validAccountIds = validAccounts.map((a) => a.zernio_account_id);
 
     const caption = (body.caption ?? item.title ?? "").trim();
-    const hashtags = Array.isArray(body.hashtags) && body.hashtags.length > 0
+    const hashtagsRaw = Array.isArray(body.hashtags) && body.hashtags.length > 0
       ? body.hashtags
       : Array.isArray(item.selected_hashtags) ? item.selected_hashtags as string[]
       : Array.isArray(item.hashtags) ? item.hashtags as string[]
       : [];
+    // Zernio expects hashtags as plain tokens (no leading #)
+    const hashtags = hashtagsRaw
+      .map((h) => String(h).trim().replace(/^#+/, ""))
+      .filter(Boolean);
 
-    const fullCaption = hashtags.length > 0
-      ? `${caption}\n\n${hashtags.map((h) => h.startsWith("#") ? h : `#${h}`).join(" ")}`.trim()
-      : caption;
+    const title = (item.title ?? "Streamnco clip").slice(0, 120);
 
     const idempotencyKey = `streamnco:${itemId}:${Date.now()}`;
     const postBody: Record<string, unknown> = {
-      accountIds: validAccountIds,
-      mediaUrl: item.generated_video_url,
-      caption: fullCaption,
+      title,
+      content: caption,
+      mediaItems: [
+        { type: "video", url: item.generated_video_url },
+      ],
+      platforms: validAccounts.map((a) => ({
+        platform: a.platform.toLowerCase(),
+        accountId: a.zernio_account_id,
+      })),
+      timezone: "Europe/Paris",
     };
+    if (hashtags.length > 0) postBody.hashtags = hashtags;
     if (body.scheduled_at) {
       postBody.scheduledFor = body.scheduled_at;
     } else if (body.publish_now !== false) {
       postBody.publishNow = true;
     }
     if (body.visibility) postBody.visibility = body.visibility;
+
+    // Debug log (no secrets — only the post body sent to Zernio).
+    console.log("[zernio-publish-clip] POST /v1/posts payload", JSON.stringify({
+      idempotencyKey,
+      content_item_id: itemId,
+      payload: postBody,
+    }));
 
     let zernioResp: ZernioPostResp | null = null;
     let publishError: string | null = null;
@@ -104,7 +122,9 @@ Deno.serve(async (req) => {
       });
     } catch (e) {
       publishError = (e as Error).message ?? "publish_failed";
+      console.error("[zernio-publish-clip] Zernio error", publishError, (e as Error & { body?: unknown }).body);
     }
+
 
     const status = publishError
       ? "failed"
