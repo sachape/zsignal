@@ -165,7 +165,7 @@ async function handleStreamOffline(admin: SupabaseClient, raw: RawEvent) {
   // Close every active session for this broadcaster (across all connected users).
   const { data: sessions } = await admin
     .from("live_sessions")
-    .select("id, started_at")
+    .select("id, started_at, user_id")
     .eq("platform", "twitch")
     .eq("platform_user_id", broadcasterUserId)
     .eq("status", "live");
@@ -181,6 +181,16 @@ async function handleStreamOffline(admin: SupabaseClient, raw: RawEvent) {
       .update({ status: "ended", ended_at: endedAt, duration_minutes: durationMin })
       .eq("id", session.id);
     closedIds.push(session.id);
+    // Auto-ingest Twitch clips created during this live (best-effort, never blocks).
+    if (session.user_id) {
+      await ingestClipsForClosedSession(admin, {
+        user_id: session.user_id,
+        broadcaster_id: broadcasterUserId,
+        started_at: session.started_at,
+        ended_at: endedAt,
+        live_session_id: session.id,
+      });
+    }
   }
 
   await insertAlertIdempotent(admin, {
