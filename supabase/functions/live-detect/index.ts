@@ -230,6 +230,16 @@ async function processAccount(
     } catch (err) {
       console.error("[live-detect] vod attach error", err);
     }
+    // Auto-ingest Twitch clips created during this live (best-effort).
+    if (account.platform_user_id) {
+      await ingestClipsForClosedSession(admin, {
+        user_id: account.user_id,
+        broadcaster_id: account.platform_user_id,
+        started_at: new Date(startedAt).toISOString(),
+        ended_at: new Date(endedAt).toISOString(),
+        live_session_id: open.id,
+      });
+    }
     // Auto-enqueue a StreamScore refresh so the dashboard/analyse pages
     // reflect the just-closed session without waiting for the next cron
     // or a manual click. The shared helper handles dedup + throttle.
