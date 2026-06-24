@@ -142,9 +142,13 @@ const CopyButton = ({ label, text, small }: CopyButtonProps) => {
   );
 };
 
+type TransformState = "idle" | "creating" | "existing";
+
 interface ClipCardProps {
   insight: ClipInsight;
   gameName: string | null;
+  transformState: TransformState;
+  onTransform: (insight: ClipInsight) => void;
 }
 
 const ClipCard = ({ insight, gameName }: ClipCardProps) => {
