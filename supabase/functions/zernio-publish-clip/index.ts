@@ -84,7 +84,8 @@ Deno.serve(async (req) => {
 
     const title = (item.title ?? "Streamnco clip").slice(0, 120);
 
-    const idempotencyKey = `streamnco:${itemId}:${Date.now()}`;
+    const platformKey = validAccounts.map((a) => a.platform.toLowerCase()).sort().join(",");
+    const idempotencyKey = `streamnco:${userId}:${itemId}:${platformKey}:${body.scheduled_at ?? "now"}`;
     const postBody: Record<string, unknown> = {
       title,
       content: caption,
