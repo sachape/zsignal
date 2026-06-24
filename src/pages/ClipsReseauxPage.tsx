@@ -95,7 +95,7 @@ const ClipsReseauxPage = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from("creator_video_generation_jobs")
-      .select("id, status, output_storage_path, output_url, created_at, output_format")
+      .select("id, status, output_storage_path, output_url, created_at, output_format, content_item_id")
       .eq("user_id", user.id)
       .in("status", ["completed", "failed"])
       .order("created_at", { ascending: false })
