@@ -885,6 +885,18 @@ function ContentRow({
           </>
         )}
       </CardContent>
+      <PublishClipDialog
+        open={publishOpen}
+        onOpenChange={setPublishOpen}
+        contentItemId={item.id}
+        videoUrl={item.generated_video_url ?? null}
+        defaultCaption={item.selected_title_variant ?? item.title ?? ""}
+        defaultHashtags={
+          Array.isArray(item.selected_hashtags)
+            ? (item.selected_hashtags as string[])
+            : Array.isArray(item.hashtags) ? (item.hashtags as string[]) : []
+        }
+      />
     </Card>
   );
 }
