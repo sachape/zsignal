@@ -476,11 +476,12 @@ const ClipsPage = () => {
       // Best-effort: load category names. Failure is silent (cards show fallback).
       const cats = await loadCategories(clips.map((c) => c.game_id));
       setCategories(cats);
+      void loadExistingTransforms();
       setStatus("ready");
     } catch {
       setStatus("error");
     }
-  }, [user]);
+  }, [user, loadExistingTransforms]);
 
   useEffect(() => {
     void load();
