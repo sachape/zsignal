@@ -151,7 +151,7 @@ interface ClipCardProps {
   onTransform: (insight: ClipInsight) => void;
 }
 
-const ClipCard = ({ insight, gameName }: ClipCardProps) => {
+const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const copy = useMemo(
     () => generateClipCopy(insight.clip, insight, gameName),
