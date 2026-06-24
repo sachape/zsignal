@@ -151,20 +151,20 @@ export default function PublishClipDialog({
 
         <div className="space-y-2">
           <Label htmlFor="pc-caption" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Légende
+            Description du post
           </Label>
           <Textarea
             id="pc-caption"
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             rows={3}
-            placeholder="Une accroche courte qui donne envie de regarder…"
+            placeholder="Ex : Le meilleur moment du live d'hier"
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="pc-tags" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Hashtags
+            Hashtags visibles
           </Label>
           <Input
             id="pc-tags"
@@ -172,7 +172,26 @@ export default function PublishClipDialog({
             onChange={(e) => setHashtagsRaw(e.target.value)}
             placeholder="gaming streamer twitch"
           />
+          <p className="text-[10px] text-muted-foreground">
+            Tape les mots sans #. Le # est ajouté automatiquement à la publication.
+          </p>
         </div>
+
+        <div className="space-y-1 rounded-md border border-border bg-muted/30 p-3">
+          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            Aperçu description
+          </p>
+          <p className="whitespace-pre-wrap text-sm text-foreground">
+            {caption || <span className="text-muted-foreground italic">Ta description apparaîtra ici…</span>}
+            {hashtags.length > 0 && (
+              <>
+                {caption ? "\n\n" : ""}
+                <span className="text-primary-strong">{hashtags.map((h) => `#${h}`).join(" ")}</span>
+              </>
+            )}
+          </p>
+        </div>
+
 
         <div className="flex items-center justify-between rounded-md border border-border p-3">
           <div>
