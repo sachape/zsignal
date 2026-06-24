@@ -4,6 +4,8 @@ import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
 import PlanCard from "@/components/site/PlanCard";
 import DiagnosticForm from "@/components/site/DiagnosticForm";
+import BrowserFrame from "@/components/site/BrowserFrame";
+import PhoneFrame from "@/components/site/PhoneFrame";
 import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -169,18 +171,25 @@ const Index = () => {
             </Reveal>
           </div>
 
-          {/* Product showcase — screenshot resting on a pastel atmospheric pedestal */}
+          {/* Product showcase — screenshot in a premium browser frame on a
+              pastel pedestal, with floating accent cards */}
           <Reveal delay={200} className="relative mx-auto mt-16 max-w-5xl md:mt-20">
             <Orb color="bg-el-peach" className="left-[12%] top-8 h-[20rem] w-[40%] opacity-60" />
             <Orb color="bg-el-sky" className="right-[10%] top-16 h-[18rem] w-[36%] opacity-50" animate="fast" />
-            <div className="relative overflow-hidden rounded-[20px] border border-el-hairline bg-el-card p-1.5 shadow-[0_50px_100px_-40px_rgba(0,0,0,0.4)] ring-1 ring-black/[0.04]">
-              <div className="overflow-hidden rounded-[14px] border border-el-hairline">
-                <div className="flex h-9 items-center gap-1.5 border-b border-el-hairline bg-el-canvas-soft px-4">
-                  <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-el-hairline-strong" />
+            <div className="relative">
+              <BrowserFrame src={shotStudio} alt="Aperçu du Studio visuel Streamnco" url="streamnco.fr/studio-visuel" float />
+
+              {/* Floating accent cards */}
+              <div className="absolute -left-4 top-12 hidden animate-el-float rounded-2xl border border-el-hairline bg-el-card/95 px-4 py-3 shadow-[0_20px_45px_-20px_rgba(0,0,0,0.3)] backdrop-blur-sm md:block">
+                <p className="font-el-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-el-muted">StreamScore</p>
+                <p className="font-el-display text-[28px] font-light leading-none text-el-ink">74<span className="text-[14px] text-el-muted"> / 100</span></p>
+              </div>
+              <div className="absolute -right-4 bottom-12 hidden animate-el-float-slow items-center gap-2.5 rounded-2xl border border-el-hairline bg-el-card/95 px-4 py-3 shadow-[0_20px_45px_-20px_rgba(0,0,0,0.3)] backdrop-blur-sm md:flex">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-el-peach"><Clapperboard className="h-4 w-4 text-el-ink" /></span>
+                <div>
+                  <p className="font-el-sans text-[13px] font-medium text-el-ink">Clip prêt à poster</p>
+                  <p className="font-el-sans text-[11px] text-el-muted">9:16 · sous-titré</p>
                 </div>
-                <img src={shotStudio} alt="Aperçu du Studio visuel Streamnco" className="block w-full" loading="lazy" />
               </div>
             </div>
           </Reveal>
@@ -275,10 +284,8 @@ const Index = () => {
             </button>
           </Reveal>
           <Reveal delay={120} className="relative flex justify-center">
-            <Orb color="bg-el-mint" className="left-1/2 top-1/2 h-[18rem] w-[18rem] -translate-x-1/2 -translate-y-1/2 opacity-70" />
-            <div className="relative overflow-hidden rounded-[20px] border border-el-hairline bg-el-card p-2 shadow-[0_40px_80px_-32px_rgba(0,0,0,0.4)] ring-1 ring-black/[0.04]">
-              <img src={shotClip} alt="Clip vertical 9:16 généré par Streamnco" className="block w-full max-w-[300px] rounded-[14px]" loading="lazy" />
-            </div>
+            <Orb color="bg-el-mint" className="left-1/2 top-1/2 h-[20rem] w-[20rem] -translate-x-1/2 -translate-y-1/2 opacity-70" />
+            <PhoneFrame src={shotClip} alt="Clip vertical 9:16 généré par Streamnco" className="relative animate-el-float-slow" />
           </Reveal>
         </Container>
       </section>
@@ -289,9 +296,7 @@ const Index = () => {
         <Container className="relative grid items-center gap-12 md:grid-cols-2 md:gap-16">
           <Reveal className="relative order-2 flex justify-center md:order-1">
             <Orb color="bg-el-rose" className="left-1/2 top-1/2 h-[20rem] w-[70%] -translate-x-1/2 -translate-y-1/2 opacity-60" />
-            <div className="relative overflow-hidden rounded-[20px] border border-el-hairline bg-el-card p-1.5 shadow-[0_40px_80px_-32px_rgba(0,0,0,0.4)] ring-1 ring-black/[0.04]">
-              <img src={shotStudio} alt="Studio visuel Streamnco" className="block w-full rounded-[14px]" loading="lazy" />
-            </div>
+            <BrowserFrame src={shotStudio} alt="Studio visuel Streamnco" url="streamnco.fr/studio-visuel" className="relative" />
           </Reveal>
           <Reveal delay={120} className="order-1 md:order-2">
             <Eyebrow>Studio visuel</Eyebrow>
