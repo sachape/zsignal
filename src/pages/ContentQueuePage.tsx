@@ -33,6 +33,8 @@ import {
 } from "@/hooks/useContentItems";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import YouTubeUploadDialog from "@/components/content-queue/YouTubeUploadDialog";
+import PublishClipDialog from "@/components/PublishClipDialog";
+import { Send } from "lucide-react";
 import ClipGenerationDialog from "@/components/content-queue/ClipGenerationDialog";
 import { useActiveVideoJob, useVideoJobsForItem, type VideoJobStatus } from "@/hooks/useVideoJobs";
 import AfterPublishPanel from "@/components/content-queue/AfterPublishPanel";
