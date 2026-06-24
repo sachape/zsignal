@@ -272,10 +272,14 @@ const ClipsReseauxPage = () => {
                           )}
                         </Button>
                       )}
-                      <Button asChild size="sm" className="h-7 gap-1 px-2 text-[11px]">
-                        <Link to="/composer">
-                          <Send className="h-3 w-3" /> Publier
-                        </Link>
+                      <Button
+                        size="sm"
+                        className="h-7 gap-1 px-2 text-[11px]"
+                        onClick={() => setPublishClip(clip)}
+                        disabled={!clip.content_item_id || !clip.output_url}
+                        title={!clip.content_item_id ? "Clip non lié à la queue de contenu" : undefined}
+                      >
+                        <Send className="h-3 w-3" /> Publier
                       </Button>
                     </div>
                   </CardContent>
