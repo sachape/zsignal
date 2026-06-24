@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Scissors,
   RefreshCw,
@@ -11,6 +12,8 @@ import {
   TrendingUp,
   Flame,
   Calendar,
+  Wand2,
+  Loader2,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -139,12 +142,16 @@ const CopyButton = ({ label, text, small }: CopyButtonProps) => {
   );
 };
 
+type TransformState = "idle" | "creating" | "existing";
+
 interface ClipCardProps {
   insight: ClipInsight;
   gameName: string | null;
+  transformState: TransformState;
+  onTransform: (insight: ClipInsight) => void;
 }
 
-const ClipCard = ({ insight, gameName }: ClipCardProps) => {
+const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const copy = useMemo(
     () => generateClipCopy(insight.clip, insight, gameName),
@@ -222,6 +229,29 @@ const ClipCard = ({ insight, gameName }: ClipCardProps) => {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {transformState === "existing" ? (
+                <Button asChild type="button" size="sm" className="h-7 gap-1.5 px-2 text-[11px]">
+                  <Link to="/content-queue">
+                    <Check className="h-3.5 w-3.5" />
+                    Voir dans la queue
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => onTransform(insight)}
+                  disabled={transformState === "creating"}
+                  className="h-7 gap-1.5 px-2 text-[11px]"
+                >
+                  {transformState === "creating" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Wand2 className="h-3.5 w-3.5" />
+                  )}
+                  {transformState === "creating" ? "Création…" : "Transformer en Short"}
+                </Button>
+              )}
               <CopyButton small label="Hook" text={copy.hooks[0] ?? ""} />
               <CopyButton small label="Caption" text={copy.caption} />
               <CopyButton small label="Titre" text={copy.title} />
@@ -236,6 +266,7 @@ const ClipCard = ({ insight, gameName }: ClipCardProps) => {
                 {expanded ? "Masquer" : "Voir le pack"}
               </Button>
             </div>
+
 
             {expanded && (
               <div className="mt-1 space-y-3 rounded-lg border border-border/60 bg-muted/20 p-3 text-xs">
@@ -317,6 +348,121 @@ const ClipsPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<ClipFilter>("all");
   const [sort, setSort] = useState<ClipSort>("potential");
+  const [transformStates, setTransformStates] = useState<Record<string, TransformState>>({});
+
+  const loadExistingTransforms = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("creator_content_items")
+      .select("external_platform_id")
+      .eq("user_id", user.id)
+      .eq("source_platform", "twitch_clip")
+      .not("external_platform_id", "is", null);
+    if (!data) return;
+    const map: Record<string, TransformState> = {};
+    for (const row of data) {
+      const key = (row as { external_platform_id: string | null }).external_platform_id;
+      if (key) map[key] = "existing";
+    }
+    setTransformStates((prev) => ({ ...map, ...prev }));
+  }, [user]);
+
+  const handleTransform = useCallback(
+    async (insight: ClipInsight) => {
+      if (!user) return;
+      const clip = insight.clip;
+      const clipKey = clip.twitch_clip_id;
+      if (!clipKey || !clip.url) {
+        toast({
+          title: "Clip indisponible",
+          description: "Ce clip Twitch n'a pas d'URL exploitable.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (transformStates[clipKey] === "existing" || transformStates[clipKey] === "creating") return;
+
+      setTransformStates((prev) => ({ ...prev, [clipKey]: "creating" }));
+      try {
+        // Anti-dup guard: re-check before insert.
+        const { data: existing } = await supabase
+          .from("creator_content_items")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("source_platform", "twitch_clip")
+          .eq("external_platform_id", clipKey)
+          .maybeSingle();
+
+        let contentItemId = existing?.id ?? null;
+        const durationSec = Math.max(5, Math.min(Math.round(clip.duration ?? 60), 60));
+        const title = clip.title?.trim() || "Clip Twitch";
+
+        if (!contentItemId) {
+          const { data: inserted, error: insertErr } = await supabase
+            .from("creator_content_items")
+            .insert({
+              user_id: user.id,
+              platform: "tiktok",
+              title,
+              status: "to_generate",
+              source_platform: "twitch_clip",
+              reason: "twitch_clip_full",
+              source_video_url: clip.url,
+              source_start_time: 0,
+              source_end_time: durationSec,
+              source_duration: durationSec,
+              external_platform_id: clipKey,
+              thumbnail_url: clip.thumbnail_url,
+              hashtags: [],
+            })
+            .select("id")
+            .single();
+          if (insertErr || !inserted) throw insertErr ?? new Error("insert_failed");
+          contentItemId = inserted.id;
+        }
+
+        const { data: jobData, error: jobErr } = await supabase.functions.invoke<{
+          success?: boolean;
+          error?: string;
+          message?: string;
+        }>("clip-job-create", {
+          body: {
+            content_item_id: contentItemId,
+            source_type: "twitch_clip",
+            source_url: clip.url,
+            start_time_seconds: 0,
+            end_time_seconds: durationSec,
+          },
+        });
+
+        const errMsg = jobErr?.message ?? jobData?.message ?? jobData?.error;
+        if (jobErr || (jobData && jobData.success === false)) {
+          // Content item exists → still mark as existing so user can find it in queue.
+          setTransformStates((prev) => ({ ...prev, [clipKey]: "existing" }));
+          toast({
+            title: "Génération non lancée",
+            description: errMsg ?? "Réessaie depuis la Content Queue.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setTransformStates((prev) => ({ ...prev, [clipKey]: "existing" }));
+        toast({
+          title: "Clip en génération",
+          description: "Retrouve-le dans la Content Queue.",
+        });
+      } catch (err) {
+        setTransformStates((prev) => ({ ...prev, [clipKey]: "idle" }));
+        toast({
+          title: "Impossible de transformer ce clip",
+          description: err instanceof Error ? err.message : "Réessaie dans un instant.",
+          variant: "destructive",
+        });
+      }
+    },
+    [toast, transformStates, user],
+  );
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -330,11 +476,12 @@ const ClipsPage = () => {
       // Best-effort: load category names. Failure is silent (cards show fallback).
       const cats = await loadCategories(clips.map((c) => c.game_id));
       setCategories(cats);
+      void loadExistingTransforms();
       setStatus("ready");
     } catch {
       setStatus("error");
     }
-  }, [user]);
+  }, [user, loadExistingTransforms]);
 
   useEffect(() => {
     void load();
@@ -533,6 +680,8 @@ const ClipsPage = () => {
                         ? categories.get(insight.clip.game_id)?.game_name ?? null
                         : null
                     }
+                    transformState={transformStates[insight.clip.twitch_clip_id] ?? "idle"}
+                    onTransform={handleTransform}
                   />
                 ))}
               </div>
