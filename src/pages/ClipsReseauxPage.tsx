@@ -25,6 +25,7 @@ import { useActiveVideoJob } from "@/hooks/useVideoJobs";
 import { getGenerationStageLabel } from "@/services/videoGeneration";
 import { downloadClip } from "@/lib/downloadClip";
 import { toast } from "@/hooks/use-toast";
+import PublishClipDialog from "@/components/PublishClipDialog";
 
 interface RecentClip {
   id: string;
@@ -33,6 +34,7 @@ interface RecentClip {
   output_url: string | null;
   created_at: string;
   output_format: string;
+  content_item_id: string | null;
 }
 
 const GENERATED_CLIPS_BUCKET = "creator-generated-clips";
@@ -64,6 +66,7 @@ const ClipsReseauxPage = () => {
 
   const [recent, setRecent] = useState<RecentClip[]>([]);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [publishClip, setPublishClip] = useState<RecentClip | null>(null);
 
   const handleDownload = useCallback(async (clip: RecentClip) => {
     setDownloadingId(clip.id);
@@ -92,7 +95,7 @@ const ClipsReseauxPage = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from("creator_video_generation_jobs")
-      .select("id, status, output_storage_path, output_url, created_at, output_format")
+      .select("id, status, output_storage_path, output_url, created_at, output_format, content_item_id")
       .eq("user_id", user.id)
       .in("status", ["completed", "failed"])
       .order("created_at", { ascending: false })
@@ -269,10 +272,14 @@ const ClipsReseauxPage = () => {
                           )}
                         </Button>
                       )}
-                      <Button asChild size="sm" className="h-7 gap-1 px-2 text-[11px]">
-                        <Link to="/composer">
-                          <Send className="h-3 w-3" /> Publier
-                        </Link>
+                      <Button
+                        size="sm"
+                        className="h-7 gap-1 px-2 text-[11px]"
+                        onClick={() => setPublishClip(clip)}
+                        disabled={!clip.content_item_id || !clip.output_url}
+                        title={!clip.content_item_id ? "Clip non lié à la queue de contenu" : undefined}
+                      >
+                        <Send className="h-3 w-3" /> Publier
                       </Button>
                     </div>
                   </CardContent>
@@ -283,6 +290,15 @@ const ClipsReseauxPage = () => {
           )}
         </section>
       </PageContainer>
+      {publishClip && publishClip.content_item_id && (
+        <PublishClipDialog
+          open={!!publishClip}
+          onOpenChange={(v) => { if (!v) setPublishClip(null); }}
+          contentItemId={publishClip.content_item_id}
+          videoUrl={publishClip.output_url}
+          onPublished={() => void loadRecent()}
+        />
+      )}
     </AppShell>
   );
 };
