@@ -229,6 +229,29 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {transformState === "existing" ? (
+                <Button asChild type="button" size="sm" className="h-7 gap-1.5 px-2 text-[11px]">
+                  <Link to="/content-queue">
+                    <Check className="h-3.5 w-3.5" />
+                    Voir dans la queue
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => onTransform(insight)}
+                  disabled={transformState === "creating"}
+                  className="h-7 gap-1.5 px-2 text-[11px]"
+                >
+                  {transformState === "creating" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Wand2 className="h-3.5 w-3.5" />
+                  )}
+                  {transformState === "creating" ? "Création…" : "Transformer en Short"}
+                </Button>
+              )}
               <CopyButton small label="Hook" text={copy.hooks[0] ?? ""} />
               <CopyButton small label="Caption" text={copy.caption} />
               <CopyButton small label="Titre" text={copy.title} />
@@ -243,6 +266,7 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
                 {expanded ? "Masquer" : "Voir le pack"}
               </Button>
             </div>
+
 
             {expanded && (
               <div className="mt-1 space-y-3 rounded-lg border border-border/60 bg-muted/20 p-3 text-xs">
