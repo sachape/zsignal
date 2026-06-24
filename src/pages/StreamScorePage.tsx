@@ -55,17 +55,17 @@ const ScoreRing = ({ score, size = 120 }: { score: number; size?: number }) => {
 };
 
 const DIMENSIONS = [
-  { icon: Calendar, label: "Régularité", description: "Analyse la fréquence de tes streams, les jours actifs et la cohérence de ton planning.", detail: "Un streamer régulier construit une habitude chez ses viewers. Sans planning stable, la croissance reste aléatoire." },
-  { icon: Clapperboard, label: "Contenu", description: "Analyse ta capacité à transformer tes lives en moments forts, clips et contenus réutilisables.", detail: "Un live ne dure que quelques heures. Un clip ou une VOD continue d'exister et d'attirer des viewers bien après." },
-  { icon: Eye, label: "Visibilité", description: "Analyse les signaux qui peuvent aider ta chaîne à être plus facilement découverte.", detail: "La visibilité repose sur des signaux comme la stabilité de ta catégorie, tes titres et ta cohérence de positionnement." },
-  { icon: TrendingUp, label: "Progression", description: "Analyse les signaux d'évolution de ta chaîne pour comprendre si tu avances, stagnes ou régresses.", detail: "Un score de progression mesure la dynamique de la chaîne sur les 7 et 30 derniers jours — pas juste une photo figée." },
+  { icon: Calendar, tint: "bg-el-mint", label: "Régularité", description: "Analyse la fréquence de tes streams, les jours actifs et la cohérence de ton planning.", detail: "Un streamer régulier construit une habitude chez ses viewers. Sans planning stable, la croissance reste aléatoire." },
+  { icon: Clapperboard, tint: "bg-el-peach", label: "Contenu", description: "Analyse ta capacité à transformer tes lives en moments forts, clips et contenus réutilisables.", detail: "Un live ne dure que quelques heures. Un clip ou une VOD continue d'exister et d'attirer des viewers bien après." },
+  { icon: Eye, tint: "bg-el-sky", label: "Visibilité", description: "Analyse les signaux qui peuvent aider ta chaîne à être plus facilement découverte.", detail: "La visibilité repose sur des signaux comme la stabilité de ta catégorie, tes titres et ta cohérence de positionnement." },
+  { icon: TrendingUp, tint: "bg-el-lavender", label: "Progression", description: "Analyse les signaux d'évolution de ta chaîne pour comprendre si tu avances, stagnes ou régresses.", detail: "Un score de progression mesure la dynamique de la chaîne sur les 7 et 30 derniers jours — pas juste une photo figée." },
 ];
 
 const OUTPUTS = [
-  { icon: BarChart2, title: "Une note claire", body: "Pour savoir immédiatement où ta chaîne se situe — sans interpréter des dizaines de métriques." },
-  { icon: Activity, title: "Un diagnostic par dimension", body: "Pour comprendre ce qui fonctionne et ce qui bloque, dimension par dimension." },
-  { icon: ListChecks, title: "Des recommandations concrètes", body: "Pour savoir quoi améliorer en priorité, avec le levier le plus impactant d'abord." },
-  { icon: Check, title: "Un plan d'action", body: "Pour transformer l'analyse en prochaines étapes simples, actionnables dès aujourd'hui." },
+  { icon: BarChart2, tint: "bg-el-mint", title: "Une note claire", body: "Pour savoir immédiatement où ta chaîne se situe — sans interpréter des dizaines de métriques." },
+  { icon: Activity, tint: "bg-el-peach", title: "Un diagnostic par dimension", body: "Pour comprendre ce qui fonctionne et ce qui bloque, dimension par dimension." },
+  { icon: ListChecks, tint: "bg-el-lavender", title: "Des recommandations concrètes", body: "Pour savoir quoi améliorer en priorité, avec le levier le plus impactant d'abord." },
+  { icon: Check, tint: "bg-el-rose", title: "Un plan d'action", body: "Pour transformer l'analyse en prochaines étapes simples, actionnables dès aujourd'hui." },
 ];
 
 const SIGNALS = [
@@ -126,8 +126,11 @@ const StreamScorePage = () => {
               <a href="#comment" className="text-el-ink underline underline-offset-4 hover:opacity-80">voir comment ça marche</a>
             </p>
           </Reveal>
-          <Reveal delay={220} className="mt-14 flex justify-center">
-            <ScoreRing score={74} size={170} />
+          <Reveal delay={220} className="relative mt-14 flex justify-center">
+            <Orb color="bg-el-peach" className="left-1/2 top-1/2 h-[15rem] w-[15rem] -translate-x-1/2 -translate-y-1/2 opacity-60" />
+            <div className="relative">
+              <ScoreRing score={74} size={170} />
+            </div>
           </Reveal>
         </Container>
       </section>
@@ -159,9 +162,9 @@ const StreamScorePage = () => {
           <div className="grid gap-5 sm:grid-cols-2">
             {DIMENSIONS.map((d, i) => (
               <Reveal key={d.label} delay={i * 80}>
-                <div className="h-full rounded-2xl border border-el-hairline bg-el-card p-7">
+                <div className="group h-full rounded-2xl border border-el-hairline bg-el-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-el-hairline-strong hover:shadow-[0_24px_50px_-24px_rgba(0,0,0,0.2)]">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-el-strong text-el-ink"><d.icon className="h-5 w-5" /></span>
+                    <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${d.tint} text-el-ink`}><d.icon className="h-5 w-5" /></span>
                     <h3 className="font-el-sans text-[18px] font-medium text-el-ink">{d.label}</h3>
                   </div>
                   <p className="mt-4 font-el-sans text-[15px] font-medium text-el-ink">{d.description}</p>
@@ -204,8 +207,8 @@ const StreamScorePage = () => {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {OUTPUTS.map((o, i) => (
               <Reveal key={o.title} delay={i * 70}>
-                <div className="h-full rounded-2xl border border-el-hairline bg-el-card p-6">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-el-strong text-el-ink"><o.icon className="h-5 w-5" /></span>
+                <div className="h-full rounded-2xl border border-el-hairline bg-el-card p-6 transition-colors hover:border-el-hairline-strong">
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${o.tint} text-el-ink`}><o.icon className="h-5 w-5" /></span>
                   <h3 className="mt-4 font-el-sans text-[16px] font-medium text-el-ink">{o.title}</h3>
                   <p className="mt-2 font-el-sans text-[14px] leading-[1.6] text-el-body">{o.body}</p>
                 </div>

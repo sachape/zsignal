@@ -241,10 +241,10 @@ const PricingPage = () => {
                 <Reveal key={tier.id} delay={i * 90}>
                   <div
                     className={cn(
-                      "relative flex h-full flex-col rounded-2xl p-8",
+                      "relative flex h-full flex-col rounded-2xl p-8 transition-all duration-300",
                       featured
-                        ? "bg-el-dark text-el-on-dark shadow-[0_24px_60px_-24px_rgba(0,0,0,0.45)]"
-                        : "border border-el-hairline bg-el-card text-el-ink",
+                        ? "bg-el-dark text-el-on-dark shadow-[0_24px_60px_-24px_rgba(0,0,0,0.45)] md:-translate-y-2"
+                        : "border border-el-hairline bg-el-card text-el-ink hover:-translate-y-1 hover:border-el-hairline-strong hover:shadow-[0_24px_50px_-24px_rgba(0,0,0,0.2)]",
                     )}
                   >
                     {tier.badge && (

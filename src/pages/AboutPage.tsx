@@ -69,9 +69,9 @@ const DIMENSIONS = [
 ];
 
 const PRINCIPLES = [
-  { icon: Activity, label: "Un score, pas des stats", body: "Les autres outils te donnent des chiffres. Streamnco te dit ce qu'ils signifient — et exactement quoi corriger en priorité." },
-  { icon: Target, label: "Un blocage, pas une liste", body: "Pas 15 recommandations génériques. Un frein principal identifié, avec le levier le plus impactant à actionner cette semaine." },
-  { icon: ListChecks, label: "Un plan, pas des conseils", body: "Chaque analyse génère un plan hebdomadaire concret, personnalisé selon ton profil — et vérifié après chaque live." },
+  { icon: Activity, tint: "bg-el-mint", label: "Un score, pas des stats", body: "Les autres outils te donnent des chiffres. Streamnco te dit ce qu'ils signifient — et exactement quoi corriger en priorité." },
+  { icon: Target, tint: "bg-el-peach", label: "Un blocage, pas une liste", body: "Pas 15 recommandations génériques. Un frein principal identifié, avec le levier le plus impactant à actionner cette semaine." },
+  { icon: ListChecks, tint: "bg-el-lavender", label: "Un plan, pas des conseils", body: "Chaque analyse génère un plan hebdomadaire concret, personnalisé selon ton profil — et vérifié après chaque live." },
 ];
 
 const AUDIENCE = [
@@ -107,8 +107,11 @@ const AboutPage = () => {
               À propos de Streamnco
             </h1>
           </Reveal>
-          <Reveal delay={120} className="mt-10 flex justify-center">
-            <HeroScoreRing />
+          <Reveal delay={120} className="relative mt-10 flex justify-center">
+            <Orb color="bg-el-mint" className="left-1/2 top-1/2 h-[15rem] w-[15rem] -translate-x-1/2 -translate-y-1/2 opacity-60" />
+            <div className="relative">
+              <HeroScoreRing />
+            </div>
           </Reveal>
           <Reveal delay={200} className="mx-auto mt-10 max-w-2xl space-y-4 text-left font-el-sans text-[17px] leading-[1.65] text-el-body">
             <p>Streamnco est un outil d'analyse et de progression pour streamers Twitch.</p>
@@ -159,8 +162,8 @@ const AboutPage = () => {
           <div className="grid gap-5 md:grid-cols-3">
             {PRINCIPLES.map((p, i) => (
               <Reveal key={p.label} delay={i * 80}>
-                <div className="h-full rounded-2xl border border-el-hairline bg-el-card p-7">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-el-strong text-el-ink"><p.icon className="h-5 w-5" /></span>
+                <div className="h-full rounded-2xl border border-el-hairline bg-el-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-el-hairline-strong hover:shadow-[0_24px_50px_-24px_rgba(0,0,0,0.2)]">
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${p.tint} text-el-ink`}><p.icon className="h-5 w-5" /></span>
                   <p className="mt-4 font-el-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-el-muted">Principe</p>
                   <h3 className="mt-1 font-el-sans text-[18px] font-medium text-el-ink">{p.label}</h3>
                   <p className="mt-2 font-el-sans text-[15px] leading-[1.6] text-el-body">{p.body}</p>

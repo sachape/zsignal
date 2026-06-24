@@ -10,6 +10,7 @@ const SOLUTIONS = [
   {
     id: "debutant",
     icon: Compass,
+    tint: "bg-el-mint",
     label: "Débutant",
     title: "Savoir quoi améliorer et créer tes premiers contenus propres.",
     description: "Pas besoin d'un outil compliqué. Une méthode simple : comprendre ta chaîne, sortir tes premiers clips et visuels propres, et arriver en live avec plus d'intention.",
@@ -19,6 +20,7 @@ const SOLUTIONS = [
   {
     id: "intermediaire",
     icon: TrendingUp,
+    tint: "bg-el-peach",
     label: "Intermédiaire",
     title: "Tu streams déjà et tu veux publier plus régulièrement.",
     description: "Le problème n'est plus de commencer, c'est de tenir le rythme. Streamnco transforme tes lives en assets, range tes brouillons et t'aide à tenir une cadence réaliste.",
@@ -28,6 +30,7 @@ const SOLUTIONS = [
   {
     id: "confirme",
     icon: Target,
+    tint: "bg-el-lavender",
     label: "Confirmé",
     title: "Professionnaliser ton image, suivre tes perfs, optimiser ta croissance.",
     description: "Tu as déjà des stats, des concurrents et une audience à comprendre. Streamnco devient ton centre de pilotage : création, benchmark, StreamScore, recommandations et préparation live.",
@@ -87,12 +90,13 @@ const SolutionsPage = () => {
           <div className="grid gap-5 lg:grid-cols-3">
             {SOLUTIONS.map((s, i) => (
               <Reveal key={s.id} delay={i * 80}>
-                <section id={s.id} className="flex h-full scroll-mt-28 flex-col rounded-2xl border border-el-hairline bg-el-card p-7">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-el-strong text-el-ink"><s.icon className="h-6 w-6" /></span>
-                  <p className="mt-5 font-el-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-el-muted">{s.label}</p>
-                  <h2 className="mt-3 font-el-display text-[24px] font-light leading-[1.2] tracking-[-0.01em] text-el-ink">{s.title}</h2>
-                  <p className="mt-4 font-el-sans text-[15px] leading-[1.6] text-el-body">{s.description}</p>
-                  <div className="mt-6 border-t border-el-hairline pt-5">
+                <section id={s.id} className="group relative flex h-full scroll-mt-28 flex-col overflow-hidden rounded-2xl border border-el-hairline bg-el-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-el-hairline-strong hover:shadow-[0_24px_50px_-24px_rgba(0,0,0,0.22)]">
+                  <div className={`pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full ${s.tint} opacity-50 blur-2xl transition-opacity duration-300 group-hover:opacity-90`} />
+                  <span className={`relative flex h-12 w-12 items-center justify-center rounded-2xl ${s.tint} text-el-ink`}><s.icon className="h-6 w-6" /></span>
+                  <p className="relative mt-5 font-el-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-el-muted">{s.label}</p>
+                  <h2 className="relative mt-3 font-el-display text-[24px] font-light leading-[1.2] tracking-[-0.01em] text-el-ink">{s.title}</h2>
+                  <p className="relative mt-4 font-el-sans text-[15px] leading-[1.6] text-el-body">{s.description}</p>
+                  <div className="relative mt-6 border-t border-el-hairline pt-5">
                     <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-el-muted">À prioriser</p>
                     <div className="mt-3 space-y-2">
                       {s.focus.map((item) => (
@@ -102,7 +106,7 @@ const SolutionsPage = () => {
                       ))}
                     </div>
                   </div>
-                  <div className="mt-5 rounded-xl bg-el-strong p-4">
+                  <div className="relative mt-5 rounded-xl bg-el-strong p-4">
                     <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-el-muted">Point de départ</p>
                     <p className="mt-2 font-el-sans text-[14px] leading-[1.55] text-el-ink">{s.startingPoint}</p>
                   </div>
