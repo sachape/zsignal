@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, type CSSProperties, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ShieldCheck,
@@ -17,6 +17,8 @@ import PageHeader from "@/components/PageHeader";
 import SectionHeader from "@/components/SectionHeader";
 import TrustCard from "@/components/TrustCard";
 import ValueCard from "@/components/ValueCard";
+import SiteNav from "@/components/site/SiteNav";
+import { Container, Orb } from "@/components/site/el";
 import { LoadingState } from "@/components/StateView";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,6 +28,13 @@ import { initiateTwitchOAuth } from "@/services/twitchOAuth";
 import { onboardingFlags } from "@/services/onboardingFlags";
 
 type PageState = "default" | "loading" | "success" | "already-connected";
+
+// Funnel = editorial light (matches site); ink-primary remaps product tokens.
+const TWITCH_INK_VARS = {
+  "--primary": "20 14% 4%",
+  "--primary-foreground": "0 0% 100%",
+  "--ring": "20 14% 4%",
+} as CSSProperties;
 
 const ConnectTwitchPage = () => {
   const { user, loading: authLoading } = useAuth();
@@ -60,7 +69,43 @@ const ConnectTwitchPage = () => {
 
   const state = getState();
 
+  // In-product channel management (mode=add) keeps the dark app shell; the
+  // onboarding/funnel connect uses the editorial light shell.
+  const editorial = !isAddMode;
+
+  const Shell = ({ children, narrow }: { children: ReactNode; narrow?: boolean }) => {
+    if (!editorial) {
+      return (
+        <AppShell>
+          <PageContainer size={narrow ? "sm" : undefined}>{children}</PageContainer>
+        </AppShell>
+      );
+    }
+    return (
+      <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
+        <SiteNav theme="light" />
+        <section className="relative overflow-hidden px-4 pt-28 pb-24 md:pt-32 md:px-6">
+          <Orb color="bg-el-mint" className="left-[-4rem] top-10 h-[24rem] w-[24rem] opacity-40" />
+          <Orb color="bg-el-peach" className="right-[-6rem] top-28 h-[22rem] w-[22rem] opacity-40" animate="fast" />
+          <Container className={narrow ? "relative max-w-xl" : "relative"}>
+            <div className="light" style={TWITCH_INK_VARS}>{children}</div>
+          </Container>
+        </section>
+      </div>
+    );
+  };
+
   if (state === "loading") {
+    if (editorial) {
+      return (
+        <Shell narrow>
+          <div className="flex flex-col items-center gap-4 py-16 text-center">
+            <span className="h-8 w-8 animate-spin rounded-full border-2 border-el-hairline-strong border-t-el-ink" />
+            <p className="font-el-sans text-[15px] text-el-body">Chargement…</p>
+          </div>
+        </Shell>
+      );
+    }
     return (
       <AppShell>
         <LoadingState />
@@ -70,8 +115,7 @@ const ConnectTwitchPage = () => {
 
   if (state === "success") {
     return (
-      <AppShell>
-        <PageContainer size="sm">
+      <Shell narrow>
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-success/10">
@@ -91,15 +135,13 @@ const ConnectTwitchPage = () => {
               </Button>
             </CardContent>
           </Card>
-        </PageContainer>
-      </AppShell>
+      </Shell>
     );
   }
 
   if (state === "already-connected") {
     return (
-      <AppShell>
-        <PageContainer size="sm">
+      <Shell narrow>
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
@@ -126,14 +168,12 @@ const ConnectTwitchPage = () => {
               </Button>
             </CardContent>
           </Card>
-        </PageContainer>
-      </AppShell>
+      </Shell>
     );
   }
 
   return (
-    <AppShell>
-      <PageContainer>
+    <Shell>
         <PageHeader
           eyebrow="Configuration"
           title="Connecter Twitch"
@@ -225,8 +265,7 @@ const ConnectTwitchPage = () => {
             />
           </div>
         </section>
-      </PageContainer>
-    </AppShell>
+    </Shell>
   );
 };
 
