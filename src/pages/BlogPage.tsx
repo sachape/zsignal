@@ -54,7 +54,7 @@ const BlogPage = () => {
         <Container className="relative text-center">
           <Reveal>
             <Eyebrow className="justify-center">Blog</Eyebrow>
-            <h1 className="mx-auto mt-5 max-w-3xl font-el-display text-[clamp(2.4rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
+            <h1 className="mx-auto mt-5 max-w-3xl font-el-display text-[clamp(2rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
               Tout ce qu'il faut savoir pour progresser sur Twitch
             </h1>
             <p className="mx-auto mt-5 max-w-xl font-el-sans text-[17px] leading-[1.6] text-el-body">

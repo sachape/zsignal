@@ -184,7 +184,7 @@ const PricingPage = () => {
         <Container className="relative text-center">
           <Reveal>
             <Eyebrow className="justify-center">Tarifs</Eyebrow>
-            <h1 className="mx-auto mt-5 max-w-3xl font-el-display text-[clamp(2.4rem,5vw,3.5rem)] font-light leading-[1.06] tracking-[-0.03em] text-el-ink">
+            <h1 className="mx-auto mt-5 max-w-3xl font-el-display text-[clamp(2rem,5.2vw,3.5rem)] font-light leading-[1.06] tracking-[-0.03em] text-el-ink">
               Commence gratuitement. Évolue à ton rythme.
             </h1>
             <p className="mx-auto mt-5 max-w-lg font-el-sans text-[17px] leading-[1.6] text-el-body">
@@ -334,8 +334,11 @@ const PricingPage = () => {
             <h2 className="text-center font-el-display text-[clamp(1.8rem,3.5vw,2.5rem)] font-light tracking-[-0.02em] text-el-ink">
               Comparer les plans en détail
             </h2>
+            <p className="mt-2 text-center font-el-sans text-[13px] text-el-muted md:hidden">
+              Fais défiler le tableau horizontalement →
+            </p>
           </Reveal>
-          <div className="mt-10 overflow-x-auto rounded-2xl border border-el-hairline bg-el-card">
+          <div className="mt-6 overflow-x-auto rounded-2xl border border-el-hairline bg-el-card md:mt-10">
             <table className="w-full min-w-[640px] border-collapse">
               <thead>
                 <tr className="border-b border-el-hairline">

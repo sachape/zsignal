@@ -112,7 +112,7 @@ const StreamScorePage = () => {
         <Container className="relative text-center">
           <Reveal>
             <Eyebrow className="justify-center"><Activity className="h-3.5 w-3.5" /> Concept Streamnco</Eyebrow>
-            <h1 className="mx-auto mt-5 max-w-3xl font-el-display text-[clamp(2.4rem,5vw,3.75rem)] font-light leading-[1.06] tracking-[-0.03em] text-el-ink">
+            <h1 className="mx-auto mt-5 max-w-3xl font-el-display text-[clamp(2rem,5.2vw,3.75rem)] font-light leading-[1.06] tracking-[-0.03em] text-el-ink">
               StreamScore : le score de progression de ta chaîne Twitch
             </h1>
             <p className="mx-auto mt-5 max-w-xl font-el-sans text-[17px] leading-[1.6] text-el-body">

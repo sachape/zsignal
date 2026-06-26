@@ -147,7 +147,7 @@ const Index = () => {
               </Eyebrow>
             </Reveal>
             <Reveal delay={80}>
-              <h1 className="mt-6 font-el-display text-[clamp(2.6rem,6.2vw,4.25rem)] font-light leading-[1.04] tracking-[-0.03em] text-el-ink">
+              <h1 className="mt-6 font-el-display text-[clamp(2.1rem,6vw,4.25rem)] font-light leading-[1.04] tracking-[-0.03em] text-el-ink">
                 Transforme chaque live en clips, vues et abonnés.
               </h1>
             </Reveal>

@@ -106,7 +106,7 @@ const FeaturesPage = () => {
         <Container className="relative">
           <Reveal className="max-w-3xl">
             <Eyebrow>Fonctionnalités</Eyebrow>
-            <h1 className="mt-5 font-el-display text-[clamp(2.4rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
+            <h1 className="mt-5 font-el-display text-[clamp(2rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
               Tout ce qu'il faut pour faire grandir ta chaîne.
             </h1>
             <p className="mt-5 max-w-2xl font-el-sans text-[17px] leading-[1.6] text-el-body">

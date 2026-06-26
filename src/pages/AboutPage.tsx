@@ -103,7 +103,7 @@ const AboutPage = () => {
         <Container className="relative text-center">
           <Reveal>
             <Eyebrow className="justify-center">À propos</Eyebrow>
-            <h1 className="mx-auto mt-5 max-w-2xl font-el-display text-[clamp(2.4rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
+            <h1 className="mx-auto mt-5 max-w-2xl font-el-display text-[clamp(2rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
               À propos de Streamnco
             </h1>
           </Reveal>
