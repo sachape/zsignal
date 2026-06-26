@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 
-import { AlertCircle, RefreshCw, SearchX } from "lucide-react";
+import { AlertCircle, RefreshCw, SearchX, Check, Loader2 } from "lucide-react";
 import { analytics } from "@/services/analytics";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import AnalysisStep from "@/components/AnalysisStep";
+import SiteNav from "@/components/site/SiteNav";
+import { Container, Orb } from "@/components/site/el";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -50,6 +52,35 @@ const stageLabels: Record<Stage, string> = {
   not_found: "Chaîne introuvable",
 };
 
+/** Editorial light shell for the public teaser funnel (matches the site). */
+const TeaserShell = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
+    <SiteNav theme="light" />
+    <section className="relative overflow-hidden px-6 pt-36 pb-24 md:pt-44">
+      <Orb color="bg-el-mint" className="left-1/4 top-10 h-[24rem] w-[24rem] opacity-50" />
+      <Orb color="bg-el-peach" className="right-[-4rem] top-24 h-[22rem] w-[22rem] opacity-50" animate="fast" />
+      <Container className="relative flex max-w-xl flex-col items-center">{children}</Container>
+    </section>
+  </div>
+);
+
+/** Editorial step row (el-* tokens) for the teaser. */
+const TeaserStep = ({ label, status }: { label: string; status: "pending" | "active" | "done" }) => (
+  <div
+    className={
+      "flex items-center gap-3 rounded-xl border bg-el-card px-4 py-2.5 font-el-sans text-[15px] transition-colors " +
+      (status === "active" ? "border-el-hairline-strong" : "border-el-hairline")
+    }
+  >
+    <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+      {status === "done" && <Check className="h-4 w-4 text-el-ink" />}
+      {status === "active" && <Loader2 className="h-4 w-4 animate-spin text-el-ink" />}
+      {status === "pending" && <span className="h-1.5 w-1.5 rounded-full bg-el-muted-soft" />}
+    </span>
+    <span className={status === "pending" ? "text-el-muted" : "text-el-ink"}>{label}</span>
+  </div>
+);
+
 const AnalyzePage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -61,17 +92,9 @@ const AnalyzePage = () => {
   const connectedLogin = account?.platform_login ?? "";
   const modeParam = searchParams.get("mode");
 
-  // Mode resolution:
-  // - explicit ?mode=teaser  -> always teaser (public search, isolated from auth context)
-  // - unauthenticated        -> teaser
-  // - authenticated otherwise -> full
   const mode: "teaser" | "full" =
     modeParam === "teaser" || !user ? "teaser" : "full";
 
-  // Canonical channel source-of-truth:
-  // - teaser mode: ONLY the URL ?channel= param (normalized). Never fall back
-  //   to the connected Twitch account — public search must be fully isolated.
-  // - full mode: the connected Twitch login is canonical.
   const channel =
     mode === "teaser"
       ? (normalizeChannelInput(urlChannel) ?? urlChannel)
@@ -92,8 +115,6 @@ const AnalyzePage = () => {
       setError("Aucune chaîne fournie. Retourne à l'accueil pour lancer une analyse.");
       return;
     }
-    // Public search must be isolated: clear stale teaser/pending channel
-    // state so the searched channel is the only active teaser target.
     if (mode === "teaser") {
       teaserStore.clearPendingChannel();
     }
@@ -102,7 +123,6 @@ const AnalyzePage = () => {
     analytics.analysisStarted(channel, analysisMode);
 
     (async () => {
-      // Authenticated full analysis
       if (mode === "full" && user) {
         try {
           const { reportId } = await runAnalysis({
@@ -124,7 +144,6 @@ const AnalyzePage = () => {
         return;
       }
 
-      // Public teaser analysis (real Twitch public lookup, no mock fallback)
       const result = await runTeaserAnalysis({
         channelInput: channel,
         gameNameHint: hintGame,
@@ -146,6 +165,7 @@ const AnalyzePage = () => {
 
   const order: Stage[] = mode === "full" ? fullStageOrder : teaserStageOrder;
   const currentIndex = order.indexOf(currentStage);
+  const teaser = mode === "teaser";
 
   const getStatus = (i: number): "pending" | "active" | "done" => {
     if (currentStage === "completed") return "done";
@@ -154,20 +174,15 @@ const AnalyzePage = () => {
     return "pending";
   };
 
-  // Monotone, credible progress bar.
-  // - Strictly increasing (never resets within a cycle).
-  // - Fast climb early, slows near the end, holds at ~92% until completion.
-  // - Snaps to 100% only when the async pipeline is actually done.
   const isDone = currentStage === "completed" || notFound || error !== null;
   const isFailed = notFound || error !== null;
   const stageTarget = (() => {
     if (isFailed) return 100;
     if (currentStage === "completed") return 100;
     const idx = Math.max(0, currentIndex);
-    // Map stage index to a ceiling: fast to 60%, then slow toward 92%.
     const ratio = (idx + 1) / order.length;
-    if (ratio <= 0.5) return 10 + ratio * 100; // 10% -> 60%
-    return 60 + (ratio - 0.5) * 64; // 60% -> 92%
+    if (ratio <= 0.5) return 10 + ratio * 100;
+    return 60 + (ratio - 0.5) * 64;
   })();
 
   const [progress, setProgress] = useState(6);
@@ -180,7 +195,6 @@ const AnalyzePage = () => {
       setProgress((prev) => {
         const ceiling = Math.min(stageTarget, 92);
         if (prev >= ceiling) return prev;
-        // Ease toward ceiling — never decreases.
         const delta = Math.max(0.4, (ceiling - prev) * 0.08);
         return Math.min(ceiling, prev + delta);
       });
@@ -188,7 +202,28 @@ const AnalyzePage = () => {
     return () => window.clearInterval(id);
   }, [stageTarget, isDone]);
 
+  // ── NOT FOUND ───────────────────────────────────────────────────────────
   if (notFound) {
+    if (teaser) {
+      return (
+        <TeaserShell>
+          <div className="flex flex-col items-center gap-5 rounded-2xl border border-el-hairline bg-el-card p-10 text-center">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-el-strong">
+              <SearchX className="h-5 w-5 text-el-ink" />
+            </span>
+            <div className="space-y-2">
+              <h2 className="font-el-display text-[24px] font-light text-el-ink">Chaîne introuvable</h2>
+              <p className="font-el-sans text-[15px] leading-[1.6] text-el-body">
+                Aucune chaîne publique ne correspond à « {channel} ». Vérifie l'orthographe ou essaie une autre chaîne.
+              </p>
+            </div>
+            <Link to="/" className="mt-1 inline-flex h-11 items-center rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft">
+              Retour à l'accueil
+            </Link>
+          </div>
+        </TeaserShell>
+      );
+    }
     return (
       <AppShell>
         <PageContainer size="sm">
@@ -198,9 +233,7 @@ const AnalyzePage = () => {
                 <SearchX className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="space-y-1.5">
-                <h2 className="text-base font-semibold text-foreground">
-                  Chaîne introuvable
-                </h2>
+                <h2 className="text-base font-semibold text-foreground">Chaîne introuvable</h2>
                 <p className="text-sm text-muted-foreground">
                   Aucune chaîne publique ne correspond à « {channel} ». Vérifie l'orthographe ou essaie une autre chaîne.
                 </p>
@@ -215,7 +248,36 @@ const AnalyzePage = () => {
     );
   }
 
+  // ── ERROR ───────────────────────────────────────────────────────────────
   if (error) {
+    const retry = () => {
+      startedRef.current = false;
+      setError(null);
+      setCurrentStage("pending");
+    };
+    if (teaser) {
+      return (
+        <TeaserShell>
+          <div className="flex flex-col items-center gap-5 rounded-2xl border border-el-hairline bg-el-card p-10 text-center">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-el-rose/60">
+              <AlertCircle className="h-5 w-5 text-el-ink" />
+            </span>
+            <div className="space-y-2">
+              <h2 className="font-el-display text-[24px] font-light text-el-ink">Analyse échouée</h2>
+              <p className="font-el-sans text-[15px] leading-[1.6] text-el-body">{error}</p>
+            </div>
+            <div className="mt-1 flex gap-2">
+              <Link to="/" className="inline-flex h-11 items-center rounded-full border border-el-hairline-strong px-5 font-el-sans text-[15px] font-medium text-el-ink transition-colors hover:bg-el-strong">
+                Retour
+              </Link>
+              <button onClick={retry} className="inline-flex h-11 items-center gap-2 rounded-full bg-el-ink px-5 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft">
+                <RefreshCw className="h-4 w-4" /> Réessayer
+              </button>
+            </div>
+          </div>
+        </TeaserShell>
+      );
+    }
     return (
       <AppShell>
         <PageContainer size="sm">
@@ -225,22 +287,14 @@ const AnalyzePage = () => {
                 <AlertCircle className="h-4 w-4 text-destructive" />
               </div>
               <div className="space-y-1.5">
-                <h2 className="text-base font-semibold text-foreground">
-                  Analyse échouée
-                </h2>
+                <h2 className="text-base font-semibold text-foreground">Analyse échouée</h2>
                 <p className="text-sm text-muted-foreground">{error}</p>
               </div>
               <div className="mt-2 flex gap-2">
                 <Button asChild variant="outline">
                   <Link to={user ? "/dashboard" : "/"}>Retour</Link>
                 </Button>
-                <Button
-                  onClick={() => {
-                    startedRef.current = false;
-                    setError(null);
-                    setCurrentStage("pending");
-                  }}
-                >
+                <Button onClick={retry}>
                   <RefreshCw className="h-4 w-4" />
                   Réessayer
                 </Button>
@@ -252,6 +306,30 @@ const AnalyzePage = () => {
     );
   }
 
+  // ── LOADING ─────────────────────────────────────────────────────────────
+  if (teaser) {
+    return (
+      <TeaserShell>
+        <p className="font-el-sans text-[12px] font-semibold uppercase tracking-[0.16em] text-el-muted">Aperçu en cours</p>
+        <h1 className="mt-3 font-el-display text-[clamp(2rem,5vw,2.75rem)] font-light tracking-[-0.02em] text-el-ink">{channel}</h1>
+        <p className="mt-3 font-el-sans text-[16px] text-el-body">Génération de ton StreamScore gratuit…</p>
+
+        <div className="mt-9 w-full space-y-2.5">
+          {order.map((s, i) => (
+            <TeaserStep key={s} label={stageLabels[s]} status={getStatus(i)} />
+          ))}
+        </div>
+
+        <div className="mt-7 h-1.5 w-full overflow-hidden rounded-full bg-el-strong">
+          <div className="h-full rounded-full bg-el-ink transition-all duration-200" style={{ width: `${progress}%` }} />
+        </div>
+        {progress >= 85 && !isDone && (
+          <p className="mt-3 font-el-sans text-[13px] text-el-muted">Finalisation de l'analyse, encore quelques secondes…</p>
+        )}
+      </TeaserShell>
+    );
+  }
+
   return (
     <AppShell>
       <PageContainer size="sm">
@@ -259,16 +337,12 @@ const AnalyzePage = () => {
           <CardContent className="p-8">
             <div className="mb-6 text-center">
               <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {mode === "teaser" ? "Aperçu en cours" : "Analyse en cours"}
+                Analyse en cours
               </p>
               <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">
                 {channel}
               </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {mode === "teaser"
-                  ? "Génération de ton aperçu gratuit…"
-                  : "Pipeline en cours d'exécution"}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">Pipeline en cours d'exécution</p>
             </div>
 
             <ul className="space-y-2">
@@ -284,41 +358,6 @@ const AnalyzePage = () => {
               <p className="mt-2 text-center text-[11px] text-muted-foreground/60">
                 Finalisation de l'analyse, encore quelques secondes…
               </p>
-            )}
-            {import.meta.env.DEV && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("debug") === "1" && (
-              <div className="mt-6 rounded-md border border-border/60 bg-muted/40 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground">
-                <div className="mb-1 font-semibold text-foreground">DEBUG /analyze</div>
-                <div>raw input (?channel): {urlChannel || "—"}</div>
-                <div>normalized searched: {normalizeChannelInput(urlChannel) ?? "—"}</div>
-                <div>mode: {mode}</div>
-                <div>connected twitch login: {connectedLogin || "—"}</div>
-                <div>
-                  source used:{" "}
-                  {mode === "teaser"
-                    ? "url_channel_param (isolated from auth)"
-                    : connectedLogin
-                      ? "connected_twitch_login"
-                      : "url_channel_param"}
-                </div>
-                <div>resolved channel: {channel || "—"}</div>
-                {mode === "teaser" && (
-                  <>
-                    <div className="mt-1 border-t border-border/40 pt-1">
-                      twitch lookup source:{" "}
-                      {lookupInfo?.source ??
-                        (currentStage === "looking_up" ? "(en cours…)" : "—")}
-                    </div>
-                    <div>
-                      twitch lookup login: {lookupInfo?.login ?? "—"}
-                    </div>
-                    <div>
-                      twitch lookup display_name:{" "}
-                      {lookupInfo?.displayName ?? "—"}
-                    </div>
-                    <div>real twitch api: {lookupInfo ? "yes" : "—"}</div>
-                  </>
-                )}
-              </div>
             )}
           </CardContent>
         </Card>
