@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import {
   Clock,
@@ -20,6 +20,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
+import SiteNav from "@/components/site/SiteNav";
+import { Container, Orb } from "@/components/site/el";
 import SectionHeader from "@/components/SectionHeader";
 import ScoreCard from "@/components/ScoreCard";
 import CompetitorCard from "@/components/CompetitorCard";
@@ -101,6 +103,28 @@ const AnimatedScoreRing = ({ score }: { score: number }) => {
     </div>
   );
 };
+
+// Editorial light shell for the public teaser result (matches the site). The
+// inner `light` + ink-primary override remaps the product tokens used inside
+// TeaserResultLayout so the diagnostic reads as the editorial site, not the app.
+const TEASER_INK_VARS = {
+  "--primary": "20 14% 4%",
+  "--primary-foreground": "0 0% 100%",
+  "--ring": "20 14% 4%",
+} as CSSProperties;
+
+const TeaserResultShell = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
+    <SiteNav theme="light" />
+    <section className="relative overflow-hidden px-4 pt-28 pb-24 md:pt-32 md:px-6">
+      <Orb color="bg-el-mint" className="left-[-4rem] top-10 h-[26rem] w-[26rem] opacity-40" />
+      <Orb color="bg-el-peach" className="right-[-6rem] top-32 h-[24rem] w-[24rem] opacity-40" animate="fast" />
+      <Container className="relative">
+        <div className="light" style={TEASER_INK_VARS}>{children}</div>
+      </Container>
+    </section>
+  </div>
+);
 
 type SelectionSource =
   | "explicit_report_id"
@@ -346,6 +370,16 @@ const ResultPage = () => {
   };
 
   if (loading) {
+    if (teaserId) {
+      return (
+        <TeaserResultShell>
+          <div className="flex flex-col items-center gap-4 py-16 text-center">
+            <span className="h-8 w-8 animate-spin rounded-full border-2 border-el-hairline-strong border-t-el-ink" />
+            <p className="font-el-sans text-[15px] text-el-body">Chargement de ton diagnostic…</p>
+          </div>
+        </TeaserResultShell>
+      );
+    }
     return (
       <AppShell>
         <LoadingState />
@@ -404,6 +438,26 @@ const ResultPage = () => {
   }
 
   if (notFound || !report) {
+    if (teaserId || !user) {
+      return (
+        <TeaserResultShell>
+          <div className="mx-auto flex max-w-md flex-col items-center gap-5 rounded-2xl border border-el-hairline bg-el-card p-10 text-center">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-el-strong">
+              <Sparkles className="h-5 w-5 text-el-ink" />
+            </span>
+            <div className="space-y-2">
+              <h2 className="font-el-display text-[24px] font-light text-el-ink">Ce diagnostic n'est plus disponible</h2>
+              <p className="font-el-sans text-[15px] leading-[1.6] text-el-body">
+                L'aperçu a peut-être expiré. Relance une analyse gratuite depuis l'accueil.
+              </p>
+            </div>
+            <Link to="/" className="mt-1 inline-flex h-11 items-center rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft">
+              Analyser une chaîne
+            </Link>
+          </div>
+        </TeaserResultShell>
+      );
+    }
     return (
       <AppShell>
         <PageContainer size="sm">
@@ -529,20 +583,18 @@ const ResultPage = () => {
     isPersisted && saved && twitchAccount && (saved.is_demo || accountMismatch),
   );
 
-  // ── Premium teaser layout ────────────────────────────────────────────────
+  // ── Premium teaser layout (editorial light shell) ────────────────────────
   if (isTeaser) {
     return (
-      <AppShell>
-        <PageContainer>
-          {renderDebugPanel()}
-          <TeaserResultLayout
-            report={report}
-            onUnlock={handleUnlock}
-            isAuthenticated={!!user}
-            hasTwitchConnected={!!twitchAccount}
-          />
-        </PageContainer>
-      </AppShell>
+      <TeaserResultShell>
+        {renderDebugPanel()}
+        <TeaserResultLayout
+          report={report}
+          onUnlock={handleUnlock}
+          isAuthenticated={!!user}
+          hasTwitchConnected={!!twitchAccount}
+        />
+      </TeaserResultShell>
     );
   }
 

@@ -255,7 +255,7 @@ const TeaserResultLayout = ({
       {/* ── 2. HERO CARD ─────────────────────────────────────────── */}
       <div
         style={anim(80)}
-        className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-card/40 backdrop-blur-xl shadow-[0_32px_100px_-32px_hsl(var(--primary)/0.35)]"
+        className="relative overflow-hidden rounded-3xl border border-border bg-card/40 backdrop-blur-xl shadow-[0_32px_100px_-32px_hsl(var(--primary)/0.35)]"
       >
         {/* Ambient glows */}
         <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/12 blur-3xl" />
@@ -295,7 +295,7 @@ const TeaserResultLayout = ({
                 </span>
               )}
               {summary.broadcaster_type === "affiliate" && (
-                <span className="rounded-full border border-white/10 bg-card/60 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                <span className="rounded-full border border-border bg-card/60 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   Affilié
                 </span>
               )}
@@ -337,7 +337,7 @@ const TeaserResultLayout = ({
               ].map(({ label, value }, i) => (
                 <div
                   key={label}
-                  className="rounded-xl border border-white/[0.07] bg-card/50 px-3.5 py-2 backdrop-blur-sm"
+                  className="rounded-xl border border-border bg-card/50 px-3.5 py-2 backdrop-blur-sm"
                   style={{
                     opacity: mounted ? 1 : 0,
                     transform: mounted ? "translateY(0)" : "translateY(10px)",
@@ -404,7 +404,7 @@ const TeaserResultLayout = ({
 
         {/* Affiliate progression mini */}
         <div className="col-span-full lg:col-span-2">
-          <div className="h-full rounded-2xl border border-white/[0.07] bg-card/40 p-5 backdrop-blur-xl">
+          <div className="h-full rounded-2xl border border-border bg-card/40 p-5 backdrop-blur-xl">
             <span className="mb-4 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Vers l'affiliation
             </span>
@@ -483,13 +483,13 @@ const TeaserResultLayout = ({
                   key={rec.id}
                   className={`group relative overflow-hidden rounded-2xl border p-5 backdrop-blur-xl transition-all duration-300 ${
                     locked
-                      ? "border-white/[0.04] bg-card/15"
-                      : "border-white/[0.08] bg-card/40 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)]"
+                      ? "border-border bg-card/15"
+                      : "border-border bg-card/40 hover:border-primary/25 hover:shadow-[0_0_40px_hsl(var(--primary)/0.12)]"
                   }`}
                 >
                   {locked && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-background/55 backdrop-blur-sm">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-card/70">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card/70">
                         <Lock className="h-3.5 w-3.5 text-muted-foreground/60" />
                       </div>
                       <p className="text-[11px] text-muted-foreground/60">
@@ -535,7 +535,7 @@ const TeaserResultLayout = ({
       {/* ── 6. LOCKED PREMIUM PREVIEW ────────────────────────────── */}
       <div
         style={anim(520)}
-        className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-card/20 backdrop-blur-xl"
+        className="relative overflow-hidden rounded-3xl border border-border bg-card/20 backdrop-blur-xl"
       >
         {/* Blurred decorative UI */}
         <div className="pointer-events-none select-none p-4 blur-[3.5px] sm:p-6" aria-hidden>
@@ -544,7 +544,7 @@ const TeaserResultLayout = ({
           </p>
           <div className="grid gap-3 sm:grid-cols-3">
             {/* Mini bar chart */}
-            <div className="rounded-2xl border border-white/[0.05] bg-card/40 p-4">
+            <div className="rounded-2xl border border-border bg-card/40 p-4">
               <p className="mb-3 text-[9px] uppercase tracking-wider text-muted-foreground">
                 Progression 30j
               </p>
@@ -562,7 +562,7 @@ const TeaserResultLayout = ({
               </div>
             </div>
             {/* Competitors preview */}
-            <div className="rounded-2xl border border-white/[0.05] bg-card/40 p-4">
+            <div className="rounded-2xl border border-border bg-card/40 p-4">
               <p className="mb-3 text-[9px] uppercase tracking-wider text-muted-foreground">
                 Concurrents directs
               </p>
@@ -582,7 +582,7 @@ const TeaserResultLayout = ({
               </div>
             </div>
             {/* Weekly plan preview */}
-            <div className="rounded-2xl border border-white/[0.05] bg-card/40 p-4">
+            <div className="rounded-2xl border border-border bg-card/40 p-4">
               <p className="mb-3 text-[9px] uppercase tracking-wider text-muted-foreground">
                 Plan hebdomadaire
               </p>
@@ -607,7 +607,7 @@ const TeaserResultLayout = ({
 
         {/* Lock overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/45 backdrop-blur-[1px]">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.1] bg-card/70 shadow-[0_8px_48px_hsl(var(--primary)/0.3)]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-card/70 shadow-[0_8px_48px_hsl(var(--primary)/0.3)]">
             <Lock className="h-6 w-6 text-primary-strong" />
           </div>
           <p className="mt-3 text-sm font-semibold text-foreground">
@@ -691,7 +691,7 @@ const TeaserResultLayout = ({
             ].map(({ icon: Icon, title, desc }, i) => (
               <div
                 key={title}
-                className="flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-card/30 p-4 text-left backdrop-blur-sm"
+                className="flex items-start gap-3 rounded-2xl border border-border bg-card/30 p-4 text-left backdrop-blur-sm"
                 style={{
                   opacity: mounted ? 1 : 0,
                   transform: mounted ? "translateY(0)" : "translateY(14px)",
