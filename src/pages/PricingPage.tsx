@@ -331,23 +331,22 @@ const PricingPage = () => {
                     </p>
 
                     {tier.id === "free" ? (
-                      <button
-                        onClick={() => openAuthModal("signup")}
+                      <Link
+                        to={signupHref}
                         className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-el-ink font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft"
                       >
                         {tier.cta}
-                      </button>
+                      </Link>
                     ) : (
-                      <button
-                        disabled={checkoutLoading !== null}
-                        onClick={() => handleCheckout(tier.id as "pro" | "growth")}
+                      <Link
+                        to={planHref(tier.id as "pro" | "growth")}
                         className={cn(
-                          "mt-6 inline-flex h-11 w-full items-center justify-center rounded-full font-el-sans text-[15px] font-medium transition-opacity disabled:opacity-60",
+                          "mt-6 inline-flex h-11 w-full items-center justify-center rounded-full font-el-sans text-[15px] font-medium transition-opacity",
                           featured ? "bg-el-on-dark text-el-ink hover:opacity-90" : "bg-el-ink text-el-on-dark hover:opacity-90",
                         )}
                       >
-                        {checkoutLoading === tier.id ? <Loader2 className="h-4 w-4 animate-spin" /> : tier.cta}
-                      </button>
+                        {tier.cta}
+                      </Link>
                     )}
 
                     <ul className="mt-7 space-y-3">
