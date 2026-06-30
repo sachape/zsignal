@@ -29,7 +29,7 @@ import { isFeatureEnabled } from "@/lib/featureFlags";
 import { useCreditPackages } from "@/hooks/useCreditPackages";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { BuyCreditsButton } from "@/components/credits/BuyCreditsButton";
-import { creditCostLabel } from "@/lib/credits";
+import { streamCoinsCostLabel, formatStreamCoins } from "@/lib/credits";
 
 interface Props {
   open: boolean;
@@ -462,10 +462,10 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
                 </p>
                 {paygOn && (creditPacks.data?.length ?? 0) > 0 && (
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Il te faut {creditCostLabel("visual_generation")} pour générer un visuel. Solde&nbsp;:
+                    Il te faut {streamCoinsCostLabel("visual_generation")} pour générer un visuel. Solde&nbsp;:
                     {" "}
                     <span className="font-semibold tabular-nums text-foreground">
-                      {creditBalance.data?.available_credits ?? 0}
+                      {formatStreamCoins(creditBalance.data?.available_credits ?? 0)}
                     </span>
                     .
                   </p>
@@ -481,7 +481,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
                     );
                   })()}
                   {paygOn && (creditPacks.data?.length ?? 0) > 0 && (
-                    <BuyCreditsButton packageId={creditPacks.data![0].id} />
+                    <BuyCreditsButton packageId={creditPacks.data![0].id} label="Acheter des StreamCoins" />
                   )}
                 </div>
               </div>
