@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, Minus, Mail, ArrowRight, Coins } from "lucide-react";
+import { Check, Minus, Mail, ArrowRight, Coins, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
 import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
