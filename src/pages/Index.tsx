@@ -374,10 +374,9 @@ const Index = () => {
                 price="0 €"
                 onCta={signup}
                 features={[
-                  "StreamScore calculé instantanément",
+                  "Diagnostic Twitch + StreamScore de base",
                   "3 visuels et 1 clip par mois",
-                  "Ton blocage n°1 identifié",
-                  "Téléchargement de tes clips et visuels",
+                  "Téléchargement manuel des exports",
                   "Sans carte bancaire",
                 ]}
               />
@@ -392,9 +391,9 @@ const Index = () => {
                 features={[
                   "Tout le plan Gratuit",
                   "100 visuels et 30 clips par mois",
-                  "Évolution sur 30, 60 et 90 jours",
-                  "Plan d'action personnalisé chaque semaine",
-                  "Sous-titres, file de contenu, benchmark",
+                  "Réseaux connectés + 30 publications directes / mois",
+                  "Débrief après chaque live, playbooks, planning",
+                  "Benchmark essentiel + classements en aperçu",
                 ]}
               />
             </Reveal>
@@ -407,7 +406,8 @@ const Index = () => {
                   "Tout le plan Pro",
                   "300 visuels et 200 clips par mois",
                   "Jusqu'à 3 chaînes Twitch",
-                  "Benchmark et watchlist avancés",
+                  "Réseaux avancés + 150 publications directes / mois",
+                  "Benchmark avancé, watchlist, classements complets",
                   "Support prioritaire + accès anticipé",
                 ]}
               />
