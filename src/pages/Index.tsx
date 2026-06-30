@@ -375,7 +375,7 @@ const Index = () => {
                 onCta={signup}
                 features={[
                   "StreamScore calculé instantanément",
-                  "5 visuels et 3 clips par mois",
+                  "3 visuels et 1 clip par mois",
                   "Ton blocage n°1 identifié",
                   "Téléchargement de tes clips et visuels",
                   "Sans carte bancaire",

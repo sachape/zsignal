@@ -11,7 +11,7 @@ export type Plan = "free" | "pro" | "growth" | "agency";
 export type Feature = "visual" | "clip";
 
 export const QUOTAS: Record<Plan, { visual: number; clip: number }> = {
-  free: { visual: 5, clip: 3 },
+  free: { visual: 3, clip: 1 },
   pro: { visual: 100, clip: 30 },
   growth: { visual: 300, clip: 200 },
   agency: { visual: 1000, clip: 600 },

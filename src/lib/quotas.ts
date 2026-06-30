@@ -18,7 +18,7 @@ import { normalizePlan, type PlanTier } from "@/lib/planAccess";
 export type QuotaFeature = "visual" | "clip";
 
 export const QUOTAS: Record<PlanTier, { visual: number; clip: number }> = {
-  free: { visual: 5, clip: 3 },
+  free: { visual: 3, clip: 1 },
   pro: { visual: 100, clip: 30 },
   growth: { visual: 300, clip: 200 },
   // Agency: default floor — real limits are managed per-account by ops.
