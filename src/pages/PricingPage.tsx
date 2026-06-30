@@ -438,7 +438,6 @@ const PricingPage = () => {
             </p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-el-hairline bg-el-card px-4 py-2 font-el-sans text-[13px] text-el-body">
               <span className="rounded-full bg-el-strong px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-el-ink">Sans abonnement</span>
-              <span>1 visuel = 120 · 1 clip = 350 StreamCoins</span>
             </div>
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -454,7 +453,20 @@ const PricingPage = () => {
                 </p>
                 <p className="mt-1 font-el-sans text-[13px] uppercase tracking-[0.12em] text-el-muted">StreamCoins</p>
                 <p className="mt-3 font-el-sans text-[14px] text-el-body">{p.description}</p>
-                <p className="mt-4 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
+                <div className="mt-4">
+                  <p className="mb-2 font-el-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-el-muted">Utilisation estimée</p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-el-hairline bg-el-strong px-2.5 py-1 text-[12px] font-medium text-el-ink">
+                      <ImageIcon className="h-3 w-3 text-el-muted" />
+                      ≈ {p.visuals} visuels
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-el-hairline bg-el-strong px-2.5 py-1 text-[12px] font-medium text-el-ink">
+                      <VideoIcon className="h-3 w-3 text-el-muted" />
+                      ≈ {p.clips} clips
+                    </span>
+                  </div>
+                </div>
+                <p className="mt-5 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
                   {p.price}
                 </p>
               </div>
