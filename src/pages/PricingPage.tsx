@@ -560,12 +560,12 @@ const PricingPage = () => {
               Prêt à transformer tes lives en croissance ?
             </h2>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <button
-                onClick={() => openAuthModal("signup")}
+              <Link
+                to={signupHref}
                 className="inline-flex h-12 items-center gap-2 rounded-full bg-el-on-dark px-7 font-el-sans text-[16px] font-medium text-el-ink transition-opacity hover:opacity-90"
               >
                 Créer mon compte gratuit <ArrowRight className="h-4 w-4" />
-              </button>
+              </Link>
               <Link
                 to="/"
                 className="inline-flex h-12 items-center rounded-full border border-el-on-dark-soft/40 px-7 font-el-sans text-[16px] font-medium text-el-on-dark transition-colors hover:bg-white/10"
