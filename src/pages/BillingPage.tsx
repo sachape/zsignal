@@ -22,6 +22,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { openBillingPortal, startCheckout } from "@/services/billingService";
 import { toast } from "sonner";
+import { CreditsSection } from "@/components/credits/CreditsSection";
 
 const PLAN_META: Record<
   string,
@@ -129,6 +130,10 @@ const BillingPage = () => {
             </Card>
           </section>
         )}
+
+        {/* Pay As You Go credits — visible only when flag ON + packs active */}
+        <CreditsSection />
+
 
         {/* Plan actuel */}
         <section className="mb-6">
