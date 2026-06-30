@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
+import { consumeCredits, costForFeature, getCreditBalance } from "../_shared/credits.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -49,17 +50,33 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (tplErr || !template) return json({ error: "template_not_found" }, 404);
 
-    // Monthly per-plan quota — backend source of truth.
+    // ── Billing: monthly quota first, credits fallback ──
     const { plan, visuals_used } = await getUserPlanAndUsage(admin, user.id);
     const limit = quotaFor(plan, "visual");
+
+    let billingSource: "monthly_quota" | "credits" = "monthly_quota";
+    let creditsSpent = 0;
+    let creditLedgerEntryId: string | null = null;
+
     if (visuals_used >= limit) {
-      return json({
-        error: "quota_exceeded",
-        feature: "visual",
-        plan,
-        limit,
-        used: visuals_used,
-      }, 429);
+      // Quota exhausted — try credits.
+      const { entryId, cost } = await consumeCredits(admin, user.id, "visual_generation");
+      if (!entryId) {
+        const balance = await getCreditBalance(admin, user.id);
+        return json({
+          error: "quota_and_credits_exceeded",
+          feature: "visual",
+          plan,
+          quotaLimit: limit,
+          quotaUsed: visuals_used,
+          creditsRequired: cost,
+          creditsAvailable: balance,
+          message: "Tu as atteint ta limite de générations visuelles ce mois-ci.",
+        }, 402);
+      }
+      billingSource = "credits";
+      creditsSpent = cost;
+      creditLedgerEntryId = entryId;
     }
 
     const { data: job, error: insErr } = await admin
@@ -72,15 +89,28 @@ Deno.serve(async (req) => {
         source_ref: sourceRef,
         reference_asset_id: referenceAssetId,
         variant_count: 3,
+        billing_source: billingSource,
+        credits_spent: creditsSpent,
+        credit_ledger_entry_id: creditLedgerEntryId,
       })
       .select()
       .single();
     if (insErr || !job) {
       console.error("[visual-job-create] insert_failed", insErr);
+      // Compensate: if we already debited credits, refund immediately.
+      if (billingSource === "credits" && creditLedgerEntryId) {
+        await admin.from("creator_credit_ledger").insert({
+          user_id: user.id,
+          delta: creditsSpent,
+          reason: "refund_failed_job",
+          feature: "visual_generation",
+          metadata: { compensation: "insert_failed_pre_job", original_entry: creditLedgerEntryId },
+        });
+      }
       return json({ error: "insert_failed" }, 500);
     }
 
-    console.log("[visual_job_created]", job.id, templateId);
+    console.log("[visual_job_created]", job.id, templateId, "billing=", billingSource);
 
     // Fire-and-forget call to processor (do not await)
     const processUrl = `${SUPABASE_URL}/functions/v1/visual-job-process`;
@@ -93,7 +123,12 @@ Deno.serve(async (req) => {
       body: JSON.stringify({ job_id: job.id }),
     }).catch((e) => console.error("[visual-job-create] dispatch_failed", e));
 
-    return json({ job_id: job.id, status: "queued" }, 200);
+    return json({
+      job_id: job.id,
+      status: "queued",
+      billing_source: billingSource,
+      credits_spent: creditsSpent,
+    }, 200);
   } catch (e) {
     console.error("[visual-job-create] error", e);
     return json({ error: "internal_error" }, 500);

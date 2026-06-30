@@ -26,6 +26,12 @@ export const FEATURE_FLAGS = {
     import.meta.env.VITE_TWITCH_AUTO_CLIP_GENERATION_ENABLED,
     true,
   ),
+  /**
+   * Pay As You Go credit packs. When OFF, the structural backend (ledger, RPCs,
+   * webhook handling) is still active so existing balances keep behaving
+   * correctly, but no purchase UI is exposed to the user.
+   */
+  PAYG_CREDITS_ENABLED: readBoolFlag(import.meta.env.VITE_PAYG_CREDITS_ENABLED, false),
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;
