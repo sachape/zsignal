@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Clapperboard, Palette, Coins, Sparkles } from "lucide-react";
-import { Clapperboard, Palette, Coins, Sparkles } from "lucide-react";
 import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { useCreditPackages } from "@/hooks/useCreditPackages";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
