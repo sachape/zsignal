@@ -350,6 +350,7 @@ const ClipsPage = () => {
   const [filter, setFilter] = useState<ClipFilter>("all");
   const [sort, setSort] = useState<ClipSort>("potential");
   const [transformStates, setTransformStates] = useState<Record<string, TransformState>>({});
+  const showClipQuotaToast = useClipQuotaToast();
 
   const loadExistingTransforms = useCallback(async () => {
     if (!user) return;
@@ -437,6 +438,12 @@ const ClipsPage = () => {
         });
 
         const errMsg = jobErr?.message ?? jobData?.message ?? jobData?.error;
+        const errCode = jobData?.error;
+        if (errCode === "quota_exceeded" || errCode === "quota_and_credits_exceeded") {
+          setTransformStates((prev) => ({ ...prev, [clipKey]: "idle" }));
+          showClipQuotaToast();
+          return;
+        }
         if (jobErr || (jobData && jobData.success === false)) {
           // Content item exists → still mark as existing so user can find it in queue.
           setTransformStates((prev) => ({ ...prev, [clipKey]: "existing" }));
