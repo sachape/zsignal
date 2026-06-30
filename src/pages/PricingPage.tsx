@@ -17,12 +17,6 @@ const STREAMCOIN_PACKS = [
   { id: "pack_16000", credits: 16000, price: "129 €", description: "Pour les gros volumes ponctuels.", visuals: 133, clips: 45 },
 ];
 
-const SUBSCRIPTION_EQUIVALENTS = [
-  { id: "free", name: "Gratuit", credits: "710", label: "StreamCoins / mois inclus", breakdown: "3 visuels + 1 clip", note: "Pour découvrir Streamnco." },
-  { id: "pro", name: "Pro", credits: "22 500", label: "StreamCoins / mois inclus", breakdown: "100 visuels + 30 clips", note: "Le meilleur rapport pour créer chaque semaine." },
-  { id: "growth", name: "Growth", credits: "106 000", label: "StreamCoins / mois inclus", breakdown: "300 visuels + 200 clips", note: "Pour les gros volumes et plusieurs chaînes." },
-  { id: "agency", name: "Agency", credits: "Sur mesure", label: "Volume StreamCoins", breakdown: "Volume et réseaux adaptés à ton équipe", note: "Sur devis." },
-];
 
 
 // ── Feature table ────────────────────────────────────────────────────────────
@@ -39,8 +33,8 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
   {
     group: "Création",
     rows: [
-      { label: "Studio visuel (visuels / mois)", free: "3", pro: "100", growth: "300", agency: "Sur mesure" },
-      { label: "Clipping (vidéos / mois)", free: "1", pro: "30", growth: "200", agency: "Sur mesure" },
+      { label: "Studio visuel (visuels / mois)", free: "3", pro: "50", growth: "150", agency: "Sur mesure" },
+      { label: "Clipping (vidéos / mois)", free: "1", pro: "10", growth: "40", agency: "Sur mesure" },
       { label: "Clips verticaux 9:16 (facecam + gameplay)", free: false, pro: true, growth: true, agency: true },
       { label: "Sous-titres automatiques + styles", free: false, pro: true, growth: true, agency: true },
       { label: "File de contenu", free: true, pro: true, growth: true, agency: true },
