@@ -6,6 +6,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
+import { consumeCredits, getCreditBalance, refundFailedJobCredits } from "../_shared/credits.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -55,6 +56,8 @@ async function failJob(
       generation_error: errorMessage,
     })
     .eq("id", contentItemId);
+  // Refund credits if this job was paid by credits (idempotent).
+  await refundFailedJobCredits(admin, jobId, "creator_video_generation_jobs");
 }
 
 Deno.serve(async (req) => {
@@ -173,20 +176,32 @@ Deno.serve(async (req) => {
 
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  // Monthly per-plan quota — backend source of truth.
+  // ── Billing: monthly quota first, credits fallback ──
+  let billingSource: "monthly_quota" | "credits" = "monthly_quota";
+  let creditsSpent = 0;
+  let creditLedgerEntryId: string | null = null;
   {
     const { plan, clips_used } = await getUserPlanAndUsage(admin, userId);
     const limit = quotaFor(plan, "clip");
     if (clips_used >= limit) {
-      return json({
-        success: false,
-        error: "quota_exceeded",
-        feature: "clip",
-        plan,
-        limit,
-        used: clips_used,
-        message: "Tu as atteint ta limite de clips générés ce mois-ci.",
-      }, 429);
+      const { entryId, cost } = await consumeCredits(admin, userId, "clip_generation");
+      if (!entryId) {
+        const balance = await getCreditBalance(admin, userId);
+        return json({
+          success: false,
+          error: "quota_and_credits_exceeded",
+          feature: "clip",
+          plan,
+          quotaLimit: limit,
+          quotaUsed: clips_used,
+          creditsRequired: cost,
+          creditsAvailable: balance,
+          message: "Tu as atteint ta limite de clips générés ce mois-ci.",
+        }, 402);
+      }
+      billingSource = "credits";
+      creditsSpent = cost;
+      creditLedgerEntryId = entryId;
     }
   }
 
