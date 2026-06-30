@@ -1469,30 +1469,42 @@ export type Database = {
       }
       credit_packages: {
         Row: {
+          badge: string | null
           created_at: string
           credits: number
+          currency: string
+          description: string | null
           display_name: string
           display_order: number
+          display_price_cents: number | null
           id: string
           is_active: boolean
           stripe_price_id: string | null
           updated_at: string
         }
         Insert: {
+          badge?: string | null
           created_at?: string
           credits: number
+          currency?: string
+          description?: string | null
           display_name: string
           display_order?: number
+          display_price_cents?: number | null
           id: string
           is_active?: boolean
           stripe_price_id?: string | null
           updated_at?: string
         }
         Update: {
+          badge?: string | null
           created_at?: string
           credits?: number
+          currency?: string
+          description?: string | null
           display_name?: string
           display_order?: number
+          display_price_cents?: number | null
           id?: string
           is_active?: boolean
           stripe_price_id?: string | null
