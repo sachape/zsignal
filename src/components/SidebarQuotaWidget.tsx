@@ -98,6 +98,7 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   const q = useQuotaUsage();
   const paygEnabled = FEATURE_FLAGS.PAYG_CREDITS_ENABLED;
   const { data: packs } = useCreditPackages(paygEnabled);
+  const [open, setOpen] = useState(false);
 
   if (collapsed || q.loading) return null;
 
@@ -107,20 +108,24 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   // Agency: custom volume — no counters.
   if (plan === "agency") {
     return (
-      <Link
-        to="/billing"
-        title="Volume sur mesure"
-        className="mb-1 block rounded-md border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5 transition-colors hover:bg-sidebar-accent"
-      >
-        <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-          Créations ce mois-ci
-        </p>
-        <p className="flex items-center gap-1.5 text-[12px] font-medium text-foreground">
-          <Sparkles className="h-3 w-3 text-muted-foreground" />
-          Volume sur mesure
-        </p>
-        <p className="mt-0.5 text-[10px] text-muted-foreground/80">{planLabel} · contrat dédié</p>
-      </Link>
+      <>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Voir tes créations ce mois-ci"
+          className="mb-1 block w-full cursor-pointer rounded-md border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5 text-left transition-colors hover:bg-sidebar-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+            Créations ce mois-ci
+          </p>
+          <p className="flex items-center gap-1.5 text-[12px] font-medium text-foreground">
+            <Sparkles className="h-3 w-3 text-muted-foreground" />
+            Volume sur mesure
+          </p>
+          <p className="mt-0.5 text-[10px] text-muted-foreground/80">{planLabel} · contrat dédié</p>
+        </button>
+        <CreationCapacityDialog open={open} onOpenChange={setOpen} />
+      </>
     );
   }
 
@@ -130,14 +135,20 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   const anyWarn = clipState === "warn" || visualState === "warn" || anyLimit;
   const hasPayg = paygEnabled && (packs?.length ?? 0) > 0;
 
-  const cta = anyLimit
+  const ctaIcon = anyLimit && hasPayg ? Coins : Sparkles;
+  const ctaLabel = anyLimit
     ? hasPayg
-      ? { label: "Acheter des StreamCoins", href: "/billing", icon: Coins }
-      : { label: "Voir mon plan", href: "/billing", icon: Sparkles }
+      ? "Acheter des StreamCoins"
+      : "Voir mon plan"
     : null;
 
   const card = (
-    <div className="mb-1 block rounded-md border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5 transition-colors hover:bg-sidebar-accent">
+    <button
+      type="button"
+      onClick={() => setOpen(true)}
+      aria-label="Voir et gérer tes créations ce mois-ci"
+      className="mb-1 block w-full cursor-pointer rounded-md border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5 text-left transition-colors hover:bg-sidebar-accent hover:border-sidebar-border focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
       <p className="mb-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
         Créations ce mois-ci
       </p>
@@ -162,45 +173,41 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
       <p className="mt-2 text-[10px] text-muted-foreground/70">
         {planLabel} · renouvellement mensuel
       </p>
-      {cta && (
-        <Link
-          to={cta.href}
-          onClick={(e) => e.stopPropagation()}
-          className="mt-2 flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background/60 py-1.5 text-[11px] font-medium text-foreground transition-colors hover:bg-background"
-        >
-          <cta.icon className="h-3 w-3" />
-          {cta.label}
-        </Link>
+      {ctaLabel && (
+        <span className="mt-2 flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background/60 py-1.5 text-[11px] font-medium text-foreground">
+          {(() => {
+            const I = ctaIcon;
+            return <I className="h-3 w-3" />;
+          })()}
+          {ctaLabel}
+        </span>
       )}
-    </div>
-  );
-
-  const wrapped = (
-    <Link to="/billing" title="Tes créations ce mois-ci" className="block">
-      {card}
-    </Link>
+    </button>
   );
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <Tooltip>
-        <TooltipTrigger asChild>{wrapped}</TooltipTrigger>
-        <TooltipContent side="right" align="end" className="max-w-[220px] text-xs">
-          <p className="font-semibold">Détail du mois</p>
-          <p className="mt-1 text-muted-foreground">
-            Clips : {q.clipsUsed} / {q.clipsLimit} utilisés
-          </p>
-          <p className="text-muted-foreground">
-            Visuels : {q.visualsUsed} / {q.visualsLimit} utilisés
-          </p>
-          <p className="mt-1 text-muted-foreground">Plan : {planLabel}</p>
-          <p className="text-muted-foreground">Renouvellement mensuel</p>
-          {anyWarn && !anyLimit && (
-            <p className="mt-1 text-warning">Tu approches d'une limite.</p>
-          )}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <>
+      <TooltipProvider delayDuration={300}>
+        <Tooltip>
+          <TooltipTrigger asChild>{card}</TooltipTrigger>
+          <TooltipContent side="right" align="end" className="max-w-[220px] text-xs">
+            <p className="font-semibold">Détail du mois</p>
+            <p className="mt-1 text-muted-foreground">
+              Clips : {q.clipsUsed} / {q.clipsLimit} utilisés
+            </p>
+            <p className="text-muted-foreground">
+              Visuels : {q.visualsUsed} / {q.visualsLimit} utilisés
+            </p>
+            <p className="mt-1 text-muted-foreground">Plan : {planLabel}</p>
+            <p className="text-muted-foreground">Renouvellement mensuel</p>
+            {anyWarn && !anyLimit && (
+              <p className="mt-1 text-warning">Tu approches d'une limite.</p>
+            )}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <CreationCapacityDialog open={open} onOpenChange={setOpen} />
+    </>
   );
 };
 
