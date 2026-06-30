@@ -385,8 +385,7 @@ const Index = () => {
             <Reveal delay={90}>
               <PlanCard
                 name="Pro"
-                price="7,99 €"
-                future="12,99 €"
+                price="12,99 €"
                 featured
                 badge="Le plus choisi"
                 onCta={signup}
@@ -402,8 +401,7 @@ const Index = () => {
             <Reveal delay={180}>
               <PlanCard
                 name="Growth"
-                price="14,99 €"
-                future="24,99 €"
+                price="29,99 €"
                 onCta={signup}
                 features={[
                   "Tout le plan Pro",
