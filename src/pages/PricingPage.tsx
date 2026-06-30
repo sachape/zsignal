@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { startCheckout } from "@/services/billingService";
-import { Loader2, Check, Minus, Mail, ArrowRight, Coins } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Check, Minus, Mail, ArrowRight, Coins } from "lucide-react";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
 import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { useCreditPackages, formatPackPrice } from "@/hooks/useCreditPackages";
-import { isFeatureEnabled } from "@/lib/featureFlags";
 import { cn } from "@/lib/utils";
+
+// Static marketing packs — purely presentational. Real purchase happens in
+// the connected product (/billing) and is gated by PAYG_CREDITS_ENABLED there.
+const STREAMCOIN_PACKS = [
+  { id: "pack_1200", credits: 1200, price: "12 €", description: "Pour quelques générations en plus." },
+  { id: "pack_3000", credits: 3000, price: "27 €", description: "Pour une semaine bien chargée.", badge: "Populaire" },
+  { id: "pack_7000", credits: 7000, price: "59 €", description: "Pour un mois sans te poser de questions." },
+  { id: "pack_16000", credits: 16000, price: "129 €", description: "Pour les gros volumes ponctuels." },
+];
 
 
 // ── Feature table ────────────────────────────────────────────────────────────
