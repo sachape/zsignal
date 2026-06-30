@@ -38,13 +38,13 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
   {
     group: "Publication",
     rows: [
-      { label: "Téléchargement manuel des exports", free: true, pro: true, growth: true, agency: true },
-      { label: "Réseaux connectés", free: false, pro: "Standard", growth: "Avancé", agency: "Sur mesure" },
-      { label: "Publication Instagram", free: false, pro: "Selon disponibilité", growth: "Selon disponibilité", agency: "Sur mesure" },
-      { label: "Publication YouTube", free: false, pro: "Selon disponibilité", growth: "+ stats si dispo", agency: "Sur mesure" },
-      { label: "Publication TikTok", free: false, pro: "Selon disponibilité", growth: "Selon disponibilité", agency: "Sur mesure" },
-      { label: "Publication X / Threads / Facebook", free: false, pro: "Selon disponibilité", growth: "Selon disponibilité", agency: "Sur mesure" },
-      { label: "Publication multi-réseaux", free: false, pro: "Limitée", growth: true, agency: "Sur mesure" },
+      { label: "Téléchargement manuel des exports", free: "Inclus", pro: "Inclus", growth: "Inclus", agency: "Inclus" },
+      { label: "Réseaux connectés", free: "Non inclus", pro: "Inclus", growth: "Avancé", agency: "Sur mesure" },
+      { label: "Publication Instagram", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
+      { label: "Publication YouTube", free: "Non inclus", pro: "Inclus", growth: "Inclus + stats", agency: "Sur mesure" },
+      { label: "Publication TikTok", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
+      { label: "Publication X / Threads / Facebook", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
+      { label: "Publication multi-réseaux", free: "Non inclus", pro: "Limité", growth: "Inclus", agency: "Sur mesure" },
       { label: "Publications directes / mois", free: "—", pro: "30", growth: "150", agency: "Sur mesure" },
     ],
   },
@@ -172,7 +172,7 @@ const FAQ = [
   },
   {
     q: "Est-ce que Streamnco publie directement sur Instagram, YouTube ou TikTok ?",
-    a: "Streamnco peut proposer de la publication directe selon les plateformes disponibles dans ton espace. Certaines peuvent être en bêta ou dépendre de leur disponibilité. Tu peux toujours télécharger tes contenus et les publier manuellement.",
+    a: "Oui. Pro et Growth incluent la publication directe sur les réseaux connectés. Growth ajoute la publication multi-réseaux et les statistiques YouTube. Gratuit permet uniquement le téléchargement manuel.",
   },
   {
     q: "Est-ce que mes générations sont illimitées ?",
@@ -389,8 +389,7 @@ const PricingPage = () => {
               Publication et réseaux connectés
             </h2>
             <p className="mt-3 font-el-sans text-[16px] text-el-body">
-              Prépare, télécharge ou publie tes contenus depuis Streamnco selon ton plan.
-              Publication directe selon disponibilité des plateformes.
+              Publie directement tes clips et visuels sur tes réseaux connectés depuis Streamnco.
             </p>
           </Reveal>
           <div className="mt-8 overflow-x-auto rounded-2xl border border-el-hairline bg-el-card">
@@ -418,10 +417,6 @@ const PricingPage = () => {
               </tbody>
             </table>
           </div>
-          <p className="mt-4 text-center font-el-sans text-[13px] text-el-muted">
-            Certaines plateformes peuvent être en bêta ou dépendre de leur disponibilité.
-            Tu peux toujours télécharger tes contenus et les publier manuellement.
-          </p>
         </Container>
       </section>
 
