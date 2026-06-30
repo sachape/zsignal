@@ -834,6 +834,62 @@ export type Database = {
           },
         ]
       }
+      creator_credit_ledger: {
+        Row: {
+          created_at: string
+          credit_package_id: string | null
+          delta: number
+          expires_at: string | null
+          feature: string | null
+          id: string
+          metadata: Json
+          reason: string
+          related_job_id: string | null
+          related_job_table: string | null
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credit_package_id?: string | null
+          delta: number
+          expires_at?: string | null
+          feature?: string | null
+          id?: string
+          metadata?: Json
+          reason: string
+          related_job_id?: string | null
+          related_job_table?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credit_package_id?: string | null
+          delta?: number
+          expires_at?: string | null
+          feature?: string | null
+          id?: string
+          metadata?: Json
+          reason?: string
+          related_job_id?: string | null
+          related_job_table?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_credit_ledger_credit_package_id_fkey"
+            columns: ["credit_package_id"]
+            isOneToOne: false
+            referencedRelation: "credit_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       creator_live_sessions: {
         Row: {
           checklist: Json
@@ -1156,10 +1212,13 @@ export type Database = {
       }
       creator_video_generation_jobs: {
         Row: {
+          billing_source: string | null
           callback_status: string | null
           completed_at: string | null
           content_item_id: string
           created_at: string
+          credit_ledger_entry_id: string | null
+          credits_spent: number
           duration_seconds: number
           end_time_seconds: number
           error_code: string | null
@@ -1188,10 +1247,13 @@ export type Database = {
           worker_started_at: string | null
         }
         Insert: {
+          billing_source?: string | null
           callback_status?: string | null
           completed_at?: string | null
           content_item_id: string
           created_at?: string
+          credit_ledger_entry_id?: string | null
+          credits_spent?: number
           duration_seconds: number
           end_time_seconds: number
           error_code?: string | null
@@ -1220,10 +1282,13 @@ export type Database = {
           worker_started_at?: string | null
         }
         Update: {
+          billing_source?: string | null
           callback_status?: string | null
           completed_at?: string | null
           content_item_id?: string
           created_at?: string
+          credit_ledger_entry_id?: string | null
+          credits_spent?: number
           duration_seconds?: number
           end_time_seconds?: number
           error_code?: string | null
@@ -1257,6 +1322,13 @@ export type Database = {
             columns: ["content_item_id"]
             isOneToOne: false
             referencedRelation: "creator_content_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_video_generation_jobs_credit_ledger_entry_id_fkey"
+            columns: ["credit_ledger_entry_id"]
+            isOneToOne: false
+            referencedRelation: "creator_credit_ledger"
             referencedColumns: ["id"]
           },
           {
@@ -1392,6 +1464,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           width?: number | null
+        }
+        Relationships: []
+      }
+      credit_packages: {
+        Row: {
+          created_at: string
+          credits: number
+          display_name: string
+          display_order: number
+          id: string
+          is_active: boolean
+          stripe_price_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits: number
+          display_name: string
+          display_order?: number
+          id: string
+          is_active?: boolean
+          stripe_price_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          display_name?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          stripe_price_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2834,8 +2939,11 @@ export type Database = {
       }
       visual_generation_jobs: {
         Row: {
+          billing_source: string | null
           completed_at: string | null
           created_at: string
+          credit_ledger_entry_id: string | null
+          credits_spent: number
           error_code: string | null
           error_message: string | null
           id: string
@@ -2854,8 +2962,11 @@ export type Database = {
           variant_count: number
         }
         Insert: {
+          billing_source?: string | null
           completed_at?: string | null
           created_at?: string
+          credit_ledger_entry_id?: string | null
+          credits_spent?: number
           error_code?: string | null
           error_message?: string | null
           id?: string
@@ -2874,8 +2985,11 @@ export type Database = {
           variant_count?: number
         }
         Update: {
+          billing_source?: string | null
           completed_at?: string | null
           created_at?: string
+          credit_ledger_entry_id?: string | null
+          credits_spent?: number
           error_code?: string | null
           error_message?: string | null
           id?: string
@@ -2894,6 +3008,13 @@ export type Database = {
           variant_count?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "visual_generation_jobs_credit_ledger_entry_id_fkey"
+            columns: ["credit_ledger_entry_id"]
+            isOneToOne: false
+            referencedRelation: "creator_credit_ledger"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "visual_generation_jobs_reference_asset_id_fkey"
             columns: ["reference_asset_id"]
@@ -3278,6 +3399,10 @@ export type Database = {
         }[]
       }
       cleanup_orphaned_generation_jobs: { Args: never; Returns: Json }
+      consume_generation_credit: {
+        Args: { p_cost: number; p_feature: string; p_user_id: string }
+        Returns: string
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -3366,6 +3491,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_user_credit_balance: { Args: { p_user_id?: string }; Returns: Json }
       get_user_effective_plan: { Args: { uid: string }; Returns: string }
       get_user_quota_usage: { Args: { p_user_id: string }; Returns: Json }
       move_to_dlq: {
@@ -3385,6 +3511,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      refund_failed_job_credits: {
+        Args: { p_job_id: string; p_job_table: string }
+        Returns: string
       }
       score_level_from_pct: { Args: { pct: number }; Returns: string }
       verify_eventsub_cron_secret: { Args: { token: string }; Returns: boolean }
