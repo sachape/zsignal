@@ -188,14 +188,6 @@ const PricingPage = () => {
             </p>
           </Reveal>
 
-          {FOUNDING_MEMBER && (
-            <Reveal delay={80}>
-              <p className="mx-auto mt-6 max-w-2xl rounded-full border border-el-hairline bg-el-card px-5 py-2.5 font-el-sans text-[14px] text-el-body">
-                <span className="font-semibold text-el-ink">Offre fondateur · {FOUNDING_SPOTS} places.</span>{" "}
-                Prix bloqués à vie — ensuite le Pro passe à {PRO_FUTURE.toFixed(2).replace(".", ",")} € et le Growth à {GROWTH_FUTURE.toFixed(2).replace(".", ",")} €.
-              </p>
-            </Reveal>
-          )}
 
           {/* Billing toggle */}
           <Reveal delay={140}>
