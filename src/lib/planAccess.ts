@@ -1,7 +1,13 @@
 /**
  * Centralized plan hierarchy.
  *
- * Hierarchy: free < pro < growth (agency aliased to growth tier).
+ * Hierarchy: free < pro < growth < agency.
+ *
+ * Agency is a real top-tier plan (custom volume / contact-sales / on-demand
+ * limits). It is NOT an alias of Growth. Even if Agency is not sold publicly
+ * today, the type system and runtime checks must respect:
+ *   hasPlanAtLeast("agency", "growth") === true
+ *   hasPlanAtLeast("growth", "agency") === false
  *
  * Use `hasPlanAtLeast(currentPlan, requiredPlan)` for every paywall check.
  * Never compare plans with strict equality (`plan === "pro"`) when guarding
@@ -9,20 +15,20 @@
  */
 
 export type PlanTier = "free" | "pro" | "growth" | "agency";
-export type RequiredTier = "free" | "pro" | "growth";
+export type RequiredTier = "free" | "pro" | "growth" | "agency";
 
 export const PLAN_RANK: Record<PlanTier, number> = {
   free: 0,
   pro: 1,
   growth: 2,
-  agency: 2,
+  agency: 3,
 };
 
 export function normalizePlan(value: string | null | undefined): PlanTier {
   if (!value) return "free";
   const v = value.toLowerCase().trim();
-  if (v.startsWith("growth")) return "growth";
   if (v.startsWith("agency")) return "agency";
+  if (v.startsWith("growth")) return "growth";
   if (v.startsWith("pro")) return "pro";
   return "free";
 }
