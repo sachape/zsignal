@@ -47,7 +47,7 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
       { label: "Téléchargement manuel des exports", free: "Inclus", pro: "Inclus", growth: "Inclus", agency: "Inclus" },
       { label: "Réseaux connectés", free: "Non inclus", pro: "Inclus", growth: "Avancé", agency: "Sur mesure" },
       { label: "Publication Instagram", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
-      { label: "Publication YouTube", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
+      { label: "Publication YouTube", free: "Non inclus", pro: "Inclus", growth: "Inclus + stats", agency: "Sur mesure" },
       { label: "Publication TikTok", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
       { label: "Publication X / Threads / Facebook", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
       { label: "Publication multi-réseaux", free: "Non inclus", pro: "Limité", growth: "Inclus", agency: "Sur mesure" },
