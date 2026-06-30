@@ -211,12 +211,12 @@ const Index = () => {
                   <Star key={i} className="h-3.5 w-3.5 fill-el-ink text-el-ink" />
                 ))}
               </div>
-              <span className="mt-1 font-el-sans text-[13px] text-el-muted">Adopté par les premiers fondateurs</span>
+              <span className="mt-1 font-el-sans text-[13px] text-el-muted">Adopté par les premiers streamers</span>
             </div>
           </div>
           <span className="hidden h-9 w-px bg-el-hairline-strong sm:block" />
           <p className="font-el-sans text-[15px] text-el-body">
-            <span className="font-medium text-el-ink">Offre fondateur</span> — prix bloqués pour les 150 premiers streamers.
+            <span className="font-medium text-el-ink">Sans engagement</span> — annulable à tout moment.
           </p>
         </Container>
       </section>
