@@ -31,15 +31,15 @@ const PLAN_META: Record<
   pro: {
     label: "Pro",
     icon: <Sparkles className="h-4 w-4 text-primary-strong" />,
-    price: "7,99",
-    priceAnnual: "4,92",
+    price: "12,99",
+    priceAnnual: "10,83",
     color: "primary",
   },
   growth: {
     label: "Growth",
     icon: <Crown className="h-4 w-4 text-violet-400" />,
-    price: "14,99",
-    priceAnnual: "9,17",
+    price: "29,99",
+    priceAnnual: "24,99",
     color: "violet",
   },
 };
