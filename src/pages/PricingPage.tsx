@@ -17,12 +17,6 @@ const STREAMCOIN_PACKS = [
   { id: "pack_16000", credits: 16000, price: "129 €", description: "Pour les gros volumes ponctuels.", visuals: 133, clips: 45 },
 ];
 
-const SUBSCRIPTION_EQUIVALENTS = [
-  { id: "free", name: "Gratuit", credits: "710", label: "StreamCoins / mois inclus", breakdown: "3 visuels + 1 clip", note: "Pour découvrir Streamnco." },
-  { id: "pro", name: "Pro", credits: "22 500", label: "StreamCoins / mois inclus", breakdown: "100 visuels + 30 clips", note: "Le meilleur rapport pour créer chaque semaine." },
-  { id: "growth", name: "Growth", credits: "106 000", label: "StreamCoins / mois inclus", breakdown: "300 visuels + 200 clips", note: "Pour les gros volumes et plusieurs chaînes." },
-  { id: "agency", name: "Agency", credits: "Sur mesure", label: "Volume StreamCoins", breakdown: "Volume et réseaux adaptés à ton équipe", note: "Sur devis." },
-];
 
 
 // ── Feature table ────────────────────────────────────────────────────────────
@@ -39,8 +33,8 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
   {
     group: "Création",
     rows: [
-      { label: "Studio visuel (visuels / mois)", free: "3", pro: "100", growth: "300", agency: "Sur mesure" },
-      { label: "Clipping (vidéos / mois)", free: "1", pro: "30", growth: "200", agency: "Sur mesure" },
+      { label: "Studio visuel (visuels / mois)", free: "3", pro: "50", growth: "150", agency: "Sur mesure" },
+      { label: "Clipping (vidéos / mois)", free: "1", pro: "10", growth: "40", agency: "Sur mesure" },
       { label: "Clips verticaux 9:16 (facecam + gameplay)", free: false, pro: true, growth: true, agency: true },
       { label: "Sous-titres automatiques + styles", free: false, pro: true, growth: true, agency: true },
       { label: "File de contenu", free: true, pro: true, growth: true, agency: true },
@@ -53,7 +47,7 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
       { label: "Téléchargement manuel des exports", free: "Inclus", pro: "Inclus", growth: "Inclus", agency: "Inclus" },
       { label: "Réseaux connectés", free: "Non inclus", pro: "Inclus", growth: "Avancé", agency: "Sur mesure" },
       { label: "Publication Instagram", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
-      { label: "Publication YouTube", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
+      { label: "Publication YouTube", free: "Non inclus", pro: "Inclus", growth: "Inclus + stats", agency: "Sur mesure" },
       { label: "Publication TikTok", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
       { label: "Publication X / Threads / Facebook", free: "Non inclus", pro: "Inclus", growth: "Inclus", agency: "Sur mesure" },
       { label: "Publication multi-réseaux", free: "Non inclus", pro: "Limité", growth: "Inclus", agency: "Sur mesure" },
@@ -113,8 +107,6 @@ interface Tier {
   highlighted: boolean;
   badge?: string;
   features: string[];
-  streamcoinsValue: string;
-  streamcoinsBreakdown: string;
 }
 
 const TIERS: Tier[] = [
@@ -128,12 +120,11 @@ const TIERS: Tier[] = [
     highlighted: false,
     features: [
       "Diagnostic Twitch + StreamScore de base",
-      "3 visuels et 1 clip par mois",
+      "3 visuels / mois",
+      "1 clip / mois",
       "Téléchargement manuel des exports",
       "Sans carte bancaire",
     ],
-    streamcoinsValue: "710 StreamCoins / mois inclus",
-    streamcoinsBreakdown: "3 visuels + 1 clip",
   },
   {
     id: "pro",
@@ -148,14 +139,15 @@ const TIERS: Tier[] = [
     badge: "Le plus choisi",
     features: [
       "Tout le plan Gratuit",
-      "100 visuels et 30 clips par mois",
-      "Clips 9:16, sous-titres, file de contenu",
+      "50 visuels / mois",
+      "10 clips / mois",
+      "Clips 9:16, facecam, gameplay et sous-titres",
+      "Studio visuel complet",
+      "File de contenu",
       "Réseaux connectés + 30 publications directes / mois",
       "Débrief après chaque live, playbooks, planning optimal",
-      "Benchmark essentiel + classements en aperçu",
+      "Benchmark essentiel",
     ],
-    streamcoinsValue: "22 500 StreamCoins / mois inclus",
-    streamcoinsBreakdown: "100 visuels + 30 clips",
   },
   {
     id: "growth",
@@ -169,15 +161,16 @@ const TIERS: Tier[] = [
     highlighted: false,
     features: [
       "Tout le plan Pro",
-      "300 visuels et 200 clips par mois",
+      "150 visuels / mois",
+      "40 clips / mois",
       "Jusqu'à 3 chaînes Twitch",
       "Réseaux connectés avancés + 150 publications directes / mois",
-      "Benchmark avancé, watchlist, classements live + général",
-      "Débriefs avancés, planning et playbooks complets",
-      "Support prioritaire + accès anticipé aux intégrations",
+      "Benchmark avancé",
+      "Watchlist",
+      "Classements live + général",
+      "Historique étendu",
+      "Priorité génération",
     ],
-    streamcoinsValue: "106 000 StreamCoins / mois inclus",
-    streamcoinsBreakdown: "300 visuels + 200 clips",
   },
 ];
 
@@ -229,7 +222,7 @@ function CellValue({ value }: { value: string | boolean }) {
 const PricingPage = () => {
   const { user } = useAuth();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
-  const [paygTab, setPaygTab] = useState<"no-sub" | "with-sub">("no-sub");
+  
 
   usePageMeta({
     title: "Tarifs",
@@ -344,22 +337,6 @@ const PricingPage = () => {
                     <p className={cn("mt-3 text-[14px] leading-relaxed", featured ? "text-el-on-dark-soft" : "text-el-body")}>
                       {tier.description}
                     </p>
-                    <div
-                      className={cn(
-                        "mt-4 rounded-xl border px-3 py-2.5",
-                        featured ? "border-el-on-dark-soft/20 bg-el-on-dark/10" : "border-el-hairline bg-el-strong",
-                      )}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Coins className={cn("h-3.5 w-3.5", featured ? "text-el-mint" : "text-el-ink")} />
-                        <span className={cn("text-[13px] font-semibold", featured ? "text-el-on-dark" : "text-el-ink")}>
-                          {tier.streamcoinsValue}
-                        </span>
-                      </div>
-                      <p className={cn("mt-0.5 text-[12px]", featured ? "text-el-on-dark-soft" : "text-el-muted")}>
-                        {tier.streamcoinsBreakdown}
-                      </p>
-                    </div>
 
                     {tier.id === "free" ? (
                       <Link
@@ -402,11 +379,11 @@ const PricingPage = () => {
                 Pour agences, managers, collectifs et équipes qui gèrent plusieurs streamers.
                 Multi-créateurs, volume custom, réseaux connectés sur mesure, onboarding dédié.
               </p>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-el-hairline bg-el-strong px-3 py-1.5">
-                <Coins className="h-3.5 w-3.5 text-el-ink" />
-                <span className="text-[13px] font-semibold text-el-ink">Volume StreamCoins sur mesure</span>
+              <div className="mt-3 font-el-sans text-[14px] text-el-muted">
+                Multi-créateurs · Volume custom · Réseaux connectés sur mesure · Onboarding dédié · Support prioritaire · Facturation sur mesure.
               </div>
             </div>
+
             <a
               href="mailto:contact@streamnco.fr"
               className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-el-hairline-strong px-5 font-el-sans text-[15px] font-medium text-el-ink transition-colors hover:bg-el-strong"
@@ -472,94 +449,53 @@ const PricingPage = () => {
               Les StreamCoins sont faits pour les besoins ponctuels. Les abonnements restent plus avantageux si tu crées du contenu régulièrement.
             </p>
 
-            <div className="mt-5 inline-flex items-center gap-1 rounded-full border border-el-hairline bg-el-card p-1">
-              <button
-                onClick={() => setPaygTab("no-sub")}
-                className={cn(
-                  "rounded-full px-5 py-2 font-el-sans text-[14px] font-medium transition-colors",
-                  paygTab === "no-sub" ? "bg-el-ink text-el-on-dark" : "text-el-body hover:text-el-ink",
-                )}
-              >
-                Sans abonnement
-              </button>
-              <button
-                onClick={() => setPaygTab("with-sub")}
-                className={cn(
-                  "rounded-full px-5 py-2 font-el-sans text-[14px] font-medium transition-colors",
-                  paygTab === "with-sub" ? "bg-el-ink text-el-on-dark" : "text-el-body hover:text-el-ink",
-                )}
-              >
-                Avec abonnement
-              </button>
-            </div>
           </Reveal>
 
-          {paygTab === "no-sub" ? (
-            <>
-              <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {STREAMCOIN_PACKS.map((p) => (
-                  <div key={p.id} className="relative flex flex-col rounded-2xl border border-el-hairline bg-el-card p-6">
-                    {p.badge && (
-                      <span className="absolute -top-3 left-6 rounded-full bg-el-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-on-dark">
-                        {p.badge}
-                      </span>
-                    )}
-                    <p className="font-el-display text-[28px] font-light leading-none tracking-[-0.02em] text-el-ink">
-                      {p.credits.toLocaleString("fr-FR")}
-                    </p>
-                    <p className="mt-1 font-el-sans text-[13px] uppercase tracking-[0.12em] text-el-muted">StreamCoins</p>
-                    <p className="mt-3 font-el-sans text-[14px] text-el-body">{p.description}</p>
-                    <div className="mt-4">
-                      <p className="mb-2 font-el-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-el-muted">Utilisation estimée</p>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-el-hairline bg-el-strong px-2.5 py-1 text-[12px] font-medium text-el-ink">
-                          <ImageIcon className="h-3 w-3 text-el-muted" />
-                          ≈ {p.visuals} visuels
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-el-hairline bg-el-strong px-2.5 py-1 text-[12px] font-medium text-el-ink">
-                          <VideoIcon className="h-3 w-3 text-el-muted" />
-                          ≈ {p.clips} clips
-                        </span>
-                      </div>
-                    </div>
-                    <p className="mt-5 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
-                      {p.price}
-                    </p>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {STREAMCOIN_PACKS.map((p) => (
+              <div key={p.id} className="relative flex flex-col rounded-2xl border border-el-hairline bg-el-card p-6">
+                {p.badge && (
+                  <span className="absolute -top-3 left-6 rounded-full bg-el-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-on-dark">
+                    {p.badge}
+                  </span>
+                )}
+                <p className="font-el-display text-[28px] font-light leading-none tracking-[-0.02em] text-el-ink">
+                  {p.credits.toLocaleString("fr-FR")}
+                </p>
+                <p className="mt-1 font-el-sans text-[13px] uppercase tracking-[0.12em] text-el-muted">StreamCoins</p>
+                <p className="mt-3 font-el-sans text-[14px] text-el-body">{p.description}</p>
+                <div className="mt-4">
+                  <p className="mb-2 font-el-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-el-muted">Utilisation estimée</p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-el-hairline bg-el-strong px-2.5 py-1 text-[12px] font-medium text-el-ink">
+                      <ImageIcon className="h-3 w-3 text-el-muted" />
+                      ≈ {p.visuals} visuels
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-el-hairline bg-el-strong px-2.5 py-1 text-[12px] font-medium text-el-ink">
+                      <VideoIcon className="h-3 w-3 text-el-muted" />
+                      ≈ {p.clips} clips
+                    </span>
                   </div>
-                ))}
-              </div>
-              <div className="mt-8 flex flex-col items-center gap-3">
-                <Link
-                  to={streamcoinsHref}
-                  className="inline-flex h-11 items-center gap-2 rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-opacity hover:opacity-90"
-                >
-                  {user ? "Acheter des StreamCoins" : "Créer un compte pour acheter des StreamCoins"}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="mt-6 text-center">
-                <p className="mx-auto max-w-xl font-el-sans text-[15px] text-el-body">
-                  Tes plans incluent déjà une valeur mensuelle en génération. Les StreamCoins servent à compléter si tu as besoin de plus.
+                </div>
+                <p className="mt-5 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
+                  {p.price}
                 </p>
               </div>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {SUBSCRIPTION_EQUIVALENTS.map((sub) => (
-                  <div key={sub.id} className="relative flex flex-col rounded-2xl border border-el-hairline bg-el-card p-6">
-                    <p className="font-el-sans text-[15px] font-medium text-el-ink">{sub.name}</p>
-                    <p className="mt-2 font-el-display text-[24px] font-light leading-none tracking-[-0.02em] text-el-ink">
-                      {sub.credits}
-                    </p>
-                    <p className="mt-1 font-el-sans text-[13px] uppercase tracking-[0.12em] text-el-muted">{sub.label}</p>
-                    <p className="mt-3 font-el-sans text-[14px] text-el-body">{sub.breakdown}</p>
-                    <p className="mt-2 font-el-sans text-[13px] text-el-muted">{sub.note}</p>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+            ))}
+          </div>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <Link
+              to={streamcoinsHref}
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-opacity hover:opacity-90"
+            >
+              {user ? "Acheter des StreamCoins" : "Créer un compte pour acheter des StreamCoins"}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="text-center font-el-sans text-[13px] text-el-muted">
+              Top-up ponctuel — pas d'abonnement, pas d'engagement.
+            </p>
+          </div>
+
         </Container>
       </section>
 
