@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { startCheckout } from "@/services/billingService";
-import { Loader2, Check, Minus, Mail, ArrowRight, Coins } from "lucide-react";
+import { Check, Minus, Mail, ArrowRight, Coins } from "lucide-react";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
 import { Container, Orb, Eyebrow, Reveal } from "@/components/site/el";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { useCreditPackages, formatPackPrice } from "@/hooks/useCreditPackages";
-import { isFeatureEnabled } from "@/lib/featureFlags";
 import { cn } from "@/lib/utils";
+
+// Static marketing packs — purely presentational. Real purchase happens in
+// the connected product (/billing) and is gated by PAYG_CREDITS_ENABLED there.
+const STREAMCOIN_PACKS = [
+  { id: "pack_1200", credits: 1200, price: "12 €", description: "Pour quelques générations en plus." },
+  { id: "pack_3000", credits: 3000, price: "27 €", description: "Pour une semaine bien chargée.", badge: "Populaire" },
+  { id: "pack_7000", credits: 7000, price: "59 €", description: "Pour un mois sans te poser de questions." },
+  { id: "pack_16000", credits: 16000, price: "129 €", description: "Pour les gros volumes ponctuels." },
+];
 
 
 // ── Feature table ────────────────────────────────────────────────────────────
@@ -127,7 +132,7 @@ const TIERS: Tier[] = [
     annualTotal: "129,90 €",
     period: "/ mois",
     description: "Pour créer et publier chaque semaine à partir de tes streams.",
-    cta: "Passer au Pro",
+    cta: "Commencer avec Pro",
     highlighted: true,
     badge: "Le plus choisi",
     features: [
@@ -147,7 +152,7 @@ const TIERS: Tier[] = [
     annualTotal: "299,90 €",
     period: "/ mois",
     description: "Pour piloter sérieusement ta création, tes réseaux et ta progression.",
-    cta: "Passer au Growth",
+    cta: "Commencer avec Growth",
     highlighted: false,
     features: [
       "Tout le plan Pro",
@@ -175,12 +180,20 @@ const FAQ = [
     a: "Oui. Pro et Growth incluent la publication directe sur les réseaux connectés. Growth ajoute la publication multi-réseaux et les statistiques YouTube. Gratuit permet uniquement le téléchargement manuel.",
   },
   {
+    q: "Est-ce que je peux payer sans abonnement ?",
+    a: "Oui. Les StreamCoins permettent d'acheter des générations ponctuelles (clips et visuels) sans changer de plan.",
+  },
+  {
     q: "Est-ce que mes générations sont illimitées ?",
     a: "Non. Chaque plan inclut des limites mensuelles pour garantir la qualité du service. Tu peux acheter des StreamCoins en complément si tu as besoin de générations ponctuelles supplémentaires.",
   },
   {
     q: "Est-ce que les StreamCoins remplacent le Pro ?",
-    a: "Non. Les StreamCoins servent aux générations ponctuelles. Les plans Pro et Growth débloquent une expérience plus complète, des quotas mensuels plus avantageux, les réseaux connectés et les fonctionnalités de progression.",
+    a: "Non. Les StreamCoins servent aux générations ponctuelles. Pro et Growth restent plus avantageux si tu crées régulièrement et donnent accès aux réseaux connectés, au benchmark avancé et à l'historique étendu.",
+  },
+  {
+    q: "Où acheter des StreamCoins ?",
+    a: "Crée un compte, puis achète tes StreamCoins depuis ton espace Streamnco lorsque l'option est disponible.",
   },
   {
     q: "Puis-je changer de plan à tout moment ?",
@@ -188,7 +201,7 @@ const FAQ = [
   },
   {
     q: "Comment fonctionne la facturation ?",
-    a: "Facturation via Stripe. Aucun engagement, annulable à tout moment depuis ta page Facturation.",
+    a: "Facturation sécurisée, sans engagement, annulable à tout moment depuis ton espace Streamnco.",
   },
 ];
 
@@ -200,13 +213,7 @@ function CellValue({ value }: { value: string | boolean }) {
 
 const PricingPage = () => {
   const { user } = useAuth();
-  const { openAuthModal } = useAuthModal();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
-
-  const paygEnabled = isFeatureEnabled("PAYG_CREDITS_ENABLED");
-  const { data: packs = [] } = useCreditPackages(paygEnabled);
-  const showStreamCoins = paygEnabled && packs.length > 0;
 
   usePageMeta({
     title: "Tarifs",
@@ -225,18 +232,13 @@ const PricingPage = () => {
     },
   });
 
-  const handleCheckout = async (plan: "pro" | "growth") => {
-    if (!user) {
-      openAuthModal("signup");
-      return;
-    }
-    setCheckoutLoading(plan);
-    try {
-      await startCheckout(plan, billing === "annual" ? "annual" : "monthly");
-    } catch {
-      setCheckoutLoading(null);
-    }
-  };
+  // Public marketing CTAs: never trigger Stripe directly.
+  // - Visitors → /auth (with plan intent for the product to read post-signup).
+  // - Logged-in users → /billing (connected product handles checkout).
+  const planHref = (plan: "pro" | "growth") =>
+    user ? `/billing?plan=${plan}` : `/auth?plan=${plan}`;
+  const signupHref = "/auth";
+  const streamcoinsHref = user ? "/billing?intent=streamcoins" : "/auth?intent=streamcoins";
 
   return (
     <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
@@ -328,23 +330,22 @@ const PricingPage = () => {
                     </p>
 
                     {tier.id === "free" ? (
-                      <button
-                        onClick={() => openAuthModal("signup")}
+                      <Link
+                        to={signupHref}
                         className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-el-ink font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft"
                       >
                         {tier.cta}
-                      </button>
+                      </Link>
                     ) : (
-                      <button
-                        disabled={checkoutLoading !== null}
-                        onClick={() => handleCheckout(tier.id as "pro" | "growth")}
+                      <Link
+                        to={planHref(tier.id as "pro" | "growth")}
                         className={cn(
-                          "mt-6 inline-flex h-11 w-full items-center justify-center rounded-full font-el-sans text-[15px] font-medium transition-opacity disabled:opacity-60",
+                          "mt-6 inline-flex h-11 w-full items-center justify-center rounded-full font-el-sans text-[15px] font-medium transition-opacity",
                           featured ? "bg-el-on-dark text-el-ink hover:opacity-90" : "bg-el-ink text-el-on-dark hover:opacity-90",
                         )}
                       >
-                        {checkoutLoading === tier.id ? <Loader2 className="h-4 w-4 animate-spin" /> : tier.cta}
-                      </button>
+                        {tier.cta}
+                      </Link>
                     )}
 
                     <ul className="mt-7 space-y-3">
@@ -420,47 +421,61 @@ const PricingPage = () => {
         </Container>
       </section>
 
-      {/* StreamCoins — only when flag ON + active packs */}
-      {showStreamCoins && (
-        <section className="border-t border-el-hairline bg-el-canvas-soft py-16">
-          <Container>
-            <Reveal className="mx-auto max-w-2xl text-center">
-              <Eyebrow className="justify-center"><Coins className="h-3.5 w-3.5" /> StreamCoins</Eyebrow>
-              <h2 className="mt-4 font-el-display text-[clamp(1.8rem,3.5vw,2.5rem)] font-light tracking-[-0.02em] text-el-ink">
-                Besoin de quelques générations en plus ?
-              </h2>
-              <p className="mt-3 font-el-sans text-[16px] text-el-body">
-                Achète des StreamCoins sans changer d'abonnement. 1 visuel = 120 StreamCoins · 1 clip = 350 StreamCoins.
-              </p>
-            </Reveal>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {packs.map((p) => (
-                <div key={p.id} className="relative flex flex-col rounded-2xl border border-el-hairline bg-el-card p-6">
-                  {p.badge && (
-                    <span className="absolute -top-3 left-6 rounded-full bg-el-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-on-dark">
-                      {p.badge}
-                    </span>
-                  )}
-                  <p className="font-el-display text-[28px] font-light leading-none tracking-[-0.02em] text-el-ink">
-                    {p.credits.toLocaleString("fr-FR")}
-                  </p>
-                  <p className="mt-1 font-el-sans text-[13px] uppercase tracking-[0.12em] text-el-muted">StreamCoins</p>
-                  {p.description && (
-                    <p className="mt-3 font-el-sans text-[14px] text-el-body">{p.description}</p>
-                  )}
-                  <p className="mt-4 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
-                    {formatPackPrice(p) ?? "—"}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-6 text-center font-el-sans text-[13px] text-el-muted">
-              Les StreamCoins servent aux générations ponctuelles. Ils ne remplacent pas les fonctionnalités
-              Pro et Growth (réseaux connectés, benchmark avancé, multi-chaînes, support prioritaire).
+      {/* StreamCoins — marketing section, always visible. Purchase happens in /billing. */}
+      <section className="border-t border-el-hairline bg-el-canvas-soft py-16">
+        <Container>
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <Eyebrow className="justify-center"><Coins className="h-3.5 w-3.5" /> Pay As You Go</Eyebrow>
+            <h2 className="mt-4 font-el-display text-[clamp(1.8rem,3.5vw,2.5rem)] font-light tracking-[-0.02em] text-el-ink">
+              Besoin de quelques générations en plus ?
+            </h2>
+            <p className="mt-3 font-el-sans text-[17px] text-el-body">
+              Achète des StreamCoins sans changer d'abonnement.
             </p>
-          </Container>
-        </section>
-      )}
+            <p className="mt-2 font-el-sans text-[15px] text-el-body">
+              Les StreamCoins te permettent de générer des clips ou des visuels à la demande,
+              même si tu ne veux pas changer de plan.
+            </p>
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-el-hairline bg-el-card px-4 py-2 font-el-sans text-[13px] text-el-body">
+              <span className="rounded-full bg-el-strong px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-el-ink">Sans abonnement</span>
+              <span>1 visuel = 120 · 1 clip = 350 StreamCoins</span>
+            </div>
+          </Reveal>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {STREAMCOIN_PACKS.map((p) => (
+              <div key={p.id} className="relative flex flex-col rounded-2xl border border-el-hairline bg-el-card p-6">
+                {p.badge && (
+                  <span className="absolute -top-3 left-6 rounded-full bg-el-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-on-dark">
+                    {p.badge}
+                  </span>
+                )}
+                <p className="font-el-display text-[28px] font-light leading-none tracking-[-0.02em] text-el-ink">
+                  {p.credits.toLocaleString("fr-FR")}
+                </p>
+                <p className="mt-1 font-el-sans text-[13px] uppercase tracking-[0.12em] text-el-muted">StreamCoins</p>
+                <p className="mt-3 font-el-sans text-[14px] text-el-body">{p.description}</p>
+                <p className="mt-4 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
+                  {p.price}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <Link
+              to={streamcoinsHref}
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-opacity hover:opacity-90"
+            >
+              {user ? "Acheter des StreamCoins" : "Créer un compte pour acheter des StreamCoins"}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="max-w-xl text-center font-el-sans text-[13px] text-el-muted">
+              Les StreamCoins sont faits pour les besoins ponctuels. Pro et Growth restent plus avantageux
+              si tu crées du contenu régulièrement, et débloquent les réseaux connectés, le benchmark avancé
+              et l'historique étendu.
+            </p>
+          </div>
+        </Container>
+      </section>
 
       {/* Comparison table */}
       <section className="py-16">
@@ -544,12 +559,12 @@ const PricingPage = () => {
               Prêt à transformer tes lives en croissance ?
             </h2>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <button
-                onClick={() => openAuthModal("signup")}
+              <Link
+                to={signupHref}
                 className="inline-flex h-12 items-center gap-2 rounded-full bg-el-on-dark px-7 font-el-sans text-[16px] font-medium text-el-ink transition-opacity hover:opacity-90"
               >
                 Créer mon compte gratuit <ArrowRight className="h-4 w-4" />
-              </button>
+              </Link>
               <Link
                 to="/"
                 className="inline-flex h-12 items-center rounded-full border border-el-on-dark-soft/40 px-7 font-el-sans text-[16px] font-medium text-el-on-dark transition-colors hover:bg-white/10"
