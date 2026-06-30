@@ -337,22 +337,6 @@ const PricingPage = () => {
                     <p className={cn("mt-3 text-[14px] leading-relaxed", featured ? "text-el-on-dark-soft" : "text-el-body")}>
                       {tier.description}
                     </p>
-                    <div
-                      className={cn(
-                        "mt-4 rounded-xl border px-3 py-2.5",
-                        featured ? "border-el-on-dark-soft/20 bg-el-on-dark/10" : "border-el-hairline bg-el-strong",
-                      )}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Coins className={cn("h-3.5 w-3.5", featured ? "text-el-mint" : "text-el-ink")} />
-                        <span className={cn("text-[13px] font-semibold", featured ? "text-el-on-dark" : "text-el-ink")}>
-                          {tier.streamcoinsValue}
-                        </span>
-                      </div>
-                      <p className={cn("mt-0.5 text-[12px]", featured ? "text-el-on-dark-soft" : "text-el-muted")}>
-                        {tier.streamcoinsBreakdown}
-                      </p>
-                    </div>
 
                     {tier.id === "free" ? (
                       <Link
@@ -395,11 +379,11 @@ const PricingPage = () => {
                 Pour agences, managers, collectifs et équipes qui gèrent plusieurs streamers.
                 Multi-créateurs, volume custom, réseaux connectés sur mesure, onboarding dédié.
               </p>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-el-hairline bg-el-strong px-3 py-1.5">
-                <Coins className="h-3.5 w-3.5 text-el-ink" />
-                <span className="text-[13px] font-semibold text-el-ink">Volume StreamCoins sur mesure</span>
+              <div className="mt-3 font-el-sans text-[14px] text-el-muted">
+                Multi-créateurs · Volume custom · Réseaux connectés sur mesure · Onboarding dédié · Support prioritaire · Facturation sur mesure.
               </div>
             </div>
+
             <a
               href="mailto:contact@streamnco.fr"
               className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-el-hairline-strong px-5 font-el-sans text-[15px] font-medium text-el-ink transition-colors hover:bg-el-strong"
