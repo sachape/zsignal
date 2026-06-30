@@ -131,6 +131,10 @@ const BillingPage = () => {
           </section>
         )}
 
+        {/* Pay As You Go credits — visible only when flag ON + packs active */}
+        <CreditsSection />
+
+
         {/* Plan actuel */}
         <section className="mb-6">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
