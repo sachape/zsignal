@@ -209,8 +209,38 @@ const PricingPage = () => {
                 )}
               >
                 Annuel
-                <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold", billing === "annual" ? "bg-el-on-dark text-el-ink" : "bg-el-strong text-el-ink")}>
-                  -38%
+                <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", billing === "annual" ? "bg-el-on-dark text-el-ink" : "bg-el-strong text-el-ink")}>
+                  2 mois offerts
+                </span>
+              </button>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      {/* Tier cards */}
+      <section className="pb-8">
+        <Container>
+          <div className="grid gap-5 md:grid-cols-3">
+            {TIERS.map((tier, i) => {
+              const featured = tier.highlighted;
+              const showAnnual = billing === "annual" && tier.annual;
+              return (
+                <Reveal key={tier.id} delay={i * 90}>
+                  <div
+                    className={cn(
+                      "relative flex h-full flex-col rounded-2xl p-8 transition-all duration-300",
+                      featured
+                        ? "bg-el-dark text-el-on-dark shadow-[0_24px_60px_-24px_rgba(0,0,0,0.45)] md:-translate-y-2"
+                        : "border border-el-hairline bg-el-card text-el-ink hover:-translate-y-1 hover:border-el-hairline-strong hover:shadow-[0_24px_50px_-24px_rgba(0,0,0,0.2)]",
+                    )}
+                  >
+                    {tier.badge && (
+                      <span className="absolute -top-3 left-8 rounded-full bg-el-on-dark px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-ink">
+                        {tier.badge}
+                      </span>
+                    )}
+                    <p className="font-el-sans text-[15px] font-medium">{tier.name}</p>
                 </span>
               </button>
             </div>
