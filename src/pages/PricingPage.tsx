@@ -344,6 +344,22 @@ const PricingPage = () => {
                     <p className={cn("mt-3 text-[14px] leading-relaxed", featured ? "text-el-on-dark-soft" : "text-el-body")}>
                       {tier.description}
                     </p>
+                    <div
+                      className={cn(
+                        "mt-4 rounded-xl border px-3 py-2.5",
+                        featured ? "border-el-on-dark-soft/20 bg-el-on-dark/10" : "border-el-hairline bg-el-strong",
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Coins className={cn("h-3.5 w-3.5", featured ? "text-el-mint" : "text-el-ink")} />
+                        <span className={cn("text-[13px] font-semibold", featured ? "text-el-on-dark" : "text-el-ink")}>
+                          {tier.streamcoinsValue}
+                        </span>
+                      </div>
+                      <p className={cn("mt-0.5 text-[12px]", featured ? "text-el-on-dark-soft" : "text-el-muted")}>
+                        {tier.streamcoinsBreakdown}
+                      </p>
+                    </div>
 
                     {tier.id === "free" ? (
                       <Link
