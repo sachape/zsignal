@@ -132,7 +132,7 @@ const TIERS: Tier[] = [
     annualTotal: "129,90 €",
     period: "/ mois",
     description: "Pour créer et publier chaque semaine à partir de tes streams.",
-    cta: "Passer au Pro",
+    cta: "Commencer avec Pro",
     highlighted: true,
     badge: "Le plus choisi",
     features: [
