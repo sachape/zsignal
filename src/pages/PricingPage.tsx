@@ -18,10 +18,10 @@ const STREAMCOIN_PACKS = [
 ];
 
 const SUBSCRIPTION_EQUIVALENTS = [
-  { id: "free", name: "Gratuit", value: "710 StreamCoins / mois inclus", breakdown: "3 visuels + 1 clip", note: "Pour découvrir Streamnco." },
-  { id: "pro", name: "Pro", value: "22 500 StreamCoins / mois inclus", breakdown: "100 visuels + 30 clips", note: "Le meilleur rapport pour créer chaque semaine." },
-  { id: "growth", name: "Growth", value: "106 000 StreamCoins / mois inclus", breakdown: "300 visuels + 200 clips", note: "Pour les gros volumes et plusieurs chaînes." },
-  { id: "agency", name: "Agency", value: "Volume StreamCoins sur mesure", breakdown: "Volume et réseaux adaptés à ton équipe", note: "Sur devis." },
+  { id: "free", name: "Gratuit", credits: "710", label: "StreamCoins / mois inclus", breakdown: "3 visuels + 1 clip", note: "Pour découvrir Streamnco." },
+  { id: "pro", name: "Pro", credits: "22 500", label: "StreamCoins / mois inclus", breakdown: "100 visuels + 30 clips", note: "Le meilleur rapport pour créer chaque semaine." },
+  { id: "growth", name: "Growth", credits: "106 000", label: "StreamCoins / mois inclus", breakdown: "300 visuels + 200 clips", note: "Pour les gros volumes et plusieurs chaînes." },
+  { id: "agency", name: "Agency", credits: "Sur mesure", label: "Volume StreamCoins", breakdown: "Volume et réseaux adaptés à ton équipe", note: "Sur devis." },
 ];
 
 
