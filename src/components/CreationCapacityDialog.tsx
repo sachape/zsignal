@@ -135,12 +135,23 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
   const q = useQuotaUsage();
   const paygEnabled = FEATURE_FLAGS.PAYG_CREDITS_ENABLED;
   const { data: packs, isLoading: packsLoading } = useCreditPackages(paygEnabled);
+  const { data: balance } = useCreditBalance(paygEnabled);
+  const queryClient = useQueryClient();
 
   const plan = normalizePlan(q.plan);
   const planLabel = PLAN_LABEL[plan] ?? "Gratuit";
   const isAgency = plan === "agency";
   const activePacks = packs ?? [];
   const hasActivePacks = activePacks.length > 0;
+
+  // Refresh balance whenever the dialog opens, so a returning user from a
+  // successful Stripe Checkout sees their new StreamCoins balance immediately.
+  useEffect(() => {
+    if (open && paygEnabled) {
+      void queryClient.invalidateQueries({ queryKey: ["credit-balance"] });
+    }
+  }, [open, paygEnabled, queryClient]);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
