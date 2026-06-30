@@ -43,10 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
-import { usePlan } from "@/hooks/usePlan";
-import { useCreditPackages } from "@/hooks/useCreditPackages";
-import { streamCoinsCostLabel } from "@/lib/credits";
-import { quotaCta } from "@/lib/quotas";
+import { useClipQuotaToast } from "@/hooks/useClipQuotaToast";
 
 import { useContentItems, type ContentItem } from "@/hooks/useContentItems";
 import { useActiveVideoJob } from "@/hooks/useVideoJobs";
@@ -179,9 +176,7 @@ const VodImportPage = () => {
   const prepRef = useRef<HTMLDivElement | null>(null);
 
   const autoGenEnabled = isFeatureEnabled("TWITCH_AUTO_CLIP_GENERATION_ENABLED");
-  const paygOn = isFeatureEnabled("PAYG_CREDITS_ENABLED");
-  const { plan } = usePlan();
-  const creditPacks = useCreditPackages(paygOn);
+  const showClipQuotaToast = useClipQuotaToast();
 
   const detectedSource = useMemo(() => (url ? detectSourceClient(url) : null), [url]);
 
