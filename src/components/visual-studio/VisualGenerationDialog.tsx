@@ -25,6 +25,11 @@ import { usePlan } from "@/hooks/usePlan";
 import { quotaCta, quotaExceededMessage } from "@/lib/quotas";
 import { Link } from "react-router-dom";
 import VisualPlacementPreview from "@/components/visual-studio/VisualPlacementPreview";
+import { isFeatureEnabled } from "@/lib/featureFlags";
+import { useCreditPackages } from "@/hooks/useCreditPackages";
+import { useCreditBalance } from "@/hooks/useCreditBalance";
+import { BuyCreditsButton } from "@/components/credits/BuyCreditsButton";
+import { creditCostLabel } from "@/lib/credits";
 
 interface Props {
   open: boolean;
