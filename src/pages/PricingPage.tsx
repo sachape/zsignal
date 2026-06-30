@@ -11,10 +11,10 @@ import { cn } from "@/lib/utils";
 // Static marketing packs — purely presentational. Real purchase happens in
 // the connected product (/billing) and is gated by PAYG_CREDITS_ENABLED there.
 const STREAMCOIN_PACKS = [
-  { id: "pack_1200", credits: 1200, price: "12 €", description: "Pour quelques générations en plus." },
-  { id: "pack_3000", credits: 3000, price: "27 €", description: "Pour une semaine bien chargée.", badge: "Populaire" },
-  { id: "pack_7000", credits: 7000, price: "59 €", description: "Pour un mois sans te poser de questions." },
-  { id: "pack_16000", credits: 16000, price: "129 €", description: "Pour les gros volumes ponctuels." },
+  { id: "pack_1200", credits: 1200, price: "12 €", description: "Pour quelques générations en plus.", visuals: 10, clips: 3 },
+  { id: "pack_3000", credits: 3000, price: "27 €", description: "Pour une semaine bien chargée.", badge: "Populaire", visuals: 25, clips: 8 },
+  { id: "pack_7000", credits: 7000, price: "59 €", description: "Pour un mois sans te poser de questions.", visuals: 58, clips: 20 },
+  { id: "pack_16000", credits: 16000, price: "129 €", description: "Pour les gros volumes ponctuels.", visuals: 133, clips: 45 },
 ];
 
 
