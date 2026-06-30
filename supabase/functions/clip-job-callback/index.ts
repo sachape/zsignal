@@ -2,6 +2,7 @@
 // Auth: X-Worker-Secret header must match WORKER_SHARED_SECRET. NOT a user-facing endpoint.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { refundFailedJobCredits } from "../_shared/credits.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -187,6 +188,9 @@ Deno.serve(async (req) => {
       generation_error: errorMessage,
     })
     .eq("id", job.content_item_id);
+
+  // Refund credits idempotently if the job was paid by credits.
+  await refundFailedJobCredits(admin, jobId, "creator_video_generation_jobs");
 
   console.info(JSON.stringify({ event: "clip_job_callback_failed", job_id: jobId, error_code: errorCode }));
   return json({ success: true });

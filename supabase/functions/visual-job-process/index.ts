@@ -244,6 +244,11 @@ async function fail(admin: any, jobId: string, reason: string) {
       completed_at: new Date().toISOString(),
     })
     .eq("id", jobId);
+  // Refund credits idempotently if this job was paid by credits.
+  await admin.rpc("refund_failed_job_credits", {
+    p_job_id: jobId,
+    p_job_table: "visual_generation_jobs",
+  }).catch?.((e: unknown) => console.warn("[visual_job_refund_failed]", (e as Error)?.message));
   console.error("[visual_job_failed]", jobId, reason);
 }
 

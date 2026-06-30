@@ -75,6 +75,58 @@ Deno.serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.user_id as string | undefined;
         const customerId = session.customer as string | undefined;
+        const purchaseType = session.metadata?.type as string | undefined;
+
+        // ── One-shot credit pack purchase ──
+        // Idempotent via UNIQUE(stripe_checkout_session_id) on the ledger.
+        if (purchaseType === "credit_pack" && userId && session.payment_status === "paid") {
+          const packageId = session.metadata?.package_id as string | undefined;
+          const credits = Number(session.metadata?.credits ?? 0);
+          if (!packageId || !Number.isFinite(credits) || credits <= 0) {
+            console.warn("credit_pack_session_missing_metadata", { session: session.id });
+            break;
+          }
+          const paymentIntentId = typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : session.payment_intent?.id ?? null;
+
+          const { error: ledgerErr } = await admin
+            .from("creator_credit_ledger")
+            .insert({
+              user_id: userId,
+              delta: credits,
+              reason: "purchase",
+              feature: null,
+              credit_package_id: packageId,
+              stripe_checkout_session_id: session.id,
+              stripe_payment_intent_id: paymentIntentId,
+              metadata: {
+                amount_total: session.amount_total ?? null,
+                currency: session.currency ?? null,
+              },
+            });
+          if (ledgerErr) {
+            // 23505 = unique_violation → already credited, treat as success.
+            if (ledgerErr.code !== "23505") {
+              console.error("credit_pack_ledger_insert_failed", ledgerErr.message);
+            } else {
+              console.info("credit_pack_already_credited", { session: session.id });
+            }
+          } else {
+            console.info("credit_pack_credited", { user_id: userId, credits, session: session.id });
+          }
+
+          if (customerId) {
+            await admin.from("billing_customers").upsert({
+              user_id: userId,
+              stripe_customer_id: customerId,
+              updated_at: new Date().toISOString(),
+            });
+          }
+          break;
+        }
+
+        // ── Subscription checkout (existing behaviour) ──
         if (userId && customerId) {
           await admin.from("billing_customers").upsert({
             user_id: userId,
