@@ -402,6 +402,10 @@ const PricingPage = () => {
                 Pour agences, managers, collectifs et équipes qui gèrent plusieurs streamers.
                 Multi-créateurs, volume custom, réseaux connectés sur mesure, onboarding dédié.
               </p>
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-el-hairline bg-el-strong px-3 py-1.5">
+                <Coins className="h-3.5 w-3.5 text-el-ink" />
+                <span className="text-[13px] font-semibold text-el-ink">Volume StreamCoins sur mesure</span>
+              </div>
             </div>
             <a
               href="mailto:contact@streamnco.fr"
