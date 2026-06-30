@@ -363,7 +363,7 @@ const Index = () => {
               Commence gratuitement. Passe au niveau supérieur quand tu veux.
             </h2>
             <p className="mt-4 font-el-sans text-[16px] text-el-body">
-              Offre fondateur en cours — prix bloqués pour les 150 premiers.
+              Aucune carte bancaire pour démarrer. Choisis ton rythme.
             </p>
           </Reveal>
 
