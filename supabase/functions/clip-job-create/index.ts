@@ -263,6 +263,9 @@ Deno.serve(async (req) => {
       progress: 0,
       generation_stage: "queued",
       callback_status: null,
+      billing_source: billingSource,
+      credits_spent: creditsSpent,
+      credit_ledger_entry_id: creditLedgerEntryId,
       metadata: {
         create_payload: {
           content_item_id: contentItemId,
@@ -276,7 +279,19 @@ Deno.serve(async (req) => {
     .select()
     .single();
 
-  if (jobErr || !job) return json({ error: "job_insert_failed", detail: jobErr?.message }, 500);
+  if (jobErr || !job) {
+    // Compensate: if we already debited credits, refund immediately.
+    if (billingSource === "credits" && creditLedgerEntryId) {
+      await admin.from("creator_credit_ledger").insert({
+        user_id: userId,
+        delta: creditsSpent,
+        reason: "refund_failed_job",
+        feature: "clip_generation",
+        metadata: { compensation: "insert_failed_pre_job", original_entry: creditLedgerEntryId },
+      });
+    }
+    return json({ error: "job_insert_failed", detail: jobErr?.message }, 500);
+  }
 
   await admin
     .from("creator_content_items")
