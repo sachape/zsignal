@@ -53,7 +53,7 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
         </Link>
       </Button>
       <p className="relative mt-3 text-[11px] text-muted-foreground/50">
-        À partir de 7,99€/mois · Annulable à tout moment
+        À partir de 12,99€/mois · Annulable à tout moment
       </p>
     </div>
   </div>
