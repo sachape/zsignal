@@ -422,47 +422,61 @@ const PricingPage = () => {
         </Container>
       </section>
 
-      {/* StreamCoins — only when flag ON + active packs */}
-      {showStreamCoins && (
-        <section className="border-t border-el-hairline bg-el-canvas-soft py-16">
-          <Container>
-            <Reveal className="mx-auto max-w-2xl text-center">
-              <Eyebrow className="justify-center"><Coins className="h-3.5 w-3.5" /> StreamCoins</Eyebrow>
-              <h2 className="mt-4 font-el-display text-[clamp(1.8rem,3.5vw,2.5rem)] font-light tracking-[-0.02em] text-el-ink">
-                Besoin de quelques générations en plus ?
-              </h2>
-              <p className="mt-3 font-el-sans text-[16px] text-el-body">
-                Achète des StreamCoins sans changer d'abonnement. 1 visuel = 120 StreamCoins · 1 clip = 350 StreamCoins.
-              </p>
-            </Reveal>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {packs.map((p) => (
-                <div key={p.id} className="relative flex flex-col rounded-2xl border border-el-hairline bg-el-card p-6">
-                  {p.badge && (
-                    <span className="absolute -top-3 left-6 rounded-full bg-el-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-on-dark">
-                      {p.badge}
-                    </span>
-                  )}
-                  <p className="font-el-display text-[28px] font-light leading-none tracking-[-0.02em] text-el-ink">
-                    {p.credits.toLocaleString("fr-FR")}
-                  </p>
-                  <p className="mt-1 font-el-sans text-[13px] uppercase tracking-[0.12em] text-el-muted">StreamCoins</p>
-                  {p.description && (
-                    <p className="mt-3 font-el-sans text-[14px] text-el-body">{p.description}</p>
-                  )}
-                  <p className="mt-4 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
-                    {formatPackPrice(p) ?? "—"}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-6 text-center font-el-sans text-[13px] text-el-muted">
-              Les StreamCoins servent aux générations ponctuelles. Ils ne remplacent pas les fonctionnalités
-              Pro et Growth (réseaux connectés, benchmark avancé, multi-chaînes, support prioritaire).
+      {/* StreamCoins — marketing section, always visible. Purchase happens in /billing. */}
+      <section className="border-t border-el-hairline bg-el-canvas-soft py-16">
+        <Container>
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <Eyebrow className="justify-center"><Coins className="h-3.5 w-3.5" /> Pay As You Go</Eyebrow>
+            <h2 className="mt-4 font-el-display text-[clamp(1.8rem,3.5vw,2.5rem)] font-light tracking-[-0.02em] text-el-ink">
+              Besoin de quelques générations en plus ?
+            </h2>
+            <p className="mt-3 font-el-sans text-[17px] text-el-body">
+              Achète des StreamCoins sans changer d'abonnement.
             </p>
-          </Container>
-        </section>
-      )}
+            <p className="mt-2 font-el-sans text-[15px] text-el-body">
+              Les StreamCoins te permettent de générer des clips ou des visuels à la demande,
+              même si tu ne veux pas changer de plan.
+            </p>
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-el-hairline bg-el-card px-4 py-2 font-el-sans text-[13px] text-el-body">
+              <span className="rounded-full bg-el-strong px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-el-ink">Sans abonnement</span>
+              <span>1 visuel = 120 · 1 clip = 350 StreamCoins</span>
+            </div>
+          </Reveal>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {STREAMCOIN_PACKS.map((p) => (
+              <div key={p.id} className="relative flex flex-col rounded-2xl border border-el-hairline bg-el-card p-6">
+                {p.badge && (
+                  <span className="absolute -top-3 left-6 rounded-full bg-el-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-on-dark">
+                    {p.badge}
+                  </span>
+                )}
+                <p className="font-el-display text-[28px] font-light leading-none tracking-[-0.02em] text-el-ink">
+                  {p.credits.toLocaleString("fr-FR")}
+                </p>
+                <p className="mt-1 font-el-sans text-[13px] uppercase tracking-[0.12em] text-el-muted">StreamCoins</p>
+                <p className="mt-3 font-el-sans text-[14px] text-el-body">{p.description}</p>
+                <p className="mt-4 font-el-display text-[22px] font-light tracking-[-0.01em] text-el-ink">
+                  {p.price}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <Link
+              to={streamcoinsHref}
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-opacity hover:opacity-90"
+            >
+              {user ? "Acheter des StreamCoins" : "Créer un compte pour acheter des StreamCoins"}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="max-w-xl text-center font-el-sans text-[13px] text-el-muted">
+              Les StreamCoins sont faits pour les besoins ponctuels. Pro et Growth restent plus avantageux
+              si tu crées du contenu régulièrement, et débloquent les réseaux connectés, le benchmark avancé
+              et l'historique étendu.
+            </p>
+          </div>
+        </Container>
+      </section>
 
       {/* Comparison table */}
       <section className="py-16">
