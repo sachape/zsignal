@@ -76,6 +76,9 @@ function friendlyError(code: string | null | undefined): string {
 
 export default function VisualGenerationDialog({ open, onOpenChange, templates, prefill, onCompleted, initialTemplateId }: Props) {
   const { plan } = usePlan();
+  const paygOn = isFeatureEnabled("PAYG_CREDITS_ENABLED");
+  const creditPacks = useCreditPackages(paygOn);
+  const creditBalance = useCreditBalance(paygOn);
   const [step, setStep] = useState<Step>("pick");
   const [template, setTemplate] = useState<VisualTemplate | null>(null);
   const [headline, setHeadline] = useState("");
