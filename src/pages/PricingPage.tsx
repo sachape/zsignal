@@ -106,6 +106,8 @@ interface Tier {
   highlighted: boolean;
   badge?: string;
   features: string[];
+  streamcoinsValue: string;
+  streamcoinsBreakdown: string;
 }
 
 const TIERS: Tier[] = [
@@ -123,6 +125,8 @@ const TIERS: Tier[] = [
       "Téléchargement manuel des exports",
       "Sans carte bancaire",
     ],
+    streamcoinsValue: "710 StreamCoins / mois inclus",
+    streamcoinsBreakdown: "3 visuels + 1 clip",
   },
   {
     id: "pro",
@@ -143,6 +147,8 @@ const TIERS: Tier[] = [
       "Débrief après chaque live, playbooks, planning optimal",
       "Benchmark essentiel + classements en aperçu",
     ],
+    streamcoinsValue: "22 500 StreamCoins / mois inclus",
+    streamcoinsBreakdown: "100 visuels + 30 clips",
   },
   {
     id: "growth",
@@ -163,6 +169,8 @@ const TIERS: Tier[] = [
       "Débriefs avancés, planning et playbooks complets",
       "Support prioritaire + accès anticipé aux intégrations",
     ],
+    streamcoinsValue: "106 000 StreamCoins / mois inclus",
+    streamcoinsBreakdown: "300 visuels + 200 clips",
   },
 ];
 
