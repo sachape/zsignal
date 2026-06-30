@@ -17,6 +17,13 @@ const STREAMCOIN_PACKS = [
   { id: "pack_16000", credits: 16000, price: "129 €", description: "Pour les gros volumes ponctuels.", visuals: 133, clips: 45 },
 ];
 
+const SUBSCRIPTION_EQUIVALENTS = [
+  { id: "free", name: "Gratuit", value: "710 StreamCoins / mois inclus", breakdown: "3 visuels + 1 clip", note: "Pour découvrir Streamnco." },
+  { id: "pro", name: "Pro", value: "22 500 StreamCoins / mois inclus", breakdown: "100 visuels + 30 clips", note: "Le meilleur rapport pour créer chaque semaine." },
+  { id: "growth", name: "Growth", value: "106 000 StreamCoins / mois inclus", breakdown: "300 visuels + 200 clips", note: "Pour les gros volumes et plusieurs chaînes." },
+  { id: "agency", name: "Agency", value: "Volume StreamCoins sur mesure", breakdown: "Volume et réseaux adaptés à ton équipe", note: "Sur devis." },
+];
+
 
 // ── Feature table ────────────────────────────────────────────────────────────
 
