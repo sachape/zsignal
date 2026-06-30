@@ -107,8 +107,6 @@ interface Tier {
   highlighted: boolean;
   badge?: string;
   features: string[];
-  streamcoinsValue: string;
-  streamcoinsBreakdown: string;
 }
 
 const TIERS: Tier[] = [
@@ -122,12 +120,11 @@ const TIERS: Tier[] = [
     highlighted: false,
     features: [
       "Diagnostic Twitch + StreamScore de base",
-      "3 visuels et 1 clip par mois",
+      "3 visuels / mois",
+      "1 clip / mois",
       "Téléchargement manuel des exports",
       "Sans carte bancaire",
     ],
-    streamcoinsValue: "710 StreamCoins / mois inclus",
-    streamcoinsBreakdown: "3 visuels + 1 clip",
   },
   {
     id: "pro",
@@ -142,14 +139,15 @@ const TIERS: Tier[] = [
     badge: "Le plus choisi",
     features: [
       "Tout le plan Gratuit",
-      "100 visuels et 30 clips par mois",
-      "Clips 9:16, sous-titres, file de contenu",
+      "50 visuels / mois",
+      "10 clips / mois",
+      "Clips 9:16, facecam, gameplay et sous-titres",
+      "Studio visuel complet",
+      "File de contenu",
       "Réseaux connectés + 30 publications directes / mois",
       "Débrief après chaque live, playbooks, planning optimal",
-      "Benchmark essentiel + classements en aperçu",
+      "Benchmark essentiel",
     ],
-    streamcoinsValue: "22 500 StreamCoins / mois inclus",
-    streamcoinsBreakdown: "100 visuels + 30 clips",
   },
   {
     id: "growth",
@@ -163,15 +161,16 @@ const TIERS: Tier[] = [
     highlighted: false,
     features: [
       "Tout le plan Pro",
-      "300 visuels et 200 clips par mois",
+      "150 visuels / mois",
+      "40 clips / mois",
       "Jusqu'à 3 chaînes Twitch",
       "Réseaux connectés avancés + 150 publications directes / mois",
-      "Benchmark avancé, watchlist, classements live + général",
-      "Débriefs avancés, planning et playbooks complets",
-      "Support prioritaire + accès anticipé aux intégrations",
+      "Benchmark avancé",
+      "Watchlist",
+      "Classements live + général",
+      "Historique étendu",
+      "Priorité génération",
     ],
-    streamcoinsValue: "106 000 StreamCoins / mois inclus",
-    streamcoinsBreakdown: "300 visuels + 200 clips",
   },
 ];
 
