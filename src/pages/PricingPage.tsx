@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Check, Minus, Mail, ArrowRight, Coins } from "lucide-react";
 import SiteNav from "@/components/site/SiteNav";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -213,7 +213,7 @@ function CellValue({ value }: { value: string | boolean }) {
 
 const PricingPage = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
 
   usePageMeta({
