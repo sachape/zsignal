@@ -1,5 +1,8 @@
-// Shared quota definitions for cost-bearing features (Studio Visuel, Clips réseaux).
-// Mirrors src/lib/quotas.ts. Keep both in sync.
+// Shared quota definitions for cost-bearing features (Studio Visuel, Clipping).
+// Mirrors src/lib/quotas.ts + src/lib/planAccess.ts. Keep all three in sync.
+//
+// Hierarchy: free < pro < growth < agency. Agency is NOT a Growth alias —
+// it has its own (custom / ops-managed) ceiling.
 //
 // Counting rule: ONE job per generation. Failed jobs are excluded by the
 // `get_user_quota_usage` SQL function (status <> 'failed').
@@ -7,25 +10,24 @@
 export type Plan = "free" | "pro" | "growth" | "agency";
 export type Feature = "visual" | "clip";
 
-export const QUOTAS: Record<"free" | "pro" | "growth", { visual: number; clip: number }> = {
+export const QUOTAS: Record<Plan, { visual: number; clip: number }> = {
   free: { visual: 5, clip: 3 },
   pro: { visual: 100, clip: 30 },
   growth: { visual: 300, clip: 200 },
+  agency: { visual: 1000, clip: 600 },
 };
 
 export function normalizePlan(value: string | null | undefined): Plan {
   if (!value) return "free";
   const v = value.toLowerCase().trim();
-  if (v.startsWith("growth")) return "growth";
   if (v.startsWith("agency")) return "agency";
+  if (v.startsWith("growth")) return "growth";
   if (v.startsWith("pro")) return "pro";
   return "free";
 }
 
 export function quotaFor(plan: string | null | undefined, feature: Feature): number {
-  const p = normalizePlan(plan);
-  const key = p === "agency" ? "growth" : p;
-  return QUOTAS[key][feature];
+  return QUOTAS[normalizePlan(plan)][feature];
 }
 
 // deno-lint-ignore no-explicit-any
