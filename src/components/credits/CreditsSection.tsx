@@ -1,21 +1,18 @@
 import { Coins, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
-import { useCreditPackages } from "@/hooks/useCreditPackages";
+import { useCreditPackages, formatPackPrice } from "@/hooks/useCreditPackages";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { BuyCreditsButton } from "@/components/credits/BuyCreditsButton";
+import { formatStreamCoins, CREDIT_COSTS } from "@/lib/credits";
 
 /**
- * Pay As You Go section for the Billing page.
+ * Pay As You Go — StreamCoins section for the Billing page.
  *
  * Visibility rules:
  *   - Hidden entirely when PAYG_CREDITS_ENABLED is false.
- *   - When ON, shown only if at least one credit pack is active server-side
- *     (is_active = true AND stripe_price_id set). Otherwise we render
- *     nothing — no "Bientôt" teaser on Billing to avoid noise.
- *
- * Balance is always shown when the section is visible so users understand
- * what they already own (e.g. bonus credits).
+ *   - When ON, shown only if at least one pack is active server-side
+ *     (is_active = true AND stripe_price_id set). Otherwise we render nothing.
  */
 export function CreditsSection() {
   const flagOn = isFeatureEnabled("PAYG_CREDITS_ENABLED");
@@ -32,7 +29,7 @@ export function CreditsSection() {
   return (
     <section className="mb-6">
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
-        Crédits à la demande
+        StreamCoins
       </h2>
       <Card>
         <CardContent className="p-5">
@@ -45,27 +42,44 @@ export function CreditsSection() {
                 Besoin de quelques générations en plus&nbsp;?
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Achète des crédits sans changer d'abonnement.
+                Achète des StreamCoins sans changer d'abonnement.
               </p>
               <p className="mt-3 text-xs text-muted-foreground">
-                Solde actuel&nbsp;:{" "}
+                Solde&nbsp;:{" "}
                 <span className="font-semibold tabular-nums text-foreground">
-                  {available} crédit{available === 1 ? "" : "s"}
+                  {formatStreamCoins(available)}
                 </span>
               </p>
               <p className="mt-1 text-[11px] text-muted-foreground/80">
-                1 crédit&nbsp;= 1 visuel · 8 crédits&nbsp;= 1 clip
+                1 visuel&nbsp;= {CREDIT_COSTS.visual_generation} StreamCoins · 1 clip&nbsp;= {CREDIT_COSTS.clip_generation} StreamCoins
               </p>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {activePacks.map((p) => (
-                  <BuyCreditsButton
-                    key={p.id}
-                    packageId={p.id}
-                    label={p.display_name}
-                    variant="outline"
-                  />
-                ))}
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {activePacks.map((p) => {
+                  const price = formatPackPrice(p);
+                  return (
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-foreground">{p.display_name}</p>
+                        {(p.description || price) && (
+                          <p className="truncate text-[11px] text-muted-foreground">
+                            {price ? <span className="font-semibold text-foreground">{price}</span> : null}
+                            {price && p.description ? " · " : ""}
+                            {p.description}
+                          </p>
+                        )}
+                      </div>
+                      <BuyCreditsButton
+                        packageId={p.id}
+                        label="Acheter"
+                        variant="outline"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <Sparkles className="h-4 w-4 text-primary-strong/60" />

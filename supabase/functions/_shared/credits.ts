@@ -7,9 +7,11 @@
 
 export type CreditFeature = "visual_generation" | "clip_generation";
 
+// StreamCoins per action (x10 scale vs. legacy credits).
+// Mirror in src/lib/credits.ts must match.
 export const CREDIT_COSTS: Record<CreditFeature, number> = {
-  visual_generation: 1,
-  clip_generation: 8,
+  visual_generation: 120,
+  clip_generation: 350,
 };
 
 export function costForFeature(feature: CreditFeature): number {
