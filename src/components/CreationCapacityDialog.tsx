@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Clapperboard, Palette, Coins, Sparkles, ArrowUpRight } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -9,9 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { useCreditPackages, formatPackPrice, type CreditPackage } from "@/hooks/useCreditPackages";
+import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { normalizePlan } from "@/lib/planAccess";
-import { CREDIT_COSTS } from "@/lib/credits";
+import { CREDIT_COSTS, formatStreamCoins } from "@/lib/credits";
 import { BuyCreditsButton } from "@/components/credits/BuyCreditsButton";
 import { cn } from "@/lib/utils";
 
