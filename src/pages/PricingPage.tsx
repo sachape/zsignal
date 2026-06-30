@@ -214,7 +214,6 @@ function CellValue({ value }: { value: string | boolean }) {
 const PricingPage = () => {
   const { user } = useAuth();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
 
   usePageMeta({
     title: "Tarifs",
