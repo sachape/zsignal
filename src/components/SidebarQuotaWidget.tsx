@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Clapperboard, Palette, Coins, Sparkles } from "lucide-react";
 import { Clapperboard, Palette, Coins, Sparkles } from "lucide-react";
 import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { useCreditPackages } from "@/hooks/useCreditPackages";
