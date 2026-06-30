@@ -205,16 +205,21 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
             </div>
 
             {paygEnabled && hasActivePacks && (
-              <div className="mt-5 rounded-xl border border-border/60 bg-card/30 p-4">
-                <div className="flex items-start gap-2">
-                  <Coins className="mt-0.5 h-4 w-4 text-primary-strong" />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">
-                      Besoin de plus ce mois-ci&nbsp;?
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      Achète des StreamCoins pour générer ponctuellement plus de clips ou de visuels.
-                    </p>
+              <div className="mt-5 rounded-xl border border-primary/30 bg-primary/5 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2 min-w-0">
+                    <Coins className="mt-0.5 h-4 w-4 shrink-0 text-primary-strong" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">
+                        Recharger avec des StreamCoins
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Besoin de plus ce mois-ci&nbsp;? Achète des StreamCoins et relance tes générations sans changer de plan.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 rounded-full border border-border/60 bg-background/60 px-2 py-0.5 text-[11px] font-medium tabular-nums text-foreground">
+                    Solde&nbsp;: {formatStreamCoins(balance?.available_credits ?? 0)}
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
