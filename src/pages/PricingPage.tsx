@@ -241,41 +241,6 @@ const PricingPage = () => {
                       </span>
                     )}
                     <p className="font-el-sans text-[15px] font-medium">{tier.name}</p>
-                </span>
-              </button>
-            </div>
-          </Reveal>
-        </Container>
-      </section>
-
-      {/* Tier cards */}
-      <section className="pb-8">
-        <Container>
-          <div className="grid gap-5 md:grid-cols-3">
-            {TIERS.map((tier, i) => {
-              const featured = tier.highlighted;
-              const showAnnual = billing === "annual" && tier.annual;
-              return (
-                <Reveal key={tier.id} delay={i * 90}>
-                  <div
-                    className={cn(
-                      "relative flex h-full flex-col rounded-2xl p-8 transition-all duration-300",
-                      featured
-                        ? "bg-el-dark text-el-on-dark shadow-[0_24px_60px_-24px_rgba(0,0,0,0.45)] md:-translate-y-2"
-                        : "border border-el-hairline bg-el-card text-el-ink hover:-translate-y-1 hover:border-el-hairline-strong hover:shadow-[0_24px_50px_-24px_rgba(0,0,0,0.2)]",
-                    )}
-                  >
-                    {tier.badge && (
-                      <span className="absolute -top-3 left-8 rounded-full bg-el-on-dark px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-el-ink">
-                        {tier.badge}
-                      </span>
-                    )}
-                    <p className="font-el-sans text-[15px] font-medium">{tier.name}</p>
-                    {FOUNDING_MEMBER && tier.id !== "free" && (
-                      <p className={cn("mt-1 text-[13px] line-through", featured ? "text-el-on-dark-soft" : "text-el-muted-soft")}>
-                        {tier.id === "pro" ? PRO_FUTURE.toFixed(2).replace(".", ",") : GROWTH_FUTURE.toFixed(2).replace(".", ",")} € / mois
-                      </p>
-                    )}
                     <div className="mt-2 flex items-end gap-1.5">
                       <span className="font-el-display text-[44px] font-light leading-none tracking-[-0.02em]">
                         {showAnnual ? tier.annual : tier.price}
