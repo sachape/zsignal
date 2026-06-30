@@ -211,12 +211,12 @@ const Index = () => {
                   <Star key={i} className="h-3.5 w-3.5 fill-el-ink text-el-ink" />
                 ))}
               </div>
-              <span className="mt-1 font-el-sans text-[13px] text-el-muted">Adopté par les premiers fondateurs</span>
+              <span className="mt-1 font-el-sans text-[13px] text-el-muted">Adopté par les premiers streamers</span>
             </div>
           </div>
           <span className="hidden h-9 w-px bg-el-hairline-strong sm:block" />
           <p className="font-el-sans text-[15px] text-el-body">
-            <span className="font-medium text-el-ink">Offre fondateur</span> — prix bloqués pour les 150 premiers streamers.
+            <span className="font-medium text-el-ink">Sans engagement</span> — annulable à tout moment.
           </p>
         </Container>
       </section>
@@ -363,7 +363,7 @@ const Index = () => {
               Commence gratuitement. Passe au niveau supérieur quand tu veux.
             </h2>
             <p className="mt-4 font-el-sans text-[16px] text-el-body">
-              Offre fondateur en cours — prix bloqués pour les 150 premiers.
+              Aucune carte bancaire pour démarrer. Choisis ton rythme.
             </p>
           </Reveal>
 
@@ -385,8 +385,7 @@ const Index = () => {
             <Reveal delay={90}>
               <PlanCard
                 name="Pro"
-                price="7,99 €"
-                future="12,99 €"
+                price="12,99 €"
                 featured
                 badge="Le plus choisi"
                 onCta={signup}
@@ -402,8 +401,7 @@ const Index = () => {
             <Reveal delay={180}>
               <PlanCard
                 name="Growth"
-                price="14,99 €"
-                future="24,99 €"
+                price="29,99 €"
                 onCta={signup}
                 features={[
                   "Tout le plan Pro",

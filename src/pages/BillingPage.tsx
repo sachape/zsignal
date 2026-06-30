@@ -31,15 +31,15 @@ const PLAN_META: Record<
   pro: {
     label: "Pro",
     icon: <Sparkles className="h-4 w-4 text-primary-strong" />,
-    price: "7,99",
-    priceAnnual: "4,92",
+    price: "12,99",
+    priceAnnual: "10,83",
     color: "primary",
   },
   growth: {
     label: "Growth",
     icon: <Crown className="h-4 w-4 text-violet-400" />,
-    price: "14,99",
-    priceAnnual: "9,17",
+    price: "29,99",
+    priceAnnual: "24,99",
     color: "violet",
   },
 };
@@ -266,7 +266,7 @@ const BillingPage = () => {
                     </p>
                   </div>
                   <p className="mb-3 text-xs text-muted-foreground">
-                    Live cockpit, débrief post-live, plan de la semaine, simulator — à partir de 7,99 €/mois.
+                    Live cockpit, débrief post-live, plan de la semaine, simulator — à partir de 12,99 €/mois.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -279,7 +279,7 @@ const BillingPage = () => {
                       ) : (
                         <Sparkles className="mr-1.5 h-3.5 w-3.5" />
                       )}
-                      Passer au Pro — 7,99 €/mois
+                      Passer au Pro — 12,99 €/mois
                     </Button>
                     <Button
                       size="sm"
@@ -292,7 +292,7 @@ const BillingPage = () => {
                       ) : (
                         <Crown className="mr-1.5 h-3.5 w-3.5" />
                       )}
-                      Passer au Growth — 14,99 €/mois
+                      Passer au Growth — 29,99 €/mois
                     </Button>
                   </div>
                 </div>

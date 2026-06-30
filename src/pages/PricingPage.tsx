@@ -10,10 +10,6 @@ import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { cn } from "@/lib/utils";
 
-const FOUNDING_MEMBER = true;
-const FOUNDING_SPOTS = 150;
-const PRO_FUTURE = 12.99;
-const GROWTH_FUTURE = 24.99;
 
 // ── Feature table ────────────────────────────────────────────────────────────
 
@@ -98,9 +94,9 @@ const TIERS: Tier[] = [
   {
     id: "pro",
     name: "Pro",
-    price: "7,99 €",
-    annual: "4,92 €",
-    annualTotal: "59 €",
+    price: "12,99 €",
+    annual: "10,83 €",
+    annualTotal: "129,90 €",
     period: "/ mois",
     description: "Tout ce qu'il faut pour progresser semaine après semaine.",
     cta: "Passer au Pro",
@@ -111,9 +107,9 @@ const TIERS: Tier[] = [
   {
     id: "growth",
     name: "Growth",
-    price: "14,99 €",
-    annual: "9,17 €",
-    annualTotal: "110 €",
+    price: "29,99 €",
+    annual: "24,99 €",
+    annualTotal: "299,90 €",
     period: "/ mois",
     description: "Pour les streamers sérieux qui pilotent plusieurs chaînes.",
     cta: "Passer au Growth",
@@ -144,7 +140,7 @@ const PricingPage = () => {
   usePageMeta({
     title: "Tarifs",
     description:
-      "Streamnco — Gratuit, Pro à 7,99€/mois, Growth à 14,99€/mois. Crée tes clips et visuels de stream, analyse Twitch et progresse.",
+      "Streamnco — Gratuit, Pro à 12,99€/mois, Growth à 29,99€/mois. Crée tes clips et visuels de stream, analyse Twitch et progresse.",
     canonical: "https://streamnco.fr/pricing",
     ogUrl: "https://streamnco.fr/pricing",
     jsonLd: {
@@ -192,14 +188,6 @@ const PricingPage = () => {
             </p>
           </Reveal>
 
-          {FOUNDING_MEMBER && (
-            <Reveal delay={80}>
-              <p className="mx-auto mt-6 max-w-2xl rounded-full border border-el-hairline bg-el-card px-5 py-2.5 font-el-sans text-[14px] text-el-body">
-                <span className="font-semibold text-el-ink">Offre fondateur · {FOUNDING_SPOTS} places.</span>{" "}
-                Prix bloqués à vie — ensuite le Pro passe à {PRO_FUTURE.toFixed(2).replace(".", ",")} € et le Growth à {GROWTH_FUTURE.toFixed(2).replace(".", ",")} €.
-              </p>
-            </Reveal>
-          )}
 
           {/* Billing toggle */}
           <Reveal delay={140}>
@@ -221,8 +209,8 @@ const PricingPage = () => {
                 )}
               >
                 Annuel
-                <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold", billing === "annual" ? "bg-el-on-dark text-el-ink" : "bg-el-strong text-el-ink")}>
-                  -38%
+                <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", billing === "annual" ? "bg-el-on-dark text-el-ink" : "bg-el-strong text-el-ink")}>
+                  2 mois offerts
                 </span>
               </button>
             </div>
@@ -253,11 +241,6 @@ const PricingPage = () => {
                       </span>
                     )}
                     <p className="font-el-sans text-[15px] font-medium">{tier.name}</p>
-                    {FOUNDING_MEMBER && tier.id !== "free" && (
-                      <p className={cn("mt-1 text-[13px] line-through", featured ? "text-el-on-dark-soft" : "text-el-muted-soft")}>
-                        {tier.id === "pro" ? PRO_FUTURE.toFixed(2).replace(".", ",") : GROWTH_FUTURE.toFixed(2).replace(".", ",")} € / mois
-                      </p>
-                    )}
                     <div className="mt-2 flex items-end gap-1.5">
                       <span className="font-el-display text-[44px] font-light leading-none tracking-[-0.02em]">
                         {showAnnual ? tier.annual : tier.price}
