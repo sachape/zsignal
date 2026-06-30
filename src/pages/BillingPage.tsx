@@ -22,6 +22,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useQuotaUsage } from "@/hooks/useQuotaUsage";
 import { openBillingPortal, startCheckout } from "@/services/billingService";
 import { toast } from "sonner";
+import { CreditsSection } from "@/components/credits/CreditsSection";
 
 const PLAN_META: Record<
   string,
