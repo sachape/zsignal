@@ -10,10 +10,6 @@ import { useAuthModal } from "@/contexts/AuthModalContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { cn } from "@/lib/utils";
 
-const FOUNDING_MEMBER = true;
-const FOUNDING_SPOTS = 150;
-const PRO_FUTURE = 12.99;
-const GROWTH_FUTURE = 24.99;
 
 // ── Feature table ────────────────────────────────────────────────────────────
 
