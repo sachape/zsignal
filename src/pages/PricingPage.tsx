@@ -93,7 +93,7 @@ const TIERS: Tier[] = [
     description: "Pour découvrir et commencer à analyser ta chaîne.",
     cta: "Commencer gratuitement",
     highlighted: false,
-    features: ["StreamScore instantané", "5 visuels & 3 clips / mois", "Téléchargement des exports", "Sans carte bancaire"],
+    features: ["StreamScore instantané", "3 visuels & 1 clip / mois", "Téléchargement des exports", "Sans carte bancaire"],
   },
   {
     id: "pro",
