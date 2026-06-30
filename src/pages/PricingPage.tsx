@@ -29,8 +29,8 @@ const FEATURES: { group: string; rows: FeatureRow[] }[] = [
   {
     group: "Création",
     rows: [
-      { label: "Studio visuel (visuels / mois)", free: "5", pro: "100", growth: "300", agency: "Sur mesure" },
-      { label: "Clipping (vidéos / mois)", free: "3", pro: "30", growth: "200", agency: "Sur mesure" },
+      { label: "Studio visuel (visuels / mois)", free: "3", pro: "100", growth: "300", agency: "Sur mesure" },
+      { label: "Clipping (vidéos / mois)", free: "1", pro: "30", growth: "200", agency: "Sur mesure" },
       { label: "Téléchargement clips & visuels", free: true, pro: true, growth: true, agency: true },
       { label: "File de contenu", free: true, pro: true, growth: true, agency: true },
     ],
