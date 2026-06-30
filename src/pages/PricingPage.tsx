@@ -180,12 +180,20 @@ const FAQ = [
     a: "Oui. Pro et Growth incluent la publication directe sur les réseaux connectés. Growth ajoute la publication multi-réseaux et les statistiques YouTube. Gratuit permet uniquement le téléchargement manuel.",
   },
   {
+    q: "Est-ce que je peux payer sans abonnement ?",
+    a: "Oui. Les StreamCoins permettent d'acheter des générations ponctuelles (clips et visuels) sans changer de plan.",
+  },
+  {
     q: "Est-ce que mes générations sont illimitées ?",
     a: "Non. Chaque plan inclut des limites mensuelles pour garantir la qualité du service. Tu peux acheter des StreamCoins en complément si tu as besoin de générations ponctuelles supplémentaires.",
   },
   {
     q: "Est-ce que les StreamCoins remplacent le Pro ?",
-    a: "Non. Les StreamCoins servent aux générations ponctuelles. Les plans Pro et Growth débloquent une expérience plus complète, des quotas mensuels plus avantageux, les réseaux connectés et les fonctionnalités de progression.",
+    a: "Non. Les StreamCoins servent aux générations ponctuelles. Pro et Growth restent plus avantageux si tu crées régulièrement et donnent accès aux réseaux connectés, au benchmark avancé et à l'historique étendu.",
+  },
+  {
+    q: "Où acheter des StreamCoins ?",
+    a: "Crée un compte, puis achète tes StreamCoins depuis ton espace Streamnco lorsque l'option est disponible.",
   },
   {
     q: "Puis-je changer de plan à tout moment ?",
@@ -193,7 +201,7 @@ const FAQ = [
   },
   {
     q: "Comment fonctionne la facturation ?",
-    a: "Facturation via Stripe. Aucun engagement, annulable à tout moment depuis ta page Facturation.",
+    a: "Facturation sécurisée, sans engagement, annulable à tout moment depuis ton espace Streamnco.",
   },
 ];
 
