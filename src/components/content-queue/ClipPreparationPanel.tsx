@@ -19,6 +19,7 @@ import { CaptionStylePreviewGrid, type CaptionStyle } from "@/components/clips/C
 import type { ContentItem } from "@/hooks/useContentItems";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
 import { ManualFacecamPlacer, type NormalizedCrop } from "@/components/clips/ManualFacecamPlacer";
+import { useClipQuotaToast } from "@/hooks/useClipQuotaToast";
 
 export interface ClipPreparationPanelProps {
   item: ContentItem;
