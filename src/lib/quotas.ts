@@ -19,8 +19,8 @@ export type QuotaFeature = "visual" | "clip";
 
 export const QUOTAS: Record<PlanTier, { visual: number; clip: number }> = {
   free: { visual: 3, clip: 1 },
-  pro: { visual: 100, clip: 30 },
-  growth: { visual: 300, clip: 200 },
+  pro: { visual: 50, clip: 10 },
+  growth: { visual: 150, clip: 40 },
   // Agency: default floor — real limits are managed per-account by ops.
   agency: { visual: 1000, clip: 600 },
 };

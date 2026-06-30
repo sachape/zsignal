@@ -390,7 +390,7 @@ const Index = () => {
                 onCta={signup}
                 features={[
                   "Tout le plan Gratuit",
-                  "100 visuels et 30 clips par mois",
+                  "50 visuels et 10 clips par mois",
                   "Réseaux connectés + 30 publications directes / mois",
                   "Débrief après chaque live, playbooks, planning",
                   "Benchmark essentiel + classements en aperçu",
@@ -404,7 +404,7 @@ const Index = () => {
                 onCta={signup}
                 features={[
                   "Tout le plan Pro",
-                  "300 visuels et 200 clips par mois",
+                  "150 visuels et 40 clips par mois",
                   "Jusqu'à 3 chaînes Twitch",
                   "Réseaux avancés + 150 publications directes / mois",
                   "Benchmark avancé, watchlist, classements complets",
