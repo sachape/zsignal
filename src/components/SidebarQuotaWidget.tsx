@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Clapperboard, Palette, Coins, Sparkles } from "lucide-react";
 import { useQuotaUsage } from "@/hooks/useQuotaUsage";
@@ -5,6 +6,7 @@ import { useCreditPackages } from "@/hooks/useCreditPackages";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { normalizePlan } from "@/lib/planAccess";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CreationCapacityDialog } from "@/components/CreationCapacityDialog";
 import { cn } from "@/lib/utils";
 
 const PLAN_LABEL: Record<string, string> = {
@@ -41,9 +43,9 @@ const Line = ({
   const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   const text =
     state === "limit"
-      ? `Limite de ${noun} atteinte`
+      ? `Limite de ${noun}s atteinte`
       : state === "warn"
-        ? `Plus que ${remaining} ${noun}${remaining > 1 ? "s" : ""} ce mois-ci`
+        ? `Il te reste ${remaining} ${noun}${remaining > 1 ? "s" : ""} ce mois-ci`
         : `${remaining} ${noun}${remaining > 1 ? "s" : ""} restant${remaining > 1 ? "s" : ""}`;
   return (
     <div>
