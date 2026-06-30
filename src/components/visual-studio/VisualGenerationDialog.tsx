@@ -460,16 +460,29 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
                 <p className="mt-1 text-muted-foreground">
                   Ta limite mensuelle se réinitialise au début du mois prochain.
                 </p>
-                <div className="mt-3">
+                {paygOn && (creditPacks.data?.length ?? 0) > 0 && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Il te faut {creditCostLabel("visual_generation")} pour générer un visuel. Solde&nbsp;:
+                    {" "}
+                    <span className="font-semibold tabular-nums text-foreground">
+                      {creditBalance.data?.available_credits ?? 0}
+                    </span>
+                    .
+                  </p>
+                )}
+                <div className="mt-3 flex flex-wrap gap-2">
                   {(() => {
                     const cta = quotaCta(plan);
                     if (!cta.href) return <p className="text-muted-foreground">{cta.label}</p>;
                     return cta.href.startsWith("mailto:") ? (
-                      <a href={cta.href} className="inline-flex"><Button size="sm">{cta.label}</Button></a>
+                      <a href={cta.href} className="inline-flex"><Button size="sm" variant="outline">{cta.label}</Button></a>
                     ) : (
-                      <Button asChild size="sm"><Link to={cta.href}>{cta.label}</Link></Button>
+                      <Button asChild size="sm" variant="outline"><Link to={cta.href}>{cta.label}</Link></Button>
                     );
                   })()}
+                  {paygOn && (creditPacks.data?.length ?? 0) > 0 && (
+                    <BuyCreditsButton packageId={creditPacks.data![0].id} />
+                  )}
                 </div>
               </div>
             ) : error ? (
