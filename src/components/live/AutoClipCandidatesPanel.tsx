@@ -33,6 +33,7 @@ import {
   buildVodDeepLink,
 } from "@/services/contentStatusLabels";
 import { isFeatureEnabled } from "@/lib/featureFlags";
+import { useClipQuotaToast } from "@/hooks/useClipQuotaToast";
 import type { LiveSession } from "@/services/liveSessions";
 
 interface Props {
@@ -83,6 +84,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
   );
 
   const autoGenEnabled = isFeatureEnabled("TWITCH_AUTO_CLIP_GENERATION_ENABLED");
+  const showClipQuotaToast = useClipQuotaToast();
 
   // Auto-refresh while jobs are processing
   useEffect(() => {
@@ -141,12 +143,8 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
         } catch { /* ignore */ }
       }
       const p = payload as { success?: boolean; error?: string; message?: string } | null;
-      if (p?.error === "quota_exceeded") {
-        toast({
-          title: "Tu as atteint ta limite de clips générés ce mois-ci.",
-          description: "Passe à un plan supérieur pour augmenter ton quota.",
-          variant: "destructive",
-        });
+      if (p?.error === "quota_exceeded" || p?.error === "quota_and_credits_exceeded") {
+        showClipQuotaToast();
         return;
       }
       if (error) throw error;

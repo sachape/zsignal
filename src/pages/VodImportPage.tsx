@@ -43,10 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
-import { usePlan } from "@/hooks/usePlan";
-import { useCreditPackages } from "@/hooks/useCreditPackages";
-import { streamCoinsCostLabel } from "@/lib/credits";
-import { quotaCta } from "@/lib/quotas";
+import { useClipQuotaToast } from "@/hooks/useClipQuotaToast";
 
 import { useContentItems, type ContentItem } from "@/hooks/useContentItems";
 import { useActiveVideoJob } from "@/hooks/useVideoJobs";
@@ -179,9 +176,7 @@ const VodImportPage = () => {
   const prepRef = useRef<HTMLDivElement | null>(null);
 
   const autoGenEnabled = isFeatureEnabled("TWITCH_AUTO_CLIP_GENERATION_ENABLED");
-  const paygOn = isFeatureEnabled("PAYG_CREDITS_ENABLED");
-  const { plan } = usePlan();
-  const creditPacks = useCreditPackages(paygOn);
+  const showClipQuotaToast = useClipQuotaToast();
 
   const detectedSource = useMemo(() => (url ? detectSourceClient(url) : null), [url]);
 
@@ -437,22 +432,7 @@ const VodImportPage = () => {
       }
       const p = payload as { success?: boolean; error?: string; message?: string } | null;
       if (p?.error === "quota_exceeded" || p?.error === "quota_and_credits_exceeded") {
-        const hasActivePacks = (creditPacks.data?.length ?? 0) > 0;
-        const showCoins = paygOn && hasActivePacks;
-        const cta = quotaCta(plan);
-        const description = showCoins
-          ? `Il te faut ${streamCoinsCostLabel("clip_generation")} pour générer un clip.`
-          : "Passe à un plan supérieur pour augmenter ton quota.";
-        toast({
-          title: "Tu as atteint ta limite de clips générés ce mois-ci.",
-          description,
-          variant: "destructive",
-          action: cta.href && !cta.href.startsWith("mailto:") ? (
-            <ToastAction altText={showCoins ? "Acheter des StreamCoins" : cta.label} onClick={() => navigate("/billing")}>
-              {showCoins ? "Acheter des StreamCoins" : cta.label}
-            </ToastAction>
-          ) : undefined,
-        });
+        showClipQuotaToast();
         return;
       }
       if (error) throw error;

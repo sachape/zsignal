@@ -19,6 +19,7 @@ import { CaptionStylePreviewGrid, type CaptionStyle } from "@/components/clips/C
 import type { ContentItem } from "@/hooks/useContentItems";
 import { detectTwitchUrl } from "@/lib/twitchUrl";
 import { ManualFacecamPlacer, type NormalizedCrop } from "@/components/clips/ManualFacecamPlacer";
+import { useClipQuotaToast } from "@/hooks/useClipQuotaToast";
 
 export interface ClipPreparationPanelProps {
   item: ContentItem;
@@ -87,6 +88,7 @@ export const ClipPreparationPanel = ({
 }: ClipPreparationPanelProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const showClipQuotaToast = useClipQuotaToast();
   const initialMode: Mode = item.source_video_url ? "direct_url" : "upload";
   const [mode, setMode] = useState<Mode>(initialMode);
   const [file, setFile] = useState<File | null>(null);
@@ -291,7 +293,13 @@ export const ClipPreparationPanel = ({
         return;
       }
       if (!createRes.ok || !createJson?.success) {
-        setError(createJson?.error ?? "job_insert_failed");
+        const code = createJson?.error;
+        if (code === "quota_exceeded" || code === "quota_and_credits_exceeded") {
+          showClipQuotaToast();
+          setBusy(false); setPhase("idle");
+          return;
+        }
+        setError(code ?? "job_insert_failed");
         setBusy(false); setPhase("idle");
         return;
       }
