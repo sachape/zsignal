@@ -140,7 +140,7 @@ const PricingPage = () => {
   usePageMeta({
     title: "Tarifs",
     description:
-      "Streamnco — Gratuit, Pro à 7,99€/mois, Growth à 14,99€/mois. Crée tes clips et visuels de stream, analyse Twitch et progresse.",
+      "Streamnco — Gratuit, Pro à 12,99€/mois, Growth à 29,99€/mois. Crée tes clips et visuels de stream, analyse Twitch et progresse.",
     canonical: "https://streamnco.fr/pricing",
     ogUrl: "https://streamnco.fr/pricing",
     jsonLd: {
