@@ -152,7 +152,7 @@ const TIERS: Tier[] = [
     annualTotal: "299,90 €",
     period: "/ mois",
     description: "Pour piloter sérieusement ta création, tes réseaux et ta progression.",
-    cta: "Passer au Growth",
+    cta: "Commencer avec Growth",
     highlighted: false,
     features: [
       "Tout le plan Pro",
