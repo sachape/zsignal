@@ -213,13 +213,8 @@ function CellValue({ value }: { value: string | boolean }) {
 
 const PricingPage = () => {
   const { user } = useAuth();
-  const { openAuthModal } = useAuthModal();
+  const navigate = useNavigate();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
-
-  const paygEnabled = isFeatureEnabled("PAYG_CREDITS_ENABLED");
-  const { data: packs = [] } = useCreditPackages(paygEnabled);
-  const showStreamCoins = paygEnabled && packs.length > 0;
 
   usePageMeta({
     title: "Tarifs",
@@ -238,18 +233,13 @@ const PricingPage = () => {
     },
   });
 
-  const handleCheckout = async (plan: "pro" | "growth") => {
-    if (!user) {
-      openAuthModal("signup");
-      return;
-    }
-    setCheckoutLoading(plan);
-    try {
-      await startCheckout(plan, billing === "annual" ? "annual" : "monthly");
-    } catch {
-      setCheckoutLoading(null);
-    }
-  };
+  // Public marketing CTAs: never trigger Stripe directly.
+  // - Visitors → /auth (with plan intent for the product to read post-signup).
+  // - Logged-in users → /billing (connected product handles checkout).
+  const planHref = (plan: "pro" | "growth") =>
+    user ? `/billing?plan=${plan}` : `/auth?plan=${plan}`;
+  const signupHref = "/auth";
+  const streamcoinsHref = user ? "/billing?intent=streamcoins" : "/auth?intent=streamcoins";
 
   return (
     <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
