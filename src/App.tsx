@@ -65,6 +65,7 @@ const ContentQueuePage = lazy(() => import("./pages/ContentQueuePage.tsx"));
 const ComposerPage = lazy(() => import("./pages/ComposerPage.tsx"));
 const PublicationsPage = lazy(() => import("./pages/PublicationsPage.tsx"));
 const VisualStudioPage = lazy(() => import("./pages/VisualStudioPage.tsx"));
+const OAuthConsentPage = lazy(() => import("./pages/OAuthConsentPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -111,6 +112,7 @@ const App = () => (
                 <Route path="/auth/instagram/callback" element={<InstagramCallbackPage />} />
                 <Route path="/reseaux/callback" element={<ReseauxCallbackPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsentPage />} />
                 <Route
                   path="/dashboard"
                   element={
