@@ -34,7 +34,7 @@ const FAQ = [
   },
   {
     q: "Est-ce que Pro inclut des générations ?",
-    a: "Les générations fonctionnent avec les StreamCoins. Pro te donne accès aux features avancées de progression et te fait bénéficier d'un meilleur taux sur tes recharges StreamCoins (bonus +20%, bientôt).",
+    a: "Les générations fonctionnent avec les StreamCoins. Pro te donne accès aux features avancées de progression et te fait bénéficier de +20% de StreamCoins sur chaque recharge.",
   },
   {
     q: "Est-ce que je peux télécharger mes contenus ?",
