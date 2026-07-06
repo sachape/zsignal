@@ -111,7 +111,7 @@ const App = () => (
                 <Route path="/auth/tiktok/callback" element={<TikTokCallbackPage />} />
                 <Route path="/auth/instagram/callback" element={<InstagramCallbackPage />} />
                 <Route path="/reseaux/callback" element={<ReseauxCallbackPage />} />
-                <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsentPage />} />
                 <Route
                   path="/dashboard"
                   element={
