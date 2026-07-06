@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { Coins, ArrowUpRight } from "lucide-react";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { usePlan } from "@/hooks/usePlan";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CreationCapacityDialog } from "@/components/CreationCapacityDialog";
+import { useStreamCoinsDialog } from "@/contexts/StreamCoinsDialogContext";
 import { cn } from "@/lib/utils";
 
 /**
@@ -16,7 +15,7 @@ import { cn } from "@/lib/utils";
 const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   const { data: balance, isLoading } = useCreditBalance(true);
   const { isPro } = usePlan();
-  const [open, setOpen] = useState(false);
+  const { open } = useStreamCoinsDialog();
 
   if (collapsed || isLoading) return null;
 
