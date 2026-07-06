@@ -64,11 +64,10 @@ function formatDate(iso: string) {
 const BillingPage = () => {
   usePageMeta({ title: "Facturation", description: "Gérez votre abonnement et vos paiements." });
   const sub = useSubscription();
-  const quota = useQuotaUsage();
   const [portalLoading, setPortalLoading] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "growth" | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState<"pro" | null>(null);
 
-  const handleCheckout = async (plan: "pro" | "growth") => {
+  const handleCheckout = async (plan: "pro") => {
     if (checkoutLoading) return;
     try {
       setCheckoutLoading(plan);
@@ -108,33 +107,10 @@ const BillingPage = () => {
           </h1>
         </div>
 
-        {/* Usage ce mois-ci */}
-        {!quota.loading && (
-          <section className="mb-6">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
-              Usage ce mois-ci
-            </h2>
-            <Card>
-              <CardContent className="grid gap-3 p-5 sm:grid-cols-2">
-                <div>
-                  <p className="text-xs text-muted-foreground">Studio visuel</p>
-                  <p className="mt-1 text-sm font-medium text-foreground">
-                    {quota.visualsUsed} / {quota.visualsLimit} générations
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Clipping</p>
-                  <p className="mt-1 text-sm font-medium text-foreground">
-                    {quota.clipsUsed} / {quota.clipsLimit} clips
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-        )}
-
         {/* Pay As You Go credits — visible only when flag ON + packs active */}
         <CreditsSection />
+
+
 
 
         {/* Plan actuel */}
@@ -264,39 +240,26 @@ const BillingPage = () => {
                   <div className="mb-2 flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary-strong" />
                     <p className="text-sm font-semibold text-foreground">
-                      Passe au Pro et débloque tout
+                      Passe Pro pour progresser sérieusement
                     </p>
                   </div>
                   <p className="mb-3 text-xs text-muted-foreground">
-                    Live cockpit, débrief post-live, plan de la semaine, simulator — à partir de 12,99 €/mois.
+                    Débloque le StreamScore complet, les débriefs post-live, le calendrier
+                    optimal, le benchmark, les playbooks et les recommandations avancées.
+                    Bonus Pro : +20% de StreamCoins sur chaque recharge <em>(bientôt).</em>
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleCheckout("pro")}
-                      disabled={checkoutLoading !== null}
-                    >
-                      {checkoutLoading === "pro" ? (
-                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-                      )}
-                      Passer au Pro — 12,99 €/mois
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleCheckout("growth")}
-                      disabled={checkoutLoading !== null}
-                    >
-                      {checkoutLoading === "growth" ? (
-                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Crown className="mr-1.5 h-3.5 w-3.5" />
-                      )}
-                      Passer au Growth — 29,99 €/mois
-                    </Button>
-                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleCheckout("pro")}
+                    disabled={checkoutLoading !== null}
+                  >
+                    {checkoutLoading === "pro" ? (
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                    )}
+                    Passer Pro — 9,99 €/mois
+                  </Button>
                 </div>
               </CardContent>
             </Card>
