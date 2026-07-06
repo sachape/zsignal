@@ -34,7 +34,7 @@ const FAQ = [
   },
   {
     q: "Est-ce que Pro inclut des générations ?",
-    a: "Les générations fonctionnent avec les StreamCoins. Pro te donne accès aux features avancées de progression et te fait bénéficier d'un meilleur taux sur tes recharges StreamCoins (bonus +20%, bientôt).",
+    a: "Les générations fonctionnent avec les StreamCoins. Pro te donne accès aux features avancées de progression et te fait bénéficier de +20% de StreamCoins sur chaque recharge.",
   },
   {
     q: "Est-ce que je peux télécharger mes contenus ?",
@@ -215,7 +215,7 @@ const PricingPage = () => {
                     "Playbooks",
                     "Recommandations avancées",
                     "Suivi de progression avancé",
-                    "Bonus +20% StreamCoins sur chaque recharge (bientôt)",
+                    "Bonus +20% StreamCoins sur chaque recharge",
                   ].map((f) => (
                     <li key={f} className="flex items-start gap-2.5">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-el-mint" />
@@ -298,7 +298,7 @@ const PricingPage = () => {
                     Tu génères régulièrement ? Passe Pro.
                   </p>
                   <p className="mt-1 font-el-sans text-[14px] text-el-body">
-                    Les membres Pro reçoivent <strong>+20% de StreamCoins</strong> sur chaque recharge <em>(bientôt disponible).</em>
+                    Les membres Pro reçoivent <strong>+20% de StreamCoins</strong> sur chaque recharge.
                   </p>
                 </div>
               </div>

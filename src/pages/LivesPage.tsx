@@ -282,4 +282,31 @@ const LivesPage = () => {
   );
 };
 
-export default LivesPage;
+import { ProFeaturePreview } from "@/components/ProFeatureGate";
+import { usePlan } from "@/hooks/usePlan";
+
+const LivesPageGated = () => {
+  const { isPro, loading } = usePlan();
+  if (loading) {
+    return <AppShell><PageContainer><LoadingState /></PageContainer></AppShell>;
+  }
+  if (!isPro) {
+    return (
+      <AppShell>
+        <ProFeaturePreview
+          featureName="lives_history"
+          title="Historique avancé disponible avec Pro"
+          description="Analyse l’évolution de tes lives, de ton score et de tes performances dans le temps."
+          benefits={[
+            "Évolution de tes lives",
+            "Historique de ton StreamScore",
+            "Tendances de performance",
+          ]}
+        />
+      </AppShell>
+    );
+  }
+  return <LivesPage />;
+};
+
+export default LivesPageGated;

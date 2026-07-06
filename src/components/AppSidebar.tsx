@@ -54,6 +54,8 @@ type NavEntry = {
   matchSection?: "clips" | "live-studio" | "content-studio" | "benchmark" | "resources";
   // Orphan routes (no section) that should still light up this entry.
   extraMatch?: string[];
+  // Advanced (Pro) feature — shown to Free with a "Pro" badge.
+  proOnly?: boolean;
 };
 
 type NavGroup = { label?: string; items: NavEntry[] };
@@ -69,16 +71,14 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Clipping", url: "/clipping", icon: Clapperboard, matchSection: "clips" },
       { title: "Studio visuel", url: "/studio-visuel", icon: Palette },
-      // File de contenu masquée tant que la publication auto (OAuth) n'est pas là.
-      // Route + liens contextuels (Clipping, Live Studio) conservés.
     ],
   },
   {
     label: "Analyser",
     items: [
       { title: "StreamScore", url: "/analyse", icon: Activity },
-      { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark", extraMatch: ["/streamer"] },
-      { title: "Progression", url: "/progression", icon: TrendingUp, extraMatch: ["/quetes"] },
+      { title: "Benchmark", url: "/competitors", icon: Users, matchSection: "benchmark", extraMatch: ["/streamer"], proOnly: true },
+      { title: "Progression", url: "/progression", icon: TrendingUp, extraMatch: ["/quetes"], proOnly: true },
     ],
   },
   {
@@ -89,9 +89,7 @@ const navGroups: NavGroup[] = [
   },
   {
     items: [
-      // "Réseaux" hidden from primary nav during the pivot to Clips/Visuels/Progression.
-      // Route stays registered so existing users can still reach it via direct URL.
-      { title: "Ressources", url: "/playbooks", icon: BookOpen, matchSection: "resources" },
+      { title: "Ressources", url: "/playbooks", icon: BookOpen, matchSection: "resources", proOnly: true },
     ],
   },
 ];
@@ -173,7 +171,12 @@ const AppSidebar = () => {
                           }
                         >
                           <item.icon className="h-4 w-4 shrink-0" />
-                          {!collapsed && <span>{item.title}</span>}
+                          {!collapsed && <span className="flex-1">{item.title}</span>}
+                          {!collapsed && item.proOnly && !isPro && (
+                            <span className="rounded-sm border border-primary/30 bg-primary/10 px-1 py-0 text-[9px] font-semibold uppercase tracking-wider text-primary-strong">
+                              Pro
+                            </span>
+                          )}
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

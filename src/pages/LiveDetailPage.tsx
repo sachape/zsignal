@@ -323,4 +323,25 @@ const LiveDetailPage = () => {
   );
 };
 
-export default LiveDetailPage;
+import { ProFeaturePreview } from "@/components/ProFeatureGate";
+import { usePlan } from "@/hooks/usePlan";
+
+const LiveDetailPageGated = () => {
+  const { isPro, loading } = usePlan();
+  if (loading) return <AppShell><LoadingState /></AppShell>;
+  if (!isPro) {
+    return (
+      <AppShell>
+        <ProFeaturePreview
+          featureName="live_debrief"
+          title="Débriefs après live disponibles avec Pro"
+          description="Comprends ce qui a marché après chaque live et repars avec des actions concrètes."
+          benefits={["Analyse détaillée", "Actions concrètes", "Suivi de progression"]}
+        />
+      </AppShell>
+    );
+  }
+  return <LiveDetailPage />;
+};
+
+export default LiveDetailPageGated;

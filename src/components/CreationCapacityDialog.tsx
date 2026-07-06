@@ -15,6 +15,7 @@ import { usePlan } from "@/hooks/usePlan";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { CREDIT_COSTS } from "@/lib/credits";
 import { BuyCreditsButton } from "@/components/credits/BuyCreditsButton";
+import { useWelcomeBonus } from "@/hooks/useWelcomeBonus";
 import { cn } from "@/lib/utils";
 
 const LOW_THRESHOLD = 350; // one clip
@@ -67,6 +68,7 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
   const { data: balance } = useCreditBalance(true);
   const { plan, isPro } = usePlan();
   const queryClient = useQueryClient();
+  const { data: hasWelcomeBonus } = useWelcomeBonus();
 
   const available = balance?.available_credits ?? 0;
   const isEmpty = available <= 0;
@@ -135,7 +137,7 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
         </div>
 
         {/* Welcome bonus hint (only for fresh accounts: no purchases yet). */}
-        {(balance?.lifetime_purchased ?? 0) === 0 && (
+        {hasWelcomeBonus && (balance?.lifetime_purchased ?? 0) === 0 && (
           <p className="mt-2 text-[11px] text-muted-foreground">
             <Sparkles className="mr-1 inline h-3 w-3 text-primary-strong" />
             Bonus de bienvenue : 470 StreamCoins offerts pour tester Streamnco (1 clip + 1 visuel).
