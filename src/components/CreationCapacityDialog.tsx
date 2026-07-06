@@ -96,16 +96,23 @@ const QuotaCard = ({
   );
 };
 
-const PackCard = ({ pack }: { pack: CreditPackage }) => {
+const PackCard = ({ pack, proBonus }: { pack: CreditPackage; proBonus: boolean }) => {
   const price = formatPackPrice(pack);
-  const estVisuals = Math.floor(pack.credits / CREDIT_COSTS.visual_generation);
-  const estClips = Math.floor(pack.credits / CREDIT_COSTS.clip_generation);
+  const bonus = proBonus ? Math.round(pack.credits * 0.2) : 0;
+  const totalCredits = pack.credits + bonus;
+  const estVisuals = Math.floor(totalCredits / CREDIT_COSTS.visual_generation);
+  const estClips = Math.floor(totalCredits / CREDIT_COSTS.clip_generation);
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-background/40 p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-foreground">{pack.display_name}</p>
           {price && <p className="text-xs text-muted-foreground">{price}</p>}
+          {proBonus && (
+            <p className="mt-0.5 text-[10px] font-medium text-primary-strong">
+              +{bonus.toLocaleString("fr-FR")} bonus Pro = {totalCredits.toLocaleString("fr-FR")} StreamCoins
+            </p>
+          )}
         </div>
         {pack.badge && (
           <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary-strong">
