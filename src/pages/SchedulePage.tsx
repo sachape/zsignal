@@ -262,4 +262,25 @@ const SchedulePage = () => {
   );
 };
 
-export default SchedulePage;
+import { ProFeaturePreview } from "@/components/ProFeatureGate";
+import { usePlan } from "@/hooks/usePlan";
+
+const SchedulePageGated = () => {
+  const { isPro, loading } = usePlan();
+  if (loading) return <AppShell><PageContainer><LoadingState /></PageContainer></AppShell>;
+  if (!isPro) {
+    return (
+      <AppShell>
+        <ProFeaturePreview
+          featureName="schedule"
+          title="Calendrier optimal disponible avec Pro"
+          description="Identifie les meilleurs moments pour streamer et construire une routine plus régulière."
+          benefits={["Meilleurs créneaux", "Rythme recommandé", "Planning hebdomadaire"]}
+        />
+      </AppShell>
+    );
+  }
+  return <SchedulePage />;
+};
+
+export default SchedulePageGated;
