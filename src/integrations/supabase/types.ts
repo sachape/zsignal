@@ -3507,6 +3507,7 @@ export type Database = {
       get_user_credit_balance: { Args: { p_user_id?: string }; Returns: Json }
       get_user_effective_plan: { Args: { uid: string }; Returns: string }
       get_user_quota_usage: { Args: { p_user_id: string }; Returns: Json }
+      has_welcome_bonus: { Args: never; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
