@@ -7,7 +7,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
+// Legacy monthly quotas (getUserPlanAndUsage/quotaFor) are intentionally NOT
+// used to authorize visual generation anymore. The single source of truth is
+// the user's StreamCoins balance (creator_credit_ledger).
 import { consumeCredits, costForFeature, getCreditBalance } from "../_shared/credits.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
