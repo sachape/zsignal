@@ -1,100 +1,114 @@
-# Montée en gamme visuelle marketing Streamnco
+# Pivot Streamnco — Audit + plan en 2 passes
 
-Objectif : passer le site marketing à un rendu premium (Stripe / Linear / Framer-like), sans casser le produit interne ni le backend.
+## 1. Audit de l'existant
 
-## Périmètre
+### Plans & pricing
+- `src/lib/planAccess.ts` : hiérarchie `free < pro < growth < agency` (utilisée partout pour les paywalls). **À conserver côté backend** pour ne pas casser les users existants.
+- `src/lib/quotas.ts` : quotas mensuels clips/visuels par plan (`free 3/1`, `pro 50/10`, `growth 150/40`, `agency 1000/600`) — encore utilisé côté frontend ET backend (edge functions).
+- `src/pages/PricingPage.tsx` (606 lignes) : 4 colonnes Free/Pro/Growth/Agency, tableau détaillé avec sections **Publication**, **Réseaux connectés**, **Publications directes/mois**, **Instagram/YouTube/TikTok/X**.
+- `src/pages/BillingPage.tsx` (394 lignes) : gère Stripe subscription + StreamCoins.
 
-**Touché (marketing uniquement) :**
-- `LandingNav` + nouveau composant `MarketingDropdown`
-- `index.css` + `tailwind.config.ts` (font Instrument Sans, tokens)
-- `index.html` (préconnexion Google Fonts)
-- Pages : `Index`, `FeaturesPage`, `SolutionsPage`, `PricingPage`
-- Sections landing : `HeroSection`, `WowFeaturesSection`, `PricingSection`, `FaqSection`, `FinalCtaSection`, `primitives.tsx`
-- Footer marketing si nécessaire
+### StreamCoins
+- Packs en DB : `pack_1200` (12€), `pack_3000` (27€), `pack_7000` (59€), `pack_16000` (129€) — **tous `is_active = false` et `stripe_price_id = NULL`**. Structure prête, ventes désactivées.
+- `FEATURE_FLAGS.PAYG_CREDITS_ENABLED` (env `VITE_PAYG_CREDITS_ENABLED`, défaut `false`) gate l'UI d'achat.
+- Coûts fixés côté front + back : `visual = 120`, `clip = 350`.
+- RPC `consume_generation_credit`, ledger `creator_credit_ledger`, refund idempotent : **tout fonctionne**.
 
-**Non touché :**
-- App produit interne (`AppShell`, dashboard, studio, clips, etc.)
-- Backend / edge functions / RLS
-- `BillingPage` (réservé au produit)
-- Logique métier, quotas, données
+### Génération (edge functions)
+- `visual-job-create` et `clip-job-create` font aujourd'hui : **quota mensuel d'abord, StreamCoins en fallback**. C'est l'inverse du modèle cible.
+- Refund automatique sur job failed : OK.
 
-## 1. Typographie — Instrument Sans
+### Zernio / publication
+- `zernio-list-accounts` appelé uniquement depuis `src/hooks/useSocialPublishing.ts` (page Réseaux). **Aucun appel global** — le patch précédent l'a déjà isolé.
+- Pages `ReseauxPage`, `PublicationsPage`, `InstagramCallbackPage`, `TikTokCallbackPage`, `YouTubeCallbackPage` toujours présentes.
 
-- Import via Google Fonts dans `index.css` (poids 400/500/600/700) + preconnect dans `index.html`
-- Ajout `font-sans` = Instrument Sans dans `tailwind.config.ts` (fallback system)
-- `body` reste sur `font-sans` global → l'app produit héritera aussi, mais c'est cohérent (une seule famille = simple). Boogaloo (`font-display`) reste pour les titres uniquement si déjà utilisé — à arbitrer : on garde `font-display` actuel pour ne pas casser l'identité Streamnco, on remplace seulement la sans
-- Vérif fallback + aucun conflit
+### Sidebar produit
+- `AppSidebar.tsx` : nav produit + lien /billing.
+- `SidebarQuotaWidget.tsx` : affiche encore "X visuels / Y clips restants ce mois-ci" avec `PLAN_LABEL` incluant Growth/Agency.
 
-## 2. Header marketing (`LandingNav`)
+### Stripe
+- Subs actives : `STRIPE_PRICE_PRO_MONTHLY/ANNUAL`, `STRIPE_PRICE_GROWTH_MONTHLY/ANNUAL` (secrets présents). Agency non-secret → probablement contact-sales.
+- Packs StreamCoins : **aucun `stripe_price_id`** en DB.
 
-Refonte du composant :
-- Liens principaux : `Fonctionnalités` (dropdown), `Solutions` (dropdown), `Tarifs` → `/pricing`, `Articles`, `À propos`
-- Dropdowns premium desktop (Radix `NavigationMenu` ou popover custom) :
-  - **Fonctionnalités** : 6 entrées (Clips réseaux, Studio visuel, File de contenu, StreamScore, Benchmark, Live Studio) avec icône + description courte, chacune pointant `/fonctionnalites#<anchor>`
-  - **Solutions** : 5 personas vers `/solutions#<anchor>`
-- Mobile : accordéons dans le drawer
-- CTA principal : `Essayer gratuitement` → `/auth` (ou `/dashboard` si user)
-- A11y : focus visible, navigation clavier, `aria-expanded`, fermeture Escape
-- ⚠️ Bug détecté dans le code actuel : `link.anchor` référencé mais pas dans le type des `NAV_LINKS` → à supprimer
+---
 
-Vérif : aucun lien vers `/billing` depuis le marketing.
+## 2. Stratégie : 2 passes séparées
 
-## 3. Direction artistique — alternance + profondeur
+### Passe 1 — Pivot visible (cette PR)
+Zéro changement backend / Stripe / logique génération. On rend le produit lisible immédiatement.
 
-`primitives.tsx` étendu avec :
-- Variante `SectionShell` `tone="dark" | "light" | "gradient"` pour alterner backgrounds
-- Variante `glow` + `grid` déjà présents, on ajoute halos colorés + transitions douces entre sections (mask gradients en haut/bas)
-- Nouveaux helpers : `FloatingCard` (légère animation float CSS), `GlassPanel`
+**Marketing**
+- `PricingPage.tsx` : réécrire complètement avec 2 offres.
+  - **À la carte** — "Gratuit pour commencer" — inclut compte gratuit, diagnostic Twitch, achat StreamCoins à la demande, génération clips/visuels via StreamCoins, téléchargement. CTA `/auth`.
+  - **Pro** — 9,99€/mois ou 99,90€/an ("2 mois offerts") — inclut tout À la carte + StreamScore complet, débriefs, historique lives, calendrier optimal, benchmark, classements, playbooks, recommandations, suivi progression, **bonus +20% StreamCoins** (mention "bientôt" si Passe 2 pas finie). CTA `/auth?plan=pro`.
+  - Section StreamCoins packs (affichage marketing, prix + estimations visuels/clips).
+  - Section FAQ mise à jour (les 6 Q/R demandées).
+- Supprimer du pricing public : colonnes Growth/Agency, groupes "Publication" + tout ce qui parle Instagram/TikTok/YouTube/multi-réseaux/publications directes.
+- Header marketing (`SiteNav`) : simplifier — Créer / Progresser / Tarifs. Vérifier hero de `Index.tsx`.
+- `FeaturesPage`, `SolutionsPage` : passer en revue et retirer les promesses publication.
 
-Alternance home : Hero dark → SocialProof neutre → WowFeatures gradient → Audience clair → HowItWorks dark → Demo gradient → Pricing neutre → FAQ clair → FinalCTA dark.
+**Produit**
+- `SidebarQuotaWidget.tsx` : remplacer l'affichage "quotas restants" par une carte **StreamCoins** (solde + CTA "Recharger" qui ouvre la modale `CreationCapacityDialog` existante, ou tag "Solde faible" en dessous d'un seuil).
+- `AppSidebar.tsx` : masquer l'entrée "Réseaux" de la nav principale (garder la route accessible pour compat).
+- Gating Pro : les pages Benchmark / Classements / Playbooks / Calendrier optimal / Débriefs / Historique lives affichent une **preview premium + CTA "Passer Pro" → /billing** pour un user non-Pro. Ne pas casser l'accès Growth/Agency existants (utiliser `hasPlanAtLeast(plan, "pro")`).
+- `BillingPage.tsx` : cacher les tiers Growth/Agency en achat (garder l'affichage si l'user en a déjà un actif — traité comme ≥ Pro).
 
-## 4. Hero
+**Legacy**
+- `planAccess.ts`, `quotas.ts`, `useSubscription.ts` : **inchangés**. Les tiers Growth/Agency restent dans les types pour compat.
+- Users Growth/Agency existants : traités comme Pro+ (déjà le cas via `hasPlanAtLeast`).
 
-Refonte `HeroSection` :
-- Badge + titre + sous-titre conformes au brief
-- Composition visuelle droite : mockups UI stylisés (pas de screenshots) en flottement subtil :
-  - Card StreamScore (gauge + dimensions)
-  - Preview clip vertical 9:16 (facecam haut / gameplay bas, sous-titre)
-  - 3 cards Studio visuel (banner / story / post)
-  - Mini file de contenu
-- Animations `hero-float` déjà dispo, durées décalées
-- `prefers-reduced-motion` respecté
-- Responsive : mockups stack sur mobile
+**Bonus Pro +20% StreamCoins**
+- **Passe 1 : préparation UI uniquement.** Afficher "Bonus Pro : +20% sur chaque recharge" dans le pricing et la modale de recharge. Ne PAS activer le calcul côté webhook.
+- Signaler clairement à l'user que le bonus est visible mais pas encore débité côté Stripe.
 
-## 5. Sections premium
+### Passe 2 — Backend (PR suivante, à valider)
+Ce qui reste à faire, listé pour être fait dans une seconde passe dédiée :
 
-- `WowFeaturesSection` : avant/après pour clips, 3 variantes pour Studio visuel, tags visibles
-- Nouvelle section StreamScore visuelle (score card + dimensions + recommandation)
-- Section File de contenu (kanban léger)
-- `PricingSection` + `PricingPage` : cards plus haut de gamme, Growth mis en avant, quotas lisibles
-- `FaqSection` : accordéons premium, espacement éditorial
+1. **Inverser la logique génération** : `visual-job-create` et `clip-job-create` → checker StreamCoins d'abord, quota mensuel en compat legacy uniquement (ou déprécié).
+2. **Activer les packs Stripe** : créer les 4 prices Stripe StreamCoins, remplir `credit_packages.stripe_price_id`, flipper `is_active = true`, `VITE_PAYG_CREDITS_ENABLED=true`.
+3. **Bonus Pro +20%** : dans le webhook `stripe-webhook` handler `credit_pack.paid`, si l'user a une subscription Pro active → créditer `credits * 1.2` au lieu de `credits`. Loguer clairement l'origine du bonus dans `creator_credit_ledger.metadata`.
+4. Nettoyer/dépréquer les quotas mensuels si plus utilisés.
 
-## 6. Pages Features / Solutions
+---
 
-- Garder structure pilier / persona et ancres existantes (`scroll-mt-24`)
-- Améliorer cards : gradient borders subtils, icônes plus marquées, mini-mockups par pilier
-- Alternance backgrounds entre piliers
-- Respect des anchors : `#clips-reseaux`, `#studio-visuel`, `#file-de-contenu`, `#streamscore`, `#benchmark`, `#live-studio`, `#debutant`, `#regulier`, `#recycle`, `#image`, `#ambitieux`
+## 3. Fichiers touchés (Passe 1)
 
-## 7. Vérifications finales
+**Écriture**
+- `src/pages/PricingPage.tsx` — refonte complète 2 tiers
+- `src/components/SidebarQuotaWidget.tsx` — refonte carte StreamCoins
+- `src/components/CreationCapacityDialog.tsx` — ajout section "Bonus Pro" (préparé, pas actif)
+- `src/pages/BillingPage.tsx` — masquer upgrade Growth/Agency, ajouter mention bonus Pro
+- `src/components/AppSidebar.tsx` — masquer entrée Réseaux
+- Pages avancées (Benchmark, Classements, Playbooks, Calendrier, Débriefs, Historique lives) — wrapper preview + CTA Pro pour non-Pro
 
-- TypeScript clean
-- Build OK (harness)
-- Routes : `/pricing` public, `/billing` non lié depuis marketing
-- Anchors testées via preview
-- Responsive desktop + mobile (988 et < 768)
-- Pas d'overflow horizontal
+**Lecture uniquement (inchangés)**
+- `src/lib/planAccess.ts`, `src/lib/quotas.ts`, `src/lib/credits.ts`
+- `src/hooks/usePlan.ts`, `src/hooks/useSubscription.ts`, `src/hooks/useCreditPackages.ts`
+- `supabase/functions/**` (aucune modif)
+- `supabase/functions/stripe-webhook` (aucune modif — bonus +20% en Passe 2)
 
-## Risques / arbitrages
+---
 
-- **Font globale** : Instrument Sans s'appliquera aussi à l'app produit (design system partagé). Acceptable et cohérent, mais signalé.
-- **Boogaloo** (`font-display` actuel sur titres) : je le conserve sur l'app produit, mais sur le marketing j'utilise Instrument Sans en headings pour un rendu plus premium/éditorial. À confirmer si tu veux Instrument Sans aussi sur les headings produit.
-- **Pas de génération d'images** : tous les visuels sont des mockups UI faits en CSS/SVG (plus rapide, responsive, pas de poids supplémentaire).
-- **Périmètre volumineux** : je livre en une passe cohérente, sans toucher au backend ni à l'app produit. Si tu préfères découper (header d'abord, puis hero, puis sections), dis-le avant que je commence.
+## 4. Risques et non-régressions
 
-## Confirmation
+- **Stripe** : aucun secret touché, aucun webhook touché. Users Pro/Growth/Agency existants → `usePlan` continue de retourner leur vraie tier via `subscriptions`.
+- **StreamCoins** : ledger + RPC + refund inchangés.
+- **Génération clips/visuels** : logique quota→credits inchangée en Passe 1 (l'inversion arrive en Passe 2).
+- **StreamScore** : inchangé, juste gating "complet" derrière Pro côté affichage.
+- **Studio visuel** : accessible avec solde StreamCoins comme aujourd'hui.
+- **/billing** : reste la seule page qui déclenche du Stripe. Aucun CTA public direct vers Stripe.
+- Zernio : déjà safe (uniquement page Réseaux), on masque juste la nav.
 
-Avant d'attaquer, j'aimerais que tu confirmes :
-1. Instrument Sans **partout** (marketing + produit) ou **marketing seulement** ?
-2. Je garde Boogaloo (`font-display`) sur les gros titres marketing ou je passe tout en Instrument Sans (700) ?
-3. OK pour livrer la passe complète en un seul lot (gros diff) ?
+---
+
+## 5. Rapport de fin de Passe 1
+
+À la livraison je te fournirai :
+- diff des fichiers modifiés
+- capture mentale du nouveau `/pricing` (2 tiers + packs + FAQ)
+- confirmation sidebar montre StreamCoins (plus de quotas mensuels)
+- liste des pages désormais gated Pro
+- ce qui reste précisément pour la Passe 2 (backend + Stripe prices + bonus webhook)
+- TypeScript OK + build OK
+
+Est-ce que je pars sur cette Passe 1, ou tu veux ajuster le scope avant ?
