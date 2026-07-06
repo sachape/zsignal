@@ -171,7 +171,12 @@ const AppSidebar = () => {
                           }
                         >
                           <item.icon className="h-4 w-4 shrink-0" />
-                          {!collapsed && <span>{item.title}</span>}
+                          {!collapsed && <span className="flex-1">{item.title}</span>}
+                          {!collapsed && item.proOnly && !isPro && (
+                            <span className="rounded-sm border border-primary/30 bg-primary/10 px-1 py-0 text-[9px] font-semibold uppercase tracking-wider text-primary-strong">
+                              Pro
+                            </span>
+                          )}
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
