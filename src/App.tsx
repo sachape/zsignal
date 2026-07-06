@@ -98,6 +98,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <AuthModalProvider>
+            <StreamCoinsDialogProvider>
             <Suspense fallback={<RouteFallback />}>
               <ScrollToTop />
               <Routes>
