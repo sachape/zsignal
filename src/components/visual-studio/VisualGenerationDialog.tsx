@@ -255,9 +255,18 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
       setPreviewError(false);
       setStep("result");
     } catch (e: any) {
-      if (e?.code === "quota_exceeded" || e?.message === "quota_exceeded") {
+      if (
+        e?.code === "quota_exceeded" ||
+        e?.message === "quota_exceeded" ||
+        e?.code === "streamcoins_insufficient" ||
+        e?.message === "streamcoins_insufficient"
+      ) {
         setQuotaBlocked(true);
-        setError(quotaExceededMessage("visual"));
+        setError(
+          e?.code === "streamcoins_insufficient"
+            ? "Tu n’as pas assez de StreamCoins pour générer ce visuel. Il te faut 120 StreamCoins."
+            : quotaExceededMessage("visual"),
+        );
       } else {
         const msg = "Impossible de lancer la génération. Réessaie dans un instant.";
         toast.error(msg);
