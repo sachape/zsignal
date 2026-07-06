@@ -68,6 +68,7 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
   const { data: balance } = useCreditBalance(true);
   const { plan, isPro } = usePlan();
   const queryClient = useQueryClient();
+  const { data: hasWelcomeBonus } = useWelcomeBonus();
 
   const available = balance?.available_credits ?? 0;
   const isEmpty = available <= 0;
