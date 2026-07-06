@@ -5,8 +5,9 @@
 // then trigger the external worker. Worker URL + shared secret read from env.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
 import { consumeCredits, getCreditBalance, refundFailedJobCredits } from "../_shared/credits.ts";
+// Legacy monthly quotas (getUserPlanAndUsage/quotaFor) are intentionally NOT
+// used to authorize clip generation. Source of truth = StreamCoins balance.
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -176,33 +177,26 @@ Deno.serve(async (req) => {
 
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  // ── Billing: monthly quota first, credits fallback ──
-  let billingSource: "monthly_quota" | "credits" = "monthly_quota";
+  // ── Billing: StreamCoins-first ──
+  // No monthly quota gate: every clip costs StreamCoins (currently 350).
+  let billingSource: "credits" = "credits";
   let creditsSpent = 0;
   let creditLedgerEntryId: string | null = null;
   {
-    const { plan, clips_used } = await getUserPlanAndUsage(admin, userId);
-    const limit = quotaFor(plan, "clip");
-    if (clips_used >= limit) {
-      const { entryId, cost } = await consumeCredits(admin, userId, "clip_generation");
-      if (!entryId) {
-        const balance = await getCreditBalance(admin, userId);
-        return json({
-          success: false,
-          error: "quota_and_credits_exceeded",
-          feature: "clip",
-          plan,
-          quotaLimit: limit,
-          quotaUsed: clips_used,
-          creditsRequired: cost,
-          creditsAvailable: balance,
-          message: "Tu as atteint ta limite de clips générés ce mois-ci.",
-        }, 402);
-      }
-      billingSource = "credits";
-      creditsSpent = cost;
-      creditLedgerEntryId = entryId;
+    const { entryId, cost } = await consumeCredits(admin, userId, "clip_generation");
+    if (!entryId) {
+      const balance = await getCreditBalance(admin, userId);
+      return json({
+        success: false,
+        error: "streamcoins_insufficient",
+        feature: "clip_generation",
+        required: cost,
+        available: balance,
+        message: "Tu n’as pas assez de StreamCoins pour générer ce clip.",
+      }, 402);
     }
+    creditsSpent = cost;
+    creditLedgerEntryId = entryId;
   }
 
   const { data: activeJob } = await admin

@@ -7,7 +7,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
+// Legacy monthly quotas (getUserPlanAndUsage/quotaFor) are intentionally NOT
+// used to authorize visual generation anymore. The single source of truth is
+// the user's StreamCoins balance (creator_credit_ledger).
 import { consumeCredits, costForFeature, getCreditBalance } from "../_shared/credits.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -50,31 +52,25 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (tplErr || !template) return json({ error: "template_not_found" }, 404);
 
-    // ── Billing: monthly quota first, credits fallback ──
-    const { plan, visuals_used } = await getUserPlanAndUsage(admin, user.id);
-    const limit = quotaFor(plan, "visual");
-
-    let billingSource: "monthly_quota" | "credits" = "monthly_quota";
+    // ── Billing: StreamCoins-first ──
+    // Pro subscribers do NOT get a monthly generation quota. Every visual costs
+    // StreamCoins (currently 120). Debit atomically via consume_generation_credit.
+    let billingSource: "credits" = "credits";
     let creditsSpent = 0;
     let creditLedgerEntryId: string | null = null;
 
-    if (visuals_used >= limit) {
-      // Quota exhausted — try credits.
+    {
       const { entryId, cost } = await consumeCredits(admin, user.id, "visual_generation");
       if (!entryId) {
         const balance = await getCreditBalance(admin, user.id);
         return json({
-          error: "quota_and_credits_exceeded",
-          feature: "visual",
-          plan,
-          quotaLimit: limit,
-          quotaUsed: visuals_used,
-          creditsRequired: cost,
-          creditsAvailable: balance,
-          message: "Tu as atteint ta limite de générations visuelles ce mois-ci.",
+          error: "streamcoins_insufficient",
+          feature: "visual_generation",
+          required: cost,
+          available: balance,
+          message: "Tu n’as pas assez de StreamCoins pour générer ce visuel.",
         }, 402);
       }
-      billingSource = "credits";
       creditsSpent = cost;
       creditLedgerEntryId = entryId;
     }

@@ -143,7 +143,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
         } catch { /* ignore */ }
       }
       const p = payload as { success?: boolean; error?: string; message?: string } | null;
-      if (p?.error === "quota_exceeded" || p?.error === "quota_and_credits_exceeded") {
+      if (p?.error === "quota_exceeded" || p?.error === "quota_and_credits_exceeded" || p?.error === "streamcoins_insufficient") {
         showClipQuotaToast();
         return;
       }

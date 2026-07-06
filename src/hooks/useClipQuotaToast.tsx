@@ -34,21 +34,19 @@ export function useClipQuotaToast() {
     const hasActivePacks = (creditPacks.data?.length ?? 0) > 0;
     const showCoins = paygOn && hasActivePacks;
     const cta = quotaCta(plan);
-    const description = showCoins
-      ? `Il te faut ${streamCoinsCostLabel("clip_generation")} pour générer un clip.`
-      : "Passe à un plan supérieur pour augmenter ton quota.";
+    const description = `Il te faut ${streamCoinsCostLabel("clip_generation")} pour générer ce clip.`;
 
     toast({
-      title: "Tu as atteint ta limite de clips générés ce mois-ci.",
+      title: "Tu n’as pas assez de StreamCoins pour générer ce clip.",
       description,
       variant: "destructive",
       action:
         cta.href && !cta.href.startsWith("mailto:") ? (
           <ToastAction
-            altText={showCoins ? "Acheter des StreamCoins" : cta.label}
+            altText={showCoins ? "Recharger mes StreamCoins" : cta.label}
             onClick={() => navigate("/billing")}
           >
-            {showCoins ? "Acheter des StreamCoins" : cta.label}
+            {showCoins ? "Recharger mes StreamCoins" : cta.label}
           </ToastAction>
         ) : undefined,
     });

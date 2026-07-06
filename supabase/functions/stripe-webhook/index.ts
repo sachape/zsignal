@@ -90,11 +90,27 @@ Deno.serve(async (req) => {
             ? session.payment_intent
             : session.payment_intent?.id ?? null;
 
+          // ── Pro +20% bonus on StreamCoins recharges ──
+          // A user with an ACTIVE Pro/Growth/Agency subscription at the time of
+          // purchase receives +20% StreamCoins on top of the base amount.
+          // Idempotent through the UNIQUE(stripe_checkout_session_id) index on
+          // the ledger: a duplicate webhook can't credit twice.
+          const { data: subRow } = await admin
+            .from("subscriptions")
+            .select("plan_name, status")
+            .eq("user_id", userId)
+            .in("status", ["active", "trialing"])
+            .maybeSingle();
+          const activePlan = (subRow?.plan_name ?? "").toLowerCase();
+          const proBonusEligible = ["pro", "growth", "agency"].includes(activePlan);
+          const bonus = proBonusEligible ? Math.round(credits * 0.20) : 0;
+          const totalCredited = credits + bonus;
+
           const { error: ledgerErr } = await admin
             .from("creator_credit_ledger")
             .insert({
               user_id: userId,
-              delta: credits,
+              delta: totalCredited,
               reason: "purchase",
               feature: null,
               credit_package_id: packageId,
@@ -103,6 +119,10 @@ Deno.serve(async (req) => {
               metadata: {
                 amount_total: session.amount_total ?? null,
                 currency: session.currency ?? null,
+                base_amount: credits,
+                bonus_amount: bonus,
+                pro_bonus_applied: bonus > 0,
+                subscription_plan: proBonusEligible ? activePlan : null,
               },
             });
           if (ledgerErr) {
@@ -113,7 +133,13 @@ Deno.serve(async (req) => {
               console.info("credit_pack_already_credited", { session: session.id });
             }
           } else {
-            console.info("credit_pack_credited", { user_id: userId, credits, session: session.id });
+            console.info("credit_pack_credited", {
+              user_id: userId,
+              base: credits,
+              bonus,
+              total: totalCredited,
+              session: session.id,
+            });
           }
 
           if (customerId) {

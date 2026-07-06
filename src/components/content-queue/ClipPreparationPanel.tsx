@@ -294,7 +294,7 @@ export const ClipPreparationPanel = ({
       }
       if (!createRes.ok || !createJson?.success) {
         const code = createJson?.error;
-        if (code === "quota_exceeded" || code === "quota_and_credits_exceeded") {
+        if (code === "quota_exceeded" || code === "quota_and_credits_exceeded" || code === "streamcoins_insufficient") {
           showClipQuotaToast();
           setBusy(false); setPhase("idle");
           return;
