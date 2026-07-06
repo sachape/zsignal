@@ -26,7 +26,7 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   const card = (
     <button
       type="button"
-      onClick={() => setOpen(true)}
+      onClick={() => open()}
       aria-label="Voir mon solde StreamCoins et recharger"
       className="mb-1 block w-full cursor-pointer rounded-md border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5 text-left transition-colors hover:bg-sidebar-accent hover:border-sidebar-border focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
