@@ -15,6 +15,7 @@ import { usePlan } from "@/hooks/usePlan";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { CREDIT_COSTS } from "@/lib/credits";
 import { BuyCreditsButton } from "@/components/credits/BuyCreditsButton";
+import { useWelcomeBonus } from "@/hooks/useWelcomeBonus";
 import { cn } from "@/lib/utils";
 
 const LOW_THRESHOLD = 350; // one clip
