@@ -48,12 +48,12 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
       {/* CTA */}
       <Button asChild className="relative mt-6 w-full" size="sm">
         <Link to="/billing" onClick={() => analytics.upgradeClicked(feature, "full_page")}>
-          Passer au Pro
+          Passer Pro
           <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
         </Link>
       </Button>
       <p className="relative mt-3 text-[11px] text-muted-foreground/50">
-        À partir de 12,99€/mois · Annulable à tout moment
+        9,99€/mois · Annulable à tout moment
       </p>
     </div>
   </div>
