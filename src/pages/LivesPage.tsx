@@ -282,4 +282,23 @@ const LivesPage = () => {
   );
 };
 
-export default LivesPage;
+import { ProFeatureGate } from "@/components/ProFeatureGate";
+
+const LivesPageGated = () => (
+  <AppShell>
+    <ProFeatureGate
+      featureName="lives_history"
+      title="Historique avancé disponible avec Pro"
+      description="Analyse l’évolution de tes lives, de ton score et de tes performances dans le temps."
+      benefits={[
+        "Évolution de tes lives",
+        "Historique de ton StreamScore",
+        "Tendances de performance",
+      ]}
+    >
+      <LivesPage />
+    </ProFeatureGate>
+  </AppShell>
+);
+
+export default LivesPageGated;
