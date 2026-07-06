@@ -68,24 +68,21 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   );
 
   return (
-    <>
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>{card}</TooltipTrigger>
-          <TooltipContent side="right" align="end" className="max-w-[220px] text-xs">
-            <p className="font-semibold">Ton solde StreamCoins</p>
-            <p className="mt-1 text-muted-foreground">
-              Utilise tes StreamCoins pour générer des clips ou des visuels à la demande.
-            </p>
-            <p className="mt-1 text-muted-foreground">1 clip = 350 · 1 visuel = 120</p>
-            {isPro && (
-              <p className="mt-1 text-primary-strong">Bonus Pro +20% appliqué à tes recharges.</p>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <CreationCapacityDialog open={open} onOpenChange={setOpen} />
-    </>
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>{card}</TooltipTrigger>
+        <TooltipContent side="right" align="end" className="max-w-[220px] text-xs">
+          <p className="font-semibold">Ton solde StreamCoins</p>
+          <p className="mt-1 text-muted-foreground">
+            Utilise tes StreamCoins pour générer des clips ou des visuels à la demande.
+          </p>
+          <p className="mt-1 text-muted-foreground">1 clip = 350 · 1 visuel = 120</p>
+          {isPro && (
+            <p className="mt-1 text-primary-strong">Bonus Pro +20% appliqué à tes recharges.</p>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
