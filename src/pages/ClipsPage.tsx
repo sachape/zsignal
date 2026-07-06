@@ -439,7 +439,7 @@ const ClipsPage = () => {
 
         const errMsg = jobErr?.message ?? jobData?.message ?? jobData?.error;
         const errCode = jobData?.error;
-        if (errCode === "quota_exceeded" || errCode === "quota_and_credits_exceeded" || p?.error === "streamcoins_insufficient" || payload?.error === "streamcoins_insufficient") {
+        if (errCode === "quota_exceeded" || errCode === "quota_and_credits_exceeded" || errCode === "streamcoins_insufficient") {
           setTransformStates((prev) => ({ ...prev, [clipKey]: "idle" }));
           showClipQuotaToast();
           return;
