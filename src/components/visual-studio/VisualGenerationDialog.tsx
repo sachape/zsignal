@@ -30,6 +30,7 @@ import { useCreditPackages } from "@/hooks/useCreditPackages";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { BuyCreditsButton } from "@/components/credits/BuyCreditsButton";
 import { streamCoinsCostLabel, formatStreamCoins } from "@/lib/credits";
+import { useStreamCoinsDialog } from "@/contexts/StreamCoinsDialogContext";
 
 interface Props {
   open: boolean;
