@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { Coins, ArrowUpRight } from "lucide-react";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { usePlan } from "@/hooks/usePlan";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CreationCapacityDialog } from "@/components/CreationCapacityDialog";
+import { useStreamCoinsDialog } from "@/contexts/StreamCoinsDialogContext";
 import { cn } from "@/lib/utils";
 
 /**
@@ -16,7 +15,7 @@ import { cn } from "@/lib/utils";
 const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   const { data: balance, isLoading } = useCreditBalance(true);
   const { isPro } = usePlan();
-  const [open, setOpen] = useState(false);
+  const { open } = useStreamCoinsDialog();
 
   if (collapsed || isLoading) return null;
 
@@ -27,7 +26,7 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   const card = (
     <button
       type="button"
-      onClick={() => setOpen(true)}
+      onClick={() => open()}
       aria-label="Voir mon solde StreamCoins et recharger"
       className="mb-1 block w-full cursor-pointer rounded-md border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5 text-left transition-colors hover:bg-sidebar-accent hover:border-sidebar-border focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
@@ -69,24 +68,21 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
   );
 
   return (
-    <>
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>{card}</TooltipTrigger>
-          <TooltipContent side="right" align="end" className="max-w-[220px] text-xs">
-            <p className="font-semibold">Ton solde StreamCoins</p>
-            <p className="mt-1 text-muted-foreground">
-              Utilise tes StreamCoins pour générer des clips ou des visuels à la demande.
-            </p>
-            <p className="mt-1 text-muted-foreground">1 clip = 350 · 1 visuel = 120</p>
-            {isPro && (
-              <p className="mt-1 text-primary-strong">Bonus Pro +20% appliqué à tes recharges.</p>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <CreationCapacityDialog open={open} onOpenChange={setOpen} />
-    </>
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>{card}</TooltipTrigger>
+        <TooltipContent side="right" align="end" className="max-w-[220px] text-xs">
+          <p className="font-semibold">Ton solde StreamCoins</p>
+          <p className="mt-1 text-muted-foreground">
+            Utilise tes StreamCoins pour générer des clips ou des visuels à la demande.
+          </p>
+          <p className="mt-1 text-muted-foreground">1 clip = 350 · 1 visuel = 120</p>
+          {isPro && (
+            <p className="mt-1 text-primary-strong">Bonus Pro +20% appliqué à tes recharges.</p>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

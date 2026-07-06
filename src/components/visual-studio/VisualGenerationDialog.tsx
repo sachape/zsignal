@@ -30,6 +30,7 @@ import { useCreditPackages } from "@/hooks/useCreditPackages";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { BuyCreditsButton } from "@/components/credits/BuyCreditsButton";
 import { streamCoinsCostLabel, formatStreamCoins } from "@/lib/credits";
+import { useStreamCoinsDialog } from "@/contexts/StreamCoinsDialogContext";
 
 interface Props {
   open: boolean;
@@ -95,6 +96,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
   const [variants, setVariants] = useState<GeneratedVisual[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [quotaBlocked, setQuotaBlocked] = useState(false);
+  const { open: openStreamCoinsDialog } = useStreamCoinsDialog();
   const [previewError, setPreviewError] = useState(false);
 
   useEffect(() => {
@@ -465,33 +467,21 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
 
             {quotaBlocked ? (
               <div className="rounded-lg border border-primary/40 bg-primary/5 p-4 text-sm">
-                <p className="font-semibold text-foreground">{quotaExceededMessage("visual")}</p>
-                <p className="mt-1 text-muted-foreground">
-                  Ta limite mensuelle se réinitialise au début du mois prochain.
+                <p className="font-semibold text-foreground">
+                  Tu n’as pas assez de StreamCoins pour générer ce visuel.
                 </p>
-                {paygOn && (creditPacks.data?.length ?? 0) > 0 && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Il te faut {streamCoinsCostLabel("visual_generation")} pour générer un visuel. Solde&nbsp;:
-                    {" "}
-                    <span className="font-semibold tabular-nums text-foreground">
-                      {formatStreamCoins(creditBalance.data?.available_credits ?? 0)}
-                    </span>
-                    .
-                  </p>
-                )}
+                <p className="mt-1 text-muted-foreground">
+                  Il te faut {streamCoinsCostLabel("visual_generation")}. Solde&nbsp;:
+                  {" "}
+                  <span className="font-semibold tabular-nums text-foreground">
+                    {formatStreamCoins(creditBalance.data?.available_credits ?? 0)}
+                  </span>
+                  .
+                </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {(() => {
-                    const cta = quotaCta(plan);
-                    if (!cta.href) return <p className="text-muted-foreground">{cta.label}</p>;
-                    return cta.href.startsWith("mailto:") ? (
-                      <a href={cta.href} className="inline-flex"><Button size="sm" variant="outline">{cta.label}</Button></a>
-                    ) : (
-                      <Button asChild size="sm" variant="outline"><Link to={cta.href}>{cta.label}</Link></Button>
-                    );
-                  })()}
-                  {paygOn && (creditPacks.data?.length ?? 0) > 0 && (
-                    <BuyCreditsButton packageId={creditPacks.data![0].id} label="Acheter des StreamCoins" />
-                  )}
+                  <Button size="sm" onClick={() => openStreamCoinsDialog()}>
+                    Recharger mes StreamCoins
+                  </Button>
                 </div>
               </div>
             ) : error ? (

@@ -134,6 +134,14 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
           )}
         </div>
 
+        {/* Welcome bonus hint (only for fresh accounts: no purchases yet). */}
+        {(balance?.lifetime_purchased ?? 0) === 0 && (
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            <Sparkles className="mr-1 inline h-3 w-3 text-primary-strong" />
+            Bonus de bienvenue : 470 StreamCoins offerts pour tester Streamnco (1 clip + 1 visuel).
+          </p>
+        )}
+
         {/* Usage */}
         <div className="mt-4 rounded-xl border border-border/60 bg-card/30 p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Utilisation</p>

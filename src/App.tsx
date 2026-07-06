@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthModalProvider } from "@/contexts/AuthModalContext";
+import { StreamCoinsDialogProvider } from "@/contexts/StreamCoinsDialogContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 
@@ -98,6 +99,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <AuthModalProvider>
+            <StreamCoinsDialogProvider>
             <Suspense fallback={<RouteFallback />}>
               <ScrollToTop />
               <Routes>
@@ -380,6 +382,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            </StreamCoinsDialogProvider>
           </AuthModalProvider>
         </AuthProvider>
       </BrowserRouter>

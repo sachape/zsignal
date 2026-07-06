@@ -15,7 +15,6 @@
  *   - Otherwise fallback to the standard upgrade CTA from `quotaCta(plan)`.
  */
 import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { ToastAction } from "@/components/ui/toast";
 import { toast } from "@/hooks/use-toast";
 import { isFeatureEnabled } from "@/lib/featureFlags";
@@ -23,9 +22,10 @@ import { streamCoinsCostLabel } from "@/lib/credits";
 import { quotaCta } from "@/lib/quotas";
 import { usePlan } from "@/hooks/usePlan";
 import { useCreditPackages } from "@/hooks/useCreditPackages";
+import { useStreamCoinsDialog } from "@/contexts/StreamCoinsDialogContext";
 
 export function useClipQuotaToast() {
-  const navigate = useNavigate();
+  const { open: openStreamCoins } = useStreamCoinsDialog();
   const { plan } = usePlan();
   const paygOn = isFeatureEnabled("PAYG_CREDITS_ENABLED");
   const creditPacks = useCreditPackages(paygOn);
@@ -35,20 +35,17 @@ export function useClipQuotaToast() {
     const showCoins = paygOn && hasActivePacks;
     const cta = quotaCta(plan);
     const description = `Il te faut ${streamCoinsCostLabel("clip_generation")} pour générer ce clip.`;
+    const label = showCoins ? "Recharger mes StreamCoins" : cta.label;
 
     toast({
       title: "Tu n’as pas assez de StreamCoins pour générer ce clip.",
       description,
       variant: "destructive",
-      action:
-        cta.href && !cta.href.startsWith("mailto:") ? (
-          <ToastAction
-            altText={showCoins ? "Recharger mes StreamCoins" : cta.label}
-            onClick={() => navigate("/billing")}
-          >
-            {showCoins ? "Recharger mes StreamCoins" : cta.label}
-          </ToastAction>
-        ) : undefined,
+      action: (
+        <ToastAction altText={label} onClick={() => openStreamCoins()}>
+          {label}
+        </ToastAction>
+      ),
     });
-  }, [creditPacks.data, navigate, paygOn, plan]);
+  }, [creditPacks.data, openStreamCoins, paygOn, plan]);
 }
