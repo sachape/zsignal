@@ -96,6 +96,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
   const [variants, setVariants] = useState<GeneratedVisual[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [quotaBlocked, setQuotaBlocked] = useState(false);
+  const { open: openStreamCoinsDialog } = useStreamCoinsDialog();
   const [previewError, setPreviewError] = useState(false);
 
   useEffect(() => {
