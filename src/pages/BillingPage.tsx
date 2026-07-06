@@ -31,10 +31,12 @@ const PLAN_META: Record<
   pro: {
     label: "Pro",
     icon: <Sparkles className="h-4 w-4 text-primary-strong" />,
-    price: "12,99",
-    priceAnnual: "10,83",
+    price: "9,99",
+    priceAnnual: "8,33",
     color: "primary",
   },
+  // Growth kept in metadata only for users who already have an active Growth
+  // subscription — no longer sold from this page.
   growth: {
     label: "Growth",
     icon: <Crown className="h-4 w-4 text-violet-400" />,

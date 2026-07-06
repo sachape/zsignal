@@ -1,186 +1,70 @@
 import { useState } from "react";
-import { Clapperboard, Palette, Coins, Sparkles } from "lucide-react";
-import { useQuotaUsage } from "@/hooks/useQuotaUsage";
-import { useCreditPackages } from "@/hooks/useCreditPackages";
-import { FEATURE_FLAGS } from "@/lib/featureFlags";
-import { normalizePlan } from "@/lib/planAccess";
+import { Coins, ArrowUpRight } from "lucide-react";
+import { useCreditBalance } from "@/hooks/useCreditBalance";
+import { usePlan } from "@/hooks/usePlan";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CreationCapacityDialog } from "@/components/CreationCapacityDialog";
 import { cn } from "@/lib/utils";
 
-const PLAN_LABEL: Record<string, string> = {
-  free: "Gratuit",
-  pro: "Pro",
-  growth: "Growth",
-  agency: "Agency",
-};
-
-type LineState = "ok" | "warn" | "limit";
-
-const stateOf = (used: number, limit: number): LineState => {
-  if (limit <= 0) return "ok";
-  if (used >= limit) return "limit";
-  if (used / limit >= 0.8) return "warn";
-  return "ok";
-};
-
-const Line = ({
-  icon: Icon,
-  remaining,
-  noun,
-  state,
-  used,
-  limit,
-}: {
-  icon: typeof Palette;
-  remaining: number;
-  noun: string;
-  state: LineState;
-  used: number;
-  limit: number;
-}) => {
-  const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
-  const text =
-    state === "limit"
-      ? `Limite de ${noun}s atteinte`
-      : state === "warn"
-        ? `Il te reste ${remaining} ${noun}${remaining > 1 ? "s" : ""} ce mois-ci`
-        : `${remaining} ${noun}${remaining > 1 ? "s" : ""} restant${remaining > 1 ? "s" : ""}`;
-  return (
-    <div>
-      <div className="flex items-center gap-1.5 text-[11px] font-medium leading-tight">
-        <Icon
-          className={cn(
-            "h-3 w-3 shrink-0",
-            state === "limit"
-              ? "text-destructive"
-              : state === "warn"
-                ? "text-warning"
-                : "text-muted-foreground",
-          )}
-        />
-        <span
-          className={cn(
-            "truncate",
-            state === "limit"
-              ? "text-destructive"
-              : state === "warn"
-                ? "text-warning"
-                : "text-foreground",
-          )}
-        >
-          {text}
-        </span>
-      </div>
-      <div className="mt-1 h-px w-full overflow-hidden rounded-full bg-muted/40">
-        <div
-          className={cn(
-            "h-full rounded-full transition-all",
-            state === "limit"
-              ? "bg-destructive/70"
-              : state === "warn"
-                ? "bg-warning/80"
-                : "bg-foreground/30",
-          )}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-    </div>
-  );
-};
-
 /**
- * Premium, user-oriented monthly capacity widget. Shows what's left to create
- * (clips first — more costly, lower ceiling), not raw usage counters.
+ * StreamCoins sidebar card.
+ *
+ * Replaces the previous monthly-quota widget. Under the new pricing model
+ * generation is paid via StreamCoins, so the sidebar surfaces the balance
+ * and a top-up CTA rather than "X clips / Y visuels restants ce mois-ci".
  */
 const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
-  const q = useQuotaUsage();
-  const paygEnabled = FEATURE_FLAGS.PAYG_CREDITS_ENABLED;
-  const { data: packs } = useCreditPackages(paygEnabled);
+  const { data: balance, isLoading } = useCreditBalance(true);
+  const { isPro } = usePlan();
   const [open, setOpen] = useState(false);
 
-  if (collapsed || q.loading) return null;
+  if (collapsed || isLoading) return null;
 
-  const plan = normalizePlan(q.plan);
-  const planLabel = PLAN_LABEL[plan] ?? "Gratuit";
-
-  // Agency: custom volume — no counters.
-  if (plan === "agency") {
-    return (
-      <>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Voir tes créations ce mois-ci"
-          className="mb-1 block w-full cursor-pointer rounded-md border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5 text-left transition-colors hover:bg-sidebar-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-            Créations ce mois-ci
-          </p>
-          <p className="flex items-center gap-1.5 text-[12px] font-medium text-foreground">
-            <Sparkles className="h-3 w-3 text-muted-foreground" />
-            Volume sur mesure
-          </p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground/80">{planLabel} · contrat dédié</p>
-        </button>
-        <CreationCapacityDialog open={open} onOpenChange={setOpen} />
-      </>
-    );
-  }
-
-  const clipState = stateOf(q.clipsUsed, q.clipsLimit);
-  const visualState = stateOf(q.visualsUsed, q.visualsLimit);
-  const anyLimit = clipState === "limit" || visualState === "limit";
-  const anyWarn = clipState === "warn" || visualState === "warn" || anyLimit;
-  const hasPayg = paygEnabled && (packs?.length ?? 0) > 0;
-
-  const ctaIcon = anyLimit && hasPayg ? Coins : Sparkles;
-  const ctaLabel = anyLimit
-    ? hasPayg
-      ? "Acheter des StreamCoins"
-      : "Voir mon plan"
-    : null;
+  const available = balance?.available_credits ?? 0;
+  const isLow = available < 350; // less than one clip
+  const isEmpty = available <= 0;
 
   const card = (
     <button
       type="button"
       onClick={() => setOpen(true)}
-      aria-label="Voir et gérer tes créations ce mois-ci"
+      aria-label="Voir mon solde StreamCoins et recharger"
       className="mb-1 block w-full cursor-pointer rounded-md border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5 text-left transition-colors hover:bg-sidebar-accent hover:border-sidebar-border focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <p className="mb-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-        Créations ce mois-ci
+      <p className="mb-1.5 flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+        <Coins className="h-3 w-3" />
+        StreamCoins
+        {isPro && (
+          <span className="ml-auto rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider text-primary-strong">
+            Pro +20%
+          </span>
+        )}
       </p>
-      <div className="space-y-2">
-        <Line
-          icon={Clapperboard}
-          remaining={q.clipsRemaining}
-          noun="clip"
-          state={clipState}
-          used={q.clipsUsed}
-          limit={q.clipsLimit}
-        />
-        <Line
-          icon={Palette}
-          remaining={q.visualsRemaining}
-          noun="visuel"
-          state={visualState}
-          used={q.visualsUsed}
-          limit={q.visualsLimit}
-        />
-      </div>
-      <p className="mt-2 text-[10px] text-muted-foreground/70">
-        {planLabel} · renouvellement mensuel
+      <p
+        className={cn(
+          "text-lg font-semibold tabular-nums leading-tight",
+          isEmpty ? "text-destructive" : isLow ? "text-warning" : "text-foreground",
+        )}
+      >
+        {available.toLocaleString("fr-FR")}
       </p>
-      {ctaLabel && (
-        <span className="mt-2 flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background/60 py-1.5 text-[11px] font-medium text-foreground">
-          {(() => {
-            const I = ctaIcon;
-            return <I className="h-3 w-3" />;
-          })()}
-          {ctaLabel}
-        </span>
+      {isLow && !isEmpty && (
+        <p className="mt-0.5 text-[10px] font-medium text-warning">Solde faible</p>
       )}
+      {isEmpty && (
+        <p className="mt-0.5 text-[10px] font-medium text-destructive">Solde à zéro</p>
+      )}
+      <span
+        className={cn(
+          "mt-2 flex items-center justify-center gap-1.5 rounded-md border py-1.5 text-[11px] font-medium",
+          isLow || isEmpty
+            ? "border-primary/40 bg-primary/10 text-primary-strong"
+            : "border-border/60 bg-background/60 text-foreground",
+        )}
+      >
+        <ArrowUpRight className="h-3 w-3" />
+        Recharger
+      </span>
     </button>
   );
 
@@ -190,17 +74,13 @@ const SidebarQuotaWidget = ({ collapsed }: { collapsed: boolean }) => {
         <Tooltip>
           <TooltipTrigger asChild>{card}</TooltipTrigger>
           <TooltipContent side="right" align="end" className="max-w-[220px] text-xs">
-            <p className="font-semibold">Détail du mois</p>
+            <p className="font-semibold">Ton solde StreamCoins</p>
             <p className="mt-1 text-muted-foreground">
-              Clips : {q.clipsUsed} / {q.clipsLimit} utilisés
+              Utilise tes StreamCoins pour générer des clips ou des visuels à la demande.
             </p>
-            <p className="text-muted-foreground">
-              Visuels : {q.visualsUsed} / {q.visualsLimit} utilisés
-            </p>
-            <p className="mt-1 text-muted-foreground">Plan : {planLabel}</p>
-            <p className="text-muted-foreground">Renouvellement mensuel</p>
-            {anyWarn && !anyLimit && (
-              <p className="mt-1 text-warning">Tu approches d'une limite.</p>
+            <p className="mt-1 text-muted-foreground">1 clip = 350 · 1 visuel = 120</p>
+            {isPro && (
+              <p className="mt-1 text-primary-strong">Bonus Pro +20% appliqué à tes recharges.</p>
             )}
           </TooltipContent>
         </Tooltip>
