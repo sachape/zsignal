@@ -89,7 +89,8 @@ const navGroups: NavGroup[] = [
   },
   {
     items: [
-      { title: "Réseaux", url: "/reseaux", icon: Network },
+      // "Réseaux" hidden from primary nav during the pivot to Clips/Visuels/Progression.
+      // Route stays registered so existing users can still reach it via direct URL.
       { title: "Ressources", url: "/playbooks", icon: BookOpen, matchSection: "resources" },
     ],
   },
