@@ -231,7 +231,7 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   {activePacks.map((p) => (
-                    <PackCard key={p.id} pack={p} />
+                    <PackCard key={p.id} pack={p} proBonus={plan === "pro" || plan === "growth" || plan === "agency"} />
                   ))}
                 </div>
               </div>
