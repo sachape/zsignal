@@ -215,7 +215,7 @@ const PricingPage = () => {
                     "Playbooks",
                     "Recommandations avancées",
                     "Suivi de progression avancé",
-                    "Bonus +20% StreamCoins sur chaque recharge (bientôt)",
+                    "Bonus +20% StreamCoins sur chaque recharge",
                   ].map((f) => (
                     <li key={f} className="flex items-start gap-2.5">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-el-mint" />
