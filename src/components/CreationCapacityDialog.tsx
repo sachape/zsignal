@@ -137,7 +137,7 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
         </div>
 
         {/* Welcome bonus hint (only for fresh accounts: no purchases yet). */}
-        {(balance?.lifetime_purchased ?? 0) === 0 && (
+        {hasWelcomeBonus && (balance?.lifetime_purchased ?? 0) === 0 && (
           <p className="mt-2 text-[11px] text-muted-foreground">
             <Sparkles className="mr-1 inline h-3 w-3 text-primary-strong" />
             Bonus de bienvenue : 470 StreamCoins offerts pour tester Streamnco (1 clip + 1 visuel).
