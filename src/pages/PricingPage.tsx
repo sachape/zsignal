@@ -298,7 +298,7 @@ const PricingPage = () => {
                     Tu génères régulièrement ? Passe Pro.
                   </p>
                   <p className="mt-1 font-el-sans text-[14px] text-el-body">
-                    Les membres Pro reçoivent <strong>+20% de StreamCoins</strong> sur chaque recharge <em>(bientôt disponible).</em>
+                    Les membres Pro reçoivent <strong>+20% de StreamCoins</strong> sur chaque recharge.
                   </p>
                 </div>
               </div>
