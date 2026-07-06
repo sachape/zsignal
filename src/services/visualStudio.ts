@@ -76,7 +76,7 @@ export async function createVisualJob(input: CreateJobParams): Promise<{ job_id:
       payload = await (error as any).context.response.clone().json();
     } catch { /* keep null */ }
   }
-  if (payload?.error === "quota_exceeded" || payload?.error === "quota_and_credits_exceeded" || p?.error === "streamcoins_insufficient" || payload?.error === "streamcoins_insufficient") {
+  if (payload?.error === "quota_exceeded" || payload?.error === "quota_and_credits_exceeded" || payload?.error === "streamcoins_insufficient") {
     const err: any = new Error("quota_exceeded");
     err.code = "quota_exceeded";
     err.limit = payload.limit ?? payload.quotaLimit;
