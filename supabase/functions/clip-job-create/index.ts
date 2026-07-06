@@ -5,8 +5,9 @@
 // then trigger the external worker. Worker URL + shared secret read from env.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { getUserPlanAndUsage, quotaFor } from "../_shared/quotas.ts";
 import { consumeCredits, getCreditBalance, refundFailedJobCredits } from "../_shared/credits.ts";
+// Legacy monthly quotas (getUserPlanAndUsage/quotaFor) are intentionally NOT
+// used to authorize clip generation. Source of truth = StreamCoins balance.
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
