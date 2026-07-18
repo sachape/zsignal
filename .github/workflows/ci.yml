@@ -1,0 +1,82 @@
+name: CI
+
+# Chaîne de contrôle : aucune PR (surtout générée par IA) ne merge sans passer
+# ces étages. Le visuel (régression Chromatic) tourne dans chromatic.yml.
+on:
+  push:
+    branches: [main, design-system]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Qualité du code + intégrité des tokens ────────────────────────────────
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      # ESLint : REPORT non bloquant. L'app Lovable legacy n'est pas encore
+      # lint-clean (105 erreurs) ; on la surveille sans bloquer. À rendre
+      # bloquant quand la dette sera résorbée.
+      - name: ESLint (report)
+        run: npm run lint
+        continue-on-error: true
+
+      - name: TypeScript (tsc --noEmit)
+        run: npm run typecheck
+
+      # Garde-fou tokens : refuse hex/arbitraire/radius-inconnu/ombre-locale/
+      # primitive-au-lieu-de-sémantique dans le CŒUR du DS (src/components/ui/).
+      - name: Garde-fou tokens
+        run: npm run lint:tokens
+
+      # Les fichiers générés doivent correspondre à la source. Si un token JSON
+      # a changé sans rebuild, on bloque.
+      - name: Tokens synchronisés (source → généré)
+        run: |
+          npm run tokens:build
+          git diff --exit-code \
+            src/tokens.generated.css src/tokens.light.generated.css \
+            design-system/artifacts/tokens.json \
+            design-system/artifacts/tokens.scss \
+            design-system/artifacts/tokens.ts \
+          || { echo "::error::Tokens désynchronisés. Lance 'npm run tokens:build' et commit les fichiers générés."; exit 1; }
+
+      - name: Build production (Vite)
+        run: npm run build
+
+  # ── Tests : unitaires + interaction (play functions) + a11y (bloquant) ────
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Playwright (chromium)
+        run: npx playwright install chromium --with-deps
+      - name: Tests (unit + interaction + a11y)
+        run: npm run test
+
+  # ── Build Storybook (doit compiler entièrement) ───────────────────────────
+  storybook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build Storybook
+        run: npm run build-storybook
