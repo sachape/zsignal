@@ -158,3 +158,13 @@ jour à chaque changement.
 - Addon a11y + docs gardés ; addon-vitest retiré (il restructurait vitest.config
   et cassait les tests) → config de test restaurée, les 12 tests repassent.
 - `npm install` a synchronisé node_modules sans toucher au lockfile ; l'app build.
+
+### Phase 4 — preview enrichi (via `storybook ai setup`)
+- `npx storybook ai setup` génère un prompt de config — suivi dans son intention.
+- Preview partagé : providers SANS effet de bord (QueryClient, Router, Tooltip)
+  + racines de portail. Pas de MSW/Auth : les stories du DS sont présentationnelles,
+  pas des pages connectées (les pages sont des consommateurs, pas le DS).
+- **Toggle de thème clair/sombre** dans la barre d'outils — voir chaque composant
+  dans les deux thèmes (la marque reste, les surfaces flippent : P2/P3).
+- Story `Badge` ajoutée (6 variants dont success/warning custom). Zéro dépendance
+  ajoutée ; les 12 tests repassent.
