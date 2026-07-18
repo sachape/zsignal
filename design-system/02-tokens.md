@@ -124,16 +124,77 @@ extraire cette logique dans le service `getScoreTier` existant, car le pattern
 score→couleur se répète sur plusieurs pages. Différé pour ne pas casser la
 discipline « valeur constante » de ce commit.
 
+## Conformité au Vol.1 Ch.08 — le pipeline
+
+Le premier passage a suivi la *pensée* du Ch.08 (3 couches, aliasing, ne pas
+sur-tokeniser) mais pas son *pipeline*. Corrigé.
+
+### Une seule source de vérité (Step 1) — par inversion
+
+Le handbook suppose `tokens.json` → génère le CSS. Ici `index.css` appartient à
+Lovable (édité en continu) : impossible d'en faire un fichier généré. On inverse
+donc le sens :
+
+```
+src/index.css  (LA source — humaine + Lovable)
+   │  tools/tokens.mjs : parse + valide + résout la couche
+   ▼
+artifacts/tokens.json  (une SORTIE, en-tête « ne pas éditer »)
+```
+
+Le principe tient — *une source, plusieurs sorties* — seule la direction s'adapte.
+`tokens.json` ne peut plus diverger : il est **généré**. C'est ce qui manquait.
+
+### Validation (Step 2)
+
+`tokens.mjs` valide à chaque génération : aliases cassés, cycles, orphelins. Il
+sort en erreur (CI-friendly : `--check`). Casse un alias dans `index.css` et il crie.
+
+### Le test du gate (Step 4) — bouger une primitive
+
+Vérifié : changer `--lime-brand` dans `index.css` et régénérer déplace **5
+aliases** (`semantic.primary`, `primary-strong`, `ring`, `sidebar.primary`,
+`sidebar.ring`). Une ligne → 5 consommateurs. `data.1` a la même valeur mais
+reste indépendant, à dessein (Ch.09 : une palette data-viz évolue seule).
+
+### Ce qui reste inline, et pourquoi
+
+- Les **neutres** (surfaces, texte) : réglés surface par surface, pas une échelle
+  partagée. Le générateur les émet comme sémantiques à valeur brute + override clair.
+- `platform.*` / `data.*` sont des primitives consommées via des **classes
+  Tailwind** (`bg-platform-youtube`), pas par `var()` — donc « orphelines » côté
+  CSS, ce que le générateur signale sans erreur.
+
+## Gouvernance des tokens (Step 5)
+
+| Changement | Version | Qui valide | Note |
+|---|---|---|---|
+| Correction de valeur / description | Patch | Toi (ou Lovable) | Régénérer `tokens.json`. |
+| Ajout d'un token non cassant | Minor | Toi + revue | Régénérer. |
+| **Renommage / suppression d'un `--var`** | **Major** | **RFC + migration** | Casse les composants, Tailwind, la doc. |
+| Nouveau thème / nouvelle marque | Minor/Major | Produit + design + dev | — |
+
+**Règle d'or** : `index.css` est la seule chose qu'on édite. `tokens.json` se
+**régénère**, jamais ne s'édite. Renommer un `--var` est un breaking change —
+changer sa valeur ne casse rien. D'où : noms stables, valeurs libres.
+
+Régénérer après tout changement de tokens :
+
+```bash
+node design-system/tools/tokens.mjs        # génère + valide
+node design-system/tools/tokens.mjs --check # valide seulement (CI)
+```
+
 ## Le gate de la Phase 2
 
-- [x] Les 3 couches sont explicites dans `tokens.json`, fidèles aux valeurs réelles.
-- [x] La couche primitive manquante est identifiée et modélisée.
-- [x] Les familles manquantes (`platform`, `data`) sont décidées et câblées.
-- [x] `index.css` câblé sur les primitives — prouvé à valeur constante.
-- [x] Dérive résorbée là où c'était de la vraie dérive (plateformes). Le compteur
-      distingue désormais dérive et littéraux légitimes.
-- [ ] 1 décision en attente : le rouge score-tier + consolidation dans `getScoreTier`.
+- [x] 3 couches explicites, fidèles au réel (car **générées** depuis `index.css`).
+- [x] Couche primitive posée ; câblée à valeur constante.
+- [x] Familles `platform`/`data` câblées ; dérive plateformes résorbée.
+- [x] **Step 1** — une seule source de vérité (inversion du pipeline).
+- [x] **Step 2** — validation (aliases, cycles, orphelins).
+- [x] **Step 4** — test « bouger une primitive » : 5 aliases suivent.
+- [x] **Step 5** — gouvernance écrite.
+- [ ] 1 décision produit en attente : le rouge score-tier + `getScoreTier`.
 
-Phase 2 franchie sur l'essentiel. `tokens.json` et `index.css` sont alignés ;
-`inventory.mjs` mesure la vraie dérive (4). La Phase 5 (MCP) servira
-`tokens.json` — la valeur existe déjà pour les agents.
+Phase 2 conforme au Ch.08. La Phase 5 (MCP) servira `tokens.json` — une sortie
+toujours vraie, puisque générée.
