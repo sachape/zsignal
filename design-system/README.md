@@ -32,14 +32,19 @@ Aujourd'hui : non aux quatre. Ce dossier existe pour que la réponse devienne ou
 | **5** Couche IA / MCP | `src/lib/mcp/tools/ds-*` | MCP existant | ⬜ |
 | **6** Gouvernance & prompt-to-UI | `06-governance.md` | — | ⬜ |
 
-## Ce qu'on sait déjà (Phases 0-1)
+## Ce qu'on sait déjà
 
 - Le DS, c'est **~65 composants** (49 primitives shadcn + ~16 patterns), pas 217.
   Le reste sont des **consommateurs** (composites de feature, pages).
-- **Aucun des 16 patterns n'a d'API de variant** (CVA) → chantier de la Phase 3.
-- La dérive couleur (**85** valeurs en dur) est concentrée sur **7 fichiers**,
-  dont deux catégories sont des **tokens manquants**, pas de la dérive
-  (couleurs de plateformes, palette data-viz).
+- **Les 3 patterns métier** (`00-audit` / `03-foundations`) : `GenerationJob`
+  (éparpillé), `ScoreDisplay` (logique centralisée, visuel dupliqué ×7),
+  `AccessGate` (déjà réutilisé). Aucun n'a d'API de variant.
+- Tokens : couche primitive + sémantique, **générés depuis `index.css`**
+  (`tools/tokens.mjs`), gouvernance écrite. Conforme Vol.1 Ch.08.
+- Dérive : 85 brut → **vraie dérive app : 4** (le compteur distingue les
+  littéraux légitimes). Familles `platform.*` et `data.*` câblées.
+- **Fondations Ch.07** : ordre de construction posé (`03-foundations`). Étages 2
+  (grille/responsive) et 5 (typographie) restent à fermer avant les specs composant.
 - Le **MCP existe déjà** (`streamnco-mcp`) — la Phase 5 étend, ne crée pas.
 
 ## Régénérer l'inventaire (détection de dérive)
