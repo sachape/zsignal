@@ -122,3 +122,19 @@ jour à chaque changement.
 - **Boogaloo retirée** : de la config Tailwind (`font-brand`, 0 usage), de
   l'import de fonts (plus téléchargée), commentaire périmé corrigé.
 - Fondations Ch.07 : les 2 décisions ouvertes sont closes.
+
+### Phase 3 — les 3 patterns métier spécifiés (étage 8 du Ch.07)
+- Format de spec posé (`05-components.md`) : un composant est une API avant un
+  dessin, avec un bloc INVALIDE qui encode la décision. Une spec sert le designer
+  ET l'agent MCP.
+- **3 specs écrites, ancrées dans le vrai code** (`specs/`) :
+  - `ScoreDisplay` : logique déjà centralisée (`streamScoreTier`), visuel dupliqué
+    ×7. Décision : un score porte toujours son palier ; locked → neutre, jamais
+    un palier.
+  - `GenerationJob` : éparpillé ×2, l'état **partiel** manque (le trou prédit).
+    Décision : une génération est un objet visible/annulable/repris ; partiel =
+    résultat, pas erreur ; retry = les échecs seulement.
+  - `AccessGate` : déjà 3 variantes + analytics ; `ProFeatureGate` à fusionner.
+    Décision : jamais de cul-de-sac, toujours un chemin d'upgrade, toujours mesuré.
+- L'implémentation (unifier les composants) est une étape séparée, après
+  validation des specs.
