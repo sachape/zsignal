@@ -85,7 +85,19 @@ const preview: Preview = {
     controls: {
       matchers: { color: /(background|color)$/i, date: /Date$/i },
     },
-    a11y: { test: "todo" },
+    a11y: {
+      // Mode informatif (n'échoue pas la CI). On coupe les règles « landmark »
+      // qui flaguent à tort un composant rendu SEUL, hors page (une story n'a
+      // pas de <main>). Le contraste, les labels, les rôles restent vérifiés.
+      test: "todo",
+      config: {
+        rules: [
+          { id: "region", enabled: false },
+          { id: "landmark-one-main", enabled: false },
+          { id: "page-has-heading-one", enabled: false },
+        ],
+      },
+    },
   },
 };
 
