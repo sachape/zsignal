@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-18T13:36:00.487Z",
+  "generatedAt": "2026-07-18T15:22:00.513Z",
   "byClass": {
     "composite": 75,
     "pattern": 13,
@@ -1546,7 +1546,7 @@
       "usesCva": false,
       "hasPropsType": false,
       "uiConsumed": [],
-      "hardcodedColors": 3,
+      "hardcodedColors": 0,
       "isMarketing": true,
       "classHeuristic": "marketing",
       "usedBy": 2
@@ -1718,7 +1718,7 @@
       "file": "src/components/ui/button.tsx",
       "name": "button",
       "exports": [],
-      "lines": 53,
+      "lines": 54,
       "usesCva": true,
       "hasPropsType": true,
       "uiConsumed": [],
@@ -1731,7 +1731,7 @@
       "file": "src/components/ui/calendar.tsx",
       "name": "calendar",
       "exports": [],
-      "lines": 55,
+      "lines": 58,
       "usesCva": false,
       "hasPropsType": true,
       "uiConsumed": [
@@ -2266,7 +2266,7 @@
       "file": "src/components/ui/toggle.tsx",
       "name": "toggle",
       "exports": [],
-      "lines": 38,
+      "lines": 40,
       "usesCva": true,
       "hasPropsType": true,
       "uiConsumed": [],
@@ -2330,7 +2330,7 @@
       "usesCva": false,
       "hasPropsType": false,
       "uiConsumed": [],
-      "hardcodedColors": 2,
+      "hardcodedColors": 0,
       "isMarketing": true,
       "classHeuristic": "marketing",
       "usedBy": 0
@@ -3037,7 +3037,7 @@
       "usesCva": false,
       "hasPropsType": false,
       "uiConsumed": [],
-      "hardcodedColors": 2,
+      "hardcodedColors": 0,
       "isMarketing": true,
       "classHeuristic": "marketing",
       "usedBy": 0

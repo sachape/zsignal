@@ -199,7 +199,7 @@ const DiagnosticForm = ({
           </button>
         </div>
       </form>
-      {error && <p className={cn("mt-2 font-el-sans text-[13px]", dark ? "text-el-rose" : "text-[#dc2626]")}>{error}</p>}
+      {error && <p className={cn("mt-2 font-el-sans text-[13px]", dark ? "text-el-rose" : "text-el-danger")}>{error}</p>}
 
       {showDropdown && rect && typeof document !== "undefined" &&
         createPortal(
@@ -250,7 +250,7 @@ const DiagnosticForm = ({
                           <div className="flex items-center gap-1.5">
                             <span className="truncate font-el-sans text-[14px] font-medium text-el-ink">{s.display_name}</span>
                             {s.is_live && (
-                              <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-[#dc2626]/12 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[#dc2626]">
+                              <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-el-danger/12 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-el-danger">
                                 <Radio className="h-2 w-2" /> Live
                               </span>
                             )}

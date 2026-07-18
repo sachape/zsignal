@@ -16,9 +16,9 @@ const HeroScoreRing = () => {
   return (
     <div ref={ref} className="relative h-44 w-44">
       <svg viewBox="0 0 180 180" className="relative h-full w-full -rotate-90">
-        <circle cx="90" cy="90" r={r} fill="none" stroke="#e7e5e4" strokeWidth="7" />
+        <circle cx="90" cy="90" r={r} fill="none" strokeWidth="7" className="stroke-el-hairline" />
         <motion.circle
-          cx="90" cy="90" r={r} fill="none" stroke="#0c0a09" strokeWidth="7" strokeLinecap="round"
+          cx="90" cy="90" r={r} fill="none" strokeWidth="7" strokeLinecap="round" className="stroke-el-ink"
           strokeDasharray={circ}
           initial={{ strokeDashoffset: circ }}
           animate={inView ? { strokeDashoffset: circ * 0.26 } : {}}
