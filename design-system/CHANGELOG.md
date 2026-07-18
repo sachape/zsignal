@@ -37,3 +37,14 @@ jour à chaque changement.
   `brand.platform.*`, pas de valeurs en dur.
 - **Palette data-viz** → famille de tokens `data.*`
   (categorical / sequential / divergent).
+
+### Phase 2 — Consolidation des tokens (partie documentaire)
+- Trouvé : le système de tokens est bon mais **plat** — il manque la couche
+  primitive (`--primary` porte la valeur brute au lieu d'un alias).
+- Écrit `artifacts/tokens.json` : les tokens réels réorganisés en **3 couches**
+  (36 primitives, 20 sémantiques), **sans changer une seule valeur**.
+- Décidé et documenté 2 familles manquantes (9 tokens `proposed`) :
+  `brand.platform.*` (YouTube/Insta/TikTok/X) et `data.*` (data-viz).
+- Reste à faire (touche le code, étape prudente) : câbler `index.css` sur les
+  primitives + résorber les 7 poches de dérive.
+- Fichiers : `02-tokens.md`, `artifacts/tokens.json`.
