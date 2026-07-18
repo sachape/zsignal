@@ -43,6 +43,11 @@ export default defineConfig({
             headless: true,
             instances: [{ browser: "chromium" }],
           },
+          // Un seul fichier de story à la fois dans le navigateur. Lancer trop de
+          // pages Chromium en parallèle (surtout si le serveur `storybook dev`
+          // tourne aussi) provoque des « Browser connection was closed ». On
+          // troque un peu de vitesse contre une suite fiable en CI.
+          fileParallelism: false,
           setupFiles: [".storybook/vitest.setup.ts"],
         },
       },
