@@ -138,3 +138,12 @@ jour à chaque changement.
     Décision : jamais de cul-de-sac, toujours un chemin d'upgrade, toujours mesuré.
 - L'implémentation (unifier les composants) est une étape séparée, après
   validation des specs.
+
+### Catalogue des composants (étages 6-7 du Ch.07)
+- `06-catalog.md` GÉNÉRÉ depuis le manifeste (comme tokens.json — reste vrai à
+  chaque régénération). `tools/catalog.mjs`.
+- Répond à « combien de composants, comment construits » : 49 primitives shadcn,
+  88 composites/patterns (consommateurs), 7 one-offs.
+- Trous chiffrés : **40/49 primitives sans API de variant** ; **20 sans import
+  direct détecté** (le scaffold shadcn en livre 49, ~29 utilisés) — candidates au
+  ménage, à vérifier ; 1 personnalisée (`chart`).

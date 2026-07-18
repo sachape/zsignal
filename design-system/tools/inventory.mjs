@@ -139,7 +139,10 @@ function classify(it) {
   return "one-off";
 }
 
-for (const it of items) it.classHeuristic = classify(it);
+for (const it of items) {
+  it.classHeuristic = classify(it);
+  it.usedBy = importCount[it.name] ?? 0; // nb de fichiers qui l'importent (0 = mort)
+}
 
 // ── Résumé ──────────────────────────────────────────────────────────────────
 const byClass = {};
