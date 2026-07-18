@@ -66,10 +66,18 @@ const IMPACT: Record<string, { label: string; cls: string }> = {
 // ── Score ring ────────────────────────────────────────────────────────────────
 function ScoreRing({ score }: { score: number }) {
   const r = 42, circ = 2 * Math.PI * r, filled = (score / 100) * circ;
-  const color = score >= 81 ? "#89FD3A" : score >= 61 ? "#22c55e" : score >= 31 ? "#f59e0b" : "#ef4444";
+  // Couleurs de palier via tokens du DS (P4). Le rouge 'low' est désormais
+  // aligné sur --destructive (au lieu du rouge Tailwind brut). NB : ce ring
+  // garde 4 paliers avec un vert 61-80, alors que le service streamScoreTier
+  // en a 3 — à consolider en Phase 3 (pattern ScoreDisplay).
+  const color =
+    score >= 81 ? "hsl(var(--primary))"
+    : score >= 61 ? "hsl(var(--success))"
+    : score >= 31 ? "hsl(var(--warning))"
+    : "hsl(var(--destructive))";
   return (
     <svg width="120" height="120" viewBox="0 0 100 100" aria-hidden>
-      <circle cx="50" cy="50" r={r} fill="none" stroke="hsl(220 14% 16%)" strokeWidth="8" />
+      <circle cx="50" cy="50" r={r} fill="none" stroke="hsl(var(--border))" strokeWidth="8" />
       <circle cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="8"
         strokeDasharray={`${filled} ${circ}`} strokeLinecap="round" transform="rotate(-90 50 50)"
         style={{ transition: "stroke-dasharray 0.6s ease" }} />

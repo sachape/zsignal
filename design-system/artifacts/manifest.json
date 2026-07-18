@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-18T12:48:42.772Z",
+  "generatedAt": "2026-07-18T13:25:17.884Z",
   "byClass": {
     "composite": 75,
     "pattern": 13,
@@ -2725,7 +2725,7 @@
       "exports": [
         "ReseauxPage"
       ],
-      "lines": 797,
+      "lines": 805,
       "usesCva": false,
       "hasPropsType": false,
       "uiConsumed": [
@@ -2736,7 +2736,7 @@
         "input",
         "label"
       ],
-      "hardcodedColors": 4,
+      "hardcodedColors": 0,
       "isMarketing": false,
       "classHeuristic": "page"
     },
