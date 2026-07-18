@@ -35,8 +35,8 @@
 | `avatar` | — | 9 | 39 | — |
 | `badge` | ✅ | 43 | 43 | — |
 | `breadcrumb` | — | 0 | 91 | mort |
-| `button` | ✅ | 82 | 53 | — |
-| `calendar` | — | 1 | 55 | — |
+| `button` | ✅ | 82 | 54 | — |
+| `calendar` | — | 1 | 58 | — |
 | `card` | — | 66 | 44 | — |
 | `carousel` | — | 0 | 225 | mort |
 | `chart` | — | 0 | 304 | mort, personnalisé |
@@ -74,7 +74,7 @@
 | `textarea` | — | 9 | 22 | — |
 | `toast` | ✅ | 2 | 112 | — |
 | `toaster` | — | 0 | 25 | mort |
-| `toggle` | ✅ | 1 | 38 | — |
+| `toggle` | ✅ | 1 | 40 | — |
 | `toggle-group` | — | 0 | 50 | mort |
 | `tooltip` | — | 2 | 29 | — |
 

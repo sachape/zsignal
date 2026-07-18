@@ -127,6 +127,7 @@ export default {
           lavender: "#c8b8e0",
           sky: "#a8c8e8",
           rose: "#e8b8c4",
+          danger: "#dc2626",   // rouge d'erreur du site (formulaires) — était en #hex dur
         },
       },
       borderRadius: {

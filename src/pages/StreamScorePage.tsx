@@ -36,10 +36,10 @@ const ScoreRing = ({ score, size = 120 }: { score: number; size?: number }) => {
   return (
     <div ref={ref} style={{ width: size, height: size }} className="relative shrink-0">
       <svg viewBox={`0 0 ${size} ${size}`} className="relative h-full w-full -rotate-90">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#e7e5e4" strokeWidth={size * 0.05} />
+        <circle cx={cx} cy={cy} r={r} fill="none" strokeWidth={size * 0.05} className="stroke-el-hairline" />
         <motion.circle
           cx={cx} cy={cy} r={r} fill="none"
-          stroke="#0c0a09" strokeWidth={size * 0.05} strokeLinecap="round"
+          strokeWidth={size * 0.05} strokeLinecap="round" className="stroke-el-ink"
           strokeDasharray={circ}
           initial={{ strokeDashoffset: circ }}
           animate={inView ? { strokeDashoffset: circ * (1 - score / 100) } : {}}
