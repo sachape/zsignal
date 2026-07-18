@@ -1,0 +1,380 @@
+
+// Do not edit directly, this file was auto-generated.
+
+$border-width-none: 0;
+$border-width-thin: 1px;
+$border-width-medium: 2px;
+$border-width-thick: 4px;
+$color-white: 0 0% 100%; // Blanc pur.
+$color-black: 0 0% 0%; // Noir pur.
+$color-transparent: transparent; // Transparent.
+$color-neutral-0: 0 0% 100%;
+$color-neutral-50: 220 20% 97%;
+$color-neutral-100: 220 20% 94%;
+$color-neutral-150: 210 20% 92%;
+$color-neutral-200: 220 16% 88%;
+$color-neutral-300: 220 13% 82%;
+$color-neutral-400: 215 10% 65%;
+$color-neutral-500: 220 10% 46%;
+$color-neutral-600: 220 12% 36%;
+$color-neutral-700: 220 16% 22%;
+$color-neutral-750: 220 14% 16%;
+$color-neutral-775: 220 16% 14%;
+$color-neutral-800: 220 14% 12%;
+$color-neutral-850: 220 18% 11%;
+$color-neutral-900: 220 18% 9%;
+$color-neutral-925: 220 18% 7%;
+$color-neutral-950: 220 20% 6%;
+$color-lime-400: 95 90% 70%;
+$color-lime-500: 95 98% 61%; // La marque — #89FD3A.
+$color-lime-600: 95 80% 45%;
+$color-lime-text: 96 60% 30%; // Lime assombri, seul lisible en texte sur clair.
+$color-teal-500: 172 66% 50%; // Accent secondaire.
+$color-green-500: 142 71% 45%;
+$color-amber-500: 38 92% 50%;
+$color-red-500: 0 72% 51%;
+$color-blue-500: 217 91% 60%;
+$color-orange-500: 25 95% 53%;
+$color-yellow-500: 48 96% 53%;
+$color-purple-500: 262 83% 58%;
+$color-pink-500: 329 70% 58%;
+$color-platform-twitch: 264 100% 64%;
+$color-platform-youtube: 0 100% 50%;
+$color-platform-instagram: 340 75% 54%; // #E1306C.
+$color-platform-tiktok: 178 100% 47%; // #00F2EA.
+$color-platform-x: 0 0% 9%;
+$color-platform-google: 5 81% 56%; // #EA4335.
+$color-data-1: 95 98% 61%;
+$color-data-2: 172 66% 50%;
+$color-data-3: 217 91% 60%;
+$color-data-4: 38 92% 50%;
+$color-data-5: 329 70% 58%;
+$color-action-destructive-hover: 0 72% 45%;
+$color-action-destructive-pressed: 0 72% 40%;
+$layer-base: 0;
+$layer-sticky: 10;
+$layer-dropdown: 1000;
+$layer-overlay: 1200;
+$layer-modal: 1300;
+$layer-toast: 1400;
+$layer-tooltip: 1500;
+$duration-instant: 0ms;
+$duration-fast: 120ms;
+$duration-normal: 200ms;
+$duration-slow: 320ms;
+$easing-standard: cubic-bezier(0.2, 0, 0, 1); // Transitions standard.
+$easing-accelerate: cubic-bezier(0.4, 0, 1, 1); // Sortie d'écran (entre vite, part vite).
+$easing-decelerate: cubic-bezier(0, 0, 0.2, 1); // Entrée d'écran (arrive en douceur).
+$easing-emphasized: cubic-bezier(0.16, 1, 0.3, 1); // Mouvement premium marqué.
+$opacity-disabled: 0.5; // Élément désactivé.
+$opacity-muted: 0.65; // Contenu atténué.
+$opacity-loading: 0.6; // Contenu en chargement.
+$opacity-overlay: 0.8; // Voile derrière une modale.
+$opacity-hover: 0.9; // Assombrissement au survol d'une surface pleine.
+$radius-none: 0;
+$radius-xs: 0.25rem;
+$radius-sm: 0.375rem;
+$radius-md: 0.5rem;
+$radius-lg: 0.625rem; // Rayon de référence produit (ex-`--radius`).
+$radius-xl: 0.875rem;
+$radius-2xl: 1rem;
+$radius-full: 9999px;
+$shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.20);
+$shadow-sm: 0 2px 4px -1px hsl(0 0% 0% / 0.24);
+$shadow-md: 0 8px 16px -6px hsl(0 0% 0% / 0.30);
+$shadow-lg: 0 16px 32px -12px hsl(0 0% 0% / 0.36);
+$shadow-xl: 0 30px 60px -20px hsl(0 0% 0% / 0.45);
+$size-4: 0.25rem;
+$size-8: 0.5rem;
+$size-12: 0.75rem;
+$size-16: 1rem;
+$size-20: 1.25rem;
+$size-24: 1.5rem;
+$size-32: 2rem;
+$size-36: 2.25rem;
+$size-40: 2.5rem;
+$size-44: 2.75rem;
+$size-48: 3rem;
+$size-56: 3.5rem;
+$size-64: 4rem;
+$space-0: 0;
+$space-1: 0.25rem;
+$space-2: 0.5rem;
+$space-3: 0.75rem;
+$space-4: 1rem;
+$space-5: 1.25rem;
+$space-6: 1.5rem;
+$space-8: 2rem;
+$space-10: 2.5rem;
+$space-12: 3rem;
+$space-16: 4rem;
+$space-20: 5rem;
+$space-24: 6rem;
+$font-family-sans: Instrument Sans, DM Sans, system-ui, sans-serif; // Police produit (titres + corps).
+$font-family-mono: JetBrains Mono, monospace; // Chiffres tabulaires, code.
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.8125rem;
+$font-size-base: 0.875rem;
+$font-size-md: 1rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.25rem;
+$font-size-2xl: 1.5rem;
+$font-size-3xl: 1.875rem;
+$font-size-4xl: 2.25rem;
+$line-height-tight: 1.1;
+$line-height-snug: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.65;
+$letter-spacing-tight: -0.02em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.05em;
+$letter-spacing-wider: 0.1em;
+$container-width-sm: 40rem;
+$container-width-md: 48rem;
+$container-width-lg: 64rem;
+$color-background-page: $color-neutral-950;
+$color-background-surface: $color-neutral-900; // Cartes.
+$color-background-elevated: $color-neutral-850; // Popovers, menus.
+$color-background-muted: $color-neutral-800;
+$color-background-subtle: $color-neutral-775; // Chips, surfaces enfoncées (secondary).
+$color-background-brand: $color-lime-500;
+$color-background-success: $color-green-500;
+$color-background-warning: $color-amber-500;
+$color-background-danger: $color-red-500;
+$color-background-info: $color-blue-500;
+$color-text-primary: $color-neutral-150;
+$color-text-secondary: $color-neutral-400;
+$color-text-tertiary: $color-neutral-500;
+$color-text-disabled: $color-neutral-500;
+$color-text-inverse: $color-neutral-950; // Texte sur surface claire/marque.
+$color-text-brand: $color-lime-500;
+$color-text-on-brand: $color-neutral-950; // Texte sur un aplat lime.
+$color-text-on-danger: $color-neutral-50; // Texte sur un aplat rouge/destructif.
+$color-border-default: $color-neutral-750;
+$color-border-subtle: $color-neutral-800;
+$color-border-strong: $color-neutral-700;
+$color-border-focus: $color-lime-500;
+$color-border-danger: $color-red-500;
+$color-border-success: $color-green-500;
+$color-icon-primary: $color-neutral-150;
+$color-icon-secondary: $color-neutral-400;
+$color-icon-brand: $color-lime-500;
+$color-icon-inverse: $color-neutral-950;
+$color-action-primary-default: $color-lime-500;
+$color-action-primary-hover: $color-lime-400;
+$color-action-primary-pressed: $color-lime-600;
+$color-action-primary-disabled: $color-neutral-775;
+$color-action-secondary-default: $color-neutral-775;
+$color-action-secondary-hover: $color-neutral-750;
+$color-action-secondary-pressed: $color-neutral-700;
+$color-action-secondary-disabled: $color-neutral-800;
+$color-action-destructive-default: $color-red-500;
+$color-action-destructive-disabled: $color-neutral-775;
+$color-focus-ring: $color-lime-500;
+$radius-control: $radius-md; // Boutons, inputs, selects.
+$radius-card: $radius-lg; // Cartes.
+$radius-container: $radius-lg; // Grands conteneurs.
+$radius-dialog: $radius-xl; // Modales, drawers.
+$radius-pill: $radius-full; // Badges, chips arrondis.
+$space-component-xs: $space-1;
+$space-component-sm: $space-2;
+$space-component-md: $space-3;
+$space-component-lg: $space-4;
+$space-layout-xs: $space-4;
+$space-layout-sm: $space-6;
+$space-layout-md: $space-8;
+$space-layout-lg: $space-12;
+$space-layout-xl: $space-16;
+$control-height-sm: $size-32;
+$control-height-md: $size-36;
+$control-height-lg: $size-40;
+$icon-size-sm: $size-16;
+$icon-size-md: $size-20;
+$icon-size-lg: $size-24;
+$elevation-flat: $shadow-xs; // Cartes posées.
+$elevation-raised: $shadow-sm; // Éléments survolés/actifs.
+$elevation-overlay: $shadow-md; // Popovers, dropdowns.
+$elevation-modal: $shadow-xl; // Modales, drawers.
+$motion-interaction-fast: $duration-fast; // Micro-interactions (survol, focus).
+$motion-interaction-normal: $duration-normal; // Transitions standard.
+$motion-enter: $easing-decelerate; // Éléments qui apparaissent.
+$motion-exit: $easing-accelerate; // Éléments qui disparaissent.
+$badge-padding-inline: $space-2;
+$badge-padding-block: $space-1;
+$badge-gap: $space-1;
+$button-border-width: $border-width-thin;
+$button-focus-ring-width: $border-width-medium;
+$button-focus-ring-offset: $border-width-medium;
+$button-padding-inline-sm: $space-3;
+$button-padding-inline-md: $space-4;
+$button-padding-inline-lg: $space-6;
+$button-padding-block: $space-0;
+$button-destructive-background-hover: $color-action-destructive-hover;
+$button-destructive-background-pressed: $color-action-destructive-pressed;
+$card-padding: $space-6;
+$checkbox-size: $size-16;
+$checkbox-radius: $radius-xs;
+$dialog-padding: $space-6;
+$dialog-overlay-background: $color-neutral-950;
+$dialog-overlay-opacity: $opacity-overlay;
+$input-padding-inline: $space-3;
+$input-border-width: $border-width-thin;
+$sidebar-item-height: $size-32;
+$switch-track-width: $size-44;
+$switch-track-height: $size-24;
+$switch-thumb-background: $color-neutral-0;
+$switch-thumb-size: $size-20;
+$switch-radius: $radius-full;
+$tabs-trigger-radius: $radius-sm;
+$tabs-trigger-padding-inline: $space-3;
+$tabs-trigger-padding-block: $space-1;
+$tooltip-padding-inline: $space-3;
+$tooltip-padding-block: $space-1;
+$secondary-foreground: $color-neutral-300;
+$accent: $color-teal-500;
+$accent-foreground: $color-neutral-950;
+$destructive-foreground: $color-neutral-50;
+$success-foreground: $color-neutral-950;
+$warning-foreground: $color-neutral-950;
+$info-foreground: $color-neutral-950;
+$twitch: $color-platform-twitch;
+$twitch-foreground: $color-neutral-0;
+$platform-twitch: $color-platform-twitch;
+$platform-youtube: $color-platform-youtube;
+$platform-instagram: $color-platform-instagram;
+$platform-tiktok: $color-platform-tiktok;
+$platform-x: $color-platform-x;
+$platform-google: $color-platform-google;
+$data-1: $color-data-1;
+$data-2: $color-data-2;
+$data-3: $color-data-3;
+$data-4: $color-data-4;
+$data-5: $color-data-5;
+$radius: $radius-lg;
+$sidebar-background: $color-neutral-925;
+$sidebar-foreground: $color-neutral-300;
+$sidebar-primary: $color-lime-500;
+$sidebar-primary-foreground: $color-neutral-950;
+$sidebar-accent: $color-neutral-800;
+$sidebar-border: $color-neutral-750;
+$sidebar-ring: $color-lime-500;
+$badge-radius: $radius-pill;
+$badge-primary-background: $color-background-brand;
+$badge-primary-text: $color-text-on-brand;
+$badge-secondary-background: $color-background-subtle;
+$badge-secondary-text: $color-text-primary;
+$badge-success-background: $color-background-success;
+$badge-success-text: $color-text-on-brand;
+$badge-destructive-background: $color-background-danger;
+$badge-destructive-text: $color-text-on-danger;
+$button-radius: $radius-control;
+$button-gap: $space-component-sm;
+$button-icon-size: $icon-size-sm;
+$button-focus-ring-color: $color-focus-ring;
+$button-shadow: $elevation-flat;
+$button-height-sm: $control-height-sm;
+$button-height-md: $control-height-md;
+$button-height-lg: $control-height-lg;
+$button-primary-background-default: $color-action-primary-default;
+$button-primary-background-hover: $color-action-primary-hover;
+$button-primary-background-pressed: $color-action-primary-pressed;
+$button-primary-background-disabled: $color-action-primary-disabled;
+$button-primary-text-default: $color-text-on-brand;
+$button-primary-text-disabled: $color-text-disabled;
+$button-primary-border-default: $color-action-primary-default;
+$button-secondary-background-default: $color-action-secondary-default;
+$button-secondary-background-hover: $color-action-secondary-hover;
+$button-secondary-background-pressed: $color-action-secondary-pressed;
+$button-secondary-background-disabled: $color-action-secondary-disabled;
+$button-secondary-text-default: $color-text-primary;
+$button-secondary-text-disabled: $color-text-disabled;
+$button-secondary-border-default: $color-action-secondary-default;
+$button-outline-background-default: $color-background-page;
+$button-outline-background-hover: $color-action-secondary-default;
+$button-outline-background-pressed: $color-action-secondary-hover;
+$button-outline-background-disabled: $color-background-page;
+$button-outline-text-default: $color-text-primary;
+$button-outline-text-disabled: $color-text-disabled;
+$button-outline-border-default: $color-border-default;
+$button-ghost-background-default: $color-background-page;
+$button-ghost-background-hover: $color-action-secondary-default;
+$button-ghost-background-pressed: $color-action-secondary-hover;
+$button-ghost-background-disabled: $color-background-page;
+$button-ghost-text-default: $color-text-primary;
+$button-ghost-text-disabled: $color-text-disabled;
+$button-destructive-background-default: $color-action-destructive-default;
+$button-destructive-background-disabled: $color-action-destructive-disabled;
+$button-destructive-text-default: $color-text-on-danger;
+$button-destructive-text-disabled: $color-text-disabled;
+$button-destructive-border-default: $color-action-destructive-default;
+$card-background: $color-background-surface;
+$card-foreground: $color-text-primary;
+$card-border: $color-border-default;
+$card-radius: $radius-card;
+$card-gap: $space-component-md;
+$card-shadow: $elevation-flat;
+$checkbox-background-default: $color-background-page;
+$checkbox-background-checked: $color-action-primary-default;
+$checkbox-border: $color-border-default;
+$checkbox-icon: $color-text-on-brand;
+$dialog-background: $color-background-elevated;
+$dialog-foreground: $color-text-primary;
+$dialog-border: $color-border-default;
+$dialog-radius: $radius-dialog;
+$dialog-shadow: $elevation-modal;
+$input-background-default: $color-background-page;
+$input-background-disabled: $color-background-muted;
+$input-text-default: $color-text-primary;
+$input-text-placeholder: $color-text-tertiary;
+$input-text-disabled: $color-text-disabled;
+$input-border-default: $color-border-default;
+$input-border-focus: $color-border-focus;
+$input-border-danger: $color-border-danger;
+$input-height: $control-height-md;
+$input-radius: $radius-control;
+$sidebar-focus-ring: $color-focus-ring;
+$sidebar-icon-size: $icon-size-md;
+$sidebar-item-background-default: $color-background-page;
+$sidebar-item-background-hover: $color-background-muted;
+$sidebar-item-background-active: $color-background-muted;
+$sidebar-item-foreground-default: $color-text-secondary;
+$sidebar-item-foreground-active: $color-text-primary;
+$sidebar-item-radius: $radius-control;
+$sidebar-item-gap: $space-component-sm;
+$sidebar-item-padding-inline: $space-component-sm;
+$sidebar-item-padding-block: $space-component-xs;
+$switch-track-background-off: $color-background-subtle;
+$switch-track-background-on: $color-action-primary-default;
+$tabs-list-background: $color-background-muted;
+$tabs-list-radius: $radius-control;
+$tabs-trigger-background-active: $color-background-surface;
+$tabs-trigger-text-default: $color-text-secondary;
+$tabs-trigger-text-active: $color-text-primary;
+$tooltip-background: $color-background-elevated;
+$tooltip-foreground: $color-text-primary;
+$tooltip-radius: $radius-control;
+$tooltip-shadow: $elevation-overlay;
+$background: $color-background-page;
+$foreground: $color-text-primary;
+$card: $color-background-surface;
+$card-foreground: $color-text-primary;
+$popover: $color-background-elevated;
+$popover-foreground: $color-text-primary;
+$muted: $color-background-muted;
+$muted-foreground: $color-text-secondary;
+$secondary: $color-background-subtle;
+$border: $color-border-default;
+$input: $color-border-default;
+$ring: $color-focus-ring;
+$primary: $color-action-primary-default;
+$primary-foreground: $color-text-on-brand;
+$primary-strong: $color-text-brand;
+$destructive: $color-background-danger;
+$success: $color-background-success;
+$warning: $color-background-warning;
+$info: $color-background-info;
+$sidebar-accent-foreground: $color-text-primary;

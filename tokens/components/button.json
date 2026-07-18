@@ -1,0 +1,113 @@
+{
+  "button": {
+    "$description": "Tokens du composant Button. Chaque valeur pointe vers un token sémantique — jamais de valeur brute.",
+
+    "radius":            { "$type": "dimension", "$value": "{radius.control}" },
+    "gap":               { "$type": "dimension", "$value": "{space.component.sm}" },
+    "icon": { "size":    { "$type": "dimension", "$value": "{icon.size.sm}" } },
+    "border": { "width": { "$type": "dimension", "$value": "{border.width.thin}" } },
+    "focus": {
+      "ring": {
+        "width":  { "$type": "dimension", "$value": "{border.width.medium}" },
+        "offset": { "$type": "dimension", "$value": "{border.width.medium}" },
+        "color":  { "$type": "color",     "$value": "{color.focus.ring}" }
+      }
+    },
+    "shadow":            { "$type": "shadow", "$value": "{elevation.flat}" },
+
+    "height": {
+      "$type": "dimension",
+      "sm": { "$value": "{control.height.sm}" },
+      "md": { "$value": "{control.height.md}" },
+      "lg": { "$value": "{control.height.lg}" }
+    },
+    "padding": {
+      "inline": {
+        "$type": "dimension",
+        "sm": { "$value": "{space.3}" },
+        "md": { "$value": "{space.4}" },
+        "lg": { "$value": "{space.6}" }
+      },
+      "block": { "$type": "dimension", "$value": "{space.0}" }
+    },
+
+    "primary": {
+      "background": {
+        "$type": "color",
+        "default":  { "$value": "{color.action.primary.default}" },
+        "hover":    { "$value": "{color.action.primary.hover}" },
+        "pressed":  { "$value": "{color.action.primary.pressed}" },
+        "disabled": { "$value": "{color.action.primary.disabled}" }
+      },
+      "text": {
+        "$type": "color",
+        "default":  { "$value": "{color.text.on-brand}" },
+        "disabled": { "$value": "{color.text.disabled}" }
+      },
+      "border": { "$type": "color", "default": { "$value": "{color.action.primary.default}" } }
+    },
+
+    "secondary": {
+      "background": {
+        "$type": "color",
+        "default":  { "$value": "{color.action.secondary.default}" },
+        "hover":    { "$value": "{color.action.secondary.hover}" },
+        "pressed":  { "$value": "{color.action.secondary.pressed}" },
+        "disabled": { "$value": "{color.action.secondary.disabled}" }
+      },
+      "text": {
+        "$type": "color",
+        "default":  { "$value": "{color.text.primary}" },
+        "disabled": { "$value": "{color.text.disabled}" }
+      },
+      "border": { "$type": "color", "default": { "$value": "{color.action.secondary.default}" } }
+    },
+
+    "outline": {
+      "background": {
+        "$type": "color",
+        "default":  { "$value": "{color.background.page}" },
+        "hover":    { "$value": "{color.action.secondary.default}" },
+        "pressed":  { "$value": "{color.action.secondary.hover}" },
+        "disabled": { "$value": "{color.background.page}" }
+      },
+      "text": {
+        "$type": "color",
+        "default":  { "$value": "{color.text.primary}" },
+        "disabled": { "$value": "{color.text.disabled}" }
+      },
+      "border": { "$type": "color", "default": { "$value": "{color.border.default}" } }
+    },
+
+    "ghost": {
+      "background": {
+        "$type": "color",
+        "default":  { "$value": "{color.background.page}" },
+        "hover":    { "$value": "{color.action.secondary.default}" },
+        "pressed":  { "$value": "{color.action.secondary.hover}" },
+        "disabled": { "$value": "{color.background.page}" }
+      },
+      "text": {
+        "$type": "color",
+        "default":  { "$value": "{color.text.primary}" },
+        "disabled": { "$value": "{color.text.disabled}" }
+      }
+    },
+
+    "destructive": {
+      "background": {
+        "$type": "color",
+        "default":  { "$value": "{color.action.destructive.default}" },
+        "hover":    { "$value": "{color.action.destructive.hover}" },
+        "pressed":  { "$value": "{color.action.destructive.pressed}" },
+        "disabled": { "$value": "{color.action.destructive.disabled}" }
+      },
+      "text": {
+        "$type": "color",
+        "default":  { "$value": "{color.text.on-danger}" },
+        "disabled": { "$value": "{color.text.disabled}" }
+      },
+      "border": { "$type": "color", "default": { "$value": "{color.action.destructive.default}" } }
+    }
+  }
+}

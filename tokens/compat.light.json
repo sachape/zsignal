@@ -1,0 +1,37 @@
+{
+  "shadcn": {
+    "$description": "Overrides light du pont shadcn. On ne redéfinit QUE les variables qui pointent vers une primitive (les autres suivent la sémantique light automatiquement).",
+    "secondary-foreground": {
+      "$type": "color",
+      "$value": "{color.neutral.700}"
+    },
+    "primary-strong": {
+      "$type": "color",
+      "$value": "{color.lime.text}"
+    },
+    "sidebar-background": {
+      "$type": "color",
+      "$value": "{color.neutral.50}"
+    },
+    "sidebar-foreground": {
+      "$type": "color",
+      "$value": "{color.neutral.600}"
+    },
+    "sidebar-primary-foreground": {
+      "$type": "color",
+      "$value": "{color.neutral.0}"
+    },
+    "sidebar-accent": {
+      "$type": "color",
+      "$value": "{color.neutral.150}"
+    },
+    "sidebar-accent-foreground": {
+      "$type": "color",
+      "$value": "{color.neutral.750}"
+    },
+    "sidebar-border": {
+      "$type": "color",
+      "$value": "{color.neutral.200}"
+    }
+  }
+}

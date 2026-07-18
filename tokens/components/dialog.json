@@ -1,0 +1,15 @@
+{
+  "dialog": {
+    "$description": "Modales et drawers (Dialog, AlertDialog, Sheet).",
+    "background": { "$type": "color", "$value": "{color.background.elevated}" },
+    "foreground": { "$type": "color", "$value": "{color.text.primary}" },
+    "border":     { "$type": "color", "$value": "{color.border.default}" },
+    "radius":     { "$type": "dimension", "$value": "{radius.dialog}" },
+    "padding":    { "$type": "dimension", "$value": "{space.6}" },
+    "shadow":     { "$type": "shadow", "$value": "{elevation.modal}" },
+    "overlay": {
+      "background": { "$type": "color",  "$value": "{color.neutral.950}" },
+      "opacity":    { "$type": "number", "$value": "{opacity.overlay}" }
+    }
+  }
+}

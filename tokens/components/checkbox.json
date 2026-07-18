@@ -1,0 +1,14 @@
+{
+  "checkbox": {
+    "$description": "Case à cocher.",
+    "size":   { "$type": "dimension", "$value": "{size.16}" },
+    "radius": { "$type": "dimension", "$value": "{radius.xs}" },
+    "background": {
+      "$type": "color",
+      "default": { "$value": "{color.background.page}" },
+      "checked": { "$value": "{color.action.primary.default}" }
+    },
+    "border": { "$type": "color", "$value": "{color.border.default}" },
+    "icon":   { "$type": "color", "$value": "{color.text.on-brand}" }
+  }
+}

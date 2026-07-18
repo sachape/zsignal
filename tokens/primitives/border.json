@@ -1,0 +1,12 @@
+{
+  "border": {
+    "width": {
+      "$type": "dimension",
+      "$description": "Épaisseurs de trait.",
+      "none":   { "$value": "0" },
+      "thin":   { "$value": "1px" },
+      "medium": { "$value": "2px" },
+      "thick":  { "$value": "4px" }
+    }
+  }
+}

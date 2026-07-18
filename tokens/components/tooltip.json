@@ -1,0 +1,10 @@
+{
+  "tooltip": {
+    "$description": "Info-bulle au survol.",
+    "background": { "$type": "color", "$value": "{color.background.elevated}" },
+    "foreground": { "$type": "color", "$value": "{color.text.primary}" },
+    "radius":     { "$type": "dimension", "$value": "{radius.control}" },
+    "padding":    { "inline": { "$type": "dimension", "$value": "{space.3}" }, "block": { "$type": "dimension", "$value": "{space.1}" } },
+    "shadow":     { "$type": "shadow", "$value": "{elevation.overlay}" }
+  }
+}

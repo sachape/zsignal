@@ -1,0 +1,35 @@
+{
+  "color": {
+    "background": {
+      "page":     { "$value": "{color.neutral.100}" },
+      "surface":  { "$value": "{color.neutral.0}" },
+      "elevated": { "$value": "{color.neutral.0}" },
+      "muted":    { "$value": "{color.neutral.200}" },
+      "subtle":   { "$value": "{color.neutral.200}" }
+    },
+    "text": {
+      "primary":   { "$value": "{color.neutral.800}" },
+      "secondary": { "$value": "{color.neutral.500}" },
+      "tertiary":  { "$value": "{color.neutral.500}" },
+      "disabled":  { "$value": "{color.neutral.400}" },
+      "inverse":   { "$value": "{color.neutral.0}" },
+      "brand":     { "$value": "{color.lime.text}", "$description": "Lime assombri : lisible en texte sur clair." }
+    },
+    "border": {
+      "default": { "$value": "{color.neutral.300}" },
+      "subtle":  { "$value": "{color.neutral.200}" },
+      "strong":  { "$value": "{color.neutral.400}" }
+    },
+    "icon": {
+      "primary":   { "$value": "{color.neutral.800}" },
+      "secondary": { "$value": "{color.neutral.500}" }
+    },
+    "action": {
+      "secondary": {
+        "default":  { "$value": "{color.neutral.200}" },
+        "hover":    { "$value": "{color.neutral.300}" },
+        "pressed":  { "$value": "{color.neutral.400}" }
+      }
+    }
+  }
+}

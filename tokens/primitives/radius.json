@@ -1,0 +1,14 @@
+{
+  "radius": {
+    "$type": "dimension",
+    "$description": "Rayons de coin. Échelle absolue (pas de calc) — les dérivés se font par alias sémantique.",
+    "none": { "$value": "0" },
+    "xs":   { "$value": "0.25rem" },
+    "sm":   { "$value": "0.375rem" },
+    "md":   { "$value": "0.5rem" },
+    "lg":   { "$value": "0.625rem", "$description": "Rayon de référence produit (ex-`--radius`)." },
+    "xl":   { "$value": "0.875rem" },
+    "2xl":  { "$value": "1rem" },
+    "full": { "$value": "9999px" }
+  }
+}

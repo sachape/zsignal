@@ -1,0 +1,65 @@
+{
+  "color": {
+    "white": { "$value": "hsl(0 0% 100%)", "$type": "color", "$description": "Blanc pur." },
+    "black": { "$value": "hsl(0 0% 0%)", "$type": "color", "$description": "Noir pur." },
+    "transparent": { "$value": "transparent", "$type": "color", "$description": "Transparent." },
+
+    "neutral": {
+      "$description": "Échelle neutre bleutée (hue 220). Ordonnée par clarté : 0 = blanc, 950 = quasi-noir. Base de toutes les surfaces et textes, en clair comme en sombre.",
+      "0":   { "$value": "hsl(0 0% 100%)",   "$type": "color" },
+      "50":  { "$value": "hsl(220 20% 97%)", "$type": "color" },
+      "100": { "$value": "hsl(220 20% 94%)", "$type": "color" },
+      "150": { "$value": "hsl(210 20% 92%)", "$type": "color" },
+      "200": { "$value": "hsl(220 16% 88%)", "$type": "color" },
+      "300": { "$value": "hsl(220 13% 82%)", "$type": "color" },
+      "400": { "$value": "hsl(215 10% 65%)", "$type": "color" },
+      "500": { "$value": "hsl(220 10% 46%)", "$type": "color" },
+      "600": { "$value": "hsl(220 12% 36%)", "$type": "color" },
+      "700": { "$value": "hsl(220 16% 22%)", "$type": "color" },
+      "750": { "$value": "hsl(220 14% 16%)", "$type": "color" },
+      "775": { "$value": "hsl(220 16% 14%)", "$type": "color" },
+      "800": { "$value": "hsl(220 14% 12%)", "$type": "color" },
+      "850": { "$value": "hsl(220 18% 11%)", "$type": "color" },
+      "900": { "$value": "hsl(220 18% 9%)",  "$type": "color" },
+      "925": { "$value": "hsl(220 18% 7%)",  "$type": "color" },
+      "950": { "$value": "hsl(220 20% 6%)",  "$type": "color" }
+    },
+
+    "lime": {
+      "$description": "Couleur de marque Streamnco (#89FD3A) et sa variante assombrie lisible en texte sur fond clair.",
+      "400": { "$value": "hsl(95 90% 70%)", "$type": "color" },
+      "500": { "$value": "hsl(95 98% 61%)", "$type": "color", "$description": "La marque — #89FD3A." },
+      "600": { "$value": "hsl(95 80% 45%)", "$type": "color" },
+      "text": { "$value": "hsl(96 60% 30%)", "$type": "color", "$description": "Lime assombri, seul lisible en texte sur clair." }
+    },
+
+    "teal":   { "500": { "$value": "hsl(172 66% 50%)", "$type": "color", "$description": "Accent secondaire." } },
+    "green":  { "500": { "$value": "hsl(142 71% 45%)", "$type": "color" } },
+    "amber":  { "500": { "$value": "hsl(38 92% 50%)",  "$type": "color" } },
+    "red":    { "500": { "$value": "hsl(0 72% 51%)",   "$type": "color" } },
+    "blue":   { "500": { "$value": "hsl(217 91% 60%)", "$type": "color" } },
+    "orange": { "500": { "$value": "hsl(25 95% 53%)",  "$type": "color" } },
+    "yellow": { "500": { "$value": "hsl(48 96% 53%)",  "$type": "color" } },
+    "purple": { "500": { "$value": "hsl(262 83% 58%)", "$type": "color" } },
+    "pink":   { "500": { "$value": "hsl(329 70% 58%)", "$type": "color" } },
+
+    "platform": {
+      "$description": "Couleurs de marque des plateformes (hex exacts). Utilisées uniquement là où la marque tierce est requise.",
+      "twitch":    { "$value": "hsl(264 100% 64%)", "$type": "color" },
+      "youtube":   { "$value": "hsl(0 100% 50%)",   "$type": "color" },
+      "instagram": { "$value": "hsl(340 75% 54%)",  "$type": "color", "$description": "#E1306C." },
+      "tiktok":    { "$value": "hsl(178 100% 47%)", "$type": "color", "$description": "#00F2EA." },
+      "x":         { "$value": "hsl(0 0% 9%)",       "$type": "color" },
+      "google":    { "$value": "hsl(5 81% 56%)",     "$type": "color", "$description": "#EA4335." }
+    },
+
+    "data": {
+      "$description": "Palette data-viz catégorielle (5 teintes distinctes) pour graphiques.",
+      "1": { "$value": "hsl(95 98% 61%)",  "$type": "color" },
+      "2": { "$value": "hsl(172 66% 50%)", "$type": "color" },
+      "3": { "$value": "hsl(217 91% 60%)", "$type": "color" },
+      "4": { "$value": "hsl(38 92% 50%)",  "$type": "color" },
+      "5": { "$value": "hsl(329 70% 58%)", "$type": "color" }
+    }
+  }
+}

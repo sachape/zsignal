@@ -1,0 +1,19 @@
+{
+  "switch": {
+    "$description": "Bascule on/off.",
+    "track": {
+      "background": {
+        "$type": "color",
+        "off": { "$value": "{color.background.subtle}" },
+        "on":  { "$value": "{color.action.primary.default}" }
+      },
+      "width":  { "$type": "dimension", "$value": "{size.44}" },
+      "height": { "$type": "dimension", "$value": "{size.24}" }
+    },
+    "thumb": {
+      "background": { "$type": "color", "$value": "{color.neutral.0}" },
+      "size":       { "$type": "dimension", "$value": "{size.20}" }
+    },
+    "radius": { "$type": "dimension", "$value": "{radius.full}" }
+  }
+}
