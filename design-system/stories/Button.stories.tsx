@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent } from "storybook/test";
+import { Sparkles, Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -26,6 +27,15 @@ const meta: Meta<typeof Button> = {
 };
 export default meta;
 type S = StoryObj<typeof Button>;
+
+/**
+ * Playground — LA story pilotée par les contrôles. Change `variant` et `size`
+ * dans le panneau Controls, le bouton se met à jour en direct (les autres
+ * stories figent leurs args pour montrer un cas précis).
+ */
+export const Playground: S = {
+  args: { children: "Bouton", variant: "default", size: "default" },
+};
 
 export const Primary: S = {
   args: { children: "Générer les clips", variant: "default" },
@@ -56,8 +66,34 @@ export const Disabled: S = {
   },
 };
 
-/** Tous les variants côte à côte — la matrice, d'un coup d'œil. */
+/** Avec icône : une icône lucide en enfant + le texte. L'icône est mise à
+ *  l'échelle automatiquement (`[&_svg]:size-4`) et hérite de la couleur. */
+export const WithIcon: S = {
+  render: (args) => (
+    <Button {...args}>
+      <Sparkles /> Générer des clips
+    </Button>
+  ),
+  args: { variant: "default" },
+};
+
+/** Icône seule : `size="icon"` (bouton carré). Toujours fournir un
+ *  `aria-label` — sans texte, c'est la seule étiquette accessible. */
+export const IconOnly: S = {
+  render: (args) => (
+    <div style={{ display: "flex", gap: 8 }}>
+      <Button {...args} size="icon" aria-label="Télécharger"><Download /></Button>
+      <Button {...args} size="icon" variant="secondary" aria-label="Ajouter"><Plus /></Button>
+      <Button {...args} size="icon" variant="outline" aria-label="Ajouter"><Plus /></Button>
+    </div>
+  ),
+  args: { variant: "default" },
+};
+
+/** Tous les variants côte à côte — la matrice, d'un coup d'œil. Vitrine
+ *  STATIQUE : les contrôles n'ont pas d'effet ici (voir Playground pour ça). */
 export const AllVariants: S = {
+  parameters: { controls: { disable: true } },
   render: () => (
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
       <Button>Default</Button>
