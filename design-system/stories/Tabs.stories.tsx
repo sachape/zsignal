@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 const meta: Meta<typeof Tabs> = {
   title: "Primitives/Tabs",
   component: Tabs,
-  parameters: { docs: { description: { component: "Tabs — vues liées d'un même objet. Composé : Tabs + TabsList + TabsTrigger + TabsContent." } },  layout: "centered" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "Tabs — vues liées d'un même objet. Composé : Tabs + TabsList + TabsTrigger + TabsContent." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Tabs>;

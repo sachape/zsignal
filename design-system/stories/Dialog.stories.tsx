@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof Dialog> = {
   title: "Primitives/Dialog",
   component: Dialog,
-  parameters: { docs: { description: { component: "Dialog — les modales (15×). Composé : Dialog + Trigger + Content + Header + Footer." } },  layout: "centered" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "Dialog — les modales (15×). Composé : Dialog + Trigger + Content + Header + Footer." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Dialog>;

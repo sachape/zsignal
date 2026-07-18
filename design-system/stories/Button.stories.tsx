@@ -2,106 +2,118 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent } from "storybook/test";
 import { Sparkles, Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { lock } from "./_lockControls";
 
-/**
- * Button — primitive shadcn. L'une des 9 primitives (sur 49) qui ont une vraie
- * API de variant (CVA). Toutes les couleurs viennent des tokens (--primary…).
- */
+// Source de vérité : miroir des variantes/tailles CVA de button.tsx (§7).
+// L'API est celle de shadcn : "default" (pas "primary"), pas de "loading".
+const BUTTON_VARIANTS = [
+  "default", "secondary", "outline", "ghost", "destructive",
+  "destructive-outline", "success", "warning", "link", "twitch",
+] as const;
+const BUTTON_SIZES = ["default", "sm", "lg", "icon"] as const;
+
 const meta: Meta<typeof Button> = {
   title: "Primitives/Button",
   component: Button,
-  parameters: { docs: { description: { component: "Button — primitive shadcn. L'une des 9 primitives (sur 49) qui ont une vraie API de variant (CVA)." } },  layout: "centered" },
-  // onClick espionné (fn()) : les play functions vérifient qu'il part — ou pas.
-  args: { onClick: fn() },
+  tags: ["autodocs"],
+  // Valeurs de rendu par défaut (§8) — chaque story ne surcharge que le nécessaire.
+  args: { children: "Button", variant: "default", size: "default", disabled: false, onClick: fn() },
   argTypes: {
+    children: { control: "text", description: "Contenu visible du bouton.", table: { category: "Content" } },
     variant: {
-      control: "select",
-      options: ["default", "secondary", "outline", "ghost", "destructive", "link"],
+      control: "select", options: BUTTON_VARIANTS,
+      description: "Rôle visuel et sémantique. `default` = action principale (lime).",
+      table: { category: "Appearance", defaultValue: { summary: "default" } },
     },
-    size: { control: "select", options: ["default", "sm", "lg", "icon"] },
-    // asChild n'est PAS une prop visuelle : c'est de la composition (Slot). Si
-    // on l'active avec un enfant texte, Slot n'a pas d'élément à cloner et le
-    // bouton disparaît. On le retire des contrôles pour éviter ce faux « bug ».
-    asChild: { control: false, table: { disable: true } },
+    size: {
+      control: "select", options: BUTTON_SIZES,
+      description: "Hauteur et paddings. `icon` = bouton carré sans texte.",
+      table: { category: "Layout", defaultValue: { summary: "default" } },
+    },
+    disabled: { control: "boolean", description: "Désactive toute interaction.", table: { category: "State" } },
+    asChild: { control: false, description: "Rend l'enfant comme élément racine (Slot). Composition avancée.", table: { category: "Advanced" } },
+    onClick: { control: false, description: "Callback à l'activation.", table: { category: "Events" } },
+  },
+  parameters: {
+    layout: "centered",
+    controls: { sort: "requiredFirst" },
+    docs: { description: { component: "Button — déclenche une action ou confirme une décision. Toutes les couleurs viennent des tokens ; `default` porte la marque lime." } },
   },
 };
 export default meta;
 type S = StoryObj<typeof Button>;
 
-/**
- * Playground — LA story pilotée par les contrôles. Change `variant` et `size`
- * dans le panneau Controls, le bouton se met à jour en direct (les autres
- * stories figent leurs args pour montrer un cas précis).
- */
-export const Playground: S = {
-  args: { children: "Bouton", variant: "default", size: "default" },
-};
+/** Exploration libre : tous les Controls actifs. */
+export const Playground: S = {};
 
-export const Primary: S = {
-  args: { children: "Générer les clips", variant: "default" },
-  // Comportement : un clic déclenche onClick une fois.
-  play: async ({ args, canvas, userEvent }) => {
-    const button = canvas.getByRole("button", { name: /générer les clips/i });
-    await userEvent.click(button);
-    await expect(args.onClick).toHaveBeenCalledTimes(1);
-  },
-};
-export const Secondary: S = { args: { children: "Annuler", variant: "secondary" } };
-export const Outline: S = { args: { children: "Voir le détail", variant: "outline" } };
-export const Destructive: S = { args: { children: "Supprimer", variant: "destructive" } };
-export const Ghost: S = { args: { children: "Passer", variant: "ghost" } };
+// ── Variantes (propriété d'identité `variant` verrouillée) ────────────────
+export const Default: S = { args: { variant: "default", children: "Générer les clips" }, argTypes: lock("variant") };
+export const Secondary: S = { args: { variant: "secondary", children: "Annuler" }, argTypes: lock("variant") };
+export const Outline: S = { args: { variant: "outline", children: "Voir les détails" }, argTypes: lock("variant") };
+export const Ghost: S = { args: { variant: "ghost", children: "Passer" }, argTypes: lock("variant") };
+export const Destructive: S = { args: { variant: "destructive", children: "Supprimer le projet" }, argTypes: lock("variant") };
+export const Link: S = { args: { variant: "link", children: "En savoir plus" }, argTypes: lock("variant") };
 
-/** Désactivé : le clic ne doit JAMAIS déclencher onClick. */
+// ── État (identité `disabled` verrouillée) ────────────────────────────────
 export const Disabled: S = {
-  args: { children: "Générer les clips", variant: "default", disabled: true },
+  args: { disabled: true, children: "Indisponible" },
+  argTypes: lock("disabled"),
   play: async ({ args, canvas }) => {
-    const button = canvas.getByRole("button", { name: /générer les clips/i });
+    const button = canvas.getByRole("button", { name: /indisponible/i });
     await expect(button).toBeDisabled();
-    // shadcn applique `disabled:pointer-events-none` : userEvent refuserait un
-    // clic normal. On désactive le garde-fou pour FORCER le clic et prouver que
-    // l'attribut `disabled` natif bloque quand même le handler.
-    const user = userEvent.setup({ pointerEventsCheck: 0 });
-    await user.click(button);
+    // shadcn met pointer-events:none ; on force le clic pour prouver que
+    // l'attribut disabled natif bloque quand même le handler.
+    await userEvent.setup({ pointerEventsCheck: 0 }).click(button);
     await expect(args.onClick).not.toHaveBeenCalled();
   },
 };
 
-/** Avec icône : une icône lucide en enfant + le texte. L'icône est mise à
- *  l'échelle automatiquement (`[&_svg]:size-4`) et hérite de la couleur. */
+// ── Icônes ────────────────────────────────────────────────────────────────
 export const WithIcon: S = {
-  render: (args) => (
-    <Button {...args}>
-      <Sparkles /> Générer des clips
-    </Button>
-  ),
-  args: { variant: "default" },
+  args: { children: "Ajouter un clip" },
+  render: (args) => <Button {...args}><Sparkles /> {args.children}</Button>,
 };
 
-/** Icône seule : `size="icon"` (bouton carré). Toujours fournir un
- *  `aria-label` — sans texte, c'est la seule étiquette accessible. */
+/** Icône seule : `size="icon"` + `aria-label` obligatoire (nom accessible). */
 export const IconOnly: S = {
-  render: (args) => (
-    <div style={{ display: "flex", gap: 8 }}>
-      <Button {...args} size="icon" aria-label="Télécharger"><Download /></Button>
-      <Button {...args} size="icon" variant="secondary" aria-label="Ajouter"><Plus /></Button>
-      <Button {...args} size="icon" variant="outline" aria-label="Ajouter"><Plus /></Button>
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex gap-2">
+      <Button size="icon" aria-label="Télécharger"><Download /></Button>
+      <Button size="icon" variant="secondary" aria-label="Ajouter"><Plus /></Button>
+      <Button size="icon" variant="outline" aria-label="Ajouter"><Plus /></Button>
     </div>
   ),
-  args: { variant: "default" },
 };
 
-/** Tous les variants côte à côte — la matrice, d'un coup d'œil. Vitrine
- *  STATIQUE : les contrôles n'ont pas d'effet ici (voir Playground pour ça). */
+// ── Matrices (Controls désactivés : plusieurs instances) ──────────────────
+export const Sizes: S = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex items-center gap-3">
+      <Button size="sm">Small</Button>
+      <Button size="default">Default</Button>
+      <Button size="lg">Large</Button>
+    </div>
+  ),
+};
+
 export const AllVariants: S = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      <Button>Default</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="outline">Outline</Button>
-      <Button variant="ghost">Ghost</Button>
-      <Button variant="destructive">Destructive</Button>
-      <Button variant="link">Link</Button>
+    <div className="flex flex-wrap gap-2">
+      {(["default", "secondary", "outline", "ghost", "destructive", "link"] as const).map((v) => (
+        <Button key={v} variant={v}>{v}</Button>
+      ))}
     </div>
   ),
+};
+
+// ── Test d'interaction ────────────────────────────────────────────────────
+export const ClickInteraction: S = {
+  args: { children: "Générer les clips", onClick: fn() },
+  play: async ({ args, canvas }) => {
+    await userEvent.click(canvas.getByRole("button", { name: /générer les clips/i }));
+    await expect(args.onClick).toHaveBeenCalledOnce();
+  },
 };

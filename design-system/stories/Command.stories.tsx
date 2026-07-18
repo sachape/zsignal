@@ -13,7 +13,7 @@ import {
 const meta: Meta<typeof Command> = {
   title: "Primitives/Command",
   component: Command,
-  parameters: { docs: { description: { component: "Command — la palette (Cmd+K) : recherche + actions rapides pour power users. Ici en rendu inline (le composant), pas en CommandDialog, pour montrer le filtrage." } },  layout: "centered" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "Command — la palette (Cmd+K) : recherche + actions rapides pour power users. Ici en rendu inline (le composant), pas en CommandDialog, pour montrer le filtrage." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Command>;

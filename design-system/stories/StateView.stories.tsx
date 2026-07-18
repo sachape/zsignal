@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
  */
 const meta: Meta = {
   title: "Patterns/StateView",
-  parameters: { docs: { description: { component: "StateView — surfaces unifiées de chargement / erreur (16×). Garde l'UX des états cohérente PARTOUT dans le produit : on ne réinvente pas un spinner ou un message d'erreur par page." } },  layout: "fullscreen" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "StateView — surfaces unifiées de chargement / erreur (16×). Garde l'UX des états cohérente PARTOUT dans le produit : on ne réinvente pas un spinner ou un message d'erreur par page." } },  layout: "fullscreen" },
 };
 export default meta;
 type S = StoryObj;

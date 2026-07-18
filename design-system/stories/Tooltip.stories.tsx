@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof Tooltip> = {
   title: "Primitives/Tooltip",
   component: Tooltip,
-  parameters: { docs: { description: { component: "Tooltip — une précision au survol (raccourci, unité). Jamais pour une info indispensable (elle disparaît au clic / mobile)." } },  layout: "centered" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "Tooltip — une précision au survol (raccourci, unité). Jamais pour une info indispensable (elle disparaît au clic / mobile)." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Tooltip>;

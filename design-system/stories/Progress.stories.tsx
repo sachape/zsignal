@@ -1,33 +1,44 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Progress } from "@/components/ui/progress";
+import { lock } from "./_lockControls";
 
-/**
- * Progress — l'avancement d'un rendu (génération de clips). Pour du > 10 s,
- * préférer une barre avec valeur plutôt qu'un spinner (cf. feedback d'interaction).
- */
 const meta: Meta<typeof Progress> = {
   title: "Primitives/Progress",
   component: Progress,
-  parameters: { docs: { description: { component: "Progress — l'avancement d'un rendu (génération de clips). Pour du > 10 s, préférer une barre avec valeur plutôt qu'un spinner." } },  layout: "centered" },
-  argTypes: { value: { control: { type: "range", min: 0, max: 100, step: 1 } } },
+  tags: ["autodocs"],
+  args: { value: 60 },
+  argTypes: {
+    value: {
+      control: { type: "range", min: 0, max: 100, step: 1 },
+      description: "Avancement, de 0 à 100.",
+      table: { category: "State", defaultValue: { summary: "0" } },
+    },
+  },
+  parameters: {
+    layout: "centered",
+    controls: { sort: "requiredFirst" },
+    docs: { description: { component: "Progress — avancement d'une tâche (génération de clips). Pour du > 10 s, préférer une barre avec valeur à un spinner." } },
+  },
+  render: (args) => <Progress {...args} aria-label="Progression" className="w-72" />,
 };
 export default meta;
 type S = StoryObj<typeof Progress>;
 
-/** Playground — fais varier `value` (0–100) avec le slider des contrôles. */
-export const Playground: S = {
-  render: (args) => <Progress {...args} className="w-72" />,
-  args: { value: 60 },
-};
+export const Playground: S = {};
 
-export const Rendu: S = {
+export const Empty: S = { args: { value: 0 }, argTypes: lock("value") };
+export const Partial: S = { args: { value: 60 }, argTypes: lock("value") };
+export const Complete: S = { args: { value: 100 }, argTypes: lock("value") };
+
+/** Use case : barre étiquetée avec le pourcentage. */
+export const AvecLabel: S = {
+  parameters: { controls: { disable: true } },
   render: () => (
     <div className="w-72 space-y-2">
       <div className="flex justify-between text-sm text-muted-foreground">
-        <span>Génération des clips</span>
-        <span>68 %</span>
+        <span>Génération des clips</span><span>68 %</span>
       </div>
-      <Progress value={68} />
+      <Progress value={68} aria-label="Génération des clips" />
     </div>
   ),
 };
