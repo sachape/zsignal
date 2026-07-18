@@ -9,9 +9,16 @@ const meta: Meta<typeof Progress> = {
   title: "Primitives/Progress",
   component: Progress,
   parameters: { docs: { description: { component: "Progress — l'avancement d'un rendu (génération de clips). Pour du > 10 s, préférer une barre avec valeur plutôt qu'un spinner." } },  layout: "centered" },
+  argTypes: { value: { control: { type: "range", min: 0, max: 100, step: 1 } } },
 };
 export default meta;
 type S = StoryObj<typeof Progress>;
+
+/** Playground — fais varier `value` (0–100) avec le slider des contrôles. */
+export const Playground: S = {
+  render: (args) => <Progress {...args} className="w-72" />,
+  args: { value: 60 },
+};
 
 export const Rendu: S = {
   render: () => (

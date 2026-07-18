@@ -15,6 +15,12 @@ const meta: Meta<typeof Input> = {
 export default meta;
 type S = StoryObj<typeof Input>;
 
+/** Playground — joue avec `placeholder`, `disabled`, `type` dans les contrôles. */
+export const Playground: S = {
+  render: (args) => <Input {...args} className="w-72" />,
+  args: { placeholder: "Saisir…", disabled: false },
+};
+
 export const Champ: S = {
   render: () => (
     <div className="grid gap-2 w-72">

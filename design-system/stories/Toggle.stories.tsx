@@ -10,9 +10,19 @@ const meta: Meta<typeof Toggle> = {
   title: "Primitives/Toggle",
   component: Toggle,
   parameters: { docs: { description: { component: "Toggle — un bouton à deux états (activé/non), ex. épingler un clip." } },  layout: "centered" },
+  argTypes: {
+    variant: { control: "select", options: ["default", "outline"] },
+    size: { control: "select", options: ["default", "sm", "lg"] },
+  },
 };
 export default meta;
 type S = StoryObj<typeof Toggle>;
+
+/** Playground — change `variant`, `size`, `disabled`, `defaultPressed`. */
+export const Playground: S = {
+  render: (args) => <Toggle aria-label="Bascule" {...args}>Épingler</Toggle>,
+  args: { variant: "default", size: "default", disabled: false },
+};
 
 export const Epingler: S = {
   render: () => <Toggle aria-label="Épingler le clip">Épingler</Toggle>,

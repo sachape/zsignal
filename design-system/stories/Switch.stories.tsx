@@ -15,6 +15,9 @@ const meta: Meta<typeof Switch> = {
 export default meta;
 type S = StoryObj<typeof Switch>;
 
+/** Playground — bascule `defaultChecked` et `disabled` dans les contrôles. */
+export const Playground: S = { args: { defaultChecked: true, disabled: false } };
+
 export const Reglage: S = {
   render: () => (
     <div className="flex items-center gap-3">
