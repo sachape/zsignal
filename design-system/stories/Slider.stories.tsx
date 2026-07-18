@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 import { Slider } from "@/components/ui/slider";
 import { lock } from "./_lockControls";
 
@@ -24,3 +25,15 @@ type S = StoryObj<typeof Slider>;
 
 export const Playground: S = {};
 export const Disabled: S = { args: { disabled: true }, argTypes: lock("disabled") };
+
+/** Test : la flèche clavier modifie la valeur (aria-valuenow). */
+export const ValueChange: S = {
+  parameters: { controls: { disable: true } },
+  play: async ({ canvas, userEvent }) => {
+    const thumb = canvas.getByRole("slider");
+    await expect(thumb).toHaveAttribute("aria-valuenow", "60");
+    thumb.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(thumb).toHaveAttribute("aria-valuenow", "61");
+  },
+};
