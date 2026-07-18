@@ -9,7 +9,7 @@ import { Toggle } from "@/components/ui/toggle";
 const meta: Meta<typeof Toggle> = {
   title: "Primitives/Toggle",
   component: Toggle,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Toggle — un bouton à deux états (activé/non), ex. épingler un clip." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Toggle>;

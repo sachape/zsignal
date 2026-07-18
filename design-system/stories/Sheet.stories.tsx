@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof Sheet> = {
   title: "Primitives/Sheet",
   component: Sheet,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Sheet — un panneau latéral (filtres avancés, détail d'un clip) qui glisse depuis un bord sans quitter la page. Composé : Trigger + Content (+ Header/Footer)." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Sheet>;

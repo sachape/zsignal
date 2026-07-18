@@ -23,6 +23,9 @@ const queryClient = new QueryClient({
 });
 
 const preview: Preview = {
+  // autodocs : chaque composant obtient une page "Docs" (Overview) auto —
+  // description + table des props (Component API) + toutes ses stories rendues.
+  tags: ["autodocs"],
   // Toggle clair/sombre dans la barre d'outils Storybook.
   globalTypes: {
     theme: {

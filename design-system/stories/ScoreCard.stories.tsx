@@ -10,7 +10,7 @@ import ScoreCard from "@/components/ScoreCard";
 const meta: Meta<typeof ScoreCard> = {
   title: "Patterns/ScoreDisplay (ScoreCard)",
   component: ScoreCard,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "ScoreCard — l'implémentation actuelle du pattern ScoreDisplay (voir design-system/specs/score-display.md). Montre les 3 paliers via streamScoreTier : bas → destructive (P4), moyen → warning, haut → primary." } },  layout: "centered" },
   argTypes: {
     score: { control: { type: "range", min: 0, max: 100 } },
     locked: { control: "boolean" },

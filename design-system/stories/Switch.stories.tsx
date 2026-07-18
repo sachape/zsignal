@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 const meta: Meta<typeof Switch> = {
   title: "Primitives/Switch",
   component: Switch,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Switch — un réglage on/off immédiat (2×). À réserver aux bascules sans étape de validation." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Switch>;

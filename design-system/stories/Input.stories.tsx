@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 const meta: Meta<typeof Input> = {
   title: "Primitives/Input",
   component: Input,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Input + Label — la base des formulaires (input 20×, label 18×). Montrés ensemble : un champ de formulaire complet." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Input>;

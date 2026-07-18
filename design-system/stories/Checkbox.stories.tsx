@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 const meta: Meta<typeof Checkbox> = {
   title: "Primitives/Checkbox",
   component: Checkbox,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Checkbox — une sélection dans une liste ou un consentement (2×). Radix : expose bien le rôle checkbox et l'état coché." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Checkbox>;

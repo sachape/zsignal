@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 const meta: Meta<typeof Textarea> = {
   title: "Primitives/Textarea",
   component: Textarea,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Textarea — la saisie longue (9×) : description d'un clip, note, prompt. Même traitement visuel que l'Input (surface « inset », focus ring token)." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Textarea>;

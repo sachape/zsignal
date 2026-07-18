@@ -9,7 +9,7 @@ import ProgressRow from "@/components/ProgressRow";
 const meta: Meta<typeof ProgressRow> = {
   title: "Patterns/ProgressRow",
   component: ProgressRow,
-  parameters: { layout: "padded" },
+  parameters: { docs: { description: { component: "ProgressRow — barre KPI « actuel / cible » standardisée (3×) : progression affiliation, objectifs. Avec tinted, la couleur de remplissage suit les paliers StreamScore (bas/moyen/haut) — le même signal que le score." } },  layout: "padded" },
 };
 export default meta;
 type S = StoryObj<typeof ProgressRow>;
