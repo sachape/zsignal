@@ -147,3 +147,14 @@ jour à chaque changement.
 - Trous chiffrés : **40/49 primitives sans API de variant** ; **20 sans import
   direct détecté** (le scaffold shadcn en livre 49, ~29 utilisés) — candidates au
   ménage, à vérifier ; 1 personnalisée (`chart`).
+
+### Phase 4 — Storybook = la source de vérité visuelle
+- Storybook 10 (react-vite) installé, configuré **isolé du plugin Lovable**
+  (viteFinal retire component-tagger + MCP Supabase). Tokens branchés via index.css,
+  fond sombre par défaut (comme l'app).
+- Stories : **Tokens** (générée en parcourant tokens.json — toujours vraie, 18
+  primitives + sémantiques + composant en swatches), **ScoreDisplay** (ScoreCard
+  aux 4 paliers, dont le rouge P4, avec contrôles interactifs), **Button** (variants).
+- Addon a11y + docs gardés ; addon-vitest retiré (il restructurait vitest.config
+  et cassait les tests) → config de test restaurée, les 12 tests repassent.
+- `npm install` a synchronisé node_modules sans toucher au lockfile ; l'app build.
