@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-18T12:17:18.486Z",
+  "generatedAt": "2026-07-18T12:48:42.772Z",
   "byClass": {
     "composite": 75,
     "pattern": 13,
@@ -181,7 +181,7 @@
         "label",
         "badge"
       ],
-      "hardcodedColors": 9,
+      "hardcodedColors": 0,
       "isMarketing": false,
       "classHeuristic": "composite"
     },
@@ -2736,7 +2736,7 @@
         "input",
         "label"
       ],
-      "hardcodedColors": 11,
+      "hardcodedColors": 4,
       "isMarketing": false,
       "classHeuristic": "page"
     },
@@ -2754,7 +2754,7 @@
         "card",
         "badge"
       ],
-      "hardcodedColors": 6,
+      "hardcodedColors": 0,
       "isMarketing": false,
       "classHeuristic": "page"
     },

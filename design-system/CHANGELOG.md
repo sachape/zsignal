@@ -60,3 +60,16 @@ jour à chaque changement.
   (`@lovable.dev/mcp-js`) — pré-existant, identique sur main, hors de mon
   périmètre. Le CSS lui-même compile (vérifié via Tailwind CLI).
 - Thermomètre encore à 85 : la résorption de la dérive est l'étape suivante.
+
+### Phase 2 — Résorption de la dérive
+- Découverte clé : **tout n'était pas de la dérive.** Sur 85 valeurs en dur, la
+  moitié sont des **littéraux légitimes** (styles de sous-titre = données, carte
+  export html-to-image, sélecteurs Recharts, logo Google).
+- **Résorbé les ~22 vraies dérives** : couleurs de plateformes (Twitch/YouTube/
+  Instagram) → classes `text-platform-*`, `bg-platform-*`. Valeur constante.
+- Corrigé la primitive Instagram (était approximative) au hex exact.
+- Le thermomètre `inventory.mjs` distingue maintenant **dérive vraie vs littéraux
+  légitimes** (allowlist documentée). Compteur : 85 brut → 63 brut, **vraie
+  dérive app : 4** (la fonction score-tier de ReseauxPage, différée — 1 décision).
+- Fichiers : `ReseauxPage`, `ConnectNetworkModal`, `ReseauxPlatformPage`,
+  `index.css`, `tailwind.config.ts`, `tools/inventory.mjs`, `02-tokens.md`.

@@ -83,16 +83,57 @@ sync avec `main` pour éviter les conflits Lovable :
    ce sont de vraies pastilles de style (données), auquel cas elles restent, ou
    de la dérive, auquel cas elles tokenisent.
 
+## Résultat de la résorption
+
+Le point clé, découvert en résorbant : **tout n'était pas de la dérive.** Le
+compteur brut disait 85 ; l'audit à la main donne trois catégories.
+
+| Catégorie | Valeurs | Sort |
+|---|---|---|
+| **Dérive résorbée** | ~22 | Couleurs de plateformes → tokens `platform.*`. Fait. |
+| **Littéraux légitimes** | 52 | Gardés, et documentés (voir ci-dessous). |
+| **Marketing (hors scope)** | 7 | Système `el`, phase ultérieure. |
+| **Dérive app différée** | 4 | La fonction score-tier de `ReseauxPage`. Voir plus bas. |
+
+**Compteur : 85 brut → 63 brut. Vraie dérive app : 4.**
+
+### Littéraux légitimes (à ne PAS tokeniser)
+
+Une source de vérité qui tokenise des données est aussi fausse qu'une qui laisse
+de la dérive. Ces quatre fichiers gardent des couleurs en dur pour une raison
+structurelle — inscrite dans l'allowlist de `tools/inventory.mjs` :
+
+- `CaptionStylePreviewGrid` (38) — définitions de styles de sous-titre (contour,
+  glow). C'est de la donnée : un contour de caption est noir quel que soit le thème.
+- `ShareScoreCard` (8) — carte exportée en image (html-to-image) ; les variables
+  CSS ne se résolvent pas à la capture. Le code le documente déjà.
+- `ui/chart.tsx` (5) — sélecteurs CSS ciblant les défauts de Recharts
+  (`[stroke='#ccc']`). Des matchers, pas des couleurs appliquées.
+- `auth/AuthForm` (1) — couleur officielle du logo Google (SVG). Identité de marque.
+
+### Dérive app différée — 1 décision
+
+`ReseauxPage:69` : `score >= 81 ? "#89FD3A" : score >= 61 ? "#22c55e" : ... "#ef4444"`.
+Trois des quatre couleurs correspondent EXACTEMENT à des tokens (lime, success,
+warning). La quatrième, `#ef4444`, **diffère** du `destructive` du DS
+(`0 72% 51%` vs `0 84% 60%`). Tokeniser changerait ce rouge visiblement.
+
+→ **Décision à prendre** : aligner le rouge « score bas » sur le `destructive`
+du DS (léger changement visuel, gain de cohérence) ? Et tant qu'à faire,
+extraire cette logique dans le service `getScoreTier` existant, car le pattern
+score→couleur se répète sur plusieurs pages. Différé pour ne pas casser la
+discipline « valeur constante » de ce commit.
+
 ## Le gate de la Phase 2
 
 - [x] Les 3 couches sont explicites dans `tokens.json`, fidèles aux valeurs réelles.
 - [x] La couche primitive manquante est identifiée et modélisée.
-- [x] Les familles manquantes (`platform`, `data`) sont décidées et distinguées
-      de la dérive.
-- [ ] `index.css` câblé sur les primitives (étape 1 ci-dessus).
-- [ ] Compteur de dérive (`inventory.mjs`) : 85 → tend vers 0.
+- [x] Les familles manquantes (`platform`, `data`) sont décidées et câblées.
+- [x] `index.css` câblé sur les primitives — prouvé à valeur constante.
+- [x] Dérive résorbée là où c'était de la vraie dérive (plateformes). Le compteur
+      distingue désormais dérive et littéraux légitimes.
+- [ ] 1 décision en attente : le rouge score-tier + consolidation dans `getScoreTier`.
 
-Tant que les deux dernières cases ne sont pas cochées, `tokens.json` est la
-**source de vérité documentaire** ; `index.css` en reste l'implémentation, pas
-encore alignée à 100 %. La Phase 5 (MCP) servira `tokens.json` — donc la valeur
-existe déjà pour les agents, même avant le câblage complet.
+Phase 2 franchie sur l'essentiel. `tokens.json` et `index.css` sont alignés ;
+`inventory.mjs` mesure la vraie dérive (4). La Phase 5 (MCP) servira
+`tokens.json` — la valeur existe déjà pour les agents.

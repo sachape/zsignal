@@ -35,10 +35,10 @@ function InstagramIcon({ className }: { className?: string }) {
 }
 
 const PM: Record<Platform, { label: string; color: string; iconBg: string; Icon: React.FC<{ className?: string }>; beta?: boolean }> = {
-  twitch:    { label: "Twitch",    color: "text-[#9146FF]", iconBg: "bg-[#9146FF]/15", Icon: TwitchIcon    },
-  youtube:   { label: "YouTube",   color: "text-[#FF0000]", iconBg: "bg-[#FF0000]/10", Icon: YouTubeIcon   },
+  twitch:    { label: "Twitch",    color: "text-platform-twitch", iconBg: "bg-platform-twitch/15", Icon: TwitchIcon    },
+  youtube:   { label: "YouTube",   color: "text-platform-youtube", iconBg: "bg-platform-youtube/10", Icon: YouTubeIcon   },
   tiktok:    { label: "TikTok",    color: "text-foreground", iconBg: "bg-muted",       Icon: TikTokIcon,    beta: true },
-  instagram: { label: "Instagram", color: "text-[#E1306C]", iconBg: "bg-[#E1306C]/10", Icon: InstagramIcon, beta: true },
+  instagram: { label: "Instagram", color: "text-platform-instagram", iconBg: "bg-platform-instagram/10", Icon: InstagramIcon, beta: true },
 };
 
 const VALID_PLATFORMS: Platform[] = ["twitch", "youtube", "tiktok", "instagram"];

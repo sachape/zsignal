@@ -33,10 +33,10 @@ const PLATFORMS: {
   id: Platform; label: string; color: string; bg: string;
   Icon: React.FC<{ className?: string }>; description: string;
 }[] = [
-  { id: "twitch",    label: "Twitch",    color: "text-[#9146FF]",  bg: "bg-[#9146FF]/10 border-[#9146FF]/20",  Icon: TwitchIcon,    description: "Ta plateforme principale de streaming live." },
-  { id: "youtube",   label: "YouTube",   color: "text-[#FF0000]",  bg: "bg-[#FF0000]/10 border-[#FF0000]/20",  Icon: YouTubeIcon,   description: "Recycle tes lives en VODs et Shorts découvrables." },
+  { id: "twitch",    label: "Twitch",    color: "text-platform-twitch",  bg: "bg-platform-twitch/10 border-platform-twitch/20",  Icon: TwitchIcon,    description: "Ta plateforme principale de streaming live." },
+  { id: "youtube",   label: "YouTube",   color: "text-platform-youtube",  bg: "bg-platform-youtube/10 border-platform-youtube/20",  Icon: YouTubeIcon,   description: "Recycle tes lives en VODs et Shorts découvrables." },
   { id: "tiktok",    label: "TikTok",    color: "text-foreground", bg: "bg-muted border-border",               Icon: TikTokIcon,    description: "Canal d'acquisition short-form avec fort reach organique." },
-  { id: "instagram", label: "Instagram", color: "text-[#E1306C]",  bg: "bg-[#E1306C]/10 border-[#E1306C]/20", Icon: InstagramIcon, description: "Vitrine créateur et relation communautaire." },
+  { id: "instagram", label: "Instagram", color: "text-platform-instagram",  bg: "bg-platform-instagram/10 border-platform-instagram/20", Icon: InstagramIcon, description: "Vitrine créateur et relation communautaire." },
 ];
 
 // ── Props ─────────────────────────────────────────────────────────────────────

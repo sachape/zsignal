@@ -29,6 +29,25 @@ const ROOT = process.cwd();
 const SCAN_DIRS = ["src/components", "src/pages"];
 const OUT_DIR = "design-system/artifacts";
 
+/**
+ * Littéraux LÉGITIMES — pas de la dérive.
+ *
+ * Une source de vérité qui tokenise des données est aussi fausse qu'une qui
+ * laisse traîner de la dérive. Ces fichiers gardent des couleurs en dur pour
+ * une raison structurelle, vérifiée à la Phase 2. Le thermomètre les exclut de
+ * la « vraie dérive » — mais les compte toujours en brut, pour transparence.
+ */
+const ALLOWED_LITERALS = {
+  "src/components/clips/CaptionStylePreviewGrid.tsx":
+    "Définitions de styles de sous-titre (contours, glow) — c'est de la donnée, pas une surface thémable.",
+  "src/components/ShareScoreCard.tsx":
+    "Carte exportée en image (html-to-image) : les variables CSS ne se résolvent pas à la capture. Doit être self-contained.",
+  "src/components/ui/chart.tsx":
+    "Sélecteurs CSS ciblant les défauts de Recharts ([stroke='#ccc']) — des matchers, pas des couleurs appliquées.",
+  "src/components/auth/AuthForm.tsx":
+    "Couleurs officielles du logo Google (SVG) — identité de marque tierce, doit rester exacte.",
+};
+
 /** Marche récursivement, ne garde que les .tsx (les composants sont en TSX). */
 function walk(dir) {
   const out = [];
@@ -130,6 +149,14 @@ const totalHardcoded = items.reduce((s, i) => s + i.hardcodedColors, 0);
 const cvaCount = items.filter((i) => i.usesCva).length;
 const propsCount = items.filter((i) => i.hasPropsType).length;
 
+// Vraie dérive = valeurs en dur HORS littéraux légitimes. C'est la métrique
+// qui doit tendre vers 0 ; le brut, lui, ne l'atteindra jamais (et c'est sain).
+const trueDrift = items
+  .filter((i) => !(i.file in ALLOWED_LITERALS) && i.hardcodedColors > 0)
+  .sort((a, b) => b.hardcodedColors - a.hardcodedColors);
+const trueDriftTotal = trueDrift.reduce((s, i) => s + i.hardcodedColors, 0);
+const allowedTotal = totalHardcoded - trueDriftTotal;
+
 mkdirSync(join(ROOT, OUT_DIR), { recursive: true });
 writeFileSync(
   join(ROOT, OUT_DIR, "manifest.json"),
@@ -143,5 +170,13 @@ for (const [k, v] of Object.entries(byClass).sort((a, b) => b[1] - a[1])) {
 }
 console.log(`\n  ${cvaCount} composants avec API de variant (CVA)`);
 console.log(`  ${propsCount} composants avec un type Props`);
-console.log(`  ${totalHardcoded} valeurs de couleur en dur (cible : 0)`);
+console.log(`\n  Couleurs en dur : ${totalHardcoded} brut`);
+console.log(`    dont ${allowedTotal} littéraux légitimes (data-viz, export, logos, sélecteurs)`);
+console.log(`    → VRAIE DÉRIVE : ${trueDriftTotal} (cible : 0)`);
+if (trueDrift.length) {
+  console.log(`    reste à résorber :`);
+  for (const i of trueDrift) {
+    console.log(`      ${String(i.hardcodedColors).padStart(3)}  ${i.file.replace("src/", "")}`);
+  }
+}
 console.log(`\nManifeste écrit → ${OUT_DIR}/manifest.json\n`);

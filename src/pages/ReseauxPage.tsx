@@ -51,10 +51,10 @@ function InstagramIcon({ className }: { className?: string }) {
 
 // ── Platform meta ─────────────────────────────────────────────────────────────
 const PM: Record<Platform, { label: string; color: string; iconBg: string; Icon: React.FC<{ className?: string }>; cta: string; beta?: boolean }> = {
-  twitch:    { label: "Twitch",    color: "text-[#9146FF]", iconBg: "bg-[#9146FF]/15", Icon: TwitchIcon,    cta: "Connecter" },
-  youtube:   { label: "YouTube",   color: "text-[#FF0000]", iconBg: "bg-[#FF0000]/10", Icon: YouTubeIcon,   cta: "Connecter YouTube" },
+  twitch:    { label: "Twitch",    color: "text-platform-twitch", iconBg: "bg-platform-twitch/15", Icon: TwitchIcon,    cta: "Connecter" },
+  youtube:   { label: "YouTube",   color: "text-platform-youtube", iconBg: "bg-platform-youtube/10", Icon: YouTubeIcon,   cta: "Connecter YouTube" },
   tiktok:    { label: "TikTok",    color: "text-foreground", iconBg: "bg-muted",       Icon: TikTokIcon,    cta: "Ajouter TikTok",    beta: true },
-  instagram: { label: "Instagram", color: "text-[#E1306C]", iconBg: "bg-[#E1306C]/10", Icon: InstagramIcon, cta: "Ajouter Instagram", beta: true },
+  instagram: { label: "Instagram", color: "text-platform-instagram", iconBg: "bg-platform-instagram/10", Icon: InstagramIcon, cta: "Ajouter Instagram", beta: true },
 };
 
 const IMPACT: Record<string, { label: string; cls: string }> = {
@@ -577,7 +577,7 @@ export default function ReseauxPage() {
               <div className="mt-3 rounded-lg border border-border bg-card/40 p-3 text-xs">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-2 min-w-0">
-                    <InstagramIcon className="h-4 w-4 mt-0.5 shrink-0 text-[#E1306C]" />
+                    <InstagramIcon className="h-4 w-4 mt-0.5 shrink-0 text-platform-instagram" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="font-semibold text-foreground">Instagram — intégration officielle Meta</p>
                       {(() => {
