@@ -1,12 +1,74 @@
 import type { Preview } from "@storybook/react-vite";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip";
 // Les tokens du DS + les styles globaux de l'app. Sans ça, les composants
 // s'affichent hors de leur système (pas de lime, pas de surfaces).
 import "../src/index.css";
 
+/**
+ * Preview partagé (guidé par `npx storybook ai setup`).
+ *
+ * On enveloppe chaque story avec les providers SANS effet de bord — QueryClient,
+ * Router, Tooltip — pour que la plupart des composants rendent. On n'ajoute PAS
+ * AuthProvider ni Supabase : ils appellent le réseau au montage, et les stories
+ * du DS sont présentationnelles (primitives + patterns), pas des pages connectées.
+ *
+ * Le toggle de thème (clair/sombre) est un vrai plus DS : voir chaque composant
+ * dans les deux thèmes, via la classe `.light` sur <html> (comme next-themes).
+ */
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
 const preview: Preview = {
+  // Toggle clair/sombre dans la barre d'outils Storybook.
+  globalTypes: {
+    theme: {
+      description: "Thème",
+      defaultValue: "dark",
+      toolbar: {
+        icon: "circlehollow",
+        items: [
+          { value: "dark", title: "Sombre" },
+          { value: "light", title: "Clair" },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  decorators: [
+    // Thème : pose/retire la classe `.light` sur <html> (le produit est dark par
+    // défaut ; `.light` est l'override — voir index.css).
+    (Story, ctx) => {
+      const light = ctx.globals.theme === "light";
+      document.documentElement.classList.toggle("light", light);
+      return <Story />;
+    },
+    // Racines de portail (toasts, modales, drawers) — créées avant le rendu.
+    (Story) => {
+      for (const id of ["modal-root", "drawer-root", "toast-root"]) {
+        if (!document.getElementById(id)) {
+          const el = document.createElement("div");
+          el.id = id;
+          document.body.appendChild(el);
+        }
+      }
+      return <Story />;
+    },
+    // Providers sans effet de bord.
+    (Story) => (
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <TooltipProvider>
+            <Story />
+          </TooltipProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    ),
+  ],
   parameters: {
-    // Le produit est sombre par défaut (:root = dark, .light est l'override).
-    // On reflète ça dans le canvas Storybook.
     backgrounds: {
       default: "app",
       values: [
