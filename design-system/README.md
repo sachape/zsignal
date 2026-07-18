@@ -27,7 +27,7 @@ Aujourd'hui : non aux quatre. Ce dossier existe pour que la réponse devienne ou
 | **0** Cadrage & preuves | `00-audit.md` | — | ✅ fait |
 | **1** Inventaire & classification | `01-inventory.md` + `artifacts/manifest.json` | `tools/inventory.mjs` | ✅ fait |
 | **2** Consolidation des tokens | `02-tokens.md` + `artifacts/tokens.json` | Style Dictionary (à décider) | ⏳ suivant |
-| **3** Extraction des API composant | `specs/*.md` | agent d'extraction | ⬜ |
+| **3** Extraction des API composant | `05-components.md` + `specs/*.md` | — | 🟡 3 patterns métier specés |
 | **4** Storybook = source de vérité | `.storybook/` + `*.stories.tsx` | **Storybook** | ⬜ |
 | **5** Couche IA / MCP | `src/lib/mcp/tools/ds-*` | MCP existant | ⬜ |
 | **6** Gouvernance & prompt-to-UI | `06-governance.md` | — | ⬜ |
