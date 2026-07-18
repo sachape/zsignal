@@ -13,10 +13,14 @@ const config: StorybookConfig = {
     "@storybook/addon-a11y",
     "@storybook/addon-docs",
     // addon-vitest : rend chaque story dans un Chromium headless (smoke-test +
-    // a11y) au run des tests. Câblé proprement dans vitest.config (projet
-    // `storybook`, isolé du projet `unit`) — voir ce fichier pour l'alias `@`
-    // et le plugin react (runtime JSX) que le projet de test exige.
+    // a11y + play functions) au run des tests. Câblé proprement dans
+    // vitest.config (projet `storybook`, isolé du projet `unit`) — voir ce
+    // fichier pour l'alias `@` et le plugin react (runtime JSX) qu'il exige.
     "@storybook/addon-vitest",
+    // chromatic : regression VISUELLE. Snapshot de chaque story ; signale tout
+    // changement de pixels entre deux versions. Complète le comportemental
+    // (play) par le visuel. Nécessite un projet Chromium/token pour publier.
+    "@chromatic-com/storybook",
   ],
   framework: "@storybook/react-vite",
   async viteFinal(cfg) {
