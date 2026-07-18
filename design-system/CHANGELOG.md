@@ -85,3 +85,19 @@ jour à chaque changement.
   tokens.json régénéré » (Step 5).
 - `tokens.json` régénéré : structure fidèle au CSS réel (descriptions tirées des
   commentaires), remplace la version écrite à la main qui pouvait diverger.
+
+### Fondations Ch.07 — l'artefact manquant
+- Question de Sacha : a-t-on respecté le Ch.07 (l'ordre de construction, les
+  3 patterns métier) ? Honnêtement, non — j'avais sauté aux tokens.
+- Écrit `03-foundations.md` : l'ordre de construction en 10 étages avec le statut
+  de chacun. On a fait 3-4 (tokens) et 10 (gouvernance), sauté 1 (principes),
+  2 (grille), 5 (typo).
+- **Principes de marque extraits du VRAI produit** (5 principes, chacun sourcé).
+- **Les 3 patterns métier nommés** (le critère de sortie) : `GenerationJob`,
+  `ScoreDisplay`, `AccessGate` — avec l'état réel de chacun. Ma liste de Phase 1
+  était des instances, pas des patterns.
+- Découverte : mon exemple Streamnco dans le handbook (« score bas jamais rouge »)
+  CONTREDIT le vrai code (`streamScoreTier.ts` : low→red). Le produit fait foi ;
+  l'exemple était pédagogique. Exactement pourquoi le Ch.07 met les principes en
+  étage 1 : les extraire, pas les supposer.
+- Reste à fermer avant les specs composant (Phase 3) : étages 2 et 5.
