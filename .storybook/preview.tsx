@@ -86,10 +86,11 @@ const preview: Preview = {
       matchers: { color: /(background|color)$/i, date: /Date$/i },
     },
     a11y: {
-      // Mode informatif (n'échoue pas la CI). On coupe les règles « landmark »
-      // qui flaguent à tort un composant rendu SEUL, hors page (une story n'a
-      // pas de <main>). Le contraste, les labels, les rôles restent vérifiés.
-      test: "todo",
+      // Mode BLOQUANT : une violation a11y fait échouer le test (CI rouge). Le
+      // DS entier passe déjà. On coupe les règles « landmark » qui flaguent à
+      // tort un composant rendu SEUL, hors page (une story n'a pas de <main>).
+      // Contraste, labels, rôles, focus restent vérifiés et bloquants.
+      test: "error",
       config: {
         rules: [
           { id: "region", enabled: false },

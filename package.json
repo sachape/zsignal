@@ -13,7 +13,9 @@
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "tokens:build": "node design-system/tokens.build.mjs"
+    "tokens:build": "node design-system/tokens.build.mjs",
+    "lint:tokens": "node design-system/tools/lint-tokens.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
