@@ -21,6 +21,32 @@
 
 @layer base {
   :root {
+    /* ══ PRIMITIVES ══════════════════════════════════════════════════
+       Valeurs brutes, sans intention. Consommées UNIQUEMENT par les tokens
+       sémantiques ci-dessous — jamais par un composant. Change le lime ici,
+       il change partout où il est utilisé (~9 endroits). Les neutres/surfaces
+       restent inline plus bas : ils sont réglés surface par surface, ce n'est
+       pas une échelle partagée (Vol.1 Ch.09 : ne pas sur-tokeniser). */
+    --lime-brand: 95 98% 61%;        /* #89FD3A — la marque */
+    --lime-text: 96 60% 30%;         /* lime assombri, seul lisible en texte sur clair */
+    --teal-500: 172 66% 50%;         /* accent secondaire */
+    --green-500: 142 71% 45%;
+    --amber-500: 38 92% 50%;
+    --red-500: 0 72% 51%;
+    --blue-500: 217 91% 60%;
+    /* Couleurs de plateformes — remplacent des hex en dur (audit E-04). */
+    --platform-twitch: 264 100% 64%;
+    --platform-youtube: 0 100% 50%;
+    --platform-instagram: 329 70% 58%;
+    --platform-tiktok: 348 100% 55%;
+    --platform-x: 0 0% 9%;
+    /* Data-viz catégoriel — remplace les hex en dur de ui/chart.tsx. */
+    --data-1: 95 98% 61%;
+    --data-2: 172 66% 50%;
+    --data-3: 217 91% 60%;
+    --data-4: 38 92% 50%;
+    --data-5: 329 70% 58%;
+
     /* ── Surfaces ────────────────────────────────────────────────── */
     --background: 220 20% 6%;
     --foreground: 210 20% 92%;
@@ -41,32 +67,32 @@
     --input: 220 14% 16%;
 
     /* ── Brand: lime accent (#89FD3A) ────────────────────────────── */
-    --primary: 95 98% 61%;
+    --primary: var(--lime-brand);
     --primary-foreground: 0 0% 7%;
     /* Lime used as TEXT/icon color (vivid in dark; darkened in .light). */
-    --primary-strong: 95 98% 61%;
+    --primary-strong: var(--lime-brand);
 
     /* Supporting accent — used for non-CTA visual differentiation
        (competitor markers, "next action" callout). Never used for primary actions. */
-    --accent: 172 66% 50%;
+    --accent: var(--teal-500);
     --accent-foreground: 220 20% 6%;
-    --ring: 95 98% 61%;
+    --ring: var(--lime-brand);
 
     /* ── Semantic states ─────────────────────────────────────────── */
-    --success: 142 71% 45%;
+    --success: var(--green-500);
     --success-foreground: 0 0% 7%;
 
-    --warning: 38 92% 50%;
+    --warning: var(--amber-500);
     --warning-foreground: 0 0% 7%;
 
-    --destructive: 0 72% 51%;
+    --destructive: var(--red-500);
     --destructive-foreground: 210 20% 98%;
 
-    --info: 217 91% 60%;
+    --info: var(--blue-500);
     --info-foreground: 0 0% 7%;
 
     /* ── Third-party brand colors (used only where required) ─────── */
-    --twitch: 264 100% 64%;
+    --twitch: var(--platform-twitch);
     --twitch-foreground: 0 0% 100%;
 
     /* ── Shape ───────────────────────────────────────────────────── */
@@ -75,12 +101,12 @@
     /* ── Sidebar (shadcn aliases — aligned to product surface) ───── */
     --sidebar-background: 220 18% 7%;
     --sidebar-foreground: 210 20% 80%;
-    --sidebar-primary: 95 98% 61%;
+    --sidebar-primary: var(--lime-brand);
     --sidebar-primary-foreground: 0 0% 7%;
     --sidebar-accent: 220 14% 12%;
     --sidebar-accent-foreground: 210 20% 92%;
     --sidebar-border: 220 14% 16%;
-    --sidebar-ring: 95 98% 61%;
+    --sidebar-ring: var(--lime-brand);
   }
 
   /*
@@ -115,39 +141,39 @@
     --input: 220 13% 85%;
 
     /* ── Brand + semantic: unchanged from dark (consistency) ─────── */
-    --primary: 95 98% 61%;
+    --primary: var(--lime-brand);
     --primary-foreground: 0 0% 7%;
     /* But lime-as-TEXT is darkened so it stays readable on light surfaces. */
-    --primary-strong: 96 60% 30%;
+    --primary-strong: var(--lime-text);
 
-    --accent: 172 66% 50%;
+    --accent: var(--teal-500);
     --accent-foreground: 220 20% 6%;
-    --ring: 95 98% 61%;
+    --ring: var(--lime-brand);
 
-    --success: 142 71% 45%;
+    --success: var(--green-500);
     --success-foreground: 0 0% 7%;
 
-    --warning: 38 92% 50%;
+    --warning: var(--amber-500);
     --warning-foreground: 0 0% 7%;
 
-    --destructive: 0 72% 51%;
+    --destructive: var(--red-500);
     --destructive-foreground: 210 20% 98%;
 
-    --info: 217 91% 60%;
+    --info: var(--blue-500);
     --info-foreground: 0 0% 7%;
 
-    --twitch: 264 100% 64%;
+    --twitch: var(--platform-twitch);
     --twitch-foreground: 0 0% 100%;
 
     /* ── Sidebar (surface light, brand accents unchanged) ────────── */
     --sidebar-background: 220 28% 97%;
     --sidebar-foreground: 220 18% 30%;
-    --sidebar-primary: 95 98% 61%;
+    --sidebar-primary: var(--lime-brand);
     --sidebar-primary-foreground: 0 0% 7%;
     --sidebar-accent: 220 18% 92%;
     --sidebar-accent-foreground: 220 28% 16%;
     --sidebar-border: 220 16% 88%;
-    --sidebar-ring: 95 98% 61%;
+    --sidebar-ring: var(--lime-brand);
   }
 }
 
