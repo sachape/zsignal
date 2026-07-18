@@ -48,9 +48,14 @@ function block(sel) {
 /** Parse les `--name: value; /* comment *​/` d'un bloc. */
 function parseVars(text) {
   const out = {};
+  // On retire d'abord les commentaires MULTI-LIGNES (blocs de prose) : ils
+  // peuvent contenir une fausse déclaration (`--x: var(--y)`) que le regex
+  // prendrait pour un vrai token. On garde les commentaires d'une seule ligne :
+  // ce sont les descriptions en fin de déclaration, exploitées ci-dessous.
+  const cleaned = text.replace(/\/\*[\s\S]*?\*\//g, (c) => (c.includes("\n") ? " " : c));
   const re = /--([\w-]+):\s*([^;]+);(?:[ \t]*\/\*\s*(.*?)\s*\*\/)?/g;
   let m;
-  while ((m = re.exec(text))) {
+  while ((m = re.exec(cleaned))) {
     out[m[1]] = { value: m[2].trim(), desc: m[3]?.trim() || null };
   }
   return out;
@@ -60,20 +65,27 @@ const dark = parseVars(block(":root {"));
 const light = parseVars(block(".light {"));
 
 // ── Classification ───────────────────────────────────────────────────────────
+// Préfixes de la 3e couche (composant) : chaque composant qui possède ses
+// propres tokens s'ajoute ici. Ordre = ordre d'affichage dans la doc.
+const COMPONENT_NS = ["sidebar", "button"];
+
 function layerOf(name) {
-  if (name.startsWith("sidebar-")) return "component";
+  if (COMPONENT_NS.some((ns) => name.startsWith(ns + "-"))) return "component";
   if (PRIMITIVE_NS.some((ns) => name === ns || name.startsWith(ns + "-"))) return "primitive";
   return "semantic";
 }
 
-/** --lime-brand → primitive.lime.brand · --data-1 → primitive.data.1 */
+/** --lime-brand → primitive.lime.brand · --button-height-md → component.button.height-md */
 function pathOf(name) {
   const layer = layerOf(name);
   if (layer === "primitive") {
     const i = name.indexOf("-");
     return `primitive.${name.slice(0, i)}.${name.slice(i + 1)}`;
   }
-  if (layer === "component") return `component.${name.replace("sidebar-", "sidebar.")}`;
+  if (layer === "component") {
+    const ns = COMPONENT_NS.find((n) => name.startsWith(n + "-"));
+    return `component.${ns}.${name.slice(ns.length + 1)}`;
+  }
   return `semantic.${name}`;
 }
 

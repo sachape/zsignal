@@ -108,6 +108,23 @@
     --sidebar-accent-foreground: 210 20% 92%;
     --sidebar-border: 220 14% 16%;
     --sidebar-ring: var(--lime-brand);
+
+    /* ══ COMPOSANT · Button ══════════════════════════════════════════
+       La 3e couche (composant) de l'architecture de tokens, pour le
+       primitif phare. Ce sont des DIMENSIONS — les vraies décisions de
+       composant, jusqu'ici en nombres magiques dans le CVA. Pas de tokens
+       de couleur ici : le bouton consomme les tokens sémantiques
+       directement (bg-primary, bg-destructive…) ; les redoubler en tokens
+       composant ne serait qu'une indirection vide. Change une hauteur ici
+       et tous les boutons suivent. (Invariant selon le thème → hors .light.) */
+    --button-radius: calc(var(--radius) - 2px);
+    --button-gap: 0.5rem;
+    --button-height-sm: 2rem;
+    --button-height-md: 2.25rem;
+    --button-height-lg: 2.5rem;
+    --button-px-sm: 0.75rem;
+    --button-px-md: 1rem;
+    --button-px-lg: 1.5rem;
   }
 
   /*
