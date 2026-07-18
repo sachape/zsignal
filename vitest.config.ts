@@ -33,21 +33,38 @@ export default defineConfig({
         // defined » sur les stories/preview qui utilisent JSX sans importer React).
         plugins: [react(), storybookTest({ configDir: path.join(dirname, ".storybook") })],
         // Le projet storybook n'hérite pas de l'alias du vite.config du projet —
-        // on le redéclare, sinon les `@/...` des stories et du preview ne résolvent pas.
-        resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
+        // on le redéclare. L'alias SPÉCIFIQUE du mock Supabase doit venir AVANT
+        // `@` (sinon `@` capture le préfixe), sinon les composants du catalogue
+        // chargent le vrai client et crashent (createClient sans URL).
+        resolve: {
+          alias: {
+            "@/integrations/supabase/client": path.resolve(__dirname, "./.storybook/mocks/supabase.ts"),
+            "@": path.resolve(__dirname, "./src"),
+          },
+        },
         test: {
           name: "storybook",
           browser: {
             enabled: true,
             provider: "playwright",
             headless: true,
-            instances: [{ browser: "chromium" }],
+            instances: [
+              {
+                browser: "chromium",
+                // --disable-dev-shm-usage : en conteneur/sandbox, /dev/shm est
+                // minuscule ; Chromium le sature et meurt (« Browser connection
+                // was closed ») après quelques dizaines de tests. Ce flag le fait
+                // écrire sur /tmp à la place. --no-sandbox : requis en conteneur.
+                launch: { args: ["--disable-dev-shm-usage", "--no-sandbox"] },
+              },
+            ],
           },
-          // Un seul fichier de story à la fois dans le navigateur. Lancer trop de
-          // pages Chromium en parallèle (surtout si le serveur `storybook dev`
-          // tourne aussi) provoque des « Browser connection was closed ». On
-          // troque un peu de vitesse contre une suite fiable en CI.
-          fileParallelism: false,
+          isolate: true,
+          // Le CATALOGUE (design-system/stories/catalog/) est un inventaire de
+          // composants FEATURE : navigable dans Storybook, mais hors du smoke-test
+          // strict. L'exclusion se fait par le tag Storybook `!test` sur chaque
+          // meta du catalogue (certains — éditeurs facecam/canvas, getUserMedia —
+          // crashent le navigateur headless). Le test couvre le DS réutilisable.
           setupFiles: [".storybook/vitest.setup.ts"],
         },
       },
