@@ -52,6 +52,13 @@ Périmètre et sources posés ; verdict rendu ; chaque violation prouvée et cot
 conformes listés ; ordre de correction proposé ; limites de l'audit documentées ; en mode
 lecture seule, **aucun fichier modifié**.
 
+## Références communes
+- Discipline de preuve (fait/inférence/hypothèse) : `../_shared/sources-and-evidence.md`.
+- Faits du dépôt : `../_shared/repo-map.md`.
+- Règles Design System auditées : `../_shared/design-system.md`.
+- Règles Storybook auditées : `../_shared/storybook.md`.
+- Patterns d'écran (contrôler la cohérence composant/pattern, si pertinent) : `../../patterns/README.md`.
+
 ## Handoff
 Produit une liste de violations vérifiables pour `/design-to-code` (correction) ou pour
 `/ui-qa` (vérification du rendu). Ne délègue rien automatiquement.

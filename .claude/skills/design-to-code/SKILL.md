@@ -51,6 +51,14 @@ Critères couverts ; logique métier préservée (ou modif. explicitement autori
 aucune duplication injustifiée ; tokens conformes (`npm run lint:tokens`) ; stories synchronisées ;
 tests pertinents présents ; responsive + a11y vérifiés ; commandes obligatoires exécutées ; rapport factuel.
 
+## Références communes
+- **Decision Framework** (raisonner en Senior avant toute création) : `references/decision-framework.md`.
+- Faits du dépôt : `../_shared/repo-map.md`.
+- Patterns d'écran, à charger **uniquement si** le besoin correspond (jamais automatiquement) :
+  `../../patterns/README.md`.
+- (Rappel : sources `../_shared/sources-and-evidence.md`, DS `../_shared/design-system.md`,
+  Storybook `../_shared/storybook.md`, validations `../_shared/validation.md` — utilisés dans les phases.)
+
 ## Handoff
 Recommander `/design-system-review` (audit conformité) puis `/ui-qa` (rendu) après implémentation.
 Ne délègue rien automatiquement.

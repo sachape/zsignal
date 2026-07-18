@@ -49,6 +49,13 @@ Périmètre identifié ; architecture documentée ; comportements **prouvés par
 états présents/absents distingués ; composants et tokens inventoriés ; dette classifiée ;
 aucune affirmation Figma non exécutée ; recommandations séparées des faits.
 
+## Références communes
+- Faits du dépôt : `../_shared/repo-map.md`.
+- Règles Design System (pour juger la dette) : `../_shared/design-system.md`.
+- Règles Storybook (gap analysis code ↔ stories) : `../_shared/storybook.md`.
+- Patterns d'écran, à charger **uniquement si** la feature analysée y correspond (jamais
+  automatiquement) : `../../patterns/README.md`.
+
 ## Handoff
 Peut alimenter `/product-discovery` (cadrage d'une refonte) ou `/design-to-code`
 (implémentation). Ne délègue rien automatiquement.

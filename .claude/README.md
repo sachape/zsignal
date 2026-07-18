@@ -39,6 +39,14 @@ Hiérarchie dans `skills/_shared/sources-and-evidence.md`. Faits durables du dé
 `skills/_shared/repo-map.md`. Règles DS/Storybook : `skills/_shared/{design-system,storybook}.md`.
 Docs DS du dépôt : `design-system/*.md`, `design-system/CONTRIBUTING.md`.
 
+## Ressources d'expertise
+- **Decision Framework** (`skills/design-to-code/references/decision-framework.md`) : arbre de
+  décision réutiliser → étendre → composer → créer → token → DS, avec impacts Storybook/tests/a11y/responsive.
+- **Bibliothèque de patterns** (`patterns/`) : 15 patterns UX/UI génériques (page, dashboard,
+  settings, table, form, modal, wizard, search, filters, empty/loading/error-state, onboarding,
+  authentication, detail-page). Chargés par les Skills **à la demande uniquement**, jamais appliqués
+  automatiquement.
+
 ## Limitations
 - **Figma facultatif** : aucun Skill ne l'exige ; aucun frame n'est créé/modifié.
 - Pas de tests e2e configurés (seulement vitest unit + storybook navigateur).

@@ -49,6 +49,13 @@ Cible réellement observée quand les outils le permettent ; scénarios et viewp
 critères d'acceptation contrôlés ; problèmes reproductibles avec preuves ; limites explicites ;
 verdict justifié.
 
+## Références communes
+- Faits du dépôt (comment rendre, ce qui existe) : `../_shared/repo-map.md`.
+- Matrice de validation / tests réels : `../_shared/validation.md`.
+- Règles Storybook (stories déterministes, états) : `../_shared/storybook.md`.
+- Patterns d'écran, à charger **uniquement si** la cible y correspond (vérifier les états/
+  interactions indispensables du pattern) : `../../patterns/README.md`.
+
 ## Handoff
 Vérifie le rendu après la review système. Peut renvoyer des bugs vers `/design-to-code`
 (correction). Ne délègue rien automatiquement.

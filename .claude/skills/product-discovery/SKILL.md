@@ -50,5 +50,10 @@ Problème/solution distingués ; sources/hypothèses séparées ; parcours et é
 critères d'acceptation observables ; dépendances et risques identifiés ; handoff exploitable
 présent ; **aucun fichier produit modifié**.
 
+## Références communes
+- Faits du dépôt (chemins, stack, ce qui existe) : `../_shared/repo-map.md`.
+- Patterns d'écran, à charger **uniquement si** le besoin y correspond (jamais automatiquement) :
+  `../../patterns/README.md` (page, dashboard, form, table, empty-state, onboarding…).
+
 ## Handoff
 Produit une spécification pour `/design-to-code`. Ne délègue rien automatiquement.
