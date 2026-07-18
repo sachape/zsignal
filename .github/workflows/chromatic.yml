@@ -1,0 +1,52 @@
+name: Chromatic
+
+# Régression visuelle du Design System.
+# À chaque push / PR, publie le Storybook sur Chromatic et compare chaque story
+# à la baseline (pixels). Complète les tests de comportement (play functions,
+# lancés par `vitest` / addon-vitest) par la couche visuelle.
+#
+# Prérequis : le secret CHROMATIC_PROJECT_TOKEN dans les settings du repo
+# (Settings → Secrets and variables → Actions). Le token vient du projet
+# Chromatic lié à ce repo. NE JAMAIS le mettre en clair ici.
+
+on:
+  push:
+    branches: [main, design-system]
+  pull_request:
+
+# Une seule exécution Chromatic à la fois par branche : on annule les runs
+# obsolètes pour ne pas consommer de snapshots inutilement.
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Chromatic a besoin de l'historique git complet pour retrouver la
+          # baseline (le commit ancêtre). fetch-depth: 0 = pas de shallow clone.
+          fetch-depth: 0
+
+      # npm : les addons Storybook (addon-vitest, chromatic) ont été ajoutés
+      # via npm — c'est package-lock.json qui est à jour et versionné, pas
+      # bun.lockb. On installe donc avec npm ci pour rester cohérent.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Publier sur Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # Le Storybook est buildé par ce script (déjà dans package.json).
+          buildScriptName: build-storybook
+          # Un diff visuel n'est pas une erreur de CI : il est à REVOIR, pas à
+          # bloquer le merge. Chromatic commente la PR avec les changements.
+          exitZeroOnChanges: true
