@@ -57,7 +57,10 @@ const preview: Preview = {
       }
       return <Story />;
     },
-    // Providers sans effet de bord.
+    // Providers sans effet de bord, appliqués à TOUTES les stories (le DS n'a
+    // besoin que de ceux-là). Les providers de l'app (Auth, etc.) sont ajoutés
+    // uniquement au catalogue via son décorateur `withApp` — ils tapent Supabase
+    // au montage et n'ont de sens que pour les composants feature.
     (Story) => (
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>

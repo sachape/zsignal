@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useMemo, useState } from "react";
-import rawTokens from "../artifacts/tokens.json";
+import rawTokens from "../../artifacts/tokens.json";
 
 /**
  * Explorateur de Design Tokens — RENDU LISIBLE de l'architecture.
@@ -186,9 +186,4 @@ export const Semantic: S = {
 export const Components: S = {
   render: () => <Explorer layer="component" title="Components — par composant"
     blurb="Tokens de composants (button, sidebar, input, card, dialog, badge, tooltip, switch, tabs, checkbox) + le pont de compat shadcn. Chaque valeur pointe vers un token sémantique — jamais de valeur brute." />,
-};
-
-export const All: S = {
-  render: () => <Explorer layer="all" title="Design Tokens — tout"
-    blurb="Les trois couches réunies. Filtre par catégorie ou par type, ou cherche un token par nom / alias." />,
 };

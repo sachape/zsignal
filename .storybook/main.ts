@@ -2,9 +2,20 @@ import type { StorybookConfig } from "@storybook/react-vite";
 
 const config: StorybookConfig = {
   stories: [
-    // Les stories du DS vivent avec le DS.
+    // Les stories du DS (primitives, patterns) — testées.
     "../design-system/**/*.mdx",
-    "../design-system/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../design-system/stories/*.stories.@(js|jsx|mjs|ts|tsx)",
+    // Sous Vitest, on EXCLUT deux dossiers navigables mais hors smoke-test :
+    //  - docs/    : pages de doc (explorateur Tokens) — 100s de cartes qui
+    //               saturent le navigateur headless, sans valeur de smoke-test.
+    //  - catalog/ : 82 composants feature (certains canvas/getUserMedia) qui
+    //               crashent en headless. Le test couvre le DS réutilisable.
+    ...(process.env.VITEST
+      ? []
+      : [
+          "../design-system/stories/docs/*.stories.@(js|jsx|mjs|ts|tsx)",
+          "../design-system/stories/catalog/*.stories.@(js|jsx|mjs|ts|tsx)",
+        ]),
     // Plus toute story ajoutée dans src/.
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
   ],
@@ -32,6 +43,16 @@ const config: StorybookConfig = {
       const name = p && typeof p === "object" && "name" in p ? p.name : "";
       return !/lovable|tagger|supabase/i.test(String(name));
     });
+    // Mock du client Supabase : les composants/hooks du catalogue qui tapent la
+    // base montent sans réseau ni crash. Alias PLUS spécifique que `@` → placé
+    // en tête pour gagner.
+    const { fileURLToPath } = await import("node:url");
+    const mock = fileURLToPath(new URL("./mocks/supabase.ts", import.meta.url));
+    cfg.resolve = cfg.resolve ?? {};
+    const alias = cfg.resolve.alias;
+    const entry = { find: /^@\/integrations\/supabase\/client$/, replacement: mock };
+    if (Array.isArray(alias)) alias.unshift(entry);
+    else cfg.resolve.alias = [entry, ...Object.entries(alias ?? {}).map(([find, replacement]) => ({ find, replacement }))];
     return cfg;
   },
 };
