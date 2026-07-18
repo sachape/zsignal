@@ -73,3 +73,15 @@ jour à chaque changement.
   dérive app : 4** (la fonction score-tier de ReseauxPage, différée — 1 décision).
 - Fichiers : `ReseauxPage`, `ConnectNetworkModal`, `ReseauxPlatformPage`,
   `index.css`, `tailwind.config.ts`, `tools/inventory.mjs`, `02-tokens.md`.
+
+### Phase 2 — Conformité Ch.08 (générateur de tokens)
+- Question de Sacha : ai-je bien suivi le Ch.08 ? Non, pas le pipeline. Corrigé.
+- **`tools/tokens.mjs`** : génère `tokens.json` DEPUIS `index.css` (inversion —
+  Lovable possède index.css, on ne peut pas le générer, donc on génère le JSON).
+  → une seule source de vérité (Step 1), `tokens.json` ne peut plus diverger.
+- **Validation** intégrée : aliases cassés, cycles, orphelins (Step 2).
+- **Test du gate** vérifié (Step 4) : bouger `--lime-brand` déplace 5 aliases.
+- **Gouvernance** écrite : table patch/minor/major + règle « index.css édité,
+  tokens.json régénéré » (Step 5).
+- `tokens.json` régénéré : structure fidèle au CSS réel (descriptions tirées des
+  commentaires), remplace la version écrite à la main qui pouvait diverger.
