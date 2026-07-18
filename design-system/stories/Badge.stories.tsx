@@ -20,6 +20,9 @@ const meta: Meta<typeof Badge> = {
 export default meta;
 type S = StoryObj<typeof Badge>;
 
+/** Playground — piloté par les contrôles : change `variant` en direct. */
+export const Playground: S = { args: { children: "Badge", variant: "default" } };
+
 export const Default: S = { args: { children: "Pro", variant: "default" } };
 export const Success: S = { args: { children: "Publié", variant: "success" } };
 export const Warning: S = { args: { children: "En attente", variant: "warning" } };
