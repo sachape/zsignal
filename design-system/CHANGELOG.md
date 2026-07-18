@@ -168,3 +168,13 @@ jour à chaque changement.
   dans les deux thèmes (la marque reste, les surfaces flippent : P2/P3).
 - Story `Badge` ajoutée (6 variants dont success/warning custom). Zéro dépendance
   ajoutée ; les 12 tests repassent.
+
+### Phase 4 — Storybook peuplé (cards, dropdowns, filtres…)
+- Constat de Sacha : Storybook ne montrait que 2 composants. Cause : il n'affiche
+  que ce qui a un fichier .stories — je n'en avais écrit que 4 (preuve de format).
+- Ajouté 7 stories des primitives les plus utilisées, ancrées dans leurs vrais
+  exports : **Card** (66×), **Input**, **Select**, **DropdownMenu**, **Dialog**
+  (15×), **Tabs**, + un exemple **FilterBar** (les filtres se COMPOSENT).
+- Storybook passe de 4 à **11 composants**. Les composants à portail (dropdown,
+  select, dialog) sont ouverts par défaut pour être visibles.
+- Zéro dépendance ajoutée, 12 tests OK.
