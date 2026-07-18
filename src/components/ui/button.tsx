@@ -5,7 +5,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  // Dimensions pilotées par les tokens composant --button-* (voir index.css).
+  "inline-flex items-center justify-center gap-[var(--button-gap)] whitespace-nowrap rounded-[var(--button-radius)] text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -22,10 +23,10 @@ const buttonVariants = cva(
         twitch: "bg-twitch text-twitch-foreground hover:bg-twitch/90",
       },
       size: {
-        default: "h-9 px-4",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-6",
-        icon: "h-9 w-9",
+        default: "h-[var(--button-height-md)] px-[var(--button-px-md)]",
+        sm: "h-[var(--button-height-sm)] px-[var(--button-px-sm)] text-xs",
+        lg: "h-[var(--button-height-lg)] px-[var(--button-px-lg)]",
+        icon: "h-[var(--button-height-md)] w-[var(--button-height-md)]",
       },
     },
     defaultVariants: {
