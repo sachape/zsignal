@@ -1,6 +1,6 @@
 ---
 name: code-to-design
-description: Analyse une implémentation Streamnco existante (route, feature ou composant) et reconstruit sa logique de conception : architecture UI, composants, tokens réellement consommés, patterns, états, interactions, parcours, dette Design System et documentation. Produit une spécification Figma-ready sans modifier le code ni prétendre créer un fichier Figma.
+description: Analyse une implémentation Streamnco existante (route, feature ou composant) et reconstruit sa logique de conception — architecture UI, composants, tokens réellement consommés, patterns, états, interactions, parcours, dette Design System et documentation. Produit une spécification Figma-ready sans modifier le code ni prétendre créer un fichier Figma.
 ---
 
 # Code to Design

@@ -30,3 +30,7 @@ dist-ssr
 
 *storybook.log
 storybook-static
+
+# Un seul lockfile : npm (package-lock.json). bun géré localement par Lovable si besoin.
+bun.lock
+bun.lockb
