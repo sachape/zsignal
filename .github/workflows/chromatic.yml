@@ -41,12 +41,19 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
+      # On build le Storybook NOUS-MÊMES avec npm. Sinon chromaui/action détecte
+      # bun.lockb (maintenu par Lovable) et tente `bun run build-storybook` —
+      # bun n'étant pas installé sur le runner → `spawn bun ENOENT`.
+      - name: Builder le Storybook
+        run: npm run build-storybook
+
       - name: Publier sur Chromatic
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          # Le Storybook est buildé par ce script (déjà dans package.json).
-          buildScriptName: build-storybook
+          # On passe le Storybook déjà buildé : l'action n'essaie plus de le
+          # builder elle-même (donc plus de détection de gestionnaire de paquets).
+          storybookBuildDir: storybook-static
           # Un diff visuel n'est pas une erreur de CI : il est à REVOIR, pas à
           # bloquer le merge. Chromatic commente la PR avec les changements.
           exitZeroOnChanges: true
