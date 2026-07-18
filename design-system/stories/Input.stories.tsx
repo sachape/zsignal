@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -21,13 +22,26 @@ export const Champ: S = {
       <Input id="chan" placeholder="ex. tonpseudo" />
     </div>
   ),
+  // Comportement : la saisie met à jour la valeur du champ.
+  play: async ({ canvas, userEvent }) => {
+    const field = canvas.getByLabelText(/chaîne twitch/i);
+    await userEvent.type(field, "tonpseudo");
+    await expect(field).toHaveValue("tonpseudo");
+  },
 };
 
 export const Desactive: S = {
   render: () => (
     <div className="grid gap-2 w-72">
       <Label htmlFor="mail">Email</Label>
-      <Input id="mail" value="sacha@streamnco.com" disabled />
+      <Input id="mail" defaultValue="sacha@streamnco.com" disabled />
     </div>
   ),
+  // Désactivé : la saisie n'a aucun effet, la valeur ne bouge pas.
+  play: async ({ canvas, userEvent }) => {
+    const field = canvas.getByLabelText(/email/i);
+    await expect(field).toBeDisabled();
+    await userEvent.type(field, "xxx");
+    await expect(field).toHaveValue("sacha@streamnco.com");
+  },
 };

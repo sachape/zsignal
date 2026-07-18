@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, screen, waitFor } from "storybook/test";
 import {
   Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -36,4 +37,31 @@ export const Confirmation: S = {
       </DialogContent>
     </Dialog>
   ),
+};
+
+/** Comportement : fermé → clic sur le trigger l'ouvre → Échap le referme. */
+export const OuvertureFermeture: S = {
+  render: () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Ouvrir la confirmation</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Publier les 3 clips ?</DialogTitle>
+          <DialogDescription>Tu peux annuler après coup.</DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    // Fermé au départ : aucun dialog dans le DOM.
+    await expect(screen.queryByRole("dialog")).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: /ouvrir la confirmation/i }));
+    // Le contenu est porté dans #modal-root (portail) → screen.
+    const dialog = await screen.findByRole("dialog");
+    await expect(dialog).toHaveTextContent(/publier les 3 clips/i);
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  },
 };
