@@ -15,7 +15,7 @@
 ## 13. Responsive
 _(viewports réellement vérifiés)_
 ## 14. Validations exécutées
-_(commande exacte + résultat + preuve — voir ../_shared/validation.md)_
+_(commande exacte + résultat + preuve — voir ../../_shared/validation.md)_
 ## 15. Échecs préexistants
 _(distingués des régressions introduites)_
 ## 16. Risques ou limites
