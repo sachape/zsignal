@@ -5,37 +5,52 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 
-/**
- * Tooltip — une précision au survol (raccourci, unité). Jamais pour une info
- * indispensable (elle disparaît au clic / mobile). Composé : Trigger + Content.
- */
-const meta: Meta<typeof Tooltip> = {
+type Args = { side: "top" | "right" | "bottom" | "left"; align: "start" | "center" | "end" };
+
+const meta: Meta<Args> = {
   title: "Primitives/Tooltip",
   component: Tooltip,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Tooltip — une précision au survol (raccourci, unité). Jamais pour une info indispensable (elle disparaît au clic / mobile)." } },  layout: "centered" },
+  tags: ["autodocs"],
+  args: { side: "top", align: "center" },
+  argTypes: {
+    side: { control: "inline-radio", options: ["top", "right", "bottom", "left"], description: "Côté d'apparition (sur TooltipContent).", table: { category: "Placement" } },
+    align: { control: "inline-radio", options: ["start", "center", "end"], description: "Alignement le long du côté.", table: { category: "Placement" } },
+  },
+  parameters: {
+    layout: "centered",
+    controls: { sort: "requiredFirst" },
+    docs: { description: { component: "Tooltip — précision au survol (raccourci, unité). Jamais pour une info indispensable (disparaît au clic / mobile)." } },
+  },
+  // Ouvert par défaut : on VOIT le résultat de side/align en direct.
+  render: (args) => (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip open>
+        <TooltipTrigger asChild><Button variant="outline">StreamScore</Button></TooltipTrigger>
+        <TooltipContent side={args.side} align={args.align}>Note globale de ta chaîne, sur 100.</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  ),
 };
 export default meta;
-type S = StoryObj<typeof Tooltip>;
+type S = StoryObj<Args>;
 
+/** Exploration libre du placement (`side`, `align`). */
+export const Playground: S = {};
+
+/** Test : le survol révèle le contenu. */
 export const AuSurvol: S = {
-  // delayDuration=0 : sinon Radix attend 700 ms avant d'afficher (flaky en test).
+  parameters: { controls: { disable: true } },
   render: () => (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="outline">StreamScore</Button>
-        </TooltipTrigger>
+        <TooltipTrigger asChild><Button variant="outline">StreamScore</Button></TooltipTrigger>
         <TooltipContent>Note globale de ta chaîne, sur 100.</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   ),
-  // Comportement : le survol révèle le contenu (porté → screen).
-  // Radix rend le texte 2× (tooltip visible + copie cachée pour lecteurs
-  // d'écran) → getAllByText, pas getByText qui jetterait sur le multi-match.
   play: async ({ canvas, userEvent }) => {
     await userEvent.hover(canvas.getByRole("button", { name: /streamscore/i }));
-    await waitFor(() =>
-      expect(screen.getAllByText(/note globale de ta chaîne/i).length).toBeGreaterThan(0),
-    );
+    // Radix rend le texte 2× (visible + copie a11y) → getAllByText.
+    await waitFor(() => expect(screen.getAllByText(/note globale de ta chaîne/i).length).toBeGreaterThan(0));
   },
 };

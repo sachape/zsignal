@@ -5,30 +5,28 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-/**
- * Dialog — les modales (15×). Composé : Dialog + Trigger + Content + Header +
- * Footer. Ouvert par défaut pour le montrer (portail dans #modal-root).
- */
 const meta: Meta<typeof Dialog> = {
   title: "Primitives/Dialog",
   component: Dialog,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Dialog — les modales (15×). Composé : Dialog + Trigger + Content + Header + Footer." } },  layout: "centered" },
-};
-export default meta;
-type S = StoryObj<typeof Dialog>;
-
-export const Confirmation: S = {
-  render: () => (
-    <Dialog defaultOpen>
-      <DialogTrigger asChild>
-        <Button variant="outline">Ouvrir</Button>
-      </DialogTrigger>
+  tags: ["autodocs"],
+  args: { modal: true, defaultOpen: false },
+  argTypes: {
+    modal: { control: "boolean", description: "Rend l'arrière-plan inerte (voile bloquant).", table: { category: "Behavior" } },
+    defaultOpen: { control: "boolean", description: "Ouvert au montage (non contrôlé).", table: { category: "State" } },
+    open: { control: false, description: "Ouverture contrôlée (piloter via onOpenChange).", table: { category: "State" } },
+  },
+  parameters: {
+    layout: "centered",
+    controls: { sort: "requiredFirst" },
+    docs: { description: { component: "Dialog — modale non bloquante (fermeture au clic extérieur / Échap). Composé : Trigger + Content + Header + Footer." } },
+  },
+  render: (args) => (
+    <Dialog {...args}>
+      <DialogTrigger asChild><Button variant="outline">Ouvrir</Button></DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Publier les 3 clips ?</DialogTitle>
-          <DialogDescription>
-            Ils partiront sur les plateformes connectées. Tu peux annuler après coup.
-          </DialogDescription>
+          <DialogDescription>Ils partiront sur les plateformes connectées. Tu peux annuler après coup.</DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">
           <Button variant="ghost">Annuler</Button>
@@ -38,27 +36,21 @@ export const Confirmation: S = {
     </Dialog>
   ),
 };
+export default meta;
+type S = StoryObj<typeof Dialog>;
 
-/** Comportement : fermé → clic sur le trigger l'ouvre → Échap le referme. */
+/** Exploration libre (`modal`, `defaultOpen`). */
+export const Playground: S = {};
+
+/** Ouvert au montage pour montrer le contenu. */
+export const Ouvert: S = { args: { defaultOpen: true }, parameters: { controls: { disable: true } } };
+
+/** Test : fermé → clic ouvre → Échap referme. */
 export const OuvertureFermeture: S = {
-  render: () => (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Ouvrir la confirmation</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Publier les 3 clips ?</DialogTitle>
-          <DialogDescription>Tu peux annuler après coup.</DialogDescription>
-        </DialogHeader>
-      </DialogContent>
-    </Dialog>
-  ),
+  parameters: { controls: { disable: true } },
   play: async ({ canvas, userEvent }) => {
-    // Fermé au départ : aucun dialog dans le DOM.
     await expect(screen.queryByRole("dialog")).toBeNull();
-    await userEvent.click(canvas.getByRole("button", { name: /ouvrir la confirmation/i }));
-    // Le contenu est porté dans #modal-root (portail) → screen.
+    await userEvent.click(canvas.getByRole("button", { name: /^ouvrir$/i }));
     const dialog = await screen.findByRole("dialog");
     await expect(dialog).toHaveTextContent(/publier les 3 clips/i);
     await userEvent.keyboard("{Escape}");

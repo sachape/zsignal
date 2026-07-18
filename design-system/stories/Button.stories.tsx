@@ -109,11 +109,23 @@ export const AllVariants: S = {
   ),
 };
 
-// ── Test d'interaction ────────────────────────────────────────────────────
+// ── Tests d'interaction : clic ET activation clavier ──────────────────────
 export const ClickInteraction: S = {
   args: { children: "Générer les clips", onClick: fn() },
   play: async ({ args, canvas }) => {
     await userEvent.click(canvas.getByRole("button", { name: /générer les clips/i }));
     await expect(args.onClick).toHaveBeenCalledOnce();
+  },
+};
+
+export const KeyboardActivation: S = {
+  args: { children: "Générer les clips", onClick: fn() },
+  play: async ({ args, canvas }) => {
+    const button = canvas.getByRole("button", { name: /générer les clips/i });
+    button.focus();
+    await expect(button).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard(" ");
+    await expect(args.onClick).toHaveBeenCalledTimes(2);
   },
 };

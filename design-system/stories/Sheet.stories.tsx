@@ -6,38 +6,45 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
-/**
- * Sheet — un panneau latéral (filtres avancés, détail d'un clip) qui glisse
- * depuis un bord sans quitter la page. Composé : Trigger + Content (+ Header/Footer).
- */
-const meta: Meta<typeof Sheet> = {
+type Args = { side: "top" | "right" | "bottom" | "left" };
+
+const meta: Meta<Args> = {
   title: "Primitives/Sheet",
   component: Sheet,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Sheet — un panneau latéral (filtres avancés, détail d'un clip) qui glisse depuis un bord sans quitter la page. Composé : Trigger + Content (+ Header/Footer)." } },  layout: "centered" },
-};
-export default meta;
-type S = StoryObj<typeof Sheet>;
-
-export const PanneauLateral: S = {
-  render: () => (
+  tags: ["autodocs"],
+  args: { side: "right" },
+  argTypes: {
+    side: { control: "inline-radio", options: ["top", "right", "bottom", "left"], description: "Bord depuis lequel le panneau glisse.", table: { category: "Placement", defaultValue: { summary: "right" } } },
+  },
+  parameters: {
+    layout: "centered",
+    controls: { sort: "requiredFirst" },
+    docs: { description: { component: "Sheet — panneau latéral (filtres, détail) qui glisse depuis un bord sans quitter la page." } },
+  },
+  render: (args) => (
     <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="outline">Filtres avancés</Button>
-      </SheetTrigger>
-      <SheetContent>
+      <SheetTrigger asChild><Button variant="outline">Filtres avancés</Button></SheetTrigger>
+      <SheetContent side={args.side}>
         <SheetHeader>
           <SheetTitle>Filtres avancés</SheetTitle>
           <SheetDescription>Affine la liste des clips détectés.</SheetDescription>
         </SheetHeader>
         <SheetFooter>
-          <SheetClose asChild>
-            <Button>Appliquer</Button>
-          </SheetClose>
+          <SheetClose asChild><Button>Appliquer</Button></SheetClose>
         </SheetFooter>
       </SheetContent>
     </Sheet>
   ),
-  // Comportement : fermé → clic ouvre le panneau → Échap le referme.
+};
+export default meta;
+type S = StoryObj<Args>;
+
+/** Exploration libre du bord (`side`). Clique « Filtres avancés » pour l'ouvrir. */
+export const Playground: S = {};
+
+/** Test : fermé → clic ouvre → Échap referme. */
+export const OuvertureFermeture: S = {
+  parameters: { controls: { disable: true } },
   play: async ({ canvas, userEvent }) => {
     await expect(screen.queryByRole("dialog")).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: /filtres avancés/i }));

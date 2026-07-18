@@ -1,29 +1,28 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, screen, waitFor } from "storybook/test";
+import { expect, fn, screen, waitFor } from "storybook/test";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-/**
- * DropdownMenu — les menus contextuels (actions, options). Composé : Trigger +
- * Content + Item/CheckboxItem/Separator. Ouvert par défaut pour le montrer.
- */
 const meta: Meta<typeof DropdownMenu> = {
   title: "Primitives/DropdownMenu",
   component: DropdownMenu,
-  parameters: { controls: { disable: true }, docs: { description: { component: "DropdownMenu — les menus contextuels (actions, options). Composé : Trigger + Content + Item/CheckboxItem/Separator." } },  layout: "centered" },
-};
-export default meta;
-type S = StoryObj<typeof DropdownMenu>;
-
-export const Actions: S = {
-  render: () => (
-    <DropdownMenu defaultOpen>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">Actions du clip</Button>
-      </DropdownMenuTrigger>
+  tags: ["autodocs"],
+  args: { modal: true },
+  argTypes: {
+    modal: { control: "boolean", description: "Rend l'arrière-plan inerte tant que le menu est ouvert.", table: { category: "Behavior" } },
+    defaultOpen: { control: "boolean", description: "Ouvert au montage (non contrôlé).", table: { category: "State" } },
+  },
+  parameters: {
+    layout: "centered",
+    controls: { sort: "requiredFirst" },
+    docs: { description: { component: "DropdownMenu — menu contextuel (actions, options). Composé : Trigger + Content + Item/CheckboxItem/Separator." } },
+  },
+  render: (args) => (
+    <DropdownMenu {...args}>
+      <DropdownMenuTrigger asChild><Button variant="outline">Actions du clip</Button></DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuLabel>Ce clip</DropdownMenuLabel>
         <DropdownMenuItem>Publier</DropdownMenuItem>
@@ -37,27 +36,23 @@ export const Actions: S = {
     </DropdownMenu>
   ),
 };
+export default meta;
+type S = StoryObj<typeof DropdownMenu>;
 
-/** Comportement : fermé → clic ouvre le menu → choisir un item le referme. */
+/** Exploration libre (`modal`, `defaultOpen`). Clique « Actions du clip ». */
+export const Playground: S = {};
+
+/** Ouvert au montage pour montrer le contenu. */
+export const Ouvert: S = { args: { defaultOpen: true }, parameters: { controls: { disable: true } } };
+
+/** Test : fermé → clic ouvre → choisir un item referme. */
 export const OuvertureSelection: S = {
-  render: () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">Actions du clip</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuItem>Publier</DropdownMenuItem>
-        <DropdownMenuItem>Télécharger</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  ),
+  parameters: { controls: { disable: true } },
   play: async ({ canvas, userEvent }) => {
     await expect(screen.queryByRole("menu")).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: /actions du clip/i }));
-    // Menu porté hors du canvas (portail) → screen.
     const item = await screen.findByRole("menuitem", { name: /publier/i });
     await userEvent.click(item);
-    // Radix referme le menu au choix d'un item.
     await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   },
 };
