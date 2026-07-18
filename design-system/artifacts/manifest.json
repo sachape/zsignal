@@ -1,0 +1,3021 @@
+{
+  "generatedAt": "2026-07-18T12:17:18.486Z",
+  "byClass": {
+    "composite": 75,
+    "pattern": 13,
+    "one-off": 7,
+    "marketing": 20,
+    "primitive": 49,
+    "page": 45
+  },
+  "items": [
+    {
+      "file": "src/components/AccountMenu.tsx",
+      "name": "AccountMenu",
+      "exports": [],
+      "lines": 206,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "avatar",
+        "button",
+        "dropdown-menu"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/ActivationChecklist.tsx",
+      "name": "ActivationChecklist",
+      "exports": [],
+      "lines": 236,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/AnalysisStep.tsx",
+      "name": "AnalysisStep",
+      "exports": [],
+      "lines": 43,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/AppShell.tsx",
+      "name": "AppShell",
+      "exports": [],
+      "lines": 45,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "sidebar"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/AppSidebar.tsx",
+      "name": "AppSidebar",
+      "exports": [],
+      "lines": 342,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "sidebar",
+        "popover"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/BadgeGrid.tsx",
+      "name": "BadgeGrid",
+      "exports": [],
+      "lines": 136,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "one-off"
+    },
+    {
+      "file": "src/components/BadgeStrip.tsx",
+      "name": "BadgeStrip",
+      "exports": [],
+      "lines": 94,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "popover"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "one-off"
+    },
+    {
+      "file": "src/components/CommandPalette.tsx",
+      "name": "CommandPalette",
+      "exports": [],
+      "lines": 100,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "command"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/CompetitorCard.tsx",
+      "name": "CompetitorCard",
+      "exports": [],
+      "lines": 48,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/CompetitorFeedbackBar.tsx",
+      "name": "CompetitorFeedbackBar",
+      "exports": [],
+      "lines": 94,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/CompetitorTrendChart.tsx",
+      "name": "CompetitorTrendChart",
+      "exports": [
+        "SparkLine"
+      ],
+      "lines": 196,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/ConnectNetworkModal.tsx",
+      "name": "ConnectNetworkModal",
+      "exports": [
+        "ConnectNetworkModal"
+      ],
+      "lines": 276,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "dialog",
+        "button",
+        "input",
+        "label",
+        "badge"
+      ],
+      "hardcodedColors": 9,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/CreateNowBlock.tsx",
+      "name": "CreateNowBlock",
+      "exports": [],
+      "lines": 70,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/CreationCapacityDialog.tsx",
+      "name": "CreationCapacityDialog",
+      "exports": [
+        "CreationCapacityDialog"
+      ],
+      "lines": 231,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "one-off"
+    },
+    {
+      "file": "src/components/DashboardNavCards.tsx",
+      "name": "DashboardNavCards",
+      "exports": [],
+      "lines": 51,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/DashboardQuickActions.tsx",
+      "name": "DashboardQuickActions",
+      "exports": [],
+      "lines": 40,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/DimensionResources.tsx",
+      "name": "DimensionResources",
+      "exports": [],
+      "lines": 175,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/EmptyReportState.tsx",
+      "name": "EmptyReportState",
+      "exports": [],
+      "lines": 38,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/EventSubCockpitSection.tsx",
+      "name": "EventSubCockpitSection",
+      "exports": [],
+      "lines": 365,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "button",
+        "skeleton"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/FoundationModeBanner.tsx",
+      "name": "FoundationModeBanner",
+      "exports": [],
+      "lines": 46,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/InactivityRelanceCard.tsx",
+      "name": "InactivityRelanceCard",
+      "exports": [],
+      "lines": 87,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/LastVsAverageCard.tsx",
+      "name": "LastVsAverageCard",
+      "exports": [],
+      "lines": 114,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/LegalLayout.tsx",
+      "name": "LegalLayout",
+      "exports": [
+        "LegalLayout",
+        "LegalSection",
+        "LegalPlaceholder"
+      ],
+      "lines": 61,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/LivePostGenerator.tsx",
+      "name": "LivePostGenerator",
+      "exports": [],
+      "lines": 221,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "sheet",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/LiveStatusCard.tsx",
+      "name": "LiveStatusCard",
+      "exports": [],
+      "lines": 111,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/LiveTimeline.tsx",
+      "name": "LiveTimeline",
+      "exports": [],
+      "lines": 232,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/LockedOverlay.tsx",
+      "name": "LockedOverlay",
+      "exports": [],
+      "lines": 63,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/MainBlockerCard.tsx",
+      "name": "MainBlockerCard",
+      "exports": [],
+      "lines": 45,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/NavLink.tsx",
+      "name": "NavLink",
+      "exports": [],
+      "lines": 29,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/NetworksTeaser.tsx",
+      "name": "NetworksTeaser",
+      "exports": [
+        "NetworksTeaser"
+      ],
+      "lines": 28,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/NextMilestoneCard.tsx",
+      "name": "NextMilestoneCard",
+      "exports": [],
+      "lines": 75,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/NicheChooser.tsx",
+      "name": "NicheChooser",
+      "exports": [],
+      "lines": 148,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button",
+        "badge",
+        "input"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/OnboardingGuide.tsx",
+      "name": "OnboardingGuide",
+      "exports": [],
+      "lines": 311,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/OpportunityCard.tsx",
+      "name": "OpportunityCard",
+      "exports": [],
+      "lines": 138,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/PageBreadcrumb.tsx",
+      "name": "PageBreadcrumb",
+      "exports": [],
+      "lines": 60,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/PageContainer.tsx",
+      "name": "PageContainer",
+      "exports": [],
+      "lines": 28,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/PageHeader.tsx",
+      "name": "PageHeader",
+      "exports": [],
+      "lines": 98,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "avatar",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/PaywallGate.tsx",
+      "name": "PaywallGate",
+      "exports": [
+        "FullPageLock",
+        "InlineLock",
+        "LimitBanner"
+      ],
+      "lines": 144,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/PlatformValidationNotice.tsx",
+      "name": "PlatformValidationNotice",
+      "exports": [
+        "PlatformValidationNotice"
+      ],
+      "lines": 65,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/PlaybookCard.tsx",
+      "name": "PlaybookCard",
+      "exports": [],
+      "lines": 73,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/PreLiveChecklistCard.tsx",
+      "name": "PreLiveChecklistCard",
+      "exports": [],
+      "lines": 98,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/ProFeatureGate.tsx",
+      "name": "ProFeatureGate",
+      "exports": [
+        "ProFeatureGate",
+        "ProFeaturePreview"
+      ],
+      "lines": 124,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/ProgressRow.tsx",
+      "name": "ProgressRow",
+      "exports": [],
+      "lines": 41,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/ProgressionSignalsCard.tsx",
+      "name": "ProgressionSignalsCard",
+      "exports": [],
+      "lines": 61,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "one-off"
+    },
+    {
+      "file": "src/components/ProtectedRoute.tsx",
+      "name": "ProtectedRoute",
+      "exports": [],
+      "lines": 26,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "one-off"
+    },
+    {
+      "file": "src/components/PublishClipDialog.tsx",
+      "name": "PublishClipDialog",
+      "exports": [
+        "PublishClipDialog"
+      ],
+      "lines": 224,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "dialog",
+        "button",
+        "textarea",
+        "input",
+        "label",
+        "switch",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/QualitativeScoreCard.tsx",
+      "name": "QualitativeScoreCard",
+      "exports": [],
+      "lines": 28,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/RecommendationCard.tsx",
+      "name": "RecommendationCard",
+      "exports": [],
+      "lines": 45,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/ReportHistoryList.tsx",
+      "name": "ReportHistoryList",
+      "exports": [],
+      "lines": 60,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "one-off"
+    },
+    {
+      "file": "src/components/ScopeDriftBanner.tsx",
+      "name": "ScopeDriftBanner",
+      "exports": [],
+      "lines": 61,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/ScoreCard.tsx",
+      "name": "ScoreCard",
+      "exports": [],
+      "lines": 63,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/ScoreInsightCard.tsx",
+      "name": "ScoreInsightCard",
+      "exports": [],
+      "lines": 108,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/SectionHeader.tsx",
+      "name": "SectionHeader",
+      "exports": [],
+      "lines": 56,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/SectionTabs.tsx",
+      "name": "SectionTabs",
+      "exports": [],
+      "lines": 119,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/ShareScoreButton.tsx",
+      "name": "ShareScoreButton",
+      "exports": [],
+      "lines": 112,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/ShareScoreCard.tsx",
+      "name": "ShareScoreCard",
+      "exports": [],
+      "lines": 348,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 8,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/SidebarQuotaWidget.tsx",
+      "name": "SidebarQuotaWidget",
+      "exports": [],
+      "lines": 90,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "tooltip"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/SidebarStreamerSearch.tsx",
+      "name": "SidebarStreamerSearch",
+      "exports": [],
+      "lines": 373,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "input"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/SmartAlertsCard.tsx",
+      "name": "SmartAlertsCard",
+      "exports": [],
+      "lines": 128,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/SocialPublishingSection.tsx",
+      "name": "SocialPublishingSection",
+      "exports": [
+        "SocialPublishingSection"
+      ],
+      "lines": 107,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card",
+        "button",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/StatBlock.tsx",
+      "name": "StatBlock",
+      "exports": [],
+      "lines": 35,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/StateView.tsx",
+      "name": "StateView",
+      "exports": [
+        "LoadingState",
+        "ErrorState"
+      ],
+      "lines": 31,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/StreakBadge.tsx",
+      "name": "StreakBadge",
+      "exports": [],
+      "lines": 110,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/StreamScoreEvolutionCard.tsx",
+      "name": "StreamScoreEvolutionCard",
+      "exports": [],
+      "lines": 314,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/StreamerBenchmarkCard.tsx",
+      "name": "StreamerBenchmarkCard",
+      "exports": [],
+      "lines": 110,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "avatar"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/StreamerDNACard.tsx",
+      "name": "StreamerDNACard",
+      "exports": [],
+      "lines": 128,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/SyncStatusCard.tsx",
+      "name": "SyncStatusCard",
+      "exports": [],
+      "lines": 139,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/TeaserResultLayout.tsx",
+      "name": "TeaserResultLayout",
+      "exports": [],
+      "lines": 734,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "avatar"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/ThemeToggle.tsx",
+      "name": "ThemeToggle",
+      "exports": [],
+      "lines": 43,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/TrustCard.tsx",
+      "name": "TrustCard",
+      "exports": [],
+      "lines": 29,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/ValueCard.tsx",
+      "name": "ValueCard",
+      "exports": [],
+      "lines": 25,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/WeeklyDigestCard.tsx",
+      "name": "WeeklyDigestCard",
+      "exports": [],
+      "lines": 172,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/WeeklyMilestoneCard.tsx",
+      "name": "WeeklyMilestoneCard",
+      "exports": [],
+      "lines": 219,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/WeeklyQuestCard.tsx",
+      "name": "WeeklyQuestCard",
+      "exports": [],
+      "lines": 261,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "sonner"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/WeeklySequenceCard.tsx",
+      "name": "WeeklySequenceCard",
+      "exports": [],
+      "lines": 74,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/auth/AuthForm.tsx",
+      "name": "AuthForm",
+      "exports": [],
+      "lines": 260,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "input",
+        "label"
+      ],
+      "hardcodedColors": 1,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/clips/CameraPlacementEditor.tsx",
+      "name": "CameraPlacementEditor",
+      "exports": [
+        "CameraPlacementEditor"
+      ],
+      "lines": 342,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/clips/CaptionStylePreviewGrid.tsx",
+      "name": "CaptionStylePreviewGrid",
+      "exports": [
+        "CaptionStylePreviewGrid"
+      ],
+      "lines": 240,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 38,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/clips/ManualFacecamPlacer.tsx",
+      "name": "ManualFacecamPlacer",
+      "exports": [
+        "ManualFacecamPlacer"
+      ],
+      "lines": 713,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "dialog",
+        "button",
+        "checkbox",
+        "label"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/clips/QuickCameraPicker.tsx",
+      "name": "QuickCameraPicker",
+      "exports": [
+        "QuickCameraPicker"
+      ],
+      "lines": 242,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "one-off"
+    },
+    {
+      "file": "src/components/clips/RenderCroppedSourceImage.tsx",
+      "name": "RenderCroppedSourceImage",
+      "exports": [
+        "RenderCroppedSourceImage"
+      ],
+      "lines": 123,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/composer/InstagramPreview.tsx",
+      "name": "InstagramPreview",
+      "exports": [],
+      "lines": 176,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/content-queue/AfterPublishPanel.tsx",
+      "name": "AfterPublishPanel",
+      "exports": [
+        "AfterPublishPanel"
+      ],
+      "lines": 172,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/content-queue/ClipGenerationDialog.tsx",
+      "name": "ClipGenerationDialog",
+      "exports": [],
+      "lines": 47,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/content-queue/ClipPreparationPanel.tsx",
+      "name": "ClipPreparationPanel",
+      "exports": [
+        "ClipPreparationPanel"
+      ],
+      "lines": 704,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "input",
+        "label",
+        "switch"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/content-queue/ManualMediaUploadDialog.tsx",
+      "name": "ManualMediaUploadDialog",
+      "exports": [
+        "ManualMediaUploadDialog"
+      ],
+      "lines": 134,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "label",
+        "dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/content-queue/ManualPublishPanel.tsx",
+      "name": "ManualPublishPanel",
+      "exports": [
+        "ManualPublishPanel"
+      ],
+      "lines": 220,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "input",
+        "label"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/content-queue/NewContentDialog.tsx",
+      "name": "NewContentDialog",
+      "exports": [
+        "NewContentDialog"
+      ],
+      "lines": 166,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "input",
+        "textarea",
+        "label",
+        "dialog",
+        "select"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/content-queue/YouTubeUploadDialog.tsx",
+      "name": "YouTubeUploadDialog",
+      "exports": [],
+      "lines": 374,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "input",
+        "textarea",
+        "label",
+        "dialog",
+        "select"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/credits/BuyCreditsButton.tsx",
+      "name": "BuyCreditsButton",
+      "exports": [
+        "BuyCreditsButton"
+      ],
+      "lines": 49,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "pattern"
+    },
+    {
+      "file": "src/components/credits/CreditsSection.tsx",
+      "name": "CreditsSection",
+      "exports": [
+        "CreditsSection"
+      ],
+      "lines": 94,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/leaders/StreamScoreLeaderboard.tsx",
+      "name": "StreamScoreLeaderboard",
+      "exports": [
+        "StreamScoreLeaderboard"
+      ],
+      "lines": 318,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "avatar",
+        "badge",
+        "button",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/live/AssistedDebriefPanel.tsx",
+      "name": "AssistedDebriefPanel",
+      "exports": [],
+      "lines": 329,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button",
+        "input",
+        "textarea",
+        "label",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/live/AutoClipCandidatesPanel.tsx",
+      "name": "AutoClipCandidatesPanel",
+      "exports": [],
+      "lines": 452,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button",
+        "badge",
+        "input",
+        "label",
+        "dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/live-setup/SuggestedTitles.tsx",
+      "name": "SuggestedTitles",
+      "exports": [
+        "SuggestedTitles"
+      ],
+      "lines": 141,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/site/BrowserFrame.tsx",
+      "name": "BrowserFrame",
+      "exports": [],
+      "lines": 47,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/site/DiagnosticForm.tsx",
+      "name": "DiagnosticForm",
+      "exports": [],
+      "lines": 277,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 3,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/site/PhoneFrame.tsx",
+      "name": "PhoneFrame",
+      "exports": [],
+      "lines": 32,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/site/PlanCard.tsx",
+      "name": "PlanCard",
+      "exports": [],
+      "lines": 79,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/site/SiteFooter.tsx",
+      "name": "SiteFooter",
+      "exports": [],
+      "lines": 100,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/site/SiteNav.tsx",
+      "name": "SiteNav",
+      "exports": [],
+      "lines": 149,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/site/el.tsx",
+      "name": "el",
+      "exports": [
+        "Container",
+        "Orb",
+        "Eyebrow",
+        "Reveal"
+      ],
+      "lines": 91,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/components/ui/accordion.tsx",
+      "name": "accordion",
+      "exports": [],
+      "lines": 53,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/alert-dialog.tsx",
+      "name": "alert-dialog",
+      "exports": [],
+      "lines": 105,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/alert.tsx",
+      "name": "alert",
+      "exports": [],
+      "lines": 44,
+      "usesCva": true,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/aspect-ratio.tsx",
+      "name": "aspect-ratio",
+      "exports": [],
+      "lines": 6,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/avatar.tsx",
+      "name": "avatar",
+      "exports": [],
+      "lines": 39,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/badge.tsx",
+      "name": "badge",
+      "exports": [],
+      "lines": 43,
+      "usesCva": true,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/breadcrumb.tsx",
+      "name": "breadcrumb",
+      "exports": [],
+      "lines": 91,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/button.tsx",
+      "name": "button",
+      "exports": [],
+      "lines": 53,
+      "usesCva": true,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/calendar.tsx",
+      "name": "calendar",
+      "exports": [],
+      "lines": 55,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/card.tsx",
+      "name": "card",
+      "exports": [],
+      "lines": 44,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/carousel.tsx",
+      "name": "carousel",
+      "exports": [],
+      "lines": 225,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/chart.tsx",
+      "name": "chart",
+      "exports": [],
+      "lines": 304,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 5,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/checkbox.tsx",
+      "name": "checkbox",
+      "exports": [],
+      "lines": 27,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/collapsible.tsx",
+      "name": "collapsible",
+      "exports": [],
+      "lines": 10,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/command.tsx",
+      "name": "command",
+      "exports": [],
+      "lines": 133,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/context-menu.tsx",
+      "name": "context-menu",
+      "exports": [],
+      "lines": 179,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "name": "dialog",
+      "exports": [],
+      "lines": 96,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/drawer.tsx",
+      "name": "drawer",
+      "exports": [],
+      "lines": 88,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/dropdown-menu.tsx",
+      "name": "dropdown-menu",
+      "exports": [],
+      "lines": 198,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/empty-state.tsx",
+      "name": "empty-state",
+      "exports": [
+        "EmptyState"
+      ],
+      "lines": 73,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/form.tsx",
+      "name": "form",
+      "exports": [],
+      "lines": 130,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "label"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/hover-card.tsx",
+      "name": "hover-card",
+      "exports": [],
+      "lines": 28,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/input-otp.tsx",
+      "name": "input-otp",
+      "exports": [],
+      "lines": 62,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/input.tsx",
+      "name": "input",
+      "exports": [],
+      "lines": 23,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/label.tsx",
+      "name": "label",
+      "exports": [],
+      "lines": 18,
+      "usesCva": true,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/menubar.tsx",
+      "name": "menubar",
+      "exports": [],
+      "lines": 208,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/navigation-menu.tsx",
+      "name": "navigation-menu",
+      "exports": [],
+      "lines": 121,
+      "usesCva": true,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/pagination.tsx",
+      "name": "pagination",
+      "exports": [],
+      "lines": 82,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/popover.tsx",
+      "name": "popover",
+      "exports": [],
+      "lines": 30,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/progress.tsx",
+      "name": "progress",
+      "exports": [],
+      "lines": 27,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/radio-group.tsx",
+      "name": "radio-group",
+      "exports": [],
+      "lines": 37,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/resizable.tsx",
+      "name": "resizable",
+      "exports": [],
+      "lines": 38,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/scroll-area.tsx",
+      "name": "scroll-area",
+      "exports": [],
+      "lines": 39,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/select.tsx",
+      "name": "select",
+      "exports": [],
+      "lines": 144,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/separator.tsx",
+      "name": "separator",
+      "exports": [],
+      "lines": 21,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/sheet.tsx",
+      "name": "sheet",
+      "exports": [],
+      "lines": 108,
+      "usesCva": true,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/sidebar.tsx",
+      "name": "sidebar",
+      "exports": [],
+      "lines": 638,
+      "usesCva": true,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "input",
+        "separator",
+        "sheet",
+        "skeleton",
+        "tooltip"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/skeleton.tsx",
+      "name": "skeleton",
+      "exports": [],
+      "lines": 8,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/slider.tsx",
+      "name": "slider",
+      "exports": [],
+      "lines": 24,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/sonner.tsx",
+      "name": "sonner",
+      "exports": [],
+      "lines": 28,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/switch.tsx",
+      "name": "switch",
+      "exports": [],
+      "lines": 28,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/table.tsx",
+      "name": "table",
+      "exports": [],
+      "lines": 73,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/tabs.tsx",
+      "name": "tabs",
+      "exports": [],
+      "lines": 54,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/textarea.tsx",
+      "name": "textarea",
+      "exports": [],
+      "lines": 22,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/toast.tsx",
+      "name": "toast",
+      "exports": [],
+      "lines": 112,
+      "usesCva": true,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/toaster.tsx",
+      "name": "toaster",
+      "exports": [
+        "Toaster"
+      ],
+      "lines": 25,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "toast"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/toggle-group.tsx",
+      "name": "toggle-group",
+      "exports": [],
+      "lines": 50,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "toggle"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/toggle.tsx",
+      "name": "toggle",
+      "exports": [],
+      "lines": 38,
+      "usesCva": true,
+      "hasPropsType": true,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/ui/tooltip.tsx",
+      "name": "tooltip",
+      "exports": [],
+      "lines": 29,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "primitive"
+    },
+    {
+      "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
+      "name": "VisualGenerationDialog",
+      "exports": [
+        "VisualGenerationDialog"
+      ],
+      "lines": 604,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "dialog",
+        "button",
+        "input",
+        "textarea",
+        "label"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/components/visual-studio/VisualPlacementPreview.tsx",
+      "name": "VisualPlacementPreview",
+      "exports": [],
+      "lines": 152,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "composite"
+    },
+    {
+      "file": "src/pages/AboutPage.tsx",
+      "name": "AboutPage",
+      "exports": [],
+      "lines": 229,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 2,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/AffiliationPage.tsx",
+      "name": "AffiliationPage",
+      "exports": [],
+      "lines": 603,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/AnalysePage.tsx",
+      "name": "AnalysePage",
+      "exports": [],
+      "lines": 782,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "avatar",
+        "button",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/AnalyzePage.tsx",
+      "name": "AnalyzePage",
+      "exports": [],
+      "lines": 370,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "progress"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/AuthPage.tsx",
+      "name": "AuthPage",
+      "exports": [],
+      "lines": 32,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/BillingPage.tsx",
+      "name": "BillingPage",
+      "exports": [],
+      "lines": 360,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/BlogArticlePage.tsx",
+      "name": "BlogArticlePage",
+      "exports": [],
+      "lines": 224,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/BlogPage.tsx",
+      "name": "BlogPage",
+      "exports": [],
+      "lines": 104,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/ClipAnalyticsPage.tsx",
+      "name": "ClipAnalyticsPage",
+      "exports": [],
+      "lines": 229,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "name": "ClipsPage",
+      "exports": [],
+      "lines": 725,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "badge",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/ClipsReseauxPage.tsx",
+      "name": "ClipsReseauxPage",
+      "exports": [],
+      "lines": 307,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "badge",
+        "card",
+        "empty-state"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/CompetitorsPage.tsx",
+      "name": "CompetitorsPage",
+      "exports": [],
+      "lines": 828,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "badge",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/ComposerPage.tsx",
+      "name": "ComposerPage",
+      "exports": [],
+      "lines": 511,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "input",
+        "textarea",
+        "label",
+        "badge",
+        "select",
+        "popover",
+        "calendar"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/ConnectTwitchPage.tsx",
+      "name": "ConnectTwitchPage",
+      "exports": [],
+      "lines": 273,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "name": "ContentQueuePage",
+      "exports": [],
+      "lines": 1163,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "input",
+        "textarea",
+        "badge",
+        "label",
+        "select",
+        "dropdown-menu",
+        "dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/DashboardPage.tsx",
+      "name": "DashboardPage",
+      "exports": [],
+      "lines": 824,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/FeaturesPage.tsx",
+      "name": "FeaturesPage",
+      "exports": [],
+      "lines": 326,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/HelpPage.tsx",
+      "name": "HelpPage",
+      "exports": [],
+      "lines": 461,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "accordion",
+        "input",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/Index.tsx",
+      "name": "Index",
+      "exports": [],
+      "lines": 486,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/InstagramCallbackPage.tsx",
+      "name": "InstagramCallbackPage",
+      "exports": [],
+      "lines": 115,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LastLivePage.tsx",
+      "name": "LastLivePage",
+      "exports": [],
+      "lines": 333,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LeadersPage.tsx",
+      "name": "LeadersPage",
+      "exports": [],
+      "lines": 934,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "avatar",
+        "badge",
+        "button",
+        "card",
+        "command",
+        "popover",
+        "select",
+        "tabs"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LegalCookiesPage.tsx",
+      "name": "LegalCookiesPage",
+      "exports": [],
+      "lines": 95,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LegalMentionsPage.tsx",
+      "name": "LegalMentionsPage",
+      "exports": [],
+      "lines": 82,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LegalPrivacyPage.tsx",
+      "name": "LegalPrivacyPage",
+      "exports": [],
+      "lines": 132,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LegalTermsPage.tsx",
+      "name": "LegalTermsPage",
+      "exports": [],
+      "lines": 174,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LiveDetailPage.tsx",
+      "name": "LiveDetailPage",
+      "exports": [],
+      "lines": 348,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "name": "LiveSetupPage",
+      "exports": [],
+      "lines": 1746,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "command",
+        "input",
+        "label",
+        "popover",
+        "textarea",
+        "badge",
+        "tabs",
+        "select",
+        "checkbox"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/LivesPage.tsx",
+      "name": "LivesPage",
+      "exports": [],
+      "lines": 313,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/NotFound.tsx",
+      "name": "NotFound",
+      "exports": [],
+      "lines": 55,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/OAuthConsentPage.tsx",
+      "name": "OAuthConsentPage",
+      "exports": [],
+      "lines": 162,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/PlaybookDetailPage.tsx",
+      "name": "PlaybookDetailPage",
+      "exports": [],
+      "lines": 221,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/PlaybooksPage.tsx",
+      "name": "PlaybooksPage",
+      "exports": [],
+      "lines": 173,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/PricingPage.tsx",
+      "name": "PricingPage",
+      "exports": [],
+      "lines": 386,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/PublicationsPage.tsx",
+      "name": "PublicationsPage",
+      "exports": [],
+      "lines": 245,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "button",
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/QuestesPage.tsx",
+      "name": "QuestesPage",
+      "exports": [],
+      "lines": 409,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "sonner"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/ReseauxCallbackPage.tsx",
+      "name": "ReseauxCallbackPage",
+      "exports": [
+        "ReseauxCallbackPage"
+      ],
+      "lines": 33,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/ReseauxPage.tsx",
+      "name": "ReseauxPage",
+      "exports": [
+        "ReseauxPage"
+      ],
+      "lines": 797,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "badge",
+        "dialog",
+        "input",
+        "label"
+      ],
+      "hardcodedColors": 11,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/ReseauxPlatformPage.tsx",
+      "name": "ReseauxPlatformPage",
+      "exports": [
+        "ReseauxPlatformPage"
+      ],
+      "lines": 431,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 6,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/ResultPage.tsx",
+      "name": "ResultPage",
+      "exports": [],
+      "lines": 1148,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "avatar",
+        "button",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/SchedulePage.tsx",
+      "name": "SchedulePage",
+      "exports": [],
+      "lines": 287,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/SettingsPage.tsx",
+      "name": "SettingsPage",
+      "exports": [],
+      "lines": 261,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "alert-dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
+      "name": "SimulatorPage",
+      "exports": [],
+      "lines": 655,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "slider",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/SolutionsPage.tsx",
+      "name": "SolutionsPage",
+      "exports": [],
+      "lines": 157,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/StreamScorePage.tsx",
+      "name": "StreamScorePage",
+      "exports": [],
+      "lines": 341,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 2,
+      "isMarketing": true,
+      "classHeuristic": "marketing"
+    },
+    {
+      "file": "src/pages/StreamerProfilePage.tsx",
+      "name": "StreamerProfilePage",
+      "exports": [],
+      "lines": 1213,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/TikTokCallbackPage.tsx",
+      "name": "TikTokCallbackPage",
+      "exports": [],
+      "lines": 76,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/TitleGeneratorPage.tsx",
+      "name": "TitleGeneratorPage",
+      "exports": [],
+      "lines": 217,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "input",
+        "card",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/TwitchAccountsPage.tsx",
+      "name": "TwitchAccountsPage",
+      "exports": [],
+      "lines": 405,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "avatar",
+        "alert-dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/TwitchCallbackPage.tsx",
+      "name": "TwitchCallbackPage",
+      "exports": [],
+      "lines": 324,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/UnsubscribePage.tsx",
+      "name": "UnsubscribePage",
+      "exports": [],
+      "lines": 116,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/VisualStudioPage.tsx",
+      "name": "VisualStudioPage",
+      "exports": [],
+      "lines": 262,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "card",
+        "badge",
+        "empty-state"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/VodImportPage.tsx",
+      "name": "VodImportPage",
+      "exports": [],
+      "lines": 1082,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "toast",
+        "card",
+        "button",
+        "badge",
+        "input",
+        "label",
+        "textarea",
+        "select",
+        "dialog"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/WatchlistPage.tsx",
+      "name": "WatchlistPage",
+      "exports": [],
+      "lines": 429,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [
+        "button",
+        "badge"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "name": "WeeklyPlanPage",
+      "exports": [],
+      "lines": 1029,
+      "usesCva": false,
+      "hasPropsType": true,
+      "uiConsumed": [
+        "card",
+        "badge",
+        "button"
+      ],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    },
+    {
+      "file": "src/pages/YouTubeCallbackPage.tsx",
+      "name": "YouTubeCallbackPage",
+      "exports": [],
+      "lines": 76,
+      "usesCva": false,
+      "hasPropsType": false,
+      "uiConsumed": [],
+      "hardcodedColors": 0,
+      "isMarketing": false,
+      "classHeuristic": "page"
+    }
+  ]
+}
