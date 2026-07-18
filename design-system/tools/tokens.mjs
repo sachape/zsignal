@@ -148,11 +148,13 @@ function insert(root, parts, token) {
 // DTCG fait hériter le $type d'un groupe vers ses descendants.
 const tokens = {
   $schema: "https://tr.designtokens.org/format/",
+  // Pas de timestamp ici : il rendrait la génération non-déterministe (un diff
+  // git à chaque exécution, même sans changement). La date vit dans l'historique
+  // git. Générer sans changer les tokens = zéro diff.
   $description:
     "GÉNÉRÉ depuis src/index.css par design-system/tools/tokens.mjs — NE PAS ÉDITER À LA MAIN. " +
     "index.css est la source de vérité (éditée par l'équipe + Lovable) ; ce fichier en est une sortie. " +
-    "Régénérer : node design-system/tools/tokens.mjs. " +
-    `Généré le ${new Date().toISOString()}.`,
+    "Régénérer : node design-system/tools/tokens.mjs.",
   primitive: { $type: "color" },
   semantic: { $type: "color" },
   component: { $type: "color" },
