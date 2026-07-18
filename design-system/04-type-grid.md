@@ -107,14 +107,15 @@ partent à 1-2 colonnes et s'élargissent à `lg`. Le pattern canonique est
 - Les tableaux data-dense (le cas critique du produit) ont besoin d'une stratégie
   mobile explicite — à définir en Phase 3 avec le pattern `ScoreDisplay`.
 
-## Décisions surfacées (à valider)
+## Décisions surfacées
 
-1. **`font-display`** = `font-sans` : le garder comme alias sémantique, ou le
-   retirer ? (recommandé : garder comme alias de rôle, utile au prompt-to-UI).
-2. **`font-brand` (Boogaloo)** : morte dans l'app → retirer de la config app.
-3. **Fuite marketing** : Fraunces/Inter apparaissent dans ~12 pages publiques.
-   La frontière app/marketing est poreuse — à nettoyer avec le système marketing
-   (phase ultérieure).
+1. **`font-display`** = `font-sans` : gardé comme alias de rôle (utile au
+   prompt-to-UI). ⏳ à valider.
+2. **`font-brand` (Boogaloo)** : ✅ **retirée** (2026-07-18) — de la config
+   Tailwind, de l'import de fonts (plus téléchargée pour rien), et le commentaire
+   périmé corrigé (les titres du site sont en `font-display`, pas Boogaloo).
+3. **Fuite marketing** : Fraunces/Inter dans ~12 pages publiques. À nettoyer avec
+   le système marketing (phase ultérieure).
 4. **Corps par défaut = `text-sm` (14px)**, pas 16px. Assumé.
 
 ## Le gate (étages 2 et 5)

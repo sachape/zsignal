@@ -112,3 +112,13 @@ jour à chaque changement.
   Mobile-first, grille canonique `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`,
   container max 1400px.
 - Fondations Ch.07 complètes (étages 1-5 + 10). Reste 6-7-8 = Phase 3.
+
+### Décisions P4 + Boogaloo appliquées
+- **P4 (rouge score-tier) tranché : aligné sur `--destructive`.** Le service
+  `streamScoreTier.ts` l'utilisait déjà ; seul le `ScoreRing` inline de
+  `ReseauxPage` divergeait (hex bruts) — passé sur tokens (`hsl(var(--primary))`,
+  `--success`, `--warning`, `--destructive`, `--border`). **Dérive app = 0** ;
+  les 7 valeurs restantes sont 100% marketing (hors scope).
+- **Boogaloo retirée** : de la config Tailwind (`font-brand`, 0 usage), de
+  l'import de fonts (plus téléchargée), commentaire périmé corrigé.
+- Fondations Ch.07 : les 2 décisions ouvertes sont closes.

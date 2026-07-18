@@ -60,8 +60,9 @@ Un bouton lime est identique en clair et sombre. Seules les surfaces flippent.
 (« jamais alarmant ») — et c'est le vrai produit qui fait foi. La logique est
 centralisée (une source de vérité pour les paliers), à préserver.
 
-> ⚠️ Reste à trancher (hérité de la Phase 2) : le rouge `low` est aujourd'hui
-> `#ef4444` (Tailwind), différent du `destructive` du DS. L'aligner ?
+> ✅ Tranché (2026-07-18) : le rouge `low` est aligné sur `--destructive`. Le
+> service `streamScoreTier.ts` l'utilisait déjà ; seul le `ScoreRing` inline de
+> `ReseauxPage` divergeait (`#ef4444`) — désormais sur tokens. Dérive app = 0.
 
 ### P5 — Encourager sans mentir
 > Preuve : stratégie (ICP streamer émergent, ton confiant zéro défensif) +

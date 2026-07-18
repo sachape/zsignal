@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=DM+Sans:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 /* ElevenLabs marketing site — editorial serif display (Fraunces Light) + Inter body */
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -190,7 +190,7 @@
     overflow-x: hidden;
     width: 100%;
   }
-  /* Tous les titres du site en Boogaloo (police display).
+  /* Tous les titres du site en font-display (Instrument Sans).
      Une classe utilitaire font-* sur un titre garde la priorité. */
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;

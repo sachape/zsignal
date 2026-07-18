@@ -17,7 +17,6 @@ export default {
         sans: ["Instrument Sans", "DM Sans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
         display: ["Instrument Sans", "DM Sans", "system-ui", "sans-serif"],
-        brand: ["Boogaloo", "system-ui", "sans-serif"],
         // ElevenLabs marketing site: editorial light serif display + Inter body.
         "el-display": ["Fraunces", "Georgia", "Times New Roman", "serif"],
         "el-sans": ["Inter", "system-ui", "sans-serif"],
