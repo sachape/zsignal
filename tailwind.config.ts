@@ -85,6 +85,7 @@ export default {
           instagram: "hsl(var(--platform-instagram))",
           tiktok: "hsl(var(--platform-tiktok))",
           x: "hsl(var(--platform-x))",
+          google: "hsl(var(--platform-google))",
         },
         // Palette data-viz catégorielle — remplace les hex en dur de chart.tsx.
         data: {

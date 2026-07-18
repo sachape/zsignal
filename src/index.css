@@ -37,9 +37,10 @@
     /* Couleurs de plateformes — remplacent des hex en dur (audit E-04). */
     --platform-twitch: 264 100% 64%;
     --platform-youtube: 0 100% 50%;
-    --platform-instagram: 329 70% 58%;
-    --platform-tiktok: 348 100% 55%;
+    --platform-instagram: 340 75% 54%;  /* #E1306C exact */
+    --platform-tiktok: 178 100% 47%;     /* #00F2EA exact */
     --platform-x: 0 0% 9%;
+    --platform-google: 5 81% 56%;        /* #EA4335 exact */
     /* Data-viz catégoriel — remplace les hex en dur de ui/chart.tsx. */
     --data-1: 95 98% 61%;
     --data-2: 172 66% 50%;
