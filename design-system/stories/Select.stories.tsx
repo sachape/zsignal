@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, screen, waitFor } from "storybook/test";
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectGroup, SelectLabel,
 } from "@/components/ui/select";
@@ -32,6 +33,16 @@ export const Plateforme: S = {
       </SelectContent>
     </Select>
   ),
+  // Comportement : ouvrir → choisir YouTube → le trigger reflète la sélection.
+  play: async ({ canvas, userEvent }) => {
+    const trigger = canvas.getByRole("combobox");
+    await expect(trigger).toHaveTextContent(/twitch/i);
+    await userEvent.click(trigger);
+    // Le contenu est porté hors du canvas (portail) → screen, pas canvas.
+    const option = await screen.findByRole("option", { name: /youtube/i });
+    await userEvent.click(option);
+    await waitFor(() => expect(trigger).toHaveTextContent(/youtube/i));
+  },
 };
 
 export const Ouvert: S = {
