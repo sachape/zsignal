@@ -24,13 +24,14 @@ Aujourd'hui : non aux quatre. Ce dossier existe pour que la réponse devienne ou
 
 | Phase | Livrable | Outil | État |
 |---|---|---|---|
-| **0** Cadrage & preuves | `00-audit.md` | — | ✅ fait |
-| **1** Inventaire & classification | `01-inventory.md` + `artifacts/manifest.json` | `tools/inventory.mjs` | ✅ fait |
-| **2** Consolidation des tokens | `02-tokens.md` + `artifacts/tokens.json` | Style Dictionary (à décider) | ⏳ suivant |
-| **3** Extraction des API composant | `05-components.md` + `specs/*.md` | — | 🟡 3 patterns métier specés |
-| **4** Storybook = source de vérité | `.storybook/` + `*.stories.tsx` | **Storybook** | ⬜ |
+| **0** Cadrage & preuves | `00-audit.md` | — | ✅ |
+| **1** Inventaire & classification | `01-inventory.md` + `manifest.json` | `tools/inventory.mjs` | ✅ |
+| **2** Consolidation des tokens | `02-tokens.md` + `tokens.json` | `tools/tokens.mjs` (généré) | ✅ |
+| **Ch.07** Fondations | `03-foundations.md` + `04-type-grid.md` | — | ✅ (1-5, 10) |
+| **3** Composants & patterns | `05-components.md`, `06-catalog.md`, `specs/*` | `tools/catalog.mjs` | 🟡 patterns specés, catalogue généré |
+| **4** Storybook = source de vérité | `.storybook/` + `design-system/stories/*` | Storybook | ✅ tokens + patterns + primitives |
 | **5** Couche IA / MCP | `src/lib/mcp/tools/ds-*` | MCP existant | ⬜ |
-| **6** Gouvernance & prompt-to-UI | `06-governance.md` | — | ⬜ |
+| **6** Gouvernance & prompt-to-UI | — | — | ⬜ |
 
 ## Ce qu'on sait déjà
 
