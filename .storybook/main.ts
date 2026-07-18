@@ -9,10 +9,14 @@ const config: StorybookConfig = {
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
   ],
   addons: [
-    // a11y + docs : les deux qui comptent pour un DS. L'addon-vitest (test
-    // navigateur) a été retiré — trop invasif, il restructurait vitest.config.
+    // a11y + docs : les deux qui comptent pour un DS.
     "@storybook/addon-a11y",
     "@storybook/addon-docs",
+    // addon-vitest : rend chaque story dans un Chromium headless (smoke-test +
+    // a11y) au run des tests. Câblé proprement dans vitest.config (projet
+    // `storybook`, isolé du projet `unit`) — voir ce fichier pour l'alias `@`
+    // et le plugin react (runtime JSX) que le projet de test exige.
+    "@storybook/addon-vitest",
   ],
   framework: "@storybook/react-vite",
   async viteFinal(cfg) {
