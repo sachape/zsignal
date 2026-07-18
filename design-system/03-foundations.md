@@ -15,10 +15,10 @@ L'ordre n'est pas indicatif : chaque étage repose sur le précédent. Statut r�
 | # | Étage | État | Ce qui manque |
 |---|---|---|---|
 | 1 | Principes de marque & expérience | 🟡 ce doc | Écrits ci-dessous, à valider. |
-| 2 | Grille, breakpoints, responsive | ❌ | À extraire du code (container 1400, mais règles non documentées). |
+| 2 | Grille, breakpoints, responsive | ✅ | `04-type-grid.md` — 3 breakpoints réels (sm/md/lg). |
 | 3 | Tokens primitifs | ✅ | — |
 | 4 | Tokens sémantiques | ✅ | — |
-| 5 | Typographie & styles de texte | ❌ | 5 familles (Instrument Sans, Boogaloo, Fraunces, Inter, JetBrains Mono), aucune échelle documentée. |
+| 5 | Typographie & styles de texte | ✅ | `04-type-grid.md` — corps = 14px assumé, Boogaloo morte. |
 | 6 | Composants fondamentaux | 🟡 | 49 primitives shadcn inventoriées, pas spécifiées (Phase 3). |
 | 7 | Composants composites | 🟡 | Inventoriés, pas spécifiés. |
 | 8 | **Patterns métier** | 🟡 | **Nommés ci-dessous.** Pas encore encodés. |
@@ -126,7 +126,8 @@ La monétisation (le modèle Pro).
 - [x] Les principes de marque sont extraits du vrai produit (§2), à valider.
 - [x] **Je peux nommer les 3 patterns métier** : `GenerationJob`, `ScoreDisplay`,
       `AccessGate` — et dire l'état de chacun.
-- [ ] Étages 2 (grille/responsive) et 5 (typographie) à fermer avant la Phase 3.
+- [x] Étages 2 (grille/responsive) et 5 (typographie) fermés — `04-type-grid.md`.
 
-Le critère de sortie du Ch.07 est tenu. Restent deux étages à écrire avant de
-spécifier les composants — ce qui remet le pipeline dans le bon ordre.
+Le critère de sortie du Ch.07 est tenu, et les fondations sont complètes
+(étages 1-5 + 10). Restent les étages 6-7-8 (composants et patterns) = la Phase 3,
+maintenant sur des fondations solides.
