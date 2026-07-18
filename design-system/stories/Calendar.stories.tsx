@@ -9,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 const meta: Meta<typeof Calendar> = {
   title: "Primitives/Calendar",
   component: Calendar,
-  parameters: { docs: { description: { component: "Calendar — le sélecteur de date (react-day-picker), base des filtres par période. Généralement monté dans un Popover ; montré seul ici." } },  layout: "centered" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "Calendar — le sélecteur de date (react-day-picker), base des filtres par période. Généralement monté dans un Popover ; montré seul ici." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Calendar>;

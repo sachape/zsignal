@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 const meta: Meta<typeof Popover> = {
   title: "Primitives/Popover",
   component: Popover,
-  parameters: { docs: { description: { component: "Popover — un panneau contextuel riche (mini-formulaire, réglages) ancré à un déclencheur. Composé : Trigger + Content." } },  layout: "centered" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "Popover — un panneau contextuel riche (mini-formulaire, réglages) ancré à un déclencheur. Composé : Trigger + Content." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Popover>;

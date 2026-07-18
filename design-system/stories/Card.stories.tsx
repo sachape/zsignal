@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 const meta: Meta<typeof Card> = {
   title: "Primitives/Card",
   component: Card,
-  parameters: { docs: { description: { component: "Card — la primitive la plus utilisée (66×). Composée : Card + CardHeader + CardTitle + CardDescription + CardContent + CardFooter." } },  layout: "centered" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "Card — la primitive la plus utilisée (66×). Composée : Card + CardHeader + CardTitle + CardDescription + CardContent + CardFooter." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Card>;

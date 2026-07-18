@@ -15,7 +15,7 @@ import { Film, Image, BarChart3, Radio } from "lucide-react";
 const meta: Meta<typeof Sidebar> = {
   title: "Patterns/Sidebar",
   component: Sidebar,
-  parameters: { docs: { description: { component: "Sidebar — la navigation verticale de l'app (produit complexe, 5–20 items groupés). Nécessite SidebarProvider (contexte ouvert/replié)." } },  layout: "fullscreen" },
+  parameters: { controls: { disable: true }, docs: { description: { component: "Sidebar — la navigation verticale de l'app (produit complexe, 5–20 items groupés). Nécessite SidebarProvider (contexte ouvert/replié)." } },  layout: "fullscreen" },
 };
 export default meta;
 type S = StoryObj<typeof Sidebar>;
