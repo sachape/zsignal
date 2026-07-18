@@ -12,7 +12,10 @@ import {
 const meta: Meta<typeof Accordion> = {
   title: "Primitives/Accordion",
   component: Accordion,
-  parameters: { layout: "centered" },
+  // "padded" et pas "centered" : un accordéon change de hauteur en s'ouvrant ;
+  // centré, tout le bloc se re-centre verticalement à chaque clic (effet « ça
+  // saute »). Aligné en haut, l'ouverture pousse simplement vers le bas.
+  parameters: { layout: "padded" },
 };
 export default meta;
 type S = StoryObj<typeof Accordion>;

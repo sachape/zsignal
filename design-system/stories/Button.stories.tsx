@@ -18,6 +18,10 @@ const meta: Meta<typeof Button> = {
       options: ["default", "secondary", "outline", "ghost", "destructive", "link"],
     },
     size: { control: "select", options: ["default", "sm", "lg", "icon"] },
+    // asChild n'est PAS une prop visuelle : c'est de la composition (Slot). Si
+    // on l'active avec un enfant texte, Slot n'a pas d'élément à cloner et le
+    // bouton disparaît. On le retire des contrôles pour éviter ce faux « bug ».
+    asChild: { control: false, table: { disable: true } },
   },
 };
 export default meta;
