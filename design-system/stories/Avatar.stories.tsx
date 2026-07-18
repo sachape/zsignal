@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 const meta: Meta<typeof Avatar> = {
   title: "Primitives/Avatar",
   component: Avatar,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Avatar — l'identité d'un streamer (9×). Composé : Avatar + Image + Fallback." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Avatar>;

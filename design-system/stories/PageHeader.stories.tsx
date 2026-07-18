@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof PageHeader> = {
   title: "Patterns/PageHeader",
   component: PageHeader,
-  parameters: { layout: "padded" },
+  parameters: { docs: { description: { component: "PageHeader — pattern métier le plus utilisé (25×) : l'en-tête standard d'une page produit. UNE source de vérité pour la hiérarchie de titre." } },  layout: "padded" },
 };
 export default meta;
 type S = StoryObj<typeof PageHeader>;

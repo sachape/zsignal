@@ -15,7 +15,7 @@ const meta: Meta<typeof Accordion> = {
   // "padded" et pas "centered" : un accordéon change de hauteur en s'ouvrant ;
   // centré, tout le bloc se re-centre verticalement à chaque clic (effet « ça
   // saute »). Aligné en haut, l'ouverture pousse simplement vers le bas.
-  parameters: { layout: "padded" },
+  parameters: { docs: { description: { component: "Accordion — replier des sections (FAQ, détails d'un rapport). Composé : Accordion + Item + Trigger + Content." } },  layout: "padded" },
 };
 export default meta;
 type S = StoryObj<typeof Accordion>;

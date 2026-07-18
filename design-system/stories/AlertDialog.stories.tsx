@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof AlertDialog> = {
   title: "Primitives/AlertDialog",
   component: AlertDialog,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "AlertDialog — une confirmation BLOQUANTE pour action destructive (supprimer un clip). Différent du Dialog : deux issues explicites (Annuler / Confirmer), pas de fermeture au clic extérieur." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof AlertDialog>;

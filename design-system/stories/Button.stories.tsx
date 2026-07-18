@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof Button> = {
   title: "Primitives/Button",
   component: Button,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Button — primitive shadcn. L'une des 9 primitives (sur 49) qui ont une vraie API de variant (CVA)." } },  layout: "centered" },
   // onClick espionné (fn()) : les play functions vérifient qu'il part — ou pas.
   args: { onClick: fn() },
   argTypes: {

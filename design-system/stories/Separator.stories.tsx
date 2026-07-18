@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 const meta: Meta<typeof Separator> = {
   title: "Primitives/Separator",
   component: Separator,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Separator — une séparation discrète entre groupes. Fin, couleur --border : il structure sans crier." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Separator>;

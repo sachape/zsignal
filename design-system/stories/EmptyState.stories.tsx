@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 const meta: Meta<typeof EmptyState> = {
   title: "Primitives/EmptyState",
   component: EmptyState,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "EmptyState — l'état vide « premium » (2×), réutilisé sur les pages de création / bibliothèque. Répond aux 3 questions d'un bon état vide : ce que c'est, pourquoi c'est utile, quoi faire ensuite (cf." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof EmptyState>;

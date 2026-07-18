@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 const meta: Meta<typeof Progress> = {
   title: "Primitives/Progress",
   component: Progress,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Progress — l'avancement d'un rendu (génération de clips). Pour du > 10 s, préférer une barre avec valeur plutôt qu'un spinner." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Progress>;

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof Toaster> = {
   title: "Primitives/Toast",
   component: Toaster,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Toast (Radix) — l'autre système de notification du repo, à base d'objet toast({ title, description }) + <Toaster /> monté à la racine. Coexiste avec Sonner ; à terme un DS n'en garde qu'un — ici on documente les deux tels quels." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Toaster>;

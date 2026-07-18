@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 const meta: Meta<typeof Badge> = {
   title: "Primitives/Badge",
   component: Badge,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Badge — primitive shadcn, **personnalisée** : au-delà des variants stock (default/secondary/destructive/outline), l'app a ajouté success et warning branchés sur les tokens de statut du DS." } },  layout: "centered" },
   argTypes: {
     variant: {
       control: "select",

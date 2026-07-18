@@ -11,7 +11,7 @@ import {
 const meta: Meta<typeof Select> = {
   title: "Primitives/Select",
   component: Select,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Select — la brique de base des filtres (7×). Composé : Select + SelectTrigger + SelectContent + SelectItem." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Select>;

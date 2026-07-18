@@ -9,7 +9,7 @@ import SectionHeader from "@/components/SectionHeader";
 const meta: Meta<typeof SectionHeader> = {
   title: "Patterns/SectionHeader",
   component: SectionHeader,
-  parameters: { layout: "padded" },
+  parameters: { docs: { description: { component: "SectionHeader — l'en-tête d'une section DANS une page (4×). Deux alignements : centré (sections marketing/landing d'app) ou à gauche (blocs de contenu)." } },  layout: "padded" },
 };
 export default meta;
 type S = StoryObj<typeof SectionHeader>;

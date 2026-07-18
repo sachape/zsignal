@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof DropdownMenu> = {
   title: "Primitives/DropdownMenu",
   component: DropdownMenu,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "DropdownMenu — les menus contextuels (actions, options). Composé : Trigger + Content + Item/CheckboxItem/Separator." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof DropdownMenu>;

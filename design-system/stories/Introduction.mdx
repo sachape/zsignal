@@ -1,0 +1,61 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Design System/Introduction" />
+
+# Streamnco — Design System
+
+La source de vérité unique des composants et des tokens de Streamnco (app dark + lime).
+Un designer ou un agent qui arrive ici doit pouvoir répondre à : **quels composants
+existent, comment ils sont construits, quels tokens les pilotent, et lesquels sont
+réutilisables**.
+
+---
+
+## Comment c'est organisé
+
+| Section | Ce que tu y trouves |
+|---|---|
+| **Design System / Tokens** | Les tokens en 3 couches — Foundations (primitives), Semantic (intentions), Components. Chaque token montre sa valeur résolue **et** son alias source. |
+| **Foundations** | Les fondations transverses : Grid &amp; Layout (espacement, colonnes, breakpoints). |
+| **Primitives** | Les briques shadcn/Radix réutilisables (Button, Select, Dialog, Switch…), avec leurs variantes et des tests d'interaction. |
+| **Patterns** | Les patterns métier réutilisables (PageHeader, StateView, Sidebar, ProgressRow…). |
+| **Exemples** | Compositions de démonstration (ScoreCard, FilterBar). |
+| **Catalogue** | L'inventaire complet des composants *feature* de l'app (82), rangés par domaine. Navigable — voir la note plus bas. |
+
+---
+
+## L'architecture de tokens (la base)
+
+Tout descend d'une chaîne stricte, jamais l'inverse :
+
+```
+Primitive         Semantic                       Component
+color.lime.500 →  color.action.primary.default → button.primary.background.default
+```
+
+- **Primitives** : valeurs brutes, sans intention (échelles de couleur, d'espacement, rayons, typo, ombres, motion…).
+- **Semantic** : ce que veut *dire* une valeur dans le produit (`background.page`, `text.primary`, `action.primary.hover`). N'aliase que des primitives.
+- **Component** : les décisions par composant (`button.height.md`, `card.radius`). N'aliasent que la couche sémantique — **jamais de valeur brute**.
+
+La source vit dans `tokens/**` (format W3C DTCG) et est transformée par **Style Dictionary**
+(`npm run tokens:build`) vers CSS / SCSS / TS. Storybook ne fait que **rendre** cette
+architecture lisible.
+
+---
+
+## Ce qui est testé
+
+Les stories du **DS réutilisable** (Primitives, Patterns, Foundations) sont *smoke-testées*
+dans un navigateur headless (montage + accessibilité + play functions) via
+`@storybook/addon-vitest`. Le **Catalogue** et les pages de doc lourdes sont **navigables
+mais hors test** : beaucoup de composants feature tapent Supabase / la caméra / le réseau
+et ne tournent pas en headless. Ils montent ici grâce à un client Supabase mocké.
+
+---
+
+## Conventions
+
+- **Dark par défaut**, `.light` en override (toggle de thème dans la barre d'outils).
+- La marque est le **lime** (`--primary`) ; le **teal** (`--accent`) est une couleur
+  secondaire de *tint*, jamais une action.
+- Les couleurs sont stockées en canaux HSL pour rester compatibles `hsl(var(--x))`.

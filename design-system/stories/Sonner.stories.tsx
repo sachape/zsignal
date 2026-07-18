@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 const meta: Meta<typeof Toaster> = {
   title: "Primitives/Sonner",
   component: Toaster,
-  parameters: { layout: "centered" },
+  parameters: { docs: { description: { component: "Sonner — les notifications éphémères (toasts) déclenchées par du code : toast(\"…\"). Le <Toaster /> est monté une fois (ici dans la story ; dans l'app, à la racine)." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Toaster>;
