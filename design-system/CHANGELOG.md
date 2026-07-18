@@ -48,3 +48,15 @@ jour à chaque changement.
 - Reste à faire (touche le code, étape prudente) : câbler `index.css` sur les
   primitives + résorber les 7 poches de dérive.
 - Fichiers : `02-tokens.md`, `artifacts/tokens.json`.
+
+### Phase 2 — Fondation tokens (touche le code, invisible)
+- `index.css` : ajout de la **couche primitive** (lime, teal, statuts) +
+  familles `platform.*` et `data.*`. Chaque valeur chromatique partagée est
+  désormais un alias vers sa primitive (le lime : 9 aliases → 1 source).
+- `tailwind.config.ts` : câblage des classes `platform.*` et `data.*`.
+- **Prouvé à valeur constante** : 22 tokens résolus, 0 divergence → aucun
+  changement visuel. La couche primitive est de la plomberie, pas du design.
+- Le `vite build` échoue sur un package Lovable non installé localement
+  (`@lovable.dev/mcp-js`) — pré-existant, identique sur main, hors de mon
+  périmètre. Le CSS lui-même compile (vérifié via Tailwind CLI).
+- Thermomètre encore à 85 : la résorption de la dérive est l'étape suivante.

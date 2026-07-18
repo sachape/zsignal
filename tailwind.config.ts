@@ -76,6 +76,24 @@ export default {
           DEFAULT: "hsl(var(--twitch))",
           foreground: "hsl(var(--twitch-foreground))",
         },
+        // Couleurs de plateformes — remplacent les hex en dur (audit E-04).
+        // `twitch` reste dispo ci-dessus (rétrocompat) ; `platform.twitch` le
+        // double pour la cohérence des nouveaux usages.
+        platform: {
+          twitch: "hsl(var(--platform-twitch))",
+          youtube: "hsl(var(--platform-youtube))",
+          instagram: "hsl(var(--platform-instagram))",
+          tiktok: "hsl(var(--platform-tiktok))",
+          x: "hsl(var(--platform-x))",
+        },
+        // Palette data-viz catégorielle — remplace les hex en dur de chart.tsx.
+        data: {
+          1: "hsl(var(--data-1))",
+          2: "hsl(var(--data-2))",
+          3: "hsl(var(--data-3))",
+          4: "hsl(var(--data-4))",
+          5: "hsl(var(--data-5))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
