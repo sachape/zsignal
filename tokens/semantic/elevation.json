@@ -1,0 +1,10 @@
+{
+  "elevation": {
+    "$type": "shadow",
+    "$description": "Élévation sémantique : à quelle hauteur perçue se trouve une surface.",
+    "flat":    { "$value": "{shadow.xs}", "$description": "Cartes posées." },
+    "raised":  { "$value": "{shadow.sm}", "$description": "Éléments survolés/actifs." },
+    "overlay": { "$value": "{shadow.md}", "$description": "Popovers, dropdowns." },
+    "modal":   { "$value": "{shadow.xl}", "$description": "Modales, drawers." }
+  }
+}

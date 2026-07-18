@@ -1,0 +1,72 @@
+{
+  "color": {
+    "background": {
+      "$type": "color",
+      "$description": "Surfaces, de la page (la plus basse) aux surfaces élevées.",
+      "page":     { "$value": "{color.neutral.950}" },
+      "surface":  { "$value": "{color.neutral.900}", "$description": "Cartes." },
+      "elevated": { "$value": "{color.neutral.850}", "$description": "Popovers, menus." },
+      "muted":    { "$value": "{color.neutral.800}" },
+      "subtle":   { "$value": "{color.neutral.775}", "$description": "Chips, surfaces enfoncées (secondary)." },
+      "brand":    { "$value": "{color.lime.500}" },
+      "success":  { "$value": "{color.green.500}" },
+      "warning":  { "$value": "{color.amber.500}" },
+      "danger":   { "$value": "{color.red.500}" },
+      "info":     { "$value": "{color.blue.500}" }
+    },
+    "text": {
+      "$type": "color",
+      "$description": "Hiérarchie de texte, du plus fort au plus discret.",
+      "primary":   { "$value": "{color.neutral.150}" },
+      "secondary": { "$value": "{color.neutral.400}" },
+      "tertiary":  { "$value": "{color.neutral.500}" },
+      "disabled":  { "$value": "{color.neutral.500}" },
+      "inverse":   { "$value": "{color.neutral.950}", "$description": "Texte sur surface claire/marque." },
+      "brand":     { "$value": "{color.lime.500}" },
+      "on-brand":  { "$value": "{color.neutral.950}", "$description": "Texte sur un aplat lime." },
+      "on-danger": { "$value": "{color.neutral.50}",  "$description": "Texte sur un aplat rouge/destructif." }
+    },
+    "border": {
+      "$type": "color",
+      "default": { "$value": "{color.neutral.750}" },
+      "subtle":  { "$value": "{color.neutral.800}" },
+      "strong":  { "$value": "{color.neutral.700}" },
+      "focus":   { "$value": "{color.lime.500}" },
+      "danger":  { "$value": "{color.red.500}" },
+      "success": { "$value": "{color.green.500}" }
+    },
+    "icon": {
+      "$type": "color",
+      "primary":   { "$value": "{color.neutral.150}" },
+      "secondary": { "$value": "{color.neutral.400}" },
+      "brand":     { "$value": "{color.lime.500}" },
+      "inverse":   { "$value": "{color.neutral.950}" }
+    },
+    "action": {
+      "$type": "color",
+      "$description": "Surfaces interactives + leurs états. hover/pressed = teintes réelles (pas d'opacité magique).",
+      "primary": {
+        "default":  { "$value": "{color.lime.500}" },
+        "hover":    { "$value": "{color.lime.400}" },
+        "pressed":  { "$value": "{color.lime.600}" },
+        "disabled": { "$value": "{color.neutral.775}" }
+      },
+      "secondary": {
+        "default":  { "$value": "{color.neutral.775}" },
+        "hover":    { "$value": "{color.neutral.750}" },
+        "pressed":  { "$value": "{color.neutral.700}" },
+        "disabled": { "$value": "{color.neutral.800}" }
+      },
+      "destructive": {
+        "default":  { "$value": "{color.red.500}" },
+        "hover":    { "$value": "hsl(0 72% 45%)" },
+        "pressed":  { "$value": "hsl(0 72% 40%)" },
+        "disabled": { "$value": "{color.neutral.775}" }
+      }
+    },
+    "focus": {
+      "$type": "color",
+      "ring": { "$value": "{color.lime.500}" }
+    }
+  }
+}

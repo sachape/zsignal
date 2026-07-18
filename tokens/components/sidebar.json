@@ -1,0 +1,28 @@
+{
+  "sidebar": {
+    "$description": "Tokens du composant Sidebar (navigation verticale). Les surfaces de base (--sidebar-background/foreground/border) sont fournies par le pont shadcn ; ici on décrit la structure d'un ITEM et l'iconographie.",
+    "focus": { "ring": { "$type": "color", "$value": "{color.focus.ring}" } },
+    "icon": { "size": { "$type": "dimension", "$value": "{icon.size.md}" } },
+
+    "item": {
+      "background": {
+        "$type": "color",
+        "default": { "$value": "{color.background.page}" },
+        "hover":   { "$value": "{color.background.muted}" },
+        "active":  { "$value": "{color.background.muted}" }
+      },
+      "foreground": {
+        "$type": "color",
+        "default": { "$value": "{color.text.secondary}" },
+        "active":  { "$value": "{color.text.primary}" }
+      },
+      "height":  { "$type": "dimension", "$value": "{size.32}" },
+      "radius":  { "$type": "dimension", "$value": "{radius.control}" },
+      "gap":     { "$type": "dimension", "$value": "{space.component.sm}" },
+      "padding": {
+        "inline": { "$type": "dimension", "$value": "{space.component.sm}" },
+        "block":  { "$type": "dimension", "$value": "{space.component.xs}" }
+      }
+    }
+  }
+}

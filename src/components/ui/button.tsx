@@ -23,9 +23,9 @@ const buttonVariants = cva(
         twitch: "bg-twitch text-twitch-foreground hover:bg-twitch/90",
       },
       size: {
-        default: "h-[var(--button-height-md)] px-[var(--button-px-md)]",
-        sm: "h-[var(--button-height-sm)] px-[var(--button-px-sm)] text-xs",
-        lg: "h-[var(--button-height-lg)] px-[var(--button-px-lg)]",
+        default: "h-[var(--button-height-md)] px-[var(--button-padding-inline-md)]",
+        sm: "h-[var(--button-height-sm)] px-[var(--button-padding-inline-sm)] text-xs",
+        lg: "h-[var(--button-height-lg)] px-[var(--button-padding-inline-lg)]",
         icon: "h-[var(--button-height-md)] w-[var(--button-height-md)]",
       },
     },

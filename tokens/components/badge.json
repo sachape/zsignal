@@ -1,0 +1,12 @@
+{
+  "badge": {
+    "$description": "Pastilles de statut / étiquettes.",
+    "radius":  { "$type": "dimension", "$value": "{radius.pill}" },
+    "padding": { "inline": { "$type": "dimension", "$value": "{space.2}" }, "block": { "$type": "dimension", "$value": "{space.1}" } },
+    "gap":     { "$type": "dimension", "$value": "{space.1}" },
+    "primary":     { "background": { "$type": "color", "$value": "{color.background.brand}" },  "text": { "$type": "color", "$value": "{color.text.on-brand}" } },
+    "secondary":   { "background": { "$type": "color", "$value": "{color.background.subtle}" }, "text": { "$type": "color", "$value": "{color.text.primary}" } },
+    "success":     { "background": { "$type": "color", "$value": "{color.background.success}" }, "text": { "$type": "color", "$value": "{color.text.on-brand}" } },
+    "destructive": { "background": { "$type": "color", "$value": "{color.background.danger}" },  "text": { "$type": "color", "$value": "{color.text.on-danger}" } }
+  }
+}

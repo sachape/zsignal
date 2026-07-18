@@ -1,0 +1,29 @@
+{
+  "control": {
+    "height": {
+      "$type": "dimension",
+      "$description": "Hauteurs des contrôles interactifs (boutons, inputs, selects).",
+      "sm": { "$value": "{size.32}" },
+      "md": { "$value": "{size.36}" },
+      "lg": { "$value": "{size.40}" }
+    }
+  },
+  "icon": {
+    "size": {
+      "$type": "dimension",
+      "$description": "Tailles d'icônes.",
+      "sm": { "$value": "{size.16}" },
+      "md": { "$value": "{size.20}" },
+      "lg": { "$value": "{size.24}" }
+    }
+  },
+  "container": {
+    "width": {
+      "$type": "dimension",
+      "$description": "Largeurs de conteneurs de contenu.",
+      "sm": { "$value": "40rem" },
+      "md": { "$value": "48rem" },
+      "lg": { "$value": "64rem" }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "motion": {
+    "interaction": {
+      "fast":   { "$type": "duration", "$value": "{duration.fast}",   "$description": "Micro-interactions (survol, focus)." },
+      "normal": { "$type": "duration", "$value": "{duration.normal}", "$description": "Transitions standard." }
+    },
+    "enter": { "$type": "cubicBezier", "$value": "{easing.decelerate}", "$description": "Éléments qui apparaissent." },
+    "exit":  { "$type": "cubicBezier", "$value": "{easing.accelerate}", "$description": "Éléments qui disparaissent." }
+  }
+}

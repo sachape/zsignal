@@ -1,0 +1,10 @@
+{
+  "opacity": {
+    "$type": "number",
+    "disabled": { "$value": "0.5",  "$description": "Élément désactivé." },
+    "muted":    { "$value": "0.65", "$description": "Contenu atténué." },
+    "loading":  { "$value": "0.6",  "$description": "Contenu en chargement." },
+    "overlay":  { "$value": "0.8",  "$description": "Voile derrière une modale." },
+    "hover":    { "$value": "0.9",  "$description": "Assombrissement au survol d'une surface pleine." }
+  }
+}

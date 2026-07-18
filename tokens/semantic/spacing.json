@@ -1,0 +1,21 @@
+{
+  "space": {
+    "component": {
+      "$type": "dimension",
+      "$description": "Espacement INTÉRIEUR aux composants (padding de bouton, gap d'items).",
+      "xs": { "$value": "{space.1}" },
+      "sm": { "$value": "{space.2}" },
+      "md": { "$value": "{space.3}" },
+      "lg": { "$value": "{space.4}" }
+    },
+    "layout": {
+      "$type": "dimension",
+      "$description": "Espacement ENTRE blocs de page (sections, grilles).",
+      "xs": { "$value": "{space.4}" },
+      "sm": { "$value": "{space.6}" },
+      "md": { "$value": "{space.8}" },
+      "lg": { "$value": "{space.12}" },
+      "xl": { "$value": "{space.16}" }
+    }
+  }
+}

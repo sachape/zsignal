@@ -1,0 +1,12 @@
+{
+  "card": {
+    "$description": "Carte — surface élevée au-dessus de la page.",
+    "background": { "$type": "color", "$value": "{color.background.surface}" },
+    "foreground": { "$type": "color", "$value": "{color.text.primary}" },
+    "border":     { "$type": "color", "$value": "{color.border.default}" },
+    "radius":     { "$type": "dimension", "$value": "{radius.card}" },
+    "padding":    { "$type": "dimension", "$value": "{space.6}" },
+    "gap":        { "$type": "dimension", "$value": "{space.component.md}" },
+    "shadow":     { "$type": "shadow", "$value": "{elevation.flat}" }
+  }
+}

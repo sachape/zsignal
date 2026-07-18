@@ -1,0 +1,16 @@
+{
+  "duration": {
+    "$type": "duration",
+    "instant": { "$value": "0ms" },
+    "fast":    { "$value": "120ms" },
+    "normal":  { "$value": "200ms" },
+    "slow":    { "$value": "320ms" }
+  },
+  "easing": {
+    "$type": "cubicBezier",
+    "standard":    { "$value": "cubic-bezier(0.2, 0, 0, 1)",     "$description": "Transitions standard." },
+    "accelerate":  { "$value": "cubic-bezier(0.4, 0, 1, 1)",     "$description": "Sortie d'écran (entre vite, part vite)." },
+    "decelerate":  { "$value": "cubic-bezier(0, 0, 0.2, 1)",     "$description": "Entrée d'écran (arrive en douceur)." },
+    "emphasized":  { "$value": "cubic-bezier(0.16, 1, 0.3, 1)",  "$description": "Mouvement premium marqué." }
+  }
+}

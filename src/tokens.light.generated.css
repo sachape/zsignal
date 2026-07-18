@@ -1,0 +1,217 @@
+/* GÉNÉRÉ par design-system/tokens.build.mjs — NE PAS ÉDITER.
+   Source : le dossier tokens/. Régénère : npm run tokens:build */
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+.light {
+  --color-white: 0 0% 100%; /** Blanc pur. */
+  --color-black: 0 0% 0%; /** Noir pur. */
+  --color-transparent: transparent; /** Transparent. */
+  --color-neutral-0: 0 0% 100%;
+  --color-neutral-50: 220 20% 97%;
+  --color-neutral-100: 220 20% 94%;
+  --color-neutral-150: 210 20% 92%;
+  --color-neutral-200: 220 16% 88%;
+  --color-neutral-300: 220 13% 82%;
+  --color-neutral-400: 215 10% 65%;
+  --color-neutral-500: 220 10% 46%;
+  --color-neutral-600: 220 12% 36%;
+  --color-neutral-700: 220 16% 22%;
+  --color-neutral-750: 220 14% 16%;
+  --color-neutral-775: 220 16% 14%;
+  --color-neutral-800: 220 14% 12%;
+  --color-neutral-850: 220 18% 11%;
+  --color-neutral-900: 220 18% 9%;
+  --color-neutral-925: 220 18% 7%;
+  --color-neutral-950: 220 20% 6%;
+  --color-lime-400: 95 90% 70%;
+  --color-lime-500: 95 98% 61%; /** La marque — #89FD3A. */
+  --color-lime-600: 95 80% 45%;
+  --color-lime-text: 96 60% 30%; /** Lime assombri, seul lisible en texte sur clair. */
+  --color-teal-500: 172 66% 50%; /** Accent secondaire. */
+  --color-green-500: 142 71% 45%;
+  --color-amber-500: 38 92% 50%;
+  --color-red-500: 0 72% 51%;
+  --color-blue-500: 217 91% 60%;
+  --color-orange-500: 25 95% 53%;
+  --color-yellow-500: 48 96% 53%;
+  --color-purple-500: 262 83% 58%;
+  --color-pink-500: 329 70% 58%;
+  --color-platform-twitch: 264 100% 64%;
+  --color-platform-youtube: 0 100% 50%;
+  --color-platform-instagram: 340 75% 54%; /** #E1306C. */
+  --color-platform-tiktok: 178 100% 47%; /** #00F2EA. */
+  --color-platform-x: 0 0% 9%;
+  --color-platform-google: 5 81% 56%; /** #EA4335. */
+  --color-data-1: 95 98% 61%;
+  --color-data-2: 172 66% 50%;
+  --color-data-3: 217 91% 60%;
+  --color-data-4: 38 92% 50%;
+  --color-data-5: 329 70% 58%;
+  --color-action-destructive-hover: 0 72% 45%;
+  --color-action-destructive-pressed: 0 72% 40%;
+  --color-background-page: var(--color-neutral-100);
+  --color-background-surface: var(--color-neutral-0);
+  --color-background-elevated: var(--color-neutral-0);
+  --color-background-muted: var(--color-neutral-200);
+  --color-background-subtle: var(--color-neutral-200);
+  --color-background-brand: var(--color-lime-500);
+  --color-background-success: var(--color-green-500);
+  --color-background-warning: var(--color-amber-500);
+  --color-background-danger: var(--color-red-500);
+  --color-background-info: var(--color-blue-500);
+  --color-text-primary: var(--color-neutral-800);
+  --color-text-secondary: var(--color-neutral-500);
+  --color-text-tertiary: var(--color-neutral-500);
+  --color-text-disabled: var(--color-neutral-400);
+  --color-text-inverse: var(--color-neutral-0);
+  --color-text-brand: var(--color-lime-text); /** Lime assombri : lisible en texte sur clair. */
+  --color-text-on-brand: var(--color-neutral-950); /** Texte sur un aplat lime. */
+  --color-text-on-danger: var(--color-neutral-50); /** Texte sur un aplat rouge/destructif. */
+  --color-border-default: var(--color-neutral-300);
+  --color-border-subtle: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-400);
+  --color-border-focus: var(--color-lime-500);
+  --color-border-danger: var(--color-red-500);
+  --color-border-success: var(--color-green-500);
+  --color-icon-primary: var(--color-neutral-800);
+  --color-icon-secondary: var(--color-neutral-500);
+  --color-icon-brand: var(--color-lime-500);
+  --color-icon-inverse: var(--color-neutral-950);
+  --color-action-primary-default: var(--color-lime-500);
+  --color-action-primary-hover: var(--color-lime-400);
+  --color-action-primary-pressed: var(--color-lime-600);
+  --color-action-primary-disabled: var(--color-neutral-775);
+  --color-action-secondary-default: var(--color-neutral-200);
+  --color-action-secondary-hover: var(--color-neutral-300);
+  --color-action-secondary-pressed: var(--color-neutral-400);
+  --color-action-secondary-disabled: var(--color-neutral-800);
+  --color-action-destructive-default: var(--color-red-500);
+  --color-action-destructive-disabled: var(--color-neutral-775);
+  --color-focus-ring: var(--color-lime-500);
+  --button-destructive-background-hover: var(--color-action-destructive-hover);
+  --button-destructive-background-pressed: var(--color-action-destructive-pressed);
+  --dialog-overlay-background: var(--color-neutral-950);
+  --switch-thumb-background: var(--color-neutral-0);
+  --secondary-foreground: var(--color-neutral-700);
+  --primary-strong: var(--color-lime-text);
+  --accent: var(--color-teal-500);
+  --accent-foreground: var(--color-neutral-950);
+  --destructive-foreground: var(--color-neutral-50);
+  --success-foreground: var(--color-neutral-950);
+  --warning-foreground: var(--color-neutral-950);
+  --info-foreground: var(--color-neutral-950);
+  --twitch: var(--color-platform-twitch);
+  --twitch-foreground: var(--color-neutral-0);
+  --platform-twitch: var(--color-platform-twitch);
+  --platform-youtube: var(--color-platform-youtube);
+  --platform-instagram: var(--color-platform-instagram);
+  --platform-tiktok: var(--color-platform-tiktok);
+  --platform-x: var(--color-platform-x);
+  --platform-google: var(--color-platform-google);
+  --data-1: var(--color-data-1);
+  --data-2: var(--color-data-2);
+  --data-3: var(--color-data-3);
+  --data-4: var(--color-data-4);
+  --data-5: var(--color-data-5);
+  --sidebar-background: var(--color-neutral-50);
+  --sidebar-foreground: var(--color-neutral-600);
+  --sidebar-primary: var(--color-lime-500);
+  --sidebar-primary-foreground: var(--color-neutral-0);
+  --sidebar-accent: var(--color-neutral-150);
+  --sidebar-accent-foreground: var(--color-neutral-750);
+  --sidebar-border: var(--color-neutral-200);
+  --sidebar-ring: var(--color-lime-500);
+  --badge-primary-background: var(--color-background-brand);
+  --badge-primary-text: var(--color-text-on-brand);
+  --badge-secondary-background: var(--color-background-subtle);
+  --badge-secondary-text: var(--color-text-primary);
+  --badge-success-background: var(--color-background-success);
+  --badge-success-text: var(--color-text-on-brand);
+  --badge-destructive-background: var(--color-background-danger);
+  --badge-destructive-text: var(--color-text-on-danger);
+  --button-focus-ring-color: var(--color-focus-ring);
+  --button-primary-background-default: var(--color-action-primary-default);
+  --button-primary-background-hover: var(--color-action-primary-hover);
+  --button-primary-background-pressed: var(--color-action-primary-pressed);
+  --button-primary-background-disabled: var(--color-action-primary-disabled);
+  --button-primary-text-default: var(--color-text-on-brand);
+  --button-primary-text-disabled: var(--color-text-disabled);
+  --button-primary-border-default: var(--color-action-primary-default);
+  --button-secondary-background-default: var(--color-action-secondary-default);
+  --button-secondary-background-hover: var(--color-action-secondary-hover);
+  --button-secondary-background-pressed: var(--color-action-secondary-pressed);
+  --button-secondary-background-disabled: var(--color-action-secondary-disabled);
+  --button-secondary-text-default: var(--color-text-primary);
+  --button-secondary-text-disabled: var(--color-text-disabled);
+  --button-secondary-border-default: var(--color-action-secondary-default);
+  --button-outline-background-default: var(--color-background-page);
+  --button-outline-background-hover: var(--color-action-secondary-default);
+  --button-outline-background-pressed: var(--color-action-secondary-hover);
+  --button-outline-background-disabled: var(--color-background-page);
+  --button-outline-text-default: var(--color-text-primary);
+  --button-outline-text-disabled: var(--color-text-disabled);
+  --button-outline-border-default: var(--color-border-default);
+  --button-ghost-background-default: var(--color-background-page);
+  --button-ghost-background-hover: var(--color-action-secondary-default);
+  --button-ghost-background-pressed: var(--color-action-secondary-hover);
+  --button-ghost-background-disabled: var(--color-background-page);
+  --button-ghost-text-default: var(--color-text-primary);
+  --button-ghost-text-disabled: var(--color-text-disabled);
+  --button-destructive-background-default: var(--color-action-destructive-default);
+  --button-destructive-background-disabled: var(--color-action-destructive-disabled);
+  --button-destructive-text-default: var(--color-text-on-danger);
+  --button-destructive-text-disabled: var(--color-text-disabled);
+  --button-destructive-border-default: var(--color-action-destructive-default);
+  --card-background: var(--color-background-surface);
+  --card-foreground: var(--color-text-primary);
+  --card-border: var(--color-border-default);
+  --checkbox-background-default: var(--color-background-page);
+  --checkbox-background-checked: var(--color-action-primary-default);
+  --checkbox-border: var(--color-border-default);
+  --checkbox-icon: var(--color-text-on-brand);
+  --dialog-background: var(--color-background-elevated);
+  --dialog-foreground: var(--color-text-primary);
+  --dialog-border: var(--color-border-default);
+  --input-background-default: var(--color-background-page);
+  --input-background-disabled: var(--color-background-muted);
+  --input-text-default: var(--color-text-primary);
+  --input-text-placeholder: var(--color-text-tertiary);
+  --input-text-disabled: var(--color-text-disabled);
+  --input-border-default: var(--color-border-default);
+  --input-border-focus: var(--color-border-focus);
+  --input-border-danger: var(--color-border-danger);
+  --sidebar-focus-ring: var(--color-focus-ring);
+  --sidebar-item-background-default: var(--color-background-page);
+  --sidebar-item-background-hover: var(--color-background-muted);
+  --sidebar-item-background-active: var(--color-background-muted);
+  --sidebar-item-foreground-default: var(--color-text-secondary);
+  --sidebar-item-foreground-active: var(--color-text-primary);
+  --switch-track-background-off: var(--color-background-subtle);
+  --switch-track-background-on: var(--color-action-primary-default);
+  --tabs-list-background: var(--color-background-muted);
+  --tabs-trigger-background-active: var(--color-background-surface);
+  --tabs-trigger-text-default: var(--color-text-secondary);
+  --tabs-trigger-text-active: var(--color-text-primary);
+  --tooltip-background: var(--color-background-elevated);
+  --tooltip-foreground: var(--color-text-primary);
+  --background: var(--color-background-page);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-background-surface);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-background-elevated);
+  --popover-foreground: var(--color-text-primary);
+  --muted: var(--color-background-muted);
+  --muted-foreground: var(--color-text-secondary);
+  --secondary: var(--color-background-subtle);
+  --border: var(--color-border-default);
+  --input: var(--color-border-default);
+  --ring: var(--color-focus-ring);
+  --primary: var(--color-action-primary-default);
+  --primary-foreground: var(--color-text-on-brand);
+  --destructive: var(--color-background-danger);
+  --success: var(--color-background-success);
+  --warning: var(--color-background-warning);
+  --info: var(--color-background-info);
+}

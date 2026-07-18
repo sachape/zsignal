@@ -1,0 +1,26 @@
+{
+  "typography": {
+    "$type": "typography",
+    "$description": "Styles typographiques composites : chaque rôle assemble famille + taille + graisse + interligne.",
+    "display": {
+      "lg": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.4xl}", "fontWeight": "{font.weight.bold}", "lineHeight": "{line.height.tight}", "letterSpacing": "{letter.spacing.tight}" } }
+    },
+    "heading": {
+      "lg": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.3xl}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{line.height.tight}", "letterSpacing": "{letter.spacing.tight}" } },
+      "md": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.2xl}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{line.height.snug}", "letterSpacing": "{letter.spacing.tight}" } }
+    },
+    "title": {
+      "md": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.lg}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{line.height.snug}", "letterSpacing": "{letter.spacing.normal}" } }
+    },
+    "body": {
+      "md": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.base}", "fontWeight": "{font.weight.regular}", "lineHeight": "{line.height.normal}", "letterSpacing": "{letter.spacing.normal}" } },
+      "sm": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.sm}", "fontWeight": "{font.weight.regular}", "lineHeight": "{line.height.normal}", "letterSpacing": "{letter.spacing.normal}" } }
+    },
+    "label": {
+      "md": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.base}", "fontWeight": "{font.weight.medium}", "lineHeight": "{line.height.snug}", "letterSpacing": "{letter.spacing.normal}" } },
+      "sm": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.sm}", "fontWeight": "{font.weight.medium}", "lineHeight": "{line.height.snug}", "letterSpacing": "{letter.spacing.normal}" } }
+    },
+    "caption": { "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.xs}", "fontWeight": "{font.weight.regular}", "lineHeight": "{line.height.snug}", "letterSpacing": "{letter.spacing.wide}" } },
+    "code":    { "$value": { "fontFamily": "{font.family.mono}", "fontSize": "{font.size.sm}", "fontWeight": "{font.weight.regular}", "lineHeight": "{line.height.normal}", "letterSpacing": "{letter.spacing.normal}" } }
+  }
+}
