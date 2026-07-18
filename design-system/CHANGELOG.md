@@ -101,3 +101,14 @@ jour à chaque changement.
   l'exemple était pédagogique. Exactement pourquoi le Ch.07 met les principes en
   étage 1 : les extraire, pas les supposer.
 - Reste à fermer avant les specs composant (Phase 3) : étages 2 et 5.
+
+### Étages 2 & 5 fermés — grille + typographie (04-type-grid.md)
+- Extraits du VRAI usage du code, pas décidés dans le vide.
+- Typo : l'app utilise 2 familles (Instrument Sans + JetBrains Mono). `display`
+  == `sans` (même font). **Boogaloo (`font-brand`) est morte dans l'app.**
+  Corps de lecture par défaut = **14px** (1057 usages xs/sm vs 51 base) : produit
+  dense assumé. Styles de texte nommés par rôle.
+- Grille : les breakpoints réels sont **3** (sm/md/lg) — xl/2xl quasi inutilisés.
+  Mobile-first, grille canonique `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`,
+  container max 1400px.
+- Fondations Ch.07 complètes (étages 1-5 + 10). Reste 6-7-8 = Phase 3.
