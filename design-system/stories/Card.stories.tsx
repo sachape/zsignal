@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
  * CardTitle + CardDescription + CardContent + CardFooter. Surfaces via tokens.
  */
 const meta: Meta<typeof Card> = {
-  title: "Primitives/Card",
+  title: "Components/Content & Structure/Card",
   component: Card,
   parameters: { controls: { disable: true }, docs: { description: { component: "Card — la primitive la plus utilisée (66×). Composée : Card + CardHeader + CardTitle + CardDescription + CardContent + CardFooter." } },  layout: "centered" },
 };

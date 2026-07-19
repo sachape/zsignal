@@ -3,7 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { lock } from "./_lockControls";
 
 const meta: Meta<typeof Progress> = {
-  title: "Primitives/Progress",
+  title: "Components/Feedback/Progress",
   component: Progress,
   tags: ["autodocs"],
   args: { value: 60 },

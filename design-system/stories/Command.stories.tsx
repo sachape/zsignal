@@ -11,7 +11,7 @@ import {
  * filtrage. Le champ filtre la liste en direct.
  */
 const meta: Meta<typeof Command> = {
-  title: "Primitives/Command",
+  title: "Components/Navigation/Command",
   component: Command,
   parameters: { controls: { disable: true }, docs: { description: { component: "Command — la palette (Cmd+K) : recherche + actions rapides pour power users. Ici en rendu inline (le composant), pas en CommandDialog, pour montrer le filtrage." } },  layout: "centered" },
 };

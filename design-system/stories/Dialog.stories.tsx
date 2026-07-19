@@ -6,7 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const meta: Meta<typeof Dialog> = {
-  title: "Primitives/Dialog",
+  title: "Components/Overlays/Dialog",
   component: Dialog,
   tags: ["autodocs"],
   args: { modal: true, defaultOpen: false },

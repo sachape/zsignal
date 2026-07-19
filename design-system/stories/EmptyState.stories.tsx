@@ -4,7 +4,7 @@ import { Film } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 
 const meta: Meta<typeof EmptyState> = {
-  title: "Primitives/EmptyState",
+  title: "Components/Feedback/EmptyState",
   component: EmptyState,
   tags: ["autodocs"],
   args: {

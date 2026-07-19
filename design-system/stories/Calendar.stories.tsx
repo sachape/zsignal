@@ -6,7 +6,7 @@ import { Calendar } from "@/components/ui/calendar";
 type Args = { numberOfMonths: number; showOutsideDays: boolean };
 
 const meta: Meta<Args> = {
-  title: "Primitives/Calendar",
+  title: "Components/Forms/Calendar",
   component: Calendar,
   tags: ["autodocs"],
   args: { numberOfMonths: 1, showOutsideDays: true },

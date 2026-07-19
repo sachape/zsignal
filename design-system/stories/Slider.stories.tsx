@@ -4,7 +4,7 @@ import { Slider } from "@/components/ui/slider";
 import { lock } from "./_lockControls";
 
 const meta: Meta<typeof Slider> = {
-  title: "Primitives/Slider",
+  title: "Components/Forms/Slider",
   component: Slider,
   tags: ["autodocs"],
   args: { defaultValue: [60], min: 0, max: 100, step: 1, disabled: false, "aria-label": "Réglage" },

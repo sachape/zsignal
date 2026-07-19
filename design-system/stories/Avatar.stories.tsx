@@ -8,7 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
  * une chaîne n'a pas d'avatar.
  */
 const meta: Meta<typeof Avatar> = {
-  title: "Primitives/Avatar",
+  title: "Components/Content & Structure/Avatar",
   component: Avatar,
   parameters: { controls: { disable: true }, docs: { description: { component: "Avatar — l'identité d'un streamer (9×). Composé : Avatar + Image + Fallback." } },  layout: "centered" },
 };

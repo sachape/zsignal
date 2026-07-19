@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
  * plutôt qu'un spinner, pour réduire la perception d'attente.
  */
 const meta: Meta<typeof Skeleton> = {
-  title: "Primitives/Skeleton",
+  title: "Components/Feedback/Skeleton",
   component: Skeleton,
   parameters: { controls: { disable: true }, docs: { description: { component: "Skeleton — l'état de chargement (1–10 s) : on préfigure la forme du contenu plutôt qu'un spinner, pour réduire la perception d'attente." } },  layout: "centered" },
 };

@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { lock } from "./_lockControls";
 
 const meta: Meta<typeof Switch> = {
-  title: "Primitives/Switch",
+  title: "Components/Forms/Switch",
   component: Switch,
   tags: ["autodocs"],
   // aria-label requis : un switch sans texte doit avoir un nom accessible.

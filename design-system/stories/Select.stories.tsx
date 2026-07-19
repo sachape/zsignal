@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/select";
 
 const meta: Meta<typeof Select> = {
-  title: "Primitives/Select",
+  title: "Components/Forms/Select",
   component: Select,
   tags: ["autodocs"],
   args: { disabled: false },

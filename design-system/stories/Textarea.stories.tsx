@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { lock } from "./_lockControls";
 
 const meta: Meta<typeof Textarea> = {
-  title: "Primitives/Textarea",
+  title: "Components/Forms/Textarea",
   component: Textarea,
   tags: ["autodocs"],
   args: { placeholder: "Ce moment où…", disabled: false, readOnly: false, rows: 4, "aria-label": "Zone de texte" },

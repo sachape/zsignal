@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 type Args = { side: "top" | "right" | "bottom" | "left"; align: "start" | "center" | "end" };
 
 const meta: Meta<Args> = {
-  title: "Primitives/Popover",
+  title: "Components/Overlays/Popover",
   component: Popover,
   tags: ["autodocs"],
   args: { side: "bottom", align: "center" },

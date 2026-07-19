@@ -3,7 +3,7 @@ import { expect, waitFor } from "storybook/test";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const meta: Meta<typeof Tabs> = {
-  title: "Primitives/Tabs",
+  title: "Components/Navigation/Tabs",
   component: Tabs,
   tags: ["autodocs"],
   args: { defaultValue: "clips", orientation: "horizontal" },

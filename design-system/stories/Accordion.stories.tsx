@@ -10,7 +10,7 @@ const items = [
 ] as const;
 
 const meta: Meta<typeof Accordion> = {
-  title: "Primitives/Accordion",
+  title: "Components/Content & Structure/Accordion",
   component: Accordion,
   tags: ["autodocs"],
   args: { type: "single", collapsible: true },
