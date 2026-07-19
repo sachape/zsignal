@@ -2,21 +2,30 @@
 
 Partagé par tous les Skills.
 
-## Hiérarchie d'autorité (adaptée au dépôt)
-En cas de contradiction : signaler, ne pas résoudre en silence, appliquer la source
-la plus haute, documenter la décision.
+## Sources de vérité — arbitre, pas juge
+Quatre sources décrivent le produit, chacune faisant autorité sur **ce qu'elle décrit** —
+**aucune n'est prioritaire par défaut** :
+- **Design Tokens** (`tokens/`) → valeurs de design (couleur, espacement, radius, typo…).
+- **Code** (`src/`) → rendu de production réel.
+- **Storybook** (`design-system/stories/`) → documentation interactive.
+- **Figma** (si fourni) → intention de conception.
 
-1. Logique métier et contrats de données existants (`src/services/`, `src/hooks/`, types Supabase).
-2. Critères d'acceptation explicitement fournis.
-3. **Décisions d'architecture (ADR, `docs/adr/`)** — gouvernent les conventions ; une convention
-   qui les contredit doit être signalée, pas appliquée en silence.
-4. Architecture et conventions du dépôt (voir `_shared/repo-map.md`).
-5. Tokens et composants validés (`tokens/`, `src/components/ui/`).
-6. Storybook (`design-system/stories/`) et rapports Health (`reports/design-system/*`, seule
-   source des métriques : les citer, jamais les fabriquer).
-7. Docs Design System / handbook du dépôt (`design-system/*.md`).
-8. Figma — uniquement si un frame/fichier est explicitement fourni (facultatif).
-9. Hypothèses du modèle (les plus basses).
+En cas de **divergence entre ces sources**, le Skill **détecte, il ne tranche pas** :
+1. identifier les sources concernées ; 2. présenter les **preuves** (`chemin:ligne`, node Figma,
+rapport…) ; 3. préciser ce que dit **chaque** source ; 4. qualifier la divergence ; 5. proposer
+un handoff si utile. **La décision finale revient à l'utilisateur.** Ne jamais résoudre un conflit
+Figma ↔ code ↔ Storybook ↔ tokens **en silence**, ni désigner un « gagnant » automatique : une
+divergence peut être une implémentation **en retard** OU une maquette **désynchronisée** — le
+Skill ne présume pas laquelle. Les rapports Health (`reports/design-system/*`) restent la **seule**
+source des métriques : les citer, jamais les fabriquer.
+
+## Contraintes dures (quand on IMPLÉMENTE, indépendant de l'arbitrage ci-dessus)
+Quand un Skill **construit** (pas quand il arbitre entre sources), ces contraintes ne se
+contredisent jamais en silence : elles se signalent.
+- Logique métier et contrats de données (`src/services/`, `src/hooks/`, types Supabase).
+- Critères d'acceptation explicitement fournis.
+- **Décisions d'architecture (ADR, `docs/adr/`)** — une convention qui les contredit se signale.
+- Architecture et conventions du dépôt (`_shared/repo-map.md`).
 
 ## Distinguer les registres
 Étiqueter explicitement chaque affirmation :
