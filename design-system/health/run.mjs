@@ -7,9 +7,13 @@
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ROOT } from "./core/walk.mjs";
-import { assertReport, buildSummary } from "./contract.mjs";
+import { assertReport, buildSummary, SCHEMA_VERSION } from "./contract.mjs";
 import { runSpacing } from "./providers/spacing.mjs";
 import { runAccessibility } from "./providers/accessibility.mjs";
+import { runComponents } from "./providers/components.mjs";
+import { runTokens } from "./providers/tokens.mjs";
+import { runQuality } from "./providers/quality.mjs";
+import { computeOverall } from "./overall.mjs";
 
 const OUT = resolve(ROOT, "reports/design-system");
 const HIST = resolve(OUT, "history");
@@ -86,7 +90,82 @@ function main() {
 
   const spacing = assertReport(runSpacing());
   const a11y = runAccessibility();
-  const summary = buildSummary([spacing, a11y]);
+  const components = runComponents();
+  const tokens = runTokens();
+  const quality = runQuality({ a11y });
+
+  const overall = computeOverall({
+    a11yPass: a11y.status === "enforced",
+    spacingHealth: spacing.scores.health,
+    componentCoverage: components.coverage,
+  });
+
+  // Delta de l'Overall Health : on garde un historique léger { date, score }.
+  const OVERALL_HIST = resolve(HIST, "overall.json");
+  let history = [];
+  if (existsSync(OVERALL_HIST)) { try { history = JSON.parse(readFileSync(OVERALL_HIST, "utf8")); } catch { history = []; } }
+  const prev = history.length ? history[history.length - 1] : null;
+  const today = new Date().toISOString().slice(0, 10);
+  const delta = prev ? overall.score - prev.score : null;
+  if (!history.length || history[history.length - 1].date !== today) history.push({ date: today, score: overall.score });
+  else history[history.length - 1].score = overall.score;
+  writeFileSync(OVERALL_HIST, JSON.stringify(history, null, 2) + "\n");
+
+  const base = loadBaseline();
+  const pctStr = (n) => (n == null ? null : `${Math.round(n * 100)}%`);
+
+  // health-summary.json ENRICHI = contrat lu par Health/Overview (le cockpit).
+  // Chaque bloc = un domaine. Ajouter un domaine = ajouter un provider + un bloc
+  // ici + une carte : l'architecture du Dashboard ne change pas.
+  const summary = {
+    reportVersion: SCHEMA_VERSION,
+    generatedAt: new Date().toISOString(),
+    overall: {
+      score: overall.score,
+      previous: prev ? prev.score : null,
+      delta,
+      label: overall.label,
+      dimensions: overall.dimensions.map((d) => ({ key: d.key, label: d.label, weight: d.weight, tier: d.tier, value: d.value, why: d.why })),
+      calculatedFrom: overall.dimensions.map((d) => d.label),
+      note: "Score pondéré (pas une moyenne simple). Seules les dimensions réellement mesurées entrent dans le calcul — aucune métrique non mesurée n'influence ce score.",
+    },
+    foundations: {
+      items: [
+        { name: "Colors", state: "documented" },
+        { name: "Typography", state: "documented" },
+        { name: "Spacing", state: "measured", value: pctStr(spacing.scores.health) },
+        { name: "Radius", state: "documented" },
+        { name: "Motion", state: "documented" },
+        { name: "Shadows", state: "documented" },
+        { name: "Borders", state: "documented" },
+        { name: "Accessibility", state: "documented" },
+      ],
+      note: "Les fondations existent et sont documentées. Une seule est aujourd'hui mesurée quantitativement (Spacing) — les autres attendent le chantier Tokens V2.",
+    },
+    components: { total: components.total, withStory: components.withStory, coverage: components.coverage },
+    tokens: { total: tokens.total, byLayer: tokens.byLayer },
+    quality: quality.items,
+    adoption: {
+      scaleAdoption: spacing.scores.scaleAdoption,
+      compactShare: spacing.totals.compactAllowed / Math.max(spacing.totals.classifiable, 1),
+      cssVarAdoption: spacing.scores.cssVarAdoption,
+    },
+    debt: {
+      violations: spacing.totals.violations,
+      violationsCore: spacing.totals.violationsByTrack.error,
+      exceptions: spacing.totals.exceptions,
+      baseline: base ? base.violations : null,
+    },
+    roadmap: [
+      { name: "Chromatic baseline", note: "établir une baseline visuelle acceptée" },
+      { name: "Visual regression", note: "diff automatique par story" },
+      { name: "Docs coverage", note: "part des composants avec doc MDX" },
+      { name: "Token hygiene", note: "tokens inutilisés / dépréciés" },
+      { name: "Foundations scoring", note: "Typography, Radius, Motion mesurés (Tokens V2)" },
+    ],
+    // Agrégat machine historique (compat) : la liste brute des providers.
+    providers: buildSummary([spacing, a11y]).providers,
+  };
 
   // Le rapport persisté ne liste que les usages NON conformes (les conformes sont
   // agrégés dans totals) — garde le fichier exploitable sans le faire exploser.
@@ -106,6 +185,7 @@ function main() {
   writeFileSync(resolve(HIST, `spacing-${stamp}.json`), JSON.stringify({ generatedAt: spacing.generatedAt, scores: spacing.scores, totals: spacing.totals, confidence: spacing.confidence }, null, 2) + "\n");
 
   const s = spacing.scores, c = spacing.confidence;
+  console.log(`Overall Health ${(overall.score * 100).toFixed(1)}% (${overall.label})${delta == null ? " — nouvelle mesure" : ` | ${delta >= 0 ? "▲" : "▼"} ${(delta * 100).toFixed(1)} pts`} | a11y ${a11y.status === "enforced" ? "PASS" : "OFF"} · spacing ${(s.health * 100).toFixed(0)}% · coverage ${(components.coverage * 100).toFixed(0)}% (${components.withStory}/${components.total})`);
   console.log(`Spacing Health ${(s.health * 100).toFixed(1)}% | value ${(s.valueCompliance * 100).toFixed(1)}% | scale-adoption ${(s.scaleAdoption * 100).toFixed(1)}% | confidence ${(c.value * 100).toFixed(1)}%`);
   console.log(`détectés ${spacing.totals.detected} · preferred ${spacing.totals.preferred} · compact-allowed ${spacing.totals.compactAllowed} · violations ${spacing.totals.violations} (cœur ${spacing.totals.violationsByTrack.error}) · exceptions ${spacing.totals.exceptions} · needs-decision ${spacing.totals.needsDecision}`);
 
