@@ -82,7 +82,7 @@ const preview: Preview = {
       storySort: {
         order: [
           "Getting Started", ["Introduction", "Architecture", "Nomenclature", "Contribution", "Governance"],
-          "Foundations", ["Colors", "Typography", "Spacing", "Radius", "Motion", "Icons", "Grid", "Tokens"],
+          "Foundations", ["Colors", "Typography", "Spacing", "Radius", "Borders", "Shadows", "Elevation", "Opacity", "Motion", "Icons", "Grid", "Breakpoints", "Layout", "Dark Mode", "Accessibility", "Tokens"],
           "Components", ["Actions", "Forms", "Feedback", "Overlays", "Navigation", "Content & Structure"],
           "Patterns",
           "Health",
