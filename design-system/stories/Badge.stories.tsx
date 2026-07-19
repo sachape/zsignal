@@ -9,7 +9,7 @@ const BADGE_VARIANTS = [
 ] as const;
 
 const meta: Meta<typeof Badge> = {
-  title: "Primitives/Badge",
+  title: "Components/Content & Structure/Badge",
   component: Badge,
   tags: ["autodocs"],
   args: { children: "Badge", variant: "default" },

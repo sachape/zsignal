@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const meta: Meta<typeof AlertDialog> = {
-  title: "Primitives/AlertDialog",
+  title: "Components/Overlays/AlertDialog",
   component: AlertDialog,
   tags: ["autodocs"],
   args: { defaultOpen: false, onConfirm: fn() },

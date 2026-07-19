@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 type Args = { side: "top" | "right" | "bottom" | "left" };
 
 const meta: Meta<Args> = {
-  title: "Primitives/Sheet",
+  title: "Components/Overlays/Sheet",
   component: Sheet,
   tags: ["autodocs"],
   args: { side: "right" },

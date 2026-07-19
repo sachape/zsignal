@@ -13,7 +13,7 @@ const BUTTON_VARIANTS = [
 const BUTTON_SIZES = ["default", "sm", "lg", "icon"] as const;
 
 const meta: Meta<typeof Button> = {
-  title: "Primitives/Button",
+  title: "Components/Actions/Button",
   component: Button,
   tags: ["autodocs"],
   // Valeurs de rendu par défaut (§8) — chaque story ne surcharge que le nécessaire.

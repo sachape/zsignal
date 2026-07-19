@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
  * Rarement seule — montrée ici avec un Input pour illustrer le lien.
  */
 const meta: Meta<typeof Label> = {
-  title: "Primitives/Label",
+  title: "Components/Forms/Label",
   component: Label,
   parameters: { controls: { disable: true }, docs: { description: { component: "Label — l'étiquette d'un champ (18×). Toujours associée à un contrôle via htmlFor : cliquer le label focalise le champ (accessibilité + confort)." } },  layout: "centered" },
 };

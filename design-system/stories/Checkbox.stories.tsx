@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { lock } from "./_lockControls";
 
 const meta: Meta<typeof Checkbox> = {
-  title: "Primitives/Checkbox",
+  title: "Components/Forms/Checkbox",
   component: Checkbox,
   tags: ["autodocs"],
   args: { defaultChecked: false, disabled: false, "aria-label": "Case à cocher", onCheckedChange: fn() },

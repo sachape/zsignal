@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
  * Sonner ; à terme un DS n'en garde qu'un — ici on documente les deux tels quels.
  */
 const meta: Meta<typeof Toaster> = {
-  title: "Primitives/Toast",
+  title: "Components/Feedback/Toast",
   component: Toaster,
   parameters: {
     controls: { disable: true },

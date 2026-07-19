@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { lock } from "./_lockControls";
 
 const meta: Meta<typeof Input> = {
-  title: "Primitives/Input",
+  title: "Components/Forms/Input",
   component: Input,
   tags: ["autodocs"],
   // aria-label : un champ sans label associé doit avoir un nom accessible.

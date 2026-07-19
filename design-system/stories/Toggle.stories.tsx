@@ -7,7 +7,7 @@ const TOGGLE_VARIANTS = ["default", "outline"] as const;
 const TOGGLE_SIZES = ["sm", "default", "lg"] as const;
 
 const meta: Meta<typeof Toggle> = {
-  title: "Primitives/Toggle",
+  title: "Components/Actions/Toggle",
   component: Toggle,
   tags: ["autodocs"],
   args: { children: "Épingler", variant: "default", size: "default", disabled: false, "aria-label": "Épingler le clip" },

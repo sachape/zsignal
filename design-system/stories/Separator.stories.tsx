@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { lock } from "./_lockControls";
 
 const meta: Meta<typeof Separator> = {
-  title: "Primitives/Separator",
+  title: "Components/Content & Structure/Separator",
   component: Separator,
   tags: ["autodocs"],
   args: { orientation: "horizontal" },

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 type Args = { side: "top" | "right" | "bottom" | "left"; align: "start" | "center" | "end" };
 
 const meta: Meta<Args> = {
-  title: "Primitives/Tooltip",
+  title: "Components/Overlays/Tooltip",
   component: Tooltip,
   tags: ["autodocs"],
   args: { side: "top", align: "center" },

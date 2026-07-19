@@ -75,6 +75,21 @@ const preview: Preview = {
     ),
   ],
   parameters: {
+    // Ordre de navigation pédagogique (pensé pour un nouvel arrivant). storySort
+    // agit UNIQUEMENT sur l'affichage — il ne touche NI aux title NI aux IDs.
+    // Les sections/sous-sections non listées ici s'affichent après, alphabétiquement.
+    options: {
+      storySort: {
+        order: [
+          "Getting Started", ["Introduction", "Architecture", "Nomenclature", "Contribution", "Governance"],
+          "Foundations", ["Colors", "Typography", "Spacing", "Radius", "Motion", "Icons", "Grid", "Tokens"],
+          "Components", ["Actions", "Forms", "Feedback", "Overlays", "Navigation", "Content & Structure"],
+          "Patterns",
+          "Health",
+          "Catalogue",
+        ],
+      },
+    },
     backgrounds: {
       default: "app",
       values: [

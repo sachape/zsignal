@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
  * l'app, à la racine). Feedback système non bloquant (heuristique Nielsen 1).
  */
 const meta: Meta<typeof Toaster> = {
-  title: "Primitives/Sonner",
+  title: "Components/Feedback/Sonner",
   component: Toaster,
   parameters: { controls: { disable: true }, docs: { description: { component: "Sonner — les notifications éphémères (toasts) déclenchées par du code : toast(\"…\"). Le <Toaster /> est monté une fois (ici dans la story ; dans l'app, à la racine)." } },  layout: "centered" },
 };
