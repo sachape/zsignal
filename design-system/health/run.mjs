@@ -41,13 +41,15 @@ function spacingMarkdown(r) {
     `_${r.confidence.note}_`, ``,
     `## Totaux`, ``,
     `- Usages détectés : **${t.detected}** (classifiables : ${t.classifiable})`,
-    `- Conformes : ${t.compliant} · Needs-decision (12/20/28…) : **${t.needsDecision}** · Violations : **${t.violations}**`,
-    `- Exceptions : ${t.exceptions} · Non classifiés : ${t.unclassified}`,
+    `- **Preferred** (échelle principale) : ${t.preferred} · **Compact-allowed** (4/12/20, secondaire) : **${t.compactAllowed}** · Exceptions : ${t.exceptions}`,
+    `- **Violations** : **${t.violations}** · Needs-decision : ${t.needsDecision} · Non classifiés : ${t.unclassified}`,
+    `- Compact-allowed détaillé — ${Object.entries(r.compactBreakdown.byValue).map(([v, n]) => `${v} × ${n}`).join(" · ")}`,
     `- Violations par piste — cœur DS (ERROR) : **${t.violationsByTrack.error}** · app (WARN) : ${t.violationsByTrack.warn}`, ``,
-    `## Top valeurs hors-échelle`, ``,
+    `> ⚠ Transparence : preferred et compact-allowed comptent tous deux conformes, mais **${t.compactAllowed}** usages reposent sur la sous-grille compacte — préférer l'échelle principale.`, ``,
+    `## Top valeurs hors-échelle (violations)`, ``,
     ...r.topValues.map((v) => `- \`${v.value}\` × ${v.count}`), ``,
     `## Composants/fichiers les plus touchés`, ``,
-    ...r.topOffenders.slice(0, 10).map((o) => `- ${o.violations ? `**${o.violations} viol.**` : ""}${o.needsDecision ? ` ${o.needsDecision} needs-dec.` : ""} — \`${o.file}\` _(${o.track})_`), ``,
+    ...r.topOffenders.slice(0, 10).map((o) => `- ${o.violations ? `**${o.violations} viol.**` : ""}${o.compactAllowed ? ` ${o.compactAllowed} compact` : ""} — \`${o.file}\` _(${o.track})_`), ``,
     `## Recommandations`, ``,
     ...r.recommendations.map((x) => `- ${x}`), ``,
     `## Périmètre`, ``,
@@ -74,7 +76,9 @@ function main() {
 
   // Le rapport persisté ne liste que les usages NON conformes (les conformes sont
   // agrégés dans totals) — garde le fichier exploitable sans le faire exploser.
-  const persisted = { ...spacing, findings: spacing.findings.filter((f) => f.status !== "compliant"), findingsNote: `${spacing.totals.compliant} usages conformes agrégés dans totals, non listés.` };
+  // On liste tout SAUF « preferred » (le gros du volume) : violations, compact-allowed
+  // (transparence), exceptions, non classifiés restent visibles.
+  const persisted = { ...spacing, findings: spacing.findings.filter((f) => f.status !== "preferred"), findingsNote: `${spacing.totals.preferred} usages preferred agrégés dans totals, non listés.` };
   writeFileSync(resolve(OUT, "spacing-health.json"), JSON.stringify(persisted, null, 2) + "\n");
   // Résumé SLIM (sans findings) pour le Dashboard Storybook — évite d'embarquer
   // ~800 Ko dans le bundle. Le Dashboard ne lit QUE des agrégats.
@@ -89,7 +93,7 @@ function main() {
 
   const s = spacing.scores, c = spacing.confidence;
   console.log(`Spacing Health ${(s.health * 100).toFixed(1)}% | value ${(s.valueCompliance * 100).toFixed(1)}% | scale-adoption ${(s.scaleAdoption * 100).toFixed(1)}% | confidence ${(c.value * 100).toFixed(1)}%`);
-  console.log(`détectés ${spacing.totals.detected} · violations ${spacing.totals.violations} (cœur ${spacing.totals.violationsByTrack.error}) · needs-decision ${spacing.totals.needsDecision} · non classifiés ${spacing.totals.unclassified}`);
+  console.log(`détectés ${spacing.totals.detected} · preferred ${spacing.totals.preferred} · compact-allowed ${spacing.totals.compactAllowed} · violations ${spacing.totals.violations} (cœur ${spacing.totals.violationsByTrack.error}) · exceptions ${spacing.totals.exceptions} · needs-decision ${spacing.totals.needsDecision}`);
 
   if (check) {
     const base = baselineViolations();

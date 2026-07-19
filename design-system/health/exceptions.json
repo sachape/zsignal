@@ -1,5 +1,10 @@
 {
   "$schema": "health exceptions v1",
-  "$doc": "Dérogations documentées. Une exception compte comme conforme. Champs : value(px), file, property, reason, owner, date, review.",
-  "spacing": []
+  "$doc": "Dérogations documentées. Une exception compte comme conforme. Champs : value (px SIGNÉ), file, property, reason, owner, date, review (optionnel).",
+  "spacing": [
+    { "value": -12, "file": "src/components/site/PlanCard.tsx", "property": "top", "reason": "Positionnement négatif intentionnel : badge de plan chevauchant le bord de la carte.", "owner": "sachape", "date": "2026-07-19" },
+    { "value": -12, "file": "src/pages/AnalysePage.tsx", "property": "inset", "reason": "Superposition intentionnelle d'un element decoratif (offset -12px).", "owner": "sachape", "date": "2026-07-19" },
+    { "value": -12, "file": "src/pages/Index.tsx", "property": "column-gap", "reason": "Chevauchement intentionnel d'items (space-x negatif, ex. avatars empiles).", "owner": "sachape", "date": "2026-07-19" },
+    { "value": -12, "file": "src/pages/PricingPage.tsx", "property": "top", "reason": "Positionnement négatif intentionnel : badge de plan chevauchant le bord de la carte.", "owner": "sachape", "date": "2026-07-19" }
+  ]
 }

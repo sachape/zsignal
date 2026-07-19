@@ -1,33 +1,39 @@
 {
-  "generatedAt": "2026-07-19T13:01:40.759Z",
+  "generatedAt": "2026-07-19T13:26:52.997Z",
   "scores": {
-    "valueCompliance": 0.5864,
-    "scaleAdoption": 0.9854,
+    "valueCompliance": 0.7814,
+    "scaleAdoption": 0.9855,
     "cssVarAdoption": 0,
-    "health": 0.7061
+    "health": 0.8426
   },
   "totals": {
-    "detected": 5130,
-    "compliant": 3008,
-    "needsDecision": 1035,
-    "violations": 1087,
-    "exceptions": 0,
+    "detected": 5161,
+    "preferred": 2499,
+    "compactAllowed": 1528,
+    "violations": 1128,
+    "exceptions": 6,
+    "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5130,
+    "classifiable": 5161,
+    "compliant": 4033,
     "byTrack": {
       "error": 551,
-      "warn": 4579
+      "warn": 4610
     },
     "violationsByTrack": {
-      "error": 100,
-      "warn": 987
+      "error": 101,
+      "warn": 1027
+    },
+    "compactByTrack": {
+      "error": 119,
+      "warn": 1409
     }
   },
   "confidence": {
-    "value": 0.9616,
+    "value": 0.9618,
     "classifiableRatio": 1,
     "unclassified": 0,
-    "exceptions": 0,
+    "exceptions": 6,
     "lowConfidence": 103,
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   }

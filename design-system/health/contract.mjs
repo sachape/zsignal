@@ -7,14 +7,19 @@
 
 export const SCHEMA_VERSION = 1;
 
-// Statuts possibles d'un usage détecté.
+// Statuts possibles d'un usage détecté. PREFERRED, COMPACT_ALLOWED et EXCEPTION
+// comptent conformes ; ils restent DISTINGUÉS (transparence : ne pas masquer que
+// le score monte via la sous-grille compacte).
 export const STATUS = Object.freeze({
-  COMPLIANT: "compliant",         // respecte la règle
-  NEEDS_DECISION: "needs-decision", // sur la grille 4 mais hors 8 (12/20/28…)
-  VIOLATION: "violation",         // hors grille (2/6/10/14…) ou arbitraire non conforme
-  EXCEPTION: "exception",         // dérogation documentée (exceptions.json)
-  UNCLASSIFIED: "unclassified",   // impossible à classer (dynamique, %, calc…)
+  PREFERRED: "preferred",             // échelle principale (0,8,16,24…) — défaut
+  COMPACT_ALLOWED: "compact-allowed", // sous-grille compacte (4,12,20) — secondaire
+  VIOLATION: "violation",             // hors échelle (2/6/10/14/28/36/44…, négatifs non documentés)
+  EXCEPTION: "exception",             // dérogation documentée (exceptions.json)
+  NEEDS_DECISION: "needs-decision",   // valeur pas encore arbitrée (doit être 0 après P6)
+  UNCLASSIFIED: "unclassified",       // impossible à classer (dynamique, %, calc…)
 });
+// Statuts comptés comme conformes dans « value compliance ».
+export const COMPLIANT_STATUSES = Object.freeze([STATUS.PREFERRED, STATUS.COMPACT_ALLOWED, STATUS.EXCEPTION]);
 
 // Comment la valeur entre dans le système (pour « token/scale adoption »).
 export const SYSTEM = Object.freeze({
