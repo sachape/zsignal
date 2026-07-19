@@ -38,6 +38,12 @@ jobs:
       - name: Garde-fou tokens
         run: npm run lint:tokens
 
+      # Garde-fou spacing : échoue UNIQUEMENT si les violations OU le compact-allowed
+      # AUGMENTENT vs la baseline (reports/design-system/history/spacing-baseline.json).
+      # La dette historique ne bloque pas ; une baisse est autorisée sans mise à jour.
+      - name: Garde-fou spacing (baseline)
+        run: npm run check:spacing
+
       # Les fichiers générés doivent correspondre à la source. Si un token JSON
       # a changé sans rebuild, on bloque.
       - name: Tokens synchronisés (source → généré)

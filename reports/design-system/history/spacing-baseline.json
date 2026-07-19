@@ -1,0 +1,16 @@
+{
+  "$doc": "Baseline de dette spacing. check:spacing échoue si violations OU compact-allowed AUGMENTENT. Une baisse est autorisée SANS mise à jour. Ne relever ce fichier (npm run baseline:spacing) QUE pour accepter volontairement une nouvelle dette — avec justification en commit.",
+  "frozenAt": "2026-07-19T13:34:26.923Z",
+  "violations": 1128,
+  "compactAllowed": 1529,
+  "violationsByTrack": {
+    "error": 101,
+    "warn": 1027
+  },
+  "scores": {
+    "valueCompliance": 0.7816,
+    "scaleAdoption": 0.9855,
+    "cssVarAdoption": 0,
+    "health": 0.8428
+  }
+}

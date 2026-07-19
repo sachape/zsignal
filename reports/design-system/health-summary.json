@@ -1,18 +1,18 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T13:26:53.007Z",
+  "generatedAt": "2026-07-19T13:34:28.042Z",
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T13:26:52.997Z",
+      "generatedAt": "2026-07-19T13:34:28.036Z",
       "scores": {
-        "valueCompliance": 0.7814,
+        "valueCompliance": 0.7816,
         "scaleAdoption": 0.9855,
         "cssVarAdoption": 0,
-        "health": 0.8426
+        "health": 0.8428
       },
       "confidence": {
-        "value": 0.9618,
+        "value": 0.9619,
         "classifiableRatio": 1,
         "unclassified": 0,
         "exceptions": 6,
@@ -20,18 +20,18 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5161,
-        "preferred": 2499,
-        "compactAllowed": 1528,
+        "detected": 5164,
+        "preferred": 2501,
+        "compactAllowed": 1529,
         "violations": 1128,
         "exceptions": 6,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5161,
-        "compliant": 4033,
+        "classifiable": 5164,
+        "compliant": 4036,
         "byTrack": {
           "error": 551,
-          "warn": 4610
+          "warn": 4613
         },
         "violationsByTrack": {
           "error": 101,
@@ -39,14 +39,14 @@
         },
         "compactByTrack": {
           "error": 119,
-          "warn": 1409
+          "warn": 1410
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T13:26:53.007Z",
+      "generatedAt": "2026-07-19T13:34:28.042Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

@@ -1,13 +1,13 @@
 # Spacing Health — rapport humain
 
-> Généré le 2026-07-19T13:26:52.997Z · contrat v1 · **read-only** (aucune migration).
+> Généré le 2026-07-19T13:34:28.036Z · contrat v1 · **read-only** (aucune migration).
 
 ## Score
 
 | Indicateur | Valeur |
 |---|---|
 | **Spacing Health** | **84.3%** |
-| Spacing value compliance | 78.1% |
+| Spacing value compliance | 78.2% |
 | Scale adoption (échelle, pas var(--space-*)) | 98.6% |
 | CSS token adoption (var(--space-*)) | 0.0% |
 | **Confidence** | **96.2%** |
@@ -16,13 +16,13 @@ _Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, 
 
 ## Totaux
 
-- Usages détectés : **5161** (classifiables : 5161)
-- **Preferred** (échelle principale) : 2499 · **Compact-allowed** (4/12/20, secondaire) : **1528** · Exceptions : 6
+- Usages détectés : **5164** (classifiables : 5164)
+- **Preferred** (échelle principale) : 2501 · **Compact-allowed** (4/12/20, secondaire) : **1529** · Exceptions : 6
 - **Violations** : **1128** · Needs-decision : 0 · Non classifiés : 0
-- Compact-allowed détaillé — 4px × 524 · 12px × 766 · 20px × 222 · -4px × 16
+- Compact-allowed détaillé — 4px × 525 · 12px × 766 · 20px × 222 · -4px × 16
 - Violations par piste — cœur DS (ERROR) : **101** · app (WARN) : 1027
 
-> ⚠ Transparence : preferred et compact-allowed comptent tous deux conformes, mais **1528** usages reposent sur la sous-grille compacte — préférer l'échelle principale.
+> ⚠ Transparence : preferred et compact-allowed comptent tous deux conformes, mais **1529** usages reposent sur la sous-grille compacte — préférer l'échelle principale.
 
 ## Top valeurs hors-échelle (violations)
 
@@ -53,7 +53,7 @@ _Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, 
 ## Recommandations
 
 - 1128 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.
-- 1528 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).
+- 1529 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).
 - Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens.
 
 ## Périmètre
