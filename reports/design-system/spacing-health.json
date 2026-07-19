@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-19T17:10:24.329Z",
+  "generatedAt": "2026-07-19T17:24:03.679Z",
   "scope": {
     "roots": [
       "src",
@@ -39,20 +39,20 @@
   },
   "totals": {
     "detected": 5392,
-    "preferred": 2742,
+    "preferred": 2808,
     "compactAllowed": 1527,
-    "violations": 1117,
-    "exceptions": 6,
+    "violations": 1027,
+    "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
     "classifiable": 5392,
-    "compliant": 4275,
+    "compliant": 4365,
     "byTrack": {
       "error": 552,
       "warn": 4840
     },
     "violationsByTrack": {
-      "error": 90,
+      "error": 0,
       "warn": 1027
     },
     "compactByTrack": {
@@ -61,16 +61,16 @@
     }
   },
   "scores": {
-    "valueCompliance": 0.7928,
+    "valueCompliance": 0.8095,
     "scaleAdoption": 0.9872,
     "cssVarAdoption": 0,
-    "health": 0.8511
+    "health": 0.8628
   },
   "confidence": {
     "value": 0.9632,
     "classifiableRatio": 1,
     "unclassified": 0,
-    "exceptions": 6,
+    "exceptions": 30,
     "lowConfidence": 105,
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
@@ -85,21 +85,21 @@
   },
   "distribution": {
     "byTier": {
-      "preferred": 2742,
-      "violation": 1117,
+      "preferred": 2808,
+      "violation": 1027,
       "compact-allowed": 1527,
-      "exception": 6
+      "exception": 30
     },
     "byValue": {
-      "10px": 164,
-      "2px": 331,
-      "6px": 527,
+      "10px": 149,
+      "2px": 327,
+      "6px": 467,
       "-6px": 3,
       "-2px": 10,
-      "14px": 27,
-      "28px": 32,
+      "14px": 23,
+      "28px": 31,
       "7px": 1,
-      "1px": 10,
+      "1px": 4,
       "3px": 2,
       "36px": 8,
       "44px": 1,
@@ -116,25 +116,25 @@
     {
       "property": "margin-top",
       "total": 787,
-      "violations": 239,
+      "violations": 237,
       "compactAllowed": 248
-    },
-    {
-      "property": "padding-block",
-      "total": 509,
-      "violations": 238,
-      "compactAllowed": 81
     },
     {
       "property": "gap",
       "total": 1413,
-      "violations": 219,
+      "violations": 205,
       "compactAllowed": 432
+    },
+    {
+      "property": "padding-block",
+      "total": 509,
+      "violations": 196,
+      "compactAllowed": 81
     },
     {
       "property": "padding-inline",
       "total": 539,
-      "violations": 122,
+      "violations": 117,
       "compactAllowed": 147
     },
     {
@@ -144,16 +144,16 @@
       "compactAllowed": 98
     },
     {
-      "property": "padding",
-      "total": 628,
-      "violations": 48,
-      "compactAllowed": 247
-    },
-    {
       "property": "margin-right",
       "total": 94,
       "violations": 44,
       "compactAllowed": 26
+    },
+    {
+      "property": "padding",
+      "total": 628,
+      "violations": 43,
+      "compactAllowed": 247
     },
     {
       "property": "margin-bottom",
@@ -162,28 +162,28 @@
       "compactAllowed": 135
     },
     {
-      "property": "top",
-      "total": 115,
-      "violations": 22,
-      "compactAllowed": 11
-    },
-    {
       "property": "right",
       "total": 77,
       "violations": 10,
       "compactAllowed": 13
     },
     {
-      "property": "padding-left",
-      "total": 53,
-      "violations": 9,
-      "compactAllowed": 1
-    },
-    {
       "property": "margin-left",
       "total": 39,
       "violations": 9,
       "compactAllowed": 10
+    },
+    {
+      "property": "top",
+      "total": 115,
+      "violations": 9,
+      "compactAllowed": 11
+    },
+    {
+      "property": "padding-left",
+      "total": 53,
+      "violations": 6,
+      "compactAllowed": 1
     },
     {
       "property": "left",
@@ -204,34 +204,28 @@
       "compactAllowed": 5
     },
     {
-      "property": "padding-right",
-      "total": 26,
-      "violations": 3,
-      "compactAllowed": 1
-    },
-    {
       "property": "padding-bottom",
       "total": 57,
       "violations": 2,
       "compactAllowed": 10
     },
     {
-      "property": "margin-block",
-      "total": 21,
-      "violations": 2,
-      "compactAllowed": 15
-    },
-    {
-      "property": "margin-inline",
-      "total": 22,
-      "violations": 2,
-      "compactAllowed": 12
+      "property": "padding-right",
+      "total": 26,
+      "violations": 1,
+      "compactAllowed": 1
     },
     {
       "property": "inset-inline",
       "total": 14,
       "violations": 1,
       "compactAllowed": 2
+    },
+    {
+      "property": "margin-block",
+      "total": 21,
+      "violations": 0,
+      "compactAllowed": 15
     },
     {
       "property": "inset",
@@ -244,6 +238,12 @@
       "total": 17,
       "violations": 0,
       "compactAllowed": 6
+    },
+    {
+      "property": "margin-inline",
+      "total": 22,
+      "violations": 0,
+      "compactAllowed": 12
     },
     {
       "property": "inset-block",
@@ -338,50 +338,50 @@
       "track": "warn"
     },
     {
-      "file": "src/components/ui/sidebar.tsx",
-      "violations": 18,
-      "compactAllowed": 16,
-      "track": "error"
-    },
-    {
       "file": "src/components/SidebarStreamerSearch.tsx",
       "violations": 17,
       "compactAllowed": 10,
+      "track": "warn"
+    },
+    {
+      "file": "src/data/articles.tsx",
+      "violations": 17,
+      "compactAllowed": 11,
       "track": "warn"
     }
   ],
   "topValues": [
     {
       "value": "6px",
-      "count": 527
+      "count": 467
     },
     {
       "value": "2px",
-      "count": 331
+      "count": 327
     },
     {
       "value": "10px",
-      "count": 164
+      "count": 149
     },
     {
       "value": "28px",
-      "count": 32
+      "count": 31
     },
     {
       "value": "14px",
-      "count": 27
+      "count": 23
     },
     {
       "value": "-2px",
       "count": 10
     },
     {
-      "value": "1px",
-      "count": 10
-    },
-    {
       "value": "36px",
       "count": 8
+    },
+    {
+      "value": "1px",
+      "count": 4
     },
     {
       "value": "-6px",
@@ -15369,23 +15369,6 @@
     },
     {
       "file": "src/components/ui/alert.tsx",
-      "line": 7,
-      "property": "padding-left",
-      "value": "28px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "24px",
-        "32px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/alert.tsx",
       "line": 31,
       "property": "margin-bottom",
       "value": "4px",
@@ -15441,108 +15424,6 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
-      "file": "src/components/ui/breadcrumb.tsx",
-      "line": 20,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/breadcrumb.tsx",
-      "line": 20,
-      "property": "gap",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/breadcrumb.tsx",
-      "line": 20,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/breadcrumb.tsx",
-      "line": 20,
-      "property": "gap",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/breadcrumb.tsx",
-      "line": 31,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/breadcrumb.tsx",
-      "line": 31,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
       "file": "src/components/ui/calendar.tsx",
       "line": 14,
       "property": "padding",
@@ -15572,173 +15453,41 @@
     },
     {
       "file": "src/components/ui/chart.tsx",
-      "line": 157,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
+      "line": 189,
+      "property": "margin-block",
+      "value": "2px",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
-      "category": "gap",
+      "category": "margin",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 157,
-      "property": "padding-inline",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 157,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 157,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 157,
-      "property": "padding-inline",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 157,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 162,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Offset optique interne du wrapper recharts (légende/tooltip).",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/chart.tsx",
       "line": 189,
       "property": "margin-block",
       "value": "2px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "margin",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 189,
-      "property": "margin-block",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 206,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Offset optique interne du wrapper recharts (légende/tooltip).",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/chart.tsx",
@@ -15795,40 +15544,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 256,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/chart.tsx",
-      "line": 256,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/command.tsx",
@@ -15903,23 +15618,6 @@
     {
       "file": "src/components/ui/command.tsx",
       "line": 84,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/command.tsx",
-      "line": 84,
       "property": "padding",
       "value": "4px",
       "status": "compact-allowed",
@@ -15933,23 +15631,6 @@
     },
     {
       "file": "src/components/ui/command.tsx",
-      "line": 84,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/command.tsx",
       "line": 97,
       "property": "margin-inline",
       "value": "-4px",
@@ -15975,74 +15656,6 @@
       "confidence": "low",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/command.tsx",
-      "line": 108,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/command.tsx",
-      "line": 108,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 28,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 28,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/context-menu.tsx",
@@ -16102,142 +15715,6 @@
     },
     {
       "file": "src/components/ui/context-menu.tsx",
-      "line": 81,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 81,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 97,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 97,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 120,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 120,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 143,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
-      "line": 143,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/context-menu.tsx",
       "line": 153,
       "property": "margin-inline",
       "value": "-4px",
@@ -16291,74 +15768,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/drawer.tsx",
-      "line": 47,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/drawer.tsx",
-      "line": 47,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/dropdown-menu.tsx",
-      "line": 28,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/dropdown-menu.tsx",
-      "line": 28,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/dropdown-menu.tsx",
@@ -16415,108 +15824,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/dropdown-menu.tsx",
-      "line": 116,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/dropdown-menu.tsx",
-      "line": 116,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/dropdown-menu.tsx",
-      "line": 139,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/dropdown-menu.tsx",
-      "line": 139,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/dropdown-menu.tsx",
-      "line": 162,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/dropdown-menu.tsx",
-      "line": 162,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/dropdown-menu.tsx",
@@ -16675,23 +15982,6 @@
     {
       "file": "src/components/ui/menubar.tsx",
       "line": 36,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 36,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -16705,57 +15995,6 @@
     },
     {
       "file": "src/components/ui/menubar.tsx",
-      "line": 36,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 53,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 53,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
       "line": 72,
       "property": "padding",
       "value": "4px",
@@ -16809,142 +16048,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 109,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 109,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 125,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 125,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 148,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 148,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 171,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/menubar.tsx",
-      "line": 171,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/menubar.tsx",
@@ -17035,17 +16138,19 @@
       "line": 52,
       "property": "top",
       "value": "1px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "arbitrary",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "valeur brute hors système"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Compensation optique du chevron (top-[1px]) — pas un espacement.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/navigation-menu.tsx",
@@ -17062,40 +16167,6 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
-      "file": "src/components/ui/navigation-menu.tsx",
-      "line": 83,
-      "property": "margin-top",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/navigation-menu.tsx",
-      "line": 83,
-      "property": "margin-top",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
       "file": "src/components/ui/pagination.tsx",
       "line": 19,
       "property": "gap",
@@ -17140,23 +16211,6 @@
     {
       "file": "src/components/ui/pagination.tsx",
       "line": 50,
-      "property": "padding-left",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/pagination.tsx",
-      "line": 50,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -17167,23 +16221,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/pagination.tsx",
-      "line": 50,
-      "property": "padding-left",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/pagination.tsx",
@@ -17202,23 +16239,6 @@
     {
       "file": "src/components/ui/pagination.tsx",
       "line": 58,
-      "property": "padding-right",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/pagination.tsx",
-      "line": 58,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -17229,91 +16249,82 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/pagination.tsx",
-      "line": 58,
-      "property": "padding-right",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/scroll-area.tsx",
       "line": 27,
       "property": "padding",
       "value": "1px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "arbitrary",
       "track": "error",
       "category": "padding",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "valeur brute hors système"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Rail de scrollbar Radix : p-[1px] insère le pouce d'1px depuis la bordure. Structurel — migrer casserait la scrollbar.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/scroll-area.tsx",
       "line": 28,
       "property": "padding",
       "value": "1px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "arbitrary",
       "track": "error",
       "category": "padding",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "valeur brute hors système"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Rail de scrollbar Radix : p-[1px] insère le pouce d'1px depuis la bordure. Structurel — migrer casserait la scrollbar.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/scroll-area.tsx",
       "line": 27,
       "property": "padding",
       "value": "1px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "arbitrary",
       "track": "error",
       "category": "padding",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "valeur brute hors système"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Rail de scrollbar Radix : p-[1px] insère le pouce d'1px depuis la bordure. Structurel — migrer casserait la scrollbar.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/scroll-area.tsx",
       "line": 28,
       "property": "padding",
       "value": "1px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "arbitrary",
       "track": "error",
       "category": "padding",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "valeur brute hors système"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Rail de scrollbar Radix : p-[1px] insère le pouce d'1px depuis la bordure. Structurel — migrer casserait la scrollbar.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/select.tsx",
@@ -17429,57 +16440,6 @@
     },
     {
       "file": "src/components/ui/select.tsx",
-      "line": 97,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/select.tsx",
-      "line": 97,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/select.tsx",
-      "line": 108,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/select.tsx",
       "line": 108,
       "property": "margin-bottom",
       "value": "4px",
@@ -17491,23 +16451,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/select.tsx",
-      "line": 108,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/select.tsx",
@@ -17598,17 +16541,19 @@
       "line": 384,
       "property": "top",
       "value": "14px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique du group-action (top-3.5).",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -17629,17 +16574,19 @@
       "line": 384,
       "property": "top",
       "value": "14px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique du group-action (top-3.5).",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -17688,17 +16635,19 @@
       "line": 491,
       "property": "top",
       "value": "6px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique : bouton d'action 20px centré dans une ligne de menu 32px -> top-1.5 (6px). Migrer désaligne l'icône.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -17719,34 +16668,38 @@
       "line": 495,
       "property": "top",
       "value": "6px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique : bouton d'action 20px centré dans une ligne de menu 32px -> top-1.5 (6px). Migrer désaligne l'icône.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
       "line": 496,
       "property": "top",
       "value": "10px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique du bouton d'action pour les menu-buttons taille lg (top-2.5).",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -17767,17 +16720,19 @@
       "line": 491,
       "property": "top",
       "value": "6px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique : bouton d'action 20px centré dans une ligne de menu 32px -> top-1.5 (6px). Migrer désaligne l'icône.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -17798,34 +16753,38 @@
       "line": 495,
       "property": "top",
       "value": "6px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique : bouton d'action 20px centré dans une ligne de menu 32px -> top-1.5 (6px). Migrer désaligne l'icône.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
       "line": 496,
       "property": "top",
       "value": "10px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique du bouton d'action pour les menu-buttons taille lg (top-2.5).",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -17874,34 +16833,38 @@
       "line": 517,
       "property": "top",
       "value": "6px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique : bouton d'action 20px centré dans une ligne de menu 32px -> top-1.5 (6px). Migrer désaligne l'icône.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
       "line": 518,
       "property": "top",
       "value": "10px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique du bouton d'action pour les menu-buttons taille lg (top-2.5).",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -17950,51 +16913,57 @@
       "line": 517,
       "property": "top",
       "value": "6px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique : bouton d'action 20px centré dans une ligne de menu 32px -> top-1.5 (6px). Migrer désaligne l'icône.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
       "line": 518,
       "property": "top",
       "value": "10px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "position",
       "confidence": "medium",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Centrage optique du bouton d'action pour les menu-buttons taille lg (top-2.5).",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
       "line": 567,
       "property": "margin-inline",
       "value": "14px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "margin",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Indent du sous-menu : mx-3.5 aligne la bordure gauche sous l'icône du parent. Alignement, pas espacement.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -18013,53 +16982,40 @@
     {
       "file": "src/components/ui/sidebar.tsx",
       "line": 567,
-      "property": "padding-inline",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/sidebar.tsx",
-      "line": 567,
       "property": "padding-block",
       "value": "2px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "padding",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Padding vertical serré volontaire des sous-items (py-0.5) dans la sidebar dense.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
       "line": 567,
       "property": "margin-inline",
       "value": "14px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "margin",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Indent du sous-menu : mx-3.5 aligne la bordure gauche sous l'icône du parent. Alignement, pas espacement.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/sidebar.tsx",
@@ -18078,36 +17034,21 @@
     {
       "file": "src/components/ui/sidebar.tsx",
       "line": 567,
-      "property": "padding-inline",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/sidebar.tsx",
-      "line": 567,
       "property": "padding-block",
       "value": "2px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "scale-utility",
       "track": "error",
       "category": "padding",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Padding vertical serré volontaire des sous-items (py-0.5) dans la sidebar dense.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/components/ui/tabs.tsx",
@@ -18304,23 +17245,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/toggle.tsx",
-      "line": 19,
-      "property": "padding-inline",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/toggle.tsx",
@@ -19358,17 +18282,19 @@
       "line": 64,
       "property": "padding",
       "value": "1px",
-      "status": "violation",
-      "tier": "violation",
+      "status": "exception",
+      "tier": "exception",
       "system": "raw-css",
       "track": "error",
       "category": "padding",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "dérogation documentée",
+      "exception": {
+        "reason": "Largeur du liseré dégradé (bento border) : padding:1px sert de masque, pas d'espacement.",
+        "owner": "sachape",
+        "date": "2026-07-19"
+      }
     },
     {
       "file": "src/pages/AboutPage.tsx",
@@ -40876,9 +39802,9 @@
     }
   ],
   "recommendations": [
-    "1117 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1027 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
     "1527 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ],
-  "findingsNote": "2742 usages preferred agrégés dans totals, non listés."
+  "findingsNote": "2808 usages preferred agrégés dans totals, non listés."
 }
