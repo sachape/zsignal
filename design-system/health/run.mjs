@@ -13,7 +13,9 @@ import { runAccessibility } from "./providers/accessibility.mjs";
 import { runComponents } from "./providers/components.mjs";
 import { runTokens } from "./providers/tokens.mjs";
 import { runQuality } from "./providers/quality.mjs";
+import { runFoundations } from "./providers/foundations.mjs";
 import { computeOverall } from "./overall.mjs";
+import { buildMaturity } from "./domains.mjs";
 
 const OUT = resolve(ROOT, "reports/design-system");
 const HIST = resolve(OUT, "history");
@@ -93,6 +95,8 @@ function main() {
   const components = runComponents();
   const tokens = runTokens();
   const quality = runQuality({ a11y });
+  const foundations = runFoundations({ spacingHealth: spacing.scores.health });
+  const maturity = buildMaturity({ spacing, a11y, components, tokens, foundations, quality });
 
   const overall = computeOverall({
     a11yPass: a11y.status === "enforced",
@@ -129,19 +133,7 @@ function main() {
       calculatedFrom: overall.dimensions.map((d) => d.label),
       note: "Score pondéré (pas une moyenne simple). Seules les dimensions réellement mesurées entrent dans le calcul — aucune métrique non mesurée n'influence ce score.",
     },
-    foundations: {
-      items: [
-        { name: "Colors", state: "documented" },
-        { name: "Typography", state: "documented" },
-        { name: "Spacing", state: "measured", value: pctStr(spacing.scores.health) },
-        { name: "Radius", state: "documented" },
-        { name: "Motion", state: "documented" },
-        { name: "Shadows", state: "documented" },
-        { name: "Borders", state: "documented" },
-        { name: "Accessibility", state: "documented" },
-      ],
-      note: "Les fondations existent et sont documentées. Une seule est aujourd'hui mesurée quantitativement (Spacing) — les autres attendent le chantier Tokens V2.",
-    },
+    maturity,
     components: { total: components.total, withStory: components.withStory, coverage: components.coverage },
     tokens: { total: tokens.total, byLayer: tokens.byLayer },
     quality: quality.items,
@@ -156,13 +148,6 @@ function main() {
       exceptions: spacing.totals.exceptions,
       baseline: base ? base.violations : null,
     },
-    roadmap: [
-      { name: "Chromatic baseline", note: "établir une baseline visuelle acceptée" },
-      { name: "Visual regression", note: "diff automatique par story" },
-      { name: "Docs coverage", note: "part des composants avec doc MDX" },
-      { name: "Token hygiene", note: "tokens inutilisés / dépréciés" },
-      { name: "Foundations scoring", note: "Typography, Radius, Motion mesurés (Tokens V2)" },
-    ],
     // Agrégat machine historique (compat) : la liste brute des providers.
     providers: buildSummary([spacing, a11y]).providers,
   };

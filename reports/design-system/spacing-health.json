@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-19T15:59:57.246Z",
+  "generatedAt": "2026-07-19T16:15:22.988Z",
   "scope": {
     "roots": [
       "src",
@@ -32,42 +32,42 @@
       "/design-system\\/stories\\/[^/]+\\.stories\\.tsx$/",
       "/src\\/index\\.css$/"
     ],
-    "filesScanned": 406,
+    "filesScanned": 407,
     "errorTrackFiles": 87,
-    "warnTrackFiles": 319,
+    "warnTrackFiles": 320,
     "parseErrors": 0
   },
   "totals": {
-    "detected": 5339,
-    "preferred": 2659,
-    "compactAllowed": 1557,
-    "violations": 1117,
+    "detected": 5378,
+    "preferred": 2688,
+    "compactAllowed": 1563,
+    "violations": 1121,
     "exceptions": 6,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5339,
-    "compliant": 4222,
+    "classifiable": 5378,
+    "compliant": 4257,
     "byTrack": {
       "error": 552,
-      "warn": 4787
+      "warn": 4826
     },
     "violationsByTrack": {
       "error": 90,
-      "warn": 1027
+      "warn": 1031
     },
     "compactByTrack": {
       "error": 121,
-      "warn": 1436
+      "warn": 1442
     }
   },
   "scores": {
-    "valueCompliance": 0.7908,
-    "scaleAdoption": 0.9871,
+    "valueCompliance": 0.7916,
+    "scaleAdoption": 0.9872,
     "cssVarAdoption": 0,
-    "health": 0.8497
+    "health": 0.8503
   },
   "confidence": {
-    "value": 0.9629,
+    "value": 0.9631,
     "classifiableRatio": 1,
     "unclassified": 0,
     "exceptions": 6,
@@ -75,24 +75,24 @@
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
   "compactBreakdown": {
-    "total": 1557,
+    "total": 1563,
     "byValue": {
-      "4px": 537,
-      "12px": 782,
+      "4px": 538,
+      "12px": 787,
       "20px": 222,
       "-4px": 16
     }
   },
   "distribution": {
     "byTier": {
-      "preferred": 2659,
-      "violation": 1117,
-      "compact-allowed": 1557,
+      "preferred": 2688,
+      "violation": 1121,
+      "compact-allowed": 1563,
       "exception": 6
     },
     "byValue": {
       "10px": 164,
-      "2px": 331,
+      "2px": 335,
       "6px": 527,
       "-6px": 3,
       "-2px": 10,
@@ -107,7 +107,7 @@
     },
     "bySystem": {
       "raw-css": 2,
-      "scale-utility": 5270,
+      "scale-utility": 5309,
       "inline": 31,
       "arbitrary": 36
     }
@@ -121,19 +121,19 @@
     },
     {
       "property": "padding-block",
-      "total": 506,
+      "total": 507,
       "violations": 238,
       "compactAllowed": 85
     },
     {
       "property": "gap",
-      "total": 1380,
-      "violations": 219,
-      "compactAllowed": 453
+      "total": 1409,
+      "violations": 223,
+      "compactAllowed": 459
     },
     {
       "property": "padding-inline",
-      "total": 536,
+      "total": 537,
       "violations": 122,
       "compactAllowed": 149
     },
@@ -145,7 +145,7 @@
     },
     {
       "property": "padding",
-      "total": 618,
+      "total": 622,
       "violations": 48,
       "compactAllowed": 247
     },
@@ -211,7 +211,7 @@
     },
     {
       "property": "padding-bottom",
-      "total": 53,
+      "total": 57,
       "violations": 2,
       "compactAllowed": 10
     },
@@ -357,7 +357,7 @@
     },
     {
       "value": "2px",
-      "count": 331
+      "count": 335
     },
     {
       "value": "10px",
@@ -40652,62 +40652,6 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
-      "file": "design-system/stories/docs/Health.stories.tsx",
-      "line": 68,
-      "property": "margin-right",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/docs/Health.stories.tsx",
-      "line": 144,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/docs/Health.stories.tsx",
-      "line": 203,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/docs/Health.stories.tsx",
-      "line": 301,
-      "property": "margin-right",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
       "file": "design-system/stories/docs/Tokens.stories.tsx",
       "line": 89,
       "property": "gap",
@@ -41293,12 +41237,220 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 43,
+      "property": "margin-right",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 53,
+      "property": "gap",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 104,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 120,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 138,
+      "property": "gap",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 176,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 192,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 211,
+      "property": "gap",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 230,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 249,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Overview.stories.tsx",
+      "line": 275,
+      "property": "gap",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "design-system/stories/health/Spacing.stories.tsx",
+      "line": 41,
+      "property": "margin-right",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Spacing.stories.tsx",
+      "line": 100,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/health/Spacing.stories.tsx",
+      "line": 144,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
     }
   ],
   "recommendations": [
-    "1117 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
-    "1557 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
+    "1121 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1563 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ],
-  "findingsNote": "2659 usages preferred agrégés dans totals, non listés."
+  "findingsNote": "2688 usages preferred agrégés dans totals, non listés."
 }
