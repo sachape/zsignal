@@ -6,6 +6,9 @@
 - **C Reconstruction Figma** : spécification Figma-ready (frames, Auto Layout, Components/
   Instances/Variants, Component properties, Variables) — `figma-mapping.md`. Sans créer de Figma.
 - **D Gap analysis** : écarts entre code, Storybook, tokens, docs DS, et Figma si fourni.
+- **S Synchronisation Figma (écriture)** : depuis une spec **validée**, créer/mettre à jour dans
+  Figma via le connecteur réel, **puis relire et comparer** au résultat. Jamais pendant un audit ;
+  workflow et conditions détaillés dans `SKILL.md` (section « Synchronisation Figma »).
 
 ## Inventaire des états (documenter ceux qui EXISTENT, prouvés par le code)
 default · hover · focus · active · selected · disabled · loading · empty · partial · error ·
