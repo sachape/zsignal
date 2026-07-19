@@ -5,8 +5,10 @@ description: Audite une modification, une feature, un composant, un ensemble de 
 
 # Design System Review
 
-Audit de conformité au Design System. **Lecture seule par défaut** : ne modifie des
-fichiers que si l'utilisateur demande explicitement le mode correction.
+Le **référent qualité** du Design System. Le Guardian (`design-to-code`) construit ; le Reviewer
+**juge** — il rend un **verdict argumenté** de conformité, pas une simple liste. **Lecture seule par
+défaut** : ne modifie des fichiers que si le mode correction est explicitement demandé. Il applique
+les règles du socle `../_shared/`, ne les redéfinit pas.
 
 ## Quand l'utiliser
 Vérifier qu'un diff / une feature / un composant / des stories respectent le DS avant de
@@ -18,10 +20,21 @@ merger. Distinct de `/ui-qa` (rendu visible) : ici on audite la **conformité sy
 - **Audit feature** : une route/feature complète.
 - **Correction** : corriger **uniquement** les violations validées — explicite, jamais par défaut.
 
-## Périmètre contrôlé
-Tokens (architecture, consommation, valeurs en dur) · composants (existant, duplication,
-abstraction, API, variantes, états, composition) · thème · responsive · Storybook · doc ·
-accessibilité liée au composant · cohérence avec `design-system/*.md`.
+## Classifier la cible (adapte les contrôles)
+Avant l'analyse, annoncer le **type** de cible — il détermine quels domaines s'appliquent :
+nouveau composant · composant existant · fondation · token · Storybook · documentation ·
+pattern · Pull Request · **ensemble du Design System**. N'exécuter que les contrôles pertinents.
+
+## Domaines d'analyse (appliquer uniquement les pertinents)
+- **Architecture / réutilisation** : duplication, abstraction, API, composition — `../_shared/design-system.md`.
+- **Tokens** : 3 couches, consommation sémantique, valeurs en dur — `../_shared/design-system.md` + `npm run lint:tokens`.
+- **Foundations** : cohérence avec les fondations — `../_shared/design-system.md` (→ `design-system/03-foundations.md`, pages Storybook `Foundations/`).
+- **Storybook** : nom=rendu, Controls, états, navigation — `../_shared/storybook.md`.
+- **Accessibilité** : exigences communes — `../_shared/accessibility.md`.
+- **Quality Gates** : gates réellement exécutés et verts — `../_shared/validation.md`.
+- **Health** : dette / maturité pertinentes — `../_shared/design-system.md` (rapports `reports/design-system/*`) ; **citer**, jamais fabriquer.
+- **ADR** : conformité aux décisions — `docs/adr/` ; signaler toute contradiction.
+- **Documentation & Governance** : cohérence avec `design-system/*.md` et les conventions.
 Checklists détaillées : `references/checklists.md`.
 
 ## Sévérités
@@ -34,9 +47,10 @@ Ne pas gonfler les sévérités.
 Règle · Preuve · Fichier · Ligne/zone · Impact · Correction minimale · Correction structurelle
 éventuelle · Niveau de confiance. **Jamais de violation sans preuve.**
 
-## Verdict
+## Verdict (annoncé AVANT les findings)
 `PASS` (aucune blocker/major) · `PASS WITH WARNINGS` (mineures/conseils seulement) ·
-`FAIL` (≥ 1 blocker/major) · `INCOMPLETE` (preuves/validations insuffisantes).
+`PARTIAL` (conforme en partie) · `FAIL` (≥ 1 blocker/major) · `INCOMPLETE` (preuves/validations insuffisantes).
+Donner le verdict **d'abord**, puis les findings.
 
 ## Outils du dépôt (réutiliser, ne pas réécrire)
 - `npm run lint:tokens` — détecte hex/arbitraire/primitive dans le cœur `src/components/ui/`.
@@ -44,8 +58,11 @@ Règle · Preuve · Fichier · Ligne/zone · Impact · Correction minimale · Co
 - `bash .claude/skills/design-system-review/scripts/audit.sh` — orchestration des deux ci-dessus.
 Distinguer **erreur de script** et **violation trouvée**.
 
-## Sortie
-`templates/review.md`. Renseigner les validations réellement exécutées (`../_shared/validation.md`).
+## Rapport
+`templates/review.md` — rapport **professionnel** (pas de raisonnement interne) : **domaines analysés** ·
+**verdict** · nombre de findings **par sévérité** · **Quality Gates exécutés** et leur résultat réel
+(`../_shared/validation.md`) · **recommandations principales**. Findings **regroupés par sévérité**,
+chacun : problème → pourquoi c'en est un → recommandation (structure « Preuves »).
 
 ## Définition de terminé
 Périmètre et sources posés ; verdict rendu ; chaque violation prouvée et cotée ; points
