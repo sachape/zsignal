@@ -11,16 +11,14 @@ défaut** : ne modifie des fichiers que si le mode correction est explicitement 
 les règles du socle `../_shared/`, ne les redéfinit pas.
 
 ## Annonce d'activation
-Ouvrir TOUJOURS la réponse par un en-tête qui rend l'activation et le cadrage visibles,
-avant les findings :
+Ouvrir la réponse par l'en-tête d'activation — convention commune : `../_shared/output-format.md`.
+Instance de ce Skill (puis les findings) :
 
 > ## 🔎 Design System Reviewer
 > **Pourquoi** — audit de conformité DS de la cible (lecture seule, sans corriger).
 > **Classification** — le type de cible (composant, token, Storybook, PR, DS entier…).
 > **Domaines analysés** — cocher uniquement ceux réellement appliqués (Tokens · Storybook · A11y · ADR…).
 > **Verdict** — `PASS` / `PASS WITH WARNINGS` / `PARTIAL` / `FAIL` / `INCOMPLETE`.
-
-Puis les findings. Ne pas commencer directement par l'analyse sans cet en-tête.
 
 ## Quand l'utiliser
 Vérifier qu'un diff / une feature / un composant / des stories respectent le DS avant de
