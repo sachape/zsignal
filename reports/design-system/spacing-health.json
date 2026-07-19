@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-19T13:34:28.036Z",
+  "generatedAt": "2026-07-19T14:06:33.771Z",
   "scope": {
     "roots": [
       "src",
@@ -39,32 +39,32 @@
   },
   "totals": {
     "detected": 5164,
-    "preferred": 2501,
-    "compactAllowed": 1529,
-    "violations": 1128,
+    "preferred": 2510,
+    "compactAllowed": 1530,
+    "violations": 1118,
     "exceptions": 6,
     "needsDecision": 0,
     "unclassified": 0,
     "classifiable": 5164,
-    "compliant": 4036,
+    "compliant": 4046,
     "byTrack": {
       "error": 551,
       "warn": 4613
     },
     "violationsByTrack": {
-      "error": 101,
+      "error": 91,
       "warn": 1027
     },
     "compactByTrack": {
-      "error": 119,
+      "error": 120,
       "warn": 1410
     }
   },
   "scores": {
-    "valueCompliance": 0.7816,
+    "valueCompliance": 0.7835,
     "scaleAdoption": 0.9855,
     "cssVarAdoption": 0,
-    "health": 0.8428
+    "health": 0.8441
   },
   "confidence": {
     "value": 0.9619,
@@ -75,9 +75,9 @@
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
   "compactBreakdown": {
-    "total": 1529,
+    "total": 1530,
     "byValue": {
-      "4px": 525,
+      "4px": 526,
       "12px": 766,
       "20px": 222,
       "-4px": 16
@@ -85,15 +85,15 @@
   },
   "distribution": {
     "byTier": {
-      "preferred": 2501,
-      "violation": 1128,
-      "compact-allowed": 1529,
+      "preferred": 2510,
+      "violation": 1118,
+      "compact-allowed": 1530,
       "exception": 6
     },
     "byValue": {
       "10px": 164,
-      "2px": 332,
-      "6px": 536,
+      "2px": 331,
+      "6px": 527,
       "-6px": 3,
       "-2px": 10,
       "14px": 28,
@@ -114,16 +114,16 @@
   },
   "byProperty": [
     {
-      "property": "padding-block",
-      "total": 492,
-      "violations": 243,
-      "compactAllowed": 80
-    },
-    {
       "property": "margin-top",
       "total": 785,
       "violations": 239,
       "compactAllowed": 248
+    },
+    {
+      "property": "padding-block",
+      "total": 492,
+      "violations": 238,
+      "compactAllowed": 81
     },
     {
       "property": "gap",
@@ -140,7 +140,7 @@
     {
       "property": "row-gap",
       "total": 323,
-      "violations": 103,
+      "violations": 98,
       "compactAllowed": 98
     },
     {
@@ -353,11 +353,11 @@
   "topValues": [
     {
       "value": "6px",
-      "count": 536
+      "count": 527
     },
     {
       "value": "2px",
-      "count": 332
+      "count": 331
     },
     {
       "value": "10px",
@@ -15430,18 +15430,15 @@
       "file": "src/components/ui/badge.tsx",
       "line": 7,
       "property": "padding-block",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
       "system": "scale-utility",
       "track": "error",
       "category": "padding",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
       "file": "src/components/ui/breadcrumb.tsx",
@@ -15572,40 +15569,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/card.tsx",
-      "line": 12,
-      "property": "row-gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/card.tsx",
-      "line": 12,
-      "property": "row-gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/chart.tsx",
@@ -16330,40 +16293,6 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
-      "file": "src/components/ui/dialog.tsx",
-      "line": 55,
-      "property": "row-gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/dialog.tsx",
-      "line": 55,
-      "property": "row-gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
       "file": "src/components/ui/drawer.tsx",
       "line": 47,
       "property": "gap",
@@ -16644,23 +16573,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/empty-state.tsx",
-      "line": 45,
-      "property": "row-gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/input.tsx",
@@ -18242,23 +18154,6 @@
     {
       "file": "src/components/ui/tabs.tsx",
       "line": 30,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/tabs.tsx",
-      "line": 30,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -18269,23 +18164,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/tabs.tsx",
-      "line": 30,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/ui/textarea.tsx",
@@ -18475,23 +18353,6 @@
     {
       "file": "src/components/ui/tooltip.tsx",
       "line": 20,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ui/tooltip.tsx",
-      "line": 20,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -18502,23 +18363,6 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/tooltip.tsx",
-      "line": 20,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
@@ -41091,9 +40935,9 @@
     }
   ],
   "recommendations": [
-    "1128 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
-    "1529 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
+    "1118 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1530 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ],
-  "findingsNote": "2501 usages preferred agrégés dans totals, non listés."
+  "findingsNote": "2510 usages preferred agrégés dans totals, non listés."
 }
