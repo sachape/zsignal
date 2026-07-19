@@ -62,6 +62,11 @@ Voir les exemples dans `skills/<name>/examples/`. Exemples génériques :
 /ui-qa               Contrôle la page/les stories indiquées : critères, responsive, interactions, états, a11y.
 ```
 
+## Conventions Git & PR
+Commits (Conventional Commits atomiques), branches, titre de PR `DS P<phase> — <objectif>`,
+template PR et critères « Ready à merger » : voir [`../CONTRIBUTING.md`](../CONTRIBUTING.md).
+Tout agent qui commit/ouvre une PR sur ce dépôt applique cette convention.
+
 ## Maintenance
 - Structure : `skills/<name>/{SKILL.md,references/,templates/,examples/,scripts/}`.
 - Frontmatter minimal (`name`, `description` seulement) — ne pas inventer de champs.

@@ -20,6 +20,22 @@ Gestionnaire : **npm** (`package-lock.json` fait foi). Alias `@` → `./src`.
 navigateur + a11y bloquante) · `npm run build-storybook` · `npm run build`.
 `npm run lint` (eslint) échoue sur de la dette legacy → non bloquant.
 
+## Conventions Git & PR
+
+Gouvernance complète : [`CONTRIBUTING.md`](CONTRIBUTING.md) (Git, branches, commits, PR, CI, reviews).
+DS-spécifique : `design-system/CONTRIBUTING.md`.
+
+- **Commits** — Conventional Commits `type(scope): description` : courts, atomiques, techniques.
+  Le commit ne raconte pas le chantier. Types : `feat fix docs refactor test ci build chore perf` ;
+  scopes : `ds a11y tokens storybook stories ci build deps` ou un composant.
+- **Branches** — `main` (prod, protégée) · `design-system` (intégration DS) · `feature/*` `fix/*`
+  `docs/*` `experiment/*`.
+- **PR** — titre `DS P<phase> — <objectif>` ; corps = `.github/pull_request_template.md`. La PR
+  raconte le chantier ; consigner les choix structurants dans **Décisions d'architecture**.
+- **Ready à merger** — CI verte, Storybook construit, Chromatic approuvé, aucune régression
+  visuelle, aucun TODO bloquant, revue faite. Pas de merge automatique.
+- S'applique aux **futurs** commits/PR uniquement ; ne pas réécrire l'historique.
+
 ## Project Skills
 
 Workflows réutilisables dans `.claude/skills/` (voir `.claude/README.md`).
