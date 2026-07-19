@@ -118,6 +118,9 @@ function main() {
     const problems = [];
     if (t.violations > base.violations)
       problems.push(`violations ${t.violations} > baseline ${base.violations} (nouvelle dette hors-échelle)`);
+    // TODO(ADR-0002) : affiner ce garde-fou pour distinguer une hausse compact
+    // LÉGITIME (migration officielle 2→4, 10→12, avec baisse des violations) d'un
+    // contournement (6→12 non justifié). Comportement strict conservé pour l'instant.
     if (t.compactAllowed > base.compactAllowed)
       problems.push(`compact-allowed ${t.compactAllowed} > baseline ${base.compactAllowed} — ne pas remplacer violation→compact ; viser preferred`);
     if (problems.length) {
