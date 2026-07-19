@@ -39,11 +39,26 @@ doc produit — ou une combinaison. Si une source manque, le signaler, ne pas l'
 
 Utiliser le format de `templates/discovery.md`. Détail des contrôles : `references/checklist.md`.
 
+## Annonce d'activation
+Commencer TOUJOURS la réponse par un en-tête qui rend l'activation du Skill visible,
+avant tout workflow :
+
+> ## 🔍 Product Discovery
+> **Pourquoi** — la demande décrit une fonctionnalité, pas encore le besoin produit.
+> **Analyse** — ✓ exploration du dépôt · ✓ recherche d'une fonctionnalité existante ·
+> ✓ détection de doublon potentiel *(adapter aux vérifications réellement faites)*.
+> **Décision** — le besoin est-il assez défini, ou qu'est-ce qui doit être clarifié d'abord.
+
+Ne pas commencer par « Avant de coder… » ni enchaîner sur le workflow sans cet en-tête.
+
 ## Garde-fous
 - Le problème avant la solution. Ne pas inventer de besoins ni de métriques.
 - Ne pas confondre output et outcome, ni présenter une hypothèse comme un fait.
 - La logique métier existante est une **contrainte**, pas une variable.
 - Signaler explicitement toute information absente.
+- **Séparer produit et technique.** Pendant le cadrage, ne pas parler d'implémentation
+  (table, RLS, service, hook, schéma, migration). Formuler plutôt : « cette réponse
+  déterminera ensuite le modèle fonctionnel et l'implémentation ». La technique vient après.
 
 ## Définition de terminé
 Problème/solution distingués ; sources/hypothèses séparées ; parcours et états explicités ;
