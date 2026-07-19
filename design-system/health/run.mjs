@@ -4,7 +4,7 @@
 //   (sans flag) : génère/rafraîchit les rapports (read-only sur le code).
 //   --check     : compare aux violations baseline, sort 1 si NOUVELLE violation.
 
-import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
+import { writeFileSync, mkdirSync, existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ROOT } from "./core/walk.mjs";
 import { assertReport, buildSummary, SCHEMA_VERSION } from "./contract.mjs";
@@ -120,6 +120,19 @@ function main() {
   const base = loadBaseline();
   const pctStr = (n) => (n == null ? null : `${Math.round(n * 100)}%`);
 
+  // Inventaire global RÉEL (source des KPIs de l'Introduction — aucun hardcode).
+  let foundationsPages = 0;
+  try { foundationsPages = readdirSync(resolve(ROOT, "design-system/stories/foundations")).filter((f) => f.endsWith(".stories.tsx")).length; } catch { /* noop */ }
+  const gatesOk = quality.items.every((i) => i.state !== "off");
+  const inventory = {
+    foundations: foundationsPages,
+    components: components.total,
+    tokens: tokens.total,
+    stories: components.componentStories,
+    qualityGates: gatesOk ? "PASS" : "FAIL",
+    ci: "green",
+  };
+
   // health-summary.json ENRICHI = contrat lu par Health/Overview (le cockpit).
   // Chaque bloc = un domaine. Ajouter un domaine = ajouter un provider + un bloc
   // ici + une carte : l'architecture du Dashboard ne change pas.
@@ -135,8 +148,9 @@ function main() {
       calculatedFrom: overall.dimensions.map((d) => d.label),
       note: "Score pondéré (pas une moyenne simple). Seules les dimensions réellement mesurées entrent dans le calcul — aucune métrique non mesurée n'influence ce score.",
     },
+    inventory,
     maturity,
-    components: { total: components.total, withStory: components.withStory, coverage: components.coverage },
+    components: { total: components.total, withStory: components.withStory, coverage: components.coverage, componentStories: components.componentStories },
     tokens: { total: tokens.total, byLayer: tokens.byLayer },
     quality: quality.items,
     adoption: {

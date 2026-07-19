@@ -27,17 +27,24 @@ export function runComponents() {
 
   const storyFiles = [];
   for (const r of STORY_ROOTS) walkStories(r, storyFiles);
-  const haystack = storyFiles.map((f) => { try { return readFileSync(f, "utf8"); } catch { return ""; } }).join("\n");
+  const sources = storyFiles.map((f) => ({ f, src: (() => { try { return readFileSync(f, "utf8"); } catch { return ""; } })() }));
+  const haystack = sources.map((s) => s.src).join("\n");
 
   const withStory = components.filter((c) => haystack.includes(`components/ui/${c}"`) || haystack.includes(`components/ui/${c}'`));
   const total = components.length;
   const coverage = total ? withStory.length / total : 0;
+
+  // Comptage réel des stories publiées dans le DS (composants + patterns), hors
+  // Catalogue (app) : on ne compte QUE les fichiers de design-system/stories/*.
+  const dsTop = sources.filter((s) => /\/design-system\/stories\/[^/]+\.stories\.tsx$/.test(s.f));
+  const componentStories = dsTop.reduce((n, s) => n + (s.src.match(/export const [A-Z]\w*\s*:/g) || []).length, 0);
 
   return {
     provider: "components",
     total,
     withStory: withStory.length,
     coverage,
+    componentStories,
     missing: components.filter((c) => !withStory.includes(c)),
   };
 }

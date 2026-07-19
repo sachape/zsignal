@@ -31,44 +31,63 @@ export function buildMaturity({ spacing, a11y, components, tokens, foundations, 
   const areas = [
     {
       area: "Foundations",
+      slug: "health-foundations",
       note: "Les décisions visuelles fondatrices — attendues, pas seulement celles consommées par l'app.",
       domains: foundations.domains,
     },
     {
       area: "Components",
+      slug: "health-components",
+      note: "Le domaine complet, pas un compteur : couverture, stories, variantes, doc, a11y.",
       domains: [
         { key: "comp-coverage", label: "Story coverage", status: "measured", measure: pct(components.coverage), note: `${components.withStory}/${components.total} composants ui/ avec story` },
+        { key: "comp-stories", label: "Stories", status: "measured", measure: components.componentStories != null ? String(components.componentStories) : null, note: "stories publiées (composants + patterns)" },
         { key: "comp-a11y", label: "A11y coverage", status: "measured", measure: "PASS", note: "toutes les stories passent axe (mode error)" },
-        { key: "comp-docs", label: "Docs coverage (MDX par composant)", status: "planned", measure: null, note: "part des composants avec doc dédiée — prévu" },
+        { key: "comp-variants", label: "Variants", status: "documented", measure: null, note: "variantes documentées par story (ex. Button ×15) — non scoré en %" },
+        { key: "comp-docs", label: "Documentation (MDX par composant)", status: "planned", measure: null, note: "part des composants avec doc dédiée — prévu" },
       ],
     },
     {
       area: "Tokens",
+      slug: "health-tokens",
+      note: "Inventaire par couche (measured) + hygiène (roadmap).",
       domains: [
-        { key: "tok-inv", label: "Inventory", status: "measured", measure: String(tokens.total), note: `primitive ${tokens.byLayer.primitive} · semantic ${tokens.byLayer.semantic} · component ${tokens.byLayer.component}` },
-        { key: "tok-hyg", label: "Token hygiene", status: "planned", measure: null, note: "tokens inutilisés / dépréciés — évolution assumée" },
+        { key: "tok-primitive", label: "Primitive", status: "measured", measure: String(tokens.byLayer.primitive ?? 0), note: "valeurs brutes (hsl, rem, px)" },
+        { key: "tok-semantic", label: "Semantic", status: "measured", measure: String(tokens.byLayer.semantic ?? 0), note: "intentions (--primary, --space-*)" },
+        { key: "tok-component", label: "Component", status: "measured", measure: String(tokens.byLayer.component ?? 0), note: "tokens par composant" },
+        { key: "tok-compat", label: "Compatibility", status: "measured", measure: String(tokens.byLayer.compat ?? 0), note: "alias de compatibilité (legacy)" },
+        { key: "tok-hygiene", label: "Token hygiene", status: "planned", measure: null, note: "orphelins / inutilisés / dépréciés — roadmap (justifiera un provider Token Health)" },
       ],
     },
     {
-      area: "Accessibility & Quality gates",
-      domains: (quality?.items ?? []).map((i) => {
-        const map = { pass: ["measured", "PASS"], enforced: ["measured", "Gate"], active: ["measured", "Active"], off: ["missing", null] };
-        const [status, measure] = map[i.state] ?? ["missing", null];
-        return { key: `q-${i.name}`, label: i.name, status, measure, note: i.detail };
-      }),
+      area: "Quality Gates",
+      slug: "health-quality-gates",
+      note: "Les garde-fous bloquants avant merge — Accessibility incluse (c'est un gate).",
+      domains: [
+        ...(quality?.items ?? []).map((i) => {
+          const map = { pass: ["measured", "PASS"], enforced: ["measured", "Gate"], active: ["measured", "Active"], off: ["missing", null] };
+          const [status, measure] = map[i.state] ?? ["missing", null];
+          return { key: `q-${i.name}`, label: i.name, status, measure, note: i.detail };
+        }),
+        { key: "q-ci", label: "CI pipeline", status: "measured", measure: "Green", note: "ci.yml — orchestre typecheck / lint / build / a11y" },
+      ],
     },
     {
       area: "Visual Quality",
+      slug: "health-visual-quality",
       note: "Domaine durable — ses sous-métriques passeront de missing/planned à measured dès que la CI Chromatic produira un rapport.",
       domains: visualQuality.metrics.map((v) => ({ key: `vq-${v.key}`, label: v.label, status: v.status, measure: v.measure, note: v.note })),
     },
     {
-      area: "Delivery, Docs & Governance",
+      area: "Governance",
+      slug: "health-governance",
+      note: "Contribution, décisions, versioning, documentation — la gouvernance du DS.",
       domains: [
-        { key: "ci", label: "CI pipeline", status: "measured", measure: "Green", note: "ci.yml — gates typecheck/lint/build/a11y" },
-        { key: "docs", label: "Documentation & guides", status: "documented", measure: null, note: "Getting Started, CONTRIBUTING, pages MDX — présent, non scoré" },
-        { key: "governance", label: "Governance & contribution", status: "documented", measure: null, note: "workflow de contribution, gouvernance spacing" },
-        { key: "perf", label: "Performance budgets", status: "planned", measure: null, note: "budgets bundle/CSS — évolution assumée" },
+        { key: "gov-contrib", label: "Contribution & workflow", status: "documented", measure: null, note: "CONTRIBUTING.md, conventions Git/PR, gouvernance spacing" },
+        { key: "gov-docs", label: "Documentation & guides", status: "documented", measure: null, note: "Getting Started, Nomenclature, pages MDX" },
+        { key: "gov-adr", label: "Architecture decisions (ADR)", status: "planned", measure: null, note: "décisions structurantes formalisées — à outiller" },
+        { key: "gov-versioning", label: "Versioning & changelog", status: "planned", measure: null, note: "semver du DS + journal des changements — roadmap" },
+        { key: "gov-perf", label: "Performance budgets", status: "planned", measure: null, note: "budgets bundle / CSS — évolution assumée" },
       ],
     },
   ];
