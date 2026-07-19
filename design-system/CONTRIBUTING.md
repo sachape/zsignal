@@ -59,3 +59,22 @@ npm run lint:tokens      # garde-fou tokens
 npm run test             # unit + interaction + a11y (bloquant)
 npm run build-storybook  # compilation
 ```
+
+## Spacing — gouvernance (DS P6)
+
+Règle 8/4 : `4px` micro, sinon progression `8,16,24,32,40,48,56,64,80,96,120,128` ;
+`12/20/28…` = **needs-decision** ; le reste (`2/6/10/14…`) = violation. Périmètre =
+espacements (margin/padding/gap/inset…), **pas** width/height/radius/typo. Détail : `docs/adr/0001-spacing-8-4-grid.md`.
+
+```
+npm run audit:spacing    # audit read-only → reports/design-system/spacing-health.{json,md}
+npm run check:spacing    # CI : échoue si NOUVELLE violation vs baseline (sinon observation)
+```
+
+- **Lire le rapport** : `reports/design-system/spacing-health.md` (score, top valeurs, fichiers touchés).
+- **Déclarer une exception** : ajouter une entrée dans `design-system/health/exceptions.json`
+  (`value` px, `file`, `property`, `reason`, `owner`, `date`) — elle compte alors comme conforme.
+- **Corriger** : jamais « au plus proche » mathématique ; préserver densité/hiérarchie/cibles
+  tactiles/responsive, valider en dark+light et via Chromatic. Migration = phase séparée, après validation de l'audit.
+- Le moteur Health (`design-system/health/`) produit un rapport **versionné** (contrat v1) que le
+  Dashboard et la CI consomment sans recalculer.
