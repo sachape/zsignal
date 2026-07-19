@@ -1,0 +1,25 @@
+{
+  "reportVersion": 1,
+  "provider": "accessibility",
+  "generatedAt": "2026-07-19T12:54:26.213Z",
+  "status": "enforced",
+  "scores": {
+    "valueCompliance": null,
+    "tokenAdoption": null,
+    "health": null
+  },
+  "confidence": {
+    "value": 1,
+    "note": "Fait dérivé de la config CI + inventaire, pas d'un rapport JSON a11y."
+  },
+  "totals": {
+    "testableStories": 116
+  },
+  "display": {
+    "label": "Accessibility",
+    "value": "PASS",
+    "detail": "116/116 stories · a11y bloquante (mode error)",
+    "source": "vitest storybook project + @storybook/addon-a11y (dernier run CI vert)",
+    "note": "Aucun rapport JSON a11y encore produit — statut factuel, pas un pourcentage."
+  }
+}
