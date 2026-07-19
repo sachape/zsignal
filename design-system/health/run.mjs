@@ -59,16 +59,30 @@ function spacingMarkdown(r) {
   return lines.join("\n") + "\n";
 }
 
-function baselineViolations() {
-  const f = resolve(HIST, "spacing-baseline.json");
-  if (!existsSync(f)) return null;
-  try { return JSON.parse(readFileSync(f, "utf8")).totals.violations; } catch { return null; }
+const BASELINE = resolve(HIST, "spacing-baseline.json");
+function loadBaseline() {
+  if (!existsSync(BASELINE)) return null;
+  try { return JSON.parse(readFileSync(BASELINE, "utf8")); } catch { return null; }
+}
+function freezeBaseline(spacing) {
+  const t = spacing.totals;
+  const data = {
+    $doc: "Baseline de dette spacing. check:spacing échoue si violations OU compact-allowed AUGMENTENT. Une baisse est autorisée SANS mise à jour. Ne relever ce fichier (npm run baseline:spacing) QUE pour accepter volontairement une nouvelle dette — avec justification en commit.",
+    frozenAt: new Date().toISOString(),
+    violations: t.violations,
+    compactAllowed: t.compactAllowed,
+    violationsByTrack: t.violationsByTrack,
+    scores: spacing.scores,
+  };
+  writeFileSync(BASELINE, JSON.stringify(data, null, 2) + "\n");
+  console.log(`baseline figée : violations ${t.violations}, compact-allowed ${t.compactAllowed} → ${BASELINE}`);
 }
 
 function main() {
   ensureDirs();
   seedExceptions();
   const check = process.argv.includes("--check");
+  const freeze = process.argv.includes("--freeze");
 
   const spacing = assertReport(runSpacing());
   const a11y = runAccessibility();
@@ -95,11 +109,23 @@ function main() {
   console.log(`Spacing Health ${(s.health * 100).toFixed(1)}% | value ${(s.valueCompliance * 100).toFixed(1)}% | scale-adoption ${(s.scaleAdoption * 100).toFixed(1)}% | confidence ${(c.value * 100).toFixed(1)}%`);
   console.log(`détectés ${spacing.totals.detected} · preferred ${spacing.totals.preferred} · compact-allowed ${spacing.totals.compactAllowed} · violations ${spacing.totals.violations} (cœur ${spacing.totals.violationsByTrack.error}) · exceptions ${spacing.totals.exceptions} · needs-decision ${spacing.totals.needsDecision}`);
 
+  if (freeze) { freezeBaseline(spacing); return; }
+
   if (check) {
-    const base = baselineViolations();
-    if (base == null) { console.log("check: pas de baseline (spacing-baseline.json) — mode observation."); return; }
-    if (spacing.totals.violations > base) { console.error(`::error::Spacing: ${spacing.totals.violations} violations > baseline ${base}. Nouvelle régression.`); process.exit(1); }
-    console.log(`check: OK (${spacing.totals.violations} ≤ baseline ${base}).`);
+    const base = loadBaseline();
+    if (!base) { console.log("check: pas de baseline — mode observation (aucun blocage)."); return; }
+    const t = spacing.totals;
+    const problems = [];
+    if (t.violations > base.violations)
+      problems.push(`violations ${t.violations} > baseline ${base.violations} (nouvelle dette hors-échelle)`);
+    if (t.compactAllowed > base.compactAllowed)
+      problems.push(`compact-allowed ${t.compactAllowed} > baseline ${base.compactAllowed} — ne pas remplacer violation→compact ; viser preferred`);
+    if (problems.length) {
+      console.error(`::error::Spacing régression : ${problems.join(" ; ")}.`);
+      console.error("Corrige la régression, ou accepte-la explicitement via 'npm run baseline:spacing' + commit justifié.");
+      process.exit(1);
+    }
+    console.log(`check: OK — violations ${t.violations} ≤ ${base.violations} · compact-allowed ${t.compactAllowed} ≤ ${base.compactAllowed}. (baisse autorisée sans mise à jour)`);
   }
 }
 

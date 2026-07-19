@@ -17,6 +17,7 @@
     "lint:tokens": "node design-system/tools/lint-tokens.mjs",
     "audit:spacing": "node design-system/health/run.mjs",
     "check:spacing": "node design-system/health/run.mjs --check",
+    "baseline:spacing": "node design-system/health/run.mjs --freeze",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
