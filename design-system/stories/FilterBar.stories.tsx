@@ -36,7 +36,7 @@ function FilterBar() {
 }
 
 const meta: Meta<typeof FilterBar> = {
-  title: "Exemples/FilterBar",
+  title: "Patterns/FilterBar",
   component: FilterBar,
   parameters: { controls: { disable: true }, docs: { description: { component: "FilterBar — un **exemple d'usage**, pas une primitive : les filtres se COMPOSENT (Select + Input + Badge). Montre comment les primitives du DS se combinent pour une barre de filtres — le motif « filtres » que tu cherchais." } },  layout: "centered" },
 };
