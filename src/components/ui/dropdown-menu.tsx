@@ -84,7 +84,7 @@ const itemBase =
 const itemVariantClasses = {
   default: "text-foreground focus:bg-secondary focus:text-foreground",
   destructive:
-    "text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive",
+    "text-destructive-strong focus:bg-destructive/10 focus:text-destructive-strong [&_svg]:text-destructive-strong",
   success: "text-success focus:bg-success/10 focus:text-success",
   warning: "text-warning focus:bg-warning/10 focus:text-warning",
 } as const;

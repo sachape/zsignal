@@ -37,8 +37,11 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         // plein (qui rivaliserait avec le jour sélectionné en lime). Avant :
         // bg-accent (teal) puis bg-muted (bloc gris) — les deux trop lourds.
         day_today: "font-semibold text-foreground ring-1 ring-inset ring-border",
+        // Pas d'opacity : les jours hors-mois restent CLIQUABLES donc soumis au
+        // contraste AA. text-muted-foreground seul = 7.7:1 (opacity-50 le cassait
+        // à 2.74:1). La désaturation vient de la couleur muted, pas de l'opacité.
         day_outside:
-          "day-outside text-muted-foreground opacity-50 aria-selected:bg-primary/10 aria-selected:text-muted-foreground aria-selected:opacity-30",
+          "day-outside text-muted-foreground aria-selected:bg-primary/10 aria-selected:text-muted-foreground",
         day_disabled: "text-muted-foreground opacity-50",
         day_range_middle: "aria-selected:bg-primary/15 aria-selected:text-foreground",
         day_hidden: "invisible",

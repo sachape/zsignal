@@ -24,7 +24,7 @@ const meta: Meta<Args> = {
   render: (args) => (
     <Popover open>
       <PopoverTrigger asChild><Button variant="outline">Ajuster le seuil</Button></PopoverTrigger>
-      <PopoverContent side={args.side} align={args.align} className="w-72 space-y-3">
+      <PopoverContent side={args.side} align={args.align} aria-label="Détection de clips" className="w-72 space-y-3">
         <p className="text-sm font-medium">Détection de clips</p>
         <div className="grid gap-2">
           <Label htmlFor="thr">Seuil d'engagement</Label>
@@ -46,7 +46,7 @@ export const Ouverture: S = {
   render: () => (
     <Popover>
       <PopoverTrigger asChild><Button variant="outline">Ajuster le seuil</Button></PopoverTrigger>
-      <PopoverContent className="w-72"><p className="text-sm font-medium">Détection de clips</p></PopoverContent>
+      <PopoverContent className="w-72" aria-label="Détection de clips"><p className="text-sm font-medium">Détection de clips</p></PopoverContent>
     </Popover>
   ),
   play: async ({ canvas, userEvent }) => {

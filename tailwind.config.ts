@@ -42,6 +42,10 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+          // Rouge clair LISIBLE comme texte sur fond sombre (AA ≥4.7:1). À utiliser
+          // via text-destructive-strong pour tout texte destructif/erreur ; le
+          // DEFAULT (rouge d'aplat) échoue le contraste en tant que texte.
+          strong: "hsl(var(--color-text-danger))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",

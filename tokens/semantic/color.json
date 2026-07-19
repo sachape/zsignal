@@ -24,7 +24,8 @@
       "inverse":   { "$value": "{color.neutral.950}", "$description": "Texte sur surface claire/marque." },
       "brand":     { "$value": "{color.lime.500}" },
       "on-brand":  { "$value": "{color.neutral.950}", "$description": "Texte sur un aplat lime." },
-      "on-danger": { "$value": "{color.neutral.50}",  "$description": "Texte sur un aplat rouge/destructif." }
+      "on-danger": { "$value": "{color.white}",  "$description": "Texte sur un aplat rouge/destructif. Blanc pur = 4.80:1 sur red-500 (AA) ; neutral-50 échouait à 4.48." },
+      "danger":    { "$value": "{color.red.400}", "$description": "Texte destructif/erreur POSÉ SUR fond sombre (messages de form, item destructif, score bas). red-400 = ≥4.7:1 sur toutes les surfaces sombres ; red-500 (le fond) échouait à 4.02/3.62. Ne pas confondre avec on-danger (texte SUR l'aplat rouge)." }
     },
     "border": {
       "$type": "color",

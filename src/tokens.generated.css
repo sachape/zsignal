@@ -36,7 +36,9 @@
   --color-teal-500: 172 66% 50%; /** Accent secondaire. */
   --color-green-500: 142 71% 45%;
   --color-amber-500: 38 92% 50%;
+  --color-red-400: 0 72% 64%;
   --color-red-500: 0 72% 51%;
+  --color-red-600: 0 72% 42%;
   --color-blue-500: 217 91% 60%;
   --color-orange-500: 25 95% 53%;
   --color-yellow-500: 48 96% 53%;
@@ -157,7 +159,8 @@
   --color-text-inverse: var(--color-neutral-950); /** Texte sur surface claire/marque. */
   --color-text-brand: var(--color-lime-500);
   --color-text-on-brand: var(--color-neutral-950); /** Texte sur un aplat lime. */
-  --color-text-on-danger: var(--color-neutral-50); /** Texte sur un aplat rouge/destructif. */
+  --color-text-on-danger: var(--color-white); /** Texte sur un aplat rouge/destructif. Blanc pur = 4.80:1 sur red-500 (AA) ; neutral-50 échouait à 4.48. */
+  --color-text-danger: var(--color-red-400); /** Texte destructif/erreur POSÉ SUR fond sombre (messages de form, item destructif, score bas). red-400 = ≥4.7:1 sur toutes les surfaces sombres ; red-500 (le fond) échouait à 4.02/3.62. Ne pas confondre avec on-danger (texte SUR l'aplat rouge). */
   --color-border-default: var(--color-neutral-750);
   --color-border-subtle: var(--color-neutral-800);
   --color-border-strong: var(--color-neutral-700);
@@ -241,7 +244,7 @@
   --secondary-foreground: var(--color-neutral-300);
   --accent: var(--color-teal-500);
   --accent-foreground: var(--color-neutral-950);
-  --destructive-foreground: var(--color-neutral-50);
+  --destructive-foreground: var(--color-white); /** Blanc pur (pas neutral-50) : 4.80:1 sur le rouge danger vs 4.48 avec neutral-50, qui échouait AA. Voir aussi color.text.on-danger. */
   --success-foreground: var(--color-neutral-950);
   --warning-foreground: var(--color-neutral-950);
   --info-foreground: var(--color-neutral-950);
