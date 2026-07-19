@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T13:00:11.861Z",
+  "generatedAt": "2026-07-19T13:01:40.776Z",
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T13:00:11.853Z",
+      "generatedAt": "2026-07-19T13:01:40.759Z",
       "scores": {
         "valueCompliance": 0.5864,
         "scaleAdoption": 0.9854,
@@ -40,7 +40,7 @@
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T13:00:11.861Z",
+      "generatedAt": "2026-07-19T13:01:40.776Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

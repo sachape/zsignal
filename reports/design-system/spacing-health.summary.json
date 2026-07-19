@@ -1,0 +1,387 @@
+{
+  "reportVersion": 1,
+  "provider": "spacing",
+  "generatedAt": "2026-07-19T13:01:40.759Z",
+  "scope": {
+    "roots": [
+      "src",
+      "design-system"
+    ],
+    "extensions": [
+      ".tsx",
+      ".ts",
+      ".css"
+    ],
+    "excluded": [
+      "/node_modules/",
+      "/storybook-static/",
+      "/\\/dist\\//",
+      "/\\/build\\//",
+      "/\\.generated\\./",
+      "/design-system\\/artifacts\\//",
+      "/design-system\\/health\\//",
+      "/\\/\\.storybook\\//",
+      "/design-system\\/tokens\\.build\\.mjs$/",
+      "/design-system\\/stories\\/catalog\\//",
+      "/\\.test\\.[tj]sx?$/",
+      "/\\.spec\\.[tj]sx?$/",
+      "/\\/tokens\\//"
+    ],
+    "errorTrackPatterns": [
+      "/src\\/components\\/ui\\//",
+      "/design-system\\/stories\\/[^/]+\\.stories\\.tsx$/",
+      "/src\\/index\\.css$/"
+    ],
+    "filesScanned": 388,
+    "errorTrackFiles": 87,
+    "warnTrackFiles": 301,
+    "parseErrors": 0
+  },
+  "totals": {
+    "detected": 5130,
+    "compliant": 3008,
+    "needsDecision": 1035,
+    "violations": 1087,
+    "exceptions": 0,
+    "unclassified": 0,
+    "classifiable": 5130,
+    "byTrack": {
+      "error": 551,
+      "warn": 4579
+    },
+    "violationsByTrack": {
+      "error": 100,
+      "warn": 987
+    }
+  },
+  "scores": {
+    "valueCompliance": 0.5864,
+    "scaleAdoption": 0.9854,
+    "cssVarAdoption": 0,
+    "health": 0.7061
+  },
+  "confidence": {
+    "value": 0.9616,
+    "classifiableRatio": 1,
+    "unclassified": 0,
+    "exceptions": 0,
+    "lowConfidence": 103,
+    "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
+  },
+  "distribution": {
+    "byValue": {
+      "10px": 164,
+      "2px": 332,
+      "6px": 536,
+      "12px": 766,
+      "-6px": 3,
+      "-2px": 10,
+      "20px": 222,
+      "14px": 28,
+      "28px": 32,
+      "7px": 1,
+      "1px": 10,
+      "3px": 2,
+      "36px": 8,
+      "-12px": 6,
+      "44px": 1,
+      "18px": 1
+    },
+    "bySystem": {
+      "raw-css": 2,
+      "scale-utility": 5055,
+      "inline": 37,
+      "arbitrary": 36
+    },
+    "byStatus": {
+      "compliant": 3008,
+      "violation": 1087,
+      "needs-decision": 1035
+    }
+  },
+  "byProperty": [
+    {
+      "property": "padding-block",
+      "total": 492,
+      "violations": 242,
+      "needsDecision": 37
+    },
+    {
+      "property": "margin-top",
+      "total": 785,
+      "violations": 230,
+      "needsDecision": 109
+    },
+    {
+      "property": "gap",
+      "total": 1246,
+      "violations": 219,
+      "needsDecision": 299
+    },
+    {
+      "property": "padding-inline",
+      "total": 522,
+      "violations": 115,
+      "needsDecision": 144
+    },
+    {
+      "property": "row-gap",
+      "total": 323,
+      "violations": 103,
+      "needsDecision": 71
+    },
+    {
+      "property": "margin-right",
+      "total": 92,
+      "violations": 44,
+      "needsDecision": 0
+    },
+    {
+      "property": "padding",
+      "total": 583,
+      "violations": 36,
+      "needsDecision": 226
+    },
+    {
+      "property": "margin-bottom",
+      "total": 395,
+      "violations": 33,
+      "needsDecision": 99
+    },
+    {
+      "property": "top",
+      "total": 114,
+      "violations": 22,
+      "needsDecision": 6
+    },
+    {
+      "property": "right",
+      "total": 76,
+      "violations": 10,
+      "needsDecision": 4
+    },
+    {
+      "property": "margin-left",
+      "total": 39,
+      "violations": 9,
+      "needsDecision": 0
+    },
+    {
+      "property": "left",
+      "total": 73,
+      "violations": 5,
+      "needsDecision": 3
+    },
+    {
+      "property": "bottom",
+      "total": 36,
+      "violations": 4,
+      "needsDecision": 2
+    },
+    {
+      "property": "padding-right",
+      "total": 26,
+      "violations": 3,
+      "needsDecision": 0
+    },
+    {
+      "property": "padding-top",
+      "total": 76,
+      "violations": 3,
+      "needsDecision": 16
+    },
+    {
+      "property": "padding-left",
+      "total": 53,
+      "violations": 2,
+      "needsDecision": 7
+    },
+    {
+      "property": "padding-bottom",
+      "total": 45,
+      "violations": 2,
+      "needsDecision": 5
+    },
+    {
+      "property": "margin-block",
+      "total": 21,
+      "violations": 2,
+      "needsDecision": 1
+    },
+    {
+      "property": "margin-inline",
+      "total": 22,
+      "violations": 2,
+      "needsDecision": 0
+    },
+    {
+      "property": "inset-inline",
+      "total": 14,
+      "violations": 1,
+      "needsDecision": 2
+    },
+    {
+      "property": "inset",
+      "total": 66,
+      "violations": 0,
+      "needsDecision": 1
+    },
+    {
+      "property": "column-gap",
+      "total": 17,
+      "violations": 0,
+      "needsDecision": 3
+    },
+    {
+      "property": "inset-block",
+      "total": 10,
+      "violations": 0,
+      "needsDecision": 0
+    },
+    {
+      "property": "margin",
+      "total": 4,
+      "violations": 0,
+      "needsDecision": 0
+    }
+  ],
+  "topOffenders": [
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "violations": 61,
+      "needsDecision": 42,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "violations": 42,
+      "needsDecision": 19,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/ReseauxPage.tsx",
+      "violations": 31,
+      "needsDecision": 20,
+      "track": "warn"
+    },
+    {
+      "file": "src/components/AccountMenu.tsx",
+      "violations": 26,
+      "needsDecision": 0,
+      "track": "warn"
+    },
+    {
+      "file": "src/components/TeaserResultLayout.tsx",
+      "violations": 26,
+      "needsDecision": 25,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "violations": 23,
+      "needsDecision": 30,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
+      "violations": 21,
+      "needsDecision": 21,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/AnalysePage.tsx",
+      "violations": 20,
+      "needsDecision": 26,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/ResultPage.tsx",
+      "violations": 20,
+      "needsDecision": 24,
+      "track": "warn"
+    },
+    {
+      "file": "src/components/AppSidebar.tsx",
+      "violations": 19,
+      "needsDecision": 1,
+      "track": "warn"
+    },
+    {
+      "file": "src/components/content-queue/ClipPreparationPanel.tsx",
+      "violations": 19,
+      "needsDecision": 20,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/VodImportPage.tsx",
+      "violations": 19,
+      "needsDecision": 30,
+      "track": "warn"
+    },
+    {
+      "file": "src/components/ui/sidebar.tsx",
+      "violations": 18,
+      "needsDecision": 2,
+      "track": "error"
+    },
+    {
+      "file": "src/data/articles.tsx",
+      "violations": 17,
+      "needsDecision": 7,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/DashboardPage.tsx",
+      "violations": 17,
+      "needsDecision": 11,
+      "track": "warn"
+    }
+  ],
+  "topValues": [
+    {
+      "value": "6px",
+      "count": 536
+    },
+    {
+      "value": "2px",
+      "count": 332
+    },
+    {
+      "value": "10px",
+      "count": 164
+    },
+    {
+      "value": "14px",
+      "count": 28
+    },
+    {
+      "value": "-2px",
+      "count": 10
+    },
+    {
+      "value": "1px",
+      "count": 10
+    },
+    {
+      "value": "-6px",
+      "count": 3
+    },
+    {
+      "value": "3px",
+      "count": 2
+    },
+    {
+      "value": "7px",
+      "count": 1
+    },
+    {
+      "value": "18px",
+      "count": 1
+    }
+  ],
+  "recommendations": [
+    "1087 violations hors grille à migrer (progressif, validation visuelle Chromatic).",
+    "1035 usages 12/20/28px « needs-decision » : trancher après revue (garder / migrer / exception).",
+    "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner l'échelle Tailwind sur les tokens."
+  ]
+}

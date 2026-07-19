@@ -76,6 +76,10 @@ function main() {
   // agrégés dans totals) — garde le fichier exploitable sans le faire exploser.
   const persisted = { ...spacing, findings: spacing.findings.filter((f) => f.status !== "compliant"), findingsNote: `${spacing.totals.compliant} usages conformes agrégés dans totals, non listés.` };
   writeFileSync(resolve(OUT, "spacing-health.json"), JSON.stringify(persisted, null, 2) + "\n");
+  // Résumé SLIM (sans findings) pour le Dashboard Storybook — évite d'embarquer
+  // ~800 Ko dans le bundle. Le Dashboard ne lit QUE des agrégats.
+  const { findings: _drop, ...spacingSlim } = spacing;
+  writeFileSync(resolve(OUT, "spacing-health.summary.json"), JSON.stringify(spacingSlim, null, 2) + "\n");
   writeFileSync(resolve(OUT, "spacing-health.md"), spacingMarkdown(spacing));
   writeFileSync(resolve(OUT, "accessibility-health.json"), JSON.stringify(a11y, null, 2) + "\n");
   writeFileSync(resolve(OUT, "health-summary.json"), JSON.stringify(summary, null, 2) + "\n");
