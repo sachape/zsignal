@@ -8,6 +8,18 @@ Variables, Auto Layout. Objectif : une spec **reconstructible telle quelle** dan
 réel détecté ET demande explicite (voir garde-fous du SKILL). Chaque règle produit un élément
 **étiqueté** `certain / déduit / ambigu / absent` (voir `modes.md`).
 
+## Projection fidèle (ADR 0003 — obligatoire en Mode S)
+La synchronisation vers Figma est une **projection** des Design Tokens, jamais une interprétation :
+- **Aliases, collections, modes, dépendances reproduits à l'identique** — pas d'aplatissement vers
+  les valeurs finales ; on préserve les arêtes exactes, même irrégulières (ex. `badge.gap` → primitive).
+- **Divergences exposées, jamais résolues en silence** (Tokens/Code/Storybook/Figma) → au rapport
+  d'audit. Ex. `badge.radius = {radius.pill}` vs code `rounded-md` → Figma projette **pill** (intention),
+  l'écart reste visible.
+- **Chaîne de dépendances complète, ordre Primitives → Semantic → Component** : aucun alias ne doit
+  pointer vers une Variable inexistante ; jamais de projection partielle.
+
+Détail et justification : `docs/adr/0003-figma-projection-fidele.md`.
+
 ---
 
 ## 1. Nature Figma du bloc (avant tout mapping)
