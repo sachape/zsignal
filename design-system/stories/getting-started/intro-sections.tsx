@@ -1,36 +1,38 @@
-/* Sections riches pour la page Introduction — rendus premium natifs. */
+/* Sections riches pour la page Introduction (rendue en STORY CSF, pas MDX, pour
+   éviter que la typographie docs de Storybook n'écrase les couleurs). */
 import type { ReactNode } from "react";
 
-export function Hero() {
+function KpiCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.12),transparent_55%)] bg-card p-16">
-      <div className="flex flex-col gap-6">
-        <span className="w-fit rounded-full border border-primary/30 bg-primary/10 px-4 py-1 text-xs font-medium text-primary-strong">
-          Design System · v1
-        </span>
-        <h1 className="max-w-3xl text-5xl font-semibold leading-tight text-foreground">
-          Le Design System de <span className="text-primary">Streamnco</span>
-        </h1>
-        <p className="max-w-2xl text-lg text-muted-foreground">
-          Une source de vérité unique — tokens, composants, patterns — gouvernée par l'audit,
-          l'accessibilité bloquante, la régression visuelle et un tableau de bord de qualité en temps réel.
-        </p>
-        <div className="mt-2 flex flex-wrap gap-8">
-          <Kpi value="84 %" label="Spacing Health" />
-          <Kpi value="PASS" label="Accessibilité (CI)" />
-          <Kpi value="28" label="Composants" />
-          <Kpi value="3 couches" label="Architecture tokens" />
-        </div>
-      </div>
+    <div className="flex flex-col gap-1 rounded-xl border border-border bg-background p-6">
+      <span className="text-3xl font-semibold tabular-nums text-foreground">{value}</span>
+      <span className="text-sm text-muted-foreground">{label}</span>
     </div>
   );
 }
 
-export function Kpi({ value, label }: { value: string; label: string }) {
+export function Hero() {
   return (
-    <div className="flex flex-col">
-      <span className="text-3xl font-semibold tabular-nums text-foreground">{value}</span>
-      <span className="text-sm text-muted-foreground">{label}</span>
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-12 md:p-16">
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+      <div className="relative flex flex-col gap-6">
+        <span className="w-fit rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-medium text-primary">
+          Design System · v1
+        </span>
+        <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-foreground md:text-5xl">
+          Streamnco Design System
+        </h1>
+        <p className="max-w-2xl text-lg text-muted-foreground">
+          Single source of truth — tokens, composants, patterns — gouvernée par l'audit,
+          l'accessibilité bloquante, la régression visuelle et un tableau de bord de qualité en continu.
+        </p>
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <KpiCard value="84 %" label="Spacing Health" />
+          <KpiCard value="PASS" label="Accessibilité (CI)" />
+          <KpiCard value="28" label="Composants" />
+          <KpiCard value="3" label="Couches de tokens" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -38,7 +40,7 @@ export function Kpi({ value, label }: { value: string; label: string }) {
 export function SectionTitle({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs font-medium uppercase tracking-wide text-primary-strong">{eyebrow}</span>
+      <span className="text-xs font-medium uppercase tracking-wide text-primary">{eyebrow}</span>
       <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
       {children && <p className="max-w-2xl text-sm text-muted-foreground">{children}</p>}
     </div>
@@ -68,7 +70,7 @@ export function Principles() {
 
 export function Layers() {
   const layers = [
-    { t: "Foundations", d: "Colors, Typography, Spacing, Radius, Motion, Icons, Grid, Tokens" },
+    { t: "Foundations", d: "Colors, Typography, Spacing, Radius, Motion, Icons, Grid, Tokens…" },
     { t: "Components", d: "Actions, Forms, Feedback, Overlays, Navigation, Content & Structure" },
     { t: "Patterns", d: "Assemblages réutilisables : FilterBar, PageHeader, Sidebar…" },
     { t: "Templates", d: "Pages complètes (à venir)" },
@@ -91,24 +93,20 @@ export function Layers() {
 
 export function LinkGrid() {
   const links = [
-    { t: "Architecture", d: "Schémas : tokens, pipeline, contribution, gouvernance", path: "getting-started-architecture--docs" },
-    { t: "Nomenclature", d: "Le vocabulaire et l'arborescence", path: "getting-started-nomenclature--docs" },
-    { t: "Contribution", d: "Comment ajouter un composant / une PR", path: "getting-started-contribution--docs" },
-    { t: "Governance", d: "a11y, spacing baseline, CI, Chromatic", path: "getting-started-governance--docs" },
-    { t: "Foundations · Colors", d: "Les tokens de couleur sémantiques", path: "foundations-colors--overview" },
-    { t: "Health Dashboard", d: "La qualité du DS en temps réel", path: "health--overview" },
+    { t: "Architecture", d: "Schémas : tokens, pipeline, contribution, gouvernance" },
+    { t: "Nomenclature", d: "Le vocabulaire et l'arborescence" },
+    { t: "Contribution", d: "Comment ajouter un composant / une PR" },
+    { t: "Governance", d: "a11y, spacing baseline, CI, Chromatic" },
+    { t: "Foundations · Colors", d: "Les tokens de couleur sémantiques" },
+    { t: "Health Dashboard", d: "La qualité du DS en temps réel" },
   ];
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {links.map((l) => (
-        <a
-          key={l.t}
-          href={`?path=/${l.path.includes("--docs") ? "docs" : "story"}/${l.path}`}
-          className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
-        >
-          <span className="text-base font-semibold text-foreground group-hover:text-primary-strong">{l.t} →</span>
+        <div key={l.t} className="flex flex-col gap-2 rounded-xl border border-border bg-card p-6 transition-colors hover:border-primary/40">
+          <span className="text-base font-semibold text-foreground">{l.t}</span>
           <span className="text-sm text-muted-foreground">{l.d}</span>
-        </a>
+        </div>
       ))}
     </div>
   );
