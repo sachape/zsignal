@@ -1,5 +1,8 @@
 # Écrire une story — règles du Design System
 
+> Règles **globales** du dépôt (Git, branches, commits, Pull Requests, CI, reviews) :
+> [`../CONTRIBUTING.md`](../CONTRIBUTING.md). Ce fichier-ci couvre le **spécifique DS** ci-dessous.
+
 Le Storybook est à la fois **documentation**, **playground** et **support de tests**.
 Une story doit tenir une **promesse claire et stable** : son nom décrit son rendu,
 et aucun Control ne doit pouvoir le contredire.
