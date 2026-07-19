@@ -1,0 +1,27 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { TokenHierarchy, Pipeline, ContributionWorkflow, Governance } from "./architecture-diagrams";
+
+<Meta title="Getting Started/Architecture" />
+
+# Architecture
+
+Comment ce Design System s'articule — des valeurs brutes jusqu'à l'application, et comment la
+qualité est gouvernée à chaque étape.
+
+<div style={{ display: "flex", flexDirection: "column", gap: "2rem", marginTop: "2rem" }}>
+  <TokenHierarchy />
+  <Pipeline />
+  <ContributionWorkflow />
+  <Governance />
+</div>
+
+---
+
+## En résumé
+
+- Les **tokens** (primitive → semantic → component) sont la source unique de vérité, générés par
+  **Style Dictionary** vers CSS / SCSS / TS / JSON.
+- Les **Components** consomment des tokens **sémantiques** (garde-fou `lint:tokens`), sont documentés et
+  **testés** (a11y bloquante) dans Storybook, puis composés en **Patterns** et **Templates**.
+- Chaque contribution passe une **CI** (typecheck, tests, a11y, `check:spacing`), un **audit Health** et
+  **Chromatic** avant merge — voir **Governance**.
