@@ -5,6 +5,8 @@ const config: StorybookConfig = {
     // Les stories du DS (primitives, patterns) — testées.
     "../design-system/**/*.mdx",
     "../design-system/stories/*.stories.@(js|jsx|mjs|ts|tsx)",
+    // Pages Foundations (Colors, Typography, Spacing…) : légères → testées a11y.
+    "../design-system/stories/foundations/*.stories.@(js|jsx|mjs|ts|tsx)",
     // Sous Vitest, on EXCLUT deux dossiers navigables mais hors smoke-test :
     //  - docs/    : pages de doc (explorateur Tokens) — 100s de cartes qui
     //               saturent le navigateur headless, sans valeur de smoke-test.
