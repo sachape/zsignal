@@ -11,7 +11,7 @@ function Box({ children, h = "h-12" }: { children: React.ReactNode; h?: string }
 function Demo({ title, desc, children }: { title: string; desc: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         <h2 className="text-base font-semibold text-foreground">{title}</h2>
         <p className="text-sm text-muted-foreground">{desc}</p>
       </div>

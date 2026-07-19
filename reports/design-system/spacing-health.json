@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-19T16:50:20.890Z",
+  "generatedAt": "2026-07-19T17:10:24.329Z",
   "scope": {
     "roots": [
       "src",
@@ -32,42 +32,42 @@
       "/design-system\\/stories\\/[^/]+\\.stories\\.tsx$/",
       "/src\\/index\\.css$/"
     ],
-    "filesScanned": 407,
+    "filesScanned": 414,
     "errorTrackFiles": 87,
-    "warnTrackFiles": 320,
+    "warnTrackFiles": 327,
     "parseErrors": 0
   },
   "totals": {
-    "detected": 5376,
-    "preferred": 2679,
-    "compactAllowed": 1568,
-    "violations": 1123,
+    "detected": 5392,
+    "preferred": 2742,
+    "compactAllowed": 1527,
+    "violations": 1117,
     "exceptions": 6,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5376,
-    "compliant": 4253,
+    "classifiable": 5392,
+    "compliant": 4275,
     "byTrack": {
       "error": 552,
-      "warn": 4824
+      "warn": 4840
     },
     "violationsByTrack": {
       "error": 90,
-      "warn": 1033
+      "warn": 1027
     },
     "compactByTrack": {
-      "error": 121,
-      "warn": 1447
+      "error": 120,
+      "warn": 1407
     }
   },
   "scores": {
-    "valueCompliance": 0.7911,
+    "valueCompliance": 0.7928,
     "scaleAdoption": 0.9872,
     "cssVarAdoption": 0,
-    "health": 0.8499
+    "health": 0.8511
   },
   "confidence": {
-    "value": 0.9631,
+    "value": 0.9632,
     "classifiableRatio": 1,
     "unclassified": 0,
     "exceptions": 6,
@@ -75,25 +75,25 @@
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
   "compactBreakdown": {
-    "total": 1568,
+    "total": 1527,
     "byValue": {
-      "4px": 543,
-      "12px": 787,
+      "4px": 523,
+      "12px": 766,
       "20px": 222,
       "-4px": 16
     }
   },
   "distribution": {
     "byTier": {
-      "preferred": 2679,
-      "violation": 1123,
-      "compact-allowed": 1568,
+      "preferred": 2742,
+      "violation": 1117,
+      "compact-allowed": 1527,
       "exception": 6
     },
     "byValue": {
-      "10px": 165,
-      "2px": 335,
-      "6px": 528,
+      "10px": 164,
+      "2px": 331,
+      "6px": 527,
       "-6px": 3,
       "-2px": 10,
       "14px": 27,
@@ -107,35 +107,35 @@
     },
     "bySystem": {
       "raw-css": 2,
-      "scale-utility": 5307,
+      "scale-utility": 5323,
       "inline": 31,
       "arbitrary": 36
     }
   },
   "byProperty": [
     {
-      "property": "padding-block",
-      "total": 508,
-      "violations": 239,
-      "compactAllowed": 86
-    },
-    {
       "property": "margin-top",
       "total": 787,
       "violations": 239,
-      "compactAllowed": 249
+      "compactAllowed": 248
+    },
+    {
+      "property": "padding-block",
+      "total": 509,
+      "violations": 238,
+      "compactAllowed": 81
     },
     {
       "property": "gap",
-      "total": 1403,
-      "violations": 223,
-      "compactAllowed": 462
+      "total": 1413,
+      "violations": 219,
+      "compactAllowed": 432
     },
     {
       "property": "padding-inline",
-      "total": 538,
-      "violations": 123,
-      "compactAllowed": 149
+      "total": 539,
+      "violations": 122,
+      "compactAllowed": 147
     },
     {
       "property": "row-gap",
@@ -145,7 +145,7 @@
     },
     {
       "property": "padding",
-      "total": 626,
+      "total": 628,
       "violations": 48,
       "compactAllowed": 247
     },
@@ -153,7 +153,7 @@
       "property": "margin-right",
       "total": 94,
       "violations": 44,
-      "compactAllowed": 28
+      "compactAllowed": 26
     },
     {
       "property": "margin-bottom",
@@ -181,9 +181,9 @@
     },
     {
       "property": "margin-left",
-      "total": 40,
+      "total": 39,
       "violations": 9,
-      "compactAllowed": 11
+      "compactAllowed": 10
     },
     {
       "property": "left",
@@ -211,7 +211,7 @@
     },
     {
       "property": "padding-bottom",
-      "total": 54,
+      "total": 57,
       "violations": 2,
       "compactAllowed": 10
     },
@@ -353,15 +353,15 @@
   "topValues": [
     {
       "value": "6px",
-      "count": 528
+      "count": 527
     },
     {
       "value": "2px",
-      "count": 335
+      "count": 331
     },
     {
       "value": "10px",
-      "count": 165
+      "count": 164
     },
     {
       "value": "28px",
@@ -40470,20 +40470,6 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
-      "file": "design-system/stories/Introduction.stories.tsx",
-      "line": 15,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
       "file": "design-system/stories/Popover.stories.tsx",
       "line": 27,
       "property": "row-gap",
@@ -40875,670 +40861,8 @@
       "reason": "valeur brute hors système"
     },
     {
-      "file": "design-system/stories/foundations/Accessibility.stories.tsx",
-      "line": 11,
-      "property": "margin-top",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Accessibility.stories.tsx",
-      "line": 12,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Borders.stories.tsx",
-      "line": 27,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 12,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 23,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 24,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 28,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 97,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 99,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 103,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 105,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 109,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 111,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 121,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 123,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 136,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 136,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 137,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Colors.stories.tsx",
-      "line": 137,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Layout.stories.tsx",
-      "line": 14,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Opacity.stories.tsx",
-      "line": 28,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/foundations/Typography.stories.tsx",
-      "line": 37,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
       "file": "design-system/stories/getting-started/architecture-diagrams.tsx",
       "line": 7,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/getting-started/intro-sections.tsx",
-      "line": 7,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/getting-started/intro-sections.tsx",
-      "line": 19,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/getting-started/intro-sections.tsx",
-      "line": 80,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 43,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 43,
-      "property": "padding-inline",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 43,
-      "property": "padding-block",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 59,
-      "property": "margin-right",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 90,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 106,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 124,
-      "property": "gap",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 147,
-      "property": "gap",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 188,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 188,
-      "property": "padding-block",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 189,
-      "property": "gap",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 208,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 213,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 214,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 215,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 215,
-      "property": "margin-left",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 216,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Overview.stories.tsx",
-      "line": 217,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Spacing.stories.tsx",
-      "line": 41,
-      "property": "margin-right",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Spacing.stories.tsx",
-      "line": 100,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "design-system/stories/health/Spacing.stories.tsx",
-      "line": 144,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -41552,9 +40876,9 @@
     }
   ],
   "recommendations": [
-    "1123 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
-    "1568 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
+    "1117 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1527 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ],
-  "findingsNote": "2679 usages preferred agrégés dans totals, non listés."
+  "findingsNote": "2742 usages preferred agrégés dans totals, non listés."
 }

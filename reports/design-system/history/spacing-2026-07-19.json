@@ -1,36 +1,36 @@
 {
-  "generatedAt": "2026-07-19T16:50:20.890Z",
+  "generatedAt": "2026-07-19T17:10:24.329Z",
   "scores": {
-    "valueCompliance": 0.7911,
+    "valueCompliance": 0.7928,
     "scaleAdoption": 0.9872,
     "cssVarAdoption": 0,
-    "health": 0.8499
+    "health": 0.8511
   },
   "totals": {
-    "detected": 5376,
-    "preferred": 2679,
-    "compactAllowed": 1568,
-    "violations": 1123,
+    "detected": 5392,
+    "preferred": 2742,
+    "compactAllowed": 1527,
+    "violations": 1117,
     "exceptions": 6,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5376,
-    "compliant": 4253,
+    "classifiable": 5392,
+    "compliant": 4275,
     "byTrack": {
       "error": 552,
-      "warn": 4824
+      "warn": 4840
     },
     "violationsByTrack": {
       "error": 90,
-      "warn": 1033
+      "warn": 1027
     },
     "compactByTrack": {
-      "error": 121,
-      "warn": 1447
+      "error": 120,
+      "warn": 1407
     }
   },
   "confidence": {
-    "value": 0.9631,
+    "value": 0.9632,
     "classifiableRatio": 1,
     "unclassified": 0,
     "exceptions": 6,

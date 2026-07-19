@@ -22,7 +22,7 @@ const TONE: Record<Tone, { variant: any; glyph: string }> = {
 };
 function StatusBadge({ tone, children }: { tone: Tone; children: ReactNode }) {
   const t = TONE[tone];
-  return (<Badge variant={t.variant}><span aria-hidden className="mr-1">{t.glyph}</span>{children}</Badge>);
+  return (<Badge variant={t.variant}><span aria-hidden className="mr-2">{t.glyph}</span>{children}</Badge>);
 }
 
 const COUNT_ORDER: MState[] = ["measured", "documented", "planned", "missing"];
@@ -45,7 +45,7 @@ function Overview() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 p-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-semibold">Design System Health</h1>
           <p className="text-sm text-muted-foreground">Synthèse & maturité · source <code>design-system/health/</code> · contrat v{summary.reportVersion}</p>
         </div>
@@ -59,7 +59,7 @@ function Overview() {
       <Card>
         <CardHeader className="pb-2">
           <CardDescription>Overall Health</CardDescription>
-          <div className="flex flex-wrap items-baseline gap-3">
+          <div className="flex flex-wrap items-baseline gap-4">
             <CardTitle className="text-5xl tabular-nums">{pct(o.score)}</CardTitle>
             <StatusBadge tone={overallTone}>{o.label}</StatusBadge>
             {deltaStr ? <span className={`text-sm tabular-nums ${o.delta >= 0 ? "text-success" : "text-destructive"}`}>{deltaStr}</span> : <span className="text-sm text-muted-foreground">nouvelle mesure</span>}
@@ -80,7 +80,7 @@ function Overview() {
       </Card>
 
       {/* Répartition de maturité */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">Maturité — {totalDomains} domaines, aucun masqué faute de métrique.</p>
         <div className="flex flex-wrap gap-2">{COUNT_ORDER.map((k) => <StateChip key={k} state={k}>{m.counts[k]} {STATE[k].label}</StateChip>)}</div>
       </div>
@@ -116,8 +116,8 @@ function Overview() {
                     {headline && <span className="text-sm font-semibold tabular-nums text-foreground">{headline}</span>}
                   </div>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  <div className="flex flex-wrap gap-1.5">
+                <CardContent className="flex flex-col gap-4">
+                  <div className="flex flex-wrap gap-2">
                     {COUNT_ORDER.filter((k) => c[k] > 0).map((k) => <StateChip key={k} state={k}>{c[k]}</StateChip>)}
                   </div>
                   <XLink to={`${a.slug}--report`}>Voir {a.area} →</XLink>
@@ -134,8 +134,8 @@ function Overview() {
                 <span className="text-sm font-semibold tabular-nums text-foreground">{pct(summary.adoption?.scaleAdoption)}</span>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+            <CardContent className="flex flex-col gap-4">
+              <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                 <span>Violations <strong className="text-foreground tabular-nums">{summary.debt?.violations}</strong></span>
                 <span>Cœur <strong className="text-destructive tabular-nums">{summary.debt?.violationsCore}</strong></span>
                 <span>Exceptions <strong className="text-foreground tabular-nums">{summary.debt?.exceptions}</strong></span>

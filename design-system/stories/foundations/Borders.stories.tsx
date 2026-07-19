@@ -24,7 +24,7 @@ function Borders() {
       </header>
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
         {BORDERS.map((b) => (
-          <div key={b.label} className="flex flex-col items-center gap-3">
+          <div key={b.label} className="flex flex-col items-center gap-4">
             <div className={`h-20 w-full rounded-lg bg-card ${b.cls}`} />
             <div className="flex flex-col items-center">
               <code className="text-xs font-medium text-foreground">{b.label}</code>

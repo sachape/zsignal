@@ -12,7 +12,7 @@ const inv = ((Object.values(reports)[0] as any)?.inventory ?? {}) as {
 
 function KpiCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className="flex flex-col gap-1 rounded-xl border border-border bg-background p-6">
+    <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-6">
       <span className="text-3xl font-semibold tabular-nums text-foreground">{value}</span>
       <span className="text-sm text-muted-foreground">{label}</span>
     </div>
@@ -30,7 +30,7 @@ export function Hero() {
     <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-12 md:p-16">
       <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="relative flex flex-col gap-6">
-        <span className="w-fit rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-medium text-primary">
+        <span className="w-fit rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-xs font-medium text-primary">
           Design System · v1
         </span>
         <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-foreground md:text-5xl">
@@ -67,7 +67,7 @@ export function NavGrid() {
           <>
             <div className="flex items-center gap-2">
               <span className="text-base font-semibold text-foreground">{e.t}</span>
-              {e.soon && <span className="rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">à venir</span>}
+              {e.soon && <span className="rounded-full border border-warning/30 bg-warning/10 px-2 py-2 text-xs font-medium text-warning">à venir</span>}
             </div>
             <span className="text-sm text-muted-foreground">{e.d}</span>
           </>
@@ -127,7 +127,7 @@ export function Layers() {
     { t: "Catalogue", d: "Composants feature spécifiques au produit" },
   ];
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {layers.map((l, idx) => (
         <div key={l.t} className="flex items-center gap-6 rounded-xl border border-border bg-card p-6">
           <span className="text-sm font-semibold tabular-nums text-muted-foreground">{String(idx + 1).padStart(2, "0")}</span>

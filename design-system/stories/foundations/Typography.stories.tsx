@@ -34,7 +34,7 @@ function Typography() {
       <div className="flex flex-col divide-y divide-border rounded-xl border border-border">
         {ROWS.map((r) => (
           <div key={r.role} className="grid grid-cols-1 gap-4 p-6 md:grid-cols-[220px_1fr] md:items-baseline">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-foreground">{r.role}</span>
               <span className="font-mono text-xs text-muted-foreground">{r.px} · w{r.weight} · lh {r.lh}</span>
               <span className="text-xs text-muted-foreground">{r.usage}</span>
