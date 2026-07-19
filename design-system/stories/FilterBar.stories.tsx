@@ -13,7 +13,7 @@ function FilterBar() {
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3 w-[640px]">
       <Select defaultValue="all">
-        <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-40" aria-label="Plateforme"><SelectValue /></SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Toutes plateformes</SelectItem>
           <SelectItem value="twitch">Twitch</SelectItem>
@@ -21,7 +21,7 @@ function FilterBar() {
         </SelectContent>
       </Select>
       <Select defaultValue="7d">
-        <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-36" aria-label="Période"><SelectValue /></SelectTrigger>
         <SelectContent>
           <SelectItem value="24h">24 h</SelectItem>
           <SelectItem value="7d">7 jours</SelectItem>

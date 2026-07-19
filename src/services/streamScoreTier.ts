@@ -40,7 +40,9 @@ export function getTierTheme(tier: ScoreTier): TierTheme {
     case "low":
       return {
         strokeVar: "var(--destructive)",
-        textClass: "text-destructive",
+        // text-destructive-strong (rouge clair) : le numéro de score est du texte
+        // sur fond sombre ; text-destructive (rouge d'aplat) échouait AA (4.02:1).
+        textClass: "text-destructive-strong",
         surfaceClass: "border-destructive/30 bg-destructive/5",
         progressClass: "bg-destructive",
         glowClass: "group-hover:shadow-[0_0_18px_hsl(var(--destructive)/0.4)]",

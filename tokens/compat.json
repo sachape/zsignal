@@ -79,7 +79,8 @@
     },
     "destructive-foreground": {
       "$type": "color",
-      "$value": "{color.neutral.50}"
+      "$value": "{color.white}",
+      "$description": "Blanc pur (pas neutral-50) : 4.80:1 sur le rouge danger vs 4.48 avec neutral-50, qui échouait AA. Voir aussi color.text.on-danger."
     },
     "success": {
       "$type": "color",

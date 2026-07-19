@@ -13,7 +13,8 @@
       "tertiary":  { "$value": "{color.neutral.500}" },
       "disabled":  { "$value": "{color.neutral.400}" },
       "inverse":   { "$value": "{color.neutral.0}" },
-      "brand":     { "$value": "{color.lime.text}", "$description": "Lime assombri : lisible en texte sur clair." }
+      "brand":     { "$value": "{color.lime.text}", "$description": "Lime assombri : lisible en texte sur clair." },
+      "danger":    { "$value": "{color.red.600}", "$description": "Override clair : rouge FONCÉ (red-600 = 5.62:1 sur fond clair). En sombre c'est red-400 ; red-400 sur fond clair échouait à 2.93." }
     },
     "border": {
       "default": { "$value": "{color.neutral.300}" },
