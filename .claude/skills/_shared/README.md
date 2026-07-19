@@ -45,3 +45,4 @@ Quality Gates, Storybook, rapports Health, conventions Git.)*
 - `storybook.md` — Storybook comme plateforme (discipline stories, navigation, pages).
 - `accessibility.md` — a11y comme principe commun bloquant (exigences, sources, validation).
 - `sources-and-evidence.md` — hiérarchie d'autorité, registres (fait/inférence/hypothèse), honnêteté.
+- `output-format.md` — convention d'en-tête d'activation commune (squelette + champs par Skill).
