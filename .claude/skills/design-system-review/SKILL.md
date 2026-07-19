@@ -10,6 +10,18 @@ Le **référent qualité** du Design System. Le Guardian (`design-to-code`) cons
 défaut** : ne modifie des fichiers que si le mode correction est explicitement demandé. Il applique
 les règles du socle `../_shared/`, ne les redéfinit pas.
 
+## Annonce d'activation
+Ouvrir TOUJOURS la réponse par un en-tête qui rend l'activation et le cadrage visibles,
+avant les findings :
+
+> ## 🔎 Design System Reviewer
+> **Pourquoi** — audit de conformité DS de la cible (lecture seule, sans corriger).
+> **Classification** — le type de cible (composant, token, Storybook, PR, DS entier…).
+> **Domaines analysés** — cocher uniquement ceux réellement appliqués (Tokens · Storybook · A11y · ADR…).
+> **Verdict** — `PASS` / `PASS WITH WARNINGS` / `PARTIAL` / `FAIL` / `INCOMPLETE`.
+
+Puis les findings. Ne pas commencer directement par l'analyse sans cet en-tête.
+
 ## Quand l'utiliser
 Vérifier qu'un diff / une feature / un composant / des stories respectent le DS avant de
 merger. Distinct de `/ui-qa` (rendu visible) : ici on audite la **conformité système**.
@@ -47,6 +59,10 @@ Ne pas gonfler les sévérités.
 Règle · Preuve · Fichier · Ligne/zone · Impact · Correction minimale · Correction structurelle
 éventuelle · Niveau de confiance. **Jamais de violation sans preuve.**
 
+**Format scannable** par finding : **titre court** → **résumé en une ligne** → **détails repliables**
+(`<details>` contenant Règle · Preuve · Fichier · Ligne · Impact · Correction · Confiance). Le lecteur
+doit saisir chaque finding sans déplier ; le détail reste disponible mais ne domine pas la lecture.
+
 ## Verdict (annoncé AVANT les findings)
 `PASS` (aucune blocker/major) · `PASS WITH WARNINGS` (mineures/conseils seulement) ·
 `PARTIAL` (conforme en partie) · `FAIL` (≥ 1 blocker/major) · `INCOMPLETE` (preuves/validations insuffisantes).
@@ -63,6 +79,8 @@ Distinguer **erreur de script** et **violation trouvée**.
 **verdict** · nombre de findings **par sévérité** · **Quality Gates exécutés** et leur résultat réel
 (`../_shared/validation.md`) · **recommandations principales**. Findings **regroupés par sévérité**,
 chacun : problème → pourquoi c'en est un → recommandation (structure « Preuves »).
+Terminer par un bloc **Résumé** lisible en 5 s : le **verdict**, le **compte par sévérité**
+(x blockers · y majors · z minors · w advisory) et l'**ordre de correction** prioritaire (1, 2, 3…).
 
 ## Définition de terminé
 Périmètre et sources posés ; verdict rendu ; chaque violation prouvée et cotée ; points
