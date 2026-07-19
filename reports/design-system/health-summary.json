@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T15:59:57.266Z",
+  "generatedAt": "2026-07-19T16:15:23.008Z",
   "overall": {
-    "score": 0.8814406122448979,
-    "previous": 0.8814406122448979,
-    "delta": 0,
+    "score": 0.881620612244898,
+    "previous": 0.881620612244898,
+    "delta": 0.000180000000000069,
     "label": "Good",
     "dimensions": [
       {
@@ -20,7 +20,7 @@
         "label": "Spacing",
         "weight": 0.3,
         "tier": "important",
-        "value": 0.8497,
+        "value": 0.8503,
         "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
       },
       {
@@ -39,43 +39,264 @@
     ],
     "note": "Score pondéré (pas une moyenne simple). Seules les dimensions réellement mesurées entrent dans le calcul — aucune métrique non mesurée n'influence ce score."
   },
-  "foundations": {
-    "items": [
+  "maturity": {
+    "states": {
+      "measured": {
+        "label": "Measured",
+        "glyph": "●",
+        "order": 0
+      },
+      "documented": {
+        "label": "Documented",
+        "glyph": "◆",
+        "order": 1
+      },
+      "planned": {
+        "label": "Planned",
+        "glyph": "◷",
+        "order": 2
+      },
+      "missing": {
+        "label": "Missing",
+        "glyph": "○",
+        "order": 3
+      }
+    },
+    "areas": [
       {
-        "name": "Colors",
-        "state": "documented"
+        "area": "Foundations",
+        "note": "Les décisions visuelles fondatrices — attendues, pas seulement celles consommées par l'app.",
+        "domains": [
+          {
+            "key": "colors",
+            "label": "Colors",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "typography",
+            "label": "Typography",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "spacing",
+            "label": "Spacing",
+            "status": "measured",
+            "measure": "85%",
+            "note": "audit spacing (value + scale adoption)"
+          },
+          {
+            "key": "radius",
+            "label": "Radius",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "motion",
+            "label": "Motion",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "shadows",
+            "label": "Shadows",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "borders",
+            "label": "Borders",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "elevation",
+            "label": "Elevation",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "icons",
+            "label": "Icons",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "grid",
+            "label": "Grid",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "opacity",
+            "label": "Opacity",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          },
+          {
+            "key": "darkmode",
+            "label": "Dark Mode",
+            "status": "documented",
+            "measure": null,
+            "note": "page de référence publiée"
+          }
+        ]
       },
       {
-        "name": "Typography",
-        "state": "documented"
+        "area": "Components",
+        "domains": [
+          {
+            "key": "comp-coverage",
+            "label": "Story coverage",
+            "status": "measured",
+            "measure": "63%",
+            "note": "31/49 composants ui/ avec story"
+          },
+          {
+            "key": "comp-a11y",
+            "label": "A11y coverage",
+            "status": "measured",
+            "measure": "PASS",
+            "note": "toutes les stories passent axe (mode error)"
+          },
+          {
+            "key": "comp-docs",
+            "label": "Docs coverage (MDX par composant)",
+            "status": "planned",
+            "measure": null,
+            "note": "part des composants avec doc dédiée — prévu"
+          }
+        ]
       },
       {
-        "name": "Spacing",
-        "state": "measured",
-        "value": "85%"
+        "area": "Tokens",
+        "domains": [
+          {
+            "key": "tok-inv",
+            "label": "Inventory",
+            "status": "measured",
+            "measure": "390",
+            "note": "primitive 132 · semantic 83 · component 127"
+          },
+          {
+            "key": "tok-hyg",
+            "label": "Token hygiene",
+            "status": "planned",
+            "measure": null,
+            "note": "tokens inutilisés / dépréciés — évolution assumée"
+          }
+        ]
       },
       {
-        "name": "Radius",
-        "state": "documented"
+        "area": "Accessibility & Quality gates",
+        "domains": [
+          {
+            "key": "a11y",
+            "label": "Accessibility",
+            "status": "measured",
+            "measure": "PASS",
+            "note": "axe bloquante en CI (mode error)"
+          },
+          {
+            "key": "typecheck",
+            "label": "Typecheck",
+            "status": "measured",
+            "measure": "Gate",
+            "note": "tsc --noEmit, gate CI verte"
+          },
+          {
+            "key": "lint",
+            "label": "Lint tokens",
+            "status": "measured",
+            "measure": "Gate",
+            "note": "hex/primitive interdits dans ui/"
+          },
+          {
+            "key": "build",
+            "label": "Storybook build",
+            "status": "measured",
+            "measure": "Gate",
+            "note": "build vérifié à chaque push"
+          },
+          {
+            "key": "baseline",
+            "label": "Spacing baseline",
+            "status": "measured",
+            "measure": "Active",
+            "note": "anti-régression (ratchet)"
+          }
+        ]
       },
       {
-        "name": "Motion",
-        "state": "documented"
+        "area": "Delivery & Visual regression",
+        "domains": [
+          {
+            "key": "ci",
+            "label": "CI pipeline",
+            "status": "measured",
+            "measure": "Green",
+            "note": "ci.yml — gates typecheck/lint/build/a11y"
+          },
+          {
+            "key": "chromatic",
+            "label": "Chromatic baseline",
+            "status": "missing",
+            "measure": null,
+            "note": "Chromatic installé mais aucune baseline acceptée"
+          },
+          {
+            "key": "vr",
+            "label": "Visual regression",
+            "status": "missing",
+            "measure": null,
+            "note": "diff automatique par story — dépend de la baseline Chromatic"
+          }
+        ]
       },
       {
-        "name": "Shadows",
-        "state": "documented"
-      },
-      {
-        "name": "Borders",
-        "state": "documented"
-      },
-      {
-        "name": "Accessibility",
-        "state": "documented"
+        "area": "Documentation & Performance",
+        "domains": [
+          {
+            "key": "docs",
+            "label": "Documentation & guides",
+            "status": "documented",
+            "measure": null,
+            "note": "Getting Started, CONTRIBUTING, pages MDX — présent, non scoré"
+          },
+          {
+            "key": "governance",
+            "label": "Governance & contribution",
+            "status": "documented",
+            "measure": null,
+            "note": "workflow de contribution, gouvernance spacing"
+          },
+          {
+            "key": "perf",
+            "label": "Performance budgets",
+            "status": "planned",
+            "measure": null,
+            "note": "budgets bundle/CSS — évolution assumée"
+          }
+        ]
       }
     ],
-    "note": "Les fondations existent et sont documentées. Une seule est aujourd'hui mesurée quantitativement (Spacing) — les autres attendent le chantier Tokens V2."
+    "counts": {
+      "measured": 10,
+      "documented": 13,
+      "planned": 3,
+      "missing": 2
+    }
   },
   "components": {
     "total": 49,
@@ -131,50 +352,28 @@
     }
   ],
   "adoption": {
-    "scaleAdoption": 0.9871,
-    "compactShare": 0.2916276456265218,
+    "scaleAdoption": 0.9872,
+    "compactShare": 0.2906284864261807,
     "cssVarAdoption": 0
   },
   "debt": {
-    "violations": 1117,
+    "violations": 1121,
     "violationsCore": 90,
     "exceptions": 6,
     "baseline": 1118
   },
-  "roadmap": [
-    {
-      "name": "Chromatic baseline",
-      "note": "établir une baseline visuelle acceptée"
-    },
-    {
-      "name": "Visual regression",
-      "note": "diff automatique par story"
-    },
-    {
-      "name": "Docs coverage",
-      "note": "part des composants avec doc MDX"
-    },
-    {
-      "name": "Token hygiene",
-      "note": "tokens inutilisés / dépréciés"
-    },
-    {
-      "name": "Foundations scoring",
-      "note": "Typography, Radius, Motion mesurés (Tokens V2)"
-    }
-  ],
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T15:59:57.246Z",
+      "generatedAt": "2026-07-19T16:15:22.988Z",
       "scores": {
-        "valueCompliance": 0.7908,
-        "scaleAdoption": 0.9871,
+        "valueCompliance": 0.7916,
+        "scaleAdoption": 0.9872,
         "cssVarAdoption": 0,
-        "health": 0.8497
+        "health": 0.8503
       },
       "confidence": {
-        "value": 0.9629,
+        "value": 0.9631,
         "classifiableRatio": 1,
         "unclassified": 0,
         "exceptions": 6,
@@ -182,33 +381,33 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5339,
-        "preferred": 2659,
-        "compactAllowed": 1557,
-        "violations": 1117,
+        "detected": 5378,
+        "preferred": 2688,
+        "compactAllowed": 1563,
+        "violations": 1121,
         "exceptions": 6,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5339,
-        "compliant": 4222,
+        "classifiable": 5378,
+        "compliant": 4257,
         "byTrack": {
           "error": 552,
-          "warn": 4787
+          "warn": 4826
         },
         "violationsByTrack": {
           "error": 90,
-          "warn": 1027
+          "warn": 1031
         },
         "compactByTrack": {
           "error": 121,
-          "warn": 1436
+          "warn": 1442
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T15:59:57.251Z",
+      "generatedAt": "2026-07-19T16:15:22.993Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,
