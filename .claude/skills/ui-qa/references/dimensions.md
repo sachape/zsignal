@@ -25,11 +25,10 @@ loading · skeleton · empty · partial · error · retry · success · complete
 permission denied · contenu extrême.
 
 ## Accessibilité
-clavier · focus visible · ordre de focus · nom accessible · labels · erreurs annoncées ·
-contraste · information non portée uniquement par la couleur · mouvement réduit · titres ·
-landmarks · zoom · tailles tactiles.
-_(L'addon-a11y Storybook tourne en mode `error` : un contrôle initial existe déjà, mais il ne
-remplace pas la vérification manuelle.)_
+Vérifier **dans le rendu réel** les exigences de `../../_shared/accessibility.md`. L'audit axe
+(mode `error`) est un contrôle initial, **pas** un substitut à la vérification manuelle.
+À l'œil / au clavier : focus réellement visible · ordre de focus · zoom 200 % · landmarks en
+page réelle · tailles tactiles · contraste perçu.
 
 ## Robustesse visuelle
 overflow · chevauchement · z-index · sticky · modales · scroll lock · contenu long ·

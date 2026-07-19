@@ -30,6 +30,14 @@ Un Skill **garde** ses consignes procédurales, mais **ne duplique pas** les rè
 il écrit « Selon `_shared/design-system.md`… » plutôt que de recopier la règle. Ainsi une
 règle commune se corrige **une seule fois**, ici, et tous les Skills en héritent.
 
+## Évolution du socle
+Toute règle commune présente dans **plusieurs** Skills doit être considérée comme candidate à une
+extraction vers `_shared/`. Une duplication **ponctuelle** peut être acceptable pendant un chantier ;
+dès qu'une même règle est utilisée **durablement** par plusieurs Skills, elle devient une règle
+commune du socle. Objectif : `_shared/` reste la source de vérité des règles transversales, chaque
+Skill ne garde que son comportement spécialisé. *(Aujourd'hui l'a11y ; demain peut-être tokens,
+Quality Gates, Storybook, rapports Health, conventions Git.)*
+
 ## Fichiers
 - `repo-map.md` — carte factuelle du dépôt (chemins, stack, ce qui existe / n'existe pas).
 - `design-system.md` — architecture des tokens, Foundations, interdits, réutilisation, gouvernance spacing/Health.

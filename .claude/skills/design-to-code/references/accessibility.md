@@ -1,18 +1,14 @@
 # Accessibilité (design-to-code)
 
-L'a11y est **bloquante** dans Storybook (addon-a11y en mode `error`). Une violation échoue le test.
+Exigences communes, statut bloquant (axe `error`) et cible WCAG AA : voir
+`../../_shared/accessibility.md`. **Ici : comment les IMPLÉMENTER** dans ce dépôt (React + Radix).
 
-## Contrôler
-- HTML sémantique ; ordre du DOM cohérent avec l'ordre visuel.
-- Navigation clavier complète ; focus visible ; retour du focus après fermeture (modale/menu).
-- Nom accessible sur chaque contrôle ; labels de formulaire associés (`htmlFor`/`id`).
-- Messages d'erreur associés au champ (`aria-describedby`).
-- Rôles/attributs ARIA **uniquement** quand nécessaires (Radix les gère déjà en grande partie).
-- Contraste suffisant ; information jamais portée **uniquement** par la couleur.
-- Annonces dynamiques (`aria-live`) quand pertinent.
-- `prefers-reduced-motion` respecté.
-- Modales/menus/popovers/tooltips : focus trap, fermeture Escape, clic extérieur.
-- Titres hiérarchisés ; zones tactiles ; états `disabled` compréhensibles.
+## Implémenter (spécifique dépôt)
+- HTML sémantique + ordre du DOM cohérent avec l'ordre visuel — **avant** tout ARIA.
+- Labels de formulaire associés via `htmlFor`/`id` ; messages d'erreur reliés au champ (`aria-describedby`).
+- Rôles/attributs ARIA **uniquement** quand nécessaires : Radix fournit déjà l'essentiel
+  (focus trap, `Escape`, clic extérieur, `aria-pressed`…) — ne pas le redéfinir à la main.
+- Annonces dynamiques via `aria-live` quand pertinent.
 
 ## Cas fréquents Streamnco
 - Bouton icône seule → `aria-label` + icône `aria-hidden`.
