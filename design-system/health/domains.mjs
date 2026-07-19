@@ -27,7 +27,7 @@ export const MATURITY_STATES = {
 
 const pct = (n) => (n == null ? null : `${Math.round(n * 100)}%`);
 
-export function buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality }) {
+export function buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality, adoption }) {
   const areas = [
     {
       area: "Foundations",
@@ -70,6 +70,18 @@ export function buildMaturity({ spacing, a11y, components, tokens, foundations, 
           return { key: `q-${i.name}`, label: i.name, status, measure, note: i.detail };
         }),
         { key: "q-ci", label: "CI pipeline", status: "measured", measure: "Green", note: "ci.yml — orchestre typecheck / lint / build / a11y" },
+      ],
+    },
+    {
+      area: "Adoption",
+      slug: "health-adoption",
+      note: "À quel point le PRODUIT consomme réellement le DS (usage réel dans src/, hors cœur ui/).",
+      domains: [
+        { key: "ado-components", label: "Component adoption", status: "measured", measure: pct(adoption.componentAdoption), note: `${adoption.dsFiles}/${adoption.jsxFiles} fichiers app (avec JSX) importent le DS` },
+        { key: "ado-spacing", label: "Spacing scale adoption", status: "measured", measure: pct(adoption.spacingScaleAdoption), note: "part des espacements sur l'échelle gouvernée" },
+        { key: "ado-raw", label: "Éléments bruts restants", status: "measured", measure: String(adoption.rawElements), note: `<button/input/select/textarea> bruts hors DS (${adoption.rawByTag.button} button · ${adoption.rawByTag.input} input · ${adoption.rawByTag.select} select · ${adoption.rawByTag.textarea} textarea)` },
+        { key: "ado-colors", label: "Couleurs en dur restantes", status: "measured", measure: String(adoption.hardColors), note: "hex / classes arbitraires hors tokens (dette de tokenisation)" },
+        { key: "ado-token-cov", label: "Token adoption (couverture)", status: "planned", measure: null, note: "% des valeurs passant par un token sémantique vs en dur — roadmap" },
       ],
     },
     {
