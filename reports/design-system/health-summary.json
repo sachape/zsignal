@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T16:15:23.008Z",
+  "generatedAt": "2026-07-19T16:22:22.878Z",
   "overall": {
-    "score": 0.881620612244898,
-    "previous": 0.881620612244898,
-    "delta": 0.000180000000000069,
+    "score": 0.8815006122448978,
+    "previous": 0.8815006122448978,
+    "delta": -0.00012000000000012001,
     "label": "Good",
     "dimensions": [
       {
@@ -20,7 +20,7 @@
         "label": "Spacing",
         "weight": 0.3,
         "tier": "important",
-        "value": 0.8503,
+        "value": 0.8499,
         "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
       },
       {
@@ -202,44 +202,92 @@
         "area": "Accessibility & Quality gates",
         "domains": [
           {
-            "key": "a11y",
+            "key": "q-Accessibility",
             "label": "Accessibility",
             "status": "measured",
             "measure": "PASS",
-            "note": "axe bloquante en CI (mode error)"
+            "note": "axe mode error, bloquante en CI"
           },
           {
-            "key": "typecheck",
-            "label": "Typecheck",
-            "status": "measured",
-            "measure": "Gate",
-            "note": "tsc --noEmit, gate CI verte"
-          },
-          {
-            "key": "lint",
-            "label": "Lint tokens",
-            "status": "measured",
-            "measure": "Gate",
-            "note": "hex/primitive interdits dans ui/"
-          },
-          {
-            "key": "build",
+            "key": "q-Storybook build",
             "label": "Storybook build",
             "status": "measured",
             "measure": "Gate",
             "note": "build vérifié à chaque push"
           },
           {
-            "key": "baseline",
+            "key": "q-Typecheck",
+            "label": "Typecheck",
+            "status": "measured",
+            "measure": "Gate",
+            "note": "tsc --noEmit, gate CI"
+          },
+          {
+            "key": "q-Lint tokens",
+            "label": "Lint tokens",
+            "status": "measured",
+            "measure": "Gate",
+            "note": "hex/primitive interdits dans ui/"
+          },
+          {
+            "key": "q-Spacing baseline",
             "label": "Spacing baseline",
             "status": "measured",
             "measure": "Active",
-            "note": "anti-régression (ratchet)"
+            "note": "anti-régression (ratchet) — bloque toute nouvelle dette"
           }
         ]
       },
       {
-        "area": "Delivery & Visual regression",
+        "area": "Visual Quality",
+        "note": "Domaine durable — ses sous-métriques passeront de missing/planned à measured dès que la CI Chromatic produira un rapport.",
+        "domains": [
+          {
+            "key": "vq-chromatic",
+            "label": "Chromatic",
+            "status": "documented",
+            "measure": "Câblé",
+            "note": "workflow chromatic.yml présent"
+          },
+          {
+            "key": "vq-baseline",
+            "label": "Baseline",
+            "status": "missing",
+            "measure": null,
+            "note": "aucune baseline acceptée à ce jour"
+          },
+          {
+            "key": "vq-regression",
+            "label": "Visual regression",
+            "status": "missing",
+            "measure": null,
+            "note": "diff visuel automatique par story — dépend de la baseline"
+          },
+          {
+            "key": "vq-snapshots",
+            "label": "Snapshot coverage",
+            "status": "planned",
+            "measure": null,
+            "note": "part des stories capturées par build"
+          },
+          {
+            "key": "vq-approved",
+            "label": "Approved changes",
+            "status": "planned",
+            "measure": null,
+            "note": "changements visuels revus et acceptés (dernier build)"
+          },
+          {
+            "key": "vq-unexpected",
+            "label": "Unexpected changes",
+            "status": "planned",
+            "measure": null,
+            "note": "régressions visuelles non intentionnelles (dernier build)"
+          }
+        ]
+      },
+      {
+        "area": "Delivery, Docs & Governance",
         "domains": [
           {
             "key": "ci",
@@ -248,25 +296,6 @@
             "measure": "Green",
             "note": "ci.yml — gates typecheck/lint/build/a11y"
           },
-          {
-            "key": "chromatic",
-            "label": "Chromatic baseline",
-            "status": "missing",
-            "measure": null,
-            "note": "Chromatic installé mais aucune baseline acceptée"
-          },
-          {
-            "key": "vr",
-            "label": "Visual regression",
-            "status": "missing",
-            "measure": null,
-            "note": "diff automatique par story — dépend de la baseline Chromatic"
-          }
-        ]
-      },
-      {
-        "area": "Documentation & Performance",
-        "domains": [
           {
             "key": "docs",
             "label": "Documentation & guides",
@@ -293,8 +322,8 @@
     ],
     "counts": {
       "measured": 10,
-      "documented": 13,
-      "planned": 3,
+      "documented": 14,
+      "planned": 6,
       "missing": 2
     }
   },
@@ -337,27 +366,15 @@
       "name": "Spacing baseline",
       "state": "active",
       "detail": "anti-régression (ratchet) — bloque toute nouvelle dette"
-    },
-    {
-      "name": "Chromatic",
-      "state": "pending",
-      "label": "Baseline à établir",
-      "detail": "workflow présent, aucune baseline acceptée"
-    },
-    {
-      "name": "Visual regression",
-      "state": "todo",
-      "label": "Non mesuré",
-      "detail": "dépend de la baseline Chromatic"
     }
   ],
   "adoption": {
     "scaleAdoption": 0.9872,
-    "compactShare": 0.2906284864261807,
+    "compactShare": 0.2916666666666667,
     "cssVarAdoption": 0
   },
   "debt": {
-    "violations": 1121,
+    "violations": 1123,
     "violationsCore": 90,
     "exceptions": 6,
     "baseline": 1118
@@ -365,12 +382,12 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T16:15:22.988Z",
+      "generatedAt": "2026-07-19T16:22:22.858Z",
       "scores": {
-        "valueCompliance": 0.7916,
+        "valueCompliance": 0.7911,
         "scaleAdoption": 0.9872,
         "cssVarAdoption": 0,
-        "health": 0.8503
+        "health": 0.8499
       },
       "confidence": {
         "value": 0.9631,
@@ -381,33 +398,33 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5378,
-        "preferred": 2688,
-        "compactAllowed": 1563,
-        "violations": 1121,
+        "detected": 5376,
+        "preferred": 2679,
+        "compactAllowed": 1568,
+        "violations": 1123,
         "exceptions": 6,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5378,
-        "compliant": 4257,
+        "classifiable": 5376,
+        "compliant": 4253,
         "byTrack": {
           "error": 552,
-          "warn": 4826
+          "warn": 4824
         },
         "violationsByTrack": {
           "error": 90,
-          "warn": 1031
+          "warn": 1033
         },
         "compactByTrack": {
           "error": 121,
-          "warn": 1442
+          "warn": 1447
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T16:15:22.993Z",
+      "generatedAt": "2026-07-19T16:22:22.863Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

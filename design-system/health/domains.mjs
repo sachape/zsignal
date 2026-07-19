@@ -27,10 +27,7 @@ export const MATURITY_STATES = {
 
 const pct = (n) => (n == null ? null : `${Math.round(n * 100)}%`);
 
-export function buildMaturity({ spacing, a11y, components, tokens, foundations, quality }) {
-  const q = Object.fromEntries((quality?.items ?? []).map((i) => [i.name, i]));
-  const chromaticWired = q["Chromatic"]?.state === "pending"; // workflow présent, pas de baseline
-
+export function buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality }) {
   const areas = [
     {
       area: "Foundations",
@@ -54,25 +51,21 @@ export function buildMaturity({ spacing, a11y, components, tokens, foundations, 
     },
     {
       area: "Accessibility & Quality gates",
-      domains: [
-        { key: "a11y", label: "Accessibility", status: "measured", measure: "PASS", note: "axe bloquante en CI (mode error)" },
-        { key: "typecheck", label: "Typecheck", status: "measured", measure: "Gate", note: "tsc --noEmit, gate CI verte" },
-        { key: "lint", label: "Lint tokens", status: "measured", measure: "Gate", note: "hex/primitive interdits dans ui/" },
-        { key: "build", label: "Storybook build", status: "measured", measure: "Gate", note: "build vérifié à chaque push" },
-        { key: "baseline", label: "Spacing baseline", status: "measured", measure: "Active", note: "anti-régression (ratchet)" },
-      ],
+      domains: (quality?.items ?? []).map((i) => {
+        const map = { pass: ["measured", "PASS"], enforced: ["measured", "Gate"], active: ["measured", "Active"], off: ["missing", null] };
+        const [status, measure] = map[i.state] ?? ["missing", null];
+        return { key: `q-${i.name}`, label: i.name, status, measure, note: i.detail };
+      }),
     },
     {
-      area: "Delivery & Visual regression",
+      area: "Visual Quality",
+      note: "Domaine durable — ses sous-métriques passeront de missing/planned à measured dès que la CI Chromatic produira un rapport.",
+      domains: visualQuality.metrics.map((v) => ({ key: `vq-${v.key}`, label: v.label, status: v.status, measure: v.measure, note: v.note })),
+    },
+    {
+      area: "Delivery, Docs & Governance",
       domains: [
         { key: "ci", label: "CI pipeline", status: "measured", measure: "Green", note: "ci.yml — gates typecheck/lint/build/a11y" },
-        { key: "chromatic", label: "Chromatic baseline", status: chromaticWired ? "missing" : "planned", measure: null, note: chromaticWired ? "Chromatic installé mais aucune baseline acceptée" : "Chromatic non câblé" },
-        { key: "vr", label: "Visual regression", status: chromaticWired ? "missing" : "planned", measure: null, note: "diff automatique par story — dépend de la baseline Chromatic" },
-      ],
-    },
-    {
-      area: "Documentation & Performance",
-      domains: [
         { key: "docs", label: "Documentation & guides", status: "documented", measure: null, note: "Getting Started, CONTRIBUTING, pages MDX — présent, non scoré" },
         { key: "governance", label: "Governance & contribution", status: "documented", measure: null, note: "workflow de contribution, gouvernance spacing" },
         { key: "perf", label: "Performance budgets", status: "planned", measure: null, note: "budgets bundle/CSS — évolution assumée" },
