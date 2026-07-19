@@ -28,7 +28,7 @@ export const STATE: Record<MState, { glyph: string; label: string; cls: string }
 export function StateChip({ state, children }: { state: MState; children?: ReactNode }) {
   const s = STATE[state];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${s.cls}`}>
+    <span className={`inline-flex items-center gap-2 rounded-full border px-2 py-2 text-xs font-medium ${s.cls}`}>
       <span aria-hidden>{s.glyph}</span>
       {children ?? s.label}
     </span>
@@ -80,10 +80,10 @@ export function HealthDomainPage({ slug, title, intro, extra }: { slug: string; 
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-8 p-8">
-      <header className="flex flex-col gap-3">
+      <header className="flex flex-col gap-4">
         <XLink to="health-overview--dashboard">← Health / Overview</XLink>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-semibold">{title}</h1>
             {area.note && <p className="max-w-2xl text-sm text-muted-foreground">{area.note}</p>}
           </div>
@@ -103,8 +103,8 @@ export function HealthDomainPage({ slug, title, intro, extra }: { slug: string; 
         </CardHeader>
         <CardContent className="flex flex-col divide-y divide-border p-0">
           {area.domains.map((d: any) => (
-            <div key={d.key} className="grid grid-cols-[1fr_auto] items-center gap-3 px-4 py-3">
-              <div className="flex flex-col gap-0.5">
+            <div key={d.key} className="grid grid-cols-[1fr_auto] items-center gap-4 px-4 py-4">
+              <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-foreground">{d.label}</span>
                 <span className="text-xs text-muted-foreground">{d.note}</span>
               </div>

@@ -9,7 +9,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 function Sw({ v, name, sub }: { v: string; name: string; sub?: string }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       <div className="h-12 w-full rounded-md border border-border" style={{ background: `hsl(var(${v}))` }} />
       <div className="flex flex-col leading-tight">
         <span className="font-mono text-[11px] text-foreground">{name}</span>
@@ -20,12 +20,12 @@ function Sw({ v, name, sub }: { v: string; name: string; sub?: string }) {
 }
 function Ramp({ title, note, family, steps }: { title: string; note?: string; family: string; steps: (string | number)[] }) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-baseline gap-3">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-baseline gap-4">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         {note && <span className="text-xs text-muted-foreground">{note}</span>}
       </div>
-      <div className="grid grid-cols-4 gap-3 sm:grid-cols-6 lg:grid-cols-9">
+      <div className="grid grid-cols-4 gap-4 sm:grid-cols-6 lg:grid-cols-9">
         {steps.map((s) => <Sw key={s} v={`--color-${family}-${s}`} name={`${s}`} />)}
       </div>
     </div>
@@ -94,21 +94,21 @@ function Colors() {
           <Ramp title="Neutral" note="rampe complète (17)" family="neutral" steps={NEUTRAL} />
           <Ramp title="Lime" note="marque · partielle" family="lime" steps={[400, 500, 600]} />
           <Ramp title="Red" note="danger · partielle" family="red" steps={[400, 500, 600]} />
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <h3 className="text-sm font-semibold text-foreground">Accents <span className="font-normal text-muted-foreground">· valeur unique (500)</span></h3>
-            <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
+            <div className="grid grid-cols-4 gap-4 sm:grid-cols-8">
               {ACCENTS.map((a) => <Sw key={a} v={`--color-${a}-500`} name={a} />)}
             </div>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <h3 className="text-sm font-semibold text-foreground">Platform <span className="font-normal text-muted-foreground">· couleurs de marque des réseaux</span></h3>
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
               {PLATFORMS.map((p) => <Sw key={p} v={`--color-platform-${p}`} name={p} />)}
             </div>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <h3 className="text-sm font-semibold text-foreground">Data Visualization</h3>
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-5 gap-4">
               {[1, 2, 3, 4, 5].map((d) => <Sw key={d} v={`--color-data-${d}`} name={`data.${d}`} />)}
             </div>
           </div>
@@ -118,9 +118,9 @@ function Colors() {
       <Section n="2 · Semantic" title="Semantic Colors" desc="Ce que veut DIRE une couleur dans le produit. Chaque token sémantique aliase une primitive (indiquée). Un composant consomme cette couche, jamais une primitive en dur.">
         <div className="flex flex-col gap-8">
           {SEMANTIC.map((g) => (
-            <div key={g.group} className="flex flex-col gap-3">
+            <div key={g.group} className="flex flex-col gap-4">
               <h3 className="text-sm font-semibold text-foreground">{g.group}</h3>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
                 {g.items.map((it) => <Sw key={it.name} v={it.v} name={it.name} sub={`→ ${it.alias}`} />)}
               </div>
             </div>
@@ -133,8 +133,8 @@ function Colors() {
           <button className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground">Button · primary</button>
           <button className="rounded-md bg-destructive px-4 py-2 text-sm text-destructive-foreground">Button · destructive</button>
           <span className="rounded-md bg-secondary px-4 py-2 text-sm text-secondary-foreground">Button · secondary</span>
-          <span className="rounded-md border border-transparent bg-success px-3 py-1 text-xs text-success-foreground">Badge · success</span>
-          <span className="rounded-md border border-destructive/40 bg-transparent px-3 py-1 text-xs text-destructive-strong">Alert · destructive</span>
+          <span className="rounded-md border border-transparent bg-success px-4 py-2 text-xs text-success-foreground">Badge · success</span>
+          <span className="rounded-md border border-destructive/40 bg-transparent px-4 py-2 text-xs text-destructive-strong">Alert · destructive</span>
         </div>
         <p className="text-xs text-muted-foreground">Détail des tokens par composant : Foundations/Tokens (couche Component).</p>
       </Section>

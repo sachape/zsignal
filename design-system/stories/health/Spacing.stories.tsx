@@ -38,7 +38,7 @@ function StatusBadge({ tone, children }: { tone: Tone; children: ReactNode }) {
   const t = TONE[tone];
   return (
     <Badge variant={t.variant}>
-      <span aria-hidden className="mr-1">{t.glyph}</span>
+      <span aria-hidden className="mr-2">{t.glyph}</span>
       {children}
     </Badge>
   );
@@ -97,7 +97,7 @@ function SpacingReport() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 p-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-semibold">Spacing Health</h1>
           <p className="text-sm text-muted-foreground">
             Sous-page de <strong className="text-foreground">Health / Overview</strong> · moteur <code>design-system/health/</code> · contrat v{spacing.reportVersion} · lecture seule
@@ -141,7 +141,7 @@ function SpacingReport() {
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
             {dist.map((d) => (
-              <span key={d.key} className="flex items-center gap-1">
+              <span key={d.key} className="flex items-center gap-2">
                 <span aria-hidden className={`inline-block h-2 w-2 rounded-full ${DIST_BG[d.tone]}`} />
                 {d.label} : <strong className="text-foreground tabular-nums">{d.n}</strong> ({((d.n / tot) * 100).toFixed(0)}%)
               </span>

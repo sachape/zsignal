@@ -8,8 +8,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 function Rule({ t, d, ok = true }: { t: string; d: string; ok?: boolean }) {
   return (
     <div className="flex items-start gap-4 rounded-xl border border-border bg-card p-6">
-      <span aria-hidden className={`mt-1 text-sm ${ok ? "text-success" : "text-warning"}`}>{ok ? "●" : "▲"}</span>
-      <div className="flex flex-col gap-1">
+      <span aria-hidden className={`mt-2 text-sm ${ok ? "text-success" : "text-warning"}`}>{ok ? "●" : "▲"}</span>
+      <div className="flex flex-col gap-2">
         <p className="text-base font-semibold text-foreground">{t}</p>
         <p className="text-sm text-muted-foreground">{d}</p>
       </div>

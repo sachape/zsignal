@@ -6,10 +6,10 @@ function Extra() {
   const c = summary?.components;
   if (!c) return null;
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
       <Card><CardContent className="flex flex-col gap-2 p-4"><span className="text-xs text-muted-foreground">Story coverage</span><span className="text-2xl font-semibold tabular-nums">{pct(c.coverage)}</span><Progress value={c.coverage * 100} aria-label="coverage" /><span className="text-xs text-muted-foreground">{c.withStory}/{c.total} composants ui/</span></CardContent></Card>
-      <Card><CardContent className="flex flex-col gap-1 p-4"><span className="text-xs text-muted-foreground">Stories publiées</span><span className="text-2xl font-semibold tabular-nums">{c.componentStories}</span><span className="text-xs text-muted-foreground">composants + patterns</span></CardContent></Card>
-      <Card><CardContent className="flex flex-col gap-1 p-4"><span className="text-xs text-muted-foreground">Accessibilité</span><span className="text-2xl font-semibold">PASS</span><span className="text-xs text-muted-foreground">axe bloquante, toutes stories</span></CardContent></Card>
+      <Card><CardContent className="flex flex-col gap-2 p-4"><span className="text-xs text-muted-foreground">Stories publiées</span><span className="text-2xl font-semibold tabular-nums">{c.componentStories}</span><span className="text-xs text-muted-foreground">composants + patterns</span></CardContent></Card>
+      <Card><CardContent className="flex flex-col gap-2 p-4"><span className="text-xs text-muted-foreground">Accessibilité</span><span className="text-2xl font-semibold">PASS</span><span className="text-xs text-muted-foreground">axe bloquante, toutes stories</span></CardContent></Card>
     </div>
   );
 }

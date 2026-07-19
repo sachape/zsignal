@@ -25,7 +25,7 @@ function Opacity() {
       </header>
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
         {STEPS.map((s) => (
-          <div key={s.o} className="flex flex-col items-center gap-3">
+          <div key={s.o} className="flex flex-col items-center gap-4">
             <div className="h-20 w-full rounded-lg border border-border bg-primary" style={{ opacity: s.o / 100 }} />
             <div className="flex flex-col items-center">
               <code className="text-sm font-medium text-foreground">{s.o}%</code>
