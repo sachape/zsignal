@@ -65,8 +65,13 @@ export function runSpacing() {
 
   const pct = (n, d) => (d === 0 ? 1 : +(n / d).toFixed(4));
   const valueCompliance = pct(compliant + exc, classifiable);
-  const tokenAdoption = pct(adopted, classifiable);
-  const health = +(0.7 * valueCompliance + 0.3 * tokenAdoption).toFixed(4);
+  // « Scale adoption » = passe par le SYSTÈME d'espacement (classe d'échelle Tailwind
+  // OU token) vs valeur brute. À NE PAS confondre avec l'adoption des tokens CSS
+  // var(--space-*), mesurée séparément (cssVarAdoption, aujourd'hui ~0).
+  const scaleAdoption = pct(adopted, classifiable);
+  const cssVarUses = findings.filter((f) => f.system === SYSTEM.TOKEN && f.status !== STATUS.UNCLASSIFIED).length;
+  const cssVarAdoption = pct(cssVarUses, classifiable);
+  const health = +(0.7 * valueCompliance + 0.3 * scaleAdoption).toFixed(4);
 
   // Confidence = moyenne pondérée de la fiabilité par item (les non-classifiables tirent vers le bas).
   const confSum = findings.reduce((s, f) => s + CONFIDENCE_WEIGHT[f.confidence], 0);
@@ -89,7 +94,7 @@ export function runSpacing() {
         warn: findings.filter((f) => f.track === "warn" && f.status === STATUS.VIOLATION).length,
       },
     },
-    scores: { valueCompliance, tokenAdoption, health },
+    scores: { valueCompliance, scaleAdoption, cssVarAdoption, health },
     confidence: {
       value: confidenceValue,
       classifiableRatio: pct(classifiable, detected),
@@ -105,7 +110,7 @@ export function runSpacing() {
     topOffenders: groupOffenders(findings),
     topValues: Object.entries(tally(findings.filter((f) => f.status === STATUS.VIOLATION), (f) => f.value)).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([value, count]) => ({ value, count })),
     findings,
-    recommendations: buildRecs({ violations, needsDecision, tokenAdoption }),
+    recommendations: buildRecs({ violations, needsDecision, scaleAdoption }),
   };
 }
 
@@ -128,10 +133,10 @@ function groupOffenders(findings) {
   for (const f of findings) { if (f.status !== STATUS.VIOLATION && f.status !== STATUS.NEEDS_DECISION) continue; (m[f.file] ||= { file: f.file, violations: 0, needsDecision: 0, track: f.track }); if (f.status === STATUS.VIOLATION) m[f.file].violations++; else m[f.file].needsDecision++; }
   return Object.values(m).sort((a, b) => b.violations - a.violations).slice(0, 15);
 }
-function buildRecs({ violations, needsDecision, tokenAdoption }) {
+function buildRecs({ violations, needsDecision, scaleAdoption }) {
   const r = [];
   if (violations) r.push(`${violations} violations hors grille à migrer (progressif, validation visuelle Chromatic).`);
   if (needsDecision) r.push(`${needsDecision} usages 12/20/28px « needs-decision » : trancher après revue (garder / migrer / exception).`);
-  if (tokenAdoption < 0.5) r.push("Adoption des tokens faible : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Décision Model A (fin P6) : contraindre l'échelle Tailwind aux tokens.");
+  r.push("Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner l'échelle Tailwind sur les tokens.");
   return r;
 }

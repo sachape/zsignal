@@ -35,8 +35,11 @@
 
 ### Deux indicateurs + confidence
 - **Spacing value compliance** = conformes / classifiables (needs-decision non compté conforme).
-- **Token/scale adoption** = usages passant par l'échelle/token vs valeurs brutes (arbitraires/inline).
-- **Spacing Health** = `0.7·value + 0.3·adoption` (pondération documentée, ajustable).
+- **Scale adoption** = usages passant par l'échelle (classe Tailwind) ou un token, vs valeurs brutes
+  (arbitraires/inline). **≠ « Token adoption »** : l'adoption réelle des tokens CSS `var(--space-*)`
+  est mesurée à part (`cssVarAdoption`, aujourd'hui ≈0). Le libellé « Token adoption » est réservé à
+  cette future métrique pour ne pas laisser croire que 98,5% des usages consomment les tokens du DS.
+- **Spacing Health** = `0.7·value + 0.3·scaleAdoption` (pondération documentée, ajustable).
 - **Confidence** = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3) ;
   baisse avec les usages non classifiables, positionnements ambigus (top/inset), marges négatives.
   Un score sans confidence est trompeur quand les exclusions grandissent.

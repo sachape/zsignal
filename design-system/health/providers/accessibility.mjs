@@ -29,7 +29,7 @@ export function runAccessibility() {
     generatedAt: new Date().toISOString(),
     // Pas de scores % artificiels : statut binaire + preuve.
     status: enforced ? "enforced" : "not-enforced",
-    scores: { valueCompliance: null, tokenAdoption: null, health: null },
+    scores: { valueCompliance: null, scaleAdoption: null, health: null },
     confidence: { value: enforced ? 1 : 0, note: "Fait dérivé de la config CI + inventaire, pas d'un rapport JSON a11y." },
     totals: { testableStories },
     display: {

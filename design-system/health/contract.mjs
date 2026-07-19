@@ -40,7 +40,7 @@ export function assertReport(report) {
     throw new Error(`reportVersion ${report.reportVersion} ≠ contrat ${SCHEMA_VERSION}`);
   }
   const s = report.scores;
-  for (const k of ["valueCompliance", "tokenAdoption", "health"]) {
+  for (const k of ["valueCompliance", "scaleAdoption", "health"]) {
     if (typeof s[k] !== "number") throw new Error(`scores.${k} doit être un nombre`);
   }
   if (typeof report.confidence.value !== "number") throw new Error("confidence.value doit être un nombre");
