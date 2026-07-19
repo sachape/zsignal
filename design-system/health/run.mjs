@@ -14,6 +14,7 @@ import { runComponents } from "./providers/components.mjs";
 import { runTokens } from "./providers/tokens.mjs";
 import { runQuality } from "./providers/quality.mjs";
 import { runFoundations } from "./providers/foundations.mjs";
+import { runVisualQuality } from "./providers/visual-quality.mjs";
 import { computeOverall } from "./overall.mjs";
 import { buildMaturity } from "./domains.mjs";
 
@@ -96,7 +97,8 @@ function main() {
   const tokens = runTokens();
   const quality = runQuality({ a11y });
   const foundations = runFoundations({ spacingHealth: spacing.scores.health });
-  const maturity = buildMaturity({ spacing, a11y, components, tokens, foundations, quality });
+  const visualQuality = runVisualQuality();
+  const maturity = buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality });
 
   const overall = computeOverall({
     a11yPass: a11y.status === "enforced",

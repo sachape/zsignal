@@ -1,8 +1,9 @@
-// Provider Quality — état des GARDE-FOUS du Design System. Ne renvoie pas des
-// scores : des ÉTATS de gouvernance dérivés de faits vérifiables (script présent
-// dans package.json + workflow CI présent + baseline figée). Chromatic et la
-// régression visuelle sont des états honnêtes ("à établir", "non mesuré"), jamais
-// un faux PASS.
+// Provider Quality — état des GARDE-FOUS du Design System (gates CI). Ne renvoie
+// pas des scores : des ÉTATS de gouvernance dérivés de faits vérifiables (script
+// présent dans package.json + workflow CI présent + baseline figée).
+//
+// La qualité VISUELLE (Chromatic, baseline, régression) ne vit PAS ici : elle a
+// son propre domaine durable, le provider `visual-quality.mjs`.
 
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -43,18 +44,6 @@ export function runQuality({ a11y } = {}) {
       name: "Spacing baseline",
       state: has("check:spacing") && baselineExists() ? "active" : "off",
       detail: "anti-régression (ratchet) — bloque toute nouvelle dette",
-    },
-    {
-      name: "Chromatic",
-      state: wf("chromatic.yml") ? "pending" : "off",
-      label: "Baseline à établir",
-      detail: "workflow présent, aucune baseline acceptée",
-    },
-    {
-      name: "Visual regression",
-      state: "todo",
-      label: "Non mesuré",
-      detail: "dépend de la baseline Chromatic",
     },
   ];
   return { provider: "quality", items };
