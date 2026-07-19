@@ -2,6 +2,14 @@
    éviter que la typographie docs de Storybook n'écrase les couleurs). */
 import type { ReactNode } from "react";
 
+// KPIs du hero lus depuis l'inventaire RÉEL (aucun hardcode).
+const reports = import.meta.glob("/reports/design-system/health-summary.json", {
+  eager: true, import: "default",
+}) as Record<string, any>;
+const inv = ((Object.values(reports)[0] as any)?.inventory ?? {}) as {
+  foundations?: number; components?: number; tokens?: number; qualityGates?: string;
+};
+
 function KpiCard({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-xl border border-border bg-background p-6">
@@ -12,6 +20,12 @@ function KpiCard({ value, label }: { value: string; label: string }) {
 }
 
 export function Hero() {
+  const kpis = [
+    { value: inv.foundations != null ? String(inv.foundations) : "—", label: "Foundations" },
+    { value: inv.components != null ? String(inv.components) : "—", label: "Components UI" },
+    { value: inv.tokens != null ? String(inv.tokens) : "—", label: "Design Tokens" },
+    { value: inv.qualityGates ?? "—", label: "Quality Gates" },
+  ];
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-12 md:p-16">
       <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
@@ -23,16 +37,52 @@ export function Hero() {
           Streamnco Design System
         </h1>
         <p className="max-w-2xl text-lg text-muted-foreground">
-          Single source of truth — tokens, composants, patterns — gouvernée par l'audit,
-          l'accessibilité bloquante, la régression visuelle et un tableau de bord de qualité en continu.
+          La source unique de vérité — tokens, composants, patterns — gouvernée par l'audit,
+          l'accessibilité bloquante et un tableau de bord de qualité en continu. Cette page est la
+          porte d'entrée : ce qu'est le système, comment il est structuré, et où aller.
         </p>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <KpiCard value="84 %" label="Spacing Health" />
-          <KpiCard value="PASS" label="Accessibilité (CI)" />
-          <KpiCard value="28" label="Composants" />
-          <KpiCard value="3" label="Couches de tokens" />
+          {kpis.map((k) => <KpiCard key={k.label} value={k.value} label={k.label} />)}
         </div>
       </div>
+    </div>
+  );
+}
+
+// Grandes entrées cliquables — la landing est une porte, pas une page de métriques.
+// Templates figure ici (comme dans l'Architecture) même s'il est encore « à venir ».
+export function NavGrid() {
+  const entries: { t: string; d: string; to?: string; soon?: boolean }[] = [
+    { t: "Foundations", d: "Couleurs, typo, spacing, radius, motion…", to: "foundations-colors--overview" },
+    { t: "Components", d: "Composants React réutilisables, par usage", to: "components-actions-button--docs" },
+    { t: "Patterns", d: "Assemblages : FilterBar, PageHeader, Sidebar…", to: "patterns-filterbar--docs" },
+    { t: "Templates", d: "Pages complètes", soon: true },
+    { t: "Governance", d: "Contribution, a11y, spacing, CI, Chromatic", to: "getting-started-governance--docs" },
+    { t: "Health", d: "La maturité du DS en temps réel", to: "health-overview--dashboard" },
+  ];
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {entries.map((e) => {
+        const inner = (
+          <>
+            <div className="flex items-center gap-2">
+              <span className="text-base font-semibold text-foreground">{e.t}</span>
+              {e.soon && <span className="rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">à venir</span>}
+            </div>
+            <span className="text-sm text-muted-foreground">{e.d}</span>
+          </>
+        );
+        return e.to ? (
+          <a key={e.t} href={`?path=/story/${e.to}`} target="_top"
+            className="flex flex-col gap-2 rounded-xl border border-border bg-card p-6 transition-colors hover:border-primary/40">
+            {inner}
+          </a>
+        ) : (
+          <div key={e.t} className="flex flex-col gap-2 rounded-xl border border-dashed border-border bg-card/60 p-6">
+            {inner}
+          </div>
+        );
+      })}
     </div>
   );
 }

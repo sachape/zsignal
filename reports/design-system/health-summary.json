@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T16:22:22.878Z",
+  "generatedAt": "2026-07-19T16:50:20.917Z",
   "overall": {
     "score": 0.8815006122448978,
     "previous": 0.8815006122448978,
-    "delta": -0.00012000000000012001,
+    "delta": 0,
     "label": "Good",
     "dimensions": [
       {
@@ -39,6 +39,14 @@
     ],
     "note": "Score pondéré (pas une moyenne simple). Seules les dimensions réellement mesurées entrent dans le calcul — aucune métrique non mesurée n'influence ce score."
   },
+  "inventory": {
+    "foundations": 15,
+    "components": 49,
+    "tokens": 390,
+    "stories": 116,
+    "qualityGates": "PASS",
+    "ci": "green"
+  },
   "maturity": {
     "states": {
       "measured": {
@@ -65,6 +73,7 @@
     "areas": [
       {
         "area": "Foundations",
+        "slug": "health-foundations",
         "note": "Les décisions visuelles fondatrices — attendues, pas seulement celles consommées par l'app.",
         "domains": [
           {
@@ -155,6 +164,8 @@
       },
       {
         "area": "Components",
+        "slug": "health-components",
+        "note": "Le domaine complet, pas un compteur : couverture, stories, variantes, doc, a11y.",
         "domains": [
           {
             "key": "comp-coverage",
@@ -164,6 +175,13 @@
             "note": "31/49 composants ui/ avec story"
           },
           {
+            "key": "comp-stories",
+            "label": "Stories",
+            "status": "measured",
+            "measure": "116",
+            "note": "stories publiées (composants + patterns)"
+          },
+          {
             "key": "comp-a11y",
             "label": "A11y coverage",
             "status": "measured",
@@ -171,8 +189,15 @@
             "note": "toutes les stories passent axe (mode error)"
           },
           {
+            "key": "comp-variants",
+            "label": "Variants",
+            "status": "documented",
+            "measure": null,
+            "note": "variantes documentées par story (ex. Button ×15) — non scoré en %"
+          },
+          {
             "key": "comp-docs",
-            "label": "Docs coverage (MDX par composant)",
+            "label": "Documentation (MDX par composant)",
             "status": "planned",
             "measure": null,
             "note": "part des composants avec doc dédiée — prévu"
@@ -181,25 +206,50 @@
       },
       {
         "area": "Tokens",
+        "slug": "health-tokens",
+        "note": "Inventaire par couche (measured) + hygiène (roadmap).",
         "domains": [
           {
-            "key": "tok-inv",
-            "label": "Inventory",
+            "key": "tok-primitive",
+            "label": "Primitive",
             "status": "measured",
-            "measure": "390",
-            "note": "primitive 132 · semantic 83 · component 127"
+            "measure": "132",
+            "note": "valeurs brutes (hsl, rem, px)"
           },
           {
-            "key": "tok-hyg",
+            "key": "tok-semantic",
+            "label": "Semantic",
+            "status": "measured",
+            "measure": "83",
+            "note": "intentions (--primary, --space-*)"
+          },
+          {
+            "key": "tok-component",
+            "label": "Component",
+            "status": "measured",
+            "measure": "127",
+            "note": "tokens par composant"
+          },
+          {
+            "key": "tok-compat",
+            "label": "Compatibility",
+            "status": "measured",
+            "measure": "48",
+            "note": "alias de compatibilité (legacy)"
+          },
+          {
+            "key": "tok-hygiene",
             "label": "Token hygiene",
             "status": "planned",
             "measure": null,
-            "note": "tokens inutilisés / dépréciés — évolution assumée"
+            "note": "orphelins / inutilisés / dépréciés — roadmap (justifiera un provider Token Health)"
           }
         ]
       },
       {
-        "area": "Accessibility & Quality gates",
+        "area": "Quality Gates",
+        "slug": "health-quality-gates",
+        "note": "Les garde-fous bloquants avant merge — Accessibility incluse (c'est un gate).",
         "domains": [
           {
             "key": "q-Accessibility",
@@ -235,11 +285,19 @@
             "status": "measured",
             "measure": "Active",
             "note": "anti-régression (ratchet) — bloque toute nouvelle dette"
+          },
+          {
+            "key": "q-ci",
+            "label": "CI pipeline",
+            "status": "measured",
+            "measure": "Green",
+            "note": "ci.yml — orchestre typecheck / lint / build / a11y"
           }
         ]
       },
       {
         "area": "Visual Quality",
+        "slug": "health-visual-quality",
         "note": "Domaine durable — ses sous-métriques passeront de missing/planned à measured dès que la CI Chromatic produira un rapport.",
         "domains": [
           {
@@ -287,50 +345,60 @@
         ]
       },
       {
-        "area": "Delivery, Docs & Governance",
+        "area": "Governance",
+        "slug": "health-governance",
+        "note": "Contribution, décisions, versioning, documentation — la gouvernance du DS.",
         "domains": [
           {
-            "key": "ci",
-            "label": "CI pipeline",
-            "status": "measured",
-            "measure": "Green",
-            "note": "ci.yml — gates typecheck/lint/build/a11y"
+            "key": "gov-contrib",
+            "label": "Contribution & workflow",
+            "status": "documented",
+            "measure": null,
+            "note": "CONTRIBUTING.md, conventions Git/PR, gouvernance spacing"
           },
           {
-            "key": "docs",
+            "key": "gov-docs",
             "label": "Documentation & guides",
             "status": "documented",
             "measure": null,
-            "note": "Getting Started, CONTRIBUTING, pages MDX — présent, non scoré"
+            "note": "Getting Started, Nomenclature, pages MDX"
           },
           {
-            "key": "governance",
-            "label": "Governance & contribution",
-            "status": "documented",
+            "key": "gov-adr",
+            "label": "Architecture decisions (ADR)",
+            "status": "planned",
             "measure": null,
-            "note": "workflow de contribution, gouvernance spacing"
+            "note": "décisions structurantes formalisées — à outiller"
           },
           {
-            "key": "perf",
+            "key": "gov-versioning",
+            "label": "Versioning & changelog",
+            "status": "planned",
+            "measure": null,
+            "note": "semver du DS + journal des changements — roadmap"
+          },
+          {
+            "key": "gov-perf",
             "label": "Performance budgets",
             "status": "planned",
             "measure": null,
-            "note": "budgets bundle/CSS — évolution assumée"
+            "note": "budgets bundle / CSS — évolution assumée"
           }
         ]
       }
     ],
     "counts": {
-      "measured": 10,
-      "documented": 14,
-      "planned": 6,
+      "measured": 14,
+      "documented": 15,
+      "planned": 8,
       "missing": 2
     }
   },
   "components": {
     "total": 49,
     "withStory": 31,
-    "coverage": 0.6326530612244898
+    "coverage": 0.6326530612244898,
+    "componentStories": 116
   },
   "tokens": {
     "total": 390,
@@ -382,7 +450,7 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T16:22:22.858Z",
+      "generatedAt": "2026-07-19T16:50:20.890Z",
       "scores": {
         "valueCompliance": 0.7911,
         "scaleAdoption": 0.9872,
@@ -424,7 +492,7 @@
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T16:22:22.863Z",
+      "generatedAt": "2026-07-19T16:50:20.897Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

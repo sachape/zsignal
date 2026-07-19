@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Hero, SectionTitle, Principles } from "./getting-started/intro-sections";
+import { Hero, SectionTitle, Principles, NavGrid } from "./getting-started/intro-sections";
 import { TokenHierarchy, Pipeline, ContributionWorkflow, Governance } from "./getting-started/architecture-diagrams";
 
 /**
@@ -30,6 +30,11 @@ function Introduction() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 p-8 md:p-12">
       <Hero />
+
+      <Sec eyebrow="Explorer" title="Par où commencer"
+        desc="Six portes d'entrée vers le système. Templates arrive plus tard, mais figure ici par cohérence avec l'architecture.">
+        <NavGrid />
+      </Sec>
 
       <Sec eyebrow="Pourquoi" title="Pourquoi ce Design System existe">
         Pour livrer vite sans sacrifier la qualité. Une source de vérité unique — tokens, composants,
