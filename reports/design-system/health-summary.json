@@ -1,0 +1,58 @@
+{
+  "reportVersion": 1,
+  "generatedAt": "2026-07-19T12:54:26.213Z",
+  "providers": [
+    {
+      "provider": "spacing",
+      "generatedAt": "2026-07-19T12:54:26.207Z",
+      "scores": {
+        "valueCompliance": 0.5864,
+        "tokenAdoption": 0.9854,
+        "health": 0.7061
+      },
+      "confidence": {
+        "value": 0.9616,
+        "classifiableRatio": 1,
+        "unclassified": 0,
+        "exceptions": 0,
+        "lowConfidence": 103,
+        "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
+      },
+      "totals": {
+        "detected": 5130,
+        "compliant": 3008,
+        "needsDecision": 1035,
+        "violations": 1087,
+        "exceptions": 0,
+        "unclassified": 0,
+        "classifiable": 5130,
+        "byTrack": {
+          "error": 551,
+          "warn": 4579
+        },
+        "violationsByTrack": {
+          "error": 100,
+          "warn": 987
+        }
+      },
+      "status": null
+    },
+    {
+      "provider": "accessibility",
+      "generatedAt": "2026-07-19T12:54:26.213Z",
+      "scores": {
+        "valueCompliance": null,
+        "tokenAdoption": null,
+        "health": null
+      },
+      "confidence": {
+        "value": 1,
+        "note": "Fait dérivé de la config CI + inventaire, pas d'un rapport JSON a11y."
+      },
+      "totals": {
+        "testableStories": 116
+      },
+      "status": "enforced"
+    }
+  ]
+}

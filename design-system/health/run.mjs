@@ -1,0 +1,97 @@
+// Orchestrateur Health — exécute les providers, valide le contrat, écrit les
+// rapports versionnés (JSON machine + MD humain + snapshot d'historique).
+// Usage : node design-system/health/run.mjs [--check]
+//   (sans flag) : génère/rafraîchit les rapports (read-only sur le code).
+//   --check     : compare aux violations baseline, sort 1 si NOUVELLE violation.
+
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { ROOT } from "./core/walk.mjs";
+import { assertReport, buildSummary } from "./contract.mjs";
+import { runSpacing } from "./providers/spacing.mjs";
+import { runAccessibility } from "./providers/accessibility.mjs";
+
+const OUT = resolve(ROOT, "reports/design-system");
+const HIST = resolve(OUT, "history");
+const EXC = resolve(ROOT, "design-system/health/exceptions.json");
+
+function ensureDirs() { mkdirSync(HIST, { recursive: true }); }
+function seedExceptions() {
+  if (existsSync(EXC)) return;
+  writeFileSync(EXC, JSON.stringify({
+    $schema: "health exceptions v1",
+    $doc: "Dérogations documentées. Une exception compte comme conforme. Champs : value(px), file, property, reason, owner, date, review.",
+    spacing: [],
+  }, null, 2) + "\n");
+}
+
+function spacingMarkdown(r) {
+  const pc = (n) => `${(n * 100).toFixed(1)}%`;
+  const t = r.totals;
+  const lines = [
+    `# Spacing Health — rapport humain`, ``,
+    `> Généré le ${r.generatedAt} · contrat v${r.reportVersion} · **read-only** (aucune migration).`, ``,
+    `## Score`, ``,
+    `| Indicateur | Valeur |`, `|---|---|`,
+    `| **Spacing Health** | **${pc(r.scores.health)}** |`,
+    `| Spacing value compliance | ${pc(r.scores.valueCompliance)} |`,
+    `| Token / scale adoption | ${pc(r.scores.tokenAdoption)} |`,
+    `| **Confidence** | **${pc(r.confidence.value)}** |`, ``,
+    `_${r.confidence.note}_`, ``,
+    `## Totaux`, ``,
+    `- Usages détectés : **${t.detected}** (classifiables : ${t.classifiable})`,
+    `- Conformes : ${t.compliant} · Needs-decision (12/20/28…) : **${t.needsDecision}** · Violations : **${t.violations}**`,
+    `- Exceptions : ${t.exceptions} · Non classifiés : ${t.unclassified}`,
+    `- Violations par piste — cœur DS (ERROR) : **${t.violationsByTrack.error}** · app (WARN) : ${t.violationsByTrack.warn}`, ``,
+    `## Top valeurs hors-échelle`, ``,
+    ...r.topValues.map((v) => `- \`${v.value}\` × ${v.count}`), ``,
+    `## Composants/fichiers les plus touchés`, ``,
+    ...r.topOffenders.slice(0, 10).map((o) => `- ${o.violations ? `**${o.violations} viol.**` : ""}${o.needsDecision ? ` ${o.needsDecision} needs-dec.` : ""} — \`${o.file}\` _(${o.track})_`), ``,
+    `## Recommandations`, ``,
+    ...r.recommendations.map((x) => `- ${x}`), ``,
+    `## Périmètre`, ``,
+    `- Fichiers scannés : ${r.scope.filesScanned} (cœur ERROR : ${r.scope.errorTrackFiles} · app WARN : ${r.scope.warnTrackFiles})`,
+    `- Erreurs de parsing : ${r.scope.parseErrors}`,
+  ];
+  return lines.join("\n") + "\n";
+}
+
+function baselineViolations() {
+  const f = resolve(HIST, "spacing-baseline.json");
+  if (!existsSync(f)) return null;
+  try { return JSON.parse(readFileSync(f, "utf8")).totals.violations; } catch { return null; }
+}
+
+function main() {
+  ensureDirs();
+  seedExceptions();
+  const check = process.argv.includes("--check");
+
+  const spacing = assertReport(runSpacing());
+  const a11y = runAccessibility();
+  const summary = buildSummary([spacing, a11y]);
+
+  // Le rapport persisté ne liste que les usages NON conformes (les conformes sont
+  // agrégés dans totals) — garde le fichier exploitable sans le faire exploser.
+  const persisted = { ...spacing, findings: spacing.findings.filter((f) => f.status !== "compliant"), findingsNote: `${spacing.totals.compliant} usages conformes agrégés dans totals, non listés.` };
+  writeFileSync(resolve(OUT, "spacing-health.json"), JSON.stringify(persisted, null, 2) + "\n");
+  writeFileSync(resolve(OUT, "spacing-health.md"), spacingMarkdown(spacing));
+  writeFileSync(resolve(OUT, "accessibility-health.json"), JSON.stringify(a11y, null, 2) + "\n");
+  writeFileSync(resolve(OUT, "health-summary.json"), JSON.stringify(summary, null, 2) + "\n");
+
+  const stamp = new Date().toISOString().slice(0, 10);
+  writeFileSync(resolve(HIST, `spacing-${stamp}.json`), JSON.stringify({ generatedAt: spacing.generatedAt, scores: spacing.scores, totals: spacing.totals, confidence: spacing.confidence }, null, 2) + "\n");
+
+  const s = spacing.scores, c = spacing.confidence;
+  console.log(`Spacing Health ${(s.health * 100).toFixed(1)}% | value ${(s.valueCompliance * 100).toFixed(1)}% | adoption ${(s.tokenAdoption * 100).toFixed(1)}% | confidence ${(c.value * 100).toFixed(1)}%`);
+  console.log(`détectés ${spacing.totals.detected} · violations ${spacing.totals.violations} (cœur ${spacing.totals.violationsByTrack.error}) · needs-decision ${spacing.totals.needsDecision} · non classifiés ${spacing.totals.unclassified}`);
+
+  if (check) {
+    const base = baselineViolations();
+    if (base == null) { console.log("check: pas de baseline (spacing-baseline.json) — mode observation."); return; }
+    if (spacing.totals.violations > base) { console.error(`::error::Spacing: ${spacing.totals.violations} violations > baseline ${base}. Nouvelle régression.`); process.exit(1); }
+    console.log(`check: OK (${spacing.totals.violations} ≤ baseline ${base}).`);
+  }
+}
+
+main();

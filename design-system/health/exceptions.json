@@ -1,0 +1,5 @@
+{
+  "$schema": "health exceptions v1",
+  "$doc": "Dérogations documentées. Une exception compte comme conforme. Champs : value(px), file, property, reason, owner, date, review.",
+  "spacing": []
+}
