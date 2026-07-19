@@ -1,27 +1,27 @@
 {
-  "generatedAt": "2026-07-19T17:10:24.329Z",
+  "generatedAt": "2026-07-19T17:24:03.679Z",
   "scores": {
-    "valueCompliance": 0.7928,
+    "valueCompliance": 0.8095,
     "scaleAdoption": 0.9872,
     "cssVarAdoption": 0,
-    "health": 0.8511
+    "health": 0.8628
   },
   "totals": {
     "detected": 5392,
-    "preferred": 2742,
+    "preferred": 2808,
     "compactAllowed": 1527,
-    "violations": 1117,
-    "exceptions": 6,
+    "violations": 1027,
+    "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
     "classifiable": 5392,
-    "compliant": 4275,
+    "compliant": 4365,
     "byTrack": {
       "error": 552,
       "warn": 4840
     },
     "violationsByTrack": {
-      "error": 90,
+      "error": 0,
       "warn": 1027
     },
     "compactByTrack": {
@@ -33,7 +33,7 @@
     "value": 0.9632,
     "classifiableRatio": 1,
     "unclassified": 0,
-    "exceptions": 6,
+    "exceptions": 30,
     "lowConfidence": 105,
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   }

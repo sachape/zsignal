@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T17:10:24.363Z",
+  "generatedAt": "2026-07-19T17:24:03.700Z",
   "overall": {
-    "score": 0.881860612244898,
-    "previous": 0.881860612244898,
-    "delta": 0,
+    "score": 0.8853706122448979,
+    "previous": 0.8853706122448979,
+    "delta": 0.003509999999999902,
     "label": "Good",
     "dimensions": [
       {
@@ -20,7 +20,7 @@
         "label": "Spacing",
         "weight": 0.3,
         "tier": "important",
-        "value": 0.8511,
+        "value": 0.8628,
         "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
       },
       {
@@ -94,7 +94,7 @@
             "key": "spacing",
             "label": "Spacing",
             "status": "measured",
-            "measure": "85%",
+            "measure": "86%",
             "note": "audit spacing (value + scale adoption)"
           },
           {
@@ -442,45 +442,45 @@
     "cssVarAdoption": 0
   },
   "debt": {
-    "violations": 1117,
-    "violationsCore": 90,
-    "exceptions": 6,
+    "violations": 1027,
+    "violationsCore": 0,
+    "exceptions": 30,
     "baseline": 1118
   },
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T17:10:24.329Z",
+      "generatedAt": "2026-07-19T17:24:03.679Z",
       "scores": {
-        "valueCompliance": 0.7928,
+        "valueCompliance": 0.8095,
         "scaleAdoption": 0.9872,
         "cssVarAdoption": 0,
-        "health": 0.8511
+        "health": 0.8628
       },
       "confidence": {
         "value": 0.9632,
         "classifiableRatio": 1,
         "unclassified": 0,
-        "exceptions": 6,
+        "exceptions": 30,
         "lowConfidence": 105,
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
         "detected": 5392,
-        "preferred": 2742,
+        "preferred": 2808,
         "compactAllowed": 1527,
-        "violations": 1117,
-        "exceptions": 6,
+        "violations": 1027,
+        "exceptions": 30,
         "needsDecision": 0,
         "unclassified": 0,
         "classifiable": 5392,
-        "compliant": 4275,
+        "compliant": 4365,
         "byTrack": {
           "error": 552,
           "warn": 4840
         },
         "violationsByTrack": {
-          "error": 90,
+          "error": 0,
           "warn": 1027
         },
         "compactByTrack": {
@@ -492,7 +492,7 @@
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T17:10:24.334Z",
+      "generatedAt": "2026-07-19T17:24:03.684Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

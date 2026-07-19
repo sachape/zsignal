@@ -5,6 +5,18 @@
     { "value": -12, "file": "src/components/site/PlanCard.tsx", "property": "top", "reason": "Positionnement négatif intentionnel : badge de plan chevauchant le bord de la carte.", "owner": "sachape", "date": "2026-07-19" },
     { "value": -12, "file": "src/pages/AnalysePage.tsx", "property": "inset", "reason": "Superposition intentionnelle d'un element decoratif (offset -12px).", "owner": "sachape", "date": "2026-07-19" },
     { "value": -12, "file": "src/pages/Index.tsx", "property": "column-gap", "reason": "Chevauchement intentionnel d'items (space-x negatif, ex. avatars empiles).", "owner": "sachape", "date": "2026-07-19" },
-    { "value": -12, "file": "src/pages/PricingPage.tsx", "property": "top", "reason": "Positionnement négatif intentionnel : badge de plan chevauchant le bord de la carte.", "owner": "sachape", "date": "2026-07-19" }
+    { "value": -12, "file": "src/pages/PricingPage.tsx", "property": "top", "reason": "Positionnement négatif intentionnel : badge de plan chevauchant le bord de la carte.", "owner": "sachape", "date": "2026-07-19" },
+
+    { "value": 1, "file": "src/components/ui/scroll-area.tsx", "property": "padding", "reason": "Rail de scrollbar Radix : p-[1px] insère le pouce d'1px depuis la bordure. Structurel — migrer casserait la scrollbar.", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" },
+    { "value": 1, "file": "src/components/ui/navigation-menu.tsx", "property": "top", "reason": "Compensation optique du chevron (top-[1px]) — pas un espacement.", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" },
+    { "value": 1, "file": "src/index.css", "property": "padding", "reason": "Largeur du liseré dégradé (bento border) : padding:1px sert de masque, pas d'espacement.", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" },
+
+    { "value": 6, "file": "src/components/ui/sidebar.tsx", "property": "top", "reason": "Centrage optique : bouton d'action 20px centré dans une ligne de menu 32px -> top-1.5 (6px). Migrer désaligne l'icône.", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" },
+    { "value": 10, "file": "src/components/ui/sidebar.tsx", "property": "top", "reason": "Centrage optique du bouton d'action pour les menu-buttons taille lg (top-2.5).", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" },
+    { "value": 14, "file": "src/components/ui/sidebar.tsx", "property": "top", "reason": "Centrage optique du group-action (top-3.5).", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" },
+    { "value": 14, "file": "src/components/ui/sidebar.tsx", "property": "margin-inline", "reason": "Indent du sous-menu : mx-3.5 aligne la bordure gauche sous l'icône du parent. Alignement, pas espacement.", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" },
+    { "value": 2, "file": "src/components/ui/sidebar.tsx", "property": "padding-block", "reason": "Padding vertical serré volontaire des sous-items (py-0.5) dans la sidebar dense.", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" },
+
+    { "value": 2, "file": "src/components/ui/chart.tsx", "property": "margin-block", "reason": "Offset optique interne du wrapper recharts (légende/tooltip).", "owner": "sachape", "date": "2026-07-19", "review": "Lot 2 core spacing" }
   ]
 }
