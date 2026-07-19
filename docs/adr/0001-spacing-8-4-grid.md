@@ -17,15 +17,24 @@
 
 ## Décision
 
-### Règle 8/4
-- `0` conforme ; `4px` micro-spacing autorisé ; multiples de **8** conformes
-  (`8,16,24,32,40,48,56,64,80,96,120,128`).
-- Multiples de 4 hors 8 (**12, 20, 28, 36, 44…**) → **`needs-decision`** (jamais
-  auto-conformes). **12 et 20 sont conservés** pour l'instant et tranchés après l'audit.
-- Le reste (2, 6, 10, 14, 18…) → **`violation`**.
+### Règle 8/4 — échelle à DEUX niveaux (arbitrée après l'audit)
+- **Preferred** (échelle principale, **choix par défaut** — layouts, sections, structure) :
+  `0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 120, 128`.
+- **Compact-allowed** (sous-grille compacte, **secondaire** — espacements internes de composants
+  denses) : `4, 12, 20`. **Conforme**, mais suivi séparément.
+- **Violation** : toute autre valeur positive (`2, 6, 10, 14, 28, 36, 44…`) hors exception documentée.
+- **Exception** : usages **négatifs** intentionnels de positionnement (dont les `-12px` identifiés),
+  documentés dans `design-system/health/exceptions.json` (value signée, file, property, reason, owner, date).
+  Les négatifs dont la magnitude est sur la grille (`-16px` pull) sont classés par valeur absolue.
+- **Needs-decision** : 0 après cette décision (tout est tranché).
 - **Périmètre** : `margin*`, `padding*`, `gap/row-gap/column-gap`, `inset/top/right/bottom/left`,
-  `space-x/y`. **Hors périmètre** : width/height/min/max, font-size, line-height,
-  border-width, border-radius, tailles d'icônes, `%`, négatifs techniques, positionnement d'animation.
+  `space-x/y`. **Hors périmètre** : width/height/min/max, font-size, line-height, border-width,
+  border-radius, tailles d'icônes, `%`, positionnement d'animation.
+- **Transparence (anti-gaming)** : preferred et compact-allowed comptent tous deux conformes, mais
+  restent **distingués partout** ; le Dashboard affiche le volume compact-allowed (988 : 12px×766 +
+  20px×222, + 4px). La baseline CI surveille **toute hausse du compact-allowed** pour empêcher un
+  remplacement `violation → compact` qui gonflerait le score sans améliorer le rythme principal
+  (cible : `violation → preferred`).
 
 ### Tokens (Model A)
 - **On ne renomme pas** les tokens `space.*` en P6 (l'actuel est index-based : `space-3`=12px).
@@ -34,7 +43,7 @@
   hors-grille) — **seulement en fin de P6**, après migration, sinon le build casse.
 
 ### Deux indicateurs + confidence
-- **Spacing value compliance** = conformes / classifiables (needs-decision non compté conforme).
+- **Spacing value compliance** = (preferred + compact-allowed + exception) / classifiables.
 - **Scale adoption** = usages passant par l'échelle (classe Tailwind) ou un token, vs valeurs brutes
   (arbitraires/inline). **≠ « Token adoption »** : l'adoption réelle des tokens CSS `var(--space-*)`
   est mesurée à part (`cssVarAdoption`, aujourd'hui ≈0). Le libellé « Token adoption » est réservé à

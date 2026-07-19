@@ -1,38 +1,45 @@
 // Règle officielle de spacing (DS P6) — source de vérité unique du classement.
-// Documentée dans docs/adr/0001-spacing-8-4-grid.md.
+// Documentée dans docs/adr/0001-spacing-8-4-grid.md. Échelle à DEUX niveaux :
 //
-//  - 0            : toujours conforme
-//  - 4px          : micro-spacing autorisé
-//  - multiples 8  : conformes (8,16,24,32,40,48,56,64,80,96,120,128)
-//  - multiples 4 hors 8 (12,20,28…) : NEEDS-DECISION (jamais auto-conformes,
-//    décision après audit — cf. arbitrage utilisateur : 12 et 20 conservés en attente)
-//  - le reste (2,6,10,14,18…) : VIOLATION
+//  - PREFERRED       (0,8,16,24,32,40,48,56,64,80,96,120,128) : rythme principal, défaut.
+//  - COMPACT-ALLOWED (4,12,20) : sous-grille compacte secondaire (composants denses).
+//  - VIOLATION       (2,6,10,14,28,36,44… + négatifs non documentés).
+//  - EXCEPTION       : négatifs de positionnement intentionnels, documentés (exceptions.json).
 //
-// NB : la règle ne renomme PAS les tokens (reporté à Design Tokens V2). Elle
-// classe des USAGES d'espacement, pas des tailles (width/height/icônes/radius).
+// PREFERRED et COMPACT-ALLOWED comptent conformes, mais restent DISTINGUÉS partout.
+// La règle classe des USAGES d'espacement, pas des tailles (width/height/icônes/radius),
+// et ne renomme pas les tokens (reporté à Design Tokens V2).
 
-import { STATUS } from "../contract.mjs";
 import defaultTheme from "tailwindcss/defaultTheme.js";
 
-export const SCALE = Object.freeze([0, 4, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 120, 128]);
+// Échelle à DEUX niveaux (décision DS P6, ADR 0001) :
+//  - PREFERRED : rythme principal (layouts, sections, structure). Choix PAR DÉFAUT.
+//  - COMPACT   : sous-grille compacte, SECONDAIRE, pour les espacements internes
+//                de composants denses. Conforme, mais suivie séparément.
+export const PREFERRED = Object.freeze([0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 120, 128]);
+export const COMPACT = Object.freeze([4, 12, 20]);
+export const SCALE = Object.freeze([...PREFERRED, ...COMPACT].sort((a, b) => a - b));
 const REM = 16;
+const COMPACT_SET = new Set(COMPACT);
 
-/** Classe une valeur en px selon la règle 8/4. */
-export function classify(px) {
-  if (px == null || Number.isNaN(px)) return STATUS.UNCLASSIFIED;
-  const v = Math.abs(px);
-  if (v === 0) return STATUS.COMPLIANT;
-  if (v === 4) return STATUS.COMPLIANT;
-  if (v % 8 === 0) return STATUS.COMPLIANT;
-  if (v % 4 === 0) return STATUS.NEEDS_DECISION; // 12, 20, 28, 36, 44…
-  return STATUS.VIOLATION;
+/**
+ * Classe une valeur d'espacement en TIER. Les négatifs ne sont pas classés par la
+ * grille (positionnement, pas rythme) → « violation » sauf exception documentée.
+ * Ne produit JAMAIS « needs-decision » : toute valeur positive est tranchée.
+ */
+export function classifyTier(px) {
+  if (px == null || Number.isNaN(px)) return "unclassified";
+  const v = Math.abs(px); // un négatif sur-grille (-16px pull) respecte le rythme
+  if (v === 0 || v % 8 === 0) return "preferred";
+  if (COMPACT_SET.has(v)) return "compact-allowed";
+  return "violation"; // 2, 6, 10, 14, 28, 36, 44… (et leurs négatifs)
 }
 
-/** Deux valeurs d'échelle les plus proches (pour la recommandation). */
-export function recommend(px) {
+/** Deux valeurs PREFERRED les plus proches (on pousse violation → preferred, pas → compact). */
+export function recommendPreferred(px) {
   if (px == null || Number.isNaN(px)) return [];
   const v = Math.abs(px);
-  const sorted = [...SCALE].sort((a, b) => Math.abs(a - v) - Math.abs(b - v));
+  const sorted = [...PREFERRED].filter((n) => n > 0).sort((a, b) => Math.abs(a - v) - Math.abs(b - v));
   const uniq = [...new Set(sorted.slice(0, 2))].sort((a, b) => a - b);
   const sign = px < 0 ? "-" : "";
   return uniq.map((n) => `${sign}${n}px`);

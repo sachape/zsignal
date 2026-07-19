@@ -118,8 +118,19 @@ function Dashboard() {
   const { spacing, a11y, ageDays } = state;
   const s = spacing.scores, c = spacing.confidence, t = spacing.totals, scope = spacing.scope;
   const fresh = state.kind === "available";
-  const nd12 = spacing.distribution?.byValue?.["12px"] ?? 0;
-  const nd20 = spacing.distribution?.byValue?.["20px"] ?? 0;
+  const compact = spacing.compactBreakdown ?? { total: 0, byValue: {} };
+  const c12 = compact.byValue?.["12px"] ?? 0;
+  const c20 = compact.byValue?.["20px"] ?? 0;
+  const c4 = compact.byValue?.["4px"] ?? 0;
+  // Barre de distribution preferred / compact / violation (proportions du classifiable).
+  const tot = Math.max(t.classifiable, 1);
+  const dist = [
+    { key: "preferred", label: "Preferred", n: t.preferred, tone: "good" as Tone },
+    { key: "compact", label: "Compact-allowed", n: t.compactAllowed, tone: "warn" as Tone },
+    { key: "violation", label: "Violation", n: t.violations, tone: "bad" as Tone },
+    { key: "exception", label: "Exception", n: t.exceptions, tone: "neutral" as Tone },
+  ];
+  const DIST_BG: Record<Tone, string> = { good: "bg-success", warn: "bg-warning", bad: "bg-destructive", neutral: "bg-muted-foreground" };
 
   const healthTone: Tone = s.health >= 0.9 ? "good" : s.health >= 0.7 ? "warn" : "bad";
   const valueTone: Tone = s.valueCompliance >= 0.9 ? "good" : s.valueCompliance >= 0.7 ? "warn" : "bad";
@@ -172,11 +183,29 @@ function Dashboard() {
           </Card>
         </div>
         <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-          <span>Usages détectés : <strong className="text-foreground tabular-nums">{t.detected}</strong></span>
+          <span>Détectés : <strong className="text-foreground tabular-nums">{t.detected}</strong></span>
+          <span>Preferred : <strong className="text-foreground tabular-nums">{t.preferred}</strong></span>
+          <span>Compact-allowed : <strong className="text-foreground tabular-nums">{t.compactAllowed}</strong></span>
           <span>Violations : <strong className="text-foreground tabular-nums">{t.violations}</strong></span>
-          <span>Needs-decision : <strong className="text-foreground tabular-nums">{t.needsDecision}</strong></span>
           <span>Exceptions : <strong className="text-foreground tabular-nums">{t.exceptions}</strong></span>
-          <span>Non classifiés : <strong className="text-foreground tabular-nums">{t.unclassified}</strong></span>
+          <span>Needs-decision : <strong className="text-foreground tabular-nums">{t.needsDecision}</strong></span>
+        </div>
+
+        {/* Distribution par tier — rend visible que preferred ≠ compact-allowed */}
+        <div className="flex flex-col gap-2">
+          <div className="flex h-3 w-full overflow-hidden rounded-full" role="img" aria-label={`Distribution : ${dist.map((d) => `${d.label} ${d.n}`).join(", ")}`}>
+            {dist.filter((d) => d.n > 0).map((d) => (
+              <div key={d.key} className={DIST_BG[d.tone]} style={{ width: `${(d.n / tot) * 100}%` }} />
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+            {dist.map((d) => (
+              <span key={d.key} className="flex items-center gap-1">
+                <span aria-hidden className={`inline-block h-2 w-2 rounded-full ${DIST_BG[d.tone]}`} />
+                {d.label} : <strong className="text-foreground tabular-nums">{d.n}</strong> ({((d.n / tot) * 100).toFixed(0)}%)
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -202,11 +231,15 @@ function Dashboard() {
           </Card>
 
           <Card className="min-w-64 flex-1">
-            <CardHeader className="pb-2"><CardTitle className="text-base">Décision 12px / 20px</CardTitle></CardHeader>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Sous-grille compacte</CardTitle>
+              <CardDescription>Conforme, mais <strong>secondaire</strong> — préférer l'échelle principale.</CardDescription>
+            </CardHeader>
             <CardContent className="flex flex-col gap-2 text-sm">
-              <div className="flex items-center justify-between"><span><code>12px</code> (multiple de 4, hors 8)</span><StatusBadge tone="warn">{nd12} usages</StatusBadge></div>
-              <div className="flex items-center justify-between"><span><code>20px</code> (multiple de 4, hors 8)</span><StatusBadge tone="warn">{nd20} usages</StatusBadge></div>
-              <p className="text-xs text-muted-foreground">Classés « needs-decision » — à trancher (garder / migrer / exception).</p>
+              <div className="flex items-center justify-between"><span>Total compact-allowed</span><StatusBadge tone="warn">{compact.total} usages</StatusBadge></div>
+              <div className="flex items-center justify-between text-muted-foreground"><span><code>4px</code> · micro</span><span className="tabular-nums">{c4}</span></div>
+              <div className="flex items-center justify-between text-muted-foreground"><span><code>12px</code></span><span className="tabular-nums">{c12}</span></div>
+              <div className="flex items-center justify-between text-muted-foreground"><span><code>20px</code> · secondaire</span><span className="tabular-nums">{c20}</span></div>
             </CardContent>
           </Card>
         </div>
@@ -230,13 +263,13 @@ function Dashboard() {
             <CardHeader className="pb-2"><CardTitle className="text-base">Fichiers les plus touchés</CardTitle></CardHeader>
             <CardContent>
               <Table>
-                <TableHeader><TableRow><TableHead>Fichier</TableHead><TableHead className="text-right">Viol.</TableHead><TableHead className="text-right">N-D</TableHead><TableHead>Piste</TableHead></TableRow></TableHeader>
+                <TableHeader><TableRow><TableHead>Fichier</TableHead><TableHead className="text-right">Viol.</TableHead><TableHead className="text-right">Compact</TableHead><TableHead>Piste</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {(spacing.topOffenders ?? []).slice(0, 8).map((o: any) => (
                     <TableRow key={o.file}>
                       <TableCell className="max-w-72 truncate font-mono text-xs">{o.file}</TableCell>
                       <TableCell className="text-right tabular-nums">{o.violations}</TableCell>
-                      <TableCell className="text-right tabular-nums">{o.needsDecision}</TableCell>
+                      <TableCell className="text-right tabular-nums">{o.compactAllowed}</TableCell>
                       <TableCell><StatusBadge tone={o.track === "error" ? "bad" : "neutral"}>{o.track}</StatusBadge></TableCell>
                     </TableRow>
                   ))}

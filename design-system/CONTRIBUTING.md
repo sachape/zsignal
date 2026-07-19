@@ -62,8 +62,10 @@ npm run build-storybook  # compilation
 
 ## Spacing — gouvernance (DS P6)
 
-Règle 8/4 : `4px` micro, sinon progression `8,16,24,32,40,48,56,64,80,96,120,128` ;
-`12/20/28…` = **needs-decision** ; le reste (`2/6/10/14…`) = violation. Périmètre =
+Échelle à deux niveaux : **preferred** (`0,8,16,24,32,40,48,56,64,80,96,120,128` — défaut) et
+**compact-allowed** (`4,12,20` — secondaire, composants denses). Tout le reste positif
+(`2,6,10,14,28,36,44…`) = **violation** ; négatifs de positionnement = **exception** documentée.
+Préférer toujours **preferred** ; compact-allowed reste conforme mais suivi. Périmètre =
 espacements (margin/padding/gap/inset…), **pas** width/height/radius/typo. Détail : `docs/adr/0001-spacing-8-4-grid.md`.
 
 ```
