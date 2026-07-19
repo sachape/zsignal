@@ -18,3 +18,42 @@ Composant du DS présent dans `src/components/ui/` :
 ## C — spec Figma-ready sans Figma
 - Produire la spécification (structure, variantes, états, tokens) exploitable dans Figma.
 - Ne PAS affirmer qu'un frame a été créé (aucun Figma configuré dans ce dépôt).
+
+## D — sortie de référence : Button (Composant atomique)
+Forme attendue d'une reconstruction Figma (voir `references/figma-mapping.md`) :
+
+```
+Code-to-Design — Button
+Cible          : Composant atomique
+Nature Figma   : Component (main component + Component set des variants)
+
+Structure Figma
+Button
+└── Content            (Auto Layout H)
+    ├── Leading icon    (Instance swap · boolean leadingIcon)
+    ├── Label           (Text property · label)
+    └── Trailing icon   (Instance swap · boolean trailingIcon)
+
+Auto Layout
+- Direction : Horizontal · Height : Hug · Width : Hug · Alignment : Center
+- Gap : Variables/Spacing/component-sm   (← var(--button-gap))
+- Padding H : Variables/Spacing/button-inline · Padding V : 0
+
+Component properties
+- variant : default | destructive | secondary   (Variant)
+- size    : sm | md | lg                          (Variant)
+- disabled, leadingIcon, trailingIcon             (Boolean)
+- label                                           (Text)
+- icon                                            (Instance swap)
+
+Tokens → Variables Figma
+- background/default → color.action.primary.background → Variables/Color/action-primary-background (modes Light/Dark)
+- radius             → radius.control               → Variables/Radius/control
+- typography         → typography.label.md          → Variables/Typography/label-md
+
+Certitude
+- certain : variants, padding, radius, gap (tokens explicites dans button.json/tsx)
+- déduit  : structure interne « Content »
+- ambigu  : largeur responsive selon le parent
+- absent  : transition exacte entre états (runtime, non figeable)
+```
