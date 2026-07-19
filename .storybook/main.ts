@@ -50,7 +50,12 @@ const config: StorybookConfig = {
     const mock = fileURLToPath(new URL("./mocks/supabase.ts", import.meta.url));
     cfg.resolve = cfg.resolve ?? {};
     const alias = cfg.resolve.alias;
-    const entry = { find: /^@\/integrations\/supabase\/client$/, replacement: mock };
+    // Ancré ^…$ (plugin-alias remplace la portion matchée : un match partiel
+    // casserait le chemin). Couvre la forme aliasée `@/integrations/supabase/client`
+    // ET les imports RELATIFS `../supabase/client` (ex. src/integrations/lovable/index.ts)
+    // qui échappaient au mock → chargeaient le vrai client → « supabaseUrl is required »
+    // en CI (pas de VITE_SUPABASE_* depuis que .env est dé-tracké), plantant Chromatic.
+    const entry = { find: /^(?:@\/integrations\/supabase\/client|(?:\.\.\/)+supabase\/client)$/, replacement: mock };
     if (Array.isArray(alias)) alias.unshift(entry);
     else cfg.resolve.alias = [entry, ...Object.entries(alias ?? {}).map(([find, replacement]) => ({ find, replacement }))];
     return cfg;
