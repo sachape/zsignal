@@ -169,7 +169,7 @@ function Explorer({ layer, title, blurb }: { layer: Row["layer"] | "all"; title:
   );
 }
 
-const meta: Meta = { title: "Design System/Tokens", parameters: { layout: "fullscreen" } };
+const meta: Meta = { title: "Foundations/Tokens", parameters: { layout: "fullscreen" } };
 export default meta;
 type S = StoryObj;
 

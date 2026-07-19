@@ -106,7 +106,7 @@ function cell(): React.CSSProperties {
 }
 
 const meta: Meta = {
-  title: "Foundations/Grid & Layout",
+  title: "Foundations/Grid",
   parameters: { controls: { disable: true },
     layout: "fullscreen",
     docs: { description: { component: "Système de mise en page : échelle d'espacement (tokens --space-*), grille responsive 12 colonnes, compositions courantes et breakpoints. Base CSS Grid + Tailwind." } },

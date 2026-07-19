@@ -307,7 +307,7 @@ function Dashboard() {
 }
 
 const meta: Meta<typeof Dashboard> = {
-  title: "Design System/Health",
+  title: "Health",
   component: Dashboard,
   parameters: {
     layout: "fullscreen",
