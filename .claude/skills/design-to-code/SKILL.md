@@ -8,7 +8,12 @@ description: Implémente ou refond une feature, page, pattern ou composant Strea
 Traduire une intention en implémentation **conforme** à l'architecture, aux tokens, à
 Storybook et aux standards du dépôt. Jamais de traduction aveugle d'une maquette.
 
-Boucle : **comprendre → inspecter → réutiliser → planifier → implémenter → documenter → tester → valider.**
+Ce Skill est le **gardien du Design System** : on peut lui confier une modification du DS sans
+lui rappeler les bonnes pratiques. Toute modification passe par une **classification**, l'**arbre
+de réutilisation**, la **gouvernance des tokens** et des **stop-conditions** explicites — les règles
+communes vivent dans `../_shared/` (il les applique, ne les recopie pas).
+
+Boucle : **classifier → analyser (inspecter · réutiliser · tokens) → décider (stratégie annoncée) → exécuter → rapport.**
 
 ## Quand l'utiliser
 Créer/refondre une feature, une page, un pattern, un composant ; migrer ou corriger une UI —
@@ -19,16 +24,37 @@ d'acceptation, audit, interface existante, composants Storybook, Figma **faculta
 Seulement cadrer (`/product-discovery`), seulement documenter l'existant (`/code-to-design`),
 seulement auditer (`/design-system-review`) ou faire la QA (`/ui-qa`).
 
+## Classifier la demande (avant toute modification)
+Toujours annoncer d'abord le **type** de demande — il guide toute la suite :
+nouveau composant · extension d'un composant · nouveau variant · nouvelle prop · refactor ·
+correctif · nouveau token · modification d'un token existant · **valeur qui ne doit PAS entrer
+dans le DS** · **demande relevant du produit, pas du Design System**.
+
+## Décision (annoncer AVANT d'exécuter)
+Après l'inspection, l'arbre de réutilisation et la gouvernance des tokens (phases B–D), et
+**avant de modifier le code** (phases K–M) : annoncer la **stratégie retenue** — pas le raisonnement
+interne, juste le choix :
+- réutiliser un composant existant ;
+- étendre un variant ;
+- composer plusieurs composants ;
+- créer un nouveau composant ;
+- **interrompre** l'implémentation (stop-condition).
+
+Décision = ce qui **va** être fait · Rapport = ce qui a **réellement** été fait.
+
 ## Phases (détails dans references/)
 - **A · Qualifier** : sources, contradictions, hiérarchie d'autorité (`../_shared/sources-and-evidence.md`),
   objectif reformulé, critères, parcours/états, nature de la tâche, ce qui doit rester inchangé.
 - **B · Inspecter le dépôt AVANT d'éditer** : route/feature, logique métier, appels de données,
   composants génériques/métier, tokens, styles, stories, tests, patterns analogues, conventions,
   règles DS concernées. Produire un **inventaire court**.
-- **C · Décision de réutilisation** : arbre réutiliser / étendre / composer / créer
-  (`../_shared/design-system.md`). Documenter pourquoi l'existant ne suffit pas.
-- **D · Tokens & styling** : `../_shared/design-system.md`. Sémantique > primitive, zéro valeur
-  en dur, thèmes light/dark. Token manquant → procédure documentée + `npm run tokens:build`.
+- **C · Décision de réutilisation** : parcourir l'arbre **réutiliser → étendre → composer → créer**
+  (`../_shared/design-system.md`) — **aucune création directe sans l'avoir parcouru**. Documenter
+  pourquoi l'existant ne suffit pas.
+- **D · Gouvernance des tokens** : `../_shared/design-system.md`. Nouvelle valeur → déterminer son
+  **niveau** (primitive/semantic/component), vérifier qu'un token existant ne couvre pas déjà le besoin,
+  **refuser une primitive sans justification**, préférer un token **sémantique** si l'usage est partagé.
+  Zéro valeur en dur ; thèmes light/dark ; `npm run tokens:build` après tout ajout.
 - **E · États** : couvrir les états pertinents ; documenter les non-applicables. `references/states.md`.
 - **F · Responsive** : `references/responsive.md` (breakpoints réels, comportement > proportion).
 - **G · Accessibilité** : `references/accessibility.md` (clavier, focus, noms accessibles, contraste…).
@@ -43,8 +69,24 @@ seulement auditer (`/design-system-review`) ou faire la QA (`/ui-qa`).
 - **M · Valider** : exécuter les commandes réelles (`../_shared/validation.md`). Diagnostiquer/corriger
   les échecs causés par les modifications ; distinguer régression vs dette préexistante.
 
+## Stop-conditions (interrompre et expliquer, ne pas forcer)
+Suspendre l'implémentation et exposer le **motif** quand :
+- création d'une **nouvelle palette primitive** ;
+- **contradiction avec un ADR** (`docs/adr/`) ;
+- il faudrait **relever une baseline** pour faire passer un contrôle (`../_shared/validation.md`) ;
+- **breaking change** d'une API publique ;
+- la demande relève du **produit**, pas du Design System ;
+- informations **insuffisantes** pour classer correctement la demande.
+
 ## Rapport
-Produire `templates/report.md` avec un état final **PASS / PARTIAL / FAIL** factuel.
+Produire `templates/report.md` — rapport **professionnel** (pas de raisonnement interne),
+état final **PASS / PARTIAL / FAIL**, listant factuellement :
+- composants créés / modifiés ;
+- stories mises à jour ;
+- documentation synchronisée ;
+- tests ajoutés / modifiés ;
+- **tokens** créés — ou confirmation qu'**aucun** nouveau token n'a été créé ;
+- validations exécutées (`../_shared/validation.md`) et leur **résultat réel**.
 
 ## Définition de terminé
 Critères couverts ; logique métier préservée (ou modif. explicitement autorisée) ; existant réutilisé ;
