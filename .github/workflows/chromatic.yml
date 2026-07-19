@@ -44,8 +44,11 @@ jobs:
       # On build le Storybook NOUS-MÊMES avec npm. Sinon chromaui/action détecte
       # bun.lockb (maintenu par Lovable) et tente `bun run build-storybook` —
       # bun n'étant pas installé sur le runner → `spawn bun ENOENT`.
+      # --stats-json génère storybook-static/preview-stats.json, requis par
+      # TurboSnap (onlyChanged:true dans chromatic.config.json). Sans lui,
+      # l'action échoue : « Failed to prepare your built Storybook ».
       - name: Builder le Storybook
-        run: npm run build-storybook
+        run: npm run build-storybook -- --stats-json
 
       - name: Publier sur Chromatic
         uses: chromaui/action@latest
