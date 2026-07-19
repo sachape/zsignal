@@ -1,52 +1,214 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T14:06:33.779Z",
+  "generatedAt": "2026-07-19T15:59:57.266Z",
+  "overall": {
+    "score": 0.8814406122448979,
+    "previous": 0.8814406122448979,
+    "delta": 0,
+    "label": "Good",
+    "dimensions": [
+      {
+        "key": "accessibility",
+        "label": "Accessibility",
+        "weight": 0.5,
+        "tier": "critique",
+        "value": 1,
+        "why": "Un échec exclut de vrais utilisateurs — enjeu éthique et légal. C'est le garde-fou qu'on a rendu bloquant : le pire résultat possible pour un DS."
+      },
+      {
+        "key": "spacing",
+        "label": "Spacing",
+        "weight": 0.3,
+        "tier": "important",
+        "value": 0.8497,
+        "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
+      },
+      {
+        "key": "componentCoverage",
+        "label": "Component coverage",
+        "weight": 0.2,
+        "tier": "important",
+        "value": 0.6326530612244898,
+        "why": "Couverture doc/test des composants : un manque ralentit la contribution mais ne casse pas le produit — métrique interne, pas user-facing."
+      }
+    ],
+    "calculatedFrom": [
+      "Accessibility",
+      "Spacing",
+      "Component coverage"
+    ],
+    "note": "Score pondéré (pas une moyenne simple). Seules les dimensions réellement mesurées entrent dans le calcul — aucune métrique non mesurée n'influence ce score."
+  },
+  "foundations": {
+    "items": [
+      {
+        "name": "Colors",
+        "state": "documented"
+      },
+      {
+        "name": "Typography",
+        "state": "documented"
+      },
+      {
+        "name": "Spacing",
+        "state": "measured",
+        "value": "85%"
+      },
+      {
+        "name": "Radius",
+        "state": "documented"
+      },
+      {
+        "name": "Motion",
+        "state": "documented"
+      },
+      {
+        "name": "Shadows",
+        "state": "documented"
+      },
+      {
+        "name": "Borders",
+        "state": "documented"
+      },
+      {
+        "name": "Accessibility",
+        "state": "documented"
+      }
+    ],
+    "note": "Les fondations existent et sont documentées. Une seule est aujourd'hui mesurée quantitativement (Spacing) — les autres attendent le chantier Tokens V2."
+  },
+  "components": {
+    "total": 49,
+    "withStory": 31,
+    "coverage": 0.6326530612244898
+  },
+  "tokens": {
+    "total": 390,
+    "byLayer": {
+      "primitive": 132,
+      "semantic": 83,
+      "component": 127,
+      "compat": 48
+    }
+  },
+  "quality": [
+    {
+      "name": "Accessibility",
+      "state": "pass",
+      "detail": "axe mode error, bloquante en CI"
+    },
+    {
+      "name": "Storybook build",
+      "state": "enforced",
+      "detail": "build vérifié à chaque push"
+    },
+    {
+      "name": "Typecheck",
+      "state": "enforced",
+      "detail": "tsc --noEmit, gate CI"
+    },
+    {
+      "name": "Lint tokens",
+      "state": "enforced",
+      "detail": "hex/primitive interdits dans ui/"
+    },
+    {
+      "name": "Spacing baseline",
+      "state": "active",
+      "detail": "anti-régression (ratchet) — bloque toute nouvelle dette"
+    },
+    {
+      "name": "Chromatic",
+      "state": "pending",
+      "label": "Baseline à établir",
+      "detail": "workflow présent, aucune baseline acceptée"
+    },
+    {
+      "name": "Visual regression",
+      "state": "todo",
+      "label": "Non mesuré",
+      "detail": "dépend de la baseline Chromatic"
+    }
+  ],
+  "adoption": {
+    "scaleAdoption": 0.9871,
+    "compactShare": 0.2916276456265218,
+    "cssVarAdoption": 0
+  },
+  "debt": {
+    "violations": 1117,
+    "violationsCore": 90,
+    "exceptions": 6,
+    "baseline": 1118
+  },
+  "roadmap": [
+    {
+      "name": "Chromatic baseline",
+      "note": "établir une baseline visuelle acceptée"
+    },
+    {
+      "name": "Visual regression",
+      "note": "diff automatique par story"
+    },
+    {
+      "name": "Docs coverage",
+      "note": "part des composants avec doc MDX"
+    },
+    {
+      "name": "Token hygiene",
+      "note": "tokens inutilisés / dépréciés"
+    },
+    {
+      "name": "Foundations scoring",
+      "note": "Typography, Radius, Motion mesurés (Tokens V2)"
+    }
+  ],
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T14:06:33.771Z",
+      "generatedAt": "2026-07-19T15:59:57.246Z",
       "scores": {
-        "valueCompliance": 0.7835,
-        "scaleAdoption": 0.9855,
+        "valueCompliance": 0.7908,
+        "scaleAdoption": 0.9871,
         "cssVarAdoption": 0,
-        "health": 0.8441
+        "health": 0.8497
       },
       "confidence": {
-        "value": 0.9619,
+        "value": 0.9629,
         "classifiableRatio": 1,
         "unclassified": 0,
         "exceptions": 6,
-        "lowConfidence": 103,
+        "lowConfidence": 105,
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5164,
-        "preferred": 2510,
-        "compactAllowed": 1530,
-        "violations": 1118,
+        "detected": 5339,
+        "preferred": 2659,
+        "compactAllowed": 1557,
+        "violations": 1117,
         "exceptions": 6,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5164,
-        "compliant": 4046,
+        "classifiable": 5339,
+        "compliant": 4222,
         "byTrack": {
-          "error": 551,
-          "warn": 4613
+          "error": 552,
+          "warn": 4787
         },
         "violationsByTrack": {
-          "error": 91,
+          "error": 90,
           "warn": 1027
         },
         "compactByTrack": {
-          "error": 120,
-          "warn": 1410
+          "error": 121,
+          "warn": 1436
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T14:06:33.779Z",
+      "generatedAt": "2026-07-19T15:59:57.251Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

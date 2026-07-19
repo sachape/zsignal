@@ -1,40 +1,40 @@
 {
-  "generatedAt": "2026-07-19T14:06:33.771Z",
+  "generatedAt": "2026-07-19T15:59:57.246Z",
   "scores": {
-    "valueCompliance": 0.7835,
-    "scaleAdoption": 0.9855,
+    "valueCompliance": 0.7908,
+    "scaleAdoption": 0.9871,
     "cssVarAdoption": 0,
-    "health": 0.8441
+    "health": 0.8497
   },
   "totals": {
-    "detected": 5164,
-    "preferred": 2510,
-    "compactAllowed": 1530,
-    "violations": 1118,
+    "detected": 5339,
+    "preferred": 2659,
+    "compactAllowed": 1557,
+    "violations": 1117,
     "exceptions": 6,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5164,
-    "compliant": 4046,
+    "classifiable": 5339,
+    "compliant": 4222,
     "byTrack": {
-      "error": 551,
-      "warn": 4613
+      "error": 552,
+      "warn": 4787
     },
     "violationsByTrack": {
-      "error": 91,
+      "error": 90,
       "warn": 1027
     },
     "compactByTrack": {
-      "error": 120,
-      "warn": 1410
+      "error": 121,
+      "warn": 1436
     }
   },
   "confidence": {
-    "value": 0.9619,
+    "value": 0.9629,
     "classifiableRatio": 1,
     "unclassified": 0,
     "exceptions": 6,
-    "lowConfidence": 103,
+    "lowConfidence": 105,
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   }
 }

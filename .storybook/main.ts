@@ -16,6 +16,8 @@ const config: StorybookConfig = {
       ? []
       : [
           "../design-system/stories/docs/*.stories.@(js|jsx|mjs|ts|tsx)",
+          // Health : cockpit exécutif (lit des rapports JSON), pas un smoke-test.
+          "../design-system/stories/health/*.stories.@(js|jsx|mjs|ts|tsx)",
           "../design-system/stories/catalog/*.stories.@(js|jsx|mjs|ts|tsx)",
         ]),
     // Plus toute story ajoutée dans src/.
