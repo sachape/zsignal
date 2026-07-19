@@ -1,0 +1,39 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Getting Started/Contribution" />
+
+# Contribution
+
+Comment contribuer au Design System. Règles complètes : `CONTRIBUTING.md` (dépôt) et
+`design-system/CONTRIBUTING.md` (spécifique DS).
+
+## Ajouter / modifier un composant
+
+1. Le composant vit dans `src/components/ui/` et consomme des tokens **sémantiques** (pas de hex/primitive en dur).
+2. Il a une **story** dans `design-system/stories/`, rangée dans le bon groupe `Components/<usage>/`.
+3. Discipline de story : **nom = rendu**, prop d'identité verrouillée (`control:false`), un seul `Playground` libre.
+4. Toute interaction réelle a une **play function** ; l'accessibilité est **bloquante**.
+
+## Commits & Pull Requests
+
+- **Commits** — Conventional Commits, courts, atomiques : `feat(ds):`, `fix(a11y):`, `refactor(tokens):`, `docs(storybook):`…
+- **PR** — titre `DS P<phase> — <objectif>` ; corps = `.github/pull_request_template.md` (avec **Décisions d'architecture**).
+- **Branches** — `feature/*`, `fix/*`, `docs/*` ; jamais de push direct sur une branche protégée.
+
+## Validation avant commit
+
+```
+npm run typecheck        # tsc
+npm run lint:tokens      # garde-fou tokens (cœur ui/)
+npm run check:spacing    # garde-fou spacing (baseline)
+npm run test             # unit + Storybook + a11y (bloquant)
+npm run build-storybook  # compilation
+```
+
+## Déclarer une exception de spacing
+
+Ajouter une entrée dans `design-system/health/exceptions.json`
+(`value` signée, `file`, `property`, `reason`, `owner`, `date`) — elle compte alors comme conforme.
+
+Une PR n'est **Ready** que si : CI verte, Storybook construit, Chromatic approuvé, aucune régression visuelle,
+aucun TODO bloquant, revue effectuée.

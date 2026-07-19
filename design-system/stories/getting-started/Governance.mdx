@@ -1,0 +1,37 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Getting Started/Governance" />
+
+# Governance
+
+Ce qui fait de ce Storybook une **plateforme de qualité**, pas un simple catalogue : des garde-fous
+mesurés et vérifiables, appliqués en CI.
+
+## Accessibilité — bloquante
+
+- `@storybook/addon-a11y` en mode **error** est câblé dans le run Vitest (`.storybook/vitest.setup.ts`).
+- Toute **violation axe** fait échouer la CI. Statut actuel : **PASS** (voir **Health**).
+
+## Spacing — audit + baseline
+
+- Moteur `design-system/health/` : audit automatique (`npm run audit:spacing`), rapport **versionné** dans `reports/design-system/`.
+- Règle 8/4 à deux niveaux (**preferred** / **compact-allowed**), ADR `docs/adr/0001`.
+- `check:spacing` (CI) échoue si les **violations** OU le **compact-allowed** **augmentent** vs baseline —
+  garde anti-gaming (empêche `violation → compact` de gonfler le score). La dette historique ne bloque pas.
+- Évolution future du garde-fou : ADR `docs/adr/0002`.
+
+## Health Dashboard
+
+La section **Health** lit **uniquement** les rapports réels (contrat versionné) — aucun score mocké.
+Distingue preferred / compact-allowed / violation / exception, avec un niveau de **confidence**.
+
+## Régression visuelle — Chromatic
+
+- `chromatic.yml` : snapshot de chaque story, TurboSnap activé.
+- Les diffs sont **revus et approuvés explicitement** dans Chromatic (jamais auto-acceptés).
+- Une baseline officielle sera établie une fois la branche d'intégration stabilisée.
+
+## Pipeline CI (`ci.yml`)
+
+`typecheck` · `lint:tokens` · `check:spacing` · fraîcheur des tokens · tests (unit + Storybook + a11y) ·
+build Storybook · build prod. Une PR ne se merge pas avec une CI rouge.

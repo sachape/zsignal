@@ -1,0 +1,44 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Getting Started/Nomenclature" />
+
+# Nomenclature
+
+Le vocabulaire du Design System — pour que « à quoi sert ce composant ? » ait toujours une réponse claire.
+
+## Arborescence
+
+| Section | Contenu |
+|---|---|
+| **Getting Started** | Introduction, Architecture, Nomenclature, Contribution, Governance |
+| **Foundations** | Décisions visuelles fondatrices : Colors, Typography, Spacing, Radius, Motion, Icons, Grid, Tokens |
+| **Components** | Composants React réutilisables, rangés **par usage** (voir ci-dessous) |
+| **Patterns** | Assemblages réutilisables de composants (FilterBar, PageHeader, Sidebar…) |
+| **Health** | Tableau de bord de la qualité du DS (audit réel) |
+| **Catalogue** | Composants **feature** (spécifiques produit), hors socle réutilisable |
+
+> Historiquement « Primitives ». Renommé **Components** : ce sont des composants React,
+> pas des primitives de tokens (celles-ci vivent dans **Foundations**).
+
+## Groupes de Components (par usage)
+
+- **Actions** — déclenchent une action : Button, Toggle.
+- **Forms** — saisie de données : Input, Textarea, Label, Checkbox, Switch, Slider, Select, Calendar.
+- **Feedback** — état / notification : Progress, Skeleton, Toast, Sonner, EmptyState.
+- **Overlays** — surfaces superposées : Dialog, AlertDialog, Sheet, Popover, Tooltip, DropdownMenu.
+- **Navigation** — se repérer / se déplacer : Tabs, Command.
+- **Content & Structure** — présenter du contenu : Avatar, Badge, Card, Separator, Accordion.
+
+Le rangement répond à **l'usage**, pas au dossier le plus pratique. Une petite catégorie cohérente
+vaut mieux qu'un classement artificiel.
+
+## Tokens & spacing
+
+- **Primitive → Semantic → Component** : un composant consomme un token **sémantique**, jamais une primitive en dur.
+- **Spacing** : échelle **preferred** (0, 8, 16, 24…128, rythme principal) + **compact-allowed** (4, 12, 20, secondaire).
+  Détail : `docs/adr/0001-spacing-8-4-grid.md`.
+
+## Stabilité des IDs
+
+Les **story IDs** sont une **API de documentation stable**. Après une réorganisation, ils ne changent plus
+sans décision explicite (les renommages cassent les baselines Chromatic et les liens).
