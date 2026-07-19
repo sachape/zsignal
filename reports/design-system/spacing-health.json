@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-19T12:54:26.207Z",
+  "generatedAt": "2026-07-19T13:00:11.853Z",
   "scope": {
     "roots": [
       "src",
@@ -56,7 +56,8 @@
   },
   "scores": {
     "valueCompliance": 0.5864,
-    "tokenAdoption": 0.9854,
+    "scaleAdoption": 0.9854,
+    "cssVarAdoption": 0,
     "health": 0.7061
   },
   "confidence": {
@@ -34334,7 +34335,8 @@
   ],
   "recommendations": [
     "1087 violations hors grille à migrer (progressif, validation visuelle Chromatic).",
-    "1035 usages 12/20/28px « needs-decision » : trancher après revue (garder / migrer / exception)."
+    "1035 usages 12/20/28px « needs-decision » : trancher après revue (garder / migrer / exception).",
+    "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner l'échelle Tailwind sur les tokens."
   ],
   "findingsNote": "3008 usages conformes agrégés dans totals, non listés."
 }

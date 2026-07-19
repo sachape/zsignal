@@ -1,6 +1,6 @@
 # Spacing Health — rapport humain
 
-> Généré le 2026-07-19T12:54:26.207Z · contrat v1 · **read-only** (aucune migration).
+> Généré le 2026-07-19T13:00:11.853Z · contrat v1 · **read-only** (aucune migration).
 
 ## Score
 
@@ -8,7 +8,8 @@
 |---|---|
 | **Spacing Health** | **70.6%** |
 | Spacing value compliance | 58.6% |
-| Token / scale adoption | 98.5% |
+| Scale adoption (échelle, pas var(--space-*)) | 98.5% |
+| CSS token adoption (var(--space-*)) | 0.0% |
 | **Confidence** | **96.2%** |
 
 _Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives._
@@ -50,6 +51,7 @@ _Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, 
 
 - 1087 violations hors grille à migrer (progressif, validation visuelle Chromatic).
 - 1035 usages 12/20/28px « needs-decision » : trancher après revue (garder / migrer / exception).
+- Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner l'échelle Tailwind sur les tokens.
 
 ## Périmètre
 

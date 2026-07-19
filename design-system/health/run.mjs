@@ -35,7 +35,8 @@ function spacingMarkdown(r) {
     `| Indicateur | Valeur |`, `|---|---|`,
     `| **Spacing Health** | **${pc(r.scores.health)}** |`,
     `| Spacing value compliance | ${pc(r.scores.valueCompliance)} |`,
-    `| Token / scale adoption | ${pc(r.scores.tokenAdoption)} |`,
+    `| Scale adoption (échelle, pas var(--space-*)) | ${pc(r.scores.scaleAdoption)} |`,
+    `| CSS token adoption (var(--space-*)) | ${pc(r.scores.cssVarAdoption)} |`,
     `| **Confidence** | **${pc(r.confidence.value)}** |`, ``,
     `_${r.confidence.note}_`, ``,
     `## Totaux`, ``,
@@ -83,7 +84,7 @@ function main() {
   writeFileSync(resolve(HIST, `spacing-${stamp}.json`), JSON.stringify({ generatedAt: spacing.generatedAt, scores: spacing.scores, totals: spacing.totals, confidence: spacing.confidence }, null, 2) + "\n");
 
   const s = spacing.scores, c = spacing.confidence;
-  console.log(`Spacing Health ${(s.health * 100).toFixed(1)}% | value ${(s.valueCompliance * 100).toFixed(1)}% | adoption ${(s.tokenAdoption * 100).toFixed(1)}% | confidence ${(c.value * 100).toFixed(1)}%`);
+  console.log(`Spacing Health ${(s.health * 100).toFixed(1)}% | value ${(s.valueCompliance * 100).toFixed(1)}% | scale-adoption ${(s.scaleAdoption * 100).toFixed(1)}% | confidence ${(c.value * 100).toFixed(1)}%`);
   console.log(`détectés ${spacing.totals.detected} · violations ${spacing.totals.violations} (cœur ${spacing.totals.violationsByTrack.error}) · needs-decision ${spacing.totals.needsDecision} · non classifiés ${spacing.totals.unclassified}`);
 
   if (check) {

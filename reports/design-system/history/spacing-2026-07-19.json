@@ -1,8 +1,9 @@
 {
-  "generatedAt": "2026-07-19T12:54:26.207Z",
+  "generatedAt": "2026-07-19T13:00:11.853Z",
   "scores": {
     "valueCompliance": 0.5864,
-    "tokenAdoption": 0.9854,
+    "scaleAdoption": 0.9854,
+    "cssVarAdoption": 0,
     "health": 0.7061
   },
   "totals": {

@@ -1,11 +1,11 @@
 {
   "reportVersion": 1,
   "provider": "accessibility",
-  "generatedAt": "2026-07-19T12:54:26.213Z",
+  "generatedAt": "2026-07-19T13:00:11.861Z",
   "status": "enforced",
   "scores": {
     "valueCompliance": null,
-    "tokenAdoption": null,
+    "scaleAdoption": null,
     "health": null
   },
   "confidence": {
