@@ -26,3 +26,18 @@ Partagé. Détail complet dans `design-system/CONTRIBUTING.md`.
 - **Ne pas contourner le composant** : pas de style/couleur/spacing en dur dans une story.
 - Mocks déterministes ; ne pas dépendre d'un backend réel (le client Supabase est mocké :
   `.storybook/mocks/supabase.ts`).
+
+## Storybook = plateforme (pas seulement un catalogue de composants)
+La navigation est structurée et ordonnée par **`storySort`** (dans `.storybook/preview.tsx`) :
+`Getting Started → Foundations → Components → Patterns → Health → Catalogue`.
+- **Getting Started** : Introduction (landing) + pages MDX Architecture / Nomenclature /
+  Contribution / Governance.
+- **Foundations** : pages de **référence** (Colors en 3 couches, Typography, Spacing, Radius,
+  Motion, Icons, Grid…) — l'échelle réelle, pas seulement les tokens consommés par l'app.
+- **Health** : cockpit lisant `reports/design-system/*` via `import.meta.glob` — **aucun chiffre
+  inventé**, tout vient des rapports du moteur.
+- Pages **pleines** (Introduction, dashboards Health) : `tags: ["!autodocs"]` +
+  `parameters: { layout: "fullscreen" }` pour éviter une page Docs redondante.
+- Ne pas ajouter de **groupe de navigation racine** sans validation ; respecter `storySort`.
+- Rappel gouvernance : les pages Foundations/Health respectent aussi l'échelle spacing
+  (`design-system.md`) — pas de valeur en dur sous prétexte que c'est « juste une story ».
