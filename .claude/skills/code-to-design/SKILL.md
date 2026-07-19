@@ -73,11 +73,15 @@ Le raisonnement d'audit précède toujours l'écriture :
 1. Analyser le code (mêmes étapes que l'audit).
 2. Produire la **spec Figma-ready** (`references/figma-mapping.md`).
 3. **Validation utilisateur** de la spec — barrière obligatoire avant toute écriture.
-4. **Créer / mettre à jour** dans Figma via le connecteur.
-5. **Relire le résultat** créé dans Figma (metadata / design context / variables).
-6. **Comparer** le résultat à la spec — l'écriture n'est PAS la preuve du succès.
-7. **Signaler les écarts** spec ↔ résultat Figma (mêmes registres de certitude).
-8. **Rapport final** : ce qui a été écrit, ce qui a été vérifié, écarts restants, handoff.
+4. **Plan de synchronisation (dry-run)** : lister les **actions prévues** (créer Component Set,
+   N variants, sizes, Variables liées, Boolean/Text/Instance-swap properties, Auto Layout…),
+   garantir explicitement **aucune suppression** et **aucune modification d'autres composants**,
+   puis **demander confirmation**. Rien n'est écrit avant ce OK.
+5. **Créer / mettre à jour** dans Figma via le connecteur.
+6. **Relire le résultat** créé dans Figma (metadata / design context / variables).
+7. **Comparer** le résultat à la spec — l'écriture n'est PAS la preuve du succès.
+8. **Signaler les écarts** spec ↔ résultat Figma (mêmes registres de certitude).
+9. **Rapport final** : ce qui a été écrit, ce qui a été vérifié, écarts restants, handoff.
 
 ## Garde-fous
 - Voir `../_shared/sources-and-evidence.md` : **fait vs recommandation** toujours séparés ;
@@ -87,6 +91,8 @@ Le raisonnement d'audit précède toujours l'écriture :
   connecteur est disponible dans le runtime. L'écriture n'existe qu'en **Mode S**, sous ses trois
   conditions (connecteur réel + demande explicite + spec validée). **Aucune bascule automatique**
   d'un mode à l'autre ; jamais de simulation ; ne pas créer de bibliothèque concurrente.
+- **Plan avant écriture.** Rien n'est écrit sans un **Plan de synchronisation confirmé** :
+  actions prévues explicites, **aucune suppression**, **aucune modification d'autres composants**.
 - **Vérifier après écrire.** Après toute écriture Figma, **relire** le résultat et le **comparer**
   à la spec ; ne jamais présumer le succès.
 - Ne pas modifier un composant juste pour faciliter une story.
