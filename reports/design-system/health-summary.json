@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T17:24:03.700Z",
+  "generatedAt": "2026-07-19T17:32:09.401Z",
   "overall": {
     "score": 0.8853706122448979,
     "previous": 0.8853706122448979,
-    "delta": 0.003509999999999902,
+    "delta": 0,
     "label": "Good",
     "dimensions": [
       {
@@ -296,6 +296,48 @@
         ]
       },
       {
+        "area": "Adoption",
+        "slug": "health-adoption",
+        "note": "À quel point le PRODUIT consomme réellement le DS (usage réel dans src/, hors cœur ui/).",
+        "domains": [
+          {
+            "key": "ado-components",
+            "label": "Component adoption",
+            "status": "measured",
+            "measure": "67%",
+            "note": "113/168 fichiers app (avec JSX) importent le DS"
+          },
+          {
+            "key": "ado-spacing",
+            "label": "Spacing scale adoption",
+            "status": "measured",
+            "measure": "99%",
+            "note": "part des espacements sur l'échelle gouvernée"
+          },
+          {
+            "key": "ado-raw",
+            "label": "Éléments bruts restants",
+            "status": "measured",
+            "measure": "93",
+            "note": "<button/input/select/textarea> bruts hors DS (83 button · 8 input · 2 select · 0 textarea)"
+          },
+          {
+            "key": "ado-colors",
+            "label": "Couleurs en dur restantes",
+            "status": "measured",
+            "measure": "17",
+            "note": "hex / classes arbitraires hors tokens (dette de tokenisation)"
+          },
+          {
+            "key": "ado-token-cov",
+            "label": "Token adoption (couverture)",
+            "status": "planned",
+            "measure": null,
+            "note": "% des valeurs passant par un token sémantique vs en dur — roadmap"
+          }
+        ]
+      },
+      {
         "area": "Visual Quality",
         "slug": "health-visual-quality",
         "note": "Domaine durable — ses sous-métriques passeront de missing/planned à measured dès que la CI Chromatic produira un rapport.",
@@ -388,9 +430,9 @@
       }
     ],
     "counts": {
-      "measured": 14,
+      "measured": 18,
       "documented": 15,
-      "planned": 8,
+      "planned": 9,
       "missing": 2
     }
   },
@@ -437,6 +479,18 @@
     }
   ],
   "adoption": {
+    "componentAdoption": 0.6726190476190477,
+    "appFiles": 168,
+    "jsxFiles": 168,
+    "dsFiles": 113,
+    "rawElements": 93,
+    "rawByTag": {
+      "button": 83,
+      "input": 8,
+      "select": 2,
+      "textarea": 0
+    },
+    "hardColors": 17,
     "scaleAdoption": 0.9872,
     "compactShare": 0.2831973293768546,
     "cssVarAdoption": 0
@@ -450,7 +504,7 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T17:24:03.679Z",
+      "generatedAt": "2026-07-19T17:32:09.361Z",
       "scores": {
         "valueCompliance": 0.8095,
         "scaleAdoption": 0.9872,
@@ -492,7 +546,7 @@
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T17:24:03.684Z",
+      "generatedAt": "2026-07-19T17:32:09.366Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

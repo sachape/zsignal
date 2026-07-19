@@ -85,7 +85,7 @@ const preview: Preview = {
           "Foundations", ["Colors", "Typography", "Spacing", "Radius", "Borders", "Shadows", "Elevation", "Opacity", "Motion", "Icons", "Grid", "Breakpoints", "Layout", "Dark Mode", "Accessibility", "Tokens"],
           "Components", ["Actions", "Forms", "Feedback", "Overlays", "Navigation", "Content & Structure"],
           "Patterns",
-          "Health", ["Overview", "Foundations", "Components", "Tokens", "Quality Gates", "Visual Quality", "Governance", "Spacing"],
+          "Health", ["Overview", "Foundations", "Components", "Tokens", "Adoption", "Quality Gates", "Visual Quality", "Governance", "Spacing"],
           "Catalogue",
         ],
       },

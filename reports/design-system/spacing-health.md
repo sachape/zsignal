@@ -1,6 +1,6 @@
 # Spacing Health — rapport humain
 
-> Généré le 2026-07-19T17:24:03.679Z · contrat v1 · **read-only** (aucune migration).
+> Généré le 2026-07-19T17:32:09.361Z · contrat v1 · **read-only** (aucune migration).
 
 ## Score
 

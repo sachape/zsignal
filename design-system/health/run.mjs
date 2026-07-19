@@ -15,6 +15,7 @@ import { runTokens } from "./providers/tokens.mjs";
 import { runQuality } from "./providers/quality.mjs";
 import { runFoundations } from "./providers/foundations.mjs";
 import { runVisualQuality } from "./providers/visual-quality.mjs";
+import { runAdoption } from "./providers/adoption.mjs";
 import { computeOverall } from "./overall.mjs";
 import { buildMaturity } from "./domains.mjs";
 
@@ -98,7 +99,8 @@ function main() {
   const quality = runQuality({ a11y });
   const foundations = runFoundations({ spacingHealth: spacing.scores.health });
   const visualQuality = runVisualQuality();
-  const maturity = buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality });
+  const adoption = runAdoption({ spacingScaleAdoption: spacing.scores.scaleAdoption });
+  const maturity = buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality, adoption });
 
   const overall = computeOverall({
     a11yPass: a11y.status === "enforced",
@@ -154,6 +156,15 @@ function main() {
     tokens: { total: tokens.total, byLayer: tokens.byLayer },
     quality: quality.items,
     adoption: {
+      // Adoption du DS dans le produit (provider adoption)
+      componentAdoption: adoption.componentAdoption,
+      appFiles: adoption.appFiles,
+      jsxFiles: adoption.jsxFiles,
+      dsFiles: adoption.dsFiles,
+      rawElements: adoption.rawElements,
+      rawByTag: adoption.rawByTag,
+      hardColors: adoption.hardColors,
+      // Adoption spacing (provider spacing)
       scaleAdoption: spacing.scores.scaleAdoption,
       compactShare: spacing.totals.compactAllowed / Math.max(spacing.totals.classifiable, 1),
       cssVarAdoption: spacing.scores.cssVarAdoption,
