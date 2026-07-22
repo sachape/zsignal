@@ -12,6 +12,9 @@ name: Health report
 on:
   push:
     branches: [main]
+  # Refresh à la demande depuis l'onglet Actions (ou `gh workflow run`) : utile
+  # pour rafraîchir le dashboard sans attendre un push, et pour tester le workflow.
+  workflow_dispatch:
 
 # Un seul refresh à la fois par branche ; on annule les runs obsolètes.
 concurrency:
