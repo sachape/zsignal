@@ -17,7 +17,6 @@ const meta: Meta<typeof Accordion> = {
   args: { type: "single", collapsible: true },
   argTypes: {
     ...common("value", "defaultValue", "onValueChange", "orientation", "disabled", "children", "className"),
-    collapsible: prop("En mode `single`, autorise à refermer le panneau ouvert — sinon un panneau reste toujours ouvert.", { control: "boolean", category: CAT.state }),
     type: {
       control: "inline-radio", options: ["single", "multiple"],
       description: "`single` = un seul panneau ouvert ; `multiple` = plusieurs.",
@@ -25,8 +24,9 @@ const meta: Meta<typeof Accordion> = {
     },
     collapsible: {
       control: "boolean",
-      description: "En mode single, autorise à tout refermer.",
-      table: { category: "State" },
+      description: "En mode `single`, autorise à refermer le panneau ouvert — sinon un panneau reste toujours ouvert.",
+      table: { category: CAT.state },
+      // Masque le contrôle quand il n'a pas de sens (type=multiple).
       if: { arg: "type", eq: "single" },
     },
     disabled: { control: "boolean", description: "Désactive tout l'accordéon.", table: { category: "State" } },

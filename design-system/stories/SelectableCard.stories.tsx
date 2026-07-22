@@ -21,12 +21,6 @@ const meta: Meta<typeof SelectableCard> = {
       description: "État sélectionné (câble `aria-pressed`).",
       table: { category: "State", defaultValue: { summary: "false" } },
     },
-    highlight: {
-      control: "inline-radio",
-      options: ["tint", "ring"],
-      description: "Style de sélection : `tint` (fond teinté, tuiles de contenu) ou `ring` (anneau sans fond, tuiles image/média).",
-      table: { category: "Appearance", defaultValue: { summary: "tint" } },
-    },
   },
   parameters: {
     layout: "centered",

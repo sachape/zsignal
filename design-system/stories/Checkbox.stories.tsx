@@ -13,7 +13,6 @@ const meta: Meta<typeof Checkbox> = {
   argTypes: {
     ...common("checked", "onCheckedChange", "required", "name", "className"),
     defaultChecked: prop("État initial, en mode non contrôlé.", { control: "boolean", category: CAT.state }),
-    defaultChecked: { control: "boolean", description: "État initial (coché/non).", table: { category: "State" } },
     disabled: { control: "boolean", table: { category: "State" } },
     onCheckedChange: { control: false, table: { category: "Events" } },
   },

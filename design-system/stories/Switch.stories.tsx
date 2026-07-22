@@ -14,7 +14,6 @@ const meta: Meta<typeof Switch> = {
   argTypes: {
     ...common("checked", "onCheckedChange", "required", "name", "className"),
     defaultChecked: prop("État initial, en mode non contrôlé. Un switch applique son effet IMMÉDIATEMENT — pas de bouton de validation.", { control: "boolean", category: CAT.state }),
-    defaultChecked: { control: "boolean", description: "État initial (on/off).", table: { category: "State" } },
     disabled: { control: "boolean", description: "Désactive la bascule.", table: { category: "State" } },
     onCheckedChange: { control: false, description: "Callback au changement d'état.", table: { category: "Events" } },
   },
