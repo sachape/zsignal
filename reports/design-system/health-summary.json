@@ -1,9 +1,9 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-22T08:09:57.892Z",
+  "generatedAt": "2026-07-22T09:35:54.289Z",
   "overall": {
-    "score": 0.9591099999999999,
-    "previous": 0.9591099999999999,
+    "score": 0.95923,
+    "previous": 0.95923,
     "delta": 0,
     "label": "Excellent",
     "dimensions": [
@@ -20,7 +20,7 @@
         "label": "Spacing",
         "weight": 0.3,
         "tier": "important",
-        "value": 0.8637,
+        "value": 0.8641,
         "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
       },
       {
@@ -42,11 +42,48 @@
   "inventory": {
     "foundations": 15,
     "components": 51,
-    "tokens": 403,
-    "stories": 148,
+    "tokens": 402,
+    "stories": 149,
     "qualityGates": "PASS",
     "ci": "green"
   },
+  "pillars": [
+    {
+      "key": "foundations",
+      "label": "Foundations",
+      "note": "Les décisions visuelles fondatrices et les tokens qui les portent.",
+      "extraLinks": [
+        {
+          "slug": "health-spacing",
+          "label": "Spacing Health"
+        }
+      ]
+    },
+    {
+      "key": "components",
+      "label": "Components",
+      "note": "Le catalogue : couverture, stories, variantes, accessibilité.",
+      "extraLinks": []
+    },
+    {
+      "key": "adoption",
+      "label": "Adoption",
+      "note": "Ce que le produit consomme réellement du système.",
+      "extraLinks": []
+    },
+    {
+      "key": "quality",
+      "label": "Quality",
+      "note": "Les garde-fous automatisés et la qualité visuelle.",
+      "extraLinks": []
+    },
+    {
+      "key": "governance",
+      "label": "Governance & Documentation",
+      "note": "Contribution, décisions, versioning, documentation.",
+      "extraLinks": []
+    }
+  ],
   "maturity": {
     "states": {
       "measured": {
@@ -73,22 +110,23 @@
     "areas": [
       {
         "area": "Foundations",
+        "pillar": "foundations",
         "slug": "health-foundations",
         "note": "Les décisions visuelles fondatrices — attendues, pas seulement celles consommées par l'app.",
         "domains": [
           {
             "key": "colors",
             "label": "Colors",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "95%",
+            "note": "4430/4680 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           },
           {
             "key": "typography",
             "label": "Typography",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "99%",
+            "note": "2086/2109 sur l'échelle de tailles ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
           },
           {
             "key": "spacing",
@@ -100,70 +138,71 @@
           {
             "key": "radius",
             "label": "Radius",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "85%",
+            "note": "862/1015 sur l'échelle radius.* · reste : rounded-xl ×145, rounded-[2px] ×4, rounded-[12px] ×1"
           },
           {
             "key": "motion",
             "label": "Motion",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "40%",
+            "note": "33/83 sur l'échelle duration.*/easing.* · reste : duration-500 ×15, duration-700 ×14, duration-300 ×11"
           },
           {
             "key": "shadows",
             "label": "Shadows",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "26%",
+            "note": "20/78 sur l'échelle shadow.*/elevation.* · reste : shadow-md ×21, shadow-lg ×17, shadow-sm ×7"
           },
           {
             "key": "borders",
             "label": "Borders",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "99%",
+            "note": "655/657 sur l'échelle border.width.* · reste : border-[1.5px] ×2"
           },
           {
             "key": "elevation",
             "label": "Elevation",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "31%",
+            "note": "20/64 z-index sur l'échelle layer.* · reste : z-50 ×37, z-[1] ×2, z-20 ×2"
           },
           {
             "key": "icons",
             "label": "Icons",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "96%",
+            "note": "728/755 icônes issues de lucide-react (vs <svg> à la main) · reste : <svg> écrit à la main ×27"
           },
           {
             "key": "grid",
             "label": "Grid",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "90%",
+            "note": "186/206 découpages sur la grille de référence 12 colonnes · reste : grid-cols-5 ×4, grid-cols-[1fr_auto] ×3, grid-cols-[200px_1fr] ×2"
           },
           {
             "key": "opacity",
             "label": "Opacity",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "89%",
+            "note": "116/130 sur l'échelle opacity.* · reste : opacity-70 ×6, opacity-75 ×2, opacity-40 ×2"
           },
           {
             "key": "darkmode",
             "label": "Dark Mode",
-            "status": "documented",
-            "measure": null,
-            "note": "page de référence publiée"
+            "status": "measured",
+            "measure": "48%",
+            "note": "20/42 tokens de couleur sémantiques ayant une valeur explicite en thème clair"
           }
         ]
       },
       {
         "area": "Components",
+        "pillar": "components",
         "slug": "health-components",
         "note": "Le domaine complet, pas un compteur : couverture, stories, variantes, doc, a11y.",
         "domains": [
@@ -178,7 +217,7 @@
             "key": "comp-stories",
             "label": "Stories",
             "status": "measured",
-            "measure": "148",
+            "measure": "149",
             "note": "stories publiées (composants + patterns)"
           },
           {
@@ -206,6 +245,7 @@
       },
       {
         "area": "Tokens",
+        "pillar": "foundations",
         "slug": "health-tokens",
         "note": "Inventaire par couche (measured) + hygiène (roadmap).",
         "domains": [
@@ -227,7 +267,7 @@
             "key": "tok-component",
             "label": "Component",
             "status": "measured",
-            "measure": "133",
+            "measure": "132",
             "note": "tokens par composant"
           },
           {
@@ -248,6 +288,7 @@
       },
       {
         "area": "Quality Gates",
+        "pillar": "quality",
         "slug": "health-quality-gates",
         "note": "Les garde-fous bloquants avant merge — Accessibility incluse (c'est un gate).",
         "domains": [
@@ -297,48 +338,87 @@
       },
       {
         "area": "Adoption",
+        "pillar": "adoption",
         "slug": "health-adoption",
-        "note": "À quel point le PRODUIT consomme réellement le DS (usage réel dans src/, hors cœur ui/).",
+        "note": "Mesure de l'utilisation réelle du Design System dans le produit.",
         "domains": [
           {
             "key": "ado-components",
+            "group": "components",
             "label": "Component adoption",
             "status": "measured",
-            "measure": "80%",
-            "note": "105/131 fichiers app (avec JSX) importent le DS"
-          },
-          {
-            "key": "ado-spacing",
-            "label": "Spacing scale adoption",
-            "status": "measured",
-            "measure": "99%",
-            "note": "part des espacements sur l'échelle gouvernée"
+            "measure": "82%",
+            "note": "108/131 fichiers app (avec JSX) importent le DS"
           },
           {
             "key": "ado-raw",
+            "group": "components",
             "label": "Éléments bruts restants",
             "status": "measured",
-            "measure": "69",
-            "note": "<button/input/select/textarea> bruts hors DS (63 button · 4 input · 2 select · 0 textarea)"
+            "measure": "51",
+            "note": "<button/input/select/textarea> bruts hors DS (51 button)"
+          },
+          {
+            "key": "ado-deprecated",
+            "group": "components",
+            "label": "Composants dépréciés en usage",
+            "status": "planned",
+            "measure": null,
+            "note": "usage résiduel des composants marqués deprecated — nécessite un registre de dépréciation"
+          },
+          {
+            "key": "ado-spacing",
+            "group": "foundations",
+            "label": "Spacing",
+            "status": "measured",
+            "measure": "99%",
+            "note": "part des espacements sur l'échelle gouvernée (ADR 0002)"
+          },
+          {
+            "key": "ado-typography",
+            "group": "foundations",
+            "label": "Typographie",
+            "status": "measured",
+            "measure": "99%",
+            "note": "2086/2109 usages sur l'échelle ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
+          },
+          {
+            "key": "ado-radius",
+            "group": "foundations",
+            "label": "Radius",
+            "status": "measured",
+            "measure": "85%",
+            "note": "862/1015 usages sur l'échelle radius.* · reste : rounded-xl ×145, rounded-[2px] ×4, rounded-[12px] ×1"
+          },
+          {
+            "key": "ado-shadow",
+            "group": "foundations",
+            "label": "Ombres",
+            "status": "measured",
+            "measure": "26%",
+            "note": "20/78 usages sur l'échelle shadow.*/elevation.* · reste : shadow-md ×21, shadow-lg ×17, shadow-sm ×7"
+          },
+          {
+            "key": "ado-motion",
+            "group": "foundations",
+            "label": "Motion",
+            "status": "measured",
+            "measure": "40%",
+            "note": "33/83 usages sur l'échelle duration.*/easing.* · reste : duration-500 ×15, duration-700 ×14, duration-300 ×11"
           },
           {
             "key": "ado-colors",
-            "label": "Couleurs en dur restantes",
+            "group": "foundations",
+            "label": "Couleurs",
             "status": "measured",
-            "measure": "17",
-            "note": "hex / classes arbitraires hors tokens (dette de tokenisation)"
-          },
-          {
-            "key": "ado-token-cov",
-            "label": "Token adoption (couverture)",
-            "status": "planned",
-            "measure": null,
-            "note": "% des valeurs passant par un token sémantique vs en dur — roadmap"
+            "measure": "95%",
+            "note": "4430/4680 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           }
         ]
       },
       {
         "area": "Visual Quality",
+        "pillar": "quality",
         "slug": "health-visual-quality",
         "note": "Domaine durable — ses sous-métriques passeront de missing/planned à measured dès que la CI Chromatic produira un rapport.",
         "domains": [
@@ -347,47 +427,54 @@
             "label": "Chromatic",
             "status": "documented",
             "measure": "Câblé",
-            "note": "workflow chromatic.yml présent"
+            "note": "workflow chromatic.yml présent",
+            "action": null
           },
           {
             "key": "vq-baseline",
             "label": "Baseline",
             "status": "missing",
             "measure": null,
-            "note": "aucune baseline acceptée à ce jour"
+            "note": "aucune baseline acceptée à ce jour",
+            "action": "Lancer un build Chromatic sur main et accepter les snapshots : c'est la référence à laquelle tout diff futur sera comparé."
           },
           {
             "key": "vq-regression",
             "label": "Visual regression",
             "status": "missing",
             "measure": null,
-            "note": "diff visuel automatique par story — dépend de la baseline"
+            "note": "diff visuel automatique par story — dépend de la baseline",
+            "action": "Une fois la baseline établie, faire écrire à la CI Chromatic le rapport visual-quality.report.json : la métrique bascule seule en measured."
           },
           {
             "key": "vq-snapshots",
             "label": "Snapshot coverage",
             "status": "planned",
             "measure": null,
-            "note": "part des stories capturées par build"
+            "note": "part des stories capturées par build",
+            "action": null
           },
           {
             "key": "vq-approved",
             "label": "Approved changes",
             "status": "planned",
             "measure": null,
-            "note": "changements visuels revus et acceptés (dernier build)"
+            "note": "changements visuels revus et acceptés (dernier build)",
+            "action": null
           },
           {
             "key": "vq-unexpected",
             "label": "Unexpected changes",
             "status": "planned",
             "measure": null,
-            "note": "régressions visuelles non intentionnelles (dernier build)"
+            "note": "stories en erreur au dernier build (diffs auto-acceptés sur main)",
+            "action": null
           }
         ]
       },
       {
         "area": "Governance",
+        "pillar": "governance",
         "slug": "health-governance",
         "note": "Contribution, décisions, versioning, documentation — la gouvernance du DS.",
         "domains": [
@@ -430,24 +517,32 @@
       }
     ],
     "counts": {
-      "measured": 18,
-      "documented": 15,
+      "measured": 33,
+      "documented": 4,
       "planned": 9,
       "missing": 2
+    },
+    "level": {
+      "level": "En progression",
+      "coverage": 0.6875,
+      "measured": 33,
+      "total": 48,
+      "critical": 2,
+      "planned": 9
     }
   },
   "components": {
     "total": 51,
     "withStory": 51,
     "coverage": 1,
-    "componentStories": 148
+    "componentStories": 149
   },
   "tokens": {
-    "total": 403,
+    "total": 402,
     "byLayer": {
       "primitive": 141,
       "semantic": 81,
-      "component": 133,
+      "component": 132,
       "compat": 48
     }
   },
@@ -479,24 +574,309 @@
     }
   ],
   "adoption": {
-    "componentAdoption": 0.8015267175572519,
+    "componentAdoption": 0.8244274809160306,
     "appFiles": 168,
     "jsxFiles": 131,
-    "dsFiles": 105,
-    "rawElements": 69,
+    "dsFiles": 108,
+    "excludedFromDenom": 37,
+    "rawElements": 51,
     "rawByTag": {
-      "button": 63,
-      "input": 4,
-      "select": 2,
+      "button": 51,
+      "input": 0,
+      "select": 0,
       "textarea": 0
     },
     "hardColors": 17,
-    "scaleAdoption": 0.9873,
-    "compactShare": 0.28274083624976976,
-    "cssVarAdoption": 0
+    "scaleAdoption": 0.9872,
+    "compactShare": 0.2801405325443787,
+    "cssVarAdoption": 0,
+    "foundations": {
+      "typography": {
+        "total": 2109,
+        "token": 0,
+        "scale": 2086,
+        "off": 23,
+        "adoption": 0.9890943575154102,
+        "tokenShare": 0,
+        "topOffenders": [
+          {
+            "value": "text-3xl",
+            "count": 8
+          },
+          {
+            "value": "text-lg",
+            "count": 4
+          },
+          {
+            "value": "text-[10.5px]",
+            "count": 3
+          },
+          {
+            "value": "text-[11.5px]",
+            "count": 2
+          },
+          {
+            "value": "text-[2.75rem]",
+            "count": 1
+          }
+        ]
+      },
+      "radius": {
+        "total": 1015,
+        "token": 448,
+        "scale": 414,
+        "off": 153,
+        "adoption": 0.8492610837438423,
+        "tokenShare": 0.4413793103448276,
+        "topOffenders": [
+          {
+            "value": "rounded-xl",
+            "count": 145
+          },
+          {
+            "value": "rounded-[2px]",
+            "count": 4
+          },
+          {
+            "value": "rounded-[12px]",
+            "count": 1
+          },
+          {
+            "value": "rounded-[9px]",
+            "count": 1
+          },
+          {
+            "value": "rounded-3xl",
+            "count": 1
+          }
+        ]
+      },
+      "shadow": {
+        "total": 78,
+        "token": 18,
+        "scale": 2,
+        "off": 58,
+        "adoption": 0.2564102564102564,
+        "tokenShare": 0.23076923076923078,
+        "topOffenders": [
+          {
+            "value": "shadow-md",
+            "count": 21
+          },
+          {
+            "value": "shadow-lg",
+            "count": 17
+          },
+          {
+            "value": "shadow-sm",
+            "count": 7
+          },
+          {
+            "value": "shadow-xl",
+            "count": 5
+          },
+          {
+            "value": "shadow-[0_0_24px_-8px]",
+            "count": 2
+          }
+        ]
+      },
+      "motion": {
+        "total": 83,
+        "token": 0,
+        "scale": 33,
+        "off": 50,
+        "adoption": 0.39759036144578314,
+        "tokenShare": 0,
+        "topOffenders": [
+          {
+            "value": "duration-500",
+            "count": 15
+          },
+          {
+            "value": "duration-700",
+            "count": 14
+          },
+          {
+            "value": "duration-300",
+            "count": 11
+          },
+          {
+            "value": "ease-linear",
+            "count": 8
+          },
+          {
+            "value": "duration-1000",
+            "count": 1
+          }
+        ]
+      },
+      "colors": {
+        "total": 4680,
+        "token": 4430,
+        "scale": 0,
+        "off": 250,
+        "adoption": 0.9465811965811965,
+        "tokenShare": 0.9465811965811965,
+        "topOffenders": [
+          {
+            "value": "border-white/[0.06]",
+            "count": 17
+          },
+          {
+            "value": "text-amber-400",
+            "count": 13
+          },
+          {
+            "value": "text-emerald-400",
+            "count": 13
+          },
+          {
+            "value": "border-amber-400/30",
+            "count": 11
+          },
+          {
+            "value": "text-white",
+            "count": 11
+          }
+        ]
+      },
+      "borders": {
+        "total": 657,
+        "token": 0,
+        "scale": 655,
+        "off": 2,
+        "adoption": 0.9969558599695586,
+        "tokenShare": 0,
+        "topOffenders": [
+          {
+            "value": "border-[1.5px]",
+            "count": 2
+          }
+        ]
+      },
+      "elevation": {
+        "total": 64,
+        "token": 0,
+        "scale": 20,
+        "off": 44,
+        "adoption": 0.3125,
+        "tokenShare": 0,
+        "topOffenders": [
+          {
+            "value": "z-50",
+            "count": 37
+          },
+          {
+            "value": "z-[1]",
+            "count": 2
+          },
+          {
+            "value": "z-20",
+            "count": 2
+          },
+          {
+            "value": "z-[100]",
+            "count": 2
+          },
+          {
+            "value": "z-30",
+            "count": 1
+          }
+        ]
+      },
+      "opacity": {
+        "total": 130,
+        "token": 0,
+        "scale": 116,
+        "off": 14,
+        "adoption": 0.8923076923076924,
+        "tokenShare": 0,
+        "topOffenders": [
+          {
+            "value": "opacity-70",
+            "count": 6
+          },
+          {
+            "value": "opacity-75",
+            "count": 2
+          },
+          {
+            "value": "opacity-40",
+            "count": 2
+          },
+          {
+            "value": "opacity: 0.85",
+            "count": 2
+          },
+          {
+            "value": "opacity-30",
+            "count": 1
+          }
+        ]
+      },
+      "grid": {
+        "total": 206,
+        "token": 0,
+        "scale": 186,
+        "off": 20,
+        "adoption": 0.9029126213592233,
+        "tokenShare": 0,
+        "topOffenders": [
+          {
+            "value": "grid-cols-5",
+            "count": 4
+          },
+          {
+            "value": "grid-cols-[1fr_auto]",
+            "count": 3
+          },
+          {
+            "value": "grid-cols-[200px_1fr]",
+            "count": 2
+          },
+          {
+            "value": "grid-cols-[minmax(0,1fr)_minmax(0,1fr)]",
+            "count": 1
+          },
+          {
+            "value": "grid-cols-[1fr_360px]",
+            "count": 1
+          }
+        ]
+      },
+      "icons": {
+        "total": 755,
+        "token": 728,
+        "scale": 0,
+        "off": 27,
+        "adoption": 0.9642384105960264,
+        "tokenShare": 0.9642384105960264,
+        "topOffenders": [
+          {
+            "value": "<svg> écrit à la main",
+            "count": 27
+          }
+        ]
+      },
+      "darkmode": {
+        "total": 42,
+        "token": 20,
+        "scale": 0,
+        "off": 22,
+        "adoption": 0.47619047619047616,
+        "tokenShare": 0.47619047619047616,
+        "topOffenders": []
+      }
+    },
+    "foundationsScope": {
+      "filesScanned": 416,
+      "skippedMarketing": 21,
+      "parseErrors": 0
+    }
   },
   "debt": {
-    "violations": 1027,
+    "violations": 1020,
     "violationsCore": 0,
     "exceptions": 30,
     "baseline": 1027
@@ -504,15 +884,15 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-22T08:09:57.864Z",
+      "generatedAt": "2026-07-22T09:35:53.049Z",
       "scores": {
-        "valueCompliance": 0.8108,
-        "scaleAdoption": 0.9873,
+        "valueCompliance": 0.8114,
+        "scaleAdoption": 0.9872,
         "cssVarAdoption": 0,
-        "health": 0.8637
+        "health": 0.8641
       },
       "confidence": {
-        "value": 0.9635,
+        "value": 0.9633,
         "classifiableRatio": 1,
         "unclassified": 0,
         "exceptions": 30,
@@ -520,33 +900,33 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5429,
-        "preferred": 2837,
-        "compactAllowed": 1535,
-        "violations": 1027,
+        "detected": 5408,
+        "preferred": 2843,
+        "compactAllowed": 1515,
+        "violations": 1020,
         "exceptions": 30,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5429,
-        "compliant": 4402,
+        "classifiable": 5408,
+        "compliant": 4388,
         "byTrack": {
-          "error": 580,
-          "warn": 4849
+          "error": 582,
+          "warn": 4826
         },
         "violationsByTrack": {
           "error": 0,
-          "warn": 1027
+          "warn": 1020
         },
         "compactByTrack": {
-          "error": 128,
-          "warn": 1407
+          "error": 129,
+          "warn": 1386
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-22T08:09:57.873Z",
+      "generatedAt": "2026-07-22T09:35:53.055Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,
@@ -557,7 +937,7 @@
         "note": "Fait dérivé de la config CI + inventaire, pas d'un rapport JSON a11y."
       },
       "totals": {
-        "testableStories": 148
+        "testableStories": 149
       },
       "status": "enforced"
     }

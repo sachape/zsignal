@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-22T08:09:57.864Z",
+  "generatedAt": "2026-07-22T09:35:53.049Z",
   "scope": {
     "roots": [
       "src",
@@ -38,36 +38,36 @@
     "parseErrors": 0
   },
   "totals": {
-    "detected": 5429,
-    "preferred": 2837,
-    "compactAllowed": 1535,
-    "violations": 1027,
+    "detected": 5408,
+    "preferred": 2843,
+    "compactAllowed": 1515,
+    "violations": 1020,
     "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5429,
-    "compliant": 4402,
+    "classifiable": 5408,
+    "compliant": 4388,
     "byTrack": {
-      "error": 580,
-      "warn": 4849
+      "error": 582,
+      "warn": 4826
     },
     "violationsByTrack": {
       "error": 0,
-      "warn": 1027
+      "warn": 1020
     },
     "compactByTrack": {
-      "error": 128,
-      "warn": 1407
+      "error": 129,
+      "warn": 1386
     }
   },
   "scores": {
-    "valueCompliance": 0.8108,
-    "scaleAdoption": 0.9873,
+    "valueCompliance": 0.8114,
+    "scaleAdoption": 0.9872,
     "cssVarAdoption": 0,
-    "health": 0.8637
+    "health": 0.8641
   },
   "confidence": {
-    "value": 0.9635,
+    "value": 0.9633,
     "classifiableRatio": 1,
     "unclassified": 0,
     "exceptions": 30,
@@ -75,28 +75,28 @@
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
   "compactBreakdown": {
-    "total": 1535,
+    "total": 1515,
     "byValue": {
-      "4px": 527,
-      "12px": 770,
+      "4px": 517,
+      "12px": 760,
       "20px": 222,
       "-4px": 16
     }
   },
   "distribution": {
     "byTier": {
-      "preferred": 2837,
-      "violation": 1027,
-      "compact-allowed": 1535,
+      "preferred": 2843,
+      "violation": 1020,
+      "compact-allowed": 1515,
       "exception": 30
     },
     "byValue": {
-      "10px": 149,
-      "2px": 327,
-      "6px": 467,
+      "10px": 147,
+      "2px": 326,
+      "6px": 464,
       "-6px": 3,
       "-2px": 10,
-      "14px": 23,
+      "14px": 22,
       "28px": 31,
       "7px": 1,
       "1px": 4,
@@ -107,7 +107,7 @@
     },
     "bySystem": {
       "raw-css": 2,
-      "scale-utility": 5360,
+      "scale-utility": 5339,
       "inline": 31,
       "arbitrary": 36
     }
@@ -121,25 +121,25 @@
     },
     {
       "property": "gap",
-      "total": 1426,
-      "violations": 205,
+      "total": 1427,
+      "violations": 203,
       "compactAllowed": 436
     },
     {
       "property": "padding-block",
-      "total": 512,
-      "violations": 196,
-      "compactAllowed": 82
+      "total": 500,
+      "violations": 192,
+      "compactAllowed": 74
     },
     {
       "property": "padding-inline",
-      "total": 542,
+      "total": 533,
       "violations": 117,
-      "compactAllowed": 147
+      "compactAllowed": 136
     },
     {
       "property": "row-gap",
-      "total": 331,
+      "total": 332,
       "violations": 98,
       "compactAllowed": 100
     },
@@ -151,9 +151,9 @@
     },
     {
       "property": "padding",
-      "total": 638,
-      "violations": 43,
-      "compactAllowed": 248
+      "total": 635,
+      "violations": 42,
+      "compactAllowed": 247
     },
     {
       "property": "margin-bottom",
@@ -205,7 +205,7 @@
     },
     {
       "property": "padding-bottom",
-      "total": 57,
+      "total": 58,
       "violations": 2,
       "compactAllowed": 10
     },
@@ -261,14 +261,14 @@
   "topOffenders": [
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "violations": 62,
-      "compactAllowed": 62,
+      "violations": 60,
+      "compactAllowed": 61,
       "track": "warn"
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "violations": 42,
-      "compactAllowed": 45,
+      "violations": 41,
+      "compactAllowed": 38,
       "track": "warn"
     },
     {
@@ -302,12 +302,6 @@
       "track": "warn"
     },
     {
-      "file": "src/pages/SimulatorPage.tsx",
-      "violations": 21,
-      "compactAllowed": 31,
-      "track": "warn"
-    },
-    {
       "file": "src/pages/PricingPage.tsx",
       "violations": 20,
       "compactAllowed": 31,
@@ -328,11 +322,17 @@
     {
       "file": "src/components/AppSidebar.tsx",
       "violations": 19,
-      "compactAllowed": 17,
+      "compactAllowed": 15,
       "track": "warn"
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
+      "violations": 19,
+      "compactAllowed": 31,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
       "violations": 19,
       "compactAllowed": 31,
       "track": "warn"
@@ -353,15 +353,15 @@
   "topValues": [
     {
       "value": "6px",
-      "count": 467
+      "count": 464
     },
     {
       "value": "2px",
-      "count": 327
+      "count": 326
     },
     {
       "value": "10px",
-      "count": 149
+      "count": 147
     },
     {
       "value": "28px",
@@ -369,7 +369,7 @@
     },
     {
       "value": "14px",
-      "count": 23
+      "count": 22
     },
     {
       "value": "-2px",
@@ -1320,35 +1320,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 247,
-      "property": "padding",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/AppSidebar.tsx",
-      "line": 247,
-      "property": "padding",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/AppSidebar.tsx",
-      "line": 266,
+      "line": 261,
       "property": "padding",
       "value": "6px",
       "status": "violation",
@@ -1365,7 +1337,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 267,
+      "line": 262,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -1379,7 +1351,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 275,
+      "line": 270,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -1396,7 +1368,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 275,
+      "line": 270,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -1410,7 +1382,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 275,
+      "line": 270,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -1427,7 +1399,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 275,
+      "line": 270,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -1444,7 +1416,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 275,
+      "line": 270,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -1461,7 +1433,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 275,
+      "line": 270,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -1475,7 +1447,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 275,
+      "line": 270,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -1492,7 +1464,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 275,
+      "line": 270,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -1509,7 +1481,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 287,
+      "line": 282,
       "property": "margin-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -1523,7 +1495,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 289,
+      "line": 284,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1540,7 +1512,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 289,
+      "line": 284,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -1557,7 +1529,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 293,
+      "line": 288,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1574,7 +1546,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 293,
+      "line": 288,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -1591,7 +1563,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 297,
+      "line": 292,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1608,7 +1580,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 297,
+      "line": 292,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -1625,7 +1597,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 314,
+      "line": 309,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1642,7 +1614,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 314,
+      "line": 309,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -1659,7 +1631,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 320,
+      "line": 315,
       "property": "margin-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -1673,7 +1645,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 324,
+      "line": 319,
       "property": "margin-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -1687,7 +1659,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 328,
+      "line": 323,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1704,7 +1676,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 328,
+      "line": 323,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -3940,7 +3912,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 68,
+      "line": 69,
       "property": "padding-block",
       "value": "20px",
       "status": "compact-allowed",
@@ -3954,7 +3926,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 72,
+      "line": 73,
       "property": "margin-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -3968,7 +3940,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 72,
+      "line": 73,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -3982,7 +3954,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 72,
+      "line": 73,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -3996,7 +3968,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 74,
+      "line": 75,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4013,7 +3985,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 80,
+      "line": 81,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4030,7 +4002,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 86,
+      "line": 87,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4047,7 +4019,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 99,
+      "line": 100,
       "property": "margin-bottom",
       "value": "6px",
       "status": "violation",
@@ -4064,7 +4036,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 99,
+      "line": 100,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4078,20 +4050,6 @@
         "16px"
       ],
       "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/LivePostGenerator.tsx",
-      "line": 108,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
@@ -9670,7 +9628,7 @@
     },
     {
       "file": "src/components/ThemeToggle.tsx",
-      "line": 25,
+      "line": 21,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -9687,7 +9645,7 @@
     },
     {
       "file": "src/components/ThemeToggle.tsx",
-      "line": 25,
+      "line": 21,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -9704,7 +9662,7 @@
     },
     {
       "file": "src/components/ThemeToggle.tsx",
-      "line": 27,
+      "line": 22,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -10800,7 +10758,7 @@
     },
     {
       "file": "src/components/clips/CaptionStylePreviewGrid.tsx",
-      "line": 168,
+      "line": 169,
       "property": "left",
       "value": "6px",
       "status": "violation",
@@ -10817,7 +10775,7 @@
     },
     {
       "file": "src/components/clips/CaptionStylePreviewGrid.tsx",
-      "line": 168,
+      "line": 169,
       "property": "top",
       "value": "6px",
       "status": "violation",
@@ -10834,7 +10792,7 @@
     },
     {
       "file": "src/components/clips/CaptionStylePreviewGrid.tsx",
-      "line": 168,
+      "line": 169,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -10848,7 +10806,7 @@
     },
     {
       "file": "src/components/clips/CaptionStylePreviewGrid.tsx",
-      "line": 200,
+      "line": 201,
       "property": "padding-right",
       "value": "4px",
       "status": "compact-allowed",
@@ -10862,7 +10820,7 @@
     },
     {
       "file": "src/components/clips/CaptionStylePreviewGrid.tsx",
-      "line": 224,
+      "line": 218,
       "property": "right",
       "value": "6px",
       "status": "violation",
@@ -10879,7 +10837,7 @@
     },
     {
       "file": "src/components/clips/CaptionStylePreviewGrid.tsx",
-      "line": 224,
+      "line": 218,
       "property": "top",
       "value": "6px",
       "status": "violation",
@@ -10896,7 +10854,7 @@
     },
     {
       "file": "src/components/clips/CaptionStylePreviewGrid.tsx",
-      "line": 229,
+      "line": 223,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -13176,7 +13134,7 @@
     },
     {
       "file": "src/components/content-queue/YouTubeUploadDialog.tsx",
-      "line": 208,
+      "line": 209,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -13190,7 +13148,7 @@
     },
     {
       "file": "src/components/content-queue/YouTubeUploadDialog.tsx",
-      "line": 210,
+      "line": 211,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -13207,7 +13165,7 @@
     },
     {
       "file": "src/components/content-queue/YouTubeUploadDialog.tsx",
-      "line": 224,
+      "line": 225,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -13224,7 +13182,7 @@
     },
     {
       "file": "src/components/content-queue/YouTubeUploadDialog.tsx",
-      "line": 232,
+      "line": 233,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -13238,7 +13196,7 @@
     },
     {
       "file": "src/components/content-queue/YouTubeUploadDialog.tsx",
-      "line": 236,
+      "line": 242,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -13255,7 +13213,7 @@
     },
     {
       "file": "src/components/content-queue/YouTubeUploadDialog.tsx",
-      "line": 247,
+      "line": 249,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -17290,7 +17248,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 342,
+      "line": 343,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -17304,7 +17262,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 349,
+      "line": 350,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -17318,7 +17276,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 374,
+      "line": 375,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -17332,7 +17290,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 381,
+      "line": 382,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -17346,7 +17304,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 385,
+      "line": 386,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -17360,14 +17318,14 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 419,
-      "property": "padding-inline",
-      "value": "12px",
+      "line": 448,
+      "property": "margin-top",
+      "value": "4px",
       "status": "compact-allowed",
       "tier": "compact-allowed",
       "system": "scale-utility",
       "track": "warn",
-      "category": "padding",
+      "category": "margin",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -17375,20 +17333,6 @@
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
       "line": 449,
-      "property": "margin-top",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 450,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -17402,7 +17346,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 473,
+      "line": 472,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -17416,7 +17360,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 481,
+      "line": 480,
       "property": "margin-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -17430,7 +17374,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 506,
+      "line": 505,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -17444,7 +17388,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 516,
+      "line": 515,
       "property": "margin-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -17458,7 +17402,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 529,
+      "line": 528,
       "property": "margin-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -17472,7 +17416,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 540,
+      "line": 539,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -17486,7 +17430,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 545,
+      "line": 544,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -17500,7 +17444,7 @@
     },
     {
       "file": "src/components/visual-studio/VisualGenerationDialog.tsx",
-      "line": 564,
+      "line": 563,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -21251,7 +21195,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 138,
+      "line": 140,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -21268,7 +21212,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 138,
+      "line": 140,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -21285,7 +21229,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 183,
+      "line": 185,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -21302,7 +21246,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 195,
+      "line": 197,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -21316,7 +21260,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 196,
+      "line": 198,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -21330,7 +21274,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 201,
+      "line": 203,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -21347,7 +21291,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 208,
+      "line": 210,
       "property": "padding",
       "value": "6px",
       "status": "violation",
@@ -21364,37 +21308,9 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 216,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 217,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
       "line": 218,
       "property": "gap",
-      "value": "4px",
+      "value": "12px",
       "status": "compact-allowed",
       "tier": "compact-allowed",
       "system": "scale-utility",
@@ -21434,7 +21350,35 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 234,
+      "line": 221,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 222,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 236,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -21451,7 +21395,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 246,
+      "line": 248,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -21468,7 +21412,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 273,
+      "line": 275,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -21476,34 +21420,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 273,
-      "property": "row-gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 273,
-      "property": "padding",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -21511,36 +21427,8 @@
     {
       "file": "src/pages/ClipsPage.tsx",
       "line": 275,
-      "property": "margin-bottom",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 279,
-      "property": "margin-bottom",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 280,
       "property": "row-gap",
-      "value": "4px",
+      "value": "12px",
       "status": "compact-allowed",
       "tier": "compact-allowed",
       "system": "scale-utility",
@@ -21552,111 +21440,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 290,
-      "property": "margin-bottom",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 295,
-      "property": "margin-bottom",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 299,
-      "property": "margin-bottom",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 324,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 330,
-      "property": "margin-top",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 331,
-      "property": "margin-top",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 591,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 592,
+      "line": 275,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -21670,7 +21454,91 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 610,
+      "line": 277,
+      "property": "margin-bottom",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 281,
+      "property": "margin-bottom",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 282,
+      "property": "row-gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 292,
+      "property": "margin-bottom",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 297,
+      "property": "margin-bottom",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 301,
+      "property": "margin-bottom",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 326,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -21684,7 +21552,41 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 648,
+      "line": 332,
+      "property": "margin-top",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 333,
+      "property": "margin-top",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 593,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -21698,7 +21600,49 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 649,
+      "line": 594,
+      "property": "padding",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 612,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 650,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ClipsPage.tsx",
+      "line": 651,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -21715,77 +21659,21 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 655,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 655,
-      "property": "padding-block",
+      "line": 665,
+      "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
       "tier": "compact-allowed",
       "system": "scale-utility",
       "track": "warn",
-      "category": "padding",
+      "category": "gap",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 655,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 655,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 670,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ClipsPage.tsx",
-      "line": 687,
+      "line": 685,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -21799,7 +21687,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 706,
+      "line": 704,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -21813,7 +21701,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 709,
+      "line": 707,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -21827,7 +21715,7 @@
     },
     {
       "file": "src/pages/ClipsPage.tsx",
-      "line": 713,
+      "line": 711,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -22920,7 +22808,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 222,
+      "line": 223,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -22934,7 +22822,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 222,
+      "line": 223,
       "property": "padding-block",
       "value": "10px",
       "status": "violation",
@@ -22951,7 +22839,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 223,
+      "line": 224,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -22968,7 +22856,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 232,
+      "line": 233,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -22982,7 +22870,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 232,
+      "line": 233,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -22990,20 +22878,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 242,
-      "property": "margin-bottom",
-      "value": "20px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -23011,6 +22885,20 @@
     {
       "file": "src/pages/ContentQueuePage.tsx",
       "line": 243,
+      "property": "margin-bottom",
+      "value": "20px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 244,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -23018,20 +22906,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "row",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 256,
-      "property": "padding",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -23039,6 +22913,20 @@
     {
       "file": "src/pages/ContentQueuePage.tsx",
       "line": 257,
+      "property": "padding",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 258,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -23055,7 +22943,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 260,
+      "line": 261,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23069,7 +22957,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 260,
+      "line": 261,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -23086,7 +22974,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 260,
+      "line": 261,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -23103,7 +22991,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 265,
+      "line": 266,
       "property": "margin-top",
       "value": "6px",
       "status": "violation",
@@ -23120,7 +23008,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 267,
+      "line": 268,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -23134,105 +23022,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 285,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 285,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 285,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 285,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 297,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 297,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 297,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 315,
+      "line": 307,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -23249,7 +23039,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 332,
+      "line": 324,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -23263,7 +23053,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 440,
+      "line": 432,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -23277,7 +23067,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 440,
+      "line": 432,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -23291,7 +23081,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 442,
+      "line": 434,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -23308,7 +23098,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 500,
+      "line": 492,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -23322,7 +23112,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 501,
+      "line": 493,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -23336,7 +23126,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 515,
+      "line": 507,
       "property": "bottom",
       "value": "-4px",
       "status": "compact-allowed",
@@ -23350,7 +23140,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 515,
+      "line": 507,
       "property": "right",
       "value": "-4px",
       "status": "compact-allowed",
@@ -23364,7 +23154,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 530,
+      "line": 522,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -23378,7 +23168,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 530,
+      "line": 522,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -23395,7 +23185,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 532,
+      "line": 524,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -23412,7 +23202,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 532,
+      "line": 524,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -23429,7 +23219,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 532,
+      "line": 524,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -23446,7 +23236,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 532,
+      "line": 524,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -23463,7 +23253,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 535,
+      "line": 527,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -23480,7 +23270,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 535,
+      "line": 527,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -23497,7 +23287,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 535,
+      "line": 527,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -23514,7 +23304,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 535,
+      "line": 527,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -23531,55 +23321,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 541,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 541,
-      "property": "padding-inline",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 541,
-      "property": "padding-block",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 553,
+      "line": 533,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23593,7 +23335,24 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 563,
+      "line": 533,
+      "property": "padding-inline",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 533,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -23610,24 +23369,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 563,
-      "property": "padding-block",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 577,
+      "line": 545,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23641,7 +23383,52 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 580,
+      "line": 554,
+      "property": "padding-block",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 564,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 567,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 606,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23656,20 +23443,6 @@
     {
       "file": "src/pages/ContentQueuePage.tsx",
       "line": 619,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 632,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -23683,7 +23456,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 633,
+      "line": 620,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -23700,7 +23473,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 637,
+      "line": 624,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -23717,7 +23490,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 641,
+      "line": 628,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -23734,7 +23507,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 647,
+      "line": 634,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -23751,7 +23524,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 656,
+      "line": 643,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23765,7 +23538,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 658,
+      "line": 645,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -23782,7 +23555,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 666,
+      "line": 653,
       "property": "margin-right",
       "value": "4px",
       "status": "compact-allowed",
@@ -23796,7 +23569,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 680,
+      "line": 667,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -23810,7 +23583,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 697,
+      "line": 684,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -23827,7 +23600,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 731,
+      "line": 718,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -23844,7 +23617,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 748,
+      "line": 735,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -23861,7 +23634,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 774,
+      "line": 761,
       "property": "padding-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -23875,7 +23648,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 775,
+      "line": 762,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -23892,7 +23665,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 789,
+      "line": 776,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -23909,7 +23682,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 803,
+      "line": 790,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23923,7 +23696,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 808,
+      "line": 795,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23937,7 +23710,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 814,
+      "line": 801,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23951,7 +23724,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 830,
+      "line": 817,
       "property": "margin-right",
       "value": "4px",
       "status": "compact-allowed",
@@ -23965,7 +23738,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 838,
+      "line": 825,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -23979,7 +23752,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 838,
+      "line": 825,
       "property": "padding-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -23993,7 +23766,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 863,
+      "line": 850,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -24007,7 +23780,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 863,
+      "line": 850,
       "property": "padding-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -24021,7 +23794,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 873,
+      "line": 860,
       "property": "margin-right",
       "value": "4px",
       "status": "compact-allowed",
@@ -24035,7 +23808,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 997,
+      "line": 984,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -24046,6 +23819,54 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 985,
+      "property": "row-gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 993,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/ContentQueuePage.tsx",
+      "line": 994,
+      "property": "row-gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
@@ -24066,55 +23887,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1006,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1007,
-      "property": "row-gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1011,
-      "property": "row-gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1033,
+      "line": 1020,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -24131,7 +23904,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1033,
+      "line": 1020,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -24148,7 +23921,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1076,
+      "line": 1063,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -24165,7 +23938,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1076,
+      "line": 1063,
       "property": "padding",
       "value": "10px",
       "status": "violation",
@@ -24182,7 +23955,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1076,
+      "line": 1063,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -24199,7 +23972,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1076,
+      "line": 1063,
       "property": "padding",
       "value": "10px",
       "status": "violation",
@@ -24216,7 +23989,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1148,
+      "line": 1135,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -24233,7 +24006,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1149,
+      "line": 1136,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -24250,7 +24023,7 @@
     },
     {
       "file": "src/pages/ContentQueuePage.tsx",
-      "line": 1153,
+      "line": 1140,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26151,7 +25924,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 307,
+      "line": 308,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26165,7 +25938,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 312,
+      "line": 313,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -26182,7 +25955,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 326,
+      "line": 327,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26196,7 +25969,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 329,
+      "line": 330,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -26210,7 +25983,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 338,
+      "line": 339,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -26224,7 +25997,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 358,
+      "line": 359,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -26238,7 +26011,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 377,
+      "line": 378,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -26255,7 +26028,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 410,
+      "line": 411,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -26269,7 +26042,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 431,
+      "line": 432,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -26283,7 +26056,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 470,
+      "line": 471,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26297,7 +26070,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 470,
+      "line": 471,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -26311,7 +26084,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 489,
+      "line": 490,
       "property": "gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -26325,7 +26098,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 515,
+      "line": 516,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26339,7 +26112,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 515,
+      "line": 516,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -26353,7 +26126,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 523,
+      "line": 524,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -26370,7 +26143,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 542,
+      "line": 543,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26384,7 +26157,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 549,
+      "line": 550,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26398,7 +26171,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 569,
+      "line": 570,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26412,7 +26185,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 569,
+      "line": 570,
       "property": "padding-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -26426,7 +26199,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 580,
+      "line": 581,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -26440,7 +26213,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 580,
+      "line": 581,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26454,7 +26227,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 580,
+      "line": 581,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -26468,7 +26241,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 580,
+      "line": 581,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26482,7 +26255,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 613,
+      "line": 614,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26496,7 +26269,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 613,
+      "line": 614,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -26513,7 +26286,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 613,
+      "line": 614,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -26530,7 +26303,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 623,
+      "line": 624,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -26547,7 +26320,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 633,
+      "line": 634,
       "property": "margin-top",
       "value": "6px",
       "status": "violation",
@@ -26564,7 +26337,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 636,
+      "line": 637,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -26581,7 +26354,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 636,
+      "line": 637,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -26598,7 +26371,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 636,
+      "line": 637,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -26615,7 +26388,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 636,
+      "line": 637,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -26632,7 +26405,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 646,
+      "line": 647,
       "property": "margin-top",
       "value": "10px",
       "status": "violation",
@@ -26649,7 +26422,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 649,
+      "line": 650,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26663,7 +26436,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 657,
+      "line": 658,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -26680,7 +26453,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 657,
+      "line": 658,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -26697,7 +26470,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 665,
+      "line": 666,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26711,7 +26484,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 668,
+      "line": 669,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26725,7 +26498,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 676,
+      "line": 677,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -26742,7 +26515,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 676,
+      "line": 677,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -26759,7 +26532,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 753,
+      "line": 754,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -26773,7 +26546,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 755,
+      "line": 756,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -26787,21 +26560,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 765,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LeadersPage.tsx",
-      "line": 767,
+      "line": 768,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -26818,7 +26577,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 808,
+      "line": 809,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26826,20 +26585,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LeadersPage.tsx",
-      "line": 818,
-      "property": "margin-top",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -26860,7 +26605,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 819,
+      "line": 820,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -26874,7 +26619,21 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 829,
+      "line": 820,
+      "property": "margin-top",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/LeadersPage.tsx",
+      "line": 830,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -26888,7 +26647,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 832,
+      "line": 833,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26902,7 +26661,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 839,
+      "line": 840,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -26916,7 +26675,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 849,
+      "line": 850,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26930,7 +26689,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 872,
+      "line": 873,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26944,7 +26703,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 879,
+      "line": 880,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26958,7 +26717,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 898,
+      "line": 899,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -27428,7 +27187,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 748,
+      "line": 749,
       "property": "margin-bottom",
       "value": "28px",
       "status": "violation",
@@ -27445,7 +27204,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 751,
+      "line": 752,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -27462,7 +27221,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 756,
+      "line": 757,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -27476,7 +27235,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 756,
+      "line": 757,
       "property": "padding-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -27490,7 +27249,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 756,
+      "line": 757,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -27504,7 +27263,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 756,
+      "line": 757,
       "property": "padding-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -27518,7 +27277,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 766,
+      "line": 767,
       "property": "top",
       "value": "18px",
       "status": "violation",
@@ -27535,7 +27294,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 767,
+      "line": 768,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -27549,7 +27308,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 773,
+      "line": 774,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27563,7 +27322,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 773,
+      "line": 774,
       "property": "padding-inline",
       "value": "4px",
       "status": "compact-allowed",
@@ -27577,7 +27336,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 796,
+      "line": 797,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -27594,7 +27353,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 796,
+      "line": 797,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -27611,7 +27370,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 814,
+      "line": 815,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -27625,7 +27384,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 823,
+      "line": 824,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -27639,7 +27398,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 823,
+      "line": 824,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -27656,38 +27415,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 823,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 823,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 827,
+      "line": 826,
       "property": "margin-left",
       "value": "4px",
       "status": "compact-allowed",
@@ -27701,7 +27429,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 850,
+      "line": 849,
       "property": "padding",
       "value": "14px",
       "status": "violation",
@@ -27718,24 +27446,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 850,
-      "property": "padding",
-      "value": "14px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 857,
+      "line": 852,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -27749,7 +27460,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 863,
+      "line": 858,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -27763,7 +27474,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 873,
+      "line": 868,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -27777,7 +27488,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 885,
+      "line": 880,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -27791,7 +27502,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 897,
+      "line": 892,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -27805,7 +27516,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 905,
+      "line": 900,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -27822,7 +27533,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 943,
+      "line": 938,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27836,7 +27547,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 965,
+      "line": 960,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27850,7 +27561,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1007,
+      "line": 1002,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27864,7 +27575,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1009,
+      "line": 1004,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -27881,7 +27592,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1020,
+      "line": 1015,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -27895,7 +27606,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1029,
+      "line": 1024,
       "property": "margin-top",
       "value": "20px",
       "status": "compact-allowed",
@@ -27909,7 +27620,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1039,
+      "line": 1034,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27923,7 +27634,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1048,
+      "line": 1043,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27937,7 +27648,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1069,
+      "line": 1064,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27951,7 +27662,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1073,
+      "line": 1068,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27965,7 +27676,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1080,
+      "line": 1075,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -27979,7 +27690,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1089,
+      "line": 1084,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -27993,7 +27704,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1092,
+      "line": 1087,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -28007,7 +27718,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1093,
+      "line": 1088,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28021,7 +27732,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1103,
+      "line": 1098,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28035,7 +27746,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1110,
+      "line": 1105,
       "property": "padding",
       "value": "10px",
       "status": "violation",
@@ -28052,7 +27763,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1117,
+      "line": 1112,
       "property": "padding-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -28066,7 +27777,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1138,
+      "line": 1133,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -28083,7 +27794,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1139,
+      "line": 1134,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -28091,6 +27802,54 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1137,
+      "property": "row-gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1138,
+      "property": "gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1141,
+      "property": "row-gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "row",
       "confidence": "high",
       "recommended": [
         "8px",
@@ -28101,20 +27860,6 @@
     {
       "file": "src/pages/LiveSetupPage.tsx",
       "line": 1142,
-      "property": "row-gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1143,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -28128,27 +27873,24 @@
         "16px"
       ],
       "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1145,
+      "property": "row-gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
       "line": 1146,
-      "property": "row-gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1147,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -28165,38 +27907,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1150,
-      "property": "row-gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1151,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1162,
+      "line": 1157,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28210,7 +27921,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1174,
+      "line": 1169,
       "property": "padding-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -28224,7 +27935,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1182,
+      "line": 1177,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28238,7 +27949,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1195,
+      "line": 1190,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28252,7 +27963,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1204,
+      "line": 1199,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -28266,7 +27977,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1206,
+      "line": 1201,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -28280,7 +27991,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1230,
+      "line": 1225,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -28291,6 +28002,23 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1228,
+      "property": "margin-top",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
@@ -28311,9 +28039,9 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1238,
-      "property": "margin-top",
-      "value": "2px",
+      "line": 1239,
+      "property": "margin-right",
+      "value": "6px",
       "status": "violation",
       "tier": "violation",
       "system": "scale-utility",
@@ -28328,7 +28056,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1244,
+      "line": 1239,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -28362,7 +28090,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1249,
+      "line": 1244,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -28379,24 +28107,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1249,
-      "property": "margin-right",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1265,
+      "line": 1260,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28410,7 +28121,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1273,
+      "line": 1268,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -28424,7 +28135,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1273,
+      "line": 1268,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28438,7 +28149,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1300,
+      "line": 1295,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28452,7 +28163,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1300,
+      "line": 1295,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -28466,7 +28177,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1300,
+      "line": 1295,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28480,7 +28191,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1300,
+      "line": 1295,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -28494,7 +28205,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1304,
+      "line": 1299,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -28511,7 +28222,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1329,
+      "line": 1324,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -28528,7 +28239,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1335,
+      "line": 1330,
       "property": "margin-right",
       "value": "4px",
       "status": "compact-allowed",
@@ -28542,7 +28253,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1349,
+      "line": 1344,
       "property": "padding",
       "value": "10px",
       "status": "violation",
@@ -28559,7 +28270,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1386,
+      "line": 1381,
       "property": "gap",
       "value": "14px",
       "status": "violation",
@@ -28576,7 +28287,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1390,
+      "line": 1385,
       "property": "padding-top",
       "value": "2px",
       "status": "violation",
@@ -28593,7 +28304,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1392,
+      "line": 1387,
       "property": "margin-bottom",
       "value": "2px",
       "status": "violation",
@@ -28610,7 +28321,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1397,
+      "line": 1392,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -28624,7 +28335,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1447,
+      "line": 1442,
       "property": "padding",
       "value": "10px",
       "status": "violation",
@@ -28641,7 +28352,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1447,
+      "line": 1442,
       "property": "padding",
       "value": "10px",
       "status": "violation",
@@ -28658,7 +28369,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1451,
+      "line": 1446,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -28675,7 +28386,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1452,
+      "line": 1447,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -28692,7 +28403,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1453,
+      "line": 1448,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -28706,7 +28417,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1462,
+      "line": 1457,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -28720,7 +28431,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1479,
+      "line": 1474,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -28734,7 +28445,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1479,
+      "line": 1474,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -28748,7 +28459,24 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1481,
+      "line": 1476,
+      "property": "margin-top",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1477,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -28782,24 +28510,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1487,
-      "property": "margin-top",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1490,
+      "line": 1485,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -28813,7 +28524,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1490,
+      "line": 1485,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -28827,7 +28538,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1510,
+      "line": 1505,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -28844,7 +28555,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1510,
+      "line": 1505,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -28861,7 +28572,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1510,
+      "line": 1505,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -28878,7 +28589,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1510,
+      "line": 1505,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -28895,7 +28606,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1523,
+      "line": 1518,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -28912,7 +28623,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1523,
+      "line": 1518,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -28929,7 +28640,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1523,
+      "line": 1518,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -28946,7 +28657,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1523,
+      "line": 1518,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -28963,7 +28674,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1531,
+      "line": 1526,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -28977,7 +28688,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1535,
+      "line": 1530,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -28994,7 +28705,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1537,
+      "line": 1532,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -29011,7 +28722,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1545,
+      "line": 1540,
       "property": "margin-top",
       "value": "6px",
       "status": "violation",
@@ -29028,7 +28739,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1625,
+      "line": 1620,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -29042,7 +28753,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1636,
+      "line": 1631,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -29059,7 +28770,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1637,
+      "line": 1632,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -29076,7 +28787,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1644,
+      "line": 1639,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -29090,7 +28801,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1653,
+      "line": 1648,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -29107,7 +28818,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1653,
+      "line": 1648,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -29121,6 +28832,37 @@
         "16px"
       ],
       "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1673,
+      "property": "gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1676,
+      "property": "row-gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
@@ -29141,21 +28883,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1681,
-      "property": "row-gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1683,
+      "line": 1685,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -29169,6 +28897,20 @@
         "16px"
       ],
       "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1688,
+      "property": "row-gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
@@ -29189,21 +28931,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1693,
-      "property": "row-gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "row",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1695,
+      "line": 1697,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -29220,7 +28948,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1702,
+      "line": 1707,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -29237,24 +28965,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1712,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1715,
+      "line": 1710,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -29271,7 +28982,41 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1718,
+      "line": 1713,
+      "property": "margin-top",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1727,
+      "property": "padding",
+      "value": "10px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/LiveSetupPage.tsx",
+      "line": 1729,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -29289,40 +29034,6 @@
     {
       "file": "src/pages/LiveSetupPage.tsx",
       "line": 1732,
-      "property": "padding",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1734,
-      "property": "margin-top",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1737,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -29336,7 +29047,7 @@
     },
     {
       "file": "src/pages/LiveSetupPage.tsx",
-      "line": 1737,
+      "line": 1732,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -30086,7 +29797,7 @@
     },
     {
       "file": "src/pages/PlaybooksPage.tsx",
-      "line": 71,
+      "line": 72,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -30100,7 +29811,7 @@
     },
     {
       "file": "src/pages/PlaybooksPage.tsx",
-      "line": 103,
+      "line": 104,
       "property": "padding-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -30114,97 +29825,7 @@
     },
     {
       "file": "src/pages/PlaybooksPage.tsx",
-      "line": 115,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/PlaybooksPage.tsx",
-      "line": 115,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/PlaybooksPage.tsx",
-      "line": 115,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/PlaybooksPage.tsx",
-      "line": 115,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/PlaybooksPage.tsx",
-      "line": 115,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/PlaybooksPage.tsx",
-      "line": 115,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/PlaybooksPage.tsx",
-      "line": 124,
+      "line": 120,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -30221,7 +29842,7 @@
     },
     {
       "file": "src/pages/PlaybooksPage.tsx",
-      "line": 124,
+      "line": 120,
       "property": "padding-block",
       "value": "1px",
       "status": "violation",
@@ -30238,7 +29859,7 @@
     },
     {
       "file": "src/pages/PlaybooksPage.tsx",
-      "line": 124,
+      "line": 120,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -30255,7 +29876,7 @@
     },
     {
       "file": "src/pages/PlaybooksPage.tsx",
-      "line": 124,
+      "line": 120,
       "property": "padding-block",
       "value": "1px",
       "status": "violation",
@@ -34207,7 +33828,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 124,
+      "line": 125,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -34221,7 +33842,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 125,
+      "line": 126,
       "property": "margin-bottom",
       "value": "6px",
       "status": "violation",
@@ -34238,7 +33859,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 127,
+      "line": 128,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -34255,7 +33876,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 153,
+      "line": 154,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -34269,7 +33890,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 153,
+      "line": 154,
       "property": "padding-block",
       "value": "14px",
       "status": "violation",
@@ -34286,7 +33907,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 155,
+      "line": 156,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -34303,7 +33924,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 172,
+      "line": 173,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -34320,7 +33941,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 186,
+      "line": 187,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -34337,7 +33958,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 190,
+      "line": 191,
       "property": "row-gap",
       "value": "2px",
       "status": "violation",
@@ -34354,7 +33975,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 192,
+      "line": 193,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -34362,48 +33983,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/SimulatorPage.tsx",
-      "line": 329,
-      "property": "margin-bottom",
-      "value": "20px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/SimulatorPage.tsx",
-      "line": 329,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/SimulatorPage.tsx",
-      "line": 329,
-      "property": "padding-block",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -34411,6 +33990,48 @@
     {
       "file": "src/pages/SimulatorPage.tsx",
       "line": 330,
+      "property": "margin-bottom",
+      "value": "20px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
+      "line": 330,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
+      "line": 330,
+      "property": "padding-block",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
+      "line": 331,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -34427,7 +34048,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 354,
+      "line": 355,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -34441,7 +34062,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 362,
+      "line": 363,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -34455,7 +34076,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 375,
+      "line": 376,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -34469,7 +34090,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 383,
+      "line": 384,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -34483,7 +34104,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 388,
+      "line": 389,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -34500,7 +34121,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 396,
+      "line": 397,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -34514,7 +34135,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 415,
+      "line": 416,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -34528,7 +34149,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 423,
+      "line": 424,
       "property": "padding-block",
       "value": "10px",
       "status": "violation",
@@ -34545,24 +34166,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 423,
-      "property": "padding-block",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/SimulatorPage.tsx",
-      "line": 429,
+      "line": 426,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -34576,7 +34180,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 433,
+      "line": 430,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -34593,7 +34197,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 441,
+      "line": 438,
       "property": "padding-block",
       "value": "10px",
       "status": "violation",
@@ -34610,24 +34214,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 441,
-      "property": "padding-block",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/SimulatorPage.tsx",
-      "line": 447,
+      "line": 440,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -34641,7 +34228,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 449,
+      "line": 442,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -34658,7 +34245,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 457,
+      "line": 450,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -34672,7 +34259,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 457,
+      "line": 450,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -34686,7 +34273,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 458,
+      "line": 451,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -34700,7 +34287,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 460,
+      "line": 453,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -34714,7 +34301,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 476,
+      "line": 469,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -34728,7 +34315,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 496,
+      "line": 489,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -34742,7 +34329,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 496,
+      "line": 489,
       "property": "padding-block",
       "value": "10px",
       "status": "violation",
@@ -34759,7 +34346,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 504,
+      "line": 497,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -34773,7 +34360,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 504,
+      "line": 497,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -34787,7 +34374,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 510,
+      "line": 503,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -34801,7 +34388,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 510,
+      "line": 503,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -34815,7 +34402,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 511,
+      "line": 504,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -34829,7 +34416,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 514,
+      "line": 507,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -34846,7 +34433,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 514,
+      "line": 507,
       "property": "padding-inline",
       "value": "10px",
       "status": "violation",
@@ -34863,7 +34450,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 514,
+      "line": 507,
       "property": "padding-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -34877,7 +34464,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 520,
+      "line": 513,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -34891,7 +34478,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 571,
+      "line": 564,
       "property": "padding-inline",
       "value": "20px",
       "status": "compact-allowed",
@@ -34905,7 +34492,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 571,
+      "line": 564,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -34916,38 +34503,55 @@
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
+      "line": 573,
+      "property": "padding",
+      "value": "20px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
+      "line": 574,
+      "property": "margin-bottom",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/SimulatorPage.tsx",
+      "line": 576,
+      "property": "gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
       "line": 580,
-      "property": "padding",
-      "value": "20px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/SimulatorPage.tsx",
-      "line": 581,
-      "property": "margin-bottom",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/SimulatorPage.tsx",
-      "line": 583,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -34964,24 +34568,7 @@
     },
     {
       "file": "src/pages/SimulatorPage.tsx",
-      "line": 587,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/SimulatorPage.tsx",
-      "line": 623,
+      "line": 616,
       "property": "row-gap",
       "value": "10px",
       "status": "violation",
@@ -39481,7 +39068,7 @@
     },
     {
       "file": "design-system/stories/SelectableCard.stories.tsx",
-      "line": 31,
+      "line": 37,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39495,7 +39082,7 @@
     },
     {
       "file": "design-system/stories/SelectableCard.stories.tsx",
-      "line": 48,
+      "line": 65,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39503,6 +39090,20 @@
       "system": "scale-utility",
       "track": "error",
       "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/SelectableCard.stories.tsx",
+      "line": 67,
+      "property": "padding",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "padding",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -39914,9 +39515,9 @@
     }
   ],
   "recommendations": [
-    "1027 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
-    "1535 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
+    "1020 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1515 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ],
-  "findingsNote": "2837 usages preferred agrégés dans totals, non listés."
+  "findingsNote": "2843 usages preferred agrégés dans totals, non listés."
 }

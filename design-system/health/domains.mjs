@@ -18,6 +18,8 @@
 // Ajouter un provider (Docs Coverage, Visual Regression, Performance…) = faire
 // passer un domaine de missing/planned → measured, SANS toucher la structure.
 
+import { pctSafe as pct } from "./core/format.mjs";
+
 export const MATURITY_STATES = {
   measured: { label: "Measured", glyph: "●", order: 0 },
   documented: { label: "Documented", glyph: "◆", order: 1 },
@@ -25,18 +27,60 @@ export const MATURITY_STATES = {
   missing: { label: "Missing", glyph: "○", order: 3 },
 };
 
-const pct = (n) => (n == null ? null : `${Math.round(n * 100)}%`);
+// Détail des balises brutes : on ne cite que celles réellement présentes
+// (« 0 input · 0 select » est du bruit, pas de l'information).
+const rawDetail = (byTag) =>
+  Object.entries(byTag ?? {})
+    .filter(([, n]) => n > 0)
+    .map(([tag, n]) => `${n} ${tag}`)
+    .join(" · ") || "aucun";
 
-export function buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality, adoption }) {
+// Les 5 PILIERS de lecture exécutive. Une aire reste l'unité de mesure (et sa
+// sous-page ne bouge pas) ; un pilier est le niveau auquel on RACONTE le système.
+// Tokens rejoint Foundations (les tokens portent les fondations) ; Quality Gates
+// et Visual Quality forment Quality (garde-fous automatisés) ; Spacing n'est plus
+// un pilier autonome — c'est une métrique interne de Foundations.
+export const PILLARS = [
+  { key: "foundations", label: "Foundations", note: "Les décisions visuelles fondatrices et les tokens qui les portent.", extraLinks: [{ slug: "health-spacing", label: "Spacing Health" }] },
+  { key: "components", label: "Components", note: "Le catalogue : couverture, stories, variantes, accessibilité.", extraLinks: [] },
+  { key: "adoption", label: "Adoption", note: "Ce que le produit consomme réellement du système.", extraLinks: [] },
+  { key: "quality", label: "Quality", note: "Les garde-fous automatisés et la qualité visuelle.", extraLinks: [] },
+  { key: "governance", label: "Governance & Documentation", note: "Contribution, décisions, versioning, documentation.", extraLinks: [] },
+];
+
+export function buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality, adoption, foundationsAdoption }) {
+  // Adoption d'une fondation : « X conformes sur Y usages », plus le détail des
+  // principaux contrevenants — la métrique dit quoi corriger, pas juste un score.
+  const fa = (key) => foundationsAdoption?.byFoundation?.[key] ?? null;
+  const faNote = (key, rule) => {
+    const d = fa(key);
+    if (!d || !d.total) return `${rule} — aucun usage détecté`;
+    const top = d.topOffenders.slice(0, 3).map((o) => `${o.value} ×${o.count}`).join(", ");
+    return `${d.token + d.scale}/${d.total} usages ${rule}${top ? ` · reste : ${top}` : ""}`;
+  };
+  const faLine = (key, label, rule) => {
+    const d = fa(key);
+    return {
+      key: `ado-${key}`,
+      group: "foundations",
+      label,
+      status: d && d.total ? "measured" : "planned",
+      measure: d && d.total ? pct(d.adoption) : null,
+      note: faNote(key, rule),
+    };
+  };
+
   const areas = [
     {
       area: "Foundations",
+      pillar: "foundations",
       slug: "health-foundations",
       note: "Les décisions visuelles fondatrices — attendues, pas seulement celles consommées par l'app.",
       domains: foundations.domains,
     },
     {
       area: "Components",
+      pillar: "components",
       slug: "health-components",
       note: "Le domaine complet, pas un compteur : couverture, stories, variantes, doc, a11y.",
       domains: [
@@ -49,6 +93,7 @@ export function buildMaturity({ spacing, a11y, components, tokens, foundations, 
     },
     {
       area: "Tokens",
+      pillar: "foundations",
       slug: "health-tokens",
       note: "Inventaire par couche (measured) + hygiène (roadmap).",
       domains: [
@@ -61,6 +106,7 @@ export function buildMaturity({ spacing, a11y, components, tokens, foundations, 
     },
     {
       area: "Quality Gates",
+      pillar: "quality",
       slug: "health-quality-gates",
       note: "Les garde-fous bloquants avant merge — Accessibility incluse (c'est un gate).",
       domains: [
@@ -74,24 +120,39 @@ export function buildMaturity({ spacing, a11y, components, tokens, foundations, 
     },
     {
       area: "Adoption",
+      pillar: "adoption",
       slug: "health-adoption",
-      note: "À quel point le PRODUIT consomme réellement le DS (usage réel dans src/, hors cœur ui/).",
+      note: "Mesure de l'utilisation réelle du Design System dans le produit.",
+      // `group` = niveau de lecture. L'adoption se lit en deux domaines qui ne sont
+      // PAS équivalents : les composants d'un côté, les fondations/tokens de l'autre.
+      // Le spacing est une sous-métrique des fondations, pas un pilier de l'adoption.
       domains: [
-        { key: "ado-components", label: "Component adoption", status: "measured", measure: pct(adoption.componentAdoption), note: `${adoption.dsFiles}/${adoption.jsxFiles} fichiers app (avec JSX) importent le DS` },
-        { key: "ado-spacing", label: "Spacing scale adoption", status: "measured", measure: pct(adoption.spacingScaleAdoption), note: "part des espacements sur l'échelle gouvernée" },
-        { key: "ado-raw", label: "Éléments bruts restants", status: "measured", measure: String(adoption.rawElements), note: `<button/input/select/textarea> bruts hors DS (${adoption.rawByTag.button} button · ${adoption.rawByTag.input} input · ${adoption.rawByTag.select} select · ${adoption.rawByTag.textarea} textarea)` },
-        { key: "ado-colors", label: "Couleurs en dur restantes", status: "measured", measure: String(adoption.hardColors), note: "hex / classes arbitraires hors tokens (dette de tokenisation)" },
-        { key: "ado-token-cov", label: "Token adoption (couverture)", status: "planned", measure: null, note: "% des valeurs passant par un token sémantique vs en dur — roadmap" },
+        { key: "ado-components", group: "components", label: "Component adoption", status: "measured", measure: pct(adoption.componentAdoption), note: `${adoption.dsFiles}/${adoption.jsxFiles} fichiers app (avec JSX) importent le DS` },
+        { key: "ado-raw", group: "components", label: "Éléments bruts restants", status: "measured", measure: String(adoption.rawElements), note: `<button/input/select/textarea> bruts hors DS (${rawDetail(adoption.rawByTag)})` },
+        { key: "ado-deprecated", group: "components", label: "Composants dépréciés en usage", status: "planned", measure: null, note: "usage résiduel des composants marqués deprecated — nécessite un registre de dépréciation" },
+
+        // Ordre FIXE (repris tel quel par la carte de résumé) : un rapport se relit
+        // dans le temps, les lignes ne se réordonnent pas parce qu'un score a bougé.
+        { key: "ado-spacing", group: "foundations", label: "Spacing", status: "measured", measure: pct(adoption.spacingScaleAdoption), note: "part des espacements sur l'échelle gouvernée (ADR 0002)" },
+        faLine("typography", "Typographie", "sur l'échelle ADR 0004"),
+        faLine("radius", "Radius", "sur l'échelle radius.*"),
+        faLine("shadow", "Ombres", "sur l'échelle shadow.*/elevation.*"),
+        faLine("motion", "Motion", "sur l'échelle duration.*/easing.*"),
+        // La dette couleur en dur (compte brut) vit dans la carte « Dette tokens »
+        // du résumé, pas ici : ce tableau ne compare que des taux d'adoption.
+        faLine("colors", "Couleurs", "passant par un token (hors palette Tailwind / valeur arbitraire)"),
       ],
     },
     {
       area: "Visual Quality",
+      pillar: "quality",
       slug: "health-visual-quality",
       note: "Domaine durable — ses sous-métriques passeront de missing/planned à measured dès que la CI Chromatic produira un rapport.",
-      domains: visualQuality.metrics.map((v) => ({ key: `vq-${v.key}`, label: v.label, status: v.status, measure: v.measure, note: v.note })),
+      domains: visualQuality.metrics.map((v) => ({ key: `vq-${v.key}`, label: v.label, status: v.status, measure: v.measure, note: v.note, action: v.action ?? null })),
     },
     {
       area: "Governance",
+      pillar: "governance",
       slug: "health-governance",
       note: "Contribution, décisions, versioning, documentation — la gouvernance du DS.",
       domains: [
