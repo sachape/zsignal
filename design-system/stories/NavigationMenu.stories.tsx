@@ -3,7 +3,7 @@ import {
   NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger,
   NavigationMenuContent, NavigationMenuLink, navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof NavigationMenu> = {
   title: "Components/Navigation/Navigation Menu",
@@ -11,8 +11,8 @@ const meta: Meta<typeof NavigationMenu> = {
   tags: ["autodocs"],
   argTypes: {
     ...common("value", "defaultValue", "onValueChange", "orientation", "children", "className"),
-    delayDuration: describe("Temps de survol avant ouverture d'un sous-menu, en millisecondes.", { control: "number", category: CAT.state, defaultValue: "200" }),
-    skipDelayDuration: describe("Fenêtre pendant laquelle passer d'un menu à l'autre reste instantané.", { control: "number", category: CAT.state, defaultValue: "300" }),
+    delayDuration: prop("Temps de survol avant ouverture d'un sous-menu, en millisecondes.", { control: "number", category: CAT.state, defaultValue: "200" }),
+    skipDelayDuration: prop("Fenêtre pendant laquelle passer d'un menu à l'autre reste instantané.", { control: "number", category: CAT.state, defaultValue: "300" }),
   },
   parameters: {
     layout: "centered",

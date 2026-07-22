@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 /**
  * Label — l'étiquette d'un champ (18×). Toujours associée à un contrôle via
@@ -14,7 +14,7 @@ const meta: Meta<typeof Label> = {
   component: Label,
   argTypes: {
     ...common("children", "className"),
-    htmlFor: describe(
+    htmlFor: prop(
       "Identifiant du contrôle décrit. C'est ce lien qui rend le label cliquable et annonçable — sans lui, le champ n'a pas de nom accessible.",
       { control: "text", category: CAT.content },
     ),

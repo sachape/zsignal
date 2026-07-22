@@ -3,7 +3,7 @@ import {
   Menubar, MenubarMenu, MenubarTrigger, MenubarContent,
   MenubarItem, MenubarSeparator, MenubarShortcut,
 } from "@/components/ui/menubar";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Menubar> = {
   title: "Components/Navigation/Menubar",
@@ -11,8 +11,8 @@ const meta: Meta<typeof Menubar> = {
   tags: ["autodocs"],
   argTypes: {
     ...common("value", "defaultValue", "onValueChange", "children", "className"),
-    loop: describe("Le focus repart au début après le dernier menu.", { control: "boolean", category: CAT.advanced }),
-    dir: describe("Sens de lecture : inverse l'ouverture des sous-menus.", { control: "inline-radio", options: ["ltr", "rtl"], category: CAT.layout }),
+    loop: prop("Le focus repart au début après le dernier menu.", { control: "boolean", category: CAT.advanced }),
+    dir: prop("Sens de lecture : inverse l'ouverture des sous-menus.", { control: "inline-radio", options: ["ltr", "rtl"], category: CAT.layout }),
   },
   parameters: {
     layout: "centered",

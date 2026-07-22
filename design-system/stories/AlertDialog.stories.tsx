@@ -6,7 +6,7 @@ import {
   AlertDialogAction, AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof AlertDialog> = {
   title: "Components/Overlays/AlertDialog",

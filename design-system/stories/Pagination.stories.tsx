@@ -3,7 +3,7 @@ import {
   Pagination, PaginationContent, PaginationItem, PaginationLink,
   PaginationPrevious, PaginationNext, PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Pagination> = {
   title: "Components/Navigation/Pagination",

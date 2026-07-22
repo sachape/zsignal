@@ -4,7 +4,7 @@ import {
   DrawerDescription, DrawerFooter, DrawerClose,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Drawer> = {
   title: "Components/Overlays/Drawer",
@@ -12,9 +12,9 @@ const meta: Meta<typeof Drawer> = {
   tags: ["autodocs"],
   argTypes: {
     ...common("open", "defaultOpen", "onOpenChange", "modal", "children"),
-    direction: describe("Bord depuis lequel le panneau glisse.", { control: "select", options: ["top", "right", "bottom", "left"], category: CAT.layout, defaultValue: "bottom" }),
-    dismissible: describe("Autorise la fermeture par glissement ou clic sur l'overlay. Passer à `false` pour une décision obligatoire.", { control: "boolean", category: CAT.state, defaultValue: "true" }),
-    shouldScaleBackground: describe("Met la page en retrait à l'ouverture (effet iOS).", { control: "boolean", category: CAT.appearance }),
+    direction: prop("Bord depuis lequel le panneau glisse.", { control: "select", options: ["top", "right", "bottom", "left"], category: CAT.layout, defaultValue: "bottom" }),
+    dismissible: prop("Autorise la fermeture par glissement ou clic sur l'overlay. Passer à `false` pour une décision obligatoire.", { control: "boolean", category: CAT.state, defaultValue: "true" }),
+    shouldScaleBackground: prop("Met la page en retrait à l'ouverture (effet iOS).", { control: "boolean", category: CAT.appearance }),
   },
   parameters: {
     layout: "centered",

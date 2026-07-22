@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Carousel> = {
   title: "Components/Content & Structure/Carousel",
@@ -8,9 +8,9 @@ const meta: Meta<typeof Carousel> = {
   tags: ["autodocs"],
   argTypes: {
     ...common("orientation", "children", "className"),
-    opts: describe("Options du moteur embla (boucle, alignement, nombre d'éléments par pas).", { control: false, category: CAT.advanced }),
-    plugins: describe("Plugins embla (défilement automatique, roue de souris…).", { control: false, category: CAT.advanced }),
-    setApi: describe("Reçoit l'instance embla pour piloter le carrousel depuis l'extérieur.", { control: false, category: CAT.events }),
+    opts: prop("Options du moteur embla (boucle, alignement, nombre d'éléments par pas).", { control: false, category: CAT.advanced }),
+    plugins: prop("Plugins embla (défilement automatique, roue de souris…).", { control: false, category: CAT.advanced }),
+    setApi: prop("Reçoit l'instance embla pour piloter le carrousel depuis l'extérieur.", { control: false, category: CAT.events }),
   },
   parameters: {
     layout: "centered",

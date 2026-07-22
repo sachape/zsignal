@@ -3,7 +3,7 @@ import { expect, waitFor } from "storybook/test";
 import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
 } from "@/components/ui/accordion";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const items = [
   ["a", "Comment est calculé le StreamScore ?", "Un mélange de régularité, d'engagement et de progression, normalisé sur 100."],
@@ -17,7 +17,7 @@ const meta: Meta<typeof Accordion> = {
   args: { type: "single", collapsible: true },
   argTypes: {
     ...common("value", "defaultValue", "onValueChange", "orientation", "disabled", "children", "className"),
-    collapsible: describe("En mode `single`, autorise à refermer le panneau ouvert — sinon un panneau reste toujours ouvert.", { control: "boolean", category: CAT.state }),
+    collapsible: prop("En mode `single`, autorise à refermer le panneau ouvert — sinon un panneau reste toujours ouvert.", { control: "boolean", category: CAT.state }),
     type: {
       control: "inline-radio", options: ["single", "multiple"],
       description: "`single` = un seul panneau ouvert ; `multiple` = plusieurs.",

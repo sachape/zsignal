@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Separator } from "@/components/ui/separator";
 import { lock } from "./_lockControls";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Separator> = {
   title: "Components/Content & Structure/Separator",
@@ -10,7 +10,7 @@ const meta: Meta<typeof Separator> = {
   args: { orientation: "horizontal" },
   argTypes: {
     ...common("orientation", "className"),
-    decorative: describe(
+    decorative: prop(
       "Purement visuel : le séparateur est masqué aux lecteurs d'écran. Le passer à `false` s'il porte un vrai sens de structure.",
       { control: "boolean", category: CAT.advanced, defaultValue: "true" },
     ),

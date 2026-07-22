@@ -78,7 +78,7 @@ export function common(...keys: CommonProp[]): Record<string, ArgType> {
 }
 
 /** Décrit une prop spécifique à un composant, sans réécrire la forme à chaque fois. */
-export function describe(
+export function prop(
   description: string,
   opts: { control?: unknown; options?: readonly unknown[]; category?: string; defaultValue?: string } = {},
 ): ArgType {

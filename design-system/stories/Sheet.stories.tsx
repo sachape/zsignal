@@ -5,7 +5,7 @@ import {
   SheetTitle, SheetDescription, SheetClose,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 type Args = { side: "top" | "right" | "bottom" | "left" };
 
@@ -16,7 +16,7 @@ const meta: Meta<Args> = {
   args: { side: "right" },
   argTypes: {
     ...common("open", "defaultOpen", "onOpenChange", "modal"),
-    side: describe("Bord depuis lequel le panneau glisse.", { control: "inline-radio", options: ["top", "right", "bottom", "left"], category: CAT.layout, defaultValue: "right" }),
+    side: prop("Bord depuis lequel le panneau glisse.", { control: "inline-radio", options: ["top", "right", "bottom", "left"], category: CAT.layout, defaultValue: "right" }),
   },
   parameters: {
     layout: "centered",

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof ResizablePanelGroup> = {
   title: "Components/Content & Structure/Resizable",
@@ -8,12 +8,12 @@ const meta: Meta<typeof ResizablePanelGroup> = {
   tags: ["autodocs"],
   argTypes: {
     ...common("children", "className"),
-    direction: describe(
+    direction: prop(
       "Axe de découpe des panneaux. Détermine aussi le sens des flèches au clavier sur la poignée.",
       { control: "inline-radio", options: ["horizontal", "vertical"], category: CAT.layout },
     ),
-    autoSaveId: describe("Identifiant de persistance : les tailles choisies sont mémorisées et restaurées.", { control: "text", category: CAT.advanced }),
-    onLayout: describe("Appelé à chaque redimensionnement, avec les tailles en pourcentage.", { control: false, category: CAT.events }),
+    autoSaveId: prop("Identifiant de persistance : les tailles choisies sont mémorisées et restaurées.", { control: "text", category: CAT.advanced }),
+    onLayout: prop("Appelé à chaque redimensionnement, avec les tailles en pourcentage.", { control: false, category: CAT.events }),
   },
   parameters: {
     layout: "centered",

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import ScoreCard from "@/components/ScoreCard";
 import { lock } from "./_lockControls";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof ScoreCard> = {
   title: "Patterns/ScoreDisplay (ScoreCard)",
@@ -10,7 +10,7 @@ const meta: Meta<typeof ScoreCard> = {
   args: { score: 88, label: "StreamScore", locked: false },
   argTypes: {
     score: { control: { type: "range", min: 0, max: 100 }, description: "Note 0–100. Détermine le palier de couleur (bas/moyen/haut).", table: { category: "State" } },
-    label: describe("Nom de la métrique affichée sous la note.", { control: "text", category: CAT.content }),
+    label: prop("Nom de la métrique affichée sous la note.", { control: "text", category: CAT.content }),
     ...common("className"),
     locked: { control: "boolean", description: "État verrouillé : couleur neutre, jamais un palier.", table: { category: "State" } },
   },

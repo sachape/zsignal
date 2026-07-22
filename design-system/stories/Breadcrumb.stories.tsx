@@ -3,7 +3,7 @@ import {
   Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink,
   BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis,
 } from "@/components/ui/breadcrumb";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Breadcrumb> = {
   title: "Components/Navigation/Breadcrumb",
@@ -11,7 +11,7 @@ const meta: Meta<typeof Breadcrumb> = {
   tags: ["autodocs"],
   argTypes: {
     ...common("children", "className"),
-    separator: describe("Séparateur personnalisé entre les niveaux. Par défaut un chevron, masqué aux lecteurs d'écran.", { control: false, category: CAT.content }),
+    separator: prop("Séparateur personnalisé entre les niveaux. Par défaut un chevron, masqué aux lecteurs d'écran.", { control: false, category: CAT.content }),
   },
   parameters: {
     layout: "centered",

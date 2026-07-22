@@ -4,7 +4,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 type Args = { side: "top" | "right" | "bottom" | "left"; align: "start" | "center" | "end" };
 
@@ -15,7 +15,7 @@ const meta: Meta<Args> = {
   args: { side: "bottom", align: "center" },
   argTypes: {
     ...common("open", "defaultOpen", "onOpenChange", "modal", "side", "align", "sideOffset"),
-    avoidCollisions: describe("Repositionne le contenu s'il déborde de la fenêtre, plutôt que de le laisser sortir de l'écran.", { control: "boolean", category: CAT.layout, defaultValue: "true" }),
+    avoidCollisions: prop("Repositionne le contenu s'il déborde de la fenêtre, plutôt que de le laisser sortir de l'écran.", { control: "boolean", category: CAT.layout, defaultValue: "true" }),
   },
   parameters: {
     layout: "centered",

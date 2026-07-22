@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Skeleton } from "@/components/ui/skeleton";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 /**
  * Skeleton — l'état de chargement (1–10 s) : on préfigure la forme du contenu
@@ -10,7 +10,7 @@ const meta: Meta<typeof Skeleton> = {
   title: "Components/Feedback/Skeleton",
   component: Skeleton,
   argTypes: {
-    className: describe(
+    className: prop(
       "Porte la FORME du contenu préfiguré (largeur, hauteur, arrondi). C'est la seule prop utile : un skeleton qui ne ressemble pas au contenu final n'en réduit pas l'attente perçue.",
       { control: "text", category: CAT.appearance },
     ),

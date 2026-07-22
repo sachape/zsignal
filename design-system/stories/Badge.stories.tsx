@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Badge } from "@/components/ui/badge";
 import { lock } from "./_lockControls";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 // Miroir des variantes CVA de badge.tsx (§7). Intentions sémantiques, pas de
 // couleurs brutes : success/warning/destructive branchés sur les tokens de statut.

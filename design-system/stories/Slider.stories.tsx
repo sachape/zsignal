@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 import { Slider } from "@/components/ui/slider";
 import { lock } from "./_lockControls";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Slider> = {
   title: "Components/Forms/Slider",
@@ -11,10 +11,10 @@ const meta: Meta<typeof Slider> = {
   args: { defaultValue: [60], min: 0, max: 100, step: 1, disabled: false, "aria-label": "Réglage" },
   argTypes: {
     ...common("disabled", "onValueChange", "className"),
-    defaultValue: describe("Position initiale du curseur, en mode non contrôlé. Tableau : une entrée par poignée.", { control: false, category: CAT.state }),
-    min: describe("Borne basse de la plage.", { control: "number", category: CAT.state, defaultValue: "0" }),
-    max: describe("Borne haute de la plage.", { control: "number", category: CAT.state, defaultValue: "100" }),
-    step: describe("Incrément entre deux positions atteignables, au clavier comme à la souris.", { control: "number", category: CAT.state, defaultValue: "1" }),
+    defaultValue: prop("Position initiale du curseur, en mode non contrôlé. Tableau : une entrée par poignée.", { control: false, category: CAT.state }),
+    min: prop("Borne basse de la plage.", { control: "number", category: CAT.state, defaultValue: "0" }),
+    max: prop("Borne haute de la plage.", { control: "number", category: CAT.state, defaultValue: "100" }),
+    step: prop("Incrément entre deux positions atteignables, au clavier comme à la souris.", { control: "number", category: CAT.state, defaultValue: "1" }),
   },
   parameters: {
     layout: "centered",

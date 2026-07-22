@@ -3,7 +3,7 @@ import {
   ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem,
   ContextMenuSeparator, ContextMenuShortcut, ContextMenuLabel,
 } from "@/components/ui/context-menu";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof ContextMenu> = {
   title: "Components/Overlays/Context Menu",
@@ -11,7 +11,7 @@ const meta: Meta<typeof ContextMenu> = {
   tags: ["autodocs"],
   argTypes: {
     ...common("onOpenChange", "modal", "children"),
-    dir: describe("Sens de lecture : inverse la direction des sous-menus.", { control: "inline-radio", options: ["ltr", "rtl"], category: CAT.layout }),
+    dir: prop("Sens de lecture : inverse la direction des sous-menus.", { control: "inline-radio", options: ["ltr", "rtl"], category: CAT.layout }),
   },
   parameters: {
     layout: "centered",

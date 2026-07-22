@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 /**
  * Avatar — l'identité d'un streamer (9×). Composé : Avatar + Image + Fallback.
@@ -13,7 +13,7 @@ const meta: Meta<typeof Avatar> = {
   component: Avatar,
   argTypes: {
     ...common("children", "className"),
-    asChild: describe("Rend l'enfant comme racine au lieu d'ajouter un `<span>`.", { control: false, category: CAT.advanced }),
+    asChild: prop("Rend l'enfant comme racine au lieu d'ajouter un `<span>`.", { control: false, category: CAT.advanced }),
   },
   parameters: {
     layout: "centered",

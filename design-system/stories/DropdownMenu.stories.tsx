@@ -5,7 +5,7 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { common, describe, CAT } from "./_argTypes";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof DropdownMenu> = {
   title: "Components/Overlays/DropdownMenu",
