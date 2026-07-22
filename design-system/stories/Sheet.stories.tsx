@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { ComponentProps } from "react";
 import { expect, screen, waitFor } from "storybook/test";
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter,
@@ -7,7 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { common, prop, CAT } from "./_argTypes";
 
-type Args = { side: "top" | "right" | "bottom" | "left" };
+// Args = props du Root + le côté, piloté sur SheetContent par la story.
+type Args = ComponentProps<typeof Sheet> & { side: "top" | "right" | "bottom" | "left" };
 
 const meta: Meta<Args> = {
   title: "Components/Overlays/Sheet",

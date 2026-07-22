@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { ComponentProps } from "react";
 import { expect, screen, waitFor } from "storybook/test";
 import {
   Tooltip, TooltipTrigger, TooltipContent, TooltipProvider,
@@ -6,7 +7,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { common, prop, CAT } from "./_argTypes";
 
-type Args = { side: "top" | "right" | "bottom" | "left"; align: "start" | "center" | "end" };
+// Args = les props du composant + celles que la story pilote sur TooltipContent.
+// Dériver de ComponentProps garde `component: Tooltip` assignable ET rend les
+// props du Root (delayDuration…) connues du typage des argTypes.
+type Args = ComponentProps<typeof Tooltip> & {
+  side: "top" | "right" | "bottom" | "left";
+  align: "start" | "center" | "end";
+};
 
 const meta: Meta<Args> = {
   title: "Components/Overlays/Tooltip",

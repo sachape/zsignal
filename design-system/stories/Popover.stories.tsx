@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { ComponentProps } from "react";
 import { expect, screen, waitFor } from "storybook/test";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { common, prop, CAT } from "./_argTypes";
 
-type Args = { side: "top" | "right" | "bottom" | "left"; align: "start" | "center" | "end" };
+// Args = props du Root + celles pilotées sur PopoverContent par la story.
+type Args = ComponentProps<typeof Popover> & {
+  side: "top" | "right" | "bottom" | "left";
+  align: "start" | "center" | "end";
+  avoidCollisions?: boolean;
+};
 
 const meta: Meta<Args> = {
   title: "Components/Overlays/Popover",
