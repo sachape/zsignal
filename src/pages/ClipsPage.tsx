@@ -20,6 +20,7 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { LoadingState, ErrorState } from "@/components/StateView";
@@ -660,15 +661,16 @@ const ClipsPage = () => {
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>Trier par</span>
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as ClipSort)}
-                  className="rounded-md border border-border/60 bg-card/40 px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-none"
-                >
-                  {SORTS.map((s) => (
-                    <option key={s.id} value={s.id}>{s.label}</option>
-                  ))}
-                </select>
+                <Select value={sort} onValueChange={(v) => setSort(v as ClipSort)}>
+                  <SelectTrigger className="h-8 w-auto gap-1 border-border/60 bg-card/40 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SORTS.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

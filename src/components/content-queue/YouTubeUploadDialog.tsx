@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -231,28 +232,27 @@ const YouTubeUploadDialog = ({
             {hasGeneratedClip && (
               <div className="space-y-2 rounded-md border border-primary/30 bg-primary/5 p-3">
                 <p className="text-xs font-medium text-foreground">Source de la vidéo</p>
-                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
-                  <input
-                    type="radio" name="upload-source" className="mt-0.5"
-                    checked={useGenerated} disabled={uploading}
-                    onChange={() => setUseGenerated(true)}
-                  />
-                  <span>
-                    <span className="font-medium text-foreground">Utiliser le clip généré</span>
-                    <span className="block text-[12px] text-muted-foreground/80">Recommandé — clip prêt à publier.</span>
-                  </span>
-                </label>
-                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
-                  <input
-                    type="radio" name="upload-source" className="mt-0.5"
-                    checked={!useGenerated} disabled={uploading}
-                    onChange={() => setUseGenerated(false)}
-                  />
-                  <span>
-                    <span className="font-medium text-foreground">Uploader un autre fichier</span>
-                    <span className="block text-[12px] text-muted-foreground/80">Fallback — choisis un fichier depuis ton ordinateur.</span>
-                  </span>
-                </label>
+                <RadioGroup
+                  value={useGenerated ? "generated" : "file"}
+                  onValueChange={(v) => setUseGenerated(v === "generated")}
+                  disabled={uploading}
+                  className="space-y-2"
+                >
+                  <div className="flex items-start gap-2">
+                    <RadioGroupItem id="src-generated" value="generated" className="mt-0.5" />
+                    <Label htmlFor="src-generated" className="cursor-pointer text-xs font-normal text-muted-foreground">
+                      <span className="font-medium text-foreground">Utiliser le clip généré</span>
+                      <span className="block text-[12px] text-muted-foreground/80">Recommandé — clip prêt à publier.</span>
+                    </Label>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <RadioGroupItem id="src-file" value="file" className="mt-0.5" />
+                    <Label htmlFor="src-file" className="cursor-pointer text-xs font-normal text-muted-foreground">
+                      <span className="font-medium text-foreground">Uploader un autre fichier</span>
+                      <span className="block text-[12px] text-muted-foreground/80">Fallback — choisis un fichier depuis ton ordinateur.</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
               </div>
             )}
 
