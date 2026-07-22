@@ -25,6 +25,7 @@ import PageContainer from "@/components/PageContainer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 import { LoadingState } from "@/components/StateView";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -279,27 +280,6 @@ function getScoreTarget(current: number): number {
 /* Sub-components                                            */
 /* ────────────────────────────────────────────────────────── */
 
-const TabButton = ({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) => (
-  <button
-    onClick={onClick}
-    className={cn(
-      "flex-1 rounded-md py-1.5 text-sm font-medium transition-all duration-200",
-      active
-        ? "bg-primary text-primary-foreground shadow-sm"
-        : "text-muted-foreground hover:text-foreground",
-    )}
-  >
-    {children}
-  </button>
-);
 
 interface ActionCardProps {
   action: Recommendation;
@@ -973,17 +953,21 @@ const WeeklyPlanPage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 flex gap-1 rounded-lg border border-border bg-card p-1">
-          <TabButton active={tab === "today"} onClick={() => setTab("today")}>
+        <SegmentedControl
+          value={tab}
+          onValueChange={(v) => setTab(v as Tab)}
+          className="mb-6 flex w-full border-border bg-card"
+        >
+          <SegmentedControlItem value="today" className="flex-1">
             Aujourd'hui
-          </TabButton>
-          <TabButton active={tab === "week"} onClick={() => setTab("week")}>
+          </SegmentedControlItem>
+          <SegmentedControlItem value="week" className="flex-1">
             Cette semaine
-          </TabButton>
-          <TabButton active={tab === "month"} onClick={() => setTab("month")}>
+          </SegmentedControlItem>
+          <SegmentedControlItem value="month" className="flex-1">
             Ce mois
-          </TabButton>
-        </div>
+          </SegmentedControlItem>
+        </SegmentedControl>
 
         {/* Content */}
         {tab === "today" && (
