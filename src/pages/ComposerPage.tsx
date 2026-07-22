@@ -36,6 +36,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { SelectableCard } from "@/components/ui/selectable-card";
 import { useSocialPosts, type SocialFormat, type SocialPost } from "@/hooks/useSocialPosts";
 import { useConnectedNetworks } from "@/hooks/useConnectedNetworks";
 import { useInstagramConnection } from "@/hooks/useInstagramConnection";
@@ -295,21 +296,16 @@ const ComposerPage = () => {
                       const Icon = f.icon;
                       const active = pickedFormat === f.id;
                       return (
-                        <button
+                        <SelectableCard
                           key={f.id}
-                          type="button"
+                          selected={active}
                           onClick={() => setPickedFormat(f.id)}
-                          className={cn(
-                            "flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors",
-                            active
-                              ? "border-primary bg-primary/10"
-                              : "border-border hover:border-border/80 hover:bg-muted/30",
-                          )}
+                          className="flex flex-col items-start gap-1 p-3 text-left"
                         >
                           <Icon className={cn("h-4 w-4", active ? "text-primary-strong" : "text-muted-foreground")} />
                           <span className="text-sm font-medium">{f.label}</span>
                           <span className="text-[12px] text-muted-foreground leading-tight">{f.hint}</span>
-                        </button>
+                        </SelectableCard>
                       );
                     })}
                   </div>
