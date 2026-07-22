@@ -242,7 +242,6 @@
   --dialog-overlay-opacity: var(--opacity-overlay);
   --input-padding-inline: var(--space-3);
   --input-border-width: var(--border-width-thin);
-  --selectable-card-padding: var(--space-4);
   --sidebar-item-height: var(--size-32);
   --switch-track-width: var(--size-44);
   --switch-track-height: var(--size-24);

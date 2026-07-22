@@ -369,7 +369,6 @@ export const tokens = {
   "--input-padding-inline": "0.75rem",
   "--input-border-width": "1px",
   "--selectable-card-radius": "0.625rem",
-  "--selectable-card-padding": "1rem",
   "--sidebar-focus-ring": "95 98% 61%",
   "--sidebar-icon-size": "1.25rem",
   "--sidebar-item-background-default": "220 20% 6%",

@@ -8,12 +8,18 @@ const meta: Meta<typeof SelectableCard> = {
   title: "Components/Actions/Selectable Card",
   component: SelectableCard,
   tags: ["autodocs"],
-  args: { selected: false },
+  args: { selected: false, highlight: "tint" },
   argTypes: {
     selected: {
       control: "boolean",
       description: "État sélectionné (câble `aria-pressed`).",
       table: { category: "State", defaultValue: { summary: "false" } },
+    },
+    highlight: {
+      control: "inline-radio",
+      options: ["tint", "ring"],
+      description: "Style de sélection : `tint` (fond teinté, tuiles de contenu) ou `ring` (anneau sans fond, tuiles image/média).",
+      table: { category: "Appearance", defaultValue: { summary: "tint" } },
     },
   },
   parameters: {
@@ -27,7 +33,7 @@ type S = StoryObj<typeof SelectableCard>;
 
 export const Playground: S = {
   render: (args) => (
-    <SelectableCard {...args} className="w-56">
+    <SelectableCard {...args} className="w-56 p-4">
       <div className="flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary"><Zap className="h-4 w-4" /></span>
         <span className="text-[14px] font-semibold">Preset Énergie</span>
@@ -39,6 +45,17 @@ export const Playground: S = {
 export const Unselected: S = { ...Playground, args: { selected: false }, argTypes: lock("selected") };
 export const Selected: S = { ...Playground, args: { selected: true }, argTypes: lock("selected") };
 
+/** `highlight="ring"` : anneau sans fond teinté — pour les tuiles image/média (un tint laverait l'aperçu). */
+export const MediaRing: S = {
+  args: { highlight: "ring", selected: true },
+  argTypes: lock("highlight"),
+  render: (args) => (
+    <SelectableCard {...args} className="w-40 overflow-hidden text-left">
+      <div className="aspect-[9/10] w-full bg-gradient-to-br from-secondary to-muted" />
+    </SelectableCard>
+  ),
+};
+
 export const SingleSelectGrid: S = {
   parameters: { controls: { disable: true } },
   render: () => {
@@ -47,7 +64,7 @@ export const SingleSelectGrid: S = {
     return (
       <div className="grid w-[420px] grid-cols-3 gap-3">
         {presets.map((label, i) => (
-          <SelectableCard key={label} selected={active === i} onClick={() => setActive(i)} className="text-center text-[12px] font-semibold">
+          <SelectableCard key={label} selected={active === i} onClick={() => setActive(i)} className="p-3 text-center text-[12px] font-semibold">
             {label}
           </SelectableCard>
         ))}

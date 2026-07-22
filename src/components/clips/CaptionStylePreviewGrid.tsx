@@ -3,6 +3,7 @@
 // shows a tiny looping gameplay-like background with subtitle cues that
 // match the exact visual treatment used by the worker's ASS renderer.
 import { Check } from "lucide-react";
+import { SelectableCard } from "@/components/ui/selectable-card";
 import { cn } from "@/lib/utils";
 
 export type CaptionStyle =
@@ -201,20 +202,13 @@ export function CaptionStylePreviewGrid({ value, onChange, disabled }: Props) {
         {PRESETS.map((p) => {
           const selected = value === p.id;
           return (
-            <button
+            <SelectableCard
               key={p.id}
-              type="button"
+              highlight="ring"
+              selected={selected}
               disabled={disabled}
               onClick={() => onChange(p.id)}
-              aria-pressed={selected}
-              className={cn(
-                "group relative overflow-hidden rounded-md border bg-card text-left transition",
-                "focus:outline-none focus:ring-2 focus:ring-primary/50",
-                selected
-                  ? "border-primary ring-1 ring-primary/40"
-                  : "border-border hover:border-border/80",
-                disabled && "opacity-50 pointer-events-none",
-              )}
+              className="group relative overflow-hidden bg-card text-left"
             >
               {/* 9:16-ish preview canvas, capped for grid density */}
               <div className="relative aspect-[9/10] w-full overflow-hidden">
@@ -230,7 +224,7 @@ export function CaptionStylePreviewGrid({ value, onChange, disabled }: Props) {
                 <p className="text-[12px] font-semibold text-foreground">{p.name}</p>
                 <p className="text-[12px] text-muted-foreground">{p.promise}</p>
               </div>
-            </button>
+            </SelectableCard>
           );
         })}
       </div>
