@@ -14,25 +14,35 @@
     },
     "size": {
       "$type": "dimension",
-      "$description": "Échelle typographique.",
+      "$description": "Échelle typographique — valeurs conformes ADR 0004 (12/14/16/20/24/28/32/40/48/56/64/72/80/88/96 px). sm/lg retirés (doublons de base/xl après réconciliation, cf. ADR 0004).",
       "xs":  { "$value": "0.75rem" },
-      "sm":  { "$value": "0.8125rem" },
       "base":{ "$value": "0.875rem" },
       "md":  { "$value": "1rem" },
-      "lg":  { "$value": "1.125rem" },
       "xl":  { "$value": "1.25rem" },
       "2xl": { "$value": "1.5rem" },
-      "3xl": { "$value": "1.875rem" },
-      "4xl": { "$value": "2.25rem" }
+      "3xl": { "$value": "2rem" },
+      "4xl": { "$value": "2.5rem" }
     }
   },
   "line": {
     "height": {
-      "$type": "number",
-      "tight":   { "$value": "1.1" },
-      "snug":    { "$value": "1.25" },
-      "normal":  { "$value": "1.5" },
-      "relaxed": { "$value": "1.65" }
+      "$type": "dimension",
+      "$description": "Line-height ABSOLU dérivé de la taille (ADR 0004) : size+4 pour 12/14, size+8 au-delà. Nommé par valeur px.",
+      "16":  { "$value": "1rem" },
+      "18":  { "$value": "1.125rem" },
+      "24":  { "$value": "1.5rem" },
+      "28":  { "$value": "1.75rem" },
+      "32":  { "$value": "2rem" },
+      "36":  { "$value": "2.25rem" },
+      "40":  { "$value": "2.5rem" },
+      "48":  { "$value": "3rem" },
+      "56":  { "$value": "3.5rem" },
+      "64":  { "$value": "4rem" },
+      "72":  { "$value": "4.5rem" },
+      "80":  { "$value": "5rem" },
+      "88":  { "$value": "5.5rem" },
+      "96":  { "$value": "6rem" },
+      "104": { "$value": "6.5rem" }
     }
   },
   "letter": {

@@ -1,0 +1,8 @@
+{
+  "chip": {
+    "$description": "Chip de filtre interactif (toggle). Distinct de Badge (statut, non-interactif).",
+    "radius":  { "$type": "dimension", "$value": "{radius.pill}" },
+    "padding": { "inline": { "$type": "dimension", "$value": "{space.3}" }, "block": { "$type": "dimension", "$value": "{space.1}" } },
+    "gap":     { "$type": "dimension", "$value": "{space.1}" }
+  }
+}
