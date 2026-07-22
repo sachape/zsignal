@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-22T09:35:53.049Z",
+  "generatedAt": "2026-07-22T12:46:34.020Z",
   "scope": {
     "roots": [
       "src",
@@ -32,42 +32,42 @@
       "/design-system\\/stories\\/[^/]+\\.stories\\.tsx$/",
       "/src\\/index\\.css$/"
     ],
-    "filesScanned": 437,
-    "errorTrackFiles": 109,
-    "warnTrackFiles": 328,
+    "filesScanned": 442,
+    "errorTrackFiles": 113,
+    "warnTrackFiles": 329,
     "parseErrors": 0
   },
   "totals": {
-    "detected": 5408,
-    "preferred": 2843,
-    "compactAllowed": 1515,
-    "violations": 1020,
+    "detected": 5385,
+    "preferred": 2849,
+    "compactAllowed": 1503,
+    "violations": 1003,
     "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5408,
-    "compliant": 4388,
+    "classifiable": 5385,
+    "compliant": 4382,
     "byTrack": {
-      "error": 582,
-      "warn": 4826
+      "error": 594,
+      "warn": 4791
     },
     "violationsByTrack": {
       "error": 0,
-      "warn": 1020
+      "warn": 1003
     },
     "compactByTrack": {
-      "error": 129,
-      "warn": 1386
+      "error": 137,
+      "warn": 1366
     }
   },
   "scores": {
-    "valueCompliance": 0.8114,
+    "valueCompliance": 0.8137,
     "scaleAdoption": 0.9872,
     "cssVarAdoption": 0,
-    "health": 0.8641
+    "health": 0.8657
   },
   "confidence": {
-    "value": 0.9633,
+    "value": 0.9632,
     "classifiableRatio": 1,
     "unclassified": 0,
     "exceptions": 30,
@@ -75,25 +75,25 @@
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
   "compactBreakdown": {
-    "total": 1515,
+    "total": 1503,
     "byValue": {
-      "4px": 517,
-      "12px": 760,
+      "4px": 510,
+      "12px": 755,
       "20px": 222,
       "-4px": 16
     }
   },
   "distribution": {
     "byTier": {
-      "preferred": 2843,
-      "violation": 1020,
-      "compact-allowed": 1515,
+      "preferred": 2849,
+      "violation": 1003,
+      "compact-allowed": 1503,
       "exception": 30
     },
     "byValue": {
-      "10px": 147,
-      "2px": 326,
-      "6px": 464,
+      "10px": 143,
+      "2px": 322,
+      "6px": 455,
       "-6px": 3,
       "-2px": 10,
       "14px": 22,
@@ -107,7 +107,7 @@
     },
     "bySystem": {
       "raw-css": 2,
-      "scale-utility": 5339,
+      "scale-utility": 5316,
       "inline": 31,
       "arbitrary": 36
     }
@@ -115,31 +115,31 @@
   "byProperty": [
     {
       "property": "margin-top",
-      "total": 787,
-      "violations": 237,
-      "compactAllowed": 248
+      "total": 786,
+      "violations": 235,
+      "compactAllowed": 249
     },
     {
       "property": "gap",
-      "total": 1427,
-      "violations": 203,
-      "compactAllowed": 436
+      "total": 1421,
+      "violations": 199,
+      "compactAllowed": 433
     },
     {
       "property": "padding-block",
-      "total": 500,
-      "violations": 192,
-      "compactAllowed": 74
+      "total": 490,
+      "violations": 184,
+      "compactAllowed": 72
     },
     {
       "property": "padding-inline",
-      "total": 533,
-      "violations": 117,
-      "compactAllowed": 136
+      "total": 527,
+      "violations": 115,
+      "compactAllowed": 132
     },
     {
       "property": "row-gap",
-      "total": 332,
+      "total": 333,
       "violations": 98,
       "compactAllowed": 100
     },
@@ -151,9 +151,9 @@
     },
     {
       "property": "padding",
-      "total": 635,
-      "violations": 42,
-      "compactAllowed": 247
+      "total": 634,
+      "violations": 41,
+      "compactAllowed": 243
     },
     {
       "property": "margin-bottom",
@@ -290,15 +290,15 @@
       "track": "warn"
     },
     {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "violations": 23,
-      "compactAllowed": 44,
-      "track": "warn"
-    },
-    {
       "file": "src/pages/AnalysePage.tsx",
       "violations": 21,
       "compactAllowed": 43,
+      "track": "warn"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "violations": 21,
+      "compactAllowed": 42,
       "track": "warn"
     },
     {
@@ -314,21 +314,9 @@
       "track": "warn"
     },
     {
-      "file": "src/pages/VodImportPage.tsx",
-      "violations": 20,
-      "compactAllowed": 35,
-      "track": "warn"
-    },
-    {
       "file": "src/components/AppSidebar.tsx",
       "violations": 19,
       "compactAllowed": 15,
-      "track": "warn"
-    },
-    {
-      "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "violations": 19,
-      "compactAllowed": 31,
       "track": "warn"
     },
     {
@@ -338,9 +326,21 @@
       "track": "warn"
     },
     {
+      "file": "src/pages/VodImportPage.tsx",
+      "violations": 18,
+      "compactAllowed": 32,
+      "track": "warn"
+    },
+    {
       "file": "src/components/SidebarStreamerSearch.tsx",
       "violations": 17,
       "compactAllowed": 10,
+      "track": "warn"
+    },
+    {
+      "file": "src/components/content-queue/ClipPreparationPanel.tsx",
+      "violations": 17,
+      "compactAllowed": 30,
       "track": "warn"
     },
     {
@@ -353,15 +353,15 @@
   "topValues": [
     {
       "value": "6px",
-      "count": 464
+      "count": 455
     },
     {
       "value": "2px",
-      "count": 326
+      "count": 322
     },
     {
       "value": "10px",
-      "count": 147
+      "count": 143
     },
     {
       "value": "28px",
@@ -2049,7 +2049,7 @@
     },
     {
       "file": "src/components/CommandPalette.tsx",
-      "line": 64,
+      "line": 67,
       "property": "padding-inline",
       "value": "10px",
       "status": "violation",
@@ -2066,7 +2066,7 @@
     },
     {
       "file": "src/components/CommandPalette.tsx",
-      "line": 69,
+      "line": 71,
       "property": "padding-inline",
       "value": "4px",
       "status": "compact-allowed",
@@ -2283,7 +2283,7 @@
     },
     {
       "file": "src/components/ConnectNetworkModal.tsx",
-      "line": 137,
+      "line": 138,
       "property": "padding",
       "value": "14px",
       "status": "violation",
@@ -2300,7 +2300,7 @@
     },
     {
       "file": "src/components/ConnectNetworkModal.tsx",
-      "line": 142,
+      "line": 143,
       "property": "padding",
       "value": "14px",
       "status": "violation",
@@ -2317,7 +2317,7 @@
     },
     {
       "file": "src/components/ConnectNetworkModal.tsx",
-      "line": 156,
+      "line": 157,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -2331,7 +2331,7 @@
     },
     {
       "file": "src/components/ConnectNetworkModal.tsx",
-      "line": 183,
+      "line": 184,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -2345,7 +2345,7 @@
     },
     {
       "file": "src/components/ConnectNetworkModal.tsx",
-      "line": 240,
+      "line": 241,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -2362,7 +2362,7 @@
     },
     {
       "file": "src/components/ConnectNetworkModal.tsx",
-      "line": 248,
+      "line": 250,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -2376,7 +2376,7 @@
     },
     {
       "file": "src/components/ConnectNetworkModal.tsx",
-      "line": 248,
+      "line": 250,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -4773,7 +4773,7 @@
     },
     {
       "file": "src/components/OnboardingGuide.tsx",
-      "line": 279,
+      "line": 281,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4781,37 +4781,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/OnboardingGuide.tsx",
-      "line": 279,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/OnboardingGuide.tsx",
-      "line": 279,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
       "confidence": "high",
       "recommended": [
         "8px",
@@ -5937,7 +5906,7 @@
     },
     {
       "file": "src/components/PublishClipDialog.tsx",
-      "line": 102,
+      "line": 103,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -5965,21 +5934,7 @@
     },
     {
       "file": "src/components/PublishClipDialog.tsx",
-      "line": 129,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/PublishClipDialog.tsx",
-      "line": 180,
+      "line": 176,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -5993,7 +5948,7 @@
     },
     {
       "file": "src/components/PublishClipDialog.tsx",
-      "line": 180,
+      "line": 176,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -6007,7 +5962,7 @@
     },
     {
       "file": "src/components/PublishClipDialog.tsx",
-      "line": 196,
+      "line": 193,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -9627,57 +9582,6 @@
       "reason": "hors échelle (préférer preferred)"
     },
     {
-      "file": "src/components/ThemeToggle.tsx",
-      "line": 21,
-      "property": "gap",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ThemeToggle.tsx",
-      "line": 21,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/ThemeToggle.tsx",
-      "line": 22,
-      "property": "gap",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
       "file": "src/components/TrustCard.tsx",
       "line": 13,
       "property": "padding",
@@ -10524,55 +10428,7 @@
     },
     {
       "file": "src/components/auth/AuthForm.tsx",
-      "line": 137,
-      "property": "padding",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/auth/AuthForm.tsx",
-      "line": 147,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/auth/AuthForm.tsx",
-      "line": 147,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/auth/AuthForm.tsx",
-      "line": 180,
+      "line": 174,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -10586,7 +10442,7 @@
     },
     {
       "file": "src/components/auth/AuthForm.tsx",
-      "line": 189,
+      "line": 183,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -10603,7 +10459,7 @@
     },
     {
       "file": "src/components/auth/AuthForm.tsx",
-      "line": 192,
+      "line": 186,
       "property": "left",
       "value": "12px",
       "status": "compact-allowed",
@@ -10617,7 +10473,7 @@
     },
     {
       "file": "src/components/auth/AuthForm.tsx",
-      "line": 200,
+      "line": 194,
       "property": "padding-left",
       "value": "36px",
       "status": "violation",
@@ -10634,7 +10490,7 @@
     },
     {
       "file": "src/components/auth/AuthForm.tsx",
-      "line": 205,
+      "line": 199,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -10651,7 +10507,7 @@
     },
     {
       "file": "src/components/auth/AuthForm.tsx",
-      "line": 208,
+      "line": 202,
       "property": "left",
       "value": "12px",
       "status": "compact-allowed",
@@ -10662,27 +10518,27 @@
       "confidence": "medium",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/auth/AuthForm.tsx",
+      "line": 211,
+      "property": "padding-left",
+      "value": "36px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [
+        "32px",
+        "40px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/components/auth/AuthForm.tsx",
       "line": 217,
-      "property": "padding-left",
-      "value": "36px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "32px",
-        "40px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/auth/AuthForm.tsx",
-      "line": 223,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -11240,7 +11096,7 @@
     },
     {
       "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 118,
+      "line": 119,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -11254,7 +11110,7 @@
     },
     {
       "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 119,
+      "line": 120,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -11271,7 +11127,7 @@
     },
     {
       "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 126,
+      "line": 127,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -11279,20 +11135,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 132,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -11313,7 +11155,7 @@
     },
     {
       "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 139,
+      "line": 134,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -11327,7 +11169,21 @@
     },
     {
       "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 153,
+      "line": 140,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/clips/QuickCameraPicker.tsx",
+      "line": 154,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -11341,7 +11197,7 @@
     },
     {
       "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 161,
+      "line": 162,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -11369,21 +11225,7 @@
     },
     {
       "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 176,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 192,
+      "line": 189,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -11400,24 +11242,7 @@
     },
     {
       "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 192,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/clips/QuickCameraPicker.tsx",
-      "line": 216,
+      "line": 209,
       "property": "padding",
       "value": "2px",
       "status": "violation",
@@ -12413,55 +12238,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 570,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 572,
-      "property": "margin-top",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 575,
-      "property": "margin-top",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 589,
+      "line": 580,
       "property": "margin-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -12475,7 +12252,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 589,
+      "line": 580,
       "property": "padding-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -12489,7 +12266,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 604,
+      "line": 595,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -12503,7 +12280,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 605,
+      "line": 596,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -12517,7 +12294,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 606,
+      "line": 597,
       "property": "row-gap",
       "value": "2px",
       "status": "violation",
@@ -12534,7 +12311,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 624,
+      "line": 615,
       "property": "padding-inline",
       "value": "20px",
       "status": "compact-allowed",
@@ -12548,7 +12325,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 624,
+      "line": 615,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -12562,7 +12339,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 625,
+      "line": 616,
       "property": "padding-inline",
       "value": "20px",
       "status": "compact-allowed",
@@ -12576,7 +12353,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 625,
+      "line": 616,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -12590,7 +12367,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 637,
+      "line": 628,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -12607,7 +12384,7 @@
     },
     {
       "file": "src/components/content-queue/ClipPreparationPanel.tsx",
-      "line": 638,
+      "line": 629,
       "property": "margin-right",
       "value": "6px",
       "status": "violation",
@@ -16285,6 +16062,62 @@
       }
     },
     {
+      "file": "src/components/ui/segmented-control.tsx",
+      "line": 57,
+      "property": "padding-inline",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/ui/segmented-control.tsx",
+      "line": 57,
+      "property": "padding-block",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/ui/segmented-control.tsx",
+      "line": 57,
+      "property": "padding-inline",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/ui/segmented-control.tsx",
+      "line": 57,
+      "property": "padding-block",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
       "file": "src/components/ui/select.tsx",
       "line": 20,
       "property": "padding-inline",
@@ -17163,36 +16996,8 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
-      "file": "src/components/ui/toggle-group.tsx",
-      "line": 17,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/toggle-group.tsx",
-      "line": 17,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "error",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/components/ui/toggle.tsx",
-      "line": 18,
+      "file": "src/components/ui/toggle-button.tsx",
+      "line": 26,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -17205,8 +17010,8 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
-      "file": "src/components/ui/toggle.tsx",
-      "line": 20,
+      "file": "src/components/ui/toggle-button.tsx",
+      "line": 28,
       "property": "padding-inline",
       "value": "20px",
       "status": "compact-allowed",
@@ -17214,6 +17019,62 @@
       "system": "scale-utility",
       "track": "error",
       "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/ui/toggle-group.tsx",
+      "line": 17,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/ui/toggle-group.tsx",
+      "line": 17,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/ui/toggle.tsx",
+      "line": 40,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/components/ui/toggle.tsx",
+      "line": 56,
+      "property": "margin-top",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "margin",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -22372,7 +22233,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 226,
+      "line": 227,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -22386,7 +22247,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 226,
+      "line": 227,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -22400,7 +22261,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 233,
+      "line": 234,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -22417,7 +22278,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 235,
+      "line": 236,
       "property": "margin-bottom",
       "value": "2px",
       "status": "violation",
@@ -22434,7 +22295,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 272,
+      "line": 273,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -22448,7 +22309,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 277,
+      "line": 278,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -22462,7 +22323,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 277,
+      "line": 278,
       "property": "row-gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -22476,7 +22337,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 282,
+      "line": 283,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -22490,7 +22351,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 282,
+      "line": 283,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -22535,35 +22396,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 303,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ComposerPage.tsx",
-      "line": 303,
-      "property": "padding",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/ComposerPage.tsx",
-      "line": 345,
+      "line": 341,
       "property": "margin-top",
       "value": "6px",
       "status": "violation",
@@ -22580,7 +22413,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 365,
+      "line": 361,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -22594,7 +22427,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 384,
+      "line": 380,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -22611,7 +22444,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 396,
+      "line": 392,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -22625,7 +22458,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 397,
+      "line": 393,
       "property": "margin-right",
       "value": "4px",
       "status": "compact-allowed",
@@ -22639,7 +22472,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 407,
+      "line": 403,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -22653,7 +22486,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 422,
+      "line": 418,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -22667,7 +22500,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 463,
+      "line": 459,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -22684,7 +22517,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 467,
+      "line": 463,
       "property": "margin-left",
       "value": "4px",
       "status": "compact-allowed",
@@ -22698,7 +22531,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 467,
+      "line": 463,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -22715,7 +22548,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 488,
+      "line": 484,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -22729,7 +22562,7 @@
     },
     {
       "file": "src/pages/ComposerPage.tsx",
-      "line": 492,
+      "line": 488,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -29061,7 +28894,7 @@
     },
     {
       "file": "src/pages/LivesPage.tsx",
-      "line": 36,
+      "line": 37,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -29078,7 +28911,7 @@
     },
     {
       "file": "src/pages/LivesPage.tsx",
-      "line": 43,
+      "line": 44,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -29095,7 +28928,7 @@
     },
     {
       "file": "src/pages/LivesPage.tsx",
-      "line": 52,
+      "line": 53,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -29112,7 +28945,7 @@
     },
     {
       "file": "src/pages/LivesPage.tsx",
-      "line": 59,
+      "line": 60,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -29129,7 +28962,7 @@
     },
     {
       "file": "src/pages/LivesPage.tsx",
-      "line": 101,
+      "line": 102,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -29146,7 +28979,7 @@
     },
     {
       "file": "src/pages/LivesPage.tsx",
-      "line": 220,
+      "line": 221,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -29160,7 +28993,7 @@
     },
     {
       "file": "src/pages/LivesPage.tsx",
-      "line": 241,
+      "line": 242,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -29174,7 +29007,7 @@
     },
     {
       "file": "src/pages/LivesPage.tsx",
-      "line": 250,
+      "line": 251,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -29182,102 +29015,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LivesPage.tsx",
-      "line": 255,
-      "property": "gap",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LivesPage.tsx",
-      "line": 255,
-      "property": "padding",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LivesPage.tsx",
-      "line": 261,
-      "property": "padding-inline",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LivesPage.tsx",
-      "line": 261,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LivesPage.tsx",
-      "line": 261,
-      "property": "padding-inline",
-      "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/LivesPage.tsx",
-      "line": 261,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -36647,7 +36384,7 @@
     },
     {
       "file": "src/pages/VisualStudioPage.tsx",
-      "line": 148,
+      "line": 149,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -36661,91 +36398,7 @@
     },
     {
       "file": "src/pages/VisualStudioPage.tsx",
-      "line": 150,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VisualStudioPage.tsx",
-      "line": 150,
-      "property": "padding",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VisualStudioPage.tsx",
-      "line": 156,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VisualStudioPage.tsx",
-      "line": 156,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VisualStudioPage.tsx",
-      "line": 156,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VisualStudioPage.tsx",
-      "line": 156,
-      "property": "padding-block",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VisualStudioPage.tsx",
-      "line": 167,
+      "line": 159,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -36753,6 +36406,20 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/VisualStudioPage.tsx",
+      "line": 177,
+      "property": "margin-bottom",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -36760,20 +36427,6 @@
     {
       "file": "src/pages/VisualStudioPage.tsx",
       "line": 185,
-      "property": "margin-bottom",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VisualStudioPage.tsx",
-      "line": 193,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -36787,7 +36440,7 @@
     },
     {
       "file": "src/pages/VisualStudioPage.tsx",
-      "line": 207,
+      "line": 199,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -36801,7 +36454,7 @@
     },
     {
       "file": "src/pages/VisualStudioPage.tsx",
-      "line": 226,
+      "line": 218,
       "property": "padding",
       "value": "4px",
       "status": "compact-allowed",
@@ -36815,7 +36468,7 @@
     },
     {
       "file": "src/pages/VisualStudioPage.tsx",
-      "line": 231,
+      "line": 223,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -36829,7 +36482,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 557,
+      "line": 561,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -36843,9 +36496,57 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 557,
+      "line": 563,
+      "property": "gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/VodImportPage.tsx",
+      "line": 566,
+      "property": "gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/VodImportPage.tsx",
+      "line": 572,
+      "property": "margin-bottom",
+      "value": "20px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/VodImportPage.tsx",
+      "line": 573,
       "property": "padding",
-      "value": "4px",
+      "value": "20px",
       "status": "compact-allowed",
       "tier": "compact-allowed",
       "system": "scale-utility",
@@ -36857,145 +36558,21 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 561,
+      "line": 574,
       "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 561,
-      "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
       "tier": "compact-allowed",
       "system": "scale-utility",
       "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 561,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 568,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
       "category": "gap",
       "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 568,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 568,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/pages/VodImportPage.tsx",
       "line": 575,
-      "property": "margin-bottom",
-      "value": "20px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 576,
-      "property": "padding",
-      "value": "20px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 577,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 578,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37012,7 +36589,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 587,
+      "line": 584,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37029,7 +36606,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 599,
+      "line": 596,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37043,7 +36620,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 599,
+      "line": 596,
       "property": "padding-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -37057,7 +36634,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 657,
+      "line": 654,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -37071,7 +36648,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 658,
+      "line": 655,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -37085,7 +36662,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 660,
+      "line": 657,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37102,7 +36679,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 665,
+      "line": 662,
       "property": "left",
       "value": "12px",
       "status": "compact-allowed",
@@ -37116,7 +36693,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 671,
+      "line": 668,
       "property": "padding-left",
       "value": "36px",
       "status": "violation",
@@ -37133,7 +36710,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 705,
+      "line": 702,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37147,7 +36724,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 706,
+      "line": 703,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37164,7 +36741,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 717,
+      "line": 714,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37181,7 +36758,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 730,
+      "line": 727,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37195,7 +36772,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 731,
+      "line": 728,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37212,7 +36789,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 747,
+      "line": 744,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37229,7 +36806,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 766,
+      "line": 763,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37243,7 +36820,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 766,
+      "line": 763,
       "property": "padding-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -37257,9 +36834,51 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 785,
+      "line": 782,
       "property": "padding-inline",
       "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/VodImportPage.tsx",
+      "line": 795,
+      "property": "margin-bottom",
+      "value": "20px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/VodImportPage.tsx",
+      "line": 796,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/VodImportPage.tsx",
+      "line": 796,
+      "property": "padding",
+      "value": "20px",
       "status": "compact-allowed",
       "tier": "compact-allowed",
       "system": "scale-utility",
@@ -37272,66 +36891,24 @@
     {
       "file": "src/pages/VodImportPage.tsx",
       "line": 798,
-      "property": "margin-bottom",
-      "value": "20px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
+      "property": "margin-top",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
       "system": "scale-utility",
       "track": "warn",
       "category": "margin",
       "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 799,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 799,
-      "property": "padding",
-      "value": "20px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/pages/VodImportPage.tsx",
       "line": 801,
       "property": "margin-top",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/VodImportPage.tsx",
-      "line": 804,
-      "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
       "tier": "compact-allowed",
@@ -37344,7 +36921,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 821,
+      "line": 818,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -37358,7 +36935,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 833,
+      "line": 830,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37372,7 +36949,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 833,
+      "line": 830,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -37386,7 +36963,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 843,
+      "line": 840,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37400,7 +36977,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 843,
+      "line": 840,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -37414,7 +36991,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 845,
+      "line": 842,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -37431,7 +37008,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 848,
+      "line": 845,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -37445,7 +37022,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 870,
+      "line": 867,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -37459,7 +37036,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 871,
+      "line": 868,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37473,7 +37050,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 879,
+      "line": 876,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -37487,7 +37064,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 886,
+      "line": 883,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -37501,7 +37078,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 887,
+      "line": 884,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -37518,7 +37095,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 914,
+      "line": 911,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -37532,7 +37109,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 928,
+      "line": 925,
       "property": "margin-top",
       "value": "6px",
       "status": "violation",
@@ -37549,7 +37126,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 929,
+      "line": 926,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -37566,7 +37143,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 934,
+      "line": 931,
       "property": "margin-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -37580,7 +37157,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 1019,
+      "line": 1016,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37594,7 +37171,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 1021,
+      "line": 1018,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -37611,7 +37188,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 1038,
+      "line": 1035,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37625,7 +37202,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 1039,
+      "line": 1036,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37642,7 +37219,7 @@
     },
     {
       "file": "src/pages/VodImportPage.tsx",
-      "line": 1052,
+      "line": 1049,
       "property": "row-gap",
       "value": "6px",
       "status": "violation",
@@ -37949,7 +37526,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 135,
+      "line": 136,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -37963,7 +37540,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 136,
+      "line": 137,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -37977,7 +37554,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 137,
+      "line": 138,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -37994,7 +37571,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 160,
+      "line": 161,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -38008,7 +37585,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 165,
+      "line": 166,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -38025,7 +37602,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 177,
+      "line": 178,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38039,7 +37616,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 177,
+      "line": 178,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -38053,7 +37630,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 177,
+      "line": 178,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38067,7 +37644,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 177,
+      "line": 178,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -38081,7 +37658,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 186,
+      "line": 187,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -38098,7 +37675,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 206,
+      "line": 207,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -38115,7 +37692,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 211,
+      "line": 212,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -38129,7 +37706,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 211,
+      "line": 212,
       "property": "gap",
       "value": "2px",
       "status": "violation",
@@ -38146,41 +37723,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 294,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 294,
-      "property": "padding-block",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 309,
+      "line": 289,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38194,7 +37737,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 314,
+      "line": 294,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -38208,7 +37751,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 319,
+      "line": 299,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -38222,7 +37765,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 357,
+      "line": 337,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38236,7 +37779,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 360,
+      "line": 340,
       "property": "right",
       "value": "-2px",
       "status": "violation",
@@ -38253,7 +37796,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 360,
+      "line": 340,
       "property": "top",
       "value": "-2px",
       "status": "violation",
@@ -38270,7 +37813,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 373,
+      "line": 353,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38284,7 +37827,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 374,
+      "line": 354,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38298,7 +37841,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 399,
+      "line": 379,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -38315,7 +37858,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 412,
+      "line": 392,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38329,7 +37872,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 418,
+      "line": 398,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -38346,7 +37889,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 423,
+      "line": 403,
       "property": "gap",
       "value": "2px",
       "status": "violation",
@@ -38363,7 +37906,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 437,
+      "line": 417,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38377,7 +37920,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 437,
+      "line": 417,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -38391,7 +37934,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 492,
+      "line": 472,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -38405,7 +37948,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 524,
+      "line": 504,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38419,7 +37962,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 524,
+      "line": 504,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -38433,7 +37976,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 541,
+      "line": 521,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -38447,7 +37990,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 542,
+      "line": 522,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38461,7 +38004,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 565,
+      "line": 545,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -38478,7 +38021,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 578,
+      "line": 558,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38492,7 +38035,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 578,
+      "line": 558,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -38506,7 +38049,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 578,
+      "line": 558,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38520,7 +38063,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 578,
+      "line": 558,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -38534,7 +38077,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 586,
+      "line": 566,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -38551,7 +38094,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 608,
+      "line": 588,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -38568,7 +38111,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 615,
+      "line": 595,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -38582,7 +38125,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 618,
+      "line": 598,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -38596,7 +38139,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 621,
+      "line": 601,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -38613,7 +38156,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 626,
+      "line": 606,
       "property": "margin-top",
       "value": "6px",
       "status": "violation",
@@ -38630,7 +38173,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 626,
+      "line": 606,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -38647,7 +38190,94 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 634,
+      "line": 614,
+      "property": "gap",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "line": 702,
+      "property": "padding",
+      "value": "20px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "line": 703,
+      "property": "margin-bottom",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "line": 712,
+      "property": "gap",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "line": 714,
+      "property": "padding",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "line": 718,
+      "property": "margin-top",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/WeeklyPlanPage.tsx",
+      "line": 718,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -38665,44 +38295,19 @@
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
       "line": 722,
-      "property": "padding",
-      "value": "20px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 723,
       "property": "margin-bottom",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
+      "value": "2px",
+      "status": "violation",
+      "tier": "violation",
       "system": "scale-utility",
       "track": "warn",
       "category": "margin",
       "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 732,
-      "property": "gap",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
@@ -38768,21 +38373,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 754,
-      "property": "padding",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 758,
+      "line": 747,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -38796,41 +38387,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 758,
-      "property": "gap",
-      "value": "6px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 762,
-      "property": "margin-bottom",
-      "value": "2px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 767,
+      "line": 747,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -38844,21 +38401,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 767,
-      "property": "margin-top",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 783,
+      "line": 763,
       "property": "padding",
       "value": "20px",
       "status": "compact-allowed",
@@ -38872,7 +38415,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 792,
+      "line": 772,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38886,7 +38429,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 797,
+      "line": 777,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -38900,7 +38443,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 808,
+      "line": 788,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -38914,7 +38457,7 @@
     },
     {
       "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 970,
+      "line": 950,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -38922,34 +38465,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "margin",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 976,
-      "property": "gap",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/WeeklyPlanPage.tsx",
-      "line": 976,
-      "property": "padding",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -38970,7 +38485,7 @@
     },
     {
       "file": "design-system/stories/Collapsible.stories.tsx",
-      "line": 19,
+      "line": 24,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -38984,7 +38499,7 @@
     },
     {
       "file": "design-system/stories/Collapsible.stories.tsx",
-      "line": 19,
+      "line": 24,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -39012,7 +38527,7 @@
     },
     {
       "file": "design-system/stories/HoverCard.stories.tsx",
-      "line": 24,
+      "line": 30,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -39026,7 +38541,7 @@
     },
     {
       "file": "design-system/stories/NavigationMenu.stories.tsx",
-      "line": 26,
+      "line": 32,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -39040,7 +38555,7 @@
     },
     {
       "file": "design-system/stories/NavigationMenu.stories.tsx",
-      "line": 26,
+      "line": 32,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -39054,7 +38569,7 @@
     },
     {
       "file": "design-system/stories/Popover.stories.tsx",
-      "line": 27,
+      "line": 28,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39068,7 +38583,7 @@
     },
     {
       "file": "design-system/stories/SelectableCard.stories.tsx",
-      "line": 37,
+      "line": 43,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39082,7 +38597,7 @@
     },
     {
       "file": "design-system/stories/SelectableCard.stories.tsx",
-      "line": 65,
+      "line": 71,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39096,7 +38611,7 @@
     },
     {
       "file": "design-system/stories/SelectableCard.stories.tsx",
-      "line": 67,
+      "line": 73,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -39110,7 +38625,7 @@
     },
     {
       "file": "design-system/stories/Separator.stories.tsx",
-      "line": 30,
+      "line": 32,
       "property": "padding-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -39124,7 +38639,7 @@
     },
     {
       "file": "design-system/stories/Separator.stories.tsx",
-      "line": 32,
+      "line": 34,
       "property": "padding-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -39138,7 +38653,7 @@
     },
     {
       "file": "design-system/stories/Separator.stories.tsx",
-      "line": 41,
+      "line": 43,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39152,7 +38667,7 @@
     },
     {
       "file": "design-system/stories/Sidebar.stories.tsx",
-      "line": 34,
+      "line": 41,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -39166,7 +38681,7 @@
     },
     {
       "file": "design-system/stories/Skeleton.stories.tsx",
-      "line": 18,
+      "line": 25,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39180,7 +38695,7 @@
     },
     {
       "file": "design-system/stories/Skeleton.stories.tsx",
-      "line": 19,
+      "line": 26,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39194,7 +38709,7 @@
     },
     {
       "file": "design-system/stories/Switch.stories.tsx",
-      "line": 36,
+      "line": 39,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39208,7 +38723,7 @@
     },
     {
       "file": "design-system/stories/Tabs.stories.tsx",
-      "line": 30,
+      "line": 36,
       "property": "padding-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -39222,7 +38737,7 @@
     },
     {
       "file": "design-system/stories/Tabs.stories.tsx",
-      "line": 31,
+      "line": 37,
       "property": "padding-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -39236,7 +38751,7 @@
     },
     {
       "file": "design-system/stories/Tabs.stories.tsx",
-      "line": 32,
+      "line": 38,
       "property": "padding-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -39263,8 +38778,8 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
-      "file": "design-system/stories/Toggle.stories.tsx",
-      "line": 46,
+      "file": "design-system/stories/ToggleButton.stories.tsx",
+      "line": 52,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -39272,6 +38787,34 @@
       "system": "scale-utility",
       "track": "error",
       "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/ToggleButton.stories.tsx",
+      "line": 64,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/ToggleButton.stories.tsx",
+      "line": 64,
+      "property": "padding",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "padding",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -39515,9 +39058,9 @@
     }
   ],
   "recommendations": [
-    "1020 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
-    "1515 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
+    "1003 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1503 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ],
-  "findingsNote": "2843 usages preferred agrégés dans totals, non listés."
+  "findingsNote": "2849 usages preferred agrégés dans totals, non listés."
 }
