@@ -60,3 +60,11 @@ jobs:
           # Un diff visuel n'est pas une erreur de CI : il est à REVOIR, pas à
           # bloquer le merge. Chromatic commente la PR avec les changements.
           exitZeroOnChanges: true
+          # `main` = source de vérité : ses snapshots sont acceptés
+          # AUTOMATIQUEMENT et deviennent la baseline. Sans ça, aucune baseline
+          # n'est jamais actée → toutes les stories restent « new » à chaque build,
+          # et on ne voit jamais l'avant/après. La revue visuelle se fait donc
+          # sur les PR (elles diffent contre la baseline acceptée de `main`).
+          # NB : n'auto-accepte QUE sur main — sur les PR/branches, les diffs
+          # restent à revoir normalement.
+          autoAcceptChanges: main
