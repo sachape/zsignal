@@ -11,6 +11,7 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { SelectableCard } from "@/components/ui/selectable-card";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Command,
@@ -819,13 +820,11 @@ const LiveSetupPage = () => {
                 {PLATFORMS.map(({ value, label, Icon, soon }) => {
                   const active = input.platforms.includes(value);
                   return (
-                    <button key={value} type="button" onClick={() => !soon && togglePlatform(value)} disabled={soon}
-                      className={cn("inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition",
-                        active ? "border-primary bg-primary/10 text-primary-strong" : "border-border bg-card hover:border-border/80",
-                        soon && "cursor-not-allowed opacity-60")}>
+                    <SelectableCard key={value} selected={active} onClick={() => togglePlatform(value)} disabled={soon}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 text-sm">
                       <Icon className="h-4 w-4" />{label}
                       {soon && <Badge variant="outline" className="ml-1 text-[12px]">bientôt</Badge>}
-                    </button>
+                    </SelectableCard>
                   );
                 })}
               </div>
@@ -843,15 +842,11 @@ const LiveSetupPage = () => {
                   {LIVE_PRESETS.map((p) => {
                     const active = presetId === p.id;
                     return (
-                      <button
-                        key={p.id} type="button"
+                      <SelectableCard
+                        key={p.id}
+                        selected={active}
                         onClick={() => setPresetId(active ? null : p.id)}
-                        className={cn(
-                          "group rounded-xl border p-3.5 text-left transition-all duration-150",
-                          active
-                            ? "border-primary/50 bg-primary/8 shadow-[0_0_0_1px_hsl(var(--primary)/0.15)]"
-                            : "border-border/50 bg-background/60 hover:border-border hover:bg-muted/30",
-                        )}
+                        className="group p-3.5 text-left"
                       >
                         {active && (
                           <div className="mb-2 flex items-center gap-1">
@@ -861,7 +856,7 @@ const LiveSetupPage = () => {
                         )}
                         <div className={cn("text-sm font-semibold", active ? "text-foreground" : "text-foreground/90")}>{p.label}</div>
                         <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">{p.description}</div>
-                      </button>
+                      </SelectableCard>
                     );
                   })}
                 </div>
