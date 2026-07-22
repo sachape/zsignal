@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
-import { common, describe, CAT } from "./_argTypes";
   Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink,
   BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis,
 } from "@/components/ui/breadcrumb";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Breadcrumb> = {
   title: "Components/Navigation/Breadcrumb",

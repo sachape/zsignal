@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, waitFor } from "storybook/test";
 import {
-import { common, describe, CAT } from "./_argTypes";
   Command, CommandInput, CommandList, CommandEmpty, CommandGroup,
   CommandItem, CommandSeparator,
 } from "@/components/ui/command";
+import { common, describe, CAT } from "./_argTypes";
 
 /**
  * Command — la palette (Cmd+K) : recherche + actions rapides pour power users.

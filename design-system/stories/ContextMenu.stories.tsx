@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
-import { common, describe, CAT } from "./_argTypes";
   ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem,
   ContextMenuSeparator, ContextMenuShortcut, ContextMenuLabel,
 } from "@/components/ui/context-menu";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof ContextMenu> = {
   title: "Components/Overlays/Context Menu",

@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
-import { common, describe, CAT } from "./_argTypes";
   Pagination, PaginationContent, PaginationItem, PaginationLink,
   PaginationPrevious, PaginationNext, PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Pagination> = {
   title: "Components/Navigation/Pagination",

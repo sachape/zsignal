@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
-import { common, describe, CAT } from "./_argTypes";
   NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger,
   NavigationMenuContent, NavigationMenuLink, navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof NavigationMenu> = {
   title: "Components/Navigation/Navigation Menu",

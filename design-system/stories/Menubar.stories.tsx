@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
-import { common, describe, CAT } from "./_argTypes";
   Menubar, MenubarMenu, MenubarTrigger, MenubarContent,
   MenubarItem, MenubarSeparator, MenubarShortcut,
 } from "@/components/ui/menubar";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Menubar> = {
   title: "Components/Navigation/Menubar",
