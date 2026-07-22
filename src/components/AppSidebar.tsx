@@ -241,12 +241,7 @@ const AppSidebar = () => {
         {user && (
           <Popover>
             <PopoverTrigger asChild>
-              <button
-                className={cn(
-                  "flex w-full items-center gap-2 rounded-md p-2 transition-colors hover:bg-sidebar-accent",
-                  collapsed && "justify-center p-1",
-                )}
-              >
+              <SidebarMenuButton size="lg" tooltip={collapsed ? (user.email ?? "Compte") : undefined}>
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
                   {user.email?.[0]?.toUpperCase() ?? "?"}
                 </div>
@@ -260,7 +255,7 @@ const AppSidebar = () => {
                     <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />
                   </>
                 )}
-              </button>
+              </SidebarMenuButton>
             </PopoverTrigger>
 
             <PopoverContent side="top" align="start" sideOffset={8} className="w-64 p-1.5">
