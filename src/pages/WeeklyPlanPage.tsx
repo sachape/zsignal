@@ -311,7 +311,7 @@ const ActionCard = ({ action, label = "Action prioritaire" }: ActionCardProps) =
       <Target className="h-4 w-4 text-primary-strong" />
     </div>
     <div className="min-w-0 flex-1">
-      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-primary-strong/60">
+      <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-primary-strong/60">
         {label}
       </p>
       <p className="text-sm font-semibold leading-snug text-foreground">{action.title}</p>
@@ -396,7 +396,7 @@ const TodayTab = ({
                 </div>
               </div>
               {streamToday && (
-                <span className="shrink-0 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary-strong">
+                <span className="shrink-0 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold text-primary-strong">
                   Prévu
                 </span>
               )}
@@ -437,7 +437,7 @@ const TodayTab = ({
         <div className="flex items-center gap-3 rounded-xl border border-border/40 bg-muted/20 p-3">
           <MapPin className="h-4 w-4 shrink-0 text-muted-foreground/60" />
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/60">
               Cap de la semaine
             </p>
             <p className="text-xs font-medium text-foreground/80 leading-snug">{milestoneTitle}</p>
@@ -605,7 +605,7 @@ const WeekTab = ({
                               "auto" && (
                               <Badge
                                 variant="outline"
-                                className="ml-2 h-5 px-1.5 text-[10px] align-middle"
+                                className="ml-2 h-5 px-1.5 text-[12px] align-middle"
                               >
                                 Vérifié auto
                               </Badge>
@@ -623,7 +623,7 @@ const WeekTab = ({
                           </p>
                         )}
                         {action.difficulty && !skipped && !done && (
-                          <Badge variant="outline" className="mt-1.5 h-5 px-1.5 text-[10px]">
+                          <Badge variant="outline" className="mt-1.5 h-5 px-1.5 text-[12px]">
                             {action.difficulty === "easy"
                               ? "Facile"
                               : action.difficulty === "medium"
@@ -732,7 +732,7 @@ const MonthTab = ({
           <div className="grid gap-3 sm:grid-cols-2">
             {/* Sessions target */}
             <div className="rounded-xl border border-border/50 bg-muted/20 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/60">
                 Lives ce mois
               </p>
               <div className="mt-1 flex items-end gap-1.5">
@@ -752,7 +752,7 @@ const MonthTab = ({
             {/* Score target */}
             {score && scoreTarget && (
               <div className="rounded-xl border border-border/50 bg-muted/20 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/60">
                   StreamScore visé
                 </p>
                 <div className="mt-1 flex items-end gap-1.5">

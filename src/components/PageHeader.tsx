@@ -77,7 +77,7 @@ const PageHeader = ({
                 <Badge
                   key={b.label}
                   variant={b.variant ?? "secondary"}
-                  className="text-[10px] font-semibold uppercase tracking-wider"
+                  className="text-[12px] font-semibold uppercase tracking-wider"
                 >
                   {b.label}
                 </Badge>

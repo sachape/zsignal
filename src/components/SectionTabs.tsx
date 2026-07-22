@@ -76,7 +76,7 @@ const SectionTabs = () => {
   return (
     <div className="border-b border-border/60 bg-background/60 backdrop-blur-md">
       <div className="flex h-11 items-center gap-1 overflow-x-auto px-3 sm:px-4 md:px-6">
-        <span className="mr-2 hidden text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 md:inline">
+        <span className="mr-2 hidden text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70 md:inline">
           {section.label}
         </span>
         {section.tabs.map((tab) => {
@@ -88,7 +88,7 @@ const SectionTabs = () => {
                 className="flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 text-xs text-muted-foreground/50"
               >
                 {tab.label}
-                <span className="rounded-full bg-muted/60 px-1.5 py-0.5 text-[9px] font-medium uppercase">
+                <span className="rounded-full bg-muted/60 px-1.5 py-0.5 text-[12px] font-medium uppercase">
                   Bientôt
                 </span>
               </span>

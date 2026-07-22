@@ -102,14 +102,14 @@ export default function ManualMediaUploadDialog({ item, open, onOpenChange, onUp
             <span className="text-sm font-medium text-foreground">
               {file ? file.name : "Choisir un fichier vidéo ou image"}
             </span>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-[12px] text-muted-foreground">
               Format vidéo (MP4, MOV) ou image. Max 200 Mo.
             </span>
           </button>
 
           {file && (
-            <div className="rounded-md border border-border/60 bg-background/40 p-2 text-[11px] text-muted-foreground">
-              <Label className="text-[10px] uppercase tracking-wide">Fichier</Label>
+            <div className="rounded-md border border-border/60 bg-background/40 p-2 text-[12px] text-muted-foreground">
+              <Label className="text-[12px] uppercase tracking-wide">Fichier</Label>
               <p className="mt-1 truncate text-foreground">{file.name}</p>
               <p className="opacity-80">
                 {(file.size / 1024 / 1024).toFixed(1)} Mo · {file.type || "type inconnu"}

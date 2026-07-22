@@ -142,7 +142,7 @@ const VisualPlacementPreview = ({
     <div className={className}>
       <Mock kind={kind} />
       {caption && (
-        <p className="mt-1.5 text-center text-[10px] text-muted-foreground/70">{CAPTION[kind]}</p>
+        <p className="mt-1.5 text-center text-[12px] text-muted-foreground/70">{CAPTION[kind]}</p>
       )}
     </div>
   );

@@ -239,7 +239,7 @@ const YouTubeUploadDialog = ({
                   />
                   <span>
                     <span className="font-medium text-foreground">Utiliser le clip généré</span>
-                    <span className="block text-[10px] text-muted-foreground/80">Recommandé — clip prêt à publier.</span>
+                    <span className="block text-[12px] text-muted-foreground/80">Recommandé — clip prêt à publier.</span>
                   </span>
                 </label>
                 <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
@@ -250,7 +250,7 @@ const YouTubeUploadDialog = ({
                   />
                   <span>
                     <span className="font-medium text-foreground">Uploader un autre fichier</span>
-                    <span className="block text-[10px] text-muted-foreground/80">Fallback — choisis un fichier depuis ton ordinateur.</span>
+                    <span className="block text-[12px] text-muted-foreground/80">Fallback — choisis un fichier depuis ton ordinateur.</span>
                   </span>
                 </label>
               </div>
@@ -268,7 +268,7 @@ const YouTubeUploadDialog = ({
                   onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
                 />
                 {file && (
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[12px] text-muted-foreground">
                     {file.name} · {formatBytes(file.size)}
                     {file.size > RECOMMENDED_BYTES && (
                       <span className="ml-1 text-amber-400">
@@ -283,7 +283,7 @@ const YouTubeUploadDialog = ({
             <div className="space-y-1.5">
               <Label className="text-xs">Titre</Label>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} disabled={uploading} />
-              <p className="text-[10px] text-muted-foreground">{title.length}/100</p>
+              <p className="text-[12px] text-muted-foreground">{title.length}/100</p>
             </div>
 
             <div className="space-y-1.5">
@@ -310,7 +310,7 @@ const YouTubeUploadDialog = ({
 
             {uploading && (
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <div className="flex items-center justify-between text-[12px] text-muted-foreground">
                   <span>
                     {phase === "fetching"
                       ? "Récupération du clip généré…"
@@ -327,7 +327,7 @@ const YouTubeUploadDialog = ({
                   />
                 </div>
                 {phase === "transferring" && (
-                  <p className="text-[10px] text-muted-foreground/80">
+                  <p className="text-[12px] text-muted-foreground/80">
                     On attend la confirmation de YouTube. Ne ferme pas cette fenêtre.
                   </p>
                 )}

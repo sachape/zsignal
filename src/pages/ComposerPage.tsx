@@ -282,7 +282,7 @@ const ComposerPage = () => {
                   <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-1.5 text-sm">
                     <Camera className="h-4 w-4 text-primary-strong" />
                     Instagram
-                    <Badge variant="outline" className="text-[10px]">V1</Badge>
+                    <Badge variant="outline" className="text-[12px]">V1</Badge>
                   </div>
                 </div>
 
@@ -308,7 +308,7 @@ const ComposerPage = () => {
                         >
                           <Icon className={cn("h-4 w-4", active ? "text-primary-strong" : "text-muted-foreground")} />
                           <span className="text-sm font-medium">{f.label}</span>
-                          <span className="text-[10px] text-muted-foreground leading-tight">{f.hint}</span>
+                          <span className="text-[12px] text-muted-foreground leading-tight">{f.hint}</span>
                         </button>
                       );
                     })}
@@ -342,7 +342,7 @@ const ComposerPage = () => {
                       onChange={handleFileChange}
                     />
                     {mediaUrl && (
-                      <p className="mt-1.5 text-[11px] text-muted-foreground truncate">
+                      <p className="mt-1.5 text-[12px] text-muted-foreground truncate">
                         Média prêt — {mediaMime}
                       </p>
                     )}
@@ -362,7 +362,7 @@ const ComposerPage = () => {
                       rows={5}
                       className="mt-2 resize-none"
                     />
-                    <div className="mt-1 text-[10px] text-muted-foreground text-right">
+                    <div className="mt-1 text-[12px] text-muted-foreground text-right">
                       {caption.length} caractères
                     </div>
                   </div>
@@ -383,7 +383,7 @@ const ComposerPage = () => {
                     {hashtags.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {hashtags.map((t) => (
-                          <Badge key={t} variant="outline" className="text-[10px]">
+                          <Badge key={t} variant="outline" className="text-[12px]">
                             #{t}
                           </Badge>
                         ))}
@@ -464,7 +464,7 @@ const ComposerPage = () => {
                     >
                       <Send className="h-4 w-4" />
                       Publier automatiquement
-                      <span className="ml-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-1.5 py-0 text-[10px] font-semibold text-amber-300">
+                      <span className="ml-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-1.5 py-0 text-[12px] font-semibold text-amber-300">
                         Bientôt
                       </span>
                     </Button>

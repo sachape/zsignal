@@ -50,7 +50,7 @@ export function CreditsSection() {
                   {formatStreamCoins(available)}
                 </span>
               </p>
-              <p className="mt-1 text-[11px] text-muted-foreground/80">
+              <p className="mt-1 text-[12px] text-muted-foreground/80">
                 1 visuel&nbsp;= {CREDIT_COSTS.visual_generation} StreamCoins · 1 clip&nbsp;= {CREDIT_COSTS.clip_generation} StreamCoins
               </p>
 
@@ -65,7 +65,7 @@ export function CreditsSection() {
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium text-foreground">{p.display_name}</p>
                         {(p.description || price) && (
-                          <p className="truncate text-[11px] text-muted-foreground">
+                          <p className="truncate text-[12px] text-muted-foreground">
                             {price ? <span className="font-semibold text-foreground">{price}</span> : null}
                             {price && p.description ? " · " : ""}
                             {p.description}

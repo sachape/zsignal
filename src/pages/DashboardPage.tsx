@@ -597,7 +597,7 @@ const DashboardPage = () => {
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={headerTitle} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-lg font-bold text-muted-foreground">
+                  <div className="flex h-full w-full items-center justify-center text-xl font-bold text-muted-foreground">
                     {headerTitle.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -612,13 +612,13 @@ const DashboardPage = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-base font-bold text-foreground">{headerTitle}</h1>
                 {summary.broadcaster_type === "partner" && (
-                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">Partenaire</span>
+                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">Partenaire</span>
                 )}
                 {summary.broadcaster_type === "affiliate" && (
-                  <span className="rounded-full border border-border/50 bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Affilié</span>
+                  <span className="rounded-full border border-border/50 bg-muted/40 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Affilié</span>
                 )}
                 {summary.is_live && (
-                  <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">● En live</span>
+                  <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-destructive">● En live</span>
                 )}
                 <StreakBadge streak={streakData} variant="compact" />
               </div>
@@ -645,48 +645,48 @@ const DashboardPage = () => {
             to="/analyse"
             className={`group rounded-2xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-muted ${score.overall < 40 ? "border-l-2 border-l-destructive/50" : score.overall < 65 ? "border-l-2 border-l-amber-500/50" : "border-l-2 border-l-primary/50"}`}
           >
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">StreamScore</p>
+            <p className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60">StreamScore</p>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className={`text-3xl font-bold tabular-nums ${theme.textClass}`}>{score.overall}</span>
+              <span className={`text-[32px] font-bold tabular-nums ${theme.textClass}`}>{score.overall}</span>
               <span className="text-xs text-muted-foreground">/100</span>
             </div>
-            <p className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider ${theme.textClass}`}>{theme.label}</p>
+            <p className={`mt-0.5 text-[12px] font-bold uppercase tracking-wider ${theme.textClass}`}>{theme.label}</p>
             {delta !== null && delta !== 0 && (
-              <p className={`mt-1 text-[11px] font-medium ${delta > 0 ? "text-primary-strong" : "text-destructive"}`}>
+              <p className={`mt-1 text-[12px] font-medium ${delta > 0 ? "text-primary-strong" : "text-destructive"}`}>
                 {delta > 0 ? `+${delta}` : delta} pts
               </p>
             )}
-            {delta === 0 && <p className="mt-1 text-[11px] text-muted-foreground">Stable</p>}
+            {delta === 0 && <p className="mt-1 text-[12px] text-muted-foreground">Stable</p>}
           </Link>
 
           {/* Lives 30j */}
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Lives (30j)</p>
-            <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">{lives30d}</p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">
+            <p className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60">Lives (30j)</p>
+            <p className="mt-2 text-[32px] font-bold tabular-nums text-foreground">{lives30d}</p>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
               {lives30d === 0 ? "Aucun stream récent" : lives30d === 1 ? "session" : "sessions"}
             </p>
           </div>
 
           {/* Viewers moy */}
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Viewers moy.</p>
-            <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
+            <p className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60">Viewers moy.</p>
+            <p className="mt-2 text-[32px] font-bold tabular-nums text-foreground">
               {liveSnapshot?.current ? (liveSnapshot.current.peak_viewers ?? "—") : (viewersMoy ?? "—")}
             </p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
               {liveSnapshot?.current ? "en direct" : sessions30d.length > 0 ? "moy. 30j" : "pas de données"}
             </p>
           </div>
 
           {/* Followers */}
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Followers</p>
-            <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
+            <p className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60">Followers</p>
+            <p className="mt-2 text-[32px] font-bold tabular-nums text-foreground">
               {followersAvailable ? (summary.follower_count != null ? summary.follower_count.toLocaleString("fr-FR") : "—") : "—"}
             </p>
             {!followersAvailable && (
-              <p className="mt-0.5 text-[10px] text-amber-400">Scope manquant</p>
+              <p className="mt-0.5 text-[12px] text-amber-400">Scope manquant</p>
             )}
             {followersAvailable && ap.followers.target && (
               <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted/60">
@@ -698,15 +698,15 @@ const DashboardPage = () => {
 
         {/* ── TON FOCUS — point focal unique ───────────────────────────── */}
         <section className="mb-6 overflow-hidden rounded-[22px] border border-primary/[0.18] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.10),transparent_50%)] bg-card p-5 md:p-6">
-          <p className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary-strong/70">
+          <p className="mb-3 flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.22em] text-primary-strong/70">
             <Target className="h-3.5 w-3.5" /> Ton focus
           </p>
           <div className="grid gap-5 md:grid-cols-[1fr_220px] md:items-center">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/60">
                 Blocage : {report.weak_point.label}
               </p>
-              <h2 className="mt-1.5 text-lg font-bold leading-tight text-foreground md:text-xl">{nextAction.title}</h2>
+              <h2 className="mt-1.5 text-xl font-bold leading-tight text-foreground md:text-xl">{nextAction.title}</h2>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{nextAction.action || nextAction.reason}</p>
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.55)]">
@@ -719,7 +719,7 @@ const DashboardPage = () => {
             </div>
             {/* Prochain palier — compact */}
             <div className="shrink-0 rounded-2xl border border-border bg-background/40 p-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/55">Prochain palier</p>
+              <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-muted-foreground/55">Prochain palier</p>
               <p className="mt-2 text-sm font-semibold text-foreground">{nextMilestone.label}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">{nextMilestone.current}/{nextMilestone.target} · {nextMilestone.pct}%</p>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted/60">
@@ -802,7 +802,7 @@ const DashboardPage = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-base leading-none">✍️</span>
                     <span className="text-sm font-semibold text-foreground">Contenu à publier</span>
-                    <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-strong">Nouveau</span>
+                    <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">Nouveau</span>
                   </div>
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
                     {liveSnapshot.last.category_name

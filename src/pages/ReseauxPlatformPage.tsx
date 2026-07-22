@@ -48,9 +48,9 @@ function MetricCard({ icon: Icon, label, value }: { icon: React.FC<{ className?:
     <div className="rounded-xl bg-muted/40 p-4 space-y-1.5">
       <div className="flex items-center gap-1.5 text-muted-foreground">
         <Icon className="h-3.5 w-3.5" />
-        <span className="text-[11px] font-medium uppercase tracking-wider">{label}</span>
+        <span className="text-[12px] font-medium uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-lg font-bold tabular-nums">
+      <p className="text-xl font-bold tabular-nums">
         {value != null ? value.toLocaleString("fr-FR") : <span className="text-sm font-normal text-muted-foreground/50">Non disponible</span>}
       </p>
     </div>
@@ -202,12 +202,12 @@ export default function ReseauxPlatformPage() {
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-xl font-bold">{meta.label}</h1>
               {meta.beta && (
-                <span className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-400">
+                <span className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-amber-400">
                   Bêta
                 </span>
               )}
               <span className={cn(
-                "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                "inline-flex items-center rounded-full border px-2 py-0.5 text-[12px] font-medium",
                 status === "connected" ? "text-primary-strong border-primary/30 bg-primary/5" :
                 status === "manual"    ? "text-sky-400 border-sky-400/30 bg-sky-400/5" :
                 status === "expired"   ? "text-amber-400 border-amber-400/30 bg-amber-400/5" :
@@ -322,7 +322,7 @@ export default function ReseauxPlatformPage() {
         {/* ── Metrics ── */}
         {isActive && (
           <div className="space-y-4 mb-6">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Métriques disponibles</p>
+            <p className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60">Métriques disponibles</p>
             {platform === "twitch" && (
               <div className="rounded-xl border border-border bg-muted/20 p-4 text-sm text-muted-foreground">
                 Les métriques Twitch (followers, viewers, clips…) sont disponibles dans ton{" "}
@@ -375,15 +375,15 @@ export default function ReseauxPlatformPage() {
         {/* ── Diagnostic ── */}
         <Card className="mb-4">
           <CardContent className="p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Diagnostic</p>
+            <p className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Diagnostic</p>
             <p className="text-sm leading-relaxed">{diagnostic}</p>
             {platform === "tiktok" && status === "manual" && (
-              <p className="mt-2 text-[11px] text-muted-foreground/60">
+              <p className="mt-2 text-[12px] text-muted-foreground/60">
                 Connexion API TikTok prévue. Pour l'instant, ce profil est utilisé pour calculer ton score de présence multi-plateforme.
               </p>
             )}
             {platform === "instagram" && status === "manual" && (
-              <p className="mt-2 text-[11px] text-muted-foreground/60">
+              <p className="mt-2 text-[12px] text-muted-foreground/60">
                 Les insights Instagram (Reels, Stories) seront disponibles après connexion à l'Instagram Graph API.
               </p>
             )}
@@ -392,7 +392,7 @@ export default function ReseauxPlatformPage() {
 
         {/* ── Recommendations ── */}
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3">Actions recommandées</p>
+          <p className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3">Actions recommandées</p>
           <div className="space-y-2">
             {platform === "youtube" && status === "connected" && !metrics?.recent_posts_count && (
               <div className="rounded-xl border border-border p-3 text-sm">🎬 Publie une première vidéo ou Short depuis tes meilleurs moments live cette semaine.</div>

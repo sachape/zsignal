@@ -57,14 +57,14 @@ const StreamerDNACard = ({ dna, login }: Props) => {
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-3xl leading-none">{dna.icon}</span>
+            <span className="text-[32px] leading-none">{dna.icon}</span>
             <div>
               <div className="flex items-center gap-2">
-                <span className={cn("text-[10px] font-bold uppercase tracking-widest", c.text)}>
+                <span className={cn("text-[12px] font-bold uppercase tracking-widest", c.text)}>
                   Profil Streamer
                 </span>
               </div>
-              <p className="mt-0.5 text-lg font-bold leading-tight text-foreground">
+              <p className="mt-0.5 text-xl font-bold leading-tight text-foreground">
                 {dna.archetype}
               </p>
               <p className="text-xs text-muted-foreground">{dna.subtitle}</p>
@@ -92,7 +92,7 @@ const StreamerDNACard = ({ dna, login }: Props) => {
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {/* Strengths */}
           <div className="space-y-1.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">
               Points forts
             </p>
             {dna.strengths.map((s) => (
@@ -105,7 +105,7 @@ const StreamerDNACard = ({ dna, login }: Props) => {
 
           {/* Blindspot */}
           <div className="space-y-1.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">
               Point aveugle
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed">{dna.blindspot}</p>

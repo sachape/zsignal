@@ -717,7 +717,7 @@ const StreamerProfilePage = () => {
               <h3 className="text-sm font-semibold text-foreground">
                 Pourquoi inspecter ce profil
               </h3>
-              <Badge variant="outline" className="ml-auto text-[10px]">
+              <Badge variant="outline" className="ml-auto text-[12px]">
                 {framing.label}
               </Badge>
             </div>
@@ -850,12 +850,12 @@ const StreamerProfilePage = () => {
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 p-4">
                         <div className="mb-1 flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-white">
                             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
                             Live
                           </span>
                           {(summary.live_viewer_count ?? 0) > 0 && (
-                            <span className="flex items-center gap-1 text-[11px] font-semibold text-white/90">
+                            <span className="flex items-center gap-1 text-[12px] font-semibold text-white/90">
                               <Eye className="h-3 w-3" />
                               {formatNumber(summary.live_viewer_count!)} viewers
                             </span>
@@ -913,7 +913,7 @@ const StreamerProfilePage = () => {
                               </div>
                             )}
                             {/* Duration badge */}
-                            <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-white backdrop-blur-sm">
+                            <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[12px] font-semibold tabular-nums text-white backdrop-blur-sm">
                               {v.duration}
                             </span>
                           </div>
@@ -922,7 +922,7 @@ const StreamerProfilePage = () => {
                             <p className="line-clamp-2 text-xs font-medium leading-snug text-foreground">
                               {v.title || "Sans titre"}
                             </p>
-                            <div className="mt-1.5 flex items-center gap-2 text-[10px] text-muted-foreground/60">
+                            <div className="mt-1.5 flex items-center gap-2 text-[12px] text-muted-foreground/60">
                               <span className="flex items-center gap-1">
                                 <Eye className="h-2.5 w-2.5" />
                                 {formatNumber(v.view_count)}
@@ -961,7 +961,7 @@ const StreamerProfilePage = () => {
                       <span className="text-sm font-medium text-foreground">
                         {dim!.dimension}
                       </span>
-                      <Badge variant="outline" className="text-[10px]">
+                      <Badge variant="outline" className="text-[12px]">
                         {dim!.score}/100
                       </Badge>
                     </div>
@@ -1048,7 +1048,7 @@ const StreamerProfilePage = () => {
                 <div className="mb-3 flex items-center gap-2">
                   <Scale className="h-4 w-4 text-foreground" />
                   <h3 className="text-sm font-semibold text-foreground">Comparaison vs toi</h3>
-                  <Badge variant="outline" className="ml-auto text-[10px]">
+                  <Badge variant="outline" className="ml-auto text-[12px]">
                     {rows.length} dimensions clés
                   </Badge>
                 </div>
@@ -1073,7 +1073,7 @@ const StreamerProfilePage = () => {
                           <span className="text-xs text-muted-foreground tabular-nums">
                             Toi {r.yours}
                           </span>
-                          <span className={`text-[11px] font-medium ${statusStyles[r.status]}`}>
+                          <span className={`text-[12px] font-medium ${statusStyles[r.status]}`}>
                             {statusLabel[r.status]}
                           </span>
                         </div>
@@ -1137,7 +1137,7 @@ const StreamerProfilePage = () => {
                 <div className="mb-1 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-foreground" />
                   <h3 className="text-sm font-semibold text-foreground">Mécaniques observées</h3>
-                  <Badge variant="outline" className="ml-auto text-[10px]">
+                  <Badge variant="outline" className="ml-auto text-[12px]">
                     {mechanics.length} pattern{mechanics.length > 1 ? "s" : ""}
                   </Badge>
                 </div>
@@ -1159,7 +1159,7 @@ const StreamerProfilePage = () => {
                                 {m.certainty === "soft" ? `Probable : ${m.label}` : m.label}
                               </span>
                               {m.certainty === "soft" && (
-                                <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                                <Badge variant="outline" className="text-[12px] text-muted-foreground">
                                   signal faible
                                 </Badge>
                               )}
@@ -1167,7 +1167,7 @@ const StreamerProfilePage = () => {
                             <p className="mt-1 text-xs text-muted-foreground">{m.detail}</p>
                           </div>
                           <span
-                            className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${meta.tone}`}
+                            className={`shrink-0 rounded-full border px-2 py-0.5 text-[12px] font-medium ${meta.tone}`}
                           >
                             {meta.label}
                           </span>
@@ -1190,7 +1190,7 @@ const StreamerProfilePage = () => {
               <div className="mb-3 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-foreground" />
                 <h3 className="text-sm font-semibold text-foreground">Évolution dans le temps</h3>
-                <Badge variant="outline" className="ml-auto text-[10px]">
+                <Badge variant="outline" className="ml-auto text-[12px]">
                   {snapshots.length} snapshot{snapshots.length > 1 ? "s" : ""}
                 </Badge>
               </div>

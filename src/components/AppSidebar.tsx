@@ -143,7 +143,7 @@ const AppSidebar = () => {
         {navGroups.map((group, gi) => (
           <SidebarGroup key={group.label ?? `g-${gi}`}>
             {group.label && !collapsed && (
-              <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              <SidebarGroupLabel className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/60">
                 {group.label}
               </SidebarGroupLabel>
             )}
@@ -173,7 +173,7 @@ const AppSidebar = () => {
                           <item.icon className="h-4 w-4 shrink-0" />
                           {!collapsed && <span className="flex-1">{item.title}</span>}
                           {!collapsed && item.proOnly && !isPro && (
-                            <span className="rounded-sm border border-primary/30 bg-primary/10 px-1 py-0 text-[9px] font-semibold uppercase tracking-wider text-primary-strong">
+                            <span className="rounded-sm border border-primary/30 bg-primary/10 px-1 py-0 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
                               Pro
                             </span>
                           )}
@@ -206,7 +206,7 @@ const AppSidebar = () => {
               <span className="shrink-0 text-base leading-none">{xp.icon}</span>
               {!collapsed && (
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold leading-none text-foreground">
+                  <p className="text-[12px] font-semibold leading-none text-foreground">
                     Niv. {xp.level} · {xp.label}
                   </p>
                   <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-muted/60">
@@ -272,7 +272,7 @@ const AppSidebar = () => {
                   <p className="truncate text-xs font-medium text-foreground">{user.email}</p>
                   <span
                     className={cn(
-                      "mt-0.5 inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                      "mt-0.5 inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[12px] font-medium",
                       isPro
                         ? "border-primary/30 bg-primary/10 text-primary-strong"
                         : "border-border/60 bg-muted/60 text-muted-foreground",

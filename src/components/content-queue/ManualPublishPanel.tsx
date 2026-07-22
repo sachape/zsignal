@@ -112,40 +112,40 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
 
   return (
     <div className="space-y-3 rounded-md border border-primary/30 bg-primary/5 p-3">
-      <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
+      <div className="flex items-center gap-2 text-[12px] font-semibold text-foreground">
         <Send className="h-3.5 w-3.5 text-primary-strong" />
         Publication manuelle
-        <span className="ml-auto text-[10px] font-normal text-muted-foreground">
+        <span className="ml-auto text-[12px] font-normal text-muted-foreground">
           Publie sur la plateforme, puis colle l'URL ici
         </span>
       </div>
 
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-[12px] text-muted-foreground">
         Publication directe bientôt disponible. En attendant, publie manuellement avec les éléments préparés par Streamnco.
       </p>
 
       {/* Copy actions */}
       <div className="flex flex-wrap gap-1.5">
-        <Button size="sm" variant="outline" className="h-7 text-[11px]"
+        <Button size="sm" variant="outline" className="h-7 text-[12px]"
           onClick={() => copyText(displayTitle, "Titre copié")}>
           <Copy className="mr-1 h-3 w-3" /> Titre
         </Button>
-        <Button size="sm" variant="outline" className="h-7 text-[11px]"
+        <Button size="sm" variant="outline" className="h-7 text-[12px]"
           onClick={() => copyText(item.description ?? "", "Description copiée")}
           disabled={!item.description}>
           <Copy className="mr-1 h-3 w-3" /> Description
         </Button>
-        <Button size="sm" variant="outline" className="h-7 text-[11px]"
+        <Button size="sm" variant="outline" className="h-7 text-[12px]"
           onClick={() => copyText(hashtagsText, "Hashtags copiés")}
           disabled={hashtags.length === 0}>
           <Copy className="mr-1 h-3 w-3" /> Hashtags
         </Button>
-        <Button size="sm" variant="outline" className="h-7 text-[11px]"
+        <Button size="sm" variant="outline" className="h-7 text-[12px]"
           onClick={() => copyText(fullText, "Tout copié")}>
           <Copy className="mr-1 h-3 w-3" /> Tout
         </Button>
         {mediaUrl && (
-          <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={downloadMedia}>
+          <Button size="sm" variant="outline" className="h-7 text-[12px]" onClick={downloadMedia}>
             <Download className="mr-1 h-3 w-3" /> Télécharger le média
           </Button>
         )}
@@ -154,22 +154,22 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
       {/* Open platform */}
       <div className="flex flex-wrap gap-1.5">
         <a href="https://studio.youtube.com/" target="_blank" rel="noreferrer noopener"
-          className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[11px] text-foreground hover:border-primary/60">
+          className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[12px] text-foreground hover:border-primary/60">
           <Video className="h-3 w-3" /> Ouvrir YouTube Studio <ExternalLink className="h-2.5 w-2.5" />
         </a>
         <a href="https://www.instagram.com/" target="_blank" rel="noreferrer noopener"
-          className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[11px] text-foreground hover:border-primary/60">
+          className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[12px] text-foreground hover:border-primary/60">
           <Camera className="h-3 w-3" /> Ouvrir Instagram <ExternalLink className="h-2.5 w-2.5" />
         </a>
         <a href="https://www.tiktok.com/upload" target="_blank" rel="noreferrer noopener"
-          className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[11px] text-foreground hover:border-primary/60">
+          className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[12px] text-foreground hover:border-primary/60">
           <ExternalLink className="h-3 w-3" /> Ouvrir TikTok
         </a>
       </div>
 
       {/* URL input */}
       <div className="space-y-1.5">
-        <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        <Label className="text-[12px] uppercase tracking-wide text-muted-foreground">
           URL du post publié
         </Label>
         <div className="flex gap-1.5">
@@ -179,13 +179,13 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
             placeholder="https://www.instagram.com/p/…  ou  https://youtu.be/…"
             className="h-8 text-xs"
           />
-          <Button size="sm" className="h-8 text-[11px]" onClick={handleSubmitUrl}>
+          <Button size="sm" className="h-8 text-[12px]" onClick={handleSubmitUrl}>
             <Link2 className="mr-1 h-3 w-3" /> Enregistrer
           </Button>
         </div>
         {!isPublished && (
           <Button
-            size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground"
+            size="sm" variant="ghost" className="h-7 text-[12px] text-muted-foreground"
             onClick={handleMarkPublished}>
             <CheckCircle2 className="mr-1 h-3 w-3" /> Marquer comme publié (sans URL)
           </Button>
@@ -193,7 +193,7 @@ export default function ManualPublishPanel({ item, mediaUrl, onUpdate }: Props) 
       </div>
 
       {isPublished && (
-        <div className="flex flex-wrap items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2 text-[11px] text-emerald-200">
+        <div className="flex flex-wrap items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2 text-[12px] text-emerald-200">
           <CheckCircle2 className="h-3.5 w-3.5" />
           <span className="font-medium">Publié manuellement</span>
           {detectedPlatform && (

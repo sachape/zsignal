@@ -238,7 +238,7 @@ export function CameraPlacementEditor({ onSaved, onClose }: Props) {
         </div>
         <div className="flex items-center gap-2">
           {frame?.platform_login && (
-            <Badge variant="outline" className="text-[10px] text-muted-foreground">
+            <Badge variant="outline" className="text-[12px] text-muted-foreground">
               @{frame.platform_login}
             </Badge>
           )}
@@ -306,7 +306,7 @@ export function CameraPlacementEditor({ onSaved, onClose }: Props) {
             />
           )}
 
-          <div className="absolute -top-6 left-0 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+          <div className="absolute -top-6 left-0 rounded bg-primary px-1.5 py-0.5 text-[12px] font-medium text-primary-foreground">
             Caméra · {Math.round(crop.width)}×{Math.round(crop.height)}
           </div>
 

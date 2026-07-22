@@ -73,7 +73,7 @@ const LastVsAverageCard = ({ current }: Props) => {
             <Scale className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
               Dernier live vs base récente
             </p>
             <p className="mt-1 text-sm font-medium text-foreground">

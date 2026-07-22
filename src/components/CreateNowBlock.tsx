@@ -11,7 +11,7 @@ const CreateNowBlock = () => {
     <section className="mb-6 overflow-hidden rounded-2xl border border-border bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.10),transparent_55%)] bg-card/50 p-5">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
+          <p className="text-[12px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
             Créer maintenant
           </p>
           <h2 className="mt-1 text-base font-semibold text-foreground">

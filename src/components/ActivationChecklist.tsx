@@ -183,22 +183,22 @@ const ActivationChecklist = ({ userId, twitchConnected, hasReport }: Props) => {
                       {step.title}
                     </p>
                     {step.done && (
-                      <span className="shrink-0 rounded-full border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-strong">
+                      <span className="shrink-0 rounded-full border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
                         Fait
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 text-[11px] leading-snug text-muted-foreground line-clamp-2">
+                  <p className="mt-1 text-[12px] leading-snug text-muted-foreground line-clamp-2">
                     {step.description}
                   </p>
                   {!step.done && step.available && (
-                    <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary-strong">
+                    <div className="mt-2 inline-flex items-center gap-1 text-[12px] font-medium text-primary-strong">
                       {step.cta}
                       <ArrowRight className="h-3 w-3" />
                     </div>
                   )}
                   {!step.done && !step.available && (
-                    <p className="mt-2 text-[11px] text-muted-foreground/70">
+                    <p className="mt-2 text-[12px] text-muted-foreground/70">
                       Connecte Twitch d'abord
                     </p>
                   )}

@@ -33,22 +33,22 @@ const PackCard = ({ pack, proBonus }: { pack: CreditPackage; proBonus: boolean }
           <p className="truncate text-sm font-semibold text-foreground">{pack.display_name}</p>
           {price && <p className="text-xs text-muted-foreground">{price}</p>}
           {proBonus && (
-            <p className="mt-0.5 text-[10px] font-medium text-primary-strong">
+            <p className="mt-0.5 text-[12px] font-medium text-primary-strong">
               +{bonus.toLocaleString("fr-FR")} bonus Pro = {total.toLocaleString("fr-FR")} StreamCoins
             </p>
           )}
         </div>
         {pack.badge && (
-          <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary-strong">
+          <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-medium text-primary-strong">
             {pack.badge}
           </span>
         )}
       </div>
       <div className="flex flex-wrap gap-1.5">
-        <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-[10px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-[12px] text-muted-foreground">
           <Palette className="h-2.5 w-2.5" /> ≈ {estVisuals} visuels
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-[10px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-[12px] text-muted-foreground">
           <Clapperboard className="h-2.5 w-2.5" /> ≈ {estClips} clips
         </span>
       </div>
@@ -130,7 +130,7 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
             <p className="mt-1 text-xs text-muted-foreground">{statusLabel}</p>
           </div>
           {isPro && (
-            <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
+            <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
               Pro +20%
             </span>
           )}
@@ -138,7 +138,7 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
 
         {/* Welcome bonus hint (only for fresh accounts: no purchases yet). */}
         {hasWelcomeBonus && (balance?.lifetime_purchased ?? 0) === 0 && (
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-[12px] text-muted-foreground">
             <Sparkles className="mr-1 inline h-3 w-3 text-primary-strong" />
             Bonus de bienvenue : 470 StreamCoins offerts pour tester Streamnco (1 clip + 1 visuel).
           </p>
@@ -177,7 +177,7 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
           {paygEnabled && hasActivePacks && (
             <>
               {proBonusEligible && (
-                <p className="mb-2 inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary-strong">
+                <p className="mb-2 inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-medium text-primary-strong">
                   <Sparkles className="h-3 w-3" />
                   Bonus Pro appliqué : +20%
                 </p>
@@ -191,14 +191,14 @@ export function CreationCapacityDialog({ open, onOpenChange }: Props) {
                 <div className="mt-3 flex items-start justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 p-3">
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-foreground">Tu génères régulièrement&nbsp;?</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="mt-0.5 text-[12px] text-muted-foreground">
                       Passe Pro et reçois +20% de StreamCoins sur chaque recharge.
                     </p>
                   </div>
                   <Link
                     to="/billing"
                     onClick={() => onOpenChange(false)}
-                    className="shrink-0 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary-strong transition-colors hover:bg-primary/15"
+                    className="shrink-0 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-[12px] font-medium text-primary-strong transition-colors hover:bg-primary/15"
                   >
                     Passer Pro
                   </Link>

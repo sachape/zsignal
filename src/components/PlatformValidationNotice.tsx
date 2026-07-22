@@ -29,7 +29,7 @@ export default function PlatformValidationNotice({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+          "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[12px] font-medium",
           "border-amber-400/30 bg-amber-400/5 text-amber-300",
           className,
         )}

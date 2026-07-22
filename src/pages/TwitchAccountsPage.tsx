@@ -182,7 +182,7 @@ const TwitchAccountsPage = () => {
         <Card className="mb-6">
           <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Plan actuel
               </p>
               <p className="mt-1 flex items-center gap-2 text-sm font-medium text-foreground">
@@ -192,7 +192,7 @@ const TwitchAccountsPage = () => {
               </p>
             </div>
             <div className="min-w-0 text-right">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Utilisation
               </p>
               <p className="mt-1 text-sm font-semibold tabular-nums text-foreground">
@@ -262,13 +262,13 @@ const TwitchAccountsPage = () => {
                               {display}
                             </p>
                             {isActive && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-strong">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-primary-strong">
                                 <Check className="h-3 w-3" /> Active
                               </span>
                             )}
                           </div>
                           <p className="truncate text-xs text-muted-foreground">@{login}</p>
-                          <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground/80">
+                          <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-muted-foreground/80">
                             <span>
                               Dernière analyse : <span className="text-foreground/90">{lastAnalysis ?? "—"}</span>
                             </span>

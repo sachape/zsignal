@@ -75,7 +75,7 @@ const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
             Choisir ma niche de référence
           </p>
           {selected && (
-            <Badge variant="outline" className="text-[10px] text-primary-strong">
+            <Badge variant="outline" className="text-[12px] text-primary-strong">
               Niche : {selected}
             </Badge>
           )}
@@ -108,7 +108,7 @@ const NicheChooser = ({ userId, defaultLanguage = "fr", onChange }: Props) => {
                 {count !== undefined && (
                   <span
                     className={cn(
-                      "ml-1.5 tabular-nums text-[10px]",
+                      "ml-1.5 tabular-nums text-[12px]",
                       active ? "opacity-75" : "opacity-50",
                     )}
                   >

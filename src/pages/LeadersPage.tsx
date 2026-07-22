@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Command,
   CommandEmpty,
@@ -326,7 +327,7 @@ const LeadersPage = () => {
               <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="min-w-0 sm:col-span-2">
 
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <label className="mb-1 block text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Catégorie Twitch
                   </label>
                   <Popover open={catOpen} onOpenChange={setCatOpen}>
@@ -407,7 +408,7 @@ const LeadersPage = () => {
 
                 <div className="min-w-0">
 
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <label className="mb-1 block text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Langue
                   </label>
                   <Select value={language} onValueChange={setLanguage}>
@@ -428,7 +429,7 @@ const LeadersPage = () => {
                 {tab === "live" && (
                   <div className="min-w-0">
 
-                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <label className="mb-1 block text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                       Tri
                     </label>
                     <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
@@ -478,7 +479,7 @@ const LeadersPage = () => {
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Catégorie
                   </p>
                   <p className="truncate text-sm font-semibold text-foreground">
@@ -488,18 +489,18 @@ const LeadersPage = () => {
                 {categoryStats && (
                   <div className="hidden items-center gap-5 sm:flex">
                     <div className="text-right">
-                      <p className="text-[10px] text-muted-foreground">Score médian</p>
+                      <p className="text-[12px] text-muted-foreground">Score médian</p>
                       <p className="text-sm font-bold text-foreground">{categoryStats.medianScore}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] text-muted-foreground">Viewers médian</p>
+                      <p className="text-[12px] text-muted-foreground">Viewers médian</p>
                       <p className="text-sm font-bold text-foreground">
                         {formatViewers(categoryStats.medianViewers)}
                       </p>
                     </div>
                     {categoryStats.dominantLang && language === "all" && (
                       <div className="text-right">
-                        <p className="text-[10px] text-muted-foreground">Langue top</p>
+                        <p className="text-[12px] text-muted-foreground">Langue top</p>
                         <p className="text-sm font-bold text-foreground">
                           {categoryStats.dominantLang.toUpperCase()}
                         </p>
@@ -568,7 +569,7 @@ const LeadersPage = () => {
                     {separatorLabel && (
                       <div className="flex items-center gap-3 py-1">
                         <div className="h-px flex-1 bg-border/40" />
-                        <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                        <span className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/70">
                           {separatorLabel}
                         </span>
                         <div className="h-px flex-1 bg-border/40" />
@@ -599,7 +600,7 @@ const LeadersPage = () => {
                         {c.profile_image_url && (
                           <AvatarImage src={c.profile_image_url} alt={c.login} />
                         )}
-                        <AvatarFallback className="rounded-full text-[10px]">
+                        <AvatarFallback className="rounded-full text-[12px]">
                           {c.login.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -610,12 +611,12 @@ const LeadersPage = () => {
                             {c.display_name}
                           </p>
                           {c.is_live && (
-                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-destructive">
                               <Radio className="h-2 w-2" /> Live
                             </span>
                           )}
                           {c.language && (
-                            <Badge variant="outline" className="shrink-0 text-[10px]">
+                            <Badge variant="outline" className="shrink-0 text-[12px]">
                               {c.language.toUpperCase()}
                             </Badge>
                           )}
@@ -633,7 +634,7 @@ const LeadersPage = () => {
                           <div className="mt-1.5">
                             <span
                               className={cn(
-                                "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                                "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[12px] font-medium",
                                 SIGNAL_TONE_CLASS[signal.tone],
                               )}
                             >
@@ -645,7 +646,7 @@ const LeadersPage = () => {
                         {/* Stats — mobile */}
                         <div className="mt-2.5 flex items-center gap-2 sm:hidden">
                           <div>
-                            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
+                            <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
                             <div className="flex items-center gap-1">
                               <Eye className="h-3 w-3 text-muted-foreground/40" />
                               <span className="text-sm font-semibold tabular-nums text-foreground">
@@ -655,7 +656,7 @@ const LeadersPage = () => {
                           </div>
                           <div className="h-7 w-px bg-border/40" />
                           <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
-                            <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
+                            <span className="text-[12px] font-semibold uppercase tracking-wider opacity-50">score live</span>
                             <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
                           </div>
                         </div>
@@ -664,7 +665,7 @@ const LeadersPage = () => {
                       {/* Stats — desktop */}
                       <div className="hidden shrink-0 items-center gap-2 sm:flex sm:gap-3">
                         <div className="text-right">
-                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
+                          <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">viewers</p>
                           <div className="flex items-center justify-end gap-1">
                             <Eye className="h-3 w-3 text-muted-foreground/40" />
                             <span className="text-sm font-semibold tabular-nums text-foreground">
@@ -674,7 +675,7 @@ const LeadersPage = () => {
                         </div>
                         <div className="h-7 w-px bg-border/40" />
                         <div className={cn("flex min-w-[2.75rem] flex-col items-center justify-center rounded-lg border px-2 py-1.5", tier.surfaceClass)}>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">score live</span>
+                          <span className="text-[12px] font-semibold uppercase tracking-wider opacity-50">score live</span>
                           <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>{c.stream_score}</span>
                         </div>
                       </div>
@@ -734,14 +735,14 @@ const LeadersPage = () => {
                     )}
                   </Button>
                 )}
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[12px] text-muted-foreground">
                   {rows.length} chaîne{rows.length > 1 ? "s" : ""} chargée{rows.length > 1 ? "s" : ""}
                   {rows.length >= MAX_ROWS && " · limite V1 atteinte"}
                 </p>
               </div>
             )}
 
-            <p className="mt-6 text-[11px] text-muted-foreground">
+            <p className="mt-6 text-[12px] text-muted-foreground">
               Source : Twitch /streams (snapshot live). Score calculé sur l'audience, le statut broadcaster et la portée en direct.
             </p>
 
@@ -756,13 +757,13 @@ const LeadersPage = () => {
                       Compare ta chaîne avec un concurrent
                     </p>
                     <div className="flex gap-2">
-                      <input
+                      <Input
                         ref={h2hInputRef}
                         value={h2hInput}
                         onChange={(e) => setH2hInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && runH2H()}
                         placeholder="Pseudo Twitch du concurrent…"
-                        className="h-9 flex-1 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        className="h-9 flex-1"
                       />
                       <Button size="sm" onClick={runH2H} disabled={h2hLoading} className="gap-1.5 px-4">
                         {h2hLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
@@ -812,11 +813,11 @@ const LeadersPage = () => {
                         ].map(({ name, score, tier, isMe }) => (
                           <Card key={name} className={cn("text-center", isMe && "border-primary/30 bg-primary/5")}>
                             <CardContent className="p-4">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                                 {isMe ? "Toi" : "Concurrent"}
                               </p>
                               <p className="mt-1 truncate text-sm font-semibold text-foreground">{name}</p>
-                              <p className={cn("mt-1 text-3xl font-bold tabular-nums", tier.textClass)}>{score}</p>
+                              <p className={cn("mt-1 text-[32px] font-bold tabular-nums", tier.textClass)}>{score}</p>
                               <p className="text-xs text-muted-foreground">/ 100</p>
                             </CardContent>
                           </Card>
@@ -873,7 +874,7 @@ const LeadersPage = () => {
                           {gaps.length > 0 && (
                             <Card className="border-destructive/20 bg-destructive/5">
                               <CardContent className="p-4">
-                                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+                                <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-destructive">
                                   Où {theirName} te devance
                                 </p>
                                 <ul className="space-y-1">
@@ -892,7 +893,7 @@ const LeadersPage = () => {
                           {advantages.length > 0 && (
                             <Card className="border-emerald-500/20 bg-emerald-500/5">
                               <CardContent className="p-4">
-                                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+                                <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-emerald-400">
                                   Où tu les devances
                                 </p>
                                 <ul className="space-y-1">

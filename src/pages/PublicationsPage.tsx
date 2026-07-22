@@ -121,7 +121,7 @@ const ManualSection = ({ items }: ManualSectionProps) => {
       <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         <CheckCircle2 className="h-3.5 w-3.5" />
         Publications manuelles
-        <span className="rounded-full bg-muted/60 px-1.5 py-0.5 text-[10px]">{items.length}</span>
+        <span className="rounded-full bg-muted/60 px-1.5 py-0.5 text-[12px]">{items.length}</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {items.map((i) => {
@@ -140,14 +140,14 @@ const ManualSection = ({ items }: ManualSectionProps) => {
                   </div>
                 )}
                 <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">
-                  <Badge variant="outline" className="text-[10px] border-emerald-500/30 bg-emerald-500/10 text-emerald-200">
+                  <Badge variant="outline" className="text-[12px] border-emerald-500/30 bg-emerald-500/10 text-emerald-200">
                     Publié manuellement
                   </Badge>
-                  <Badge variant="outline" className="text-[10px] bg-background/80">
+                  <Badge variant="outline" className="text-[12px] bg-background/80">
                     {platformLabel}
                   </Badge>
                   {i.format && (
-                    <Badge variant="outline" className="text-[10px] bg-background/80">
+                    <Badge variant="outline" className="text-[12px] bg-background/80">
                       {i.format}
                     </Badge>
                   )}
@@ -157,7 +157,7 @@ const ManualSection = ({ items }: ManualSectionProps) => {
                 <div className="line-clamp-2 text-xs font-medium text-foreground">
                   {i.title}
                 </div>
-                <div className="text-[10px] text-muted-foreground">
+                <div className="text-[12px] text-muted-foreground">
                   {i.published_at
                     ? `Publié le ${formatDate(new Date(i.published_at), "dd MMM yyyy", { locale: fr })}`
                     : "Date inconnue"}
@@ -167,7 +167,7 @@ const ManualSection = ({ items }: ManualSectionProps) => {
                     href={i.published_url}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex items-center gap-1 text-[11px] text-primary-strong hover:underline"
+                    className="inline-flex items-center gap-1 text-[12px] text-primary-strong hover:underline"
                   >
                     Ouvrir le post <ExternalLink className="h-3 w-3" />
                   </a>
@@ -194,7 +194,7 @@ const Section = ({ title, icon: Icon, items }: SectionProps) => {
       <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         <Icon className="h-3.5 w-3.5" />
         {title}
-        <span className="rounded-full bg-muted/60 px-1.5 py-0.5 text-[10px]">{items.length}</span>
+        <span className="rounded-full bg-muted/60 px-1.5 py-0.5 text-[12px]">{items.length}</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {items.map((p) => (
@@ -216,10 +216,10 @@ const Section = ({ title, icon: Icon, items }: SectionProps) => {
                 </div>
               )}
               <div className="absolute top-2 left-2 flex gap-1.5">
-                <Badge variant="outline" className={cn("text-[10px]", STATUS_META[p.status].cls)}>
+                <Badge variant="outline" className={cn("text-[12px]", STATUS_META[p.status].cls)}>
                   {STATUS_META[p.status].label}
                 </Badge>
-                <Badge variant="outline" className="text-[10px] bg-background/80">
+                <Badge variant="outline" className="text-[12px] bg-background/80">
                   {FORMAT_LABEL[p.format] ?? p.format}
                 </Badge>
               </div>
@@ -228,7 +228,7 @@ const Section = ({ title, icon: Icon, items }: SectionProps) => {
               <div className="line-clamp-2 text-xs text-foreground/90">
                 {p.caption || <span className="text-muted-foreground italic">Sans caption</span>}
               </div>
-              <div className="mt-1.5 text-[10px] text-muted-foreground">
+              <div className="mt-1.5 text-[12px] text-muted-foreground">
                 {p.scheduled_at
                   ? `Planifié le ${formatDate(new Date(p.scheduled_at), "dd MMM yyyy HH:mm", { locale: fr })}`
                   : formatDate(new Date(p.updated_at), "dd MMM yyyy", { locale: fr })}

@@ -599,7 +599,7 @@ const CompetitorsPage = () => {
             return (
               <section key={section.key} className="mb-8">
                 <div className="mb-3 flex items-center gap-2">
-                  <Badge variant="outline" className="text-[10px] text-primary-strong">
+                  <Badge variant="outline" className="text-[12px] text-primary-strong">
                     {section.badge}
                   </Badge>
                   <SectionHeader
@@ -644,7 +644,7 @@ const CompetitorsPage = () => {
         })() : mode === "personal" ? (
           <section className="mb-8">
             <div className="mb-3 flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px] text-primary-strong">
+              <Badge variant="outline" className="text-[12px] text-primary-strong">
                 Benchmark
               </Badge>
               <SectionHeader
@@ -669,7 +669,7 @@ const CompetitorsPage = () => {
         {(nicheLeaders.length > 0 || nicheLeadersLoading || (mode === "exploration" && !!category)) && (
           <section className="mb-8">
             <div className="mb-3 flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px] text-primary-strong">
+              <Badge variant="outline" className="text-[12px] text-primary-strong">
                 Leader de niche
               </Badge>
               <SectionHeader
@@ -724,7 +724,7 @@ const CompetitorsPage = () => {
                           <span className="w-5 shrink-0 text-right text-xs font-semibold text-muted-foreground">
                             {i + 1}
                           </span>
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted text-[10px] font-semibold">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/60 bg-muted text-[12px] font-semibold">
                             {c.profile_image_url ? (
                               <img
                                 src={c.profile_image_url}
@@ -741,7 +741,7 @@ const CompetitorsPage = () => {
                                 {c.display_name}
                               </p>
                               {c.is_live && (
-                                <span className="shrink-0 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+                                <span className="shrink-0 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-destructive">
                                   Live
                                 </span>
                               )}
@@ -759,7 +759,7 @@ const CompetitorsPage = () => {
                             <p className="text-sm font-bold tabular-nums text-primary-strong">
                               {c.stream_score}
                             </p>
-                            <p className="text-[10px] text-muted-foreground">score</p>
+                            <p className="text-[12px] text-muted-foreground">score</p>
                           </div>
                         </Link>
                         {locked && (
@@ -770,7 +770,7 @@ const CompetitorsPage = () => {
                                 Profil Pro
                               </span>
                             </div>
-                            <Button asChild size="sm" variant="outline" className="h-7 text-[10px]">
+                            <Button asChild size="sm" variant="outline" className="h-7 text-[12px]">
                               <Link to="/billing">Débloquer</Link>
                             </Button>
                           </div>
@@ -780,7 +780,7 @@ const CompetitorsPage = () => {
                   })}
                 </div>
                 {!canAccessProFeatures && nicheLeaders.length > 3 && (
-                  <p className="mt-3 text-center text-[10px] text-muted-foreground">
+                  <p className="mt-3 text-center text-[12px] text-muted-foreground">
                     {nicheLeaders.length - 3} leader{nicheLeaders.length - 3 > 1 ? "s" : ""} supplémentaire{nicheLeaders.length - 3 > 1 ? "s" : ""} disponible{nicheLeaders.length - 3 > 1 ? "s" : ""} en Pro
                   </p>
                 )}

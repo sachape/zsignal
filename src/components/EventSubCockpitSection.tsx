@@ -227,7 +227,7 @@ const EventSubCockpitSection = ({ broadcasterUserId }: Props) => {
                 Activité Twitch
               </h3>
               {data.unreadAlerts > 0 && (
-                <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                <Badge variant="secondary" className="h-5 px-1.5 text-[12px]">
                   {data.unreadAlerts} nouveau{data.unreadAlerts > 1 ? "x" : ""}
                 </Badge>
               )}

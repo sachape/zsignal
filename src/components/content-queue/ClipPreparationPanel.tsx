@@ -341,13 +341,13 @@ export const ClipPreparationPanel = ({
             <Wand2 className="h-4 w-4 text-primary-strong" />
             <div>
               <p className="text-sm font-semibold text-foreground">Configurer ton clip</p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 Source détectée. Ajuste la caméra et les sous-titres, puis lance la génération.
               </p>
             </div>
           </div>
           {sourceLabel && (
-            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary-strong">
+            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-medium text-primary-strong">
               {sourceLabel}
             </span>
           )}
@@ -363,7 +363,7 @@ export const ClipPreparationPanel = ({
         )}
 
         {error && (
-          <div className="mb-4 rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-[11px] text-destructive">
+          <div className="mb-4 rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-[12px] text-destructive">
             <AlertCircle className="mr-1.5 inline h-3.5 w-3.5" />
             {reasonLabel(error)}
           </div>
@@ -376,7 +376,7 @@ export const ClipPreparationPanel = ({
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs font-semibold text-foreground">Source : {sourceLabel ?? "vidéo"}</p>
                 {sourceLabel && variant === "dialog" && (
-                  <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary-strong">
+                  <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-medium text-primary-strong">
                     {sourceLabel}
                   </span>
                 )}
@@ -401,22 +401,22 @@ export const ClipPreparationPanel = ({
                       placeholder="https://www.twitch.tv/…/clip/…"
                     />
                   ) : directUrl ? (
-                    <p className="break-all rounded-md border border-border/60 bg-background/40 px-2 py-1.5 text-[11px] text-muted-foreground">
+                    <p className="break-all rounded-md border border-border/60 bg-background/40 px-2 py-1.5 text-[12px] text-muted-foreground">
                       {directUrl}
                     </p>
                   ) : (
-                    <p className="text-[11px] italic text-muted-foreground">
+                    <p className="text-[12px] italic text-muted-foreground">
                       Source introuvable. Colle à nouveau le lien Twitch.
                     </p>
                   )}
                   <div className="flex flex-wrap gap-2">
-                    <Button type="button" size="sm" variant="outline" className="h-7 text-[11px]"
+                    <Button type="button" size="sm" variant="outline" className="h-7 text-[12px]"
                       onClick={() => setEditingUrl((v) => !v)} disabled={busy}>
                       <Pencil className="mr-1 h-3 w-3" />
                       {editingUrl ? "Terminer" : "Modifier le lien"}
                     </Button>
                     <Button type="button" size="sm" variant="ghost"
-                      className="h-7 text-[11px] text-muted-foreground"
+                      className="h-7 text-[12px] text-muted-foreground"
                       onClick={() => { setMode("upload"); setEditingUrl(false); }}
                       disabled={busy}>
                       <FileVideo className="mr-1 h-3 w-3" />
@@ -430,13 +430,13 @@ export const ClipPreparationPanel = ({
                   <Input type="file" accept={ACCEPT} disabled={busy}
                     onChange={(e) => handleFile(e.target.files?.[0] ?? null)} />
                   {file && (
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-[12px] text-muted-foreground">
                       {file.name} · {(file.size / 1024 / 1024).toFixed(1)} Mo
                     </p>
                   )}
                   {item.source_video_url && (
                     <Button type="button" size="sm" variant="ghost"
-                      className="h-7 text-[11px] text-muted-foreground"
+                      className="h-7 text-[12px] text-muted-foreground"
                       onClick={() => { setMode("direct_url"); }} disabled={busy}>
                       <LinkIcon className="mr-1 h-3 w-3" />
                       Revenir au lien Twitch
@@ -446,7 +446,7 @@ export const ClipPreparationPanel = ({
               )}
 
               {validTimestamps && twitchInfo.kind !== "twitch_clip" && (
-                <p className="mt-3 border-t border-border/60 pt-2 text-[11px] text-muted-foreground">
+                <p className="mt-3 border-t border-border/60 pt-2 text-[12px] text-muted-foreground">
                   Moment : <span className="font-medium text-foreground">{start}s → {end}s</span>
                   <span className="ml-1 text-muted-foreground/70">· {Number(end) - Number(start)}s</span>
                 </p>
@@ -463,7 +463,7 @@ export const ClipPreparationPanel = ({
                     <p className="text-xs font-semibold text-foreground">
                       Caméra mémorisée pour @{detectedLogin}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="mt-0.5 text-[12px] text-muted-foreground">
                       Cette position sera utilisée automatiquement.
                     </p>
                   </div>
@@ -503,7 +503,7 @@ export const ClipPreparationPanel = ({
                       <Camera className="mt-0.5 h-3.5 w-3.5 text-primary-strong" />
                       <div>
                         <p className="text-xs font-medium text-foreground">Caméra</p>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        <p className="mt-0.5 text-[12px] text-muted-foreground">
                           {manualCrop
                             ? "Zone caméra sélectionnée pour ce clip."
                             : presetNeedsReplace
@@ -513,7 +513,7 @@ export const ClipPreparationPanel = ({
                       </div>
                     </div>
                     {manualCrop && (
-                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary-strong">
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[12px] font-medium text-primary-strong">
                         <Check className="h-3 w-3" /> Active
                       </span>
                     )}
@@ -547,7 +547,7 @@ export const ClipPreparationPanel = ({
 
             {busy && phase === "uploading" && (
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <div className="flex items-center justify-between text-[12px] text-muted-foreground">
                   <span>Upload de la source vers Streamnco…</span>
                   <span className="tabular-nums">{progress}%</span>
                 </div>
@@ -557,7 +557,7 @@ export const ClipPreparationPanel = ({
               </div>
             )}
             {busy && phase === "creating" && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 <Loader2 className="mr-1.5 inline h-3 w-3 animate-spin" />
                 Création du job…
               </p>
@@ -572,7 +572,7 @@ export const ClipPreparationPanel = ({
                   <Captions className="mt-0.5 h-3.5 w-3.5 text-primary-strong" />
                   <div>
                     <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="mt-0.5 text-[12px] text-muted-foreground">
                       Ajoute les sous-titres quand tu parles. Incrustés dans la vidéo.
                     </p>
                   </div>
@@ -593,7 +593,7 @@ export const ClipPreparationPanel = ({
                     onChange={setCaptionsStyle}
                     disabled={busy}
                   />
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[12px] text-muted-foreground">
                     Aperçu animé du rendu réel dans ton clip.
                   </p>
                 </div>
@@ -601,7 +601,7 @@ export const ClipPreparationPanel = ({
             </div>
 
             {/* Generation summary */}
-            <div className="rounded-md border border-border bg-card/60 p-3 text-[11px] text-muted-foreground">
+            <div className="rounded-md border border-border bg-card/60 p-3 text-[12px] text-muted-foreground">
               <p className="mb-1 font-semibold text-foreground">Récap génération</p>
               <ul className="space-y-0.5">
                 <li>· Format : 9:16 vertical (TikTok / Reels / Shorts)</li>

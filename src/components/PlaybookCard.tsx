@@ -43,7 +43,7 @@ const PlaybookCard = ({ playbook, highlighted = false }: Props) => {
             {playbook.summary}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[10px] text-muted-foreground">
+        <div className="flex shrink-0 items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[12px] text-muted-foreground">
           <Clock className="h-2.5 w-2.5" /> {playbook.timeMinutes} min
         </div>
       </div>
@@ -57,7 +57,7 @@ const PlaybookCard = ({ playbook, highlighted = false }: Props) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <ImpactDot impact={playbook.impact} />
-          <span className="text-[10px] text-muted-foreground/60">
+          <span className="text-[12px] text-muted-foreground/60">
             {playbook.impact === "high" ? "Fort impact" : "Impact moyen"}
           </span>
         </div>

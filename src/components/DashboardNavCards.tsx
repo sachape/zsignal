@@ -14,7 +14,7 @@ const NAV = [
 
 const DashboardNavCards = () => (
   <section className="mb-6">
-    <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
+    <p className="mb-3 text-[12px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
       Que veux-tu faire ?
     </p>
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -29,7 +29,7 @@ const DashboardNavCards = () => (
           }`}
         >
           {featured && (
-            <span className="absolute right-2.5 top-2.5 rounded-full bg-primary/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-primary-strong">
+            <span className="absolute right-2.5 top-2.5 rounded-full bg-primary/15 px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-primary-strong">
               Recommandé
             </span>
           )}
@@ -37,7 +37,7 @@ const DashboardNavCards = () => (
             <Icon className="h-4 w-4" />
           </div>
           <p className="mt-3 text-sm font-semibold leading-tight text-foreground">{title}</p>
-          <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{desc}</p>
+          <p className="mt-1 text-[12px] leading-snug text-muted-foreground">{desc}</p>
           {!featured && (
             <ArrowUpRight className="absolute right-3 top-3 h-3.5 w-3.5 text-muted-foreground/30 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary-strong" />
           )}

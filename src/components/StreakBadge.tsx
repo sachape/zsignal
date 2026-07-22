@@ -15,7 +15,7 @@ const StreakBadge = ({ streak, variant = "compact" }: Props) => {
   if (variant === "compact") {
     if (atRisk) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-[10px] font-semibold text-warning">
+        <span className="inline-flex items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-[12px] font-semibold text-warning">
           <AlertTriangle className="h-2.5 w-2.5" />
           Série en danger
         </span>
@@ -24,7 +24,7 @@ const StreakBadge = ({ streak, variant = "compact" }: Props) => {
 
     if (streakBroken) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full border border-border/40 bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+        <span className="inline-flex items-center gap-1 rounded-full border border-border/40 bg-muted px-2 py-0.5 text-[12px] font-semibold text-muted-foreground">
           <Flame className="h-2.5 w-2.5" />
           Reprends ta série
         </span>
@@ -33,7 +33,7 @@ const StreakBadge = ({ streak, variant = "compact" }: Props) => {
 
     if (currentStreak >= 1) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary-strong">
+        <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold text-primary-strong">
           <Flame className="h-2.5 w-2.5" />
           {currentStreak} sem.
         </span>
@@ -50,8 +50,8 @@ const StreakBadge = ({ streak, variant = "compact" }: Props) => {
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-warning" />
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-warning">Série en danger</p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">
+            <p className="text-[12px] font-semibold text-warning">Série en danger</p>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
               {currentStreak} sem. — stream avant dimanche pour continuer.
             </p>
           </div>
@@ -66,8 +66,8 @@ const StreakBadge = ({ streak, variant = "compact" }: Props) => {
         <div className="flex items-center gap-2">
           <Flame className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-muted-foreground">Série interrompue</p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">
+            <p className="text-[12px] font-semibold text-muted-foreground">Série interrompue</p>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
               Meilleure : {longestStreak} sem. — reprends maintenant.
             </p>
           </div>
@@ -83,10 +83,10 @@ const StreakBadge = ({ streak, variant = "compact" }: Props) => {
           <div className="flex items-center gap-2">
             <Flame className="h-3.5 w-3.5 shrink-0 text-primary-strong" />
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-primary-strong">
+              <p className="text-[12px] font-semibold text-primary-strong">
                 {currentStreak} semaine{currentStreak > 1 ? "s" : ""} de suite
               </p>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">
+              <p className="mt-0.5 text-[12px] text-muted-foreground">
                 {thisWeekCount > 0
                   ? `${thisWeekCount} live${thisWeekCount > 1 ? "s" : ""} cette semaine ✓`
                   : "Encore 0 live cette semaine"}
@@ -94,7 +94,7 @@ const StreakBadge = ({ streak, variant = "compact" }: Props) => {
             </div>
           </div>
           {longestStreak > currentStreak && (
-            <span className="shrink-0 text-[10px] text-muted-foreground/60">
+            <span className="shrink-0 text-[12px] text-muted-foreground/60">
               Record&nbsp;{longestStreak}
             </span>
           )}

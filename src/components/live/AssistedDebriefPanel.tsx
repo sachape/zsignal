@@ -182,7 +182,7 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
                 Débrief assisté — prépare tes contenus
               </p>
               {signalLimited && (
-                <Badge variant="muted" className="text-[10px]">
+                <Badge variant="muted" className="text-[12px]">
                   Analyse limitée
                 </Badge>
               )}
@@ -279,10 +279,10 @@ const AssistedDebriefPanel = ({ session, signalLimited }: Props) => {
                   className="rounded-lg border border-border/60 bg-card/60 p-3"
                 >
                   <div className="flex items-center gap-2">
-                    <Badge variant="muted" className="text-[10px]">
+                    <Badge variant="muted" className="text-[12px]">
                       {PLATFORM_LABEL[p.platform]}
                     </Badge>
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+                    <span className="text-[12px] uppercase tracking-wider text-muted-foreground/70">
                       {p.reason}
                     </span>
                   </div>

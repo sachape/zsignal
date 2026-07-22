@@ -223,7 +223,7 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                       {step.id === "score" && done ? "Premier StreamScore calculé" : step.label}
                     </p>
                     {done && (
-                      <span className="ml-auto shrink-0 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
+                      <span className="ml-auto shrink-0 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
                         Fait
                       </span>
                     )}

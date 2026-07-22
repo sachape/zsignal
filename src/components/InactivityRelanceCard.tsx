@@ -62,11 +62,11 @@ const InactivityRelanceCard = ({ current }: Props) => {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
               Reprise
             </p>
             {showDays && (
-              <Badge variant="muted" className="h-5 px-1.5 text-[10px]">
+              <Badge variant="muted" className="h-5 px-1.5 text-[12px]">
                 {state.daysSinceLast} j
               </Badge>
             )}

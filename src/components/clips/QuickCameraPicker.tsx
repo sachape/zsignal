@@ -154,7 +154,7 @@ export function QuickCameraPicker({ onReady }: Props) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-xs font-semibold text-foreground">Où est ta caméra dans la vidéo ?</p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[12px] text-muted-foreground">
             Streamnco placera cette zone en haut du clip et le gameplay en bas. Si tu ne sélectionnes rien, le rendu sera gameplay seul.
           </p>
         </div>
@@ -173,7 +173,7 @@ export function QuickCameraPicker({ onReady }: Props) {
               disabled={saving}
               onClick={() => applyChoice({ kind: "camera", corner: c.id })}
               className={cn(
-                "flex flex-col items-center gap-1 rounded-md border p-2 text-[11px] transition",
+                "flex flex-col items-center gap-1 rounded-md border p-2 text-[12px] transition",
                 active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card hover:border-border/80",
               )}
             >
@@ -189,7 +189,7 @@ export function QuickCameraPicker({ onReady }: Props) {
         disabled={saving}
         onClick={() => applyChoice({ kind: "gameplay_only" })}
         className={cn(
-          "flex w-full items-center justify-center gap-1.5 rounded-md border p-2 text-[11px] transition",
+          "flex w-full items-center justify-center gap-1.5 rounded-md border p-2 text-[12px] transition",
           choice?.kind === "gameplay_only"
             ? "border-primary bg-primary/10 text-foreground"
             : "border-border bg-card hover:border-border/80",

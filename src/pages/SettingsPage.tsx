@@ -63,7 +63,7 @@ const SettingsPage = () => {
                   {user?.email?.[0]?.toUpperCase() ?? "?"}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Adresse e-mail
                   </p>
                   <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
@@ -75,7 +75,7 @@ const SettingsPage = () => {
 
               <div className="flex items-center justify-between gap-4 px-5 py-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Mot de passe
                   </p>
                   <p className="text-sm text-foreground">••••••••••••</p>
@@ -87,7 +87,7 @@ const SettingsPage = () => {
 
               <div className="flex items-center justify-between gap-4 px-5 py-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Plan actuel
                   </p>
                   <p className="mt-0.5 flex items-center gap-2 text-sm">
@@ -134,7 +134,7 @@ const SettingsPage = () => {
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary-strong">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[12px] font-semibold text-primary-strong">
                     Connecté
                   </span>
                 </div>

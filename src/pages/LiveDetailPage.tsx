@@ -23,7 +23,7 @@ import AutoClipCandidatesPanel from "@/components/live/AutoClipCandidatesPanel";
 
 const SubScore = ({ label, value }: { label: string; value: number | null }) => (
   <div className="rounded-lg border border-border/60 bg-card/40 p-3">
-    <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+    <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
       {label}
     </p>
     <p className="mt-1 text-2xl font-semibold text-foreground tabular-nums">
@@ -59,7 +59,7 @@ const DeltaPill = ({
     <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/40 px-3 py-2">
       <Icon className={`h-4 w-4 ${tone}`} />
       <div className="min-w-0">
-        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+        <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
           {label}
         </p>
         <p className={`text-sm font-semibold tabular-nums ${tone}`}>
@@ -197,7 +197,7 @@ const LiveDetailPage = () => {
                 </span>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
                   Score du live
                 </p>
                 <p className="mt-0.5 text-sm font-semibold text-foreground">
@@ -243,7 +243,7 @@ const LiveDetailPage = () => {
             {debrief?.summary && (
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
                     Résumé du live
                   </p>
                   <p className="mt-1 text-sm text-foreground">{debrief.summary}</p>
@@ -253,7 +253,7 @@ const LiveDetailPage = () => {
             {(debrief?.main_strength ?? debrief?.strength) && (
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-success">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-success">
                     Ton point fort sur ce live
                   </p>
                   <p className="mt-1 text-sm text-foreground">{debrief.main_strength ?? debrief.strength}</p>
@@ -263,7 +263,7 @@ const LiveDetailPage = () => {
             {(debrief?.main_weakness ?? debrief?.weakness) && (
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-warning">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-warning">
                     Ton principal point faible
                   </p>
                   <p className="mt-1 text-sm text-foreground">{debrief.main_weakness ?? debrief.weakness}</p>
@@ -273,7 +273,7 @@ const LiveDetailPage = () => {
             {debrief?.priority_action && (
               <Card className="border-primary/30 bg-primary/[0.04]">
                 <CardContent className="p-4">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-primary-strong">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-primary-strong">
                     Action prioritaire pour le prochain stream
                   </p>
                   <p className="mt-1 text-sm font-medium text-foreground">
@@ -285,7 +285,7 @@ const LiveDetailPage = () => {
             {debrief?.next_live_focus && (
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
                     Focus pour ton prochain live
                   </p>
                   <p className="mt-1 text-sm text-foreground">{debrief.next_live_focus}</p>
@@ -293,7 +293,7 @@ const LiveDetailPage = () => {
               </Card>
             )}
             {(debrief?.confidence || debrief?.signal_quality) && (
-              <p className="text-[11px] text-muted-foreground/80">
+              <p className="text-[12px] text-muted-foreground/80">
                 {debrief?.confidence === "high"
                   ? "Analyse fiable, basée sur plusieurs signaux."
                   : debrief?.confidence === "medium"
@@ -307,7 +307,7 @@ const LiveDetailPage = () => {
         {cmp?.has_previous && (
           <Card>
             <CardContent className="p-4">
-              <p className="mb-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+              <p className="mb-3 text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
                 Comparaison avec le live précédent
               </p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">

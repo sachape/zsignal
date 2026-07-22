@@ -91,7 +91,7 @@ const AnimatedScoreRing = ({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-[2.75rem] font-bold leading-none tabular-nums tracking-tight text-foreground">{score}</span>
-        <span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">StreamScore</span>
+        <span className="mt-1 text-[12px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">StreamScore</span>
       </div>
     </div>
   );
@@ -338,7 +338,7 @@ const AnalysePage = () => {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                     Résumé d'analyse
                   </p>
                   <h1 className="font-display mt-0.5 truncate bg-gradient-to-b from-foreground to-foreground/80 bg-clip-text text-2xl font-bold tracking-tight text-transparent md:text-[28px]">
@@ -349,22 +349,22 @@ const AnalysePage = () => {
                       @{report.identity?.platform_login ?? summary.channel_name}
                     </span>
                     {summary.category && summary.category !== "unknown" && (
-                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
+                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
                         {summary.category}
                       </span>
                     )}
                     {summary.broadcaster_type === "affiliate" && (
-                      <span className="rounded-full border border-border bg-card/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                      <span className="rounded-full border border-border bg-card/60 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                         Affilié
                       </span>
                     )}
                     {summary.broadcaster_type === "partner" && (
-                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
+                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-primary-strong">
                         Partenaire
                       </span>
                     )}
                     {summary.is_live && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-destructive">
                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
                         En live
                       </span>
@@ -403,14 +403,14 @@ const AnalysePage = () => {
                   >
                     <div className="flex items-center gap-1.5">
                       <Icon className="h-3 w-3 text-muted-foreground/50" />
-                      <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                      <p className="truncate text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/60">
                         {label}
                       </p>
                     </div>
-                    <p className="text-lg font-bold tabular-nums leading-tight text-foreground sm:text-xl">
+                    <p className="text-xl font-bold tabular-nums leading-tight text-foreground sm:text-xl">
                       {value}
                     </p>
-                    <p className="text-[10px] text-muted-foreground/50">{sub}</p>
+                    <p className="text-[12px] text-muted-foreground/50">{sub}</p>
                   </div>
                 ))}
               </div>
@@ -421,7 +421,7 @@ const AnalysePage = () => {
               <AnimatedScoreRing score={score.overall} strokeVar={theme.strokeVar} size={168} />
               <span
                 className={cn(
-                  "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider",
+                  "rounded-full border px-3 py-1 text-[12px] font-semibold uppercase tracking-wider",
                   theme.surfaceClass,
                   theme.textClass,
                 )}
@@ -506,7 +506,7 @@ const AnalysePage = () => {
                       {/* Expand hint */}
                       <div className="flex shrink-0 items-center gap-1">
                         {!isOpen && (
-                          <span className="text-[10px] text-muted-foreground/50 group-hover:text-muted-foreground/80 transition-colors hidden sm:inline">
+                          <span className="text-[12px] text-muted-foreground/50 group-hover:text-muted-foreground/80 transition-colors hidden sm:inline">
                             Détails
                           </span>
                         )}
@@ -521,7 +521,7 @@ const AnalysePage = () => {
                     {isOpen && (
                       <div className="mx-1 mb-2 grid gap-2 rounded-xl border border-border/40 bg-muted/10 p-3 sm:grid-cols-2">
                         <div>
-                          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          <p className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                             <TrendingDown className="h-3 w-3" /> Ce qui freine
                           </p>
                           {reasons.length > 0 ? (
@@ -535,7 +535,7 @@ const AnalysePage = () => {
                           )}
                         </div>
                         <div>
-                          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong/70 mb-1.5">
+                          <p className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong/70 mb-1.5">
                             <ArrowRight className="h-3 w-3" /> Pour progresser
                           </p>
                           {levers.length > 0 ? (
@@ -590,7 +590,7 @@ const AnalysePage = () => {
               {/* Header row: mode chip only — no technical signal chips. */}
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 {(isReconstruction || isExploration) && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
                     <Zap className="h-2.5 w-2.5" />
                     {isReconstruction ? "Mode structuration" : "Mode exploration"}
                   </span>
@@ -744,7 +744,7 @@ const AnalysePage = () => {
 
         {/* Recommendations */}
         <section className="mb-8" style={anim(400)}>
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Actions recommandées
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -78,7 +78,7 @@ const AccountMenu = () => {
             {avatarUrl && (
               <AvatarImage src={avatarUrl} alt={login} className="object-cover" />
             )}
-            <AvatarFallback className="rounded-full bg-muted text-[10px] font-semibold text-foreground">
+            <AvatarFallback className="rounded-full bg-muted text-[12px] font-semibold text-foreground">
               {(login || "?").slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -92,14 +92,14 @@ const AccountMenu = () => {
       <DropdownMenuContent align="end" sideOffset={8} className="w-64 p-1.5">
         {/* Counter header */}
         <div className="flex items-center justify-between gap-2 px-2 pb-1.5 pt-1">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+          <span className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/60">
             Mes chaînes
           </span>
-          <span className="rounded-full border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-foreground">
+          <span className="rounded-full border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[12px] font-semibold tabular-nums text-foreground">
             {accountCount}/{maxAccounts}
           </span>
         </div>
-        <div className="px-2 pb-1.5 text-[10px] text-muted-foreground/80">
+        <div className="px-2 pb-1.5 text-[12px] text-muted-foreground/80">
           {counterLabel}
         </div>
 
@@ -120,14 +120,14 @@ const AccountMenu = () => {
                 {acc.profile_image_url && (
                   <AvatarImage src={acc.profile_image_url} alt={accLogin} className="object-cover" />
                 )}
-                <AvatarFallback className="rounded-full bg-muted text-[8px] font-semibold">
+                <AvatarFallback className="rounded-full bg-muted text-[12px] font-semibold">
                   {accLogin.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <span className="flex-1 truncate font-medium">{accName}</span>
               {isActive && (
                 <>
-                  <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary-strong">
+                  <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-primary-strong">
                     Active
                   </span>
                   <Check className="h-3.5 w-3.5 shrink-0 text-primary-strong" />
@@ -161,7 +161,7 @@ const AccountMenu = () => {
           >
             <PlusCircle className="h-3.5 w-3.5 shrink-0 text-primary-strong" />
             <span className="flex-1">Passe à Growth pour connecter jusqu’à 3 chaînes</span>
-            <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary-strong">
+            <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[12px] font-semibold text-primary-strong">
               Growth
             </span>
           </DropdownMenuItem>
@@ -181,7 +181,7 @@ const AccountMenu = () => {
             <PlusCircle className="h-3.5 w-3.5 shrink-0" />
             <span className="flex-1">Ajouter une chaîne Twitch</span>
             {!isGrowth && (
-              <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary-strong">
+              <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[12px] font-semibold text-primary-strong">
                 Growth
               </span>
             )}

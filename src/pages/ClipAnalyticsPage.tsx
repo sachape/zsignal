@@ -132,8 +132,8 @@ const ClipAnalyticsPage = () => {
                       <Icon className="h-4 w-4 text-primary-strong" />
                     </div>
                     <div>
-                      <p className="text-lg font-bold tabular-nums text-foreground">{value}</p>
-                      <p className="text-[11px] text-muted-foreground">{label}</p>
+                      <p className="text-xl font-bold tabular-nums text-foreground">{value}</p>
+                      <p className="text-[12px] text-muted-foreground">{label}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -208,7 +208,7 @@ const ClipAnalyticsPage = () => {
                           href={clip.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="shrink-0 text-[11px] text-primary-strong opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
+                          className="shrink-0 text-[12px] text-primary-strong opacity-0 transition-opacity group-hover:opacity-100 hover:underline"
                         >
                           Voir
                         </a>
