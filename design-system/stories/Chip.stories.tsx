@@ -12,11 +12,6 @@ const meta: Meta<typeof Chip> = {
     ...common("children", "disabled", "onClick", "className"),
     active: prop("État sélectionné du filtre — câble `aria-pressed`. Un chip n'est pas un bouton : il bascule, il ne déclenche pas.", { control: "boolean", category: CAT.state, defaultValue: "false" }),
     children: { control: "text", description: "Libellé du filtre.", table: { category: "Content" } },
-    active: {
-      control: "boolean",
-      description: "État sélectionné (câble `aria-pressed`).",
-      table: { category: "State", defaultValue: { summary: "false" } },
-    },
   },
   parameters: {
     layout: "centered",
