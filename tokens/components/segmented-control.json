@@ -1,0 +1,8 @@
+{
+  "segmented-control": {
+    "$description": "Contrôle segmenté : sélection UNIQUE dans un groupe d'onglets/segments (piste + items). Distinct de Chip (filtre pill), Tabs (bascule de vues) et RadioGroup (liste verticale).",
+    "radius":  { "$type": "dimension", "$value": "{radius.container}" },
+    "padding": { "$type": "dimension", "$value": "{space.1}" },
+    "item":    { "radius": { "$type": "dimension", "$value": "{radius.control}" } }
+  }
+}

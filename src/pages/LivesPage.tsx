@@ -6,6 +6,7 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 import { LoadingState } from "@/components/StateView";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -252,22 +253,13 @@ const LivesPage = () => {
                 {rows.length} session{rows.length > 1 ? "s" : ""}
                 {avgScore !== null && ` · Score moyen ${avgScore}`}
               </p>
-              <div className="inline-flex gap-0.5 rounded-lg border border-border/60 bg-card/50 p-0.5">
+              <SegmentedControl value={sort} onValueChange={(v) => setSort(v as SortKey)} className="border-border/60 bg-card/50">
                 {SORT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() => setSort(opt.key)}
-                    className={cn(
-                      "rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors",
-                      sort === opt.key
-                        ? "bg-muted text-foreground"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
+                  <SegmentedControlItem key={opt.key} value={opt.key}>
                     {opt.label}
-                  </button>
+                  </SegmentedControlItem>
                 ))}
-              </div>
+              </SegmentedControl>
             </div>
 
             <div className="space-y-2">

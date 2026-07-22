@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -147,22 +148,13 @@ const VisualStudioPage = () => {
         <section className="mt-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-muted-foreground">Quel visuel veux-tu créer ?</h2>
-            <div className="flex gap-1 rounded-lg border border-border/60 bg-card/40 p-1">
+            <SegmentedControl value={currentCat ?? undefined} onValueChange={setActiveCat} className="border-border/60 bg-card/40">
               {grouped.map(([cat]) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCat(cat)}
-                  className={cn(
-                    "rounded-md px-3 py-1 text-xs font-medium transition-colors",
-                    cat === currentCat
-                      ? "bg-primary/15 text-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
+                <SegmentedControlItem key={cat} value={cat}>
                   {CAT_LABELS[cat] ?? cat}
-                </button>
+                </SegmentedControlItem>
               ))}
-            </div>
+            </SegmentedControl>
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
             {currentItems.map((t) => (
