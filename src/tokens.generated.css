@@ -242,6 +242,7 @@
   --dialog-overlay-opacity: var(--opacity-overlay);
   --input-padding-inline: var(--space-3);
   --input-border-width: var(--border-width-thin);
+  --segmented-control-padding: var(--space-1);
   --sidebar-item-height: var(--size-32);
   --switch-track-width: var(--size-44);
   --switch-track-height: var(--size-24);
@@ -356,6 +357,8 @@
   --input-border-danger: var(--color-border-danger);
   --input-height: var(--control-height-md);
   --input-radius: var(--radius-control);
+  --segmented-control-radius: var(--radius-container);
+  --segmented-control-item-radius: var(--radius-control);
   --selectable-card-radius: var(--radius-card);
   --sidebar-focus-ring: var(--color-focus-ring);
   --sidebar-icon-size: var(--icon-size-md);
