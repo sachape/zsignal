@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, waitFor } from "storybook/test";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Tabs> = {
   title: "Components/Navigation/Tabs",
@@ -8,7 +9,12 @@ const meta: Meta<typeof Tabs> = {
   tags: ["autodocs"],
   args: { defaultValue: "clips", orientation: "horizontal" },
   argTypes: {
-    defaultValue: { control: "select", options: ["clips", "visuels", "score"], description: "Onglet actif au montage.", table: { category: "State" } },
+    ...common("value", "onValueChange", "orientation", "className"),
+    defaultValue: describe("Onglet actif au montage, en mode non contrôlé.", { control: "select", options: ["clips", "visuels", "score"], category: CAT.state }),
+    activationMode: describe(
+      "`automatic` change d'onglet au simple déplacement du focus ; `manual` attend Entrée ou Espace — à préférer si le contenu est coûteux à charger.",
+      { control: "inline-radio", options: ["automatic", "manual"], category: CAT.advanced, defaultValue: "automatic" },
+    ),
     orientation: {
       control: "inline-radio", options: ["horizontal", "vertical"],
       description: "Sens de la liste d'onglets.",
