@@ -47,6 +47,7 @@ export function runVisualQuality() {
       status: r?.baseline === "established" ? "measured" : gapWhenWired,
       measure: r?.baseline === "established" ? "Établie" : null,
       note: r?.baseline === "established" ? "baseline visuelle acceptée" : "aucune baseline acceptée à ce jour",
+      action: r?.baseline === "established" ? null : "Lancer un build Chromatic sur main et accepter les snapshots : c'est la référence à laquelle tout diff futur sera comparé.",
     },
     {
       key: "regression",
@@ -54,6 +55,7 @@ export function runVisualQuality() {
       status: r?.regression ? "measured" : gapWhenWired,
       measure: r?.regression ? (r.regression === "pass" ? "PASS" : "FAIL") : null,
       note: "diff visuel automatique par story — dépend de la baseline",
+      action: r?.regression ? null : "Une fois la baseline établie, faire écrire à la CI Chromatic le rapport visual-quality.report.json : la métrique bascule seule en measured.",
     },
     {
       key: "snapshots",
@@ -74,7 +76,9 @@ export function runVisualQuality() {
       label: "Unexpected changes",
       status: r?.unexpected != null ? "measured" : "planned",
       measure: r?.unexpected != null ? String(r.unexpected) : null,
-      note: "régressions visuelles non intentionnelles (dernier build)",
+      // Sur main les diffs sont auto-acceptés : ce qui reste anormal, ce sont
+      // les stories qui n'ont pas pu être capturées.
+      note: "stories en erreur au dernier build (diffs auto-acceptés sur main)",
     },
   ];
 
