@@ -14,8 +14,16 @@ const reports = import.meta.glob("/reports/design-system/health-summary.json", {
 export const summary = Object.values(reports)[0] as any;
 
 export const CONTRACT_VERSION = 1;
-export const pct = (n: number | null | undefined) => (n == null ? "—" : `${Math.round(n * 100)}%`);
+// Miroir de `design-system/health/core/format.mjs` : `100%` doit vouloir dire
+// cent pour cent — on plafonne à 99% tant que le ratio n'est pas exactement 1.
+export const pct = (n: number | null | undefined) => {
+  if (n == null || Number.isNaN(n)) return "—";
+  if (n >= 1) return "100%";
+  if (n <= 0) return "0%";
+  return `${Math.min(99, Math.max(1, Math.round(n * 100)))}%`;
+};
 export const fmtDate = (iso: string) => new Date(iso).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
+export const fmtDay = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", { dateStyle: "long" });
 
 // Les 4 états de maturité — couleur + glyphe (jamais couleur seule).
 export type MState = "measured" | "documented" | "planned" | "missing";
@@ -69,8 +77,75 @@ export function Guard() {
   );
 }
 
-/** Rendu générique d'une sous-page Health : en-tête + retour Overview + détail
- *  d'une aire (statuts, mesures, notes) + contenu additionnel optionnel. */
+/** Coquille commune des pages Health : en-tête (retour Overview, titre, sous-titre,
+ *  méta à droite) + contenu + note de provenance. Ne connaît pas la forme du détail. */
+export function HealthPageShell({
+  title,
+  lead,
+  intro,
+  meta,
+  children,
+}: {
+  title: string;
+  lead?: ReactNode;
+  intro?: ReactNode;
+  meta?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mx-auto flex max-w-4xl flex-col gap-8 p-8">
+      <header className="flex flex-col gap-4">
+        <XLink to="health-overview--dashboard">← Health / Overview</XLink>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl font-semibold">{title}</h1>
+            {lead && <p className="max-w-2xl text-sm text-muted-foreground">{lead}</p>}
+          </div>
+          {meta && <span className="text-right text-xs text-muted-foreground">{meta}</span>}
+        </div>
+        {intro && <div className="text-sm text-muted-foreground">{intro}</div>}
+      </header>
+
+      {children}
+
+      <p className="text-xs text-muted-foreground">
+        Source : moteur <code>design-system/health/</code> · contrat v{summary?.reportVersion} · lecture seule ·
+        rapport généré le {fmtDate(summary?.generatedAt)}. Les lignes <em>planned/missing</em> deviendront{" "}
+        <em>measured</em> quand un provider produira leur donnée — sans changer cette page.
+      </p>
+    </div>
+  );
+}
+
+/** Tableau de domaines : une ligne = un domaine (mesure réelle si elle existe, statut sinon). */
+export function DomainTable({ title, description, domains }: { title: string; description?: ReactNode; domains: any[] }) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">{title}</CardTitle>
+        {description && <CardDescription>{description}</CardDescription>}
+      </CardHeader>
+      <CardContent className="flex flex-col divide-y divide-border p-0">
+        {domains.map((d: any) => (
+          <div key={d.key} className="grid grid-cols-[1fr_auto] items-center gap-4 px-4 py-4">
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-foreground">{d.label}</span>
+              <span className="text-xs text-muted-foreground">{d.note}</span>
+            </div>
+            <div className="flex items-center gap-2 justify-self-end">
+              {d.measure && <span className="text-sm tabular-nums text-muted-foreground">{d.measure}</span>}
+              <StateChip state={d.status} />
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Rendu générique d'une sous-page Health : coquille + détail d'une aire en un
+ *  seul tableau. Les pages qui ont besoin de grouper leur détail composent
+ *  `HealthPageShell` + `DomainTable` elles-mêmes (ex. Adoption). */
 export function HealthDomainPage({ slug, title, intro, extra }: { slug: string; title: string; intro?: ReactNode; extra?: ReactNode }) {
   if (!summary || summary.reportVersion !== CONTRACT_VERSION) return <Guard />;
   const area = areaBySlug(slug);
@@ -79,49 +154,25 @@ export function HealthDomainPage({ slug, title, intro, extra }: { slug: string; 
   const total = area.domains.length;
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-8 p-8">
-      <header className="flex flex-col gap-4">
-        <XLink to="health-overview--dashboard">← Health / Overview</XLink>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-2xl font-semibold">{title}</h1>
-            {area.note && <p className="max-w-2xl text-sm text-muted-foreground">{area.note}</p>}
-          </div>
-          <span className="text-xs text-muted-foreground">
-            {c.measured}/{total} measured · maj {fmtDate(summary.generatedAt)}
-          </span>
-        </div>
-        {intro && <div className="text-sm text-muted-foreground">{intro}</div>}
-      </header>
-
+    <HealthPageShell
+      title={title}
+      lead={area.note}
+      intro={intro}
+      meta={
+        <>
+          {c.measured} domaines sur {total} mesurés
+          <br />
+          Mis à jour le {fmtDay(summary.generatedAt)}
+        </>
+      }
+    >
       {extra}
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Domaines</CardTitle>
-          <CardDescription>Métrique réelle quand elle existe ; statut sinon. Rien n'est inventé.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col divide-y divide-border p-0">
-          {area.domains.map((d: any) => (
-            <div key={d.key} className="grid grid-cols-[1fr_auto] items-center gap-4 px-4 py-4">
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-foreground">{d.label}</span>
-                <span className="text-xs text-muted-foreground">{d.note}</span>
-              </div>
-              <div className="flex items-center gap-2 justify-self-end">
-                {d.measure && <span className="text-sm tabular-nums text-muted-foreground">{d.measure}</span>}
-                <StateChip state={d.status} />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <p className="text-xs text-muted-foreground">
-        Source : moteur <code>design-system/health/</code> · contrat v{summary.reportVersion} · lecture seule.
-        Les lignes <em>planned/missing</em> deviendront <em>measured</em> quand un provider produira leur donnée — sans changer cette page.
-      </p>
-    </div>
+      <DomainTable
+        title="Domaines"
+        description="Métrique réelle quand elle existe ; statut sinon. Rien n'est inventé."
+        domains={area.domains}
+      />
+    </HealthPageShell>
   );
 }
 
