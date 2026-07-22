@@ -1,0 +1,23 @@
+{
+  // Périmètre TypeScript du Design System — `tsconfig.app.json` n'inclut que
+  // `src`, si bien que design-system/ et .storybook/ n'ont JAMAIS été typechecké.
+  // Conséquence constatée : un import mal placé et cinq clés d'objet dupliquées
+  // (TS1117) ont traversé la CI verte, seul le build Storybook les signalait —
+  // et en avertissement non bloquant.
+  //
+  // `catalog/` est EXCLU : ce sont des stories générées à partir de fixtures
+  // heuristiques (« ajuste si le rendu est vide/faux » dans leur en-tête), qui
+  // passent volontairement des props partielles aux composants feature.
+  // 21 erreurs y dorment. Les corriger relève du générateur, pas de ce chantier ;
+  // les inclure ici bloquerait la CI sur de la dette qui n'est pas la nôtre.
+  // → à traiter séparément, en resserrant le générateur de fixtures.
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // vite/client : import.meta.env et les modules d'assets (*.svg).
+    // vitest/globals : les stories utilisent expect/fn dans leurs play functions.
+    "types": ["vite/client", "vitest/globals"]
+  },
+  "include": ["design-system", ".storybook", "src/vite-env.d.ts"],
+  "exclude": ["design-system/stories/catalog"]
+}

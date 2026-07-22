@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { ComponentProps } from "react";
 import { expect, fn, screen, waitFor } from "storybook/test";
 import {
   AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
@@ -8,7 +9,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { common, prop, CAT } from "./_argTypes";
 
-const meta: Meta<typeof AlertDialog> = {
+// onConfirm n'est pas une prop d'AlertDialog : c'est un arg de story, branché
+// sur le bouton de confirmation pour rendre l'action testable.
+type Args = ComponentProps<typeof AlertDialog> & { onConfirm: () => void };
+
+const meta: Meta<Args> = {
   title: "Components/Overlays/AlertDialog",
   component: AlertDialog,
   tags: ["autodocs"],

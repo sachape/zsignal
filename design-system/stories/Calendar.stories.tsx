@@ -1,10 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { ComponentProps } from "react";
 import { useState } from "react";
 import { expect } from "storybook/test";
 import { Calendar } from "@/components/ui/calendar";
 import { common, prop, CAT } from "./_argTypes";
 
-type Args = { numberOfMonths: number; showOutsideDays: boolean };
+// Args dérivé des props du composant : `mode`, `selected`, `fromDate`… sont
+// alors connus du typage des argTypes.
+type Args = ComponentProps<typeof Calendar>;
 
 const meta: Meta<Args> = {
   title: "Components/Forms/Calendar",

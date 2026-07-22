@@ -24,7 +24,9 @@
     "baseline:components": "node design-system/health/check-components.mjs --freeze",
     "check:health": "npm run check:spacing && npm run check:foundations && npm run check:components",
     "baseline:health": "npm run baseline:spacing && npm run baseline:foundations && npm run baseline:components",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.stories.json --noEmit",
+    "typecheck:app": "tsc --noEmit",
+    "typecheck:stories": "tsc -p tsconfig.stories.json --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
