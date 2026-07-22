@@ -4,6 +4,6 @@
   "baseline": "established",
   "regression": "pass",
   "snapshots": 270,
-  "approved": 0,
+  "approved": 10,
   "unexpected": 0
 }
