@@ -52,6 +52,15 @@ recréer le markup interne d'un composant existant, ne pas contourner par des cl
 - Le respect est audité par le moteur Health ; le garde-fou anti-régression est `check:spacing`
   (voir `validation.md`). Ne pas remplacer une violation par un compact pour « passer ».
 
+## Gouvernance typography (échelle de texte + line-height) — décision : `docs/adr/0004-typography-scale.md`
+- **Échelle font-size autorisée (px)** : `12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 72, 80, 88, 96`.
+- **Line-height dérivé (non libre)** : `size + 4` pour 12 et 14 ; `size + 8` au-delà.
+  (12→16, 14→18, 16→24, 20→28, 24→32, 28→36, 32→40, 40→48, 48→56, 56→64, 64→72, 72→80, 80→88, 88→96, 96→104.)
+- Le line-height **n'est plus un choix libre** (fini les ratios tight/snug/normal/relaxed) : il est **fonction de la taille**.
+- Toute autre taille = **violation** (hors dérogation optique documentée dans `design-system/health/exceptions.json`).
+- **Périmètre** : `font-size`, `line-height`. **Hors périmètre** : letter-spacing, font-weight, familles.
+- Garde-fou anti-régression à venir : `check:typography` (analogue à `check:spacing`).
+
 ## Health & maturité (cockpit de gouvernance, read-only)
 Le moteur `design-system/health/` produit `reports/design-system/*` : Overall Health pondéré,
 et une **carte de maturité** où chaque domaine porte un état — **Measured / Documented / Planned /
