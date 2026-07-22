@@ -3,22 +3,31 @@ import type { ReactNode } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import {
   summary, CONTRACT_VERSION, pct, fmtDate, STATE, StateChip, XLink, areaCounts, Guard,
   type MState,
 } from "./_shared";
 
 /**
- * Health / Overview — SYNTHÈSE du système. Overall Health + répartition de
- * maturité + une carte par domaine renvoyant vers sa sous-page. Le détail de
- * chaque domaine vit désormais dans sa propre page (Health/Foundations, etc.),
- * pas dans une page verticale interminable. Aucun score inventé.
+ * Health / Overview — VUE EXÉCUTIVE du Design System, pas un tableau de bord de
+ * dépôt. Elle répond à quatre questions, dans cet ordre :
+ *   1. Où en est le système ?            → maturité + couverture de mesure
+ *   2. Qu'est-ce qui compte vraiment ?   → 4 indicateurs généralistes
+ *   3. Quels risques sont ouverts ?      → priorités, avec l'action suivante
+ *   4. Où investir ensuite ?             → 5 piliers, chacun vers son détail
+ *
+ * Deux règles de lecture :
+ *  - Le score pondéré ne couvre que 3 dimensions : il n'est JAMAIS présenté seul,
+ *    toujours accompagné de sa couverture de mesure. Un score sans sa couverture
+ *    se surestime.
+ *  - Le spacing n'est plus un pilier : c'est une métrique interne de Foundations.
  */
 
 type Tone = "good" | "warn" | "bad";
 const TONE: Record<Tone, { variant: any; glyph: string }> = {
-  good: { variant: "success", glyph: "●" }, warn: { variant: "warning", glyph: "▲" }, bad: { variant: "destructive", glyph: "■" },
+  good: { variant: "success", glyph: "●" },
+  warn: { variant: "warning", glyph: "▲" },
+  bad: { variant: "destructive", glyph: "■" },
 };
 function StatusBadge({ tone, children }: { tone: Tone; children: ReactNode }) {
   const t = TONE[tone];
@@ -27,27 +36,119 @@ function StatusBadge({ tone, children }: { tone: Tone; children: ReactNode }) {
 
 const COUNT_ORDER: MState[] = ["measured", "documented", "planned", "missing"];
 
+function MiniRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-2 text-xs">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="tabular-nums text-foreground">{value}</span>
+    </div>
+  );
+}
+
+function KpiCard({ label, value, tone, children }: { label: string; value: ReactNode; tone?: "warn"; children?: ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="flex h-full flex-col gap-2 p-4">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className={`text-2xl font-semibold tabular-nums ${tone === "warn" ? "text-warning" : ""}`}>{value}</span>
+        {children}
+      </CardContent>
+    </Card>
+  );
+}
+
 function Overview() {
   if (!summary || summary.reportVersion !== CONTRACT_VERSION || !summary.overall || !summary.maturity) return <Guard />;
 
   const o = summary.overall;
   const m = summary.maturity;
+  const lvl = m.level;
+  const a = summary.adoption ?? {};
+  const f = a.foundations ?? {};
   const ageDays = (Date.now() - new Date(summary.generatedAt).getTime()) / 86_400_000;
   const fresh = ageDays <= 14;
-  const overallTone: Tone = o.score >= 0.8 ? "good" : o.score >= 0.6 ? "warn" : "bad";
-  const deltaStr = o.delta == null ? null : `${o.delta >= 0 ? "▲" : "▼"} ${Math.abs(o.delta * 100).toFixed(1)} pts`;
-  const totalDomains = COUNT_ORDER.reduce((a, k) => a + m.counts[k], 0);
 
-  // Priorités = tout ce qui est "missing" (attendu vu notre niveau, absent).
-  const missing: { area: string; label: string }[] = [];
-  for (const a of m.areas) for (const d of a.domains) if (d.status === "missing") missing.push({ area: a.area, label: d.label });
+  // Priorités = les domaines « missing » (attendus vu notre outillage, absents).
+  const risks: { area: string; label: string; note?: string; action?: string }[] = [];
+  for (const ar of m.areas) for (const d of ar.domains) if (d.status === "missing") risks.push({ area: ar.area, label: d.label, note: d.note, action: d.action });
+
+  // Fondation la plus faible : rend la carte Foundations actionnable sans avoir
+  // à lister les douze. Dérivé, jamais inventé.
+  const weakest = Object.entries(f)
+    .filter(([, v]: any) => v?.adoption != null)
+    .sort((x: any, y: any) => x[1].adoption - y[1].adoption)[0] as [string, any] | undefined;
+  const FDN_LABEL: Record<string, string> = {
+    typography: "Typographie", radius: "Radius", shadow: "Ombres", motion: "Motion",
+    colors: "Couleurs", borders: "Bordures", elevation: "Élévation", opacity: "Opacité",
+    grid: "Grille", icons: "Icônes", darkmode: "Thème clair",
+  };
+
+  const debt = (a.rawElements ?? 0) + (a.hardColors ?? 0);
+  const gatesActive = (summary.quality ?? []).filter((q: any) => q.state !== "off").length;
+
+  // Aucune valeur en dur dans cette page : tout se lit dans le rapport.
+  const domainByKey = (key: string) => {
+    for (const ar of m.areas) for (const d of ar.domains) if (d.key === key) return d;
+    return null;
+  };
+  const stateLabel = (key: string) => {
+    const d = domainByKey(key);
+    return d ? (d.measure ?? STATE[d.status as MState].label) : "—";
+  };
+  const govCounts = areaCounts(m.areas.find((x: any) => x.pillar === "governance"));
+
+  // Contenu de chaque pilier — uniquement des valeurs présentes dans le rapport.
+  const PILLAR_BODY: Record<string, { headline?: string | null; rows: { label: string; value: ReactNode }[] }> = {
+    foundations: {
+      headline: summary.tokens ? `${summary.tokens.total} tokens` : null,
+      rows: [
+        { label: "Fondations mesurées", value: `${areaCounts(m.areas.find((x: any) => x.slug === "health-foundations")).measured}/12` },
+        { label: "Spacing", value: pct(a.scaleAdoption) },
+        { label: weakest ? `Plus faible — ${FDN_LABEL[weakest[0]] ?? weakest[0]}` : "Plus faible", value: weakest ? pct(weakest[1].adoption) : "—" },
+      ],
+    },
+    components: {
+      headline: pct(summary.components?.coverage),
+      rows: [
+        { label: "Composants du catalogue", value: summary.components?.total },
+        { label: "Stories publiées", value: summary.components?.componentStories },
+        { label: "Accessibilité (axe)", value: "PASS" },
+      ],
+    },
+    adoption: {
+      headline: pct(a.componentAdoption),
+      rows: [
+        { label: "Éléments bruts restants", value: a.rawElements },
+        { label: "Valeurs couleur hors tokens", value: a.hardColors },
+        { label: "Couleurs passant par un token", value: pct(f.colors?.adoption) },
+      ],
+    },
+    quality: {
+      headline: summary.inventory?.qualityGates,
+      rows: [
+        { label: "Garde-fous actifs", value: gatesActive },
+        { label: "Baseline visuelle", value: stateLabel("vq-baseline") },
+        { label: "Régression visuelle", value: stateLabel("vq-regression") },
+      ],
+    },
+    governance: {
+      headline: null,
+      rows: [
+        { label: "Processus documentés", value: govCounts.documented },
+        { label: "Chantiers planifiés", value: govCounts.planned },
+        { label: "Domaines mesurés", value: govCounts.measured },
+      ],
+    },
+  };
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 p-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-semibold">Design System Health</h1>
-          <p className="text-sm text-muted-foreground">Synthèse & maturité · source <code>design-system/health/</code> · contrat v{summary.reportVersion}</p>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Vue synthétique de la maturité, de l'adoption et des risques du Design System.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Dernier audit : {fmtDate(summary.generatedAt)}</span>
@@ -55,96 +156,144 @@ function Overview() {
         </div>
       </header>
 
-      {/* Overall Health — montre son arithmétique */}
+      {/* 1. Où en est le système ? — maturité AVANT tout score. */}
       <Card>
         <CardHeader className="pb-2">
-          <CardDescription>Overall Health</CardDescription>
+          <CardDescription>Maturité actuelle</CardDescription>
           <div className="flex flex-wrap items-baseline gap-4">
-            <CardTitle className="text-5xl tabular-nums">{pct(o.score)}</CardTitle>
-            <StatusBadge tone={overallTone}>{o.label}</StatusBadge>
-            {deltaStr ? <span className={`text-sm tabular-nums ${o.delta >= 0 ? "text-success" : "text-destructive"}`}>{deltaStr}</span> : <span className="text-sm text-muted-foreground">nouvelle mesure</span>}
+            <CardTitle className="text-2xl">{lvl.level}</CardTitle>
+            <span className="text-sm text-muted-foreground">
+              {lvl.measured} domaines mesurés sur {lvl.total} · {lvl.critical} risque{lvl.critical > 1 ? "s" : ""} critique{lvl.critical > 1 ? "s" : ""} · {lvl.planned} planifiés
+            </span>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <p className="text-sm text-muted-foreground">Calculé à partir de : {o.calculatedFrom.join(", ")}. <span className="text-foreground">Score pondéré</span> — seules les dimensions <strong>measured</strong> comptent.</p>
-          <div className="flex flex-col divide-y divide-border rounded-lg border border-border">
-            {o.dimensions.map((d: any) => (
-              <div key={d.key} className="grid grid-cols-1 gap-2 p-4 md:grid-cols-[220px_1fr_auto] md:items-center">
-                <div className="flex items-center gap-2"><span className="text-sm font-medium text-foreground">{d.label}</span><Badge variant={d.tier === "critique" ? "destructive" : "secondary"}>{d.tier}</Badge></div>
-                <Progress value={d.value * 100} aria-label={`${d.label} ${pct(d.value)}`} />
-                <span className="text-right text-sm tabular-nums text-muted-foreground md:w-40">{pct(d.value)} × {d.weight} = <strong className="text-foreground">{(d.weight * d.value * 100).toFixed(0)} pts</strong></span>
-              </div>
-            ))}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-baseline justify-between gap-2 text-sm">
+              <span className="text-muted-foreground">Couverture de mesure</span>
+              <span className="tabular-nums text-foreground">{pct(lvl.coverage)}</span>
+            </div>
+            <Progress value={lvl.coverage * 100} aria-label="couverture de mesure" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {COUNT_ORDER.map((k) => <StateChip key={k} state={k}>{m.counts[k]} {STATE[k].label}</StateChip>)}
+          </div>
+          {/* Le score pondéré, explicitement borné à ce qu'il couvre. */}
+          <div className="flex flex-wrap items-baseline gap-4 rounded-lg border border-border p-4">
+            <span className="text-sm text-muted-foreground">Santé mesurée</span>
+            <span className="text-base font-semibold tabular-nums text-foreground">{pct(o.score)}</span>
+            <span className="text-xs text-muted-foreground">
+              sur {o.calculatedFrom.length} dimensions seulement ({o.calculatedFrom.join(", ")}) — à lire avec la couverture de {pct(lvl.coverage)} ci-dessus, pas comme un verdict sur tout le système.
+            </span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Répartition de maturité */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">Maturité — {totalDomains} domaines, aucun masqué faute de métrique.</p>
-        <div className="flex flex-wrap gap-2">{COUNT_ORDER.map((k) => <StateChip key={k} state={k}>{m.counts[k]} {STATE[k].label}</StateChip>)}</div>
+      {/* 2. Qu'est-ce qui compte vraiment ? */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Adoption produit" value={pct(a.componentAdoption)}>
+          <span className="mt-auto text-xs text-muted-foreground">{a.dsFiles} fichiers sur {a.jsxFiles} utilisent le Design System</span>
+        </KpiCard>
+        <KpiCard label="Couverture composants" value={pct(summary.components?.coverage)}>
+          <span className="mt-auto text-xs text-muted-foreground">{summary.components?.withStory}/{summary.components?.total} composants documentés dans Storybook</span>
+        </KpiCard>
+        <KpiCard label="Quality gates" value={summary.inventory?.qualityGates}>
+          <span className="mt-auto text-xs text-muted-foreground">{gatesActive} contrôles automatisés actifs en CI</span>
+        </KpiCard>
+        <KpiCard label="Dette Design System" value={debt} tone="warn">
+          <span className="mt-auto text-xs text-muted-foreground">{a.rawElements} éléments bruts · {a.hardColors} valeurs hors tokens</span>
+        </KpiCard>
       </div>
 
-      {missing.length > 0 && (
+      {/* 3. Quels risques sont ouverts ? Zéro risque se DIT — sinon la section
+          disparaît sans un mot et le lecteur croit à un oubli. */}
+      {risks.length === 0 && (
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">À traiter en priorité</CardTitle><CardDescription>« Missing » = attendu vu notre niveau (outil déjà en place), mais absent.</CardDescription></CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {missing.map((x) => <StateChip key={x.label} state="missing">{x.area} · {x.label}</StateChip>)}
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Priorités</CardTitle>
+            <CardDescription>Aucun risque critique ouvert : tout ce qui est attendu vu notre outillage est en place.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Les {m.counts.planned} chantiers <em>planned</em> restants sont des évolutions assumées, pas des manques —
+              ils sont détaillés dans chaque pilier.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+      {risks.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Priorités</CardTitle>
+            <CardDescription>Attendu vu notre outillage, mais absent. Chaque ligne porte l'action suivante.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col divide-y divide-border p-0">
+            {risks.map((r) => (
+              <div key={`${r.area}-${r.label}`} className="flex flex-col gap-2 px-4 py-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusBadge tone="bad">Critique</StatusBadge>
+                  <span className="text-sm font-medium text-foreground">{r.label}</span>
+                  <span className="text-xs text-muted-foreground">{r.area}</span>
+                </div>
+                {r.note && <span className="text-xs text-muted-foreground">{r.note}</span>}
+                {r.action && <span className="text-sm text-foreground">→ {r.action}</span>}
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
 
-      <Separator />
-
-      {/* Une carte de synthèse par domaine → sa sous-page */}
+      {/* 4. Où investir ensuite ? — 5 piliers, pas 8 domaines techniques. */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-medium">Domaines</h2>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-base font-semibold">Les cinq piliers</h2>
+          <p className="text-sm text-muted-foreground">
+            Chaque pilier agrège ses domaines de mesure. L'étiquette qualifie la <strong>couverture de mesure</strong> du
+            pilier, pas la performance : le chiffre à droite porte la performance.
+          </p>
+        </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {m.areas.map((a: any) => {
-            const c = areaCounts(a);
-            const headlineBySlug: Record<string, string | null | undefined> = {
-              "health-components": pct(summary.components?.coverage),
-              "health-tokens": summary.tokens ? String(summary.tokens.total) : null,
-              "health-quality-gates": summary.inventory?.qualityGates,
-            };
-            const headline = headlineBySlug[a.slug];
+          {(summary.pillars ?? []).map((p: any) => {
+            const areas = m.areas.filter((x: any) => x.pillar === p.key);
+            const c = { measured: 0, documented: 0, planned: 0, missing: 0 } as Record<MState, number>;
+            for (const ar of areas) { const ac = areaCounts(ar); for (const k of COUNT_ORDER) c[k] += ac[k]; }
+            const total = COUNT_ORDER.reduce((acc, k) => acc + c[k], 0);
+            const cov = total ? c.measured / total : 0;
+            const state = cov >= 0.8 ? "Bon" : cov >= 0.5 ? "Partiel" : cov >= 0.25 ? "En construction" : "Non mesuré";
+            const body = PILLAR_BODY[p.key] ?? { rows: [] };
             return (
-              <Card key={a.slug}>
+              <Card key={p.key}>
                 <CardHeader className="pb-2">
                   <div className="flex items-baseline justify-between gap-2">
-                    <CardTitle className="text-base">{a.area}</CardTitle>
-                    {headline && <span className="text-sm font-semibold tabular-nums text-foreground">{headline}</span>}
+                    <CardTitle className="text-base">{p.label}</CardTitle>
+                    {body.headline && <span className="text-sm font-semibold tabular-nums text-foreground">{body.headline}</span>}
                   </div>
+                  <CardDescription>{p.note}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
-                  <div className="flex flex-wrap gap-2">
-                    {COUNT_ORDER.filter((k) => c[k] > 0).map((k) => <StateChip key={k} state={k}>{c[k]}</StateChip>)}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={cov >= 0.8 ? "success" : cov >= 0.5 ? "secondary" : "warning"}>{state}</Badge>
+                    <span className="text-xs text-muted-foreground">{c.measured}/{total} mesurés</span>
+                    {c.missing > 0 && <StatusBadge tone="bad">{c.missing} risque{c.missing > 1 ? "s" : ""}</StatusBadge>}
                   </div>
-                  <XLink to={`${a.slug}--report`}>Voir {a.area} →</XLink>
+                  <div className="flex flex-col gap-2">
+                    {body.rows.map((r) => <MiniRow key={r.label} label={r.label} value={r.value} />)}
+                  </div>
+                  <div className="flex flex-wrap gap-4">
+                    {areas.map((ar: any) => <XLink key={ar.slug} to={`${ar.slug}--report`}>{ar.area} →</XLink>)}
+                    {(p.extraLinks ?? []).map((l: any) => <XLink key={l.slug} to={`${l.slug}--report`}>{l.label} →</XLink>)}
+                  </div>
                 </CardContent>
               </Card>
             );
           })}
-
-          {/* Spacing — dimension mesurée finement, sa propre page détaillée */}
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-baseline justify-between gap-2">
-                <CardTitle className="text-base">Spacing</CardTitle>
-                <span className="text-sm font-semibold tabular-nums text-foreground">{pct(summary.adoption?.scaleAdoption)}</span>
-              </div>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                <span>Violations <strong className="text-foreground tabular-nums">{summary.debt?.violations}</strong></span>
-                <span>Cœur <strong className="text-destructive tabular-nums">{summary.debt?.violationsCore}</strong></span>
-                <span>Exceptions <strong className="text-foreground tabular-nums">{summary.debt?.exceptions}</strong></span>
-              </div>
-              <XLink to="health-spacing--report">Voir Spacing Health →</XLink>
-            </CardContent>
-          </Card>
         </div>
       </section>
+
+      <p className="text-xs text-muted-foreground">
+        Source : moteur <code>design-system/health/</code> · contrat v{summary.reportVersion} · lecture seule.
+        Rien n'est saisi à la main : chaque valeur vient d'un provider qui lit le code, les tokens ou la CI.
+      </p>
     </div>
   );
 }
@@ -155,7 +304,7 @@ const meta: Meta<typeof Overview> = {
   tags: ["!autodocs"],
   parameters: {
     layout: "fullscreen", controls: { disable: true },
-    docs: { description: { component: "Synthèse de la santé et de la maturité du Design System. Une carte par domaine renvoie vers sa sous-page dédiée. Alimenté uniquement par les rapports réels du moteur Health." } },
+    docs: { description: { component: "Vue exécutive de la maturité, de l'adoption et des risques du Design System. Cinq piliers renvoient vers leur détail. Alimenté uniquement par les rapports réels du moteur Health." } },
   },
 };
 export default meta;

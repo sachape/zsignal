@@ -6,7 +6,7 @@ function Page() {
     <HealthDomainPage
       slug="health-foundations"
       title="Foundations Health"
-      intro={<>Chaque fondation attendue d'un DS mature, avec son état réel. Documentée = page publiée ; Spacing est la seule mesurée finement (<XLink to="health-spacing--report">voir Spacing Health</XLink>). Explorer les pages : <XLink to="foundations-colors--overview">Foundations</XLink>.</>}
+      intro={<>Chaque fondation attendue d'un DS mature, avec son état réel. Le pourcentage est un taux d'<strong>adoption</strong> : la part des usages du produit qui tombent sur l'échelle gouvernée — un score bas signifie que les tokens existent mais ne sont pas consommés, pas que la fondation manque. Spacing expose son score de santé composite (<XLink to="health-spacing--report">voir Spacing Health</XLink>) ; le détail par domaine est dans <XLink to="health-adoption--report">Adoption</XLink>. Explorer les pages : <XLink to="foundations-colors--overview">Foundations</XLink>.</>}
     />
   );
 }

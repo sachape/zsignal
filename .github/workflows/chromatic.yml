@@ -23,6 +23,10 @@ concurrency:
 jobs:
   chromatic:
     runs-on: ubuntu-latest
+    # Écriture nécessaire : sur main, le job renvoie le rapport Visual Quality
+    # dans le dépôt (voir la dernière étape).
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,6 +55,7 @@ jobs:
         run: npm run build-storybook -- --stats-json
 
       - name: Publier sur Chromatic
+        id: chromatic
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
@@ -68,3 +73,49 @@ jobs:
           # NB : n'auto-accepte QUE sur main — sur les PR/branches, les diffs
           # restent à revoir normalement.
           autoAcceptChanges: main
+
+      # ── Renvoyer le résultat dans le dépôt ───────────────────────────────
+      # Sans cette étape, Chromatic tourne mais le Dashboard Health n'en sait
+      # RIEN : il ne lit que le dépôt, ne voit aucun rapport, et classe la
+      # baseline et la régression visuelle en « missing » — deux faux risques
+      # critiques alors que le mécanisme fonctionne à chaque push.
+      #
+      # On ne commite QUE visual-quality.report.json : health-summary.json porte
+      # un `generatedAt`, il changerait à chaque exécution et produirait un
+      # commit par push. Ce fichier-ci ne bouge que si un chiffre bouge. Il est
+      # replié dans le Health au prochain `npm run audit:spacing`.
+      - name: Rapport Visual Quality
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          CHROMATIC_SPEC_COUNT: ${{ steps.chromatic.outputs.specCount }}
+          CHROMATIC_CHANGE_COUNT: ${{ steps.chromatic.outputs.changeCount }}
+          CHROMATIC_ERROR_COUNT: ${{ steps.chromatic.outputs.errorCount }}
+        run: node design-system/health/chromatic-report.mjs
+
+      # Écrire la télémétrie ne doit JAMAIS casser la CI : le dépôt est réglé sur
+      # `default_workflow_permissions: read`, l'élévation `contents: write`
+      # ci-dessus peut être refusée par une politique d'organisation. Dans ce cas
+      # on avertit bruyamment et on continue — un rapport manquant dégrade le
+      # Dashboard (baseline en « missing »), il ne justifie pas de bloquer main.
+      - name: Commiter le rapport s'il a changé
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -uo pipefail
+          REPORT=reports/design-system/visual-quality.report.json
+          # `git status --porcelain` et non `git diff` : au tout premier passage
+          # le fichier est NON SUIVI, et `git diff` ne le voit pas.
+          if [ -z "$(git status --porcelain -- "$REPORT")" ]; then
+            echo "Rapport inchangé — rien à commiter."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$REPORT"
+          # [skip ci] : ce commit ne doit relancer ni CI ni Chromatic (boucle).
+          git commit -m "ci(health): rapport visual quality [skip ci]"
+          # Un autre merge a pu atterrir pendant le build : on rejoue par-dessus.
+          if git pull --rebase origin main && git push origin HEAD:main; then
+            echo "Rapport Visual Quality poussé sur main."
+          else
+            echo "::warning title=Rapport Visual Quality non poussé::Le GITHUB_TOKEN n'a pas le droit d'écrire (Settings → Actions → Workflow permissions → Read and write). Chromatic a bien tourné ; seul le report du Dashboard Health est manquant."
+          fi

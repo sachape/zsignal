@@ -1,0 +1,28 @@
+{
+  "$doc": "Baseline de dette des fondations. check:foundations échoue si le nombre d'usages hors échelle AUGMENTE pour une fondation. Une baisse est autorisée SANS mise à jour. Ne relever ce fichier (npm run baseline:foundations) QUE pour accepter volontairement une nouvelle dette — avec justification en commit.",
+  "frozenAt": "2026-07-22T09:34:55.638Z",
+  "off": {
+    "typography": 23,
+    "radius": 153,
+    "shadow": 58,
+    "motion": 50,
+    "colors": 250,
+    "borders": 2,
+    "elevation": 44,
+    "opacity": 14,
+    "grid": 20,
+    "icons": 27
+  },
+  "adoption": {
+    "typography": 0.9890943575154102,
+    "radius": 0.8492610837438423,
+    "shadow": 0.2564102564102564,
+    "motion": 0.39759036144578314,
+    "colors": 0.9465811965811965,
+    "borders": 0.9969558599695586,
+    "elevation": 0.3125,
+    "opacity": 0.8923076923076924,
+    "grid": 0.9029126213592233,
+    "icons": 0.9642384105960264
+  }
+}

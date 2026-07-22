@@ -6,7 +6,7 @@
 
 import { writeFileSync, mkdirSync, existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { ROOT } from "./core/walk.mjs";
+import { ROOT, collectFiles } from "./core/walk.mjs";
 import { assertReport, buildSummary, SCHEMA_VERSION } from "./contract.mjs";
 import { runSpacing } from "./providers/spacing.mjs";
 import { runAccessibility } from "./providers/accessibility.mjs";
@@ -16,8 +16,9 @@ import { runQuality } from "./providers/quality.mjs";
 import { runFoundations } from "./providers/foundations.mjs";
 import { runVisualQuality } from "./providers/visual-quality.mjs";
 import { runAdoption } from "./providers/adoption.mjs";
-import { computeOverall } from "./overall.mjs";
-import { buildMaturity } from "./domains.mjs";
+import { runFoundationsAdoption } from "./providers/foundations.adoption.mjs";
+import { computeOverall, computeMaturity } from "./overall.mjs";
+import { buildMaturity, PILLARS } from "./domains.mjs";
 
 const OUT = resolve(ROOT, "reports/design-system");
 const HIST = resolve(OUT, "history");
@@ -97,10 +98,16 @@ function main() {
   const components = runComponents();
   const tokens = runTokens();
   const quality = runQuality({ a11y });
-  const foundations = runFoundations({ spacingHealth: spacing.scores.health });
   const visualQuality = runVisualQuality();
   const adoption = runAdoption({ spacingScaleAdoption: spacing.scores.scaleAdoption });
-  const maturity = buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality, adoption });
+  // Adoption des fondations — même définition que `scaleAdoption` du spacing,
+  // appliquée fondation par fondation. Alimente à la fois Health/Adoption
+  // (le produit consomme-t-il ?) et Health/Foundations (la fondation est-elle mesurée ?).
+  const foundationsAdoption = runFoundationsAdoption(collectFiles());
+  const foundations = runFoundations({ spacingHealth: spacing.scores.health, foundationsAdoption });
+  const maturityMap = buildMaturity({ spacing, a11y, components, tokens, foundations, quality, visualQuality, adoption, foundationsAdoption });
+
+  const maturity = { ...maturityMap, level: computeMaturity({ counts: maturityMap.counts }) };
 
   const overall = computeOverall({
     a11yPass: a11y.status === "enforced",
@@ -151,6 +158,7 @@ function main() {
       note: "Score pondéré (pas une moyenne simple). Seules les dimensions réellement mesurées entrent dans le calcul — aucune métrique non mesurée n'influence ce score.",
     },
     inventory,
+    pillars: PILLARS,
     maturity,
     components: { total: components.total, withStory: components.withStory, coverage: components.coverage, componentStories: components.componentStories },
     tokens: { total: tokens.total, byLayer: tokens.byLayer },
@@ -161,6 +169,7 @@ function main() {
       appFiles: adoption.appFiles,
       jsxFiles: adoption.jsxFiles,
       dsFiles: adoption.dsFiles,
+      excludedFromDenom: adoption.excludedFromDenom,
       rawElements: adoption.rawElements,
       rawByTag: adoption.rawByTag,
       hardColors: adoption.hardColors,
@@ -168,6 +177,9 @@ function main() {
       scaleAdoption: spacing.scores.scaleAdoption,
       compactShare: spacing.totals.compactAllowed / Math.max(spacing.totals.classifiable, 1),
       cssVarAdoption: spacing.scores.cssVarAdoption,
+      // Adoption des autres fondations (provider foundations-adoption)
+      foundations: foundationsAdoption.byFoundation,
+      foundationsScope: foundationsAdoption.scope,
     },
     debt: {
       violations: spacing.totals.violations,

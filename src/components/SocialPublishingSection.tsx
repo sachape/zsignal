@@ -37,9 +37,9 @@ export default function SocialPublishingSection() {
             </p>
           </div>
           {!loading && (
-            <button onClick={() => void refresh()} className="text-xs text-muted-foreground hover:text-foreground">
+            <Button variant="link" size="sm" onClick={() => void refresh()} className="h-auto p-0 text-xs">
               Rafraîchir
-            </button>
+            </Button>
           )}
         </div>
 

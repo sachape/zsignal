@@ -44,6 +44,14 @@ jobs:
       - name: Garde-fou spacing (baseline)
         run: npm run check:spacing
 
+      # Garde-fou fondations : même ratchet, étendu aux 10 autres échelles
+      # gouvernées (typo, radius, ombres, motion, couleurs, bordures, élévation,
+      # opacité, grille, icônes). Échoue UNIQUEMENT si le nombre d'usages hors
+      # échelle AUGMENTE vs reports/design-system/history/foundations-baseline.json.
+      # La dette historique ne bloque pas ; une baisse est autorisée sans mise à jour.
+      - name: Garde-fou fondations (baseline)
+        run: npm run check:foundations
+
       # Les fichiers générés doivent correspondre à la source. Si un token JSON
       # a changé sans rebuild, on bloque.
       - name: Tokens synchronisés (source → généré)

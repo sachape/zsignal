@@ -142,9 +142,9 @@ export default function PublishClipDialog({
                   </button>
                 );
               })}
-              <button type="button" onClick={() => void refresh()} className="text-xs text-muted-foreground hover:text-foreground self-end">
+              <Button variant="link" size="sm" onClick={() => void refresh()} className="h-auto self-end p-0 text-xs">
                 Rafraîchir
-              </button>
+              </Button>
             </div>
           )}
         </div>

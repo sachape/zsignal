@@ -31,6 +31,25 @@ export const WEIGHTS = [
   },
 ];
 
+// --- Maturité --------------------------------------------------------------
+// Le score pondéré ci-dessus ne couvre que 3 dimensions : il ne peut pas servir
+// de verdict sur TOUT le système. La lecture exécutive s'appuie donc d'abord sur
+// deux faits non pondérés et non discutables :
+//   - la COUVERTURE DE MESURE : combien de domaines ont une vraie métrique ;
+//   - les RISQUES CRITIQUES   : combien sont « missing » (attendus, absents).
+// Un score de santé sans sa couverture de mesure est un score qui se surestime.
+export function computeMaturity({ counts }) {
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  const coverage = total ? counts.measured / total : 0;
+  const critical = counts.missing ?? 0;
+  const level =
+    coverage >= 0.8 && critical === 0 ? "Mature"
+      : coverage >= 0.5 ? "En progression"
+        : coverage >= 0.25 ? "En construction"
+          : "Naissant";
+  return { level, coverage, measured: counts.measured, total, critical, planned: counts.planned ?? 0 };
+}
+
 export function labelFor(score) {
   if (score >= 0.9) return "Excellent";
   if (score >= 0.8) return "Good";

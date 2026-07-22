@@ -274,13 +274,15 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                   <p className="text-sm text-muted-foreground">
                     L'analyse prend plus longtemps que prévu.
                   </p>
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => window.location.reload()}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-card/60 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-card"
+                    className="gap-1.5"
                   >
                     <RefreshCw className="h-3 w-3" />
                     Actualiser la page
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -294,12 +296,14 @@ const OnboardingGuide = ({ userId, displayName, isConnected, hasReport, onComple
                 <ArrowRight className="h-4 w-4" />
               </Button>
             ) : null}
-            <button
+            <Button
+              variant="link"
+              size="sm"
               onClick={handleComplete}
-              className="text-xs text-muted-foreground/60 underline-offset-2 transition-colors hover:text-muted-foreground hover:underline"
+              className="h-auto p-0 text-xs text-muted-foreground/60 hover:text-muted-foreground"
             >
               Passer et accéder au cockpit
-            </button>
+            </Button>
           </>
         )}
       </div>

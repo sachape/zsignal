@@ -178,19 +178,23 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
                     </p>
                   </div>
                   {item.status === "todo" ? (
-                    <button
+                    <Button
+                      variant="link"
+                      size="sm"
                       onClick={() => handleStatus(item.id, "done")}
-                      className="shrink-0 text-[12px] font-medium text-primary-strong hover:underline"
+                      className="h-auto shrink-0 p-0 text-[12px]"
                     >
                       Fait
-                    </button>
+                    </Button>
                   ) : (
-                    <button
+                    <Button
+                      variant="link"
+                      size="sm"
                       onClick={() => handleStatus(item.id, "todo")}
-                      className="shrink-0 text-[12px] font-medium text-muted-foreground hover:underline"
+                      className="h-auto shrink-0 p-0 text-[12px] text-muted-foreground"
                     >
                       Annuler
-                    </button>
+                    </Button>
                   )}
                 </li>
               );
