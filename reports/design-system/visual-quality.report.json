@@ -1,0 +1,9 @@
+{
+  "reportVersion": 1,
+  "generatedFor": "main",
+  "baseline": "established",
+  "regression": "pass",
+  "snapshots": 258,
+  "approved": 10,
+  "unexpected": 0
+}
