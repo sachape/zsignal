@@ -12,7 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Toggle } from "@/components/ui/toggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CaptionStylePreviewGrid, type CaptionStyle } from "@/components/clips/CaptionStylePreviewGrid";
@@ -567,23 +567,14 @@ export const ClipPreparationPanel = ({
           {/* Right column */}
           <div className="space-y-4">
             <div className="rounded-md border border-border bg-card p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-2">
-                  <Captions className="mt-0.5 h-3.5 w-3.5 text-primary-strong" />
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Sous-titres automatiques</p>
-                    <p className="mt-0.5 text-[12px] text-muted-foreground">
-                      Ajoute les sous-titres quand tu parles. Incrustés dans la vidéo.
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  checked={captionsEnabled}
-                  onCheckedChange={setCaptionsEnabled}
-                  disabled={busy}
-                  aria-label="Activer les sous-titres automatiques"
-                />
-              </div>
+              <Toggle
+                icon={<Captions className="h-3.5 w-3.5 text-primary-strong" />}
+                label="Sous-titres automatiques"
+                description="Ajoute les sous-titres quand tu parles. Incrustés dans la vidéo."
+                checked={captionsEnabled}
+                onCheckedChange={setCaptionsEnabled}
+                disabled={busy}
+              />
 
               {captionsEnabled && (
                 <div className="mt-3 space-y-2 border-t border-border/60 pt-3">
