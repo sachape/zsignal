@@ -20,8 +20,10 @@
     "baseline:spacing": "node design-system/health/run.mjs --freeze",
     "check:foundations": "node design-system/health/check-foundations.mjs",
     "baseline:foundations": "node design-system/health/check-foundations.mjs --freeze",
-    "check:health": "npm run check:spacing && npm run check:foundations",
-    "baseline:health": "npm run baseline:spacing && npm run baseline:foundations",
+    "check:components": "node design-system/health/check-components.mjs",
+    "baseline:components": "node design-system/health/check-components.mjs --freeze",
+    "check:health": "npm run check:spacing && npm run check:foundations && npm run check:components",
+    "baseline:health": "npm run baseline:spacing && npm run baseline:foundations && npm run baseline:components",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

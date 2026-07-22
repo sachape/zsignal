@@ -71,7 +71,8 @@ espacements (margin/padding/gap/inset…), **pas** width/height/radius/typo. Dé
 ```
 npm run audit:health     # audit read-only GLOBAL → reports/design-system/* (adoption, composants, fondations, spacing)
 npm run check:spacing    # CI : échoue si NOUVELLE violation spacing vs baseline (sinon observation)
-npm run check:health     # umbrella : check:spacing + check:foundations
+npm run check:components # CI : échoue si dette composants (bruts) AUGMENTE par balise vs baseline
+npm run check:health     # umbrella : check:spacing + check:foundations + check:components
 ```
 
 - **Lire le rapport** : `reports/design-system/spacing-health.md` (score, top valeurs, fichiers touchés).

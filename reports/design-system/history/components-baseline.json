@@ -1,0 +1,11 @@
+{
+  "$doc": "Baseline de dette composants (éléments natifs hors Design System). check:components échoue si le nombre de bruts AUGMENTE pour une balise. Une baisse est autorisée SANS mise à jour. Ne relever ce fichier (npm run baseline:components) QUE pour accepter volontairement une nouvelle dette — avec justification en commit.",
+  "frozenAt": "2026-07-22T12:40:09.664Z",
+  "raw": {
+    "button": 33,
+    "input": 0,
+    "select": 0,
+    "textarea": 0
+  },
+  "total": 33
+}
