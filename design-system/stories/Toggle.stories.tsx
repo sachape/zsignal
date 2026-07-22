@@ -1,52 +1,81 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect } from "storybook/test";
+import { expect, fn } from "storybook/test";
+import { Captions, Moon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import { lock } from "./_lockControls";
 
-const TOGGLE_VARIANTS = ["default", "outline"] as const;
-const TOGGLE_SIZES = ["sm", "default", "lg"] as const;
-
 const meta: Meta<typeof Toggle> = {
-  title: "Components/Actions/Toggle",
+  title: "Components/Forms/Toggle",
   component: Toggle,
   tags: ["autodocs"],
-  args: { children: "Épingler", variant: "default", size: "default", disabled: false, "aria-label": "Épingler le clip" },
+  args: {
+    label: "Sous-titres automatiques",
+    description: "Ajoute les sous-titres quand tu parles. Incrustés dans la vidéo.",
+    defaultChecked: false,
+    disabled: false,
+    onCheckedChange: fn(),
+  },
   argTypes: {
-    children: { control: "text", description: "Contenu (texte ou icône).", table: { category: "Content" } },
-    variant: { control: "select", options: TOGGLE_VARIANTS, description: "Style visuel (plein ou contour).", table: { category: "Appearance" } },
-    size: { control: "select", options: TOGGLE_SIZES, description: "Taille du bouton.", table: { category: "Layout" } },
-    disabled: { control: "boolean", description: "Désactive la bascule.", table: { category: "State" } },
+    label: { control: "text", description: "Libellé visible. Cliquer dessus bascule l'interrupteur.", table: { category: "Content" } },
+    description: { control: "text", description: "Précision sous le libellé — la conséquence du réglage, pas sa répétition.", table: { category: "Content" } },
+    icon: { control: false, description: "Icône décorative devant le libellé (masquée aux lecteurs d'écran).", table: { category: "Content" } },
+    defaultChecked: { control: "boolean", description: "État initial (on/off).", table: { category: "State" } },
+    disabled: { control: "boolean", description: "Désactive le réglage et atténue la ligne entière.", table: { category: "State" } },
+    onCheckedChange: { control: false, description: "Callback au changement d'état.", table: { category: "Events" } },
   },
   parameters: {
-    layout: "centered",
+    layout: "padded",
     controls: { sort: "requiredFirst" },
-    docs: { description: { component: "Toggle — bouton à deux états (activé/non), ex. épingler un clip. Distinct du Switch : c'est une action, pas un réglage de formulaire." } },
+    docs: {
+      description: {
+        component:
+          "Toggle — **réglage on/off** : l'interrupteur coulissant avec son libellé. Effet immédiat, sans validation.\n\nLa liaison `htmlFor` / `aria-describedby` est faite par construction : un interrupteur muet au lecteur d'écran n'est plus possible.\n\n⚠️ Distinct de **Toggle Button** (bouton bascule type gras/italique) et de **Checkbox** (choix à valider dans un formulaire).",
+      },
+    },
   },
+  decorators: [(Story) => <div className="max-w-md">{Story()}</div>],
 };
 export default meta;
 type S = StoryObj<typeof Toggle>;
 
 export const Playground: S = {};
 
-export const Default: S = { args: { variant: "default" }, argTypes: lock("variant") };
-export const Outline: S = { args: { variant: "outline" }, argTypes: lock("variant") };
-export const Disabled: S = { args: { disabled: true }, argTypes: lock("disabled") };
+/** Le cas le plus courant : un libellé, rien de plus. */
+export const Simple: S = {
+  args: { label: "Notifications", description: undefined },
+  argTypes: lock("description"),
+};
 
-export const Pressed: S = {
-  args: { defaultPressed: true },
-  argTypes: lock("defaultPressed"),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button")).toHaveAttribute("aria-pressed", "true");
+export const AvecDescription: S = { args: { defaultChecked: true } };
+
+export const AvecIcone: S = {
+  args: { label: "Apparence", description: "Bascule entre le thème clair et sombre.", icon: <Moon className="h-4 w-4" /> },
+};
+
+export const Active: S = { args: { defaultChecked: true }, argTypes: lock("defaultChecked") };
+export const Inactive: S = { args: { defaultChecked: false }, argTypes: lock("defaultChecked") };
+export const Disabled: S = { args: { disabled: true, defaultChecked: true }, argTypes: lock("disabled") };
+
+/** Le libellé est bien relié : cliquer sur le texte bascule l'interrupteur. */
+export const LeLabelBascule: S = {
+  args: { icon: <Captions className="h-4 w-4" /> },
+  play: async ({ canvas, userEvent }) => {
+    const toggle = canvas.getByRole("switch", { name: "Sous-titres automatiques" });
+    await expect(toggle).not.toBeChecked();
+
+    await userEvent.click(canvas.getByText("Sous-titres automatiques"));
+    await expect(toggle).toBeChecked();
   },
 };
 
-export const Sizes: S = {
+/** Use case : un panneau de réglages — l'alignement tient sur toute la colonne. */
+export const Panneau: S = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex items-center gap-3">
-      {TOGGLE_SIZES.map((s) => (
-        <Toggle key={s} size={s} aria-label={`Taille ${s}`}>{s}</Toggle>
-      ))}
+    <div className="space-y-4 rounded-md border border-border p-4">
+      <Toggle label="Sous-titres automatiques" description="Incrustés dans la vidéo." defaultChecked />
+      <Toggle label="Programmer la publication" description="Sinon, publiée maintenant." />
+      <Toggle label="Recadrage facecam" description="Non disponible sur ce format." disabled />
     </div>
   ),
 };
