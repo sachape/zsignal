@@ -3,11 +3,15 @@ import {
   Pagination, PaginationContent, PaginationItem, PaginationLink,
   PaginationPrevious, PaginationNext, PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Pagination> = {
   title: "Components/Navigation/Pagination",
   component: Pagination,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("children", "className"),
+  },
   parameters: {
     layout: "centered",
     docs: { description: { component: "Pagination — navigation entre pages d'une liste. La page courante porte `isActive` (`aria-current`) ; Précédent/Suivant ont un nom accessible." } },

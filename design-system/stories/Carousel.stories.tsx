@@ -1,10 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Carousel> = {
   title: "Components/Content & Structure/Carousel",
   component: Carousel,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("orientation", "children", "className"),
+    opts: prop("Options du moteur embla (boucle, alignement, nombre d'éléments par pas).", { control: false, category: CAT.advanced }),
+    plugins: prop("Plugins embla (défilement automatique, roue de souris…).", { control: false, category: CAT.advanced }),
+    setApi: prop("Reçoit l'instance embla pour piloter le carrousel depuis l'extérieur.", { control: false, category: CAT.events }),
+  },
   parameters: {
     layout: "centered",
     docs: { description: { component: "Carousel — défilement horizontal d'éléments (embla). Boutons Précédent/Suivant avec nom accessible ; navigation clavier (flèches) native." } },

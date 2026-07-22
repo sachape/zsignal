@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { common, prop, CAT } from "./_argTypes";
 
 /**
  * Avatar — l'identité d'un streamer (9×). Composé : Avatar + Image + Fallback.
@@ -10,7 +11,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 const meta: Meta<typeof Avatar> = {
   title: "Components/Content & Structure/Avatar",
   component: Avatar,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Avatar — l'identité d'un streamer (9×). Composé : Avatar + Image + Fallback." } },  layout: "centered" },
+  argTypes: {
+    ...common("children", "className"),
+    asChild: prop("Rend l'enfant comme racine au lieu d'ajouter un `<span>`.", { control: false, category: CAT.advanced }),
+  },
+  parameters: {
+    layout: "centered",
+    docs: { description: { component: "Avatar — l'identité d'un streamer (9×). Composé : Avatar + Image + Fallback. Les props utiles se règlent sur les sous-composants : `src`/`alt` sur `AvatarImage`, `delayMs` sur `AvatarFallback`." } },
+  },
 };
 export default meta;
 type S = StoryObj<typeof Avatar>;

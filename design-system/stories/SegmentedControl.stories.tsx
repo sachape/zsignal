@@ -1,13 +1,23 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof SegmentedControl> = {
   title: "Components/Actions/Segmented Control",
   component: SegmentedControl,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("children", "className"),
+    value: prop(
+      "Segment actif. Contrôlé : le composant ne garde pas d'état interne, il faut le piloter avec `onValueChange`.",
+      { control: "text", category: CAT.state },
+    ),
+    onValueChange: prop("Appelé avec la `value` du segment cliqué.", { control: false, category: CAT.events }),
+  },
   parameters: {
     layout: "centered",
+    controls: { sort: "requiredFirst" },
     docs: { description: { component: "Segmented Control — sélection UNIQUE dans un groupe (onglets/segments), un seul actif. `role=radiogroup`/`radio`. Distinct de Chip (filtre pill), Tabs (bascule de vues) et RadioGroup (liste verticale)." } },
   },
 };

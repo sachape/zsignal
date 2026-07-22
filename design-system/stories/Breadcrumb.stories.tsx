@@ -3,11 +3,16 @@ import {
   Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink,
   BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis,
 } from "@/components/ui/breadcrumb";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Breadcrumb> = {
   title: "Components/Navigation/Breadcrumb",
   component: Breadcrumb,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("children", "className"),
+    separator: prop("Séparateur personnalisé entre les niveaux. Par défaut un chevron, masqué aux lecteurs d'écran.", { control: false, category: CAT.content }),
+  },
   parameters: {
     layout: "centered",
     docs: { description: { component: "Breadcrumb — fil d'Ariane situant la page courante dans la hiérarchie. La page active est un `BreadcrumbPage` (non cliquable, `aria-current`) ; à réserver aux profondeurs > 2 niveaux." } },

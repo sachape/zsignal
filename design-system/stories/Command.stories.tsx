@@ -4,6 +4,7 @@ import {
   Command, CommandInput, CommandList, CommandEmpty, CommandGroup,
   CommandItem, CommandSeparator,
 } from "@/components/ui/command";
+import { common, prop, CAT } from "./_argTypes";
 
 /**
  * Command — la palette (Cmd+K) : recherche + actions rapides pour power users.
@@ -13,7 +14,13 @@ import {
 const meta: Meta<typeof Command> = {
   title: "Components/Navigation/Command",
   component: Command,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Command — la palette (Cmd+K) : recherche + actions rapides pour power users. Ici en rendu inline (le composant), pas en CommandDialog, pour montrer le filtrage." } },  layout: "centered" },
+  argTypes: {
+    ...common("value", "onValueChange", "children", "className"),
+    shouldFilter: prop("Filtrage automatique sur la saisie. Passer à `false` pour filtrer côté serveur.", { control: "boolean", category: CAT.state, defaultValue: "true" }),
+    filter: prop("Fonction de score personnalisée : décide de la pertinence de chaque entrée.", { control: false, category: CAT.advanced }),
+    loop: prop("La navigation repart en haut après la dernière entrée.", { control: "boolean", category: CAT.advanced }),
+  },
+  parameters: { docs: { description: { component: "Command — la palette (Cmd+K) : recherche + actions rapides pour power users. Ici en rendu inline (le composant), pas en CommandDialog, pour montrer le filtrage." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Command>;

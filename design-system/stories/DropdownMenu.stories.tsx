@@ -5,6 +5,7 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof DropdownMenu> = {
   title: "Components/Overlays/DropdownMenu",
@@ -12,7 +13,8 @@ const meta: Meta<typeof DropdownMenu> = {
   tags: ["autodocs"],
   args: { modal: true },
   argTypes: {
-    modal: { control: "boolean", description: "Rend l'arrière-plan inerte tant que le menu est ouvert.", table: { category: "Behavior" } },
+    ...common("open", "onOpenChange", "children"),
+    modal: { control: "boolean", description: "Rend l'arrière-plan inerte tant que le menu est ouvert.", table: { category: "State" } },
     defaultOpen: { control: "boolean", description: "Ouvert au montage (non contrôlé).", table: { category: "State" } },
   },
   parameters: {

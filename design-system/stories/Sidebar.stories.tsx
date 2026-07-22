@@ -6,6 +6,7 @@ import {
   SidebarMenuButton, SidebarInset, SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Film, Image, BarChart3, Radio } from "lucide-react";
+import { common, prop, CAT } from "./_argTypes";
 
 /**
  * Sidebar — la navigation verticale de l'app (produit complexe, 5–20 items
@@ -15,7 +16,13 @@ import { Film, Image, BarChart3, Radio } from "lucide-react";
 const meta: Meta<typeof Sidebar> = {
   title: "Patterns/Sidebar",
   component: Sidebar,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Sidebar — la navigation verticale de l'app (produit complexe, 5–20 items groupés). Nécessite SidebarProvider (contexte ouvert/replié)." } },  layout: "fullscreen" },
+  argTypes: {
+    ...common("children", "className"),
+    side: prop("Bord de l'écran où s'ancre la navigation.", { control: "inline-radio", options: ["left", "right"], category: CAT.layout, defaultValue: "left" }),
+    variant: prop("`sidebar` collée au bord, `floating` détachée en carte, `inset` encastrée dans le contenu.", { control: "inline-radio", options: ["sidebar", "floating", "inset"], defaultValue: "sidebar" }),
+    collapsible: prop("Comportement replié : `icon` garde les icônes visibles, `offcanvas` sort de l'écran, `none` interdit le repli.", { control: "inline-radio", options: ["offcanvas", "icon", "none"], category: CAT.state, defaultValue: "offcanvas" }),
+  },
+  parameters: { docs: { description: { component: "Sidebar — la navigation verticale de l'app (produit complexe, 5–20 items groupés). Nécessite SidebarProvider (contexte ouvert/replié)." } },  layout: "fullscreen" },
 };
 export default meta;
 type S = StoryObj<typeof Sidebar>;

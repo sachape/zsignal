@@ -3,6 +3,7 @@ import { expect, fn } from "storybook/test";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { lock } from "./_lockControls";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Checkbox> = {
   title: "Components/Forms/Checkbox",
@@ -10,6 +11,8 @@ const meta: Meta<typeof Checkbox> = {
   tags: ["autodocs"],
   args: { defaultChecked: false, disabled: false, "aria-label": "Case à cocher", onCheckedChange: fn() },
   argTypes: {
+    ...common("checked", "onCheckedChange", "required", "name", "className"),
+    defaultChecked: prop("État initial, en mode non contrôlé.", { control: "boolean", category: CAT.state }),
     defaultChecked: { control: "boolean", description: "État initial (coché/non).", table: { category: "State" } },
     disabled: { control: "boolean", table: { category: "State" } },
     onCheckedChange: { control: false, table: { category: "Events" } },

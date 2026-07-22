@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Progress } from "@/components/ui/progress";
 import { lock } from "./_lockControls";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Progress> = {
   title: "Components/Feedback/Progress",
@@ -8,11 +9,13 @@ const meta: Meta<typeof Progress> = {
   tags: ["autodocs"],
   args: { value: 60 },
   argTypes: {
-    value: {
-      control: { type: "range", min: 0, max: 100, step: 1 },
-      description: "Avancement, de 0 à 100.",
-      table: { category: "State", defaultValue: { summary: "0" } },
-    },
+    ...common("className"),
+    value: prop(
+      "Avancement de 0 à 100. Laisser à `null` pour un état indéterminé, quand la durée est inconnue.",
+      { control: { type: "range", min: 0, max: 100, step: 1 }, category: CAT.state, defaultValue: "0" },
+    ),
+    max: prop("Valeur correspondant à 100 %.", { control: "number", category: CAT.state, defaultValue: "100" }),
+    getValueLabel: prop("Formate l'étiquette annoncée aux lecteurs d'écran (« 3 sur 5 » plutôt que « 60 % »).", { control: false, category: CAT.advanced }),
   },
   parameters: {
     layout: "centered",

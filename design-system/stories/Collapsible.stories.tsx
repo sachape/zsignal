@@ -2,13 +2,18 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ChevronsUpDown } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Collapsible> = {
   title: "Components/Content & Structure/Collapsible",
   component: Collapsible,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("open", "defaultOpen", "onOpenChange", "disabled", "children", "className"),
+  },
   parameters: {
     layout: "centered",
+    controls: { sort: "requiredFirst" },
     docs: { description: { component: "Collapsible — révèle ou masque une zone de contenu secondaire. Le trigger porte toujours un nom accessible (texte visible ou `aria-label`)." } },
   },
 };

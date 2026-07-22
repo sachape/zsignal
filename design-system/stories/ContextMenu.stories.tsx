@@ -3,11 +3,16 @@ import {
   ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem,
   ContextMenuSeparator, ContextMenuShortcut, ContextMenuLabel,
 } from "@/components/ui/context-menu";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof ContextMenu> = {
   title: "Components/Overlays/Context Menu",
   component: ContextMenu,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("onOpenChange", "modal", "children"),
+    dir: prop("Sens de lecture : inverse la direction des sous-menus.", { control: "inline-radio", options: ["ltr", "rtl"], category: CAT.layout }),
+  },
   parameters: {
     layout: "centered",
     docs: { description: { component: "Context Menu — menu contextuel au clic droit sur une zone. Réserver aux raccourcis d'expert : l'action doit rester atteignable autrement (l'accès clavier/tactile au clic droit est limité)." } },

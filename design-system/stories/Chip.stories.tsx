@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Chip } from "@/components/ui/chip";
 import { lock } from "./_lockControls";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Chip> = {
   title: "Components/Actions/Chip",
@@ -8,6 +9,8 @@ const meta: Meta<typeof Chip> = {
   tags: ["autodocs"],
   args: { children: "Tous", active: false },
   argTypes: {
+    ...common("children", "disabled", "onClick", "className"),
+    active: prop("État sélectionné du filtre — câble `aria-pressed`. Un chip n'est pas un bouton : il bascule, il ne déclenche pas.", { control: "boolean", category: CAT.state, defaultValue: "false" }),
     children: { control: "text", description: "Libellé du filtre.", table: { category: "Content" } },
     active: {
       control: "boolean",

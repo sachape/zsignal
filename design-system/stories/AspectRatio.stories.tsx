@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof AspectRatio> = {
   title: "Components/Content & Structure/Aspect Ratio",
@@ -7,11 +8,11 @@ const meta: Meta<typeof AspectRatio> = {
   tags: ["autodocs"],
   args: { ratio: 16 / 9 },
   argTypes: {
-    ratio: {
-      control: "number",
-      description: "Rapport largeur/hauteur (ex. 16/9 ≈ 1.78).",
-      table: { category: "Layout", defaultValue: { summary: "16 / 9" } },
-    },
+    ...common("children", "className"),
+    ratio: prop(
+      "Rapport largeur/hauteur imposé au contenu (16/9 ≈ 1.78, 1 pour un carré). La hauteur se déduit de la largeur : le bloc ne saute plus quand l'image arrive.",
+      { control: "number", category: CAT.layout, defaultValue: "16 / 9" },
+    ),
   },
   parameters: {
     layout: "centered",

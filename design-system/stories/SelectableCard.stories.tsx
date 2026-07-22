@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Zap } from "lucide-react";
 import { SelectableCard } from "@/components/ui/selectable-card";
 import { lock } from "./_lockControls";
+import { common, prop, CAT } from "./_argTypes";
 
 const meta: Meta<typeof SelectableCard> = {
   title: "Components/Actions/Selectable Card",
@@ -10,6 +11,11 @@ const meta: Meta<typeof SelectableCard> = {
   tags: ["autodocs"],
   args: { selected: false, highlight: "tint" },
   argTypes: {
+    ...common("children", "disabled", "onClick", "className"),
+    highlight: prop(
+      "`tint` teinte le fond à la sélection (tuiles de texte) ; `ring` pose un anneau sans fond teinté — à utiliser sur un aperçu image, qu'un fond laverait.",
+      { control: "inline-radio", options: ["tint", "ring"], defaultValue: "tint" },
+    ),
     selected: {
       control: "boolean",
       description: "État sélectionné (câble `aria-pressed`).",
