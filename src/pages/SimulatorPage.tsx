@@ -164,12 +164,12 @@ const CriterionRow = ({ label, description, icon: Icon, current, target, unit, e
           <Icon className={cn("h-3.5 w-3.5 shrink-0", met ? "text-success" : "text-muted-foreground/50")} />
           <span className="text-sm font-medium text-foreground">{label}</span>
           {available && (
-            <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
+            <span className="ml-auto text-[12px] tabular-nums text-muted-foreground">
               {formatNumber(current)} / {formatNumber(target)} {unit}
             </span>
           )}
         </div>
-        <p className="mt-0.5 text-[11px] text-muted-foreground/60">{description}</p>
+        <p className="mt-0.5 text-[12px] text-muted-foreground/60">{description}</p>
         {available && (
           <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted/60">
             <div
@@ -183,19 +183,19 @@ const CriterionRow = ({ label, description, icon: Icon, current, target, unit, e
       {/* ETA */}
       <div className="w-20 shrink-0 text-right">
         {!available ? null : met ? (
-          <span className="rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">Rempli ✓</span>
+          <span className="rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-[12px] font-semibold text-success">Rempli ✓</span>
         ) : note ? (
-          <span className="text-[10px] italic text-muted-foreground/60">{note}</span>
+          <span className="text-[12px] italic text-muted-foreground/60">{note}</span>
         ) : (
           <div className="space-y-0.5">
             {etaBoosted !== null && (
               <div className="flex items-center justify-end gap-1">
                 <Zap className="h-2.5 w-2.5 text-primary-strong" />
-                <span className="text-[11px] font-bold tabular-nums text-primary-strong">~{etaBoosted} sem.</span>
+                <span className="text-[12px] font-bold tabular-nums text-primary-strong">~{etaBoosted} sem.</span>
               </div>
             )}
             {etaBase !== null && etaBase !== etaBoosted && (
-              <div className="text-[10px] tabular-nums text-muted-foreground/40 line-through">~{etaBase} sem.</div>
+              <div className="text-[12px] tabular-nums text-muted-foreground/40 line-through">~{etaBase} sem.</div>
             )}
           </div>
         )}
@@ -372,10 +372,10 @@ const SimulatorPage = () => {
                 <div className="flex items-center justify-center gap-6 sm:gap-10">
                   {/* Sans Streamnco */}
                   <div className="text-center">
-                    <p className="mb-1 text-[11px] text-muted-foreground/60">Sans Streamnco</p>
-                    <p className="text-3xl font-bold tabular-nums text-muted-foreground/40 line-through">
+                    <p className="mb-1 text-[12px] text-muted-foreground/60">Sans Streamnco</p>
+                    <p className="text-[32px] font-bold tabular-nums text-muted-foreground/40 line-through">
                       {overallBaseEta !== null ? `~${overallBaseEta}` : "?"}
-                      <span className="text-lg"> sem.</span>
+                      <span className="text-xl"> sem.</span>
                     </p>
                   </div>
 
@@ -385,7 +385,7 @@ const SimulatorPage = () => {
                       <Zap className="h-4 w-4 text-primary-strong" />
                     </div>
                     {savings > 0 && (
-                      <span className="whitespace-nowrap rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary-strong">
+                      <span className="whitespace-nowrap rounded-full bg-primary/15 px-2 py-0.5 text-[12px] font-bold text-primary-strong">
                         -{savings} sem.
                       </span>
                     )}
@@ -393,10 +393,10 @@ const SimulatorPage = () => {
 
                   {/* Avec Streamnco */}
                   <div className="text-center">
-                    <p className="mb-1 text-[11px] font-semibold text-primary-strong/70">Avec Streamnco</p>
-                    <p className="text-3xl font-bold tabular-nums text-foreground">
+                    <p className="mb-1 text-[12px] font-semibold text-primary-strong/70">Avec Streamnco</p>
+                    <p className="text-[32px] font-bold tabular-nums text-foreground">
                       {overallBoostedEta !== null ? `~${overallBoostedEta}` : "?"}
-                      <span className="text-lg text-muted-foreground"> sem.</span>
+                      <span className="text-xl text-muted-foreground"> sem.</span>
                     </p>
                   </div>
                 </div>
@@ -430,7 +430,7 @@ const SimulatorPage = () => {
                   {i === 0 ? "🌱" : i === 1 ? "🎮" : "🔥"}
                 </span>
                 {p.label}
-                <span className="block text-[9px] font-normal opacity-60 mt-0.5">
+                <span className="block text-[12px] font-normal opacity-60 mt-0.5">
                   {p.sessions}×/sem · {p.duration}h
                 </span>
               </button>
@@ -446,7 +446,7 @@ const SimulatorPage = () => {
             >
               <span className="block text-base leading-none mb-1">⚙️</span>
               Perso.
-              <span className="block text-[9px] font-normal opacity-60 mt-0.5">
+              <span className="block text-[12px] font-normal opacity-60 mt-0.5">
                 {sessionsPerWeek}×/sem · {durationHours}h
               </span>
             </button>
@@ -467,7 +467,7 @@ const SimulatorPage = () => {
                 onValueChange={handleSlider(setSessionsPerWeek)}
                 className="cursor-pointer"
               />
-              <div className="mt-2 flex justify-between text-[10px] text-muted-foreground/60">
+              <div className="mt-2 flex justify-between text-[12px] text-muted-foreground/60">
                 <span>1× (occasionnel)</span><span>7× (quotidien)</span>
               </div>
             </div>
@@ -483,7 +483,7 @@ const SimulatorPage = () => {
                 onValueChange={handleSlider(setDurationHours)}
                 className="cursor-pointer"
               />
-              <div className="mt-2 flex justify-between text-[10px] text-muted-foreground/60">
+              <div className="mt-2 flex justify-between text-[12px] text-muted-foreground/60">
                 <span>1h</span><span>5h</span>
               </div>
             </div>
@@ -513,11 +513,11 @@ const SimulatorPage = () => {
             {overallBoostedEta !== null && overallBoostedEta > 0 && (
               <div className="flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1">
                 <Zap className="h-3 w-3 text-primary-strong" />
-                <span className="text-[11px] font-bold text-primary-strong">~{overallBoostedEta} sem. avec Streamnco</span>
+                <span className="text-[12px] font-bold text-primary-strong">~{overallBoostedEta} sem. avec Streamnco</span>
               </div>
             )}
           </div>
-          <p className="mb-3 text-[11px] text-muted-foreground/60">
+          <p className="mb-3 text-[12px] text-muted-foreground/60">
             {sessionsPerWeek} session{sessionsPerWeek > 1 ? "s" : ""}/sem. · {durationHours}h · ETA calculé avec et sans Streamnco
           </p>
 
@@ -579,7 +579,7 @@ const SimulatorPage = () => {
           {showChart && (
             <div className="mt-2 rounded-xl border border-border/50 bg-card/40 p-5">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+                <div className="flex items-center gap-4 text-[12px] text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <span className="h-0.5 w-4 rounded-full bg-primary/35" />
                     Sans outil {overallBaseEta !== null && <span className="opacity-60">(~{overallBaseEta} sem.)</span>}

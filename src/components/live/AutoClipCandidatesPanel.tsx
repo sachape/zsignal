@@ -265,7 +265,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
                   Clips proposés ({candidates.length})
                 </p>
                 {!hasVod && (
-                  <Badge variant="muted" className="text-[10px]">
+                  <Badge variant="muted" className="text-[12px]">
                     VOD indisponible
                   </Badge>
                 )}
@@ -318,14 +318,14 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
                   className="rounded-lg border border-border/60 bg-card/60 p-3"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="muted" className="text-[10px]">
+                    <Badge variant="muted" className="text-[12px]">
                       {PLATFORM_LABEL[item.platform] ?? item.platform}
                     </Badge>
-                    <Badge className={`text-[10px] ${tone}`} variant="outline">
+                    <Badge className={`text-[12px] ${tone}`} variant="outline">
                       {badge.label}
                     </Badge>
                     {item.opportunity_score !== null && (
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+                      <span className="text-[12px] uppercase tracking-wider text-muted-foreground/70">
                         {getConfidenceLabel(item.opportunity_score)} ·{" "}
                         {item.opportunity_score}/100
                       </span>
@@ -359,7 +359,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
                         Générer le clip
                       </Button>
                     ) : (
-                      <Badge variant="outline" className="border-warning/40 bg-warning/10 text-warning text-[10px]">
+                      <Badge variant="outline" className="border-warning/40 bg-warning/10 text-warning text-[12px]">
                         Génération bientôt
                       </Badge>
                     )}
@@ -387,7 +387,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
                   </div>
 
                   {item.generation_error && (
-                    <p className="mt-2 text-[11px] text-destructive">
+                    <p className="mt-2 text-[12px] text-destructive">
                       La génération automatique a échoué. Tu peux modifier le timestamp ou
                       réessayer.
                     </p>
@@ -416,7 +416,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
                 value={editStart}
                 onChange={(e) => setEditStart(Number(e.target.value))}
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 {formatVodTimestamp(editStart)}
               </p>
             </div>
@@ -431,7 +431,7 @@ const AutoClipCandidatesPanel = ({ session }: Props) => {
                 value={editEnd}
                 onChange={(e) => setEditEnd(Number(e.target.value))}
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 Durée : {Math.max(0, editEnd - editStart)}s (entre 5 et 180s)
               </p>
             </div>

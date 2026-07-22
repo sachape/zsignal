@@ -169,7 +169,7 @@ export default function ConnectNetworkModal({
                   <><YouTubeIcon className="h-4 w-4" />Connecter YouTube (admin)</>
                 )}
               </Button>
-              <p className="text-[11px] text-center text-muted-foreground/60">
+              <p className="text-[12px] text-center text-muted-foreground/60">
                 Mode admin — flux OAuth visible uniquement pour les testeurs.
               </p>
             </>
@@ -196,7 +196,7 @@ export default function ConnectNetworkModal({
                   <><TikTokIcon className="h-4 w-4" />Connecter TikTok (admin)</>
                 )}
               </Button>
-              <p className="text-[11px] text-center text-muted-foreground/60">
+              <p className="text-[12px] text-center text-muted-foreground/60">
                 Mode admin — flux OAuth visible uniquement pour les testeurs.
               </p>
             </>
@@ -252,13 +252,13 @@ export default function ConnectNetworkModal({
                 <div className="flex w-full items-center justify-between">
                   <Icon className={cn("h-5 w-5", color)} />
                   {isConnected && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-primary-strong border-primary/30">
+                    <Badge variant="outline" className="text-[12px] px-1.5 py-0 text-primary-strong border-primary/30">
                       Connecté
                     </Badge>
                   )}
                 </div>
                 <span className="text-sm font-medium">{label}</span>
-                <span className="text-[11px] text-muted-foreground leading-snug">{description}</span>
+                <span className="text-[12px] text-muted-foreground leading-snug">{description}</span>
               </button>
             );
           })}

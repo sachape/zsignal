@@ -27,7 +27,7 @@ const NotFound = () => {
         <p className="bg-gradient-to-b from-foreground to-foreground/25 bg-clip-text text-[7rem] font-bold leading-none tracking-tighter text-transparent sm:text-[9rem]">
           404
         </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-[32px]">
           Cette page a quitté le live.
         </h1>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">

@@ -138,7 +138,7 @@ export default function PublishClipDialog({
                         <span className="text-xs text-muted-foreground">@{a.username}</span>
                       )}
                     </span>
-                    {active && <Badge variant="default" className="text-[10px]">Sélectionné</Badge>}
+                    {active && <Badge variant="default" className="text-[12px]">Sélectionné</Badge>}
                   </button>
                 );
               })}
@@ -172,13 +172,13 @@ export default function PublishClipDialog({
             onChange={(e) => setHashtagsRaw(e.target.value)}
             placeholder="gaming streamer twitch"
           />
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-[12px] text-muted-foreground">
             Tape les mots sans #. Le # est ajouté automatiquement à la publication.
           </p>
         </div>
 
         <div className="space-y-1 rounded-md border border-border bg-muted/30 p-3">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
             Aperçu description
           </p>
           <p className="whitespace-pre-wrap text-sm text-foreground">

@@ -47,20 +47,20 @@ const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel 
             <p className="truncate text-xs text-muted-foreground">@{competitor.competitor_login}</p>
           </div>
           {groupLabel && (
-            <Badge variant="outline" className="shrink-0 text-[10px]">
+            <Badge variant="outline" className="shrink-0 text-[12px]">
               {isPotential ? "Direct potentiel" : groupLabel}
             </Badge>
           )}
         </div>
 
         {isPotential && (
-          <div className="rounded-md border border-warning/30 bg-warning/5 px-2.5 py-1.5 text-[11px] text-warning">
+          <div className="rounded-md border border-warning/30 bg-warning/5 px-2.5 py-1.5 text-[12px] text-warning">
             Match direct à confirmer · signal correct mais incomplet
           </div>
         )}
 
         {isLive && (
-          <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+          <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-destructive/15 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-destructive">
             <Radio className="h-2.5 w-2.5" /> Live · {formatNumber(competitor.avg_viewers)}
           </div>
         )}
@@ -69,7 +69,7 @@ const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel 
 
         {competitor.match_reasons.length > 0 && (
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
               Pourquoi sélectionné
             </p>
             <ul className="space-y-0.5 text-xs text-muted-foreground">
@@ -82,7 +82,7 @@ const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel 
 
         {copyMechanic && (
           <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
               À copier
             </p>
             <p className="mt-0.5 text-xs text-foreground">{copyMechanic}</p>
@@ -90,7 +90,7 @@ const StreamerBenchmarkCard = ({ competitor, headline, copyMechanic, groupLabel 
         )}
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[12px] text-muted-foreground">
             Fit {competitor.fit_score ?? competitor.similarity_score} ·
             confiance {competitor.confidence_score ?? "—"}
           </span>

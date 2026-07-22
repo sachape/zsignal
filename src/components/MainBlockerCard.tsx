@@ -29,7 +29,7 @@ const MainBlockerCard = ({ blocker, reportId }: Props) => {
             </Button>
           )}
         </div>
-        <h2 className="text-lg font-semibold text-foreground">{blocker.title}</h2>
+        <h2 className="text-xl font-semibold text-foreground">{blocker.title}</h2>
         <p className="mt-2 text-sm text-muted-foreground">{blocker.explanation}</p>
         <p className="mt-3 text-xs text-muted-foreground">
           <span className="font-medium text-foreground/80">Si tu l'ignores cette semaine : </span>

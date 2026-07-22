@@ -27,7 +27,7 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
       </div>
 
       {/* Text */}
-      <p className="relative text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong/70">
+      <p className="relative text-[12px] font-semibold uppercase tracking-[0.18em] text-primary-strong/70">
         Fonctionnalité Pro
       </p>
       <h2 className="relative mt-2 text-xl font-bold text-foreground">{feature}</h2>
@@ -52,7 +52,7 @@ export const FullPageLock = ({ icon, feature, description, bullets }: FullLockPr
           <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
         </Link>
       </Button>
-      <p className="relative mt-3 text-[11px] text-muted-foreground/50">
+      <p className="relative mt-3 text-[12px] text-muted-foreground/50">
         9,99€/mois · Annulable à tout moment
       </p>
     </div>

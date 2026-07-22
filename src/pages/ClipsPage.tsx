@@ -19,6 +19,7 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { LoadingState, ErrorState } from "@/components/StateView";
@@ -135,7 +136,7 @@ const CopyButton = ({ label, text, small }: CopyButtonProps) => {
       variant="outline"
       size={small ? "sm" : "default"}
       onClick={onCopy}
-      className={cn("gap-1.5", small && "h-7 px-2 text-[11px]")}
+      className={cn("gap-1.5", small && "h-7 px-2 text-[12px]")}
     >
       {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
       {label}
@@ -181,11 +182,11 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
               )}
             </div>
             <div className="absolute bottom-2 left-2 flex gap-1.5">
-              <Badge variant="outline" className={cn("text-[10px] font-semibold uppercase tracking-wider", labelBadgeClass(insight.label))}>
+              <Badge variant="outline" className={cn("text-[12px] font-semibold uppercase tracking-wider", labelBadgeClass(insight.label))}>
                 {POTENTIAL_LABEL_FR[insight.label]}
               </Badge>
               {insight.isUnderused && (
-                <Badge variant="outline" className="border-amber-500/40 bg-background/80 text-[10px] font-semibold uppercase tracking-wider text-amber-400">
+                <Badge variant="outline" className="border-amber-500/40 bg-background/80 text-[12px] font-semibold uppercase tracking-wider text-amber-400">
                   Sous-exploité
                 </Badge>
               )}
@@ -213,17 +214,17 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
               <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{formatViews(insight.clip.view_count)} vues</span>
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{formatDuration(insight.durationSec)}</span>
               <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{formatRelDate(insight.clip.clip_created_at)}</span>
               <span className="flex items-center gap-1"><TrendingUp className="h-3 w-3" />{insight.score}/100</span>
               {gameName ? (
-                <Badge variant="outline" className="h-5 border-border/60 bg-muted/30 text-[10px] font-medium text-muted-foreground">
+                <Badge variant="outline" className="h-5 border-border/60 bg-muted/30 text-[12px] font-medium text-muted-foreground">
                   {gameName}
                 </Badge>
               ) : insight.clip.game_id ? (
-                <Badge variant="outline" className="h-5 border-border/60 bg-muted/20 text-[10px] font-medium text-muted-foreground/70">
+                <Badge variant="outline" className="h-5 border-border/60 bg-muted/20 text-[12px] font-medium text-muted-foreground/70">
                   Catégorie inconnue
                 </Badge>
               ) : null}
@@ -231,7 +232,7 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
 
             <div className="flex flex-wrap items-center gap-2">
               {transformState === "existing" ? (
-                <Button asChild type="button" size="sm" className="h-7 gap-1.5 px-2 text-[11px]">
+                <Button asChild type="button" size="sm" className="h-7 gap-1.5 px-2 text-[12px]">
                   <Link to="/content-queue">
                     <Check className="h-3.5 w-3.5" />
                     Voir dans la queue
@@ -243,7 +244,7 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
                   size="sm"
                   onClick={() => onTransform(insight)}
                   disabled={transformState === "creating"}
-                  className="h-7 gap-1.5 px-2 text-[11px]"
+                  className="h-7 gap-1.5 px-2 text-[12px]"
                 >
                   {transformState === "creating" ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -262,7 +263,7 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
                 variant="ghost"
                 size="sm"
                 onClick={() => setExpanded((v) => !v)}
-                className="h-7 px-2 text-[11px] text-muted-foreground"
+                className="h-7 px-2 text-[12px] text-muted-foreground"
               >
                 {expanded ? "Masquer" : "Voir le pack"}
               </Button>
@@ -272,11 +273,11 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
             {expanded && (
               <div className="mt-1 space-y-3 rounded-lg border border-border/60 bg-muted/20 p-3 text-xs">
                 <div>
-                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Titre court</p>
+                  <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">Titre court</p>
                   <p className="text-foreground">{copy.title}</p>
                 </div>
                 <div>
-                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Hooks (3 variantes)</p>
+                  <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">Hooks (3 variantes)</p>
                   <ul className="space-y-1 text-foreground">
                     {copy.hooks.map((h, i) => (
                       <li key={i} className="flex gap-2">
@@ -287,16 +288,16 @@ const ClipCard = ({ insight, gameName, transformState, onTransform }: ClipCardPr
                   </ul>
                 </div>
                 <div>
-                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Caption</p>
+                  <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">Caption</p>
                   <pre className="whitespace-pre-wrap font-sans text-foreground">{copy.caption}</pre>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <div>
-                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Format</p>
+                    <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">Format</p>
                     <p className="text-foreground">{copy.formatRecommendation}</p>
                   </div>
                   <div>
-                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Timing</p>
+                    <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">Timing</p>
                     <p className="text-foreground">{copy.timingRecommendation}</p>
                   </div>
                 </div>
@@ -326,9 +327,9 @@ const SummaryTile = ({
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">{label}</p>
+        <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">{label}</p>
         <p className="mt-0.5 truncate text-base font-semibold text-foreground" title={value}>{value}</p>
-        {hint && <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{hint}</p>}
+        {hint && <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">{hint}</p>}
       </div>
     </CardContent>
   </Card>
@@ -570,7 +571,7 @@ const ClipsPage = () => {
           action={action}
         />
 
-        <p className="-mt-2 mb-4 text-[11px] text-muted-foreground">
+        <p className="-mt-2 mb-4 text-[12px] text-muted-foreground">
           Les clips sont récupérés automatiquement après chaque live. Tu peux aussi rafraîchir manuellement.
         </p>
 
@@ -592,7 +593,7 @@ const ClipsPage = () => {
               <div className="rounded-full bg-primary/10 p-3 text-primary-strong">
                 <Scissors className="h-6 w-6" />
               </div>
-              <h2 className="text-lg font-semibold text-foreground">Aucun clip Twitch récent détecté.</h2>
+              <h2 className="text-xl font-semibold text-foreground">Aucun clip Twitch récent détecté.</h2>
               <p className="max-w-md text-sm text-muted-foreground">
                 Crée quelques clips pendant tes lives, puis reviens ici pour obtenir des idées de contenus courts.
               </p>
@@ -648,18 +649,13 @@ const ClipsPage = () => {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-1.5">
                 {FILTERS.map((f) => (
-                  <button
+                  <Chip
                     key={f.id}
+                    active={filter === f.id}
                     onClick={() => setFilter(f.id)}
-                    className={cn(
-                      "rounded-full border px-3 py-1 text-xs transition-colors",
-                      filter === f.id
-                        ? "border-primary/40 bg-primary/15 text-primary-strong"
-                        : "border-border/60 bg-card/40 text-muted-foreground hover:bg-muted/40",
-                    )}
                   >
                     {f.label}
-                  </button>
+                  </Chip>
                 ))}
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -705,11 +701,11 @@ const ClipsPage = () => {
             <Card className="border-border/60 bg-card/40">
               <CardContent className="grid gap-3 p-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Format recommandé</p>
+                  <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">Format recommandé</p>
                   <p className="mt-1 text-sm text-foreground">{result.recommendedFormat}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Timing conseillé</p>
+                  <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">Timing conseillé</p>
                   <p className="mt-1 text-sm text-foreground">{result.recommendedTiming}</p>
                 </div>
               </CardContent>

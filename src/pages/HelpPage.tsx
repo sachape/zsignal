@@ -286,10 +286,10 @@ const HelpPage = () => {
               <LifeBuoy className="h-3.5 w-3.5 text-primary-strong" />
               Support Streamnco
             </div>
-            <h1 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
+            <h1 className="font-display text-[40px] font-semibold tracking-tight text-foreground md:text-5xl">
               Centre d'aide Streamnco
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
+            <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-xl">
               Trouve rapidement une réponse sur ton diagnostic, ton StreamScore,
               Twitch, ta feuille de route ou ton abonnement.
             </p>
@@ -316,7 +316,7 @@ const HelpPage = () => {
                   <MessageCircle className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">
+                  <h2 className="text-xl font-semibold text-foreground">
                     Besoin d'aide ?
                   </h2>
                   <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
@@ -390,7 +390,7 @@ const HelpPage = () => {
           {/* Articles */}
           {noResults ? (
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-10 text-center">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="text-xl font-semibold text-foreground">
                 Aucun résultat trouvé
               </h3>
               <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">

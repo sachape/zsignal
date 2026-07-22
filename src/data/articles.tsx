@@ -27,15 +27,15 @@ const H2 = ({ id, children }: { id: string; children: ReactNode }) => (
 );
 
 const H3 = ({ children }: { children: ReactNode }) => (
-  <h3 className="mt-8 text-lg font-semibold text-foreground">{children}</h3>
+  <h3 className="mt-8 text-xl font-semibold text-foreground">{children}</h3>
 );
 
 const P = ({ children }: { children: ReactNode }) => (
-  <p className="mt-4 text-[15px] leading-[1.8] text-foreground/75">{children}</p>
+  <p className="mt-4 text-[16px] leading-[1.8] text-foreground/75">{children}</p>
 );
 
 const Ul = ({ children }: { children: ReactNode }) => (
-  <ul className="mt-4 space-y-2 text-[15px] leading-[1.8] text-foreground/75">{children}</ul>
+  <ul className="mt-4 space-y-2 text-[16px] leading-[1.8] text-foreground/75">{children}</ul>
 );
 
 const Li = ({ children }: { children: ReactNode }) => (
@@ -59,7 +59,7 @@ const Callout = ({
       <div className="mb-2 flex items-center gap-2">
         {icon && <span className="text-base">{icon}</span>}
         {title && (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary-strong">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-primary-strong">
             {title}
           </p>
         )}
@@ -85,10 +85,10 @@ const StatBlock = ({
   >
     {stats.map((s) => (
       <div key={s.label} className="text-center">
-        <p className="bg-gradient-to-b from-primary to-primary/60 bg-clip-text text-3xl font-bold tabular-nums text-transparent">
+        <p className="bg-gradient-to-b from-primary to-primary/60 bg-clip-text text-[32px] font-bold tabular-nums text-transparent">
           {s.value}
         </p>
-        <p className="mt-1 text-[11px] text-muted-foreground">{s.label}</p>
+        <p className="mt-1 text-[12px] text-muted-foreground">{s.label}</p>
       </div>
     ))}
   </div>
@@ -110,14 +110,14 @@ const ToolCard = ({
   <div className="my-6 rounded-xl border border-white/[0.06] bg-card/40 p-5">
     <div className="flex items-center justify-between gap-3">
       <p className="font-semibold text-foreground">{name}</p>
-      <span className="rounded-full border border-border/50 bg-muted/30 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <span className="rounded-full border border-border/50 bg-muted/30 px-2.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
         {badge}
       </span>
     </div>
     <p className="mt-1.5 text-sm text-muted-foreground">{desc}</p>
-    <div className="mt-4 grid grid-cols-2 gap-4 text-[13px]">
+    <div className="mt-4 grid grid-cols-2 gap-4 text-[14px]">
       <div>
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary-strong/70">
+        <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-primary-strong/70">
           Points forts
         </p>
         <ul className="space-y-1">
@@ -129,7 +129,7 @@ const ToolCard = ({
         </ul>
       </div>
       <div>
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+        <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">
           Limites
         </p>
         <ul className="space-y-1">
@@ -1152,7 +1152,7 @@ export const ARTICLES: Article[] = [
         </P>
         <P>
           Tu peux calculer un proxy de rétention avec les données du dashboard natif Twitch :
-          <code className="mx-1 rounded bg-muted/50 px-1.5 py-0.5 text-[13px] font-mono text-primary-strong">
+          <code className="mx-1 rounded bg-muted/50 px-1.5 py-0.5 text-[14px] font-mono text-primary-strong">
             Watch Time total ÷ (Viewers uniques × Durée du stream)
           </code>
         </P>
@@ -1605,13 +1605,13 @@ export const ARTICLES: Article[] = [
         <H2 id="tableau">Tableau comparatif</H2>
 
         <div className="my-8 overflow-hidden rounded-xl border border-white/[0.06]">
-          <table className="w-full text-[13px]">
+          <table className="w-full text-[14px]">
             <thead>
               <tr className="border-b border-white/[0.06] bg-card/60">
-                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">Fonctionnalité</th>
-                <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">TwitchTracker</th>
-                <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">SullyGnome</th>
-                <th className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-primary-strong/80">Streamnco</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">Fonctionnalité</th>
+                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">TwitchTracker</th>
+                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">SullyGnome</th>
+                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wider text-primary-strong/80">Streamnco</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">

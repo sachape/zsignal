@@ -112,11 +112,11 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Cap de la semaine
               </p>
               {badge && (
-                <Badge variant={badge.variant} className="h-5 px-1.5 text-[10px]">
+                <Badge variant={badge.variant} className="h-5 px-1.5 text-[12px]">
                   {badge.label}
                 </Badge>
               )}
@@ -128,7 +128,7 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
               <p className="mt-1 text-xs text-muted-foreground">{diagnosis}</p>
             )}
             {row.target_count > 1 && !reached && (
-              <p className="mt-2 text-[11px] font-medium text-muted-foreground/80">
+              <p className="mt-2 text-[12px] font-medium text-muted-foreground/80">
                 {doneCount}/{row.target_count} lives cette semaine
               </p>
             )}
@@ -170,7 +170,7 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
                           ?.verified_by === "auto" && (
                           <Badge
                             variant="outline"
-                            className="ml-2 h-4 px-1.5 text-[9px] align-middle"
+                            className="ml-2 h-4 px-1.5 text-[12px] align-middle"
                           >
                             Vérifié automatiquement
                           </Badge>
@@ -180,14 +180,14 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
                   {item.status === "todo" ? (
                     <button
                       onClick={() => handleStatus(item.id, "done")}
-                      className="shrink-0 text-[10px] font-medium text-primary-strong hover:underline"
+                      className="shrink-0 text-[12px] font-medium text-primary-strong hover:underline"
                     >
                       Fait
                     </button>
                   ) : (
                     <button
                       onClick={() => handleStatus(item.id, "todo")}
-                      className="shrink-0 text-[10px] font-medium text-muted-foreground hover:underline"
+                      className="shrink-0 text-[12px] font-medium text-muted-foreground hover:underline"
                     >
                       Annuler
                     </button>
@@ -200,7 +200,7 @@ const WeeklyMilestoneCard = ({ current }: Props) => {
 
         {items.length > 0 && (
           <div className="flex items-center justify-between border-t border-border/40 pt-2">
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[12px] text-muted-foreground">
               {itemsDone}/{items.length} actions
             </p>
             <Button asChild variant="ghost" size="sm" className="h-7 text-xs">

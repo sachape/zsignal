@@ -753,7 +753,7 @@ const LiveSetupPage = () => {
                 </p>
               </div>
               <span className={cn(
-                "self-start rounded-full border px-3 py-1 text-[11px] font-semibold sm:self-auto",
+                "self-start rounded-full border px-3 py-1 text-[12px] font-semibold sm:self-auto",
                 workflowSteps.every(s => s.done)
                   ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                   : "border-border/50 bg-muted/40 text-muted-foreground",
@@ -793,7 +793,7 @@ const LiveSetupPage = () => {
                         {step.label}
                       </p>
                       <p className={cn(
-                        "mt-0.5 hidden text-[10px] leading-snug sm:block",
+                        "mt-0.5 hidden text-[12px] leading-snug sm:block",
                         step.done || currentStep === idx ? "text-muted-foreground" : "text-muted-foreground/35",
                       )}>
                         {step.detail}
@@ -824,7 +824,7 @@ const LiveSetupPage = () => {
                         active ? "border-primary bg-primary/10 text-primary-strong" : "border-border bg-card hover:border-border/80",
                         soon && "cursor-not-allowed opacity-60")}>
                       <Icon className="h-4 w-4" />{label}
-                      {soon && <Badge variant="outline" className="ml-1 text-[10px]">bientôt</Badge>}
+                      {soon && <Badge variant="outline" className="ml-1 text-[12px]">bientôt</Badge>}
                     </button>
                   );
                 })}
@@ -856,7 +856,7 @@ const LiveSetupPage = () => {
                         {active && (
                           <div className="mb-2 flex items-center gap-1">
                             <CheckCircle2 className="h-3 w-3 text-primary-strong" />
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-strong">Actif</span>
+                            <span className="text-[12px] font-semibold uppercase tracking-wider text-primary-strong">Actif</span>
                           </div>
                         )}
                         <div className={cn("text-sm font-semibold", active ? "text-foreground" : "text-foreground/90")}>{p.label}</div>
@@ -1347,7 +1347,7 @@ function PreviewField({ label, value, multiline = false }: { label: string; valu
 function TechBlock({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-border/60 bg-background/40 p-2.5">
-      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-[12px] uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="text-sm font-medium text-foreground">{value}</div>
     </div>
   );
@@ -1389,7 +1389,7 @@ function StepSectionHeader({
       </div>
       <div className="min-w-0 flex-1 pt-0.5">
         {step && (
-          <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary-strong/60">
+          <p className="mb-0.5 text-[12px] font-bold uppercase tracking-[0.22em] text-primary-strong/60">
             Étape {step}
           </p>
         )}
@@ -1431,7 +1431,7 @@ function PushActionRow({
         </Button>
       )}
       {connected && disabled && (
-        <p className="text-[11px] text-muted-foreground">{disabledReason}</p>
+        <p className="text-[12px] text-muted-foreground">{disabledReason}</p>
       )}
     </div>
   );
@@ -1507,7 +1507,7 @@ function StatusPill({ status }: { status: string }) {
   };
   const s = map[status] ?? map.draft;
   return (
-    <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", s.cls)}>
+    <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[12px] font-medium", s.cls)}>
       {s.label}
     </span>
   );
@@ -1520,7 +1520,7 @@ function PriorityBadge({ priority }: { priority: ContentPriority }) {
       ? "border-primary/40 bg-primary/10 text-primary-strong"
       : "border-border bg-muted text-muted-foreground";
   return (
-    <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", cls)}>
+    <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[12px] font-medium", cls)}>
       {PRIORITY_LABEL[priority]}
     </span>
   );
@@ -1730,7 +1730,7 @@ function PostLiveBriefCard({
 function SummaryRow({ label, value, link }: { label: string; value: string; link?: string }) {
   return (
     <div className="rounded-md border border-border/60 bg-background/40 p-2.5">
-      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-[12px] uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="mt-0.5 truncate text-sm font-medium text-foreground">{value}</div>
       {link && (
         <a href={link} target="_blank" rel="noreferrer"

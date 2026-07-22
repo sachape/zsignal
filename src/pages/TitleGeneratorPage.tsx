@@ -29,7 +29,7 @@ function ScoreBar({ score }: { score: number }) {
           style={{ width: `${score}%` }}
         />
       </div>
-      <span className={cn("text-[11px] font-semibold tabular-nums", labelColor)}>
+      <span className={cn("text-[12px] font-semibold tabular-nums", labelColor)}>
         {score}/100 · {label}
       </span>
     </div>
@@ -64,7 +64,7 @@ function TitleCard({ option, rank }: { option: TitleOption; rank: number }) {
               <Badge
                 key={tag}
                 variant="outline"
-                className="border-border/50 bg-muted/30 px-1.5 py-0 text-[10px] text-muted-foreground"
+                className="border-border/50 bg-muted/30 px-1.5 py-0 text-[12px] text-muted-foreground"
               >
                 {tag}
               </Badge>

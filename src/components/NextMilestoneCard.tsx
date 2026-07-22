@@ -44,7 +44,7 @@ const NextMilestoneCard = ({ milestone, reportId, foundationActive }: Props) => 
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="gap-1 text-[10px] text-primary-strong">
+              <Badge variant="outline" className="gap-1 text-[12px] text-primary-strong">
                 <Target className="h-3 w-3" />
                 Prochain objectif
               </Badge>

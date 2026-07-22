@@ -15,7 +15,7 @@ const DashboardQuickActions = () => {
     <div className="rounded-2xl border border-border/60 bg-card/40 p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-foreground">Actions rapides</h2>
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+        <span className="text-[12px] uppercase tracking-wider text-muted-foreground/70">
           Cmd+K pour tout faire
         </span>
       </div>
@@ -28,7 +28,7 @@ const DashboardQuickActions = () => {
           >
             <action.icon className="h-4 w-4 text-primary-strong" />
             <span className="text-xs font-medium text-foreground">{action.label}</span>
-            <span className="text-[10px] text-muted-foreground/70">{action.hint}</span>
+            <span className="text-[12px] text-muted-foreground/70">{action.hint}</span>
           </Link>
         ))}
       </div>

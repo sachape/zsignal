@@ -85,7 +85,7 @@ const CompetitorTrendChart = ({ snapshots, login }: Props) => {
             <Badge
               variant="outline"
               className={cn(
-                "text-[10px]",
+                "text-[12px]",
                 direction === "up" && "border-success/30 bg-success/5 text-success",
                 direction === "down" && "border-destructive/30 bg-destructive/5 text-destructive",
                 direction === "flat" && "border-border text-muted-foreground",

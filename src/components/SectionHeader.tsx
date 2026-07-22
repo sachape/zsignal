@@ -33,7 +33,7 @@ const SectionHeader = ({
       <h2
         className={cn(
           "font-semibold tracking-tight text-foreground",
-          isCenter ? "text-2xl sm:text-3xl" : "text-lg",
+          isCenter ? "text-2xl sm:text-[32px]" : "text-xl",
         )}
       >
         {title}

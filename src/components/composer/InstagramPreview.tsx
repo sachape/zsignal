@@ -167,7 +167,7 @@ const InstagramPreview = ({
       <MediaBox mediaUrl={mediaUrl} mediaMime={mediaMime} ratio="1 / 1" />
       <ActionsBar />
       <CaptionBlock caption={caption} hashtags={hashtags} username={username} />
-      <div className="px-3 pb-3 text-[10px] uppercase tracking-wide text-muted-foreground">À l'instant</div>
+      <div className="px-3 pb-3 text-[12px] uppercase tracking-wide text-muted-foreground">À l'instant</div>
     </div>
   );
 };

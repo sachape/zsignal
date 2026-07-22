@@ -137,7 +137,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
         </span>
         <Avatar className="h-10 w-10 shrink-0 rounded-full border border-border/60">
           {c.profile_image_url && <AvatarImage src={c.profile_image_url} alt={c.login} />}
-          <AvatarFallback className="rounded-full text-[10px]">
+          <AvatarFallback className="rounded-full text-[12px]">
             {c.login.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -146,22 +146,22 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
           <div className="flex min-w-0 items-center gap-2">
             <p className="truncate text-sm font-semibold text-foreground">{c.display_name}</p>
             {c.is_live && (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive">
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/15 px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-destructive">
                 <Radio className="h-2 w-2" /> Live
               </span>
             )}
             {c.broadcaster_type === "partner" && (
-              <Badge variant="outline" className="shrink-0 text-[10px]">
+              <Badge variant="outline" className="shrink-0 text-[12px]">
                 Partenaire
               </Badge>
             )}
             {c.broadcaster_type === "affiliate" && (
-              <Badge variant="outline" className="shrink-0 text-[10px]">
+              <Badge variant="outline" className="shrink-0 text-[12px]">
                 Affilié
               </Badge>
             )}
             {c.language && (
-              <Badge variant="outline" className="shrink-0 text-[10px]">
+              <Badge variant="outline" className="shrink-0 text-[12px]">
                 {c.language.toUpperCase()}
               </Badge>
             )}
@@ -175,7 +175,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
             {c.is_live && (
               <>
                 <div>
-                  <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                  <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">
                     viewers
                   </p>
                   <div className="flex items-center gap-1">
@@ -194,7 +194,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
                 tier.surfaceClass,
               )}
             >
-              <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">
+              <span className="text-[12px] font-semibold uppercase tracking-wider opacity-50">
                 StreamScore
               </span>
               <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>
@@ -209,7 +209,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
           {c.is_live && (
             <>
               <div className="text-right">
-                <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">
                   viewers
                 </p>
                 <div className="flex items-center justify-end gap-1">
@@ -228,7 +228,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
               tier.surfaceClass,
             )}
           >
-            <span className="text-[9px] font-semibold uppercase tracking-wider opacity-50">
+            <span className="text-[12px] font-semibold uppercase tracking-wider opacity-50">
               StreamScore
             </span>
             <span className={cn("text-base font-bold tabular-nums leading-tight", tier.textClass)}>
@@ -267,7 +267,7 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
               Tu vois les {visibleCount} premières chaînes. Passe Pro pour débloquer
               {" "}les {lockedCount} autres chaînes indexées dans cette catégorie.
             </p>
-            <p className="mt-2 text-[11px] text-muted-foreground/80">
+            <p className="mt-2 text-[12px] text-muted-foreground/80">
               {visibleCount} visible{visibleCount > 1 ? "s" : ""} · {lockedCount} verrouillée{lockedCount > 1 ? "s" : ""}
             </p>
           </div>
@@ -302,12 +302,12 @@ export const StreamScoreLeaderboard: React.FC<Props> = ({ category, language, is
       )}
 
       {isPro && !hasMore && rows.length > 0 && indexedCount > PAGE_SIZE && (
-        <p className="mt-1 text-center text-[11px] text-muted-foreground/80">
+        <p className="mt-1 text-center text-[12px] text-muted-foreground/80">
           Tous les résultats sont affichés
         </p>
       )}
 
-      <p className="mt-2 text-[11px] text-muted-foreground">
+      <p className="mt-2 text-[12px] text-muted-foreground">
         {footerText} · Classement non exhaustif · Source : Streamnco
       </p>
     </div>

@@ -45,7 +45,7 @@ const OpportunityCard = ({ opportunity, index, locked = false }: Props) => {
             <Badge
               variant="outline"
               className={cn(
-                "gap-1 text-[10px] font-semibold",
+                "gap-1 text-[12px] font-semibold",
                 isFoundation
                   ? "border-primary/30 bg-primary/5 text-primary-strong"
                   : "border-accent/30 bg-accent/5 text-accent",
@@ -55,7 +55,7 @@ const OpportunityCard = ({ opportunity, index, locked = false }: Props) => {
               {opportunity.sourceLabel}
             </Badge>
             {typeof index === "number" && (
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[12px] font-bold text-muted-foreground">
                 {index + 1}
               </span>
             )}
@@ -70,7 +70,7 @@ const OpportunityCard = ({ opportunity, index, locked = false }: Props) => {
           <div className="rounded-lg bg-muted/40 p-3">
             <div className="mb-1.5 flex items-center gap-1.5">
               <Eye className="h-3 w-3 text-muted-foreground" />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+              <span className="text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
                 Pourquoi ça compte
               </span>
             </div>
@@ -97,7 +97,7 @@ const OpportunityCard = ({ opportunity, index, locked = false }: Props) => {
               />
               <span
                 className={cn(
-                  "text-[9px] font-bold uppercase tracking-widest",
+                  "text-[12px] font-bold uppercase tracking-widest",
                   isFoundation ? "text-primary-strong" : "text-accent",
                 )}
               >
@@ -121,7 +121,7 @@ const OpportunityCard = ({ opportunity, index, locked = false }: Props) => {
             <p className="text-xs font-semibold text-foreground">
               Opportunité Premium
             </p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
               Réservée aux membres Pro
             </p>
           </div>

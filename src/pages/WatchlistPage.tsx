@@ -211,7 +211,7 @@ const WatchlistPage = () => {
                 <span className="text-xs font-semibold text-foreground">
                   Cette semaine dans ta watchlist
                 </span>
-                <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary-strong tabular-nums">
+                <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[12px] font-bold text-primary-strong tabular-nums">
                   {alerts.length}
                 </span>
               </div>
@@ -289,7 +289,7 @@ const WatchlistPage = () => {
                 </Button>
               </div>
 
-              <p className="text-[11px] text-muted-foreground/50">
+              <p className="text-[12px] text-muted-foreground/50">
                 Stockée sur cet appareil · non synchronisée entre appareils
               </p>
 
@@ -306,7 +306,7 @@ const WatchlistPage = () => {
                   >
                     <span className="text-base">{h.icon}</span>
                     <p className="mt-1 text-xs font-semibold text-foreground">{h.title}</p>
-                    <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{h.desc}</p>
+                    <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">{h.desc}</p>
                   </div>
                 ))}
               </div>
@@ -345,22 +345,22 @@ const WatchlistPage = () => {
                       {entry.category && (
                         <Badge
                           variant="outline"
-                          className="h-5 rounded-full px-2 text-[10px] font-medium"
+                          className="h-5 rounded-full px-2 text-[12px] font-medium"
                         >
                           {entry.category}
                         </Badge>
                       )}
                       {hasTrend && direction !== "unknown" && (
-                        <span className={cn("flex items-center gap-0.5 text-[10px] font-semibold tabular-nums", trendColor)}>
+                        <span className={cn("flex items-center gap-0.5 text-[12px] font-semibold tabular-nums", trendColor)}>
                           <TrendIcon className="h-3 w-3" />
                           {pct !== null ? `${pct > 0 ? "+" : ""}${pct}%` : ""}
                         </span>
                       )}
                       {snaps.length === 1 && (
-                        <span className="text-[10px] text-muted-foreground">1er snapshot</span>
+                        <span className="text-[12px] text-muted-foreground">1er snapshot</span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="mt-0.5 text-[12px] text-muted-foreground">
                       @{entry.login} · {timeAgo(entry.added_at)}
                       {snaps.length > 0 && ` · ${snaps.length} snapshot${snaps.length > 1 ? "s" : ""}`}
                     </p>
@@ -416,7 +416,7 @@ const WatchlistPage = () => {
         )}
 
         {entries.length > 0 && (
-          <p className="mt-4 text-[11px] text-muted-foreground/50">
+          <p className="mt-4 text-[12px] text-muted-foreground/50">
             Stocké localement sur cet appareil · non synchronisé entre appareils
           </p>
         )}

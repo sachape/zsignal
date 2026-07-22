@@ -538,7 +538,7 @@ const VodImportPage = () => {
           description="Colle une VOD Twitch, un Clip Twitch ou importe une vidéo. Streamnco la transforme en clip vertical prêt pour TikTok, Reels et Shorts."
         />
 
-        <div className="mb-4 flex flex-wrap items-center gap-2 text-[11px]">
+        <div className="mb-4 flex flex-wrap items-center gap-2 text-[12px]">
           <Badge variant="outline" className="border-success/40 bg-success/10 text-success">
             VOD Twitch — Disponible
           </Badge>
@@ -597,7 +597,7 @@ const VodImportPage = () => {
                 </div>
               </div>
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[12px] text-muted-foreground">
                   Tu choisiras le fichier .mp4/.mov dans le panneau de préparation. Par défaut, Streamnco prépare les 60 premières secondes.
                 </p>
                 <Button
@@ -671,31 +671,31 @@ const VodImportPage = () => {
                   className="pl-9"
                 />
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 text-[12px] text-muted-foreground">
                 <span>Fonctionne avec les VOD Twitch et les Clips Twitch.</span>
                 {detectedSource === "twitch_vod" && (
-                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary-strong text-[10px]">
+                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary-strong text-[12px]">
                     VOD Twitch détectée
                   </Badge>
                 )}
                 {detectedSource === "twitch_clip" && (
-                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary-strong text-[10px]">
+                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary-strong text-[12px]">
                     Clip Twitch détecté
                   </Badge>
                 )}
                 {detectedSource === "youtube" && (
-                  <Badge variant="outline" className="border-muted bg-muted/30 text-muted-foreground text-[10px]">
+                  <Badge variant="outline" className="border-muted bg-muted/30 text-muted-foreground text-[12px]">
                     YouTube — Bientôt
                   </Badge>
                 )}
               </div>
               {detectedSource === "twitch_clip" && (
-                <p className="text-[11px] text-primary-strong">
+                <p className="text-[12px] text-primary-strong">
                   Clip Twitch détecté. Streamnco utilisera le clip complet, sans timestamps.
                 </p>
               )}
               {detectedSource === "youtube" && (
-                <p className="text-[11px] text-warning">
+                <p className="text-[12px] text-warning">
                   YouTube arrive bientôt. Utilise une VOD Twitch, un Clip Twitch ou importe une vidéo.
                 </p>
               )}
@@ -756,7 +756,7 @@ const VodImportPage = () => {
                     rows={3}
                     className="font-mono text-xs"
                   />
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[12px] text-muted-foreground">
                     Format : <code>mm:ss-mm:ss</code> ou <code>hh:mm:ss-hh:mm:ss</code>. Si vide, les 60 premières secondes seront préparées.
                   </p>
                 </div>
@@ -764,7 +764,7 @@ const VodImportPage = () => {
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 {detectedSource === "twitch_clip"
                   ? "Streamnco va utiliser tout le Clip Twitch pour générer ton clip vertical."
                   : hasManualTimestamps
@@ -782,7 +782,7 @@ const VodImportPage = () => {
             </div>
 
             {submitting && (
-              <div className="mt-2 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-primary-strong/80">
+              <div className="mt-2 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-[12px] text-primary-strong/80">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 {prepMessage}
               </div>
@@ -834,7 +834,7 @@ const VodImportPage = () => {
                   <Loader2 className="h-5 w-5 animate-spin text-primary-strong" />
                   <div>
                     <p className="text-sm font-semibold text-foreground">Ça arrive…</p>
-                    <p className="text-[11px] text-muted-foreground">{prepMessage}</p>
+                    <p className="text-[12px] text-muted-foreground">{prepMessage}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -913,14 +913,14 @@ const VodImportPage = () => {
                   return (
                     <div key={item.id} className="rounded-lg border border-border/60 bg-card/60 p-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="muted" className="text-[10px]">
+                        <Badge variant="muted" className="text-[12px]">
                           {PLATFORM_LABEL[item.platform] ?? item.platform}
                         </Badge>
-                        <Badge className={`text-[10px] ${tone}`} variant="outline">
+                        <Badge className={`text-[12px] ${tone}`} variant="outline">
                           {badge.label}
                         </Badge>
                         {item.opportunity_score !== null && (
-                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+                          <span className="text-[12px] uppercase tracking-wider text-muted-foreground/70">
                             {getConfidenceLabel(item.opportunity_score)} · {item.opportunity_score}/100
                           </span>
                         )}
@@ -988,22 +988,22 @@ const VodImportPage = () => {
                       </div>
 
                       {activeStageLabel && isProcessing && (
-                        <p className="mt-2 text-[11px] text-primary-strong">
+                        <p className="mt-2 text-[12px] text-primary-strong">
                           {activeStageLabel}
                         </p>
                       )}
                       {anotherJobIsActive && !isReady && (
-                        <p className="mt-2 text-[11px] text-warning">
+                        <p className="mt-2 text-[12px] text-warning">
                           Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.
                         </p>
                       )}
                       {isLongRunning && (
-                        <p className="mt-2 text-[11px] text-warning">
+                        <p className="mt-2 text-[12px] text-warning">
                           La génération est plus longue que prévu, mais elle continue.
                         </p>
                       )}
                       {isError && item.generation_error && (
-                        <p className="mt-2 text-[11px] text-destructive">
+                        <p className="mt-2 text-[12px] text-destructive">
                           {item.generation_error}
                         </p>
                       )}
@@ -1047,7 +1047,7 @@ const VodImportPage = () => {
                   value={editStart}
                   onChange={(e) => setEditStart(Number(e.target.value))}
                 />
-                <p className="text-[11px] text-muted-foreground">{formatVodTimestamp(editStart)}</p>
+                <p className="text-[12px] text-muted-foreground">{formatVodTimestamp(editStart)}</p>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="end" className="text-xs">
@@ -1060,7 +1060,7 @@ const VodImportPage = () => {
                   value={editEnd}
                   onChange={(e) => setEditEnd(Number(e.target.value))}
                 />
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[12px] text-muted-foreground">
                   Durée : {Math.max(0, editEnd - editStart)}s (entre 5 et 180s)
                 </p>
               </div>

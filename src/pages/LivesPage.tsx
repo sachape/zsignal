@@ -33,14 +33,14 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
 const StatusBadge = ({ session, debrief }: Row) => {
   if (session.status === "live") {
     return (
-      <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">
+      <Badge variant="destructive" className="h-5 px-1.5 text-[12px]">
         Live en cours
       </Badge>
     );
   }
   if (debrief?.has_enough_signal) {
     return (
-      <Badge variant="muted" className="h-5 px-1.5 text-[10px]">
+      <Badge variant="muted" className="h-5 px-1.5 text-[12px]">
         Débrief disponible
       </Badge>
     );
@@ -49,14 +49,14 @@ const StatusBadge = ({ session, debrief }: Row) => {
     return (
       <Badge
         variant="outline"
-        className="h-5 border-warning/40 px-1.5 text-[10px] text-warning/80"
+        className="h-5 border-warning/40 px-1.5 text-[12px] text-warning/80"
       >
         Pas encore analysé
       </Badge>
     );
   }
   return (
-    <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+    <Badge variant="outline" className="h-5 px-1.5 text-[12px]">
       Signal limité
     </Badge>
   );
@@ -108,16 +108,16 @@ const LiveRow = ({
           </div>
 
           <div className="hidden text-right sm:block">
-            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+            <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
               Score
             </p>
-            <p className="text-lg font-semibold tabular-nums text-foreground">
+            <p className="text-xl font-semibold tabular-nums text-foreground">
               {score ?? "—"}
             </p>
             {delta !== null && Math.abs(delta) >= 3 && (
               <p
                 className={cn(
-                  "text-[10px] font-semibold tabular-nums",
+                  "text-[12px] font-semibold tabular-nums",
                   delta > 0 ? "text-primary-strong" : "text-destructive",
                 )}
               >
@@ -258,7 +258,7 @@ const LivesPage = () => {
                     key={opt.key}
                     onClick={() => setSort(opt.key)}
                     className={cn(
-                      "rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors",
+                      "rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors",
                       sort === opt.key
                         ? "bg-muted text-foreground"
                         : "text-muted-foreground hover:text-foreground",

@@ -121,7 +121,7 @@ const OAuthConsentPage = () => {
             {details && (
               <>
                 <div className="space-y-2">
-                  <h1 className="text-lg font-semibold text-foreground">
+                  <h1 className="text-xl font-semibold text-foreground">
                     Connecter {details.client?.name ?? "cette application"} à ton compte
                     Streamnco
                   </h1>

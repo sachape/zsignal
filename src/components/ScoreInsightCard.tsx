@@ -29,7 +29,7 @@ const ScoreInsightCard = ({ score, compact = false }: Props) => {
     <Card className={theme.surfaceClass}>
       <CardContent className="space-y-4 p-5">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
             Pourquoi ce score
           </p>
           <p className="mt-1.5 text-sm font-semibold leading-snug text-foreground">
@@ -41,7 +41,7 @@ const ScoreInsightCard = ({ score, compact = false }: Props) => {
           <div className={compact ? "space-y-2.5" : "grid gap-3 sm:grid-cols-2"}>
             {narrative.drags.length > 0 && (
               <div>
-                <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                <div className="flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-wider text-muted-foreground">
                   <TrendingDown className="h-3 w-3" />
                   Ce qui tire vers le bas
                 </div>
@@ -56,7 +56,7 @@ const ScoreInsightCard = ({ score, compact = false }: Props) => {
             )}
             {narrative.supports.length > 0 && (
               <div>
-                <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                <div className="flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-wider text-muted-foreground">
                   <TrendingUp className="h-3 w-3" />
                   Ce qui soutient
                 </div>

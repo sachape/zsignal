@@ -200,7 +200,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
           {hasDelta && overallDelta !== null && (
             <div
               className={cn(
-                "flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold tabular-nums",
+                "flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[12px] font-bold tabular-nums",
                 (overallDelta ?? 0) > 0
                   ? "border-primary/30 bg-primary/10 text-primary-strong"
                   : (overallDelta ?? 0) < 0
@@ -265,7 +265,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
 
             return (
               <div key={key} className="flex items-center gap-3">
-                <span className="w-28 shrink-0 truncate text-[11px] font-medium text-muted-foreground">
+                <span className="w-28 shrink-0 truncate text-[12px] font-medium text-muted-foreground">
                   {DIM_LABEL[key]}
                 </span>
 
@@ -280,7 +280,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
 
                 <span
                   className={cn(
-                    "w-6 text-right text-[11px] font-bold tabular-nums",
+                    "w-6 text-right text-[12px] font-bold tabular-nums",
                     theme.textClass,
                   )}
                 >
@@ -289,7 +289,7 @@ const StreamScoreEvolutionCard = ({ userId, platformUserId }: Props) => {
 
                 <span
                   className={cn(
-                    "w-14 text-right text-[10px] tabular-nums",
+                    "w-14 text-right text-[12px] tabular-nums",
                     !deltaStr
                       ? "invisible"
                       : deltaPositive

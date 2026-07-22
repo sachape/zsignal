@@ -76,7 +76,7 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
           <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-shadow duration-300", meta.iconBg, "group-hover:shadow-[0_0_28px_hsl(var(--primary)/0.3)]")}>
             <Icon className="h-4 w-4" />
           </div>
-          <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest", meta.badge)}>
+          <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-[12px] font-bold uppercase tracking-widest", meta.badge)}>
             {meta.label}
           </span>
         </div>
@@ -93,14 +93,14 @@ const ResourceCard = ({ resource }: { resource: Resource }) => {
 
         {/* Footer */}
         <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-          <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/40">
+          <span className="flex items-center gap-1.5 text-[12px] text-muted-foreground/40">
             <Clock className="h-3 w-3" />
             {resource.duration}
           </span>
           {hasMore && (
             <button
               onClick={() => setExpanded((e) => !e)}
-              className="flex items-center gap-0.5 text-[10px] font-semibold text-primary-strong/60 transition-colors hover:text-primary-strong"
+              className="flex items-center gap-0.5 text-[12px] font-semibold text-primary-strong/60 transition-colors hover:text-primary-strong"
             >
               {expanded ? (
                 <>Réduire <ChevronUp className="h-3 w-3" /></>
@@ -140,7 +140,7 @@ const DimensionResources = ({ breakdown, maxDimensions = 2 }: Props) => {
           </div>
           <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.07] px-3 py-1">
             <Sparkles className="h-3 w-3 text-primary-strong" />
-            <span className="text-[11px] font-semibold text-primary-strong">{totalResources} ressources</span>
+            <span className="text-[12px] font-semibold text-primary-strong">{totalResources} ressources</span>
           </div>
         </div>
       </div>
@@ -152,7 +152,7 @@ const DimensionResources = ({ breakdown, maxDimensions = 2 }: Props) => {
             {/* Dimension label */}
             <div className="mb-4 flex items-center gap-3">
               <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+              <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
                 {dimension}
               </span>
               <div className="h-px flex-1 bg-gradient-to-l from-border/60 to-transparent" />
