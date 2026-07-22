@@ -50,7 +50,7 @@ export const MediaRing: S = {
   args: { highlight: "ring", selected: true },
   argTypes: lock("highlight"),
   render: (args) => (
-    <SelectableCard {...args} className="w-40 overflow-hidden text-left">
+    <SelectableCard {...args} aria-label="Style de sous-titre — Dynamique" className="w-40 overflow-hidden text-left">
       <div className="aspect-[9/10] w-full bg-gradient-to-br from-secondary to-muted" />
     </SelectableCard>
   ),
