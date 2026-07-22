@@ -1,0 +1,79 @@
+name: Health report
+
+# Rafraîchit le Dashboard Health (adoption, dette composants, fondations, spacing)
+# à chaque push sur main. Le Dashboard Storybook ne lit QUE le dépôt (health-summary
+# et co. sont importés au build) : sans ce commit-back, ces rapports ne bougent qu'au
+# prochain `npm run audit:health` manuel — et les cartes figent (ex. « dette composants
+# 51 » longtemps après être passée à 33).
+#
+# Complète chromatic.yml, qui ne renvoie QUE visual-quality.report.json (résultat
+# asynchrone de Chromatic). Ici on régénère le reste — un simple scan de code, synchrone.
+
+on:
+  push:
+    branches: [main]
+
+# Un seul refresh à la fois par branche ; on annule les runs obsolètes.
+concurrency:
+  group: health-report-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  health-report:
+    runs-on: ubuntu-latest
+    # Écriture nécessaire : le job renvoie les rapports Health dans le dépôt.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # `git pull --rebase` en fin de job rejoue par-dessus un éventuel merge
+          # concurrent : l'historique complet évite les cas limites du clone shallow.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Régénérer le dashboard Health
+        run: npm run audit:health
+
+      # Écrire la télémétrie ne doit JAMAIS casser la CI : le dépôt peut être réglé
+      # sur `default_workflow_permissions: read` et l'élévation `contents: write`
+      # ci-dessus être refusée par une politique d'organisation. Dans ce cas on
+      # avertit et on continue — un dashboard figé dégrade l'info, il ne justifie
+      # pas de bloquer main.
+      - name: Commiter les rapports s'ils ont changé
+        run: |
+          set -uo pipefail
+          git add -A reports/design-system/
+          # Certains champs bougent à CHAQUE run SANS qu'une valeur réelle change :
+          #   - generatedAt / frozenAt : horodatage de génération
+          #   - delta                  : flottant de tendance (jitter d'arrondi)
+          #   - "line"                 : n° de ligne des offenders (ordre non déterministe)
+          #   - "> Généré le …"        : horodatage en tête du rapport .md
+          # On ne commite QUE si le diff contient AUTRE chose — sinon un commit par
+          # push pour un simple horodatage (ce que chromatic.yml évitait à la main).
+          MEANINGFUL=$(git diff --cached -- reports/design-system/ \
+            | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)' \
+            | grep -vE '"(generatedAt|frozenAt|delta)"' \
+            | grep -vE '^[+-][[:space:]]*"line":' \
+            | grep -vE '^[+-]> Généré le ' || true)
+          if [ -z "$MEANINGFUL" ]; then
+            echo "Aucune valeur changée (horodatage/jitter seul) — rien à commiter."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # [skip ci] : ce commit ne doit relancer ni la CI ni ce workflow (boucle).
+          git commit -m "ci(health): rafraîchit le dashboard [skip ci]"
+          # Un autre merge a pu atterrir pendant le build : on rejoue par-dessus.
+          if git pull --rebase origin main && git push origin HEAD:main; then
+            echo "Dashboard Health poussé sur main."
+          else
+            echo "::warning title=Dashboard Health non poussé::GITHUB_TOKEN sans droit d'écriture (Settings → Actions → Workflow permissions → Read and write), ou rebase en conflit. Le dashboard se rafraîchira au prochain push."
+          fi
