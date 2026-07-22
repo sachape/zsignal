@@ -15,6 +15,7 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { SelectableCard } from "@/components/ui/selectable-card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import {
@@ -416,15 +417,11 @@ const SimulatorPage = () => {
           <p className="mb-2 text-xs font-semibold text-muted-foreground">Ton profil de streamer</p>
           <div className="grid grid-cols-4 gap-2">
             {PRESETS.map((p, i) => (
-              <button
+              <SelectableCard
                 key={p.label}
+                selected={activePreset === i}
                 onClick={() => handlePreset(i)}
-                className={cn(
-                  "rounded-xl border py-2.5 text-xs font-semibold transition-all duration-150",
-                  activePreset === i
-                    ? "border-primary/40 bg-primary/10 text-primary-strong shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
-                    : "border-border/50 bg-card/40 text-muted-foreground hover:border-primary/20 hover:text-foreground",
-                )}
+                className="px-2 py-2.5 text-center text-xs font-semibold"
               >
                 <span className="block text-base leading-none mb-1">
                   {i === 0 ? "🌱" : i === 1 ? "🎮" : "🔥"}
@@ -433,23 +430,19 @@ const SimulatorPage = () => {
                 <span className="block text-[12px] font-normal opacity-60 mt-0.5">
                   {p.sessions}×/sem · {p.duration}h
                 </span>
-              </button>
+              </SelectableCard>
             ))}
-            <button
+            <SelectableCard
+              selected={activePreset === null}
               onClick={() => setActivePreset(null)}
-              className={cn(
-                "rounded-xl border py-2.5 text-xs font-semibold transition-all duration-150",
-                activePreset === null
-                  ? "border-primary/40 bg-primary/10 text-primary-strong"
-                  : "border-border/50 bg-card/40 text-muted-foreground hover:border-primary/20 hover:text-foreground",
-              )}
+              className="px-2 py-2.5 text-center text-xs font-semibold"
             >
               <span className="block text-base leading-none mb-1">⚙️</span>
               Perso.
               <span className="block text-[12px] font-normal opacity-60 mt-0.5">
                 {sessionsPerWeek}×/sem · {durationHours}h
               </span>
-            </button>
+            </SelectableCard>
           </div>
         </div>
 

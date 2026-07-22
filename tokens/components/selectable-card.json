@@ -1,7 +1,6 @@
 {
   "selectable-card": {
-    "$description": "Tuile/carte SÉLECTIONNABLE (toggle) — presets, options, plateformes. `selected` = aria-pressed. Distinct de Chip (petit filtre) et de Card (conteneur non-interactif).",
-    "radius":  { "$type": "dimension", "$value": "{radius.card}" },
-    "padding": { "$type": "dimension", "$value": "{space.4}" }
+    "$description": "Tuile/carte SÉLECTIONNABLE (toggle). LAYOUT-AGNOSTIC : ne fournit que la box (radius, bordure, état selected). Padding/alignement au consommateur. `selected` = aria-pressed. Distinct de Chip (petit filtre) et de Card (conteneur non-interactif).",
+    "radius": { "$type": "dimension", "$value": "{radius.card}" }
   }
 }
