@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 /**
- * Apparence toggle (sombre / clair). Lives in the account menu.
+ * Apparence toggle (sombre / clair). Lives in the sidebar footer.
  * Persisted by next-themes (storageKey "streamnco-theme"); the class is set on
  * <html> so portaled UI (popovers, dialogs, toasts) inherits the theme too.
  */
@@ -16,26 +18,22 @@ const ThemeToggle = () => {
   const isLight = mounted && theme === "light";
 
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={isLight}
-      aria-label="Basculer le thème clair ou sombre"
-      onClick={() => setTheme(isLight ? "dark" : "light")}
-      className="flex w-full items-center justify-between gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-muted/50"
-    >
-      <span className="flex items-center gap-2.5">
+    <div className="flex w-full items-center justify-between gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground">
+      <Label htmlFor="theme-switch" className="flex cursor-pointer items-center gap-2.5 font-normal">
         {isLight ? (
           <Sun className="h-3.5 w-3.5 text-muted-foreground" />
         ) : (
           <Moon className="h-3.5 w-3.5 text-muted-foreground" />
         )}
         Apparence
-      </span>
-      <span className="text-xs font-medium text-muted-foreground">
-        {isLight ? "Clair" : "Sombre"}
-      </span>
-    </button>
+      </Label>
+      <Switch
+        id="theme-switch"
+        checked={isLight}
+        onCheckedChange={(checked) => setTheme(checked ? "light" : "dark")}
+        aria-label="Basculer le thème clair ou sombre"
+      />
+    </div>
   );
 };
 
