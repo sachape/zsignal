@@ -1,13 +1,24 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof ToggleGroup> = {
   title: "Components/Actions/Toggle Group",
   component: ToggleGroup,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("value", "defaultValue", "onValueChange", "disabled", "orientation", "className"),
+    type: describe(
+      "`single` = une seule bascule active à la fois ; `multiple` = combinables. Détermine aussi la forme de `value` (chaîne ou tableau).",
+      { control: "inline-radio", options: ["single", "multiple"], category: CAT.state },
+    ),
+    variant: describe("Style des bascules du groupe.", { control: "inline-radio", options: ["default", "outline"], defaultValue: "default" }),
+    size: describe("Gabarit des bascules.", { control: "inline-radio", options: ["default", "sm", "lg"], defaultValue: "default" }),
+  },
   parameters: {
     layout: "centered",
+    controls: { sort: "requiredFirst" },
     docs: { description: { component: "Toggle Group — groupe de bascules liées. `type=\"single\"` = choix exclusif ; `type=\"multiple\"` = combinables. Chaque bouton icône porte un `aria-label`." } },
   },
 };

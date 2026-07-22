@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Skeleton } from "@/components/ui/skeleton";
+import { common, describe, CAT } from "./_argTypes";
 
 /**
  * Skeleton — l'état de chargement (1–10 s) : on préfigure la forme du contenu
@@ -8,7 +9,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 const meta: Meta<typeof Skeleton> = {
   title: "Components/Feedback/Skeleton",
   component: Skeleton,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Skeleton — l'état de chargement (1–10 s) : on préfigure la forme du contenu plutôt qu'un spinner, pour réduire la perception d'attente." } },  layout: "centered" },
+  argTypes: {
+    className: describe(
+      "Porte la FORME du contenu préfiguré (largeur, hauteur, arrondi). C'est la seule prop utile : un skeleton qui ne ressemble pas au contenu final n'en réduit pas l'attente perçue.",
+      { control: "text", category: CAT.appearance },
+    ),
+  },
+  parameters: { docs: { description: { component: "Skeleton — l'état de chargement (1–10 s) : on préfigure la forme du contenu plutôt qu'un spinner, pour réduire la perception d'attente." } },  layout: "centered" },
 };
 export default meta;
 type S = StoryObj<typeof Skeleton>;

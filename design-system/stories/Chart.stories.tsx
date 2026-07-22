@@ -1,11 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof ChartContainer> = {
   title: "Components/Data Display/Chart",
   component: ChartContainer,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("children", "className"),
+    config: describe(
+      "Cœur du composant : un label et une couleur par série. Les couleurs viennent des tokens `--data-*`, jamais d'une valeur en dur.",
+      { control: false, category: CAT.content },
+    ),
+    id: describe("Identifiant explicite du graphe, utile si plusieurs partagent la page.", { control: "text", category: CAT.advanced }),
+  },
   parameters: {
     layout: "centered",
     docs: { description: { component: "Chart — enveloppe recharts pilotée par un `config` (label + couleur par série, branché sur les tokens). Tooltip et légende cohérents avec le DS." } },

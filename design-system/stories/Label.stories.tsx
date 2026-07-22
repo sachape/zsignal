@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect } from "storybook/test";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { common, describe, CAT } from "./_argTypes";
 
 /**
  * Label — l'étiquette d'un champ (18×). Toujours associée à un contrôle via
@@ -11,7 +12,18 @@ import { Input } from "@/components/ui/input";
 const meta: Meta<typeof Label> = {
   title: "Components/Forms/Label",
   component: Label,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Label — l'étiquette d'un champ (18×). Toujours associée à un contrôle via htmlFor : cliquer le label focalise le champ (accessibilité + confort)." } },  layout: "centered" },
+  argTypes: {
+    ...common("children", "className"),
+    htmlFor: describe(
+      "Identifiant du contrôle décrit. C'est ce lien qui rend le label cliquable et annonçable — sans lui, le champ n'a pas de nom accessible.",
+      { control: "text", category: CAT.content },
+    ),
+  },
+  parameters: {
+    layout: "centered",
+    controls: { sort: "requiredFirst" },
+    docs: { description: { component: "Label — l'étiquette d'un champ (18×). Toujours associée à un contrôle via htmlFor : cliquer le label focalise le champ (accessibilité + confort)." } },
+  },
 };
 export default meta;
 type S = StoryObj<typeof Label>;

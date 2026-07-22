@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
+import { common, describe, CAT } from "./_argTypes";
   NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger,
   NavigationMenuContent, NavigationMenuLink, navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
@@ -8,6 +9,11 @@ const meta: Meta<typeof NavigationMenu> = {
   title: "Components/Navigation/Navigation Menu",
   component: NavigationMenu,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("value", "defaultValue", "onValueChange", "orientation", "children", "className"),
+    delayDuration: describe("Temps de survol avant ouverture d'un sous-menu, en millisecondes.", { control: "number", category: CAT.state, defaultValue: "200" }),
+    skipDelayDuration: describe("Fenêtre pendant laquelle passer d'un menu à l'autre reste instantané.", { control: "number", category: CAT.state, defaultValue: "300" }),
+  },
   parameters: {
     layout: "centered",
     docs: { description: { component: "Navigation Menu — navigation principale avec sous-menus déroulants. Chaque entrée est un lien (`NavigationMenuLink`) ; navigation clavier native." } },

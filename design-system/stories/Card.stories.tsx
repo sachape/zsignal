@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { common, describe, CAT } from "./_argTypes";
 
 /**
  * Card — la primitive la plus utilisée (66×). Composée : Card + CardHeader +
@@ -10,7 +11,13 @@ import { Badge } from "@/components/ui/badge";
 const meta: Meta<typeof Card> = {
   title: "Components/Content & Structure/Card",
   component: Card,
-  parameters: { controls: { disable: true }, docs: { description: { component: "Card — la primitive la plus utilisée (66×). Composée : Card + CardHeader + CardTitle + CardDescription + CardContent + CardFooter." } },  layout: "centered" },
+  argTypes: {
+    ...common("children", "className"),
+  },
+  parameters: {
+    layout: "centered",
+    docs: { description: { component: "Card — la primitive la plus utilisée (66×). Composée : Card + CardHeader + CardTitle + CardDescription + CardContent + CardFooter. Conteneur pur : aucune variante, la mise en forme passe par ses sous-composants." } },
+  },
 };
 export default meta;
 type S = StoryObj<typeof Card>;

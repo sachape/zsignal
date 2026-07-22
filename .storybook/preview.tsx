@@ -98,6 +98,15 @@ const preview: Preview = {
       ],
     },
     controls: {
+      // `expanded` ajoute les colonnes « Description » et « Default » au panneau.
+      // Sans lui, Storybook rend la table en mode compact (Name|Control) et TOUTES
+      // les descriptions écrites dans les argTypes restent invisibles.
+      // Interne : `compact: !expanded` dans le PanelTable de Storybook.
+      // Le contenu vient des argTypes (cf. stories/_argTypes.ts) : react-docgen
+      // n'extrait rien de nos composants, qui sont des
+      // `ComponentPropsWithoutRef<typeof RadixPrimitive>`.
+      expanded: true,
+      sort: "requiredFirst",
       matchers: { color: /(background|color)$/i, date: /Date$/i },
     },
     a11y: {

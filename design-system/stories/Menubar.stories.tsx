@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
+import { common, describe, CAT } from "./_argTypes";
   Menubar, MenubarMenu, MenubarTrigger, MenubarContent,
   MenubarItem, MenubarSeparator, MenubarShortcut,
 } from "@/components/ui/menubar";
@@ -8,6 +9,11 @@ const meta: Meta<typeof Menubar> = {
   title: "Components/Navigation/Menubar",
   component: Menubar,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("value", "defaultValue", "onValueChange", "children", "className"),
+    loop: describe("Le focus repart au début après le dernier menu.", { control: "boolean", category: CAT.advanced }),
+    dir: describe("Sens de lecture : inverse l'ouverture des sous-menus.", { control: "inline-radio", options: ["ltr", "rtl"], category: CAT.layout }),
+  },
   parameters: {
     layout: "centered",
     docs: { description: { component: "Menubar — barre de menus persistante façon application desktop. Navigation clavier native (flèches) ; à réserver aux interfaces denses type éditeur." } },

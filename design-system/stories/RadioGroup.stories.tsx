@@ -1,13 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof RadioGroup> = {
   title: "Components/Forms/Radio Group",
   component: RadioGroup,
   tags: ["autodocs"],
+  argTypes: {
+    ...common("value", "defaultValue", "onValueChange", "disabled", "required", "name", "orientation", "className"),
+  },
   parameters: {
     layout: "centered",
+    controls: { sort: "requiredFirst" },
     docs: { description: { component: "Radio Group — choix unique parmi plusieurs options mutuellement exclusives. Chaque option est associée à un `Label` (nom accessible) ; navigation clavier native." } },
   },
 };
