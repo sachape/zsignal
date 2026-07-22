@@ -20,15 +20,15 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { ROOT } from "../core/walk.mjs";
+import { isMarketing } from "../core/scope.mjs";
 
 const APP_ROOT = resolve(ROOT, "src");
 const EXCLUDE = /(\/components\/ui\/|\.stories\.|\.test\.|\.spec\.)/;
 
 // Fichiers structurellement non-consommateurs du DS produit (exclus du dénominateur, ADR 0005).
 const NON_CONSUMER = /(\/contexts\/|\/hooks\/|\/main\.tsx$|\/App\.tsx$|ProtectedRoute|CallbackPage|Legal\w+Page)/;
-// Surface marketing/blog (el-*/Inter) — DS distinct, exempté.
-const MARKETING_PATH = /(\/site\/|Blog|Article)/;
-const MARKETING_CONTENT = /el-sans|text-el-|font-el|bg-el-|el-on-|el-muted|el-ink|border-el-/;
+// Surface marketing/blog (el-*/Inter) — DS distinct, exempté. Définition partagée
+// avec le provider foundations-adoption (core/scope.mjs) : même périmètre exclu.
 
 function walk(dir, out) {
   let entries;
@@ -58,8 +58,7 @@ export function runAdoption({ spacingScaleAdoption } = {}) {
     if (!hasJsx) continue; // fichiers pur-logique : hors dénominateur
 
     // Hors périmètre adoption (non-consommateurs structurels + marketing) : comptés à part.
-    const isMarketing = MARKETING_PATH.test(f) || MARKETING_CONTENT.test(src);
-    if (NON_CONSUMER.test(f) || isMarketing) { excludedFromDenom++; continue; }
+    if (NON_CONSUMER.test(f) || isMarketing(f, src)) { excludedFromDenom++; continue; }
 
     jsxFiles++;
     if (/@\/components\/ui\//.test(src)) dsFiles++;
