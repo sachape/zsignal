@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Toggle } from "@/components/ui/toggle";
 
 /**
  * Apparence toggle (sombre / clair). Lives in the sidebar footer.
@@ -18,22 +17,13 @@ const ThemeToggle = () => {
   const isLight = mounted && theme === "light";
 
   return (
-    <div className="flex w-full items-center justify-between gap-2.5 rounded-md px-2 py-1.5 text-sm text-foreground">
-      <Label htmlFor="theme-switch" className="flex cursor-pointer items-center gap-2.5 font-normal">
-        {isLight ? (
-          <Sun className="h-3.5 w-3.5 text-muted-foreground" />
-        ) : (
-          <Moon className="h-3.5 w-3.5 text-muted-foreground" />
-        )}
-        Apparence
-      </Label>
-      <Switch
-        id="theme-switch"
-        checked={isLight}
-        onCheckedChange={(checked) => setTheme(checked ? "light" : "dark")}
-        aria-label="Basculer le thème clair ou sombre"
-      />
-    </div>
+    <Toggle
+      className="rounded-md px-2 py-2 text-foreground"
+      icon={isLight ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+      label="Apparence"
+      checked={isLight}
+      onCheckedChange={(checked) => setTheme(checked ? "light" : "dark")}
+    />
   );
 };
 

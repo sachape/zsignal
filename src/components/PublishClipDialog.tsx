@@ -9,7 +9,7 @@ import { SelectableCard } from "@/components/ui/selectable-card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Toggle } from "@/components/ui/toggle";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -189,13 +189,13 @@ export default function PublishClipDialog({
         </div>
 
 
-        <div className="flex items-center justify-between rounded-md border border-border p-3">
-          <div>
-            <p className="text-sm font-medium">Programmer la publication</p>
-            <p className="text-xs text-muted-foreground">Sinon, publiée maintenant.</p>
-          </div>
-          <Switch checked={scheduled} onCheckedChange={setScheduled} />
-        </div>
+        <Toggle
+          className="rounded-md border border-border p-3"
+          label="Programmer la publication"
+          description="Sinon, publiée maintenant."
+          checked={scheduled}
+          onCheckedChange={setScheduled}
+        />
         {scheduled && (
           <Input
             type="datetime-local"
