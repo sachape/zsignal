@@ -74,5 +74,10 @@ Contrairement au spacing (qui a une sous-grille `compact-allowed` 4/12/20, ADR 0
 - typecheck / lint:tokens / build : verts. **QA visuelle app tournante requise avant merge** (changement de densité).
 
 ## Suivi
-- Garde-fou `check:typography` (analogue `check:spacing`) : **à implémenter**.
+- Garde-fou `check:typography` : **fait** — implémenté en 2026-07-22 sous une forme plus large,
+  `npm run check:foundations` (`design-system/health/check-foundations.mjs`), qui ratchette la
+  typographie **et** les 9 autres échelles gouvernées. Bloquant en CI. Baseline gelée dans
+  `reports/design-system/history/foundations-baseline.json` ; ratchet sur le **compte absolu**
+  d'usages hors échelle (un pourcentage remonte tout seul quand le dénominateur grossit).
+  Dette typo au gel : **23** usages hors échelle (`text-3xl` ×8, `text-lg` ×4, `text-[10.5px]` ×3).
 - Conformité **line-height** des classes utilitaires Tailwind (non overridées) : **backlog** (la règle LH est satisfaite au niveau tokens, pas encore au niveau `text-*`/`leading-*`).
