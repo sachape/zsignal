@@ -4,6 +4,7 @@ import {
   Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Dialog> = {
   title: "Components/Overlays/Dialog",
@@ -11,7 +12,8 @@ const meta: Meta<typeof Dialog> = {
   tags: ["autodocs"],
   args: { modal: true, defaultOpen: false },
   argTypes: {
-    modal: { control: "boolean", description: "Rend l'arrière-plan inerte (voile bloquant).", table: { category: "Behavior" } },
+    ...common("open", "defaultOpen", "onOpenChange", "modal", "children"),
+    modal: { control: "boolean", description: "Rend l'arrière-plan inerte (voile bloquant).", table: { category: "State" } },
     defaultOpen: { control: "boolean", description: "Ouvert au montage (non contrôlé).", table: { category: "State" } },
     open: { control: false, description: "Ouverture contrôlée (piloter via onOpenChange).", table: { category: "State" } },
   },

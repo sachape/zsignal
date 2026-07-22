@@ -6,6 +6,7 @@ import {
   AlertDialogAction, AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof AlertDialog> = {
   title: "Components/Overlays/AlertDialog",
@@ -13,6 +14,7 @@ const meta: Meta<typeof AlertDialog> = {
   tags: ["autodocs"],
   args: { defaultOpen: false, onConfirm: fn() },
   argTypes: {
+    ...common("open", "onOpenChange", "children"),
     defaultOpen: { control: "boolean", description: "Ouvert au montage (non contrôlé).", table: { category: "State" } },
     onConfirm: { control: false, description: "Callback de confirmation (test).", table: { category: "Events" } },
   },

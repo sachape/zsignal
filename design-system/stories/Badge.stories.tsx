@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Badge } from "@/components/ui/badge";
 import { lock } from "./_lockControls";
+import { common, describe, CAT } from "./_argTypes";
 
 // Miroir des variantes CVA de badge.tsx (§7). Intentions sémantiques, pas de
 // couleurs brutes : success/warning/destructive branchés sur les tokens de statut.
@@ -14,6 +15,7 @@ const meta: Meta<typeof Badge> = {
   tags: ["autodocs"],
   args: { children: "Badge", variant: "default" },
   argTypes: {
+    ...common("children", "className"),
     children: { control: "text", description: "Texte de la pastille.", table: { category: "Content" } },
     variant: {
       control: "select", options: BADGE_VARIANTS,

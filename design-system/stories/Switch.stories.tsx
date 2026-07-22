@@ -3,6 +3,7 @@ import { expect, fn } from "storybook/test";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { lock } from "./_lockControls";
+import { common, describe, CAT } from "./_argTypes";
 
 const meta: Meta<typeof Switch> = {
   title: "Components/Forms/Switch",
@@ -11,6 +12,8 @@ const meta: Meta<typeof Switch> = {
   // aria-label requis : un switch sans texte doit avoir un nom accessible.
   args: { defaultChecked: false, disabled: false, "aria-label": "Notifier à la fin du rendu", onCheckedChange: fn() },
   argTypes: {
+    ...common("checked", "onCheckedChange", "required", "name", "className"),
+    defaultChecked: describe("État initial, en mode non contrôlé. Un switch applique son effet IMMÉDIATEMENT — pas de bouton de validation.", { control: "boolean", category: CAT.state }),
     defaultChecked: { control: "boolean", description: "État initial (on/off).", table: { category: "State" } },
     disabled: { control: "boolean", description: "Désactive la bascule.", table: { category: "State" } },
     onCheckedChange: { control: false, description: "Callback au changement d'état.", table: { category: "Events" } },
