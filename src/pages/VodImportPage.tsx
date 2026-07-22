@@ -20,6 +20,7 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -554,22 +555,18 @@ const VodImportPage = () => {
         </div>
 
         {/* Source switcher: Lien Twitch / Import vidéo */}
-        <div className="mb-3 inline-flex rounded-md border border-border/60 bg-card/60 p-1">
-          <button
-            type="button"
-            onClick={() => setSourceMode("twitch")}
-            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition ${sourceMode === "twitch" ? "bg-primary/15 text-primary-strong" : "text-muted-foreground hover:text-foreground"}`}
-          >
+        <SegmentedControl
+          value={sourceMode}
+          onValueChange={(v) => setSourceMode(v as "twitch" | "upload")}
+          className="mb-3 border-border/60 bg-card/60"
+        >
+          <SegmentedControlItem value="twitch" className="inline-flex items-center gap-1.5">
             <Link2 className="h-3.5 w-3.5" /> Lien Twitch
-          </button>
-          <button
-            type="button"
-            onClick={() => setSourceMode("upload")}
-            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition ${sourceMode === "upload" ? "bg-primary/15 text-primary-strong" : "text-muted-foreground hover:text-foreground"}`}
-          >
+          </SegmentedControlItem>
+          <SegmentedControlItem value="upload" className="inline-flex items-center gap-1.5">
             <Upload className="h-3.5 w-3.5" /> Import vidéo
-          </button>
-        </div>
+          </SegmentedControlItem>
+        </SegmentedControl>
 
         {sourceMode === "upload" ? (
           <Card className="mb-5 border-border/60 bg-card/60">

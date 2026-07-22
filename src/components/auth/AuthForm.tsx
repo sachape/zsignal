@@ -4,9 +4,9 @@ import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
+import { SegmentedControl, SegmentedControlItem } from "@/components/ui/segmented-control";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 export interface AuthFormProps {
   /** Where to navigate after a successful login (email or Google). */
@@ -134,26 +134,20 @@ const AuthForm = ({
         </div>
       )}
 
-      <div className="flex rounded-md bg-muted p-1">
+      <SegmentedControl
+        value={mode}
+        onValueChange={(v) => {
+          setMode(v as "login" | "signup");
+          setError(null);
+        }}
+        className="flex w-full bg-muted"
+      >
         {(["signup", "login"] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => {
-              setMode(m);
-              setError(null);
-            }}
-            className={cn(
-              "flex-1 rounded-sm py-1.5 text-xs font-medium transition-colors",
-              mode === m
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
+          <SegmentedControlItem key={m} value={m} className="flex-1">
             {m === "signup" ? "Créer un compte" : "Se connecter"}
-          </button>
+          </SegmentedControlItem>
         ))}
-      </div>
+      </SegmentedControl>
 
       <Button
         type="button"
