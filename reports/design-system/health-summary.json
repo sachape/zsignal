@@ -1,11 +1,11 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-19T17:32:09.401Z",
+  "generatedAt": "2026-07-20T14:38:09.540Z",
   "overall": {
-    "score": 0.8853706122448979,
-    "previous": 0.8853706122448979,
-    "delta": 0,
-    "label": "Good",
+    "score": 0.9590799999999999,
+    "previous": 0.9590799999999999,
+    "delta": -0.00002999999999997449,
+    "label": "Excellent",
     "dimensions": [
       {
         "key": "accessibility",
@@ -20,7 +20,7 @@
         "label": "Spacing",
         "weight": 0.3,
         "tier": "important",
-        "value": 0.8628,
+        "value": 0.8636,
         "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
       },
       {
@@ -28,7 +28,7 @@
         "label": "Component coverage",
         "weight": 0.2,
         "tier": "important",
-        "value": 0.6326530612244898,
+        "value": 1,
         "why": "Couverture doc/test des composants : un manque ralentit la contribution mais ne casse pas le produit — métrique interne, pas user-facing."
       }
     ],
@@ -42,8 +42,8 @@
   "inventory": {
     "foundations": 15,
     "components": 49,
-    "tokens": 390,
-    "stories": 116,
+    "tokens": 397,
+    "stories": 140,
     "qualityGates": "PASS",
     "ci": "green"
   },
@@ -171,14 +171,14 @@
             "key": "comp-coverage",
             "label": "Story coverage",
             "status": "measured",
-            "measure": "63%",
-            "note": "31/49 composants ui/ avec story"
+            "measure": "100%",
+            "note": "49/49 composants ui/ avec story"
           },
           {
             "key": "comp-stories",
             "label": "Stories",
             "status": "measured",
-            "measure": "116",
+            "measure": "140",
             "note": "stories publiées (composants + patterns)"
           },
           {
@@ -213,14 +213,14 @@
             "key": "tok-primitive",
             "label": "Primitive",
             "status": "measured",
-            "measure": "132",
+            "measure": "141",
             "note": "valeurs brutes (hsl, rem, px)"
           },
           {
             "key": "tok-semantic",
             "label": "Semantic",
             "status": "measured",
-            "measure": "83",
+            "measure": "81",
             "note": "intentions (--primary, --space-*)"
           },
           {
@@ -304,8 +304,8 @@
             "key": "ado-components",
             "label": "Component adoption",
             "status": "measured",
-            "measure": "67%",
-            "note": "113/168 fichiers app (avec JSX) importent le DS"
+            "measure": "80%",
+            "note": "105/131 fichiers app (avec JSX) importent le DS"
           },
           {
             "key": "ado-spacing",
@@ -318,8 +318,8 @@
             "key": "ado-raw",
             "label": "Éléments bruts restants",
             "status": "measured",
-            "measure": "93",
-            "note": "<button/input/select/textarea> bruts hors DS (83 button · 8 input · 2 select · 0 textarea)"
+            "measure": "67",
+            "note": "<button/input/select/textarea> bruts hors DS (63 button · 2 input · 2 select · 0 textarea)"
           },
           {
             "key": "ado-colors",
@@ -438,15 +438,15 @@
   },
   "components": {
     "total": 49,
-    "withStory": 31,
-    "coverage": 0.6326530612244898,
-    "componentStories": 116
+    "withStory": 49,
+    "coverage": 1,
+    "componentStories": 140
   },
   "tokens": {
-    "total": 390,
+    "total": 397,
     "byLayer": {
-      "primitive": 132,
-      "semantic": 83,
+      "primitive": 141,
+      "semantic": 81,
       "component": 127,
       "compat": 48
     }
@@ -479,20 +479,20 @@
     }
   ],
   "adoption": {
-    "componentAdoption": 0.6726190476190477,
+    "componentAdoption": 0.8015267175572519,
     "appFiles": 168,
-    "jsxFiles": 168,
-    "dsFiles": 113,
-    "rawElements": 93,
+    "jsxFiles": 131,
+    "dsFiles": 105,
+    "rawElements": 67,
     "rawByTag": {
-      "button": 83,
-      "input": 8,
+      "button": 63,
+      "input": 2,
       "select": 2,
       "textarea": 0
     },
     "hardColors": 17,
-    "scaleAdoption": 0.9872,
-    "compactShare": 0.2831973293768546,
+    "scaleAdoption": 0.9873,
+    "compactShare": 0.28231606122072656,
     "cssVarAdoption": 0
   },
   "debt": {
@@ -504,15 +504,15 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-19T17:32:09.361Z",
+      "generatedAt": "2026-07-20T14:38:09.508Z",
       "scores": {
-        "valueCompliance": 0.8095,
-        "scaleAdoption": 0.9872,
+        "valueCompliance": 0.8106,
+        "scaleAdoption": 0.9873,
         "cssVarAdoption": 0,
-        "health": 0.8628
+        "health": 0.8636
       },
       "confidence": {
-        "value": 0.9632,
+        "value": 0.9634,
         "classifiableRatio": 1,
         "unclassified": 0,
         "exceptions": 30,
@@ -520,33 +520,33 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5392,
-        "preferred": 2808,
-        "compactAllowed": 1527,
+        "detected": 5423,
+        "preferred": 2835,
+        "compactAllowed": 1531,
         "violations": 1027,
         "exceptions": 30,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5392,
-        "compliant": 4365,
+        "classifiable": 5423,
+        "compliant": 4396,
         "byTrack": {
-          "error": 552,
-          "warn": 4840
+          "error": 577,
+          "warn": 4846
         },
         "violationsByTrack": {
           "error": 0,
           "warn": 1027
         },
         "compactByTrack": {
-          "error": 120,
-          "warn": 1407
+          "error": 126,
+          "warn": 1405
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-19T17:32:09.366Z",
+      "generatedAt": "2026-07-20T14:38:09.516Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,
@@ -557,7 +557,7 @@
         "note": "Fait dérivé de la config CI + inventaire, pas d'un rapport JSON a11y."
       },
       "totals": {
-        "testableStories": 116
+        "testableStories": 140
       },
       "status": "enforced"
     }

@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-19T17:32:09.361Z",
+  "generatedAt": "2026-07-20T14:38:09.508Z",
   "scope": {
     "roots": [
       "src",
@@ -32,42 +32,42 @@
       "/design-system\\/stories\\/[^/]+\\.stories\\.tsx$/",
       "/src\\/index\\.css$/"
     ],
-    "filesScanned": 414,
-    "errorTrackFiles": 87,
-    "warnTrackFiles": 327,
+    "filesScanned": 433,
+    "errorTrackFiles": 105,
+    "warnTrackFiles": 328,
     "parseErrors": 0
   },
   "totals": {
-    "detected": 5392,
-    "preferred": 2808,
-    "compactAllowed": 1527,
+    "detected": 5423,
+    "preferred": 2835,
+    "compactAllowed": 1531,
     "violations": 1027,
     "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5392,
-    "compliant": 4365,
+    "classifiable": 5423,
+    "compliant": 4396,
     "byTrack": {
-      "error": 552,
-      "warn": 4840
+      "error": 577,
+      "warn": 4846
     },
     "violationsByTrack": {
       "error": 0,
       "warn": 1027
     },
     "compactByTrack": {
-      "error": 120,
-      "warn": 1407
+      "error": 126,
+      "warn": 1405
     }
   },
   "scores": {
-    "valueCompliance": 0.8095,
-    "scaleAdoption": 0.9872,
+    "valueCompliance": 0.8106,
+    "scaleAdoption": 0.9873,
     "cssVarAdoption": 0,
-    "health": 0.8628
+    "health": 0.8636
   },
   "confidence": {
-    "value": 0.9632,
+    "value": 0.9634,
     "classifiableRatio": 1,
     "unclassified": 0,
     "exceptions": 30,
@@ -75,9 +75,9 @@
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
   "compactBreakdown": {
-    "total": 1527,
+    "total": 1531,
     "byValue": {
-      "4px": 523,
+      "4px": 527,
       "12px": 766,
       "20px": 222,
       "-4px": 16
@@ -85,9 +85,9 @@
   },
   "distribution": {
     "byTier": {
-      "preferred": 2808,
+      "preferred": 2835,
       "violation": 1027,
-      "compact-allowed": 1527,
+      "compact-allowed": 1531,
       "exception": 30
     },
     "byValue": {
@@ -107,7 +107,7 @@
     },
     "bySystem": {
       "raw-css": 2,
-      "scale-utility": 5323,
+      "scale-utility": 5354,
       "inline": 31,
       "arbitrary": 36
     }
@@ -121,27 +121,27 @@
     },
     {
       "property": "gap",
-      "total": 1413,
+      "total": 1423,
       "violations": 205,
-      "compactAllowed": 432
+      "compactAllowed": 434
     },
     {
       "property": "padding-block",
-      "total": 509,
+      "total": 511,
       "violations": 196,
-      "compactAllowed": 81
+      "compactAllowed": 82
     },
     {
       "property": "padding-inline",
-      "total": 539,
+      "total": 540,
       "violations": 117,
-      "compactAllowed": 147
+      "compactAllowed": 145
     },
     {
       "property": "row-gap",
-      "total": 323,
+      "total": 331,
       "violations": 98,
-      "compactAllowed": 98
+      "compactAllowed": 100
     },
     {
       "property": "margin-right",
@@ -151,9 +151,9 @@
     },
     {
       "property": "padding",
-      "total": 628,
+      "total": 638,
       "violations": 43,
-      "compactAllowed": 247
+      "compactAllowed": 248
     },
     {
       "property": "margin-bottom",
@@ -3940,7 +3940,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 68,
+      "line": 69,
       "property": "padding-block",
       "value": "20px",
       "status": "compact-allowed",
@@ -3954,7 +3954,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 72,
+      "line": 73,
       "property": "margin-top",
       "value": "12px",
       "status": "compact-allowed",
@@ -3968,7 +3968,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 72,
+      "line": 73,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -3982,7 +3982,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 72,
+      "line": 73,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -3996,7 +3996,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 74,
+      "line": 75,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4013,7 +4013,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 80,
+      "line": 81,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4030,7 +4030,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 86,
+      "line": 87,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4047,7 +4047,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 99,
+      "line": 100,
       "property": "margin-bottom",
       "value": "6px",
       "status": "violation",
@@ -4064,7 +4064,7 @@
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
-      "line": 99,
+      "line": 100,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -4078,20 +4078,6 @@
         "16px"
       ],
       "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/LivePostGenerator.tsx",
-      "line": 108,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
       "file": "src/components/LivePostGenerator.tsx",
@@ -26151,7 +26137,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 307,
+      "line": 308,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26165,7 +26151,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 312,
+      "line": 313,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -26182,7 +26168,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 326,
+      "line": 327,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26196,7 +26182,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 329,
+      "line": 330,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -26210,7 +26196,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 338,
+      "line": 339,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -26224,7 +26210,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 358,
+      "line": 359,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
@@ -26238,7 +26224,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 377,
+      "line": 378,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -26255,7 +26241,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 410,
+      "line": 411,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -26269,7 +26255,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 431,
+      "line": 432,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -26283,7 +26269,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 470,
+      "line": 471,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26297,7 +26283,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 470,
+      "line": 471,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -26311,7 +26297,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 489,
+      "line": 490,
       "property": "gap",
       "value": "20px",
       "status": "compact-allowed",
@@ -26325,7 +26311,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 515,
+      "line": 516,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26339,7 +26325,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 515,
+      "line": 516,
       "property": "padding-block",
       "value": "12px",
       "status": "compact-allowed",
@@ -26353,7 +26339,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 523,
+      "line": 524,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -26370,7 +26356,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 542,
+      "line": 543,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26384,7 +26370,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 549,
+      "line": 550,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26398,7 +26384,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 569,
+      "line": 570,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26412,7 +26398,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 569,
+      "line": 570,
       "property": "padding-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -26426,7 +26412,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 580,
+      "line": 581,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -26440,7 +26426,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 580,
+      "line": 581,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26454,7 +26440,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 580,
+      "line": 581,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -26468,7 +26454,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 580,
+      "line": 581,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26482,7 +26468,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 613,
+      "line": 614,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26496,7 +26482,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 613,
+      "line": 614,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -26513,7 +26499,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 613,
+      "line": 614,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -26530,7 +26516,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 623,
+      "line": 624,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -26547,7 +26533,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 633,
+      "line": 634,
       "property": "margin-top",
       "value": "6px",
       "status": "violation",
@@ -26564,7 +26550,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 636,
+      "line": 637,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -26581,7 +26567,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 636,
+      "line": 637,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -26598,7 +26584,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 636,
+      "line": 637,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -26615,7 +26601,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 636,
+      "line": 637,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -26632,7 +26618,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 646,
+      "line": 647,
       "property": "margin-top",
       "value": "10px",
       "status": "violation",
@@ -26649,7 +26635,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 649,
+      "line": 650,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26663,7 +26649,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 657,
+      "line": 658,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -26680,7 +26666,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 657,
+      "line": 658,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -26697,7 +26683,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 665,
+      "line": 666,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26711,7 +26697,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 668,
+      "line": 669,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26725,7 +26711,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 676,
+      "line": 677,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -26742,7 +26728,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 676,
+      "line": 677,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -26759,7 +26745,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 753,
+      "line": 754,
       "property": "margin-bottom",
       "value": "20px",
       "status": "compact-allowed",
@@ -26773,7 +26759,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 755,
+      "line": 756,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -26787,21 +26773,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 765,
-      "property": "padding-inline",
-      "value": "12px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LeadersPage.tsx",
-      "line": 767,
+      "line": 768,
       "property": "gap",
       "value": "6px",
       "status": "violation",
@@ -26818,7 +26790,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 808,
+      "line": 809,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26826,20 +26798,6 @@
       "system": "scale-utility",
       "track": "warn",
       "category": "gap",
-      "confidence": "high",
-      "recommended": [],
-      "reason": "sous-grille compacte (4/12/20) — secondaire"
-    },
-    {
-      "file": "src/pages/LeadersPage.tsx",
-      "line": 818,
-      "property": "margin-top",
-      "value": "4px",
-      "status": "compact-allowed",
-      "tier": "compact-allowed",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "margin",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -26860,7 +26818,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 819,
+      "line": 820,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -26874,7 +26832,21 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 829,
+      "line": 820,
+      "property": "margin-top",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "margin",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "src/pages/LeadersPage.tsx",
+      "line": 830,
       "property": "margin-bottom",
       "value": "12px",
       "status": "compact-allowed",
@@ -26888,7 +26860,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 832,
+      "line": 833,
       "property": "row-gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26902,7 +26874,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 839,
+      "line": 840,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -26916,7 +26888,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 849,
+      "line": 850,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26930,7 +26902,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 872,
+      "line": 873,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -26944,7 +26916,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 879,
+      "line": 880,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -26958,7 +26930,7 @@
     },
     {
       "file": "src/pages/LeadersPage.tsx",
-      "line": 898,
+      "line": 899,
       "property": "row-gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -39382,8 +39354,78 @@
       "reason": "sous-grille compacte (4/12/20) — secondaire"
     },
     {
+      "file": "design-system/stories/Collapsible.stories.tsx",
+      "line": 19,
+      "property": "row-gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/Collapsible.stories.tsx",
+      "line": 19,
+      "property": "padding-block",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
       "file": "design-system/stories/FilterBar.stories.tsx",
       "line": 14,
+      "property": "padding",
+      "value": "12px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/HoverCard.stories.tsx",
+      "line": 24,
+      "property": "row-gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "row",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/NavigationMenu.stories.tsx",
+      "line": 26,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "gap",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/NavigationMenu.stories.tsx",
+      "line": 26,
       "property": "padding",
       "value": "12px",
       "status": "compact-allowed",
@@ -39545,6 +39587,20 @@
       "system": "scale-utility",
       "track": "error",
       "category": "padding",
+      "confidence": "high",
+      "recommended": [],
+      "reason": "sous-grille compacte (4/12/20) — secondaire"
+    },
+    {
+      "file": "design-system/stories/ToastPrimitive.stories.tsx",
+      "line": 26,
+      "property": "gap",
+      "value": "4px",
+      "status": "compact-allowed",
+      "tier": "compact-allowed",
+      "system": "scale-utility",
+      "track": "error",
+      "category": "gap",
       "confidence": "high",
       "recommended": [],
       "reason": "sous-grille compacte (4/12/20) — secondaire"
@@ -39803,8 +39859,8 @@
   ],
   "recommendations": [
     "1027 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
-    "1527 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
+    "1531 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ],
-  "findingsNote": "2808 usages preferred agrégés dans totals, non listés."
+  "findingsNote": "2835 usages preferred agrégés dans totals, non listés."
 }
