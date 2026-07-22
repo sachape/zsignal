@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-22T09:35:54.289Z",
+  "generatedAt": "2026-07-22T12:46:35.318Z",
   "overall": {
-    "score": 0.95923,
-    "previous": 0.95923,
-    "delta": 0,
+    "score": 0.9597100000000001,
+    "previous": 0.9597100000000001,
+    "delta": 0.00048000000000003595,
     "label": "Excellent",
     "dimensions": [
       {
@@ -20,7 +20,7 @@
         "label": "Spacing",
         "weight": 0.3,
         "tier": "important",
-        "value": 0.8641,
+        "value": 0.8657,
         "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
       },
       {
@@ -41,9 +41,9 @@
   },
   "inventory": {
     "foundations": 15,
-    "components": 51,
-    "tokens": 402,
-    "stories": 149,
+    "components": 53,
+    "tokens": 405,
+    "stories": 161,
     "qualityGates": "PASS",
     "ci": "green"
   },
@@ -119,20 +119,20 @@
             "label": "Colors",
             "status": "measured",
             "measure": "95%",
-            "note": "4430/4680 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
+            "note": "4347/4597 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           },
           {
             "key": "typography",
             "label": "Typography",
             "status": "measured",
             "measure": "99%",
-            "note": "2086/2109 sur l'échelle de tailles ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
+            "note": "2069/2092 sur l'échelle de tailles ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
           },
           {
             "key": "spacing",
             "label": "Spacing",
             "status": "measured",
-            "measure": "86%",
+            "measure": "87%",
             "note": "audit spacing (value + scale adoption)"
           },
           {
@@ -140,28 +140,28 @@
             "label": "Radius",
             "status": "measured",
             "measure": "85%",
-            "note": "862/1015 sur l'échelle radius.* · reste : rounded-xl ×145, rounded-[2px] ×4, rounded-[12px] ×1"
+            "note": "843/994 sur l'échelle radius.* · reste : rounded-xl ×143, rounded-[2px] ×4, rounded-[12px] ×1"
           },
           {
             "key": "motion",
             "label": "Motion",
             "status": "measured",
-            "measure": "40%",
-            "note": "33/83 sur l'échelle duration.*/easing.* · reste : duration-500 ×15, duration-700 ×14, duration-300 ×11"
+            "measure": "38%",
+            "note": "31/81 sur l'échelle duration.*/easing.* · reste : duration-500 ×15, duration-700 ×14, duration-300 ×11"
           },
           {
             "key": "shadows",
             "label": "Shadows",
             "status": "measured",
-            "measure": "26%",
-            "note": "20/78 sur l'échelle shadow.*/elevation.* · reste : shadow-md ×21, shadow-lg ×17, shadow-sm ×7"
+            "measure": "27%",
+            "note": "20/74 sur l'échelle shadow.*/elevation.* · reste : shadow-md ×21, shadow-lg ×17, shadow-xl ×5"
           },
           {
             "key": "borders",
             "label": "Borders",
             "status": "measured",
             "measure": "99%",
-            "note": "655/657 sur l'échelle border.width.* · reste : border-[1.5px] ×2"
+            "note": "643/645 sur l'échelle border.width.* · reste : border-[1.5px] ×2"
           },
           {
             "key": "elevation",
@@ -175,7 +175,7 @@
             "label": "Icons",
             "status": "measured",
             "measure": "96%",
-            "note": "728/755 icônes issues de lucide-react (vs <svg> à la main) · reste : <svg> écrit à la main ×27"
+            "note": "733/760 icônes issues de lucide-react (vs <svg> à la main) · reste : <svg> écrit à la main ×27"
           },
           {
             "key": "grid",
@@ -189,7 +189,7 @@
             "label": "Opacity",
             "status": "measured",
             "measure": "89%",
-            "note": "116/130 sur l'échelle opacity.* · reste : opacity-70 ×6, opacity-75 ×2, opacity-40 ×2"
+            "note": "118/132 sur l'échelle opacity.* · reste : opacity-70 ×6, opacity-75 ×2, opacity-40 ×2"
           },
           {
             "key": "darkmode",
@@ -211,13 +211,13 @@
             "label": "Story coverage",
             "status": "measured",
             "measure": "100%",
-            "note": "51/51 composants ui/ avec story"
+            "note": "53/53 composants ui/ avec story"
           },
           {
             "key": "comp-stories",
             "label": "Stories",
             "status": "measured",
-            "measure": "149",
+            "measure": "161",
             "note": "stories publiées (composants + patterns)"
           },
           {
@@ -267,7 +267,7 @@
             "key": "tok-component",
             "label": "Component",
             "status": "measured",
-            "measure": "132",
+            "measure": "135",
             "note": "tokens par composant"
           },
           {
@@ -355,8 +355,8 @@
             "group": "components",
             "label": "Éléments bruts restants",
             "status": "measured",
-            "measure": "51",
-            "note": "<button/input/select/textarea> bruts hors DS (51 button)"
+            "measure": "33",
+            "note": "<button/input/select/textarea> bruts hors DS (33 button)"
           },
           {
             "key": "ado-deprecated",
@@ -380,7 +380,7 @@
             "label": "Typographie",
             "status": "measured",
             "measure": "99%",
-            "note": "2086/2109 usages sur l'échelle ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
+            "note": "2069/2092 usages sur l'échelle ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
           },
           {
             "key": "ado-radius",
@@ -388,23 +388,23 @@
             "label": "Radius",
             "status": "measured",
             "measure": "85%",
-            "note": "862/1015 usages sur l'échelle radius.* · reste : rounded-xl ×145, rounded-[2px] ×4, rounded-[12px] ×1"
+            "note": "843/994 usages sur l'échelle radius.* · reste : rounded-xl ×143, rounded-[2px] ×4, rounded-[12px] ×1"
           },
           {
             "key": "ado-shadow",
             "group": "foundations",
             "label": "Ombres",
             "status": "measured",
-            "measure": "26%",
-            "note": "20/78 usages sur l'échelle shadow.*/elevation.* · reste : shadow-md ×21, shadow-lg ×17, shadow-sm ×7"
+            "measure": "27%",
+            "note": "20/74 usages sur l'échelle shadow.*/elevation.* · reste : shadow-md ×21, shadow-lg ×17, shadow-xl ×5"
           },
           {
             "key": "ado-motion",
             "group": "foundations",
             "label": "Motion",
             "status": "measured",
-            "measure": "40%",
-            "note": "33/83 usages sur l'échelle duration.*/easing.* · reste : duration-500 ×15, duration-700 ×14, duration-300 ×11"
+            "measure": "38%",
+            "note": "31/81 usages sur l'échelle duration.*/easing.* · reste : duration-500 ×15, duration-700 ×14, duration-300 ×11"
           },
           {
             "key": "ado-colors",
@@ -412,7 +412,7 @@
             "label": "Couleurs",
             "status": "measured",
             "measure": "95%",
-            "note": "4430/4680 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
+            "note": "4347/4597 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           }
         ]
       },
@@ -433,40 +433,40 @@
           {
             "key": "vq-baseline",
             "label": "Baseline",
-            "status": "missing",
-            "measure": null,
-            "note": "aucune baseline acceptée à ce jour",
-            "action": "Lancer un build Chromatic sur main et accepter les snapshots : c'est la référence à laquelle tout diff futur sera comparé."
+            "status": "measured",
+            "measure": "Établie",
+            "note": "baseline visuelle acceptée",
+            "action": null
           },
           {
             "key": "vq-regression",
             "label": "Visual regression",
-            "status": "missing",
-            "measure": null,
+            "status": "measured",
+            "measure": "PASS",
             "note": "diff visuel automatique par story — dépend de la baseline",
-            "action": "Une fois la baseline établie, faire écrire à la CI Chromatic le rapport visual-quality.report.json : la métrique bascule seule en measured."
+            "action": null
           },
           {
             "key": "vq-snapshots",
             "label": "Snapshot coverage",
-            "status": "planned",
-            "measure": null,
+            "status": "measured",
+            "measure": "270 stories",
             "note": "part des stories capturées par build",
             "action": null
           },
           {
             "key": "vq-approved",
             "label": "Approved changes",
-            "status": "planned",
-            "measure": null,
+            "status": "measured",
+            "measure": "0",
             "note": "changements visuels revus et acceptés (dernier build)",
             "action": null
           },
           {
             "key": "vq-unexpected",
             "label": "Unexpected changes",
-            "status": "planned",
-            "measure": null,
+            "status": "measured",
+            "measure": "0",
             "note": "stories en erreur au dernier build (diffs auto-acceptés sur main)",
             "action": null
           }
@@ -517,32 +517,32 @@
       }
     ],
     "counts": {
-      "measured": 33,
+      "measured": 38,
       "documented": 4,
-      "planned": 9,
-      "missing": 2
+      "planned": 6,
+      "missing": 0
     },
     "level": {
       "level": "En progression",
-      "coverage": 0.6875,
-      "measured": 33,
+      "coverage": 0.7916666666666666,
+      "measured": 38,
       "total": 48,
-      "critical": 2,
-      "planned": 9
+      "critical": 0,
+      "planned": 6
     }
   },
   "components": {
-    "total": 51,
-    "withStory": 51,
+    "total": 53,
+    "withStory": 53,
     "coverage": 1,
-    "componentStories": 149
+    "componentStories": 161
   },
   "tokens": {
-    "total": 402,
+    "total": 405,
     "byLayer": {
       "primitive": 141,
       "semantic": 81,
-      "component": 132,
+      "component": 135,
       "compat": 48
     }
   },
@@ -579,24 +579,24 @@
     "jsxFiles": 131,
     "dsFiles": 108,
     "excludedFromDenom": 37,
-    "rawElements": 51,
+    "rawElements": 33,
     "rawByTag": {
-      "button": 51,
+      "button": 33,
       "input": 0,
       "select": 0,
       "textarea": 0
     },
     "hardColors": 17,
     "scaleAdoption": 0.9872,
-    "compactShare": 0.2801405325443787,
+    "compactShare": 0.27910863509749306,
     "cssVarAdoption": 0,
     "foundations": {
       "typography": {
-        "total": 2109,
+        "total": 2092,
         "token": 0,
-        "scale": 2086,
+        "scale": 2069,
         "off": 23,
-        "adoption": 0.9890943575154102,
+        "adoption": 0.9890057361376673,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -622,16 +622,16 @@
         ]
       },
       "radius": {
-        "total": 1015,
-        "token": 448,
-        "scale": 414,
-        "off": 153,
-        "adoption": 0.8492610837438423,
-        "tokenShare": 0.4413793103448276,
+        "total": 994,
+        "token": 431,
+        "scale": 412,
+        "off": 151,
+        "adoption": 0.8480885311871227,
+        "tokenShare": 0.4336016096579477,
         "topOffenders": [
           {
             "value": "rounded-xl",
-            "count": 145
+            "count": 143
           },
           {
             "value": "rounded-[2px]",
@@ -652,12 +652,12 @@
         ]
       },
       "shadow": {
-        "total": 78,
+        "total": 74,
         "token": 18,
         "scale": 2,
-        "off": 58,
-        "adoption": 0.2564102564102564,
-        "tokenShare": 0.23076923076923078,
+        "off": 54,
+        "adoption": 0.2702702702702703,
+        "tokenShare": 0.24324324324324326,
         "topOffenders": [
           {
             "value": "shadow-md",
@@ -668,12 +668,12 @@
             "count": 17
           },
           {
-            "value": "shadow-sm",
-            "count": 7
-          },
-          {
             "value": "shadow-xl",
             "count": 5
+          },
+          {
+            "value": "shadow-sm",
+            "count": 3
           },
           {
             "value": "shadow-[0_0_24px_-8px]",
@@ -682,11 +682,11 @@
         ]
       },
       "motion": {
-        "total": 83,
+        "total": 81,
         "token": 0,
-        "scale": 33,
+        "scale": 31,
         "off": 50,
-        "adoption": 0.39759036144578314,
+        "adoption": 0.38271604938271603,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -712,12 +712,12 @@
         ]
       },
       "colors": {
-        "total": 4680,
-        "token": 4430,
+        "total": 4597,
+        "token": 4347,
         "scale": 0,
         "off": 250,
-        "adoption": 0.9465811965811965,
-        "tokenShare": 0.9465811965811965,
+        "adoption": 0.9456167065477485,
+        "tokenShare": 0.9456167065477485,
         "topOffenders": [
           {
             "value": "border-white/[0.06]",
@@ -742,11 +742,11 @@
         ]
       },
       "borders": {
-        "total": 657,
+        "total": 645,
         "token": 0,
-        "scale": 655,
+        "scale": 643,
         "off": 2,
-        "adoption": 0.9969558599695586,
+        "adoption": 0.9968992248062015,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -786,11 +786,11 @@
         ]
       },
       "opacity": {
-        "total": 130,
+        "total": 132,
         "token": 0,
-        "scale": 116,
+        "scale": 118,
         "off": 14,
-        "adoption": 0.8923076923076924,
+        "adoption": 0.8939393939393939,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -846,12 +846,12 @@
         ]
       },
       "icons": {
-        "total": 755,
-        "token": 728,
+        "total": 760,
+        "token": 733,
         "scale": 0,
         "off": 27,
-        "adoption": 0.9642384105960264,
-        "tokenShare": 0.9642384105960264,
+        "adoption": 0.9644736842105263,
+        "tokenShare": 0.9644736842105263,
         "topOffenders": [
           {
             "value": "<svg> écrit à la main",
@@ -870,13 +870,13 @@
       }
     },
     "foundationsScope": {
-      "filesScanned": 416,
+      "filesScanned": 421,
       "skippedMarketing": 21,
       "parseErrors": 0
     }
   },
   "debt": {
-    "violations": 1020,
+    "violations": 1003,
     "violationsCore": 0,
     "exceptions": 30,
     "baseline": 1027
@@ -884,15 +884,15 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-22T09:35:53.049Z",
+      "generatedAt": "2026-07-22T12:46:34.020Z",
       "scores": {
-        "valueCompliance": 0.8114,
+        "valueCompliance": 0.8137,
         "scaleAdoption": 0.9872,
         "cssVarAdoption": 0,
-        "health": 0.8641
+        "health": 0.8657
       },
       "confidence": {
-        "value": 0.9633,
+        "value": 0.9632,
         "classifiableRatio": 1,
         "unclassified": 0,
         "exceptions": 30,
@@ -900,33 +900,33 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5408,
-        "preferred": 2843,
-        "compactAllowed": 1515,
-        "violations": 1020,
+        "detected": 5385,
+        "preferred": 2849,
+        "compactAllowed": 1503,
+        "violations": 1003,
         "exceptions": 30,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5408,
-        "compliant": 4388,
+        "classifiable": 5385,
+        "compliant": 4382,
         "byTrack": {
-          "error": 582,
-          "warn": 4826
+          "error": 594,
+          "warn": 4791
         },
         "violationsByTrack": {
           "error": 0,
-          "warn": 1020
+          "warn": 1003
         },
         "compactByTrack": {
-          "error": 129,
-          "warn": 1386
+          "error": 137,
+          "warn": 1366
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-22T09:35:53.055Z",
+      "generatedAt": "2026-07-22T12:46:34.026Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,
@@ -937,7 +937,7 @@
         "note": "Fait dérivé de la config CI + inventaire, pas d'un rapport JSON a11y."
       },
       "totals": {
-        "testableStories": 149
+        "testableStories": 161
       },
       "status": "enforced"
     }
