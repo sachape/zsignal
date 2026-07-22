@@ -14,7 +14,7 @@ mesurés et vérifiables, appliqués en CI.
 
 ## Spacing — audit + baseline
 
-- Moteur `design-system/health/` : audit automatique (`npm run audit:spacing`), rapport **versionné** dans `reports/design-system/`.
+- Moteur `design-system/health/` : audit automatique global (`npm run audit:health`), rapport **versionné** dans `reports/design-system/`.
 - Règle 8/4 à deux niveaux (**preferred** / **compact-allowed**), ADR `docs/adr/0001`.
 - `check:spacing` (CI) échoue si les **violations** OU le **compact-allowed** **augmentent** vs baseline —
   garde anti-gaming (empêche `violation → compact` de gonfler le score). La dette historique ne bloque pas.

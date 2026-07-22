@@ -70,7 +70,7 @@ export function Guard() {
       <Alert>
         <AlertTitle>▲ Rapport indisponible</AlertTitle>
         <AlertDescription>
-          Aucun rapport Health exploitable. Lance <code>npm run audit:spacing</code> puis rebuild Storybook.
+          Aucun rapport Health exploitable. Lance <code>npm run audit:health</code> puis rebuild Storybook.
         </AlertDescription>
       </Alert>
     </div>

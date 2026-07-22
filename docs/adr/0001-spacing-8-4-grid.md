@@ -56,7 +56,7 @@
   périmètre scanné est incomplet (`scope` porté dans le rapport).
 
 ## Conséquences
-- Audit automatique `npm run audit:spacing` (read-only), rapports versionnés dans
+- Audit automatique `npm run audit:health` (read-only), rapports versionnés dans
   `reports/design-system/` (JSON machine + MD humain + history), lus par le futur Dashboard et la CI.
 - CI progressive : **observation** (P6, non bloquant) → **baseline** (bloque les nouvelles
   violations) → **strict** (fin de migration). Pas de CI rouge immédiate sur la dette.

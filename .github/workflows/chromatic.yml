@@ -83,7 +83,7 @@ jobs:
       # On ne commite QUE visual-quality.report.json : health-summary.json porte
       # un `generatedAt`, il changerait à chaque exécution et produirait un
       # commit par push. Ce fichier-ci ne bouge que si un chiffre bouge. Il est
-      # replié dans le Health au prochain `npm run audit:spacing`.
+      # replié dans le Health au prochain `npm run audit:health`.
       - name: Rapport Visual Quality
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:

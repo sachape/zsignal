@@ -15,11 +15,13 @@
     "build-storybook": "storybook build",
     "tokens:build": "node design-system/tokens.build.mjs",
     "lint:tokens": "node design-system/tools/lint-tokens.mjs",
-    "audit:spacing": "node design-system/health/run.mjs",
+    "audit:health": "node design-system/health/run.mjs",
     "check:spacing": "node design-system/health/run.mjs --check",
     "baseline:spacing": "node design-system/health/run.mjs --freeze",
     "check:foundations": "node design-system/health/check-foundations.mjs",
     "baseline:foundations": "node design-system/health/check-foundations.mjs --freeze",
+    "check:health": "npm run check:spacing && npm run check:foundations",
+    "baseline:health": "npm run baseline:spacing && npm run baseline:foundations",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
