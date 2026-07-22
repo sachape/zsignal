@@ -11,9 +11,11 @@ Détectées dans `package.json`. Ne jamais inventer de commande absente.
 | Build Storybook | `npm run build-storybook` | disponible |
 | Build production | `npm run build` | disponible |
 | (Re)génération des tokens | `npm run tokens:build` | disponible (déterministe) |
-| Audit spacing / Health (read-only) | `npm run audit:spacing` | génère les rapports `reports/design-system/*` (moteur `design-system/health/run.mjs`) |
-| Garde-fou spacing (ratchet) | `npm run check:spacing` | échoue si la dette AUGMENTE vs baseline (voir règle ci-dessous) |
-| Relever la baseline spacing | `npm run baseline:spacing` | **manuel**, uniquement pour accepter volontairement une dette — jamais pour faire passer une régression |
+| Audit Health complet (read-only) | `npm run audit:health` | régénère **TOUT** le dashboard `reports/design-system/*` (adoption, dette composants, fondations, spacing) — moteur `design-system/health/run.mjs` |
+| Garde-fou global (umbrella) | `npm run check:health` | lance `check:spacing` + `check:foundations` en un seul appel |
+| Garde-fou spacing (ratchet) | `npm run check:spacing` | échoue si la dette **spacing** AUGMENTE vs baseline (voir règle ci-dessous) |
+| Garde-fou fondations (ratchet) | `npm run check:foundations` | échoue si régression **fondations** (radius/ombres/motion/couleurs) |
+| Relever une baseline (manuel) | `npm run baseline:spacing` · `baseline:foundations` · `baseline:health` | **manuel**, uniquement pour accepter volontairement une dette — jamais pour faire passer une régression |
 | Régression visuelle | `chromatic` (workflow `.github/workflows/chromatic.yml`) | CI, nécessite un token projet |
 | Tests e2e | — | **absent** (ne pas inventer) |
 
@@ -35,5 +37,5 @@ Détectées dans `package.json`. Ne jamais inventer de commande absente.
   la corriger, ou l'accepter explicitement en commit justifié après validation humaine.
 
 ## Ordre recommandé
-`npm run typecheck` → `npm run lint:tokens` → `npm run check:spacing` → `npm run test`
+`npm run typecheck` → `npm run lint:tokens` → `npm run check:health` → `npm run test`
 → `npm run build-storybook` → (`npm run build` si la tâche touche le runtime app).

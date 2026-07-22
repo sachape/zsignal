@@ -69,7 +69,7 @@ function SpacingReport() {
         <Alert>
           <AlertTitle>▲ Rapport indisponible</AlertTitle>
           <AlertDescription>
-            Aucun rapport spacing exploitable. Lance <code>npm run audit:spacing</code> puis rebuild Storybook.
+            Aucun rapport spacing exploitable. Lance <code>npm run audit:health</code> puis rebuild Storybook.
           </AlertDescription>
         </Alert>
       </div>
@@ -112,7 +112,7 @@ function SpacingReport() {
       {!fresh && (
         <Alert variant="destructive">
           <AlertTitle>▲ Rapport obsolète</AlertTitle>
-          <AlertDescription>Le dernier audit date de plus de {STALE_DAYS} jours. Relance <code>npm run audit:spacing</code>.</AlertDescription>
+          <AlertDescription>Le dernier audit date de plus de {STALE_DAYS} jours. Relance <code>npm run audit:health</code>.</AlertDescription>
         </Alert>
       )}
 
@@ -238,7 +238,7 @@ const meta: Meta<typeof SpacingReport> = {
   parameters: {
     layout: "fullscreen",
     controls: { disable: true },
-    docs: { description: { component: "Rapport détaillé de la dimension spacing — sous-page du cockpit Health/Overview. Alimenté par le moteur Health (npm run audit:spacing)." } },
+    docs: { description: { component: "Rapport détaillé de la dimension spacing — sous-page du cockpit Health/Overview. Alimenté par le moteur Health (npm run audit:health)." } },
   },
 };
 export default meta;

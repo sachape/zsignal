@@ -69,8 +69,9 @@ Préférer toujours **preferred** ; compact-allowed reste conforme mais suivi. P
 espacements (margin/padding/gap/inset…), **pas** width/height/radius/typo. Détail : `docs/adr/0001-spacing-8-4-grid.md`.
 
 ```
-npm run audit:spacing    # audit read-only → reports/design-system/spacing-health.{json,md}
-npm run check:spacing    # CI : échoue si NOUVELLE violation vs baseline (sinon observation)
+npm run audit:health     # audit read-only GLOBAL → reports/design-system/* (adoption, composants, fondations, spacing)
+npm run check:spacing    # CI : échoue si NOUVELLE violation spacing vs baseline (sinon observation)
+npm run check:health     # umbrella : check:spacing + check:foundations
 ```
 
 - **Lire le rapport** : `reports/design-system/spacing-health.md` (score, top valeurs, fichiers touchés).
