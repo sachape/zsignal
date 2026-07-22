@@ -5,6 +5,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { SelectableCard } from "@/components/ui/selectable-card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,16 +122,11 @@ export default function PublishClipDialog({
               {accounts.map((a) => {
                 const active = selected.includes(a.id);
                 return (
-                  <button
-                    type="button"
+                  <SelectableCard
                     key={a.id}
+                    selected={active}
                     onClick={() => toggle(a.id)}
-                    className={cn(
-                      "flex items-center justify-between rounded-md border px-3 py-2 text-left text-sm transition",
-                      active
-                        ? "border-primary/60 bg-primary/10"
-                        : "border-border hover:border-border/80 hover:bg-muted/40",
-                    )}
+                    className="flex items-center justify-between px-3 py-2 text-left text-sm"
                   >
                     <span className="flex items-center gap-2">
                       <span className="font-medium">{PLATFORM_LABEL[a.platform]}</span>
@@ -139,7 +135,7 @@ export default function PublishClipDialog({
                       )}
                     </span>
                     {active && <Badge variant="default" className="text-[12px]">Sélectionné</Badge>}
-                  </button>
+                  </SelectableCard>
                 );
               })}
               <Button variant="link" size="sm" onClick={() => void refresh()} className="h-auto self-end p-0 text-xs">

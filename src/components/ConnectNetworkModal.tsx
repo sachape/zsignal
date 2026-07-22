@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { SelectableCard } from "@/components/ui/selectable-card";
 import { supabase } from "@/integrations/supabase/client";
 import type { Platform } from "@/types/networks";
 import PlatformValidationNotice from "@/components/PlatformValidationNotice";
@@ -241,13 +242,12 @@ export default function ConnectNetworkModal({
           {PLATFORMS.map(({ id, label, color, bg, Icon, description }) => {
             const isConnected = (id === "twitch" && hasTwitchOAuth) || connectedPlatforms.includes(id);
             return (
-              <button
+              <SelectableCard
                 key={id}
+                highlight="ring"
+                selected={selected === id}
                 onClick={() => setSelected(selected === id ? null : id)}
-                className={cn(
-                  "relative flex flex-col items-start gap-2 rounded-xl border p-3 text-left transition-all",
-                  selected === id ? `${bg} ring-2 ring-primary/50` : "border-border bg-card hover:bg-muted/30",
-                )}
+                className={cn("relative flex flex-col items-start gap-2 p-3 text-left", selected === id && bg)}
               >
                 <div className="flex w-full items-center justify-between">
                   <Icon className={cn("h-5 w-5", color)} />
@@ -259,7 +259,7 @@ export default function ConnectNetworkModal({
                 </div>
                 <span className="text-sm font-medium">{label}</span>
                 <span className="text-[12px] text-muted-foreground leading-snug">{description}</span>
-              </button>
+              </SelectableCard>
             );
           })}
         </div>

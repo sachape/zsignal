@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { SelectableCard } from "@/components/ui/selectable-card";
 import { CameraPlacementEditor } from "@/components/clips/CameraPlacementEditor";
 
 const REF_W = 1920;
@@ -167,36 +168,28 @@ export function QuickCameraPicker({ onReady }: Props) {
         {CORNERS.map((c) => {
           const active = choice?.kind === "camera" && choice.corner === c.id;
           return (
-            <button
+            <SelectableCard
               key={c.id}
-              type="button"
+              selected={active}
               disabled={saving}
               onClick={() => applyChoice({ kind: "camera", corner: c.id })}
-              className={cn(
-                "flex flex-col items-center gap-1 rounded-md border p-2 text-[12px] transition",
-                active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card hover:border-border/80",
-              )}
+              className="flex flex-col items-center gap-1 p-2 text-[12px]"
             >
               <CornerThumb corner={c.id} />
               <span>{c.label}</span>
-            </button>
+            </SelectableCard>
           );
         })}
       </div>
 
-      <button
-        type="button"
+      <SelectableCard
+        selected={choice?.kind === "gameplay_only"}
         disabled={saving}
         onClick={() => applyChoice({ kind: "gameplay_only" })}
-        className={cn(
-          "flex w-full items-center justify-center gap-1.5 rounded-md border p-2 text-[12px] transition",
-          choice?.kind === "gameplay_only"
-            ? "border-primary bg-primary/10 text-foreground"
-            : "border-border bg-card hover:border-border/80",
-        )}
+        className="flex w-full items-center justify-center gap-1.5 p-2 text-[12px]"
       >
         <MonitorPlay className="h-3.5 w-3.5" /> Pas de caméra — gameplay seul
-      </button>
+      </SelectableCard>
 
       <CameraEditorDialog open={editorOpen} onOpenChange={setEditorOpen} onSaved={() => onReady(true)} />
     </div>
