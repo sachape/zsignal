@@ -78,7 +78,7 @@ export default function SuggestedTitles({
       )}
 
       {manuallyEdited && (
-        <div className="flex items-start gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2 text-[11px] text-amber-300">
+        <div className="flex items-start gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2 text-[12px] text-amber-300">
           <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
           <span>Titre modifié manuellement. Ton titre actuel ne sera pas écrasé tant que tu ne cliques pas sur « Utiliser ».</span>
         </div>
@@ -99,9 +99,9 @@ export default function SuggestedTitles({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-foreground leading-snug">{t.text}</p>
                   <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                    <Badge variant="outline" className="h-5 px-1.5 text-[10px]">Score {t.score}</Badge>
+                    <Badge variant="outline" className="h-5 px-1.5 text-[12px]">Score {t.score}</Badge>
                     {t.tags.slice(0, 2).map(tag => (
-                      <span key={tag} className="rounded-full border border-border/50 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                      <span key={tag} className="rounded-full border border-border/50 px-1.5 py-0.5 text-[12px] text-muted-foreground">
                         {tag}
                       </span>
                     ))}
@@ -109,7 +109,7 @@ export default function SuggestedTitles({
                 </div>
                 <Button
                   size="sm" variant={isActive ? "secondary" : "outline"}
-                  className="h-7 shrink-0 px-2 text-[11px]"
+                  className="h-7 shrink-0 px-2 text-[12px]"
                   onClick={() => onApply(t.text)} disabled={isActive}
                 >
                   {isActive ? <><Check className="mr-1 h-3 w-3" />Sélectionné</> : "Utiliser"}
@@ -132,7 +132,7 @@ export default function SuggestedTitles({
         </button>
       )}
 
-      <p className="text-[10px] italic text-muted-foreground/60">
+      <p className="text-[12px] italic text-muted-foreground/60">
         Sélectionner un titre met à jour Twitch, YouTube, Kick et le post social.
       </p>
     </div>

@@ -229,7 +229,7 @@ function MilestoneStepper({ activeTierIndex, completedUpTo }: {
               </div>
               <span
                 className={cn(
-                  "text-center text-[10px] font-semibold leading-tight",
+                  "text-center text-[12px] font-semibold leading-tight",
                   isCompleted || isActive ? "text-foreground" : "text-muted-foreground/40",
                 )}
               >
@@ -301,7 +301,7 @@ function CriteriaGrid({ progress, tier }: { progress: RawProgress; tier: TierDef
                   <meta.icon className={cn("h-3.5 w-3.5", colors.text)} />
                   <p className="text-sm font-semibold text-foreground">{meta.label}</p>
                 </div>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{meta.desc}</p>
+                <p className="mt-0.5 text-[12px] text-muted-foreground">{meta.desc}</p>
               </div>
               {done ? (
                 <CheckCircle2 className="h-5 w-5 shrink-0 text-primary-strong" />
@@ -324,16 +324,16 @@ function CriteriaGrid({ progress, tier }: { progress: RawProgress; tier: TierDef
             </div>
 
             {done ? (
-              <p className="mt-2 text-[10px] font-semibold text-primary-strong">Atteint ✓</p>
+              <p className="mt-2 text-[12px] font-semibold text-primary-strong">Atteint ✓</p>
             ) : (
               <div className="mt-2 flex flex-wrap items-center gap-x-3">
-                <p className={cn("text-[10px] font-semibold tabular-nums", colors.text)}>
+                <p className={cn("text-[12px] font-semibold tabular-nums", colors.text)}>
                   {pct}% — encore {formatNumber(target - current)}{meta.unit ? ` ${meta.unit}` : ""}
                 </p>
                 {(meta.id === "stream_days" || meta.id === "stream_hours") && (() => {
                   const proj = projectWeeks(current, target);
                   return proj ? (
-                    <p className="text-[10px] text-muted-foreground/60">{proj} à ce rythme</p>
+                    <p className="text-[12px] text-muted-foreground/60">{proj} à ce rythme</p>
                   ) : null;
                 })()}
               </div>
@@ -486,7 +486,7 @@ const AffiliationPage = () => {
                   <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                     {isAffiliate ? "Prochain palier" : "Objectif actuel"}
                   </p>
-                  <p className="mt-0.5 text-lg font-bold text-foreground">{activeTier.label}</p>
+                  <p className="mt-0.5 text-xl font-bold text-foreground">{activeTier.label}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">{activeTier.description}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -500,7 +500,7 @@ const AffiliationPage = () => {
                   style={{ width: `${overallPct}%` }}
                 />
               </div>
-              <p className="mt-2 text-[11px] text-muted-foreground">
+              <p className="mt-2 text-[12px] text-muted-foreground">
                 {completed} critère{completed !== 1 ? "s" : ""} atteint{completed !== 1 ? "s" : ""} sur {available}
               </p>
             </div>

@@ -408,7 +408,7 @@ export function ManualFacecamPlacer({
         </DialogHeader>
 
         {isThumbnailFallback && (
-          <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-[11px] text-amber-200">
+          <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-[12px] text-amber-200">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
             <span>
               Image dégradée (miniature Twitch). Le worker n'a pas pu extraire
@@ -451,7 +451,7 @@ export function ManualFacecamPlacer({
                 Impossible de charger une frame de référence. Réessaie ou importe un média.
               </p>
               {loadError && (
-                <p className="font-mono text-[10px] text-muted-foreground/70">{loadError}</p>
+                <p className="font-mono text-[12px] text-muted-foreground/70">{loadError}</p>
               )}
               <Button
                 size="sm"
@@ -490,7 +490,7 @@ export function ManualFacecamPlacer({
             style={boxPxStyle}
             onPointerDown={onPointerDown("move")}
           >
-            <div className="absolute -top-6 left-0 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+            <div className="absolute -top-6 left-0 rounded bg-primary px-1.5 py-0.5 text-[12px] font-medium text-primary-foreground">
               Zone caméra sélectionnée · {Math.round(crop.width * 100)}% × {Math.round(crop.height * 100)}%
             </div>
             <Handle pos="nw" onPointerDown={onPointerDown("resize-nw")} />
@@ -504,7 +504,7 @@ export function ManualFacecamPlacer({
           </div>
 
           {DEBUG && (
-            <div className="pointer-events-none absolute bottom-1 left-1 max-w-[60%] rounded bg-black/70 p-1.5 font-mono text-[10px] leading-tight text-white">
+            <div className="pointer-events-none absolute bottom-1 left-1 max-w-[60%] rounded bg-black/70 p-1.5 font-mono text-[12px] leading-tight text-white">
               <div>src {sourceW}×{sourceH} via {frame?.extracted_via ?? "?"}</div>
               <div>cont {Math.round(containerSize.w)}×{Math.round(containerSize.h)}</div>
               <div>off {display.offsetX.toFixed(1)},{display.offsetY.toFixed(1)} render {Math.round(display.renderedWidth)}×{Math.round(display.renderedHeight)}</div>
@@ -539,7 +539,7 @@ export function ManualFacecamPlacer({
             <div className="rounded-md border border-border bg-card p-3">
               <div className="mb-1.5 flex items-center justify-between">
                 <Label className="text-xs">Aperçu final 9:16</Label>
-                <span className="font-mono text-[10px] text-muted-foreground">
+                <span className="font-mono text-[12px] text-muted-foreground">
                   cam y=0 · {Math.round(CAM_RATIO * 100)}% / gameplay {Math.round((1 - CAM_RATIO) * 100)}%
                 </span>
               </div>
@@ -565,7 +565,7 @@ export function ManualFacecamPlacer({
                       debug={DEBUG}
                       debugLabel="preview-facecam-band"
                     />
-                    <div className="pointer-events-none absolute left-1 top-1 rounded bg-primary/90 px-1.5 py-0.5 text-[9px] font-medium text-primary-foreground">
+                    <div className="pointer-events-none absolute left-1 top-1 rounded bg-primary/90 px-1.5 py-0.5 text-[12px] font-medium text-primary-foreground">
                       Caméra (y=0)
                     </div>
                   </div>
@@ -583,7 +583,7 @@ export function ManualFacecamPlacer({
                       draggable={false}
                       className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
                     />
-                    <div className="pointer-events-none absolute left-1 top-1 rounded bg-background/70 px-1.5 py-0.5 text-[9px] font-medium text-foreground">
+                    <div className="pointer-events-none absolute left-1 top-1 rounded bg-background/70 px-1.5 py-0.5 text-[12px] font-medium text-foreground">
                       Gameplay
                     </div>
                   </div>
@@ -627,7 +627,7 @@ export function ManualFacecamPlacer({
                   >
                     Sauvegarder cette position pour les prochains clips
                   </Label>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  <p className="mt-0.5 text-[12px] text-muted-foreground">
                     {blockTwitchNoFrame ? (
                       "Sauvegarde désactivée tant qu'une frame réelle n'a pas été chargée."
                     ) : canSavePreset ? (
@@ -644,7 +644,7 @@ export function ManualFacecamPlacer({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-1 text-[11px] text-muted-foreground hover:text-destructive"
+                    className="gap-1 text-[12px] text-muted-foreground hover:text-destructive"
                     onClick={() => {
                       onResetSavedPreset();
                       toast({ title: "Position sauvegardée réinitialisée" });

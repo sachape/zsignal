@@ -356,7 +356,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
                           <span className="text-sm font-semibold text-foreground">{t.label}</span>
                         </div>
                         <p className="text-xs text-muted-foreground line-clamp-2">{t.description}</p>
-                        <span className="text-[10px] text-muted-foreground/70">
+                        <span className="text-[12px] text-muted-foreground/70">
                           {t.width} × {t.height}
                         </span>
                       </button>
@@ -378,7 +378,7 @@ export default function VisualGenerationDialog({ open, onOpenChange, templates, 
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground">{template.label}</p>
                 <p className="text-xs text-muted-foreground">{template.description}</p>
-                <p className="mt-1 text-[10px] text-muted-foreground/70">{template.width} × {template.height}</p>
+                <p className="mt-1 text-[12px] text-muted-foreground/70">{template.width} × {template.height}</p>
               </div>
             </div>
 

@@ -221,7 +221,7 @@ const SidebarStreamerSearch = ({ collapsed }: Props) => {
                                   loading="lazy"
                                 />
                               ) : (
-                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-[12px] font-semibold text-muted-foreground">
                                   {s.display_name?.[0]?.toUpperCase() ?? "?"}
                                 </div>
                               )}
@@ -231,13 +231,13 @@ const SidebarStreamerSearch = ({ collapsed }: Props) => {
                                     {s.display_name}
                                   </span>
                                   {s.is_live && (
-                                    <span className="inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-destructive/15 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-destructive">
+                                    <span className="inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-destructive/15 px-1 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-destructive">
                                       <Radio className="h-2 w-2" />
                                       Live
                                     </span>
                                   )}
                                 </div>
-                                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                                <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
                                   <span className="truncate">@{s.login}</span>
                                   {s.game_name && (
                                     <>
@@ -330,7 +330,7 @@ const SidebarStreamerSearch = ({ collapsed }: Props) => {
                             loading="lazy"
                           />
                         ) : (
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-[12px] font-semibold text-muted-foreground">
                             {s.display_name?.[0]?.toUpperCase() ?? "?"}
                           </div>
                         )}
@@ -340,13 +340,13 @@ const SidebarStreamerSearch = ({ collapsed }: Props) => {
                               {s.display_name}
                             </span>
                             {s.is_live && (
-                              <span className="inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-destructive/15 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-destructive">
+                              <span className="inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-destructive/15 px-1 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-destructive">
                                 <Radio className="h-2 w-2" />
                                 Live
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                          <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
                             <span className="truncate">@{s.login}</span>
                             {s.game_name && (
                               <>

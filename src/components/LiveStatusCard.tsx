@@ -65,7 +65,7 @@ const LiveStatusCard = ({ current, last, lastDebrief }: Props) => {
                 <span className="text-sm font-semibold text-foreground">
                   Dernier live
                 </span>
-                <Badge variant="muted" className="h-5 px-1.5 text-[10px]">
+                <Badge variant="muted" className="h-5 px-1.5 text-[12px]">
                   {formatRelativeFrom(last.ended_at ?? last.started_at)}
                 </Badge>
               </div>

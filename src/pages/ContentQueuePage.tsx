@@ -12,6 +12,7 @@ import PageContainer from "@/components/PageContainer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -244,7 +245,7 @@ const ContentQueuePage = () => {
               <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <Flame className="h-4 w-4 text-primary-strong" />
                 À traiter en priorité
-                <span className="ml-auto text-[10px] font-normal text-muted-foreground">
+                <span className="ml-auto text-[12px] font-normal text-muted-foreground">
                   Score éditorial — pas une prédiction de performance
                 </span>
               </div>
@@ -254,7 +255,7 @@ const ContentQueuePage = () => {
                   const Ico = meta.Icon;
                   return (
                     <div key={i.id} className="rounded-md border border-border/60 bg-background/60 p-3">
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
                         <Ico className="h-3 w-3 text-primary-strong" />
                         {meta.label}
                         <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-semibold text-primary-strong">
@@ -264,7 +265,7 @@ const ContentQueuePage = () => {
                       </div>
                       <p className="mt-1.5 line-clamp-2 text-xs font-medium text-foreground">{normalizeClipTitle(i.title)}</p>
                       {i.opportunity_label && (
-                        <p className="mt-1 text-[10px] text-primary-strong/80">{i.opportunity_label}</p>
+                        <p className="mt-1 text-[12px] text-primary-strong/80">{i.opportunity_label}</p>
                       )}
                     </div>
                   );
@@ -278,27 +279,18 @@ const ContentQueuePage = () => {
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           {FILTERS.map(f => (
-            <button
-              key={f.key} type="button"
+            <Chip
+              key={f.key}
+              active={filter === f.key}
               onClick={() => setFilter(f.key)}
-              className={cn(
-                "rounded-full border px-3 py-1 text-xs transition",
-                filter === f.key
-                  ? "border-primary bg-primary/10 text-primary-strong"
-                  : "border-border bg-card hover:border-border/80 text-muted-foreground",
-              )}
             >
               {f.label}
-            </button>
+            </Chip>
           ))}
-          <button
-            type="button"
-            onClick={() => setHideIgnored(v => !v)}
-            className="ml-auto inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground hover:border-border/80"
-          >
-            {hideIgnored ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+          <Chip className="ml-auto" onClick={() => setHideIgnored(v => !v)}>
+            {hideIgnored ? <EyeOff /> : <Eye />}
             {hideIgnored ? "Masquer ignorés" : "Afficher tous"}
-          </button>
+          </Chip>
         </div>
 
         {/* List */}
@@ -438,7 +430,7 @@ function StatCell({ label, value, accent }: { label: string; value: number; acce
     : "border-border/60 bg-card text-foreground";
   return (
     <div className={cn("rounded-md border p-3", cls)}>
-      <div className="text-[10px] uppercase tracking-wide opacity-80">{label}</div>
+      <div className="text-[12px] uppercase tracking-wide opacity-80">{label}</div>
       <div className="mt-0.5 text-2xl font-semibold tabular-nums">{value}</div>
     </div>
   );
@@ -528,47 +520,42 @@ function ContentRow({
               <p className="truncate text-sm font-semibold text-foreground">{normalizeClipTitle(item.title)}</p>
             )}
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              <Badge variant="outline" className="text-[10px]">{platform.label}</Badge>
-              <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", status.cls)}>
+              <Badge variant="outline" className="text-[12px]">{platform.label}</Badge>
+              <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[12px] font-medium", status.cls)}>
                 {status.label}
               </span>
-              <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium", priority.cls)}>
+              <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[12px] font-medium", priority.cls)}>
                 Priorité {priority.label}
               </span>
               {typeof item.opportunity_score === "number" && (
                 <span
                   title={item.opportunity_reason ?? undefined}
-                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary-strong"
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[12px] font-semibold text-primary-strong"
                 >
                   <TrendingUp className="h-2.5 w-2.5" />
                   {item.opportunity_score}
                   {item.opportunity_label && <span className="font-normal opacity-80">· {item.opportunity_label}</span>}
                 </span>
               )}
-              {item.format && <span className="text-[10px] text-muted-foreground">· {item.format}</span>}
-              {item.duration && <span className="text-[10px] text-muted-foreground">· {item.duration}</span>}
+              {item.format && <span className="text-[12px] text-muted-foreground">· {item.format}</span>}
+              {item.duration && <span className="text-[12px] text-muted-foreground">· {item.duration}</span>}
             </div>
             {/* Title variant picker */}
             {item.title_variants && item.title_variants.length > 1 && !editing && expanded && (
               <div className="mt-2 flex flex-wrap items-center gap-1">
-                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Variantes :</span>
+                <span className="text-[12px] uppercase tracking-wide text-muted-foreground">Variantes :</span>
                 {item.title_variants.map(v => {
                   const active = v.value === item.title;
                   return (
-                    <button
+                    <Chip
                       key={v.style}
-                      type="button"
+                      active={active}
                       onClick={() => onUpdate({ title: v.value, selected_title_variant: v.style })}
-                      className={cn(
-                        "rounded-full border px-2 py-0.5 text-[10px] transition",
-                        active
-                          ? "border-primary bg-primary/10 text-primary-strong"
-                          : "border-border bg-card text-muted-foreground hover:border-border/80",
-                      )}
+                      className="px-2 py-0.5"
                       title={v.value}
                     >
                       {v.label}
-                    </button>
+                    </Chip>
                   );
                 })}
               </div>
@@ -655,20 +642,20 @@ function ContentRow({
             {item.hashtags.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {item.hashtags.map(h => (
-                  <span key={h} className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+                  <span key={h} className="rounded-full bg-muted px-2 py-0.5 text-[12px] text-muted-foreground">
                     #{h}
                   </span>
                 ))}
               </div>
             )}
             {item.reason && (
-              <p className="rounded-md border border-border/60 bg-background/40 p-2 text-[11px] italic text-muted-foreground">
+              <p className="rounded-md border border-border/60 bg-background/40 p-2 text-[12px] italic text-muted-foreground">
                 <Sparkles className="mr-1 inline h-3 w-3 text-primary-strong" />
                 {humanizeReason(item.reason)}
               </p>
             )}
             {item.notes && (
-              <p className="rounded-md border border-dashed border-border/60 bg-muted/20 p-2 text-[11px] text-muted-foreground">
+              <p className="rounded-md border border-dashed border-border/60 bg-muted/20 p-2 text-[12px] text-muted-foreground">
                 Notes : {item.notes}
               </p>
             )}
@@ -678,7 +665,7 @@ function ContentRow({
         {/* V3D — Clip draft block (video platforms only) */}
         {isVideo && item.status !== "ignored" && (
           <div className="space-y-2 rounded-md border border-border/60 bg-background/40 p-3">
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
+            <div className="flex items-center gap-2 text-[12px] font-semibold text-foreground">
               <Film className="h-3.5 w-3.5 text-primary-strong" />
               Clip Draft
             </div>
@@ -692,14 +679,14 @@ function ContentRow({
                   className="w-full max-w-sm rounded-md border border-border/60 bg-black"
                 />
                 {item.status !== "ready" && (
-                  <Button size="sm" variant="outline" className="h-7 text-[11px]"
+                  <Button size="sm" variant="outline" className="h-7 text-[12px]"
                     onClick={() => onUpdate({ status: "ready" })}>
                     <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Marquer comme prêt
                   </Button>
                 )}
               </div>
             ) : (
-              <div className="grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-2">
+              <div className="grid gap-2 text-[12px] text-muted-foreground sm:grid-cols-2">
                 <div>
                   <span className="font-medium text-foreground">Source : </span>
                   {item.source_video_url
@@ -721,13 +708,13 @@ function ContentRow({
             <ClipJobStatus contentItemId={item.id} onTerminal={onJobUpdate} />
 
             {item.generation_error && (
-              <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-[11px] text-destructive">
+              <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-[12px] text-destructive">
                 {item.generation_error}
               </p>
             )}
 
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onEditSource}>
+              <Button size="sm" variant="outline" className="h-7 text-[12px]" onClick={onEditSource}>
                 <Clock className="mr-1.5 h-3.5 w-3.5" />
                 {item.source_start_time != null ? "Modifier les timestamps" : "Définir les timestamps"}
               </Button>
@@ -739,11 +726,11 @@ function ContentRow({
                 />
               )}
               {anotherJobIsActive && !hasGeneratedClip && (
-                <p className="basis-full text-[11px] text-warning">
+                <p className="basis-full text-[12px] text-warning">
                   Une génération est déjà en cours. Attends la fin avant d’en lancer une autre.
                 </p>
               )}
-              <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={onManualUpload}
+              <Button size="sm" variant="outline" className="h-7 text-[12px]" onClick={onManualUpload}
                 title="J'ai déjà mon clip, je l'importe directement">
                 <FileUp className="mr-1.5 h-3.5 w-3.5" />
                 {hasGeneratedClip ? "Remplacer le média" : "Importer un média"}
@@ -773,7 +760,7 @@ function ContentRow({
         {/* Actions row */}
         <div className="flex flex-wrap items-center gap-2 border-t border-border/40 pt-3">
           <div className="flex items-center gap-1.5">
-            <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Statut</Label>
+            <Label className="text-[12px] uppercase tracking-wide text-muted-foreground">Statut</Label>
             <Select value={item.status} onValueChange={(v) => onUpdate({
               status: v as ContentStatus,
               published_at: v === "published" ? new Date().toISOString() : null,
@@ -787,7 +774,7 @@ function ContentRow({
             </Select>
           </div>
           <div className="flex items-center gap-1.5">
-            <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Priorité</Label>
+            <Label className="text-[12px] uppercase tracking-wide text-muted-foreground">Priorité</Label>
             <Select value={item.priority} onValueChange={(v) => onUpdate({ priority: v as ContentPriority })}>
               <SelectTrigger className="h-7 w-[110px] text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -797,7 +784,7 @@ function ContentRow({
               </SelectContent>
             </Select>
           </div>
-          <div className="ml-auto flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+          <div className="ml-auto flex flex-wrap items-center gap-2 text-[12px] text-muted-foreground">
             {item.youtube_url && (
               <a href={item.youtube_url} target="_blank" rel="noreferrer noopener"
                 className="inline-flex items-center gap-1 text-primary-strong hover:underline">
@@ -819,7 +806,7 @@ function ContentRow({
               <Button
                 size="sm"
                 variant="outline"
-                className="h-7 px-2 text-[11px]"
+                className="h-7 px-2 text-[12px]"
                 onClick={onUpload}
                 title={
                   !youtubeConnected ? "Connecte YouTube pour uploader (mode admin)"
@@ -835,7 +822,7 @@ function ContentRow({
             )}
             {item.platform === "youtube_shorts" && item.status !== "ignored" && !adminMode && (
               <span
-                className="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/5 px-2 py-1 text-[10px] font-medium text-amber-300"
+                className="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/5 px-2 py-1 text-[12px] font-medium text-amber-300"
                 title="Publication directe bientôt disponible après validation Google. En attendant, publie manuellement avec les éléments préparés par Streamnco."
               >
                 <Upload className="h-3 w-3" />
@@ -860,7 +847,7 @@ function ContentRow({
                   }
                   return `/composer?${params.toString()}`;
                 })()}
-                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary-strong hover:bg-primary/20"
+                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[12px] font-medium text-primary-strong hover:bg-primary/20"
                 title="Créer une publication Instagram à partir de cet item"
               >
                 <Camera className="h-3 w-3" />
@@ -868,14 +855,14 @@ function ContentRow({
               </Link>
             )}
             {item.status !== "published" && item.status !== "published_manually" && item.status !== "ignored" && (
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]"
+              <Button size="sm" variant="ghost" className="h-6 px-2 text-[12px]"
                 onClick={() => onUpdate({ status: "published_manually", published_at: new Date().toISOString() })}>
                 <Circle className="mr-1 h-3 w-3" />
                 Marquer publié
               </Button>
             )}
             {item.status !== "ignored" && (
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px] text-muted-foreground"
+              <Button size="sm" variant="ghost" className="h-6 px-2 text-[12px] text-muted-foreground"
                 onClick={() => onUpdate({ status: "ignored" })}>
                 Ignorer
               </Button>
@@ -1014,7 +1001,7 @@ function SourceVideoDialog({
             </div>
           </div>
 
-          <div className="rounded-md border border-border/60 bg-muted/20 p-2 text-[11px] text-muted-foreground">
+          <div className="rounded-md border border-border/60 bg-muted/20 p-2 text-[12px] text-muted-foreground">
             {duration == null
               ? "Indique des timestamps valides."
               : duration <= 0
@@ -1073,7 +1060,7 @@ function ClipJobStatus({ contentItemId, onTerminal }: { contentItemId: string; o
     ? getGenerationErrorMessage(job.error_code)
     : null;
   return (
-    <div className={cn("space-y-1.5 rounded-md border p-2.5 text-[11px]", meta.cls)}>
+    <div className={cn("space-y-1.5 rounded-md border p-2.5 text-[12px]", meta.cls)}>
       <div className="flex items-center justify-between">
         <span className="font-semibold">{job.status === "processing" ? stageLabel : meta.label}</span>
       </div>
@@ -1139,7 +1126,7 @@ function ContinuePreparationButton({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button
-        size="sm" className="h-7 text-[11px]"
+        size="sm" className="h-7 text-[12px]"
         onClick={() => { if (item.source_video_url) setLoading(true); onGenerate(); }}
         disabled={disabled}
         title={anotherJobIsActive ? "Une génération est déjà en cours" : "Lancer la génération du clip"}
@@ -1150,7 +1137,7 @@ function ContinuePreparationButton({
         {label}
       </Button>
       {loading && (
-        <span className="inline-flex items-center gap-1 text-[11px] text-primary-strong/80">
+        <span className="inline-flex items-center gap-1 text-[12px] text-primary-strong/80">
           <Loader2 className="h-3 w-3 animate-spin" />
           {message}
         </span>

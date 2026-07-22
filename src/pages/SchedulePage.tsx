@@ -129,14 +129,14 @@ const SchedulePage = () => {
                         <Badge
                           variant="outline"
                           className={cn(
-                            "text-[10px] font-bold",
+                            "text-[12px] font-bold",
                             i === 0 && "border-primary/40 text-primary-strong",
                           )}
                         >
                           #{i + 1} créneau
                         </Badge>
                         {i === 0 && (
-                          <span className="text-[10px] font-semibold text-primary-strong">Recommandé</span>
+                          <span className="text-[12px] font-semibold text-primary-strong">Recommandé</span>
                         )}
                       </div>
                       <p className="mt-2 text-2xl font-bold tabular-nums text-foreground">
@@ -182,7 +182,7 @@ const SchedulePage = () => {
                     <tbody>
                       {activeHours.map((hour) => (
                         <tr key={hour}>
-                          <td className="pr-2 text-right font-mono text-[10px] text-muted-foreground/60">
+                          <td className="pr-2 text-right font-mono text-[12px] text-muted-foreground/60">
                             {formatHour(hour)}
                           </td>
                           {Array.from({ length: 7 }, (_, day) => {
@@ -235,7 +235,7 @@ const SchedulePage = () => {
                       />
                     ))}
                   </div>
-                  <span className="text-[10px] text-muted-foreground">Peu → Souvent streamé</span>
+                  <span className="text-[12px] text-muted-foreground">Peu → Souvent streamé</span>
                 </div>
               </CardContent>
             </Card>

@@ -86,7 +86,7 @@ export function ProFeaturePreview({
         <div className="relative mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
           <Lock className="h-6 w-6 text-primary-strong" />
         </div>
-        <p className="relative text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-strong/70">
+        <p className="relative text-[12px] font-semibold uppercase tracking-[0.18em] text-primary-strong/70">
           Fonctionnalité Pro
         </p>
         <h2 className="relative mt-2 text-xl font-bold text-foreground">{title}</h2>
@@ -112,7 +112,7 @@ export function ProFeaturePreview({
             <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </Link>
         </Button>
-        <p className="relative mt-3 text-[11px] text-muted-foreground/50">
+        <p className="relative mt-3 text-[12px] text-muted-foreground/50">
           9,99€/mois · Annulable à tout moment
         </p>
       </div>

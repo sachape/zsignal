@@ -145,7 +145,7 @@ const BillingPage = () => {
                         <span className="text-base font-bold text-foreground">
                           Plan {planMeta.label}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
                           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                           Actif
                         </span>
@@ -163,7 +163,7 @@ const BillingPage = () => {
                     <span className="text-2xl font-bold tabular-nums text-foreground">
                       {sub.billing_cycle === "annual" ? planMeta.priceAnnual : planMeta.price} €
                     </span>
-                    <p className="text-[10px] text-muted-foreground">/ mois</p>
+                    <p className="text-[12px] text-muted-foreground">/ mois</p>
                   </div>
                 </div>
 
@@ -215,7 +215,7 @@ const BillingPage = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-base font-bold text-foreground">Plan Gratuit</span>
-                        <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                        <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 text-[12px] font-medium text-muted-foreground">
                           Actuel
                         </span>
                       </div>

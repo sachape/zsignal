@@ -67,12 +67,12 @@ export default function SocialPublishingSection() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{p.label}</span>
                   {isConnected && (
-                    <Badge variant="outline" className="border-primary/40 bg-primary/10 text-[10px] text-primary-strong">
+                    <Badge variant="outline" className="border-primary/40 bg-primary/10 text-[12px] text-primary-strong">
                       <Check className="mr-1 h-3 w-3" /> Compte connecté
                     </Badge>
                   )}
                   {isError && (
-                    <Badge variant="outline" className="border-destructive/40 bg-destructive/10 text-[10px] text-destructive">
+                    <Badge variant="outline" className="border-destructive/40 bg-destructive/10 text-[12px] text-destructive">
                       Erreur
                     </Badge>
                   )}

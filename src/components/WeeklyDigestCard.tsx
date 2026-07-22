@@ -102,7 +102,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">
               Rapport hebdo
             </span>
-            <span className="rounded-full border border-border/40 bg-muted/30 px-2 py-0.5 text-[10px] text-muted-foreground">
+            <span className="rounded-full border border-border/40 bg-muted/30 px-2 py-0.5 text-[12px] text-muted-foreground">
               {getWeekRange()}
             </span>
           </div>
@@ -124,7 +124,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
             >
               <div className="flex items-center gap-1.5">
                 <Icon className="h-3 w-3 shrink-0 text-muted-foreground/50" />
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                <span className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/50">
                   {label}
                 </span>
               </div>
@@ -149,7 +149,7 @@ const WeeklyDigestCard = ({ report, userId, previousScore }: Props) => {
         {nextAction && (
           <div className="flex items-start justify-between gap-4 rounded-lg border border-primary/15 bg-primary/[0.04] px-3 py-2.5">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-primary-strong/70">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-primary-strong/70">
                 Action prioritaire cette semaine
               </p>
               <p className="mt-0.5 text-xs font-medium text-foreground leading-snug">

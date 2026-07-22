@@ -96,7 +96,7 @@ function StatusBadge({ status }: { status: string }) {
     error:        { label: "Erreur de synchro",   cls: "text-destructive border-destructive/30 bg-destructive/5"      },
     disconnected: { label: "Non connecté",        cls: "text-muted-foreground/50 border-border/40 bg-transparent"     },
   } as Record<string, { label: string; cls: string }>)[status] ?? { label: status, cls: "text-muted-foreground border-border bg-muted/30" };
-  return <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium", c.cls)}>{c.label}</span>;
+  return <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[12px] font-medium", c.cls)}>{c.label}</span>;
 }
 
 // ── Edit platform dialog ──────────────────────────────────────────────────────
@@ -203,7 +203,7 @@ function PlatformCard({
           <div className="flex items-center gap-1.5">
             <p className="font-semibold text-sm">{meta.label}</p>
             {meta.beta && (
-              <span className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-400/10 px-1.5 py-0 text-[9px] font-semibold uppercase tracking-wide text-amber-400">
+              <span className="inline-flex items-center rounded-full border border-amber-400/30 bg-amber-400/10 px-1.5 py-0 text-[12px] font-semibold uppercase tracking-wide text-amber-400">
                 Bêta
               </span>
             )}
@@ -212,26 +212,26 @@ function PlatformCard({
             {username ? `@${username}` : isActive ? "Profil non renseigné" : "Non connecté"}
           </p>
           {meta.beta && (
-            <p className="mt-1 text-[10px] text-muted-foreground/60 leading-snug">
+            <p className="mt-1 text-[12px] text-muted-foreground/60 leading-snug">
               Publication automatique en validation API. Tu peux préparer tes contenus dès maintenant.
             </p>
           )}
           {status === "manual" && !meta.beta && (
-            <p className="mt-1 text-[10px] text-muted-foreground/60 leading-snug">
+            <p className="mt-1 text-[12px] text-muted-foreground/60 leading-snug">
               {platform === "tiktok"
                 ? "Ajouté manuellement. Connecte TikTok via OAuth pour récupérer tes vidéos."
                 : "Utilisé comme vitrine créateur. Insights disponibles après connexion Meta."}
             </p>
           )}
           {isActive && lastSyncedAt !== undefined && (
-            <p className="mt-0.5 text-[10px] text-muted-foreground/50">{syncLabel}</p>
+            <p className="mt-0.5 text-[12px] text-muted-foreground/50">{syncLabel}</p>
           )}
         </div>
 
 
         {/* Score */}
         <div className="flex items-center justify-between pt-1.5 border-t border-border/40 mt-auto">
-          <span className="text-[11px] text-muted-foreground">Score plateforme</span>
+          <span className="text-[12px] text-muted-foreground">Score plateforme</span>
           <span className={cn("text-sm font-bold tabular-nums", isActive ? scoreColor : "text-muted-foreground/30")}>
             {isActive ? `${platformScore}/100` : "—"}
           </span>
@@ -504,9 +504,9 @@ export default function ReseauxPage() {
                   </div>
                   <div className="flex-1 space-y-4">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Creator Presence Score</p>
+                      <p className="text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Creator Presence Score</p>
                       <div className="flex flex-wrap items-center gap-3">
-                        <h2 className="text-lg font-bold">{scoreResult.statusLabel}</h2>
+                        <h2 className="text-xl font-bold">{scoreResult.statusLabel}</h2>
                         <ScoreHistoryMini history={history} />
                       </div>
                       <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{scoreResult.diagnosis}</p>
@@ -519,13 +519,13 @@ export default function ReseauxPage() {
                         { label: "Cohérence",       pts: scoreResult.consistencyPoints,     max: 20 },
                       ] as const).map(({ label, pts, max }) => (
                         <div key={label} className="rounded-lg bg-muted/40 px-2.5 py-2 text-center">
-                          <p className="text-[10px] text-muted-foreground/70 mb-0.5">{label}</p>
-                          <p className="text-sm font-bold tabular-nums">{pts}<span className="text-[10px] font-normal text-muted-foreground">/{max}</span></p>
+                          <p className="text-[12px] text-muted-foreground/70 mb-0.5">{label}</p>
+                          <p className="text-sm font-bold tabular-nums">{pts}<span className="text-[12px] font-normal text-muted-foreground">/{max}</span></p>
                         </div>
                       ))}
                     </div>
                     {history.length > 0 && (
-                      <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground/50">
+                      <p className="flex items-center gap-1.5 text-[12px] text-muted-foreground/50">
                         <Info className="h-3 w-3 shrink-0" />
                         {history.length} snapshot{history.length > 1 ? "s" : ""} enregistré{history.length > 1 ? "s" : ""}
                         {history.length === 1 && " · L'historique apparaîtra après plusieurs synchronisations."}
@@ -538,7 +538,7 @@ export default function ReseauxPage() {
 
             {/* ── Platform grid ── */}
             <div>
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Tes plateformes</p>
+              <p className="mb-3 text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60">Tes plateformes</p>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {PLATFORMS.map((platform) => (
                   <PlatformCard
@@ -669,7 +669,7 @@ export default function ReseauxPage() {
                   )}
                 </div>
                 {adminMode && igDebug && (
-                  <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-2.5 font-mono text-[10px] text-destructive/90 space-y-0.5">
+                  <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-2.5 font-mono text-[12px] text-destructive/90 space-y-0.5">
                     <p className="font-semibold text-destructive">Debug Instagram OAuth (temporaire)</p>
                     {igDebug.callback_version && <p>callback_version: {igDebug.callback_version}</p>}
                     {igDebug.reason && <p>error_code: {igDebug.reason}</p>}
@@ -697,7 +697,7 @@ export default function ReseauxPage() {
                     <div key={label} className={cn("flex gap-2.5 rounded-lg border p-3", bg)}>
                       <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", color)} />
                       <div>
-                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
+                        <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
                         <p className="text-sm leading-snug">{text}</p>
                       </div>
                     </div>
@@ -718,7 +718,7 @@ export default function ReseauxPage() {
             {/* ── Recommendations ── */}
             {recommendations.length > 0 && (
               <div>
-                <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Actions recommandées</p>
+                <p className="mb-3 text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/60">Actions recommandées</p>
                 <div className="space-y-2">
                   {recommendations.map((rec, i) => {
                     const imp  = IMPACT[rec.impact];
@@ -734,7 +734,7 @@ export default function ReseauxPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-0.5">
                               <p className="text-sm font-semibold">{rec.title}</p>
-                              <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-medium", imp.cls)}>{imp.label}</span>
+                              <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0 text-[12px] font-medium", imp.cls)}>{imp.label}</span>
                             </div>
                             <p className="text-xs text-muted-foreground leading-relaxed">{rec.description}</p>
                           </div>

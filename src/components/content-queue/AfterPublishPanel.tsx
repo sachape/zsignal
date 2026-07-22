@@ -69,7 +69,7 @@ export default function AfterPublishPanel({ item, onSynced }: Props) {
   }
 
   return (
-    <div className="space-y-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-[11px]">
+    <div className="space-y-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-[12px]">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 font-semibold text-emerald-300">
           <BarChart3 className="h-3.5 w-3.5" />
@@ -79,7 +79,7 @@ export default function AfterPublishPanel({ item, onSynced }: Props) {
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 px-2 text-[11px]"
+            className="h-6 px-2 text-[12px]"
             disabled={syncing}
             onClick={handleRefresh}
           >
@@ -128,7 +128,7 @@ export default function AfterPublishPanel({ item, onSynced }: Props) {
             <Metric label="Commentaires" value={stored!.comments} />
           </div>
           <div className="flex items-center gap-2 pt-1">
-            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary-strong">
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold text-primary-strong">
               <Sparkles className="h-2.5 w-2.5" />
               {perf.text}
             </span>
@@ -162,8 +162,8 @@ function Metric({ label, value }: { label: string; value: number | null | undefi
   const isMissing = value == null;
   return (
     <div className="rounded-md border border-border/60 bg-background/40 p-2">
-      <div className="text-[9px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className={`mt-0.5 text-lg font-semibold tabular-nums ${isMissing ? "text-muted-foreground/60" : "text-foreground"}`}>
+      <div className="text-[12px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={`mt-0.5 text-xl font-semibold tabular-nums ${isMissing ? "text-muted-foreground/60" : "text-foreground"}`}>
         {isMissing ? "indisponible" : formatNumber(value)}
       </div>
     </div>

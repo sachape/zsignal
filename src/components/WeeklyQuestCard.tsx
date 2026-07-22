@@ -73,15 +73,15 @@ const QuestRow = ({
             {quest.title}
           </p>
           {/* XP badge */}
-          <span className="ml-auto shrink-0 rounded-full border border-border/40 bg-muted/50 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-muted-foreground">
+          <span className="ml-auto shrink-0 rounded-full border border-border/40 bg-muted/50 px-1.5 py-0.5 text-[12px] font-semibold tabular-nums text-muted-foreground">
             +{quest.xp} XP
           </span>
         </div>
 
-        <p className="mt-0.5 text-[11px] text-muted-foreground">{quest.description}</p>
+        <p className="mt-0.5 text-[12px] text-muted-foreground">{quest.description}</p>
 
         {/* Quest type indicator */}
-        <p className="mt-1 text-[10px] text-muted-foreground/40">
+        <p className="mt-1 text-[12px] text-muted-foreground/40">
           {quest.type === "verifiable" ? "Vérifié automatiquement" : "À cocher manuellement"}
         </p>
 
@@ -94,7 +94,7 @@ const QuestRow = ({
                 style={{ width: `${quest.progress}%` }}
               />
             </div>
-            <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
+            <span className="shrink-0 text-[12px] tabular-nums text-muted-foreground">
               {quest.progressLabel}
             </span>
           </div>
@@ -174,13 +174,13 @@ const WeeklyQuestCard = ({ weeklyQuests, onToggle, linkToQuests = false }: Props
             <Zap className="h-4 w-4 text-primary-strong" aria-hidden />
             <h2 className="text-sm font-semibold text-foreground">Quêtes de la semaine</h2>
           </div>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">{weekLabel}</p>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">{weekLabel}</p>
         </div>
 
         {/* Progress summary */}
         <div className="flex shrink-0 items-center gap-2">
           {totalXp > 0 && (
-            <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary-strong">
+            <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[12px] font-semibold text-primary-strong">
               +{totalXp} XP
             </span>
           )}
@@ -208,7 +208,7 @@ const WeeklyQuestCard = ({ weeklyQuests, onToggle, linkToQuests = false }: Props
               </div>
               <div>
                 <p className="text-sm font-bold text-foreground">Semaine parfaite !</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[12px] text-muted-foreground">
                   Reviens {nextMondayLabel()} pour la suite
                 </p>
               </div>
@@ -216,7 +216,7 @@ const WeeklyQuestCard = ({ weeklyQuests, onToggle, linkToQuests = false }: Props
             {/* XP total */}
             <div className="shrink-0 rounded-xl border border-primary/30 bg-primary/10 px-3 py-1.5 text-center">
               <p className="text-base font-bold tabular-nums text-primary-strong leading-none">+{totalXp}</p>
-              <p className="text-[9px] font-semibold uppercase tracking-wider text-primary-strong/70">XP</p>
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-primary-strong/70">XP</p>
             </div>
           </div>
 
@@ -225,8 +225,8 @@ const WeeklyQuestCard = ({ weeklyQuests, onToggle, linkToQuests = false }: Props
             {quests.map((q) => (
               <div key={q.id} className="flex items-center gap-2">
                 <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary-strong/60" aria-hidden />
-                <span className="flex-1 text-[11px] text-muted-foreground line-through">{q.title}</span>
-                <span className="shrink-0 text-[10px] font-semibold tabular-nums text-primary-strong/60">+{q.xp} XP</span>
+                <span className="flex-1 text-[12px] text-muted-foreground line-through">{q.title}</span>
+                <span className="shrink-0 text-[12px] font-semibold tabular-nums text-primary-strong/60">+{q.xp} XP</span>
               </div>
             ))}
           </div>

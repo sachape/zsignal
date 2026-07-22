@@ -25,7 +25,7 @@ function DifficultyBadge({ difficulty }: { difficulty: "easy" | "medium" | "hard
     hard: { label: "Avancé", color: "text-destructive bg-destructive/10 border-destructive/20" },
   }[difficulty];
   return (
-    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", config.color)}>
+    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[12px] font-semibold", config.color)}>
       {config.label}
     </span>
   );
@@ -37,7 +37,7 @@ function ImpactBadge({ impact }: { impact: "medium" | "high" }) {
     high: { label: "Fort impact", color: "text-primary-strong bg-primary/10 border-primary/20" },
   }[impact];
   return (
-    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", config.color)}>
+    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-[12px] font-semibold", config.color)}>
       {config.label}
     </span>
   );
@@ -59,7 +59,7 @@ function RelatedCard({ slug, title, summary, timeMinutes }: {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-foreground">{title}</p>
         <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{summary}</p>
-        <div className="mt-1.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+        <div className="mt-1.5 flex items-center gap-1 text-[12px] text-muted-foreground">
           <Clock className="h-3 w-3" /> {timeMinutes} min
         </div>
       </div>
@@ -110,7 +110,7 @@ const PlaybookDetailPage = () => {
               <BookOpen className="h-3 w-3" /> Playbook
             </div>
 
-            <h1 className="font-display mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h1 className="font-display mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-[32px]">
               {playbook.title}
             </h1>
 
@@ -119,7 +119,7 @@ const PlaybookDetailPage = () => {
             </p>
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-muted/60 px-3 py-1 text-[11px] font-medium text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-muted/60 px-3 py-1 text-[12px] font-medium text-muted-foreground">
                 <Clock className="h-3 w-3" /> {playbook.timeMinutes} min
               </span>
               <DifficultyBadge difficulty={playbook.difficulty} />
@@ -132,7 +132,7 @@ const PlaybookDetailPage = () => {
         <div className="mb-6 rounded-2xl border border-primary/20 bg-primary/[0.04] p-5">
           <div className="mb-2 flex items-center gap-2">
             <Lightbulb className="h-4 w-4 text-primary-strong" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-primary-strong">Insight clé</span>
+            <span className="text-[12px] font-bold uppercase tracking-widest text-primary-strong">Insight clé</span>
           </div>
           <p className="text-sm font-semibold leading-relaxed text-foreground">
             "{playbook.keyInsight}"
@@ -141,7 +141,7 @@ const PlaybookDetailPage = () => {
 
         {/* ── Why it matters ── */}
         <div className="mb-8">
-          <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <h2 className="mb-3 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
             Pourquoi ça compte
           </h2>
           <div className="rounded-xl border border-white/[0.06] bg-card/30 p-5">
@@ -151,7 +151,7 @@ const PlaybookDetailPage = () => {
 
         {/* ── Steps timeline ── */}
         <div className="mb-8">
-          <h2 className="mb-5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <h2 className="mb-5 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
             Les étapes — {playbook.steps.length} actions concrètes
           </h2>
 
@@ -187,7 +187,7 @@ const PlaybookDetailPage = () => {
           <div className="mb-8 rounded-2xl border border-accent/20 bg-accent/[0.05] p-5">
             <div className="mb-2 flex items-center gap-2">
               <Zap className="h-4 w-4 text-accent" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-accent">Pro tip</span>
+              <span className="text-[12px] font-bold uppercase tracking-widest text-accent">Pro tip</span>
             </div>
             <p className="text-sm leading-relaxed text-foreground">{playbook.proTip}</p>
           </div>
@@ -196,7 +196,7 @@ const PlaybookDetailPage = () => {
         {/* ── Related playbooks ── */}
         {related.length > 0 && (
           <div>
-            <h2 className="mb-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <h2 className="mb-4 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
               Playbooks liés
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">

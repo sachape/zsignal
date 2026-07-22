@@ -44,7 +44,7 @@ function CaptionCue({ style }: CueProps) {
   if (style === "clean") {
     return (
       <div
-        className={cn(base, "text-white text-[11px]")}
+        className={cn(base, "text-white text-[12px]")}
         style={{ textShadow: "0 0 2px #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}
       >
         <CueText />
@@ -54,7 +54,7 @@ function CaptionCue({ style }: CueProps) {
   if (style === "bold_tiktok") {
     return (
       <div
-        className={cn(base, "text-[13px]")}
+        className={cn(base, "text-[14px]")}
         style={{ textShadow: "0 0 2px #000, 1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000" }}
       >
         <CueText accentColor="#FFE129" />
@@ -107,7 +107,7 @@ function CaptionCue({ style }: CueProps) {
   // minimal
   return (
     <div
-      className={cn(base, "text-[10px] font-medium")}
+      className={cn(base, "text-[12px] font-medium")}
       style={{ color: "#F2F2F2", textShadow: "0 1px 2px rgba(0,0,0,0.7)" }}
     >
       <CueText />
@@ -227,8 +227,8 @@ export function CaptionStylePreviewGrid({ value, onChange, disabled }: Props) {
                 )}
               </div>
               <div className="border-t border-border/60 px-2 py-1.5">
-                <p className="text-[11px] font-semibold text-foreground">{p.name}</p>
-                <p className="text-[10px] text-muted-foreground">{p.promise}</p>
+                <p className="text-[12px] font-semibold text-foreground">{p.name}</p>
+                <p className="text-[12px] text-muted-foreground">{p.promise}</p>
               </div>
             </button>
           );

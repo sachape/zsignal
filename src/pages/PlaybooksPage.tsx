@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { FullPageLock, InlineLock } from "@/components/PaywallGate";
+import { Chip } from "@/components/ui/chip";
 import { cn } from "@/lib/utils";
 import type { Playbook } from "@/services/playbookLibrary";
 
@@ -72,7 +73,7 @@ const PlaybooksPage = () => {
               <Sparkles className="h-3.5 w-3.5 text-primary-strong" aria-hidden />
               <h2 className="text-sm font-semibold text-foreground">Recommandé pour toi</h2>
               {!isPro && <Lock className="h-3 w-3 text-muted-foreground/40" />}
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-[12px] text-muted-foreground">
                 basé sur tes dimensions les plus faibles
               </span>
             </div>
@@ -108,28 +109,23 @@ const PlaybooksPage = () => {
                 ? PLAYBOOKS.length
                 : PLAYBOOKS.filter((p) => p.tags.includes(t.tag as PlaybookTag)).length;
             return (
-              <button
+              <Chip
                 key={t.tag}
+                active={filter === t.tag}
                 onClick={() => setFilter(t.tag)}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                  filter === t.tag
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground",
-                )}
               >
                 {t.label}
                 <span
                   className={cn(
-                    "rounded-full px-1.5 py-px text-[10px] font-semibold",
+                    "rounded-full px-1.5 py-px text-[12px] font-semibold",
                     filter === t.tag
-                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      ? "bg-primary/20 text-primary-strong"
                       : "bg-background/60 text-muted-foreground",
                   )}
                 >
                   {count}
                 </span>
-              </button>
+              </Chip>
             );
           })}
           </div>

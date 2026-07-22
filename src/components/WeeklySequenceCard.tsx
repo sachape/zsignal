@@ -56,7 +56,7 @@ const WeeklySequenceCard = ({ actions, showPlanLink }: Props) => {
                     {a.expectedImpact}
                   </p>
                   <div className="mt-2">
-                    <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                    <Badge variant="outline" className="text-[12px] text-muted-foreground">
                       Effort {a.effort}
                     </Badge>
                   </div>

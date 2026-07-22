@@ -66,7 +66,7 @@ const CommandPalette = () => {
       >
         <Search className="h-3.5 w-3.5" />
         <span>Rechercher…</span>
-        <kbd className="ml-2 rounded border border-border/60 bg-background px-1 text-[10px] tabular-nums text-muted-foreground">
+        <kbd className="ml-2 rounded border border-border/60 bg-background px-1 text-[12px] tabular-nums text-muted-foreground">
           ⌘K
         </kbd>
       </button>

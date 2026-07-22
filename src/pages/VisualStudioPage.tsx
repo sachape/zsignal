@@ -174,7 +174,7 @@ const VisualStudioPage = () => {
                 <VisualPlacementPreview width={t.width} height={t.height} />
                 <span className="text-sm font-semibold">{t.label}</span>
                 <span className="text-xs text-muted-foreground line-clamp-2">{t.description}</span>
-                <span className="mt-auto text-[10px] text-muted-foreground/60">{t.width} × {t.height}</span>
+                <span className="mt-auto text-[12px] text-muted-foreground/60">{t.width} × {t.height}</span>
               </button>
             ))}
           </div>
@@ -185,7 +185,7 @@ const VisualStudioPage = () => {
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-muted-foreground">Ta bibliothèque</h2>
             {library.length > 0 && (
-              <Badge variant="secondary" className="text-[10px]">{library.length} visuels</Badge>
+              <Badge variant="secondary" className="text-[12px]">{library.length} visuels</Badge>
             )}
           </div>
 

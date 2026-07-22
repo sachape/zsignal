@@ -74,7 +74,7 @@ const TieredBadgeCard = ({ badge }: { badge: TieredBadge }) => {
               return (
                 <div
                   key={tier.tier}
-                  className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                  className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] font-semibold ${
                     tier.unlocked
                       ? styles.chip
                       : "border-border/30 bg-muted/20 text-muted-foreground/40"
@@ -85,7 +85,7 @@ const TieredBadgeCard = ({ badge }: { badge: TieredBadge }) => {
                   )}
                   {tier.label}
                   {tier.isNew && (
-                    <span className="ml-0.5 rounded-full bg-primary px-1 text-[8px] font-bold uppercase text-background">
+                    <span className="ml-0.5 rounded-full bg-primary px-1 text-[12px] font-bold uppercase text-background">
                       new
                     </span>
                   )}
@@ -97,7 +97,7 @@ const TieredBadgeCard = ({ badge }: { badge: TieredBadge }) => {
           {/* Progress toward next tier */}
           {badge.nextTier && (
             <div className="mt-2.5">
-              <p className="mb-1 text-[10px] text-muted-foreground">
+              <p className="mb-1 text-[12px] text-muted-foreground">
                 {badge.nextTier.label} — {badge.nextTier.description}
               </p>
               <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ const TieredBadgeCard = ({ badge }: { badge: TieredBadge }) => {
                     style={{ width: `${badge.nextTier.progress}%` }}
                   />
                 </div>
-                <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
+                <span className="shrink-0 text-[12px] tabular-nums text-muted-foreground">
                   {badge.nextTier.progressLabel}
                 </span>
               </div>
@@ -116,7 +116,7 @@ const TieredBadgeCard = ({ badge }: { badge: TieredBadge }) => {
 
           {/* All tiers unlocked */}
           {!badge.nextTier && badge.currentTier && (
-            <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
+            <p className="mt-2 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
               ✓ Tous les tiers débloqués
             </p>
           )}
@@ -142,7 +142,7 @@ const XpCard = ({ xpLevel, season }: { xpLevel: XpLevelData; season: SeasonData 
           {xpLevel.icon}
         </div>
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/70">
             Niveau {xpLevel.level}
           </p>
           <p className="text-base font-semibold text-foreground">{xpLevel.label}</p>
@@ -150,13 +150,13 @@ const XpCard = ({ xpLevel, season }: { xpLevel: XpLevelData; season: SeasonData 
       </div>
       <div className="text-right">
         <p className="text-2xl font-bold tabular-nums text-foreground">{xpLevel.totalXp}</p>
-        <p className="text-[10px] text-muted-foreground">XP total</p>
+        <p className="text-[12px] text-muted-foreground">XP total</p>
       </div>
     </div>
 
     {xpLevel.progressToNext !== null && (
       <div className="relative mt-4">
-        <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="mb-1.5 flex items-center justify-between text-[12px] text-muted-foreground">
           <span>{xpLevel.label}</span>
           <span>
             {xpLevel.xpToNext} XP → {xpLevel.nextLabel}
@@ -173,13 +173,13 @@ const XpCard = ({ xpLevel, season }: { xpLevel: XpLevelData; season: SeasonData 
 
     {xpLevel.level === 5 && (
       <div className="relative mt-4 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-center">
-        <p className="text-[11px] font-semibold text-primary-strong">Niveau maximum atteint · Legend</p>
+        <p className="text-[12px] font-semibold text-primary-strong">Niveau maximum atteint · Legend</p>
       </div>
     )}
 
     <div className="relative mt-3.5 flex items-center gap-2 border-t border-border/30 pt-3">
       <Clock className="h-3.5 w-3.5 text-muted-foreground/50" />
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-[12px] text-muted-foreground">
         Saison {season.number} · {season.name} {season.icon} · {season.daysLeft} jours restants
       </p>
     </div>
@@ -366,7 +366,7 @@ const QuestesPage = () => {
             <Trophy className="h-4 w-4 text-primary-strong" />
             <h2 className="text-sm font-semibold text-foreground">Badges</h2>
             {unlockedBadges.length > 0 && (
-              <span className="rounded-full border border-primary/25 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary-strong">
+              <span className="rounded-full border border-primary/25 bg-primary/10 px-1.5 py-0.5 text-[12px] font-semibold text-primary-strong">
                 {unlockedBadges.length}/{badges.length}
               </span>
             )}
@@ -387,7 +387,7 @@ const QuestesPage = () => {
                 <>
                   <div className="my-3 flex items-center gap-3">
                     {unlockedBadges.length > 0 && <div className="h-px flex-1 bg-border/40" />}
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
+                    <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/50">
                       À débloquer
                     </p>
                     {unlockedBadges.length > 0 && <div className="h-px flex-1 bg-border/40" />}

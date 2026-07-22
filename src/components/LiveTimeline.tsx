@@ -133,7 +133,7 @@ const LiveTimeline = ({ session }: Props) => {
     return (
       <Card className="mb-4 border-border/60 bg-card/60">
         <CardContent className="p-4">
-          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+          <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
             Évolution du live
           </p>
           <p className="mt-2 text-sm text-foreground">
@@ -159,11 +159,11 @@ const LiveTimeline = ({ session }: Props) => {
     <Card className="mb-4">
       <CardContent className="p-4">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+          <p className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground/70">
             Évolution du live
           </p>
           {isLive && (
-            <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">
+            <Badge variant="destructive" className="h-5 px-1.5 text-[12px]">
               En cours
             </Badge>
           )}
@@ -205,7 +205,7 @@ const LiveTimeline = ({ session }: Props) => {
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-2 flex items-center justify-between text-[10px] text-muted-foreground tabular-nums">
+        <div className="mt-2 flex items-center justify-between text-[12px] text-muted-foreground tabular-nums">
           <span>Début · {formatClock(startPoint.iso)}</span>
           <span>
             Pic · {peakPoint.v} viewers

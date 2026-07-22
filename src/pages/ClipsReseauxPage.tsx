@@ -210,13 +210,13 @@ const ClipsReseauxPage = () => {
                     <div className="flex aspect-[9/16] w-full flex-col items-center justify-center gap-2 p-4 text-center">
                       <AlertTriangle className="h-6 w-6 text-destructive" />
                       <p className="text-sm font-semibold text-foreground">Génération échouée</p>
-                      <p className="text-[11px] text-muted-foreground">Ce clip n'a pas pu être généré. Tu peux réessayer.</p>
+                      <p className="text-[12px] text-muted-foreground">Ce clip n'a pas pu être généré. Tu peux réessayer.</p>
                     </div>
                     <CardContent className="flex items-center justify-between gap-2 p-3">
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[12px] text-muted-foreground">
                         {new Date(clip.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
                       </p>
-                      <Button asChild size="sm" variant="outline" className="h-7 gap-1 px-2 text-[11px]">
+                      <Button asChild size="sm" variant="outline" className="h-7 gap-1 px-2 text-[12px]">
                         <Link to="/clips/vod-import">Réessayer</Link>
                       </Button>
                     </CardContent>
@@ -237,16 +237,16 @@ const ClipsReseauxPage = () => {
                       </div>
                     )}
                     <div className="absolute left-2 top-2 flex gap-1.5">
-                      <Badge variant="outline" className="border-primary/40 bg-background/80 text-[10px] text-primary-strong">
+                      <Badge variant="outline" className="border-primary/40 bg-background/80 text-[12px] text-primary-strong">
                         9:16
                       </Badge>
-                      <Badge variant="outline" className="border-border/60 bg-background/80 text-[10px] text-muted-foreground">
+                      <Badge variant="outline" className="border-border/60 bg-background/80 text-[12px] text-muted-foreground">
                         Caméra + gameplay
                       </Badge>
                     </div>
                   </div>
                   <CardContent className="flex items-center justify-between gap-2 p-3">
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-[12px] text-muted-foreground">
                       {new Date(clip.created_at).toLocaleDateString("fr-FR", {
                         day: "numeric",
                         month: "short",
@@ -257,7 +257,7 @@ const ClipsReseauxPage = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 gap-1 px-2 text-[11px]"
+                          className="h-7 gap-1 px-2 text-[12px]"
                           onClick={() => handleDownload(clip)}
                           disabled={downloadingId === clip.id}
                         >
@@ -274,7 +274,7 @@ const ClipsReseauxPage = () => {
                       )}
                       <Button
                         size="sm"
-                        className="h-7 gap-1 px-2 text-[11px]"
+                        className="h-7 gap-1 px-2 text-[12px]"
                         onClick={() => setPublishClip(clip)}
                         disabled={!clip.content_item_id || !clip.output_url}
                         title={!clip.content_item_id ? "Clip non lié à la queue de contenu" : undefined}

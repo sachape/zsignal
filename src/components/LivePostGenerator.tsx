@@ -7,6 +7,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { LiveSession, LiveDebrief } from "@/services/liveSessions";
 import { formatLiveDuration, formatLiveDateTime } from "@/services/liveSessions";
 import {
@@ -96,16 +97,15 @@ const LivePostGenerator = ({ session, debrief, open, onClose }: Props) => {
 
         {/* Clip URL input */}
         <div className="border-b border-border/40 px-6 py-4">
-          <label className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <label className="mb-1.5 flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-wider text-muted-foreground">
             <LinkIcon className="h-3 w-3" />
             Lien clip (facultatif — ajouté à chaque post)
           </label>
-          <input
+          <Input
             type="url"
             value={clipUrl}
             onChange={(e) => setClipUrl(e.target.value)}
             placeholder="https://clips.twitch.tv/..."
-            className="w-full rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
           />
         </div>
 
@@ -131,7 +131,7 @@ const LivePostGenerator = ({ session, debrief, open, onClose }: Props) => {
                   <div className="flex items-center gap-1.5">
                     {post.charLimit != null && (
                       <span
-                        className={`text-[10px] tabular-nums ${
+                        className={`text-[12px] tabular-nums ${
                           isOverLimit
                             ? "font-semibold text-destructive"
                             : "text-muted-foreground/60"
@@ -174,7 +174,7 @@ const LivePostGenerator = ({ session, debrief, open, onClose }: Props) => {
                     {text}
                   </p>
                   {isOverLimit && (
-                    <p className="mt-2 text-[11px] text-destructive">
+                    <p className="mt-2 text-[12px] text-destructive">
                       Dépasse la limite de {post.charLimit} caractères — raccourcis avant de publier.
                     </p>
                   )}
@@ -197,7 +197,7 @@ const LivePostGenerator = ({ session, debrief, open, onClose }: Props) => {
                         aria-label={`Version ${i + 1}`}
                       />
                     ))}
-                    <span className="ml-auto text-[10px] text-muted-foreground/50">
+                    <span className="ml-auto text-[12px] text-muted-foreground/50">
                       v{(variantIdx[post.format] % post.variants.length) + 1}/
                       {post.variants.length}
                     </span>
@@ -209,7 +209,7 @@ const LivePostGenerator = ({ session, debrief, open, onClose }: Props) => {
         </div>
 
         {/* Footer note */}
-        <div className="border-t border-border/40 px-6 py-4 text-center text-[11px] text-muted-foreground/60">
+        <div className="border-t border-border/40 px-6 py-4 text-center text-[12px] text-muted-foreground/60">
           Générés à partir de ton dernier live · modifie avant de publier
         </div>
       </SheetContent>

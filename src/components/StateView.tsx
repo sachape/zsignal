@@ -21,7 +21,7 @@ export const ErrorState = ({
   action?: React.ReactNode;
 }) => (
   <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
-    <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+    <h2 className="text-xl font-semibold text-foreground">{title}</h2>
     {description && (
       <p className="max-w-md text-sm text-muted-foreground">{description}</p>
     )}

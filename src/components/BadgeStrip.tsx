@@ -29,7 +29,7 @@ const BadgePopover = ({ badge, open, onOpenChange }: {
     </PopoverTrigger>
     <PopoverContent side="bottom" align="start" sideOffset={8} className="w-56 p-4">
       <div className="flex flex-col items-center gap-3 text-center">
-        <span className={`text-3xl leading-none ${badge.unlocked ? "" : "grayscale opacity-50"}`} aria-hidden>
+        <span className={`text-[32px] leading-none ${badge.unlocked ? "" : "grayscale opacity-50"}`} aria-hidden>
           {badge.icon}
         </span>
         <div>
@@ -37,7 +37,7 @@ const BadgePopover = ({ badge, open, onOpenChange }: {
           <p className="mt-0.5 text-xs text-muted-foreground">{badge.description}</p>
         </div>
         <div className="w-full">
-          <div className="mb-1.5 flex items-center justify-between text-[10px] text-muted-foreground">
+          <div className="mb-1.5 flex items-center justify-between text-[12px] text-muted-foreground">
             <span>Progression</span>
             <span className="tabular-nums font-medium">{badge.progressLabel}</span>
           </div>
@@ -48,7 +48,7 @@ const BadgePopover = ({ badge, open, onOpenChange }: {
             />
           </div>
           {badge.unlocked && (
-            <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary-strong">
+            <p className="mt-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
               Débloqué ✓
             </p>
           )}
@@ -78,11 +78,11 @@ const BadgeStrip = ({ badges }: Props) => {
           onOpenChange={(v) => setOpenId(v ? badge.id : null)}
         />
       ))}
-      <span className="ml-1 text-[10px] text-muted-foreground/50 tabular-nums">
+      <span className="ml-1 text-[12px] text-muted-foreground/50 tabular-nums">
         {unlocked.length}/{badges.length}
       </span>
       {newCount > 0 && (
-        <span className="rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-background">
+        <span className="rounded-full bg-primary px-1.5 py-0.5 text-[12px] font-bold text-background">
           +{newCount}
         </span>
       )}

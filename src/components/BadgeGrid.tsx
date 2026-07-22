@@ -17,7 +17,7 @@ const BadgeCell = ({ badge }: { badge: Badge }) => {
     >
       {/* "Nouveau !" chip */}
       {badge.isNew && (
-        <span className="absolute -right-1.5 -top-1.5 rounded-full border border-primary/30 bg-primary px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-background">
+        <span className="absolute -right-1.5 -top-1.5 rounded-full border border-primary/30 bg-primary px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-background">
           Nouveau !
         </span>
       )}
@@ -32,7 +32,7 @@ const BadgeCell = ({ badge }: { badge: Badge }) => {
 
       {/* Label */}
       <p
-        className={`text-[11px] font-semibold leading-tight ${
+        className={`text-[12px] font-semibold leading-tight ${
           badge.unlocked ? "text-foreground" : "text-muted-foreground"
         }`}
       >
@@ -41,12 +41,12 @@ const BadgeCell = ({ badge }: { badge: Badge }) => {
 
       {/* Progress bar (locked) or check (unlocked) */}
       {badge.unlocked ? (
-        <span className="text-[9px] font-semibold uppercase tracking-wider text-primary-strong">
+        <span className="text-[12px] font-semibold uppercase tracking-wider text-primary-strong">
           Débloqué
         </span>
       ) : (
         <div className="w-full">
-          <div className="mb-0.5 text-[9px] tabular-nums text-muted-foreground/60">
+          <div className="mb-0.5 text-[12px] tabular-nums text-muted-foreground/60">
             {badge.progressLabel}
           </div>
           <div className="h-0.5 w-full overflow-hidden rounded-full bg-muted">
@@ -76,7 +76,7 @@ const BadgeGrid = ({ badges }: Props) => {
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold text-foreground">Badges</h2>
           {newCount > 0 && (
-            <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-bold text-background">
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[12px] font-bold text-background">
               +{newCount} nouveau{newCount > 1 ? "x" : ""}
             </span>
           )}
@@ -87,7 +87,7 @@ const BadgeGrid = ({ badges }: Props) => {
         {locked.length > 0 && (
           <button
             onClick={() => setShowLocked((s) => !s)}
-            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
           >
             {showLocked ? (
               <>
