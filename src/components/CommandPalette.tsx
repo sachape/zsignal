@@ -8,6 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   Activity,
@@ -58,18 +59,19 @@ const CommandPalette = () => {
 
   return (
     <>
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
         onClick={() => setOpen(true)}
-        className="hidden h-8 items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-2.5 text-xs text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground sm:flex"
         aria-label="Recherche rapide"
+        className="hidden gap-2 bg-muted/30 px-2.5 text-muted-foreground hover:bg-muted/60 hover:text-foreground sm:flex"
       >
         <Search className="h-3.5 w-3.5" />
         <span>Rechercher…</span>
         <kbd className="ml-2 rounded border border-border/60 bg-background px-1 text-[12px] tabular-nums text-muted-foreground">
           ⌘K
         </kbd>
-      </button>
+      </Button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Aller à une section, une action…" />
