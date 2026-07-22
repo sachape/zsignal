@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-20T14:38:09.540Z",
+  "generatedAt": "2026-07-22T08:09:57.892Z",
   "overall": {
-    "score": 0.9590799999999999,
-    "previous": 0.9590799999999999,
-    "delta": -0.00002999999999997449,
+    "score": 0.9591099999999999,
+    "previous": 0.9591099999999999,
+    "delta": 0,
     "label": "Excellent",
     "dimensions": [
       {
@@ -20,7 +20,7 @@
         "label": "Spacing",
         "weight": 0.3,
         "tier": "important",
-        "value": 0.8636,
+        "value": 0.8637,
         "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
       },
       {
@@ -41,9 +41,9 @@
   },
   "inventory": {
     "foundations": 15,
-    "components": 49,
-    "tokens": 397,
-    "stories": 140,
+    "components": 51,
+    "tokens": 403,
+    "stories": 148,
     "qualityGates": "PASS",
     "ci": "green"
   },
@@ -172,13 +172,13 @@
             "label": "Story coverage",
             "status": "measured",
             "measure": "100%",
-            "note": "49/49 composants ui/ avec story"
+            "note": "51/51 composants ui/ avec story"
           },
           {
             "key": "comp-stories",
             "label": "Stories",
             "status": "measured",
-            "measure": "140",
+            "measure": "148",
             "note": "stories publiées (composants + patterns)"
           },
           {
@@ -227,7 +227,7 @@
             "key": "tok-component",
             "label": "Component",
             "status": "measured",
-            "measure": "127",
+            "measure": "133",
             "note": "tokens par composant"
           },
           {
@@ -318,8 +318,8 @@
             "key": "ado-raw",
             "label": "Éléments bruts restants",
             "status": "measured",
-            "measure": "67",
-            "note": "<button/input/select/textarea> bruts hors DS (63 button · 2 input · 2 select · 0 textarea)"
+            "measure": "69",
+            "note": "<button/input/select/textarea> bruts hors DS (63 button · 4 input · 2 select · 0 textarea)"
           },
           {
             "key": "ado-colors",
@@ -437,17 +437,17 @@
     }
   },
   "components": {
-    "total": 49,
-    "withStory": 49,
+    "total": 51,
+    "withStory": 51,
     "coverage": 1,
-    "componentStories": 140
+    "componentStories": 148
   },
   "tokens": {
-    "total": 397,
+    "total": 403,
     "byLayer": {
       "primitive": 141,
       "semantic": 81,
-      "component": 127,
+      "component": 133,
       "compat": 48
     }
   },
@@ -483,36 +483,36 @@
     "appFiles": 168,
     "jsxFiles": 131,
     "dsFiles": 105,
-    "rawElements": 67,
+    "rawElements": 69,
     "rawByTag": {
       "button": 63,
-      "input": 2,
+      "input": 4,
       "select": 2,
       "textarea": 0
     },
     "hardColors": 17,
     "scaleAdoption": 0.9873,
-    "compactShare": 0.28231606122072656,
+    "compactShare": 0.28274083624976976,
     "cssVarAdoption": 0
   },
   "debt": {
     "violations": 1027,
     "violationsCore": 0,
     "exceptions": 30,
-    "baseline": 1118
+    "baseline": 1027
   },
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-20T14:38:09.508Z",
+      "generatedAt": "2026-07-22T08:09:57.864Z",
       "scores": {
-        "valueCompliance": 0.8106,
+        "valueCompliance": 0.8108,
         "scaleAdoption": 0.9873,
         "cssVarAdoption": 0,
-        "health": 0.8636
+        "health": 0.8637
       },
       "confidence": {
-        "value": 0.9634,
+        "value": 0.9635,
         "classifiableRatio": 1,
         "unclassified": 0,
         "exceptions": 30,
@@ -520,33 +520,33 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5423,
-        "preferred": 2835,
-        "compactAllowed": 1531,
+        "detected": 5429,
+        "preferred": 2837,
+        "compactAllowed": 1535,
         "violations": 1027,
         "exceptions": 30,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5423,
-        "compliant": 4396,
+        "classifiable": 5429,
+        "compliant": 4402,
         "byTrack": {
-          "error": 577,
-          "warn": 4846
+          "error": 580,
+          "warn": 4849
         },
         "violationsByTrack": {
           "error": 0,
           "warn": 1027
         },
         "compactByTrack": {
-          "error": 126,
-          "warn": 1405
+          "error": 128,
+          "warn": 1407
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-20T14:38:09.516Z",
+      "generatedAt": "2026-07-22T08:09:57.873Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,
@@ -557,7 +557,7 @@
         "note": "Fait dérivé de la config CI + inventaire, pas d'un rapport JSON a11y."
       },
       "totals": {
-        "testableStories": 140
+        "testableStories": 148
       },
       "status": "enforced"
     }
