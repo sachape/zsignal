@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Activity, ArrowUpRight, Clapperboard, Palette, Radio, Users } from "lucide-react";
+import { Activity, ArrowUpRight, Clapperboard, Palette, Users } from "lucide-react";
 
 // Task-oriented navigation cards for the dashboard.
 // Replaces the old CreateNowBlock + DashboardQuickActions + NetworksTeaser,
@@ -8,16 +8,16 @@ const NAV = [
   { to: "/clipping", icon: Clapperboard, title: "Créer un clip", desc: "Un live → une vidéo 9:16 prête à poster", featured: true },
   { to: "/studio-visuel", icon: Palette, title: "Générer un visuel", desc: "Bannière, story, annonce de live", featured: false },
   { to: "/analyse", icon: Activity, title: "Mon StreamScore", desc: "Score, dimensions, reco prioritaire", featured: false },
-  { to: "/live-setup", icon: Radio, title: "Préparer mon live", desc: "Titre, setup, planning", featured: false },
   { to: "/competitors", icon: Users, title: "Benchmark", desc: "Compare ta chaîne à ta catégorie", featured: false },
 ] as const;
+
 
 const DashboardNavCards = () => (
   <section className="mb-6">
     <p className="mb-3 text-[12px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
       Que veux-tu faire ?
     </p>
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {NAV.map(({ to, icon: Icon, title, desc, featured }) => (
         <Link
           key={to}
