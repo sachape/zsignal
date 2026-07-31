@@ -59,3 +59,24 @@ export const OuvertureFermeture: S = {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   },
 };
+
+/** Test : à l'ouverture, aucun bouton ne doit s'allumer — mais le focus entre bien dans la modale. */
+export const AucunAnneauALOuverture: S = {
+  parameters: { controls: { disable: true } },
+  args: { defaultOpen: true },
+  play: async ({ userEvent }) => {
+    const dialog = await screen.findByRole("dialog");
+    await waitFor(() => expect(dialog).toContainElement(document.activeElement as HTMLElement));
+
+    // Le focus est sur le conteneur, pas sur un contrôle : rien n'est « sélectionné ».
+    await expect(document.activeElement).toBe(dialog);
+    for (const button of Array.from(dialog.querySelectorAll("button"))) {
+      await expect(button.matches(":focus-visible")).toBe(false);
+    }
+
+    // Le clavier reste opérant : Tab atteint le premier contrôle, avec son anneau.
+    await userEvent.tab();
+    await expect(dialog).toContainElement(document.activeElement as HTMLElement);
+    await expect((document.activeElement as HTMLElement).matches(":focus-visible")).toBe(true);
+  },
+};
