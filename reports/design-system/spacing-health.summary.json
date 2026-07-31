@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-31T12:13:17.320Z",
+  "generatedAt": "2026-07-31T12:30:48.834Z",
   "scope": {
     "roots": [
       "src",
@@ -38,26 +38,26 @@
     "parseErrors": 0
   },
   "totals": {
-    "detected": 5385,
-    "preferred": 2849,
-    "compactAllowed": 1503,
-    "violations": 1003,
+    "detected": 5389,
+    "preferred": 2850,
+    "compactAllowed": 1505,
+    "violations": 1004,
     "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5385,
-    "compliant": 4382,
+    "classifiable": 5389,
+    "compliant": 4385,
     "byTrack": {
       "error": 594,
-      "warn": 4791
+      "warn": 4795
     },
     "violationsByTrack": {
       "error": 0,
-      "warn": 1003
+      "warn": 1004
     },
     "compactByTrack": {
       "error": 137,
-      "warn": 1366
+      "warn": 1368
     }
   },
   "scores": {
@@ -75,9 +75,9 @@
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
   "compactBreakdown": {
-    "total": 1503,
+    "total": 1505,
     "byValue": {
-      "4px": 510,
+      "4px": 512,
       "12px": 755,
       "20px": 222,
       "-4px": 16
@@ -85,14 +85,14 @@
   },
   "distribution": {
     "byTier": {
-      "preferred": 2849,
-      "violation": 1003,
-      "compact-allowed": 1503,
+      "preferred": 2850,
+      "violation": 1004,
+      "compact-allowed": 1505,
       "exception": 30
     },
     "byValue": {
       "10px": 143,
-      "2px": 322,
+      "2px": 323,
       "6px": 455,
       "-6px": 3,
       "-2px": 10,
@@ -107,7 +107,7 @@
     },
     "bySystem": {
       "raw-css": 2,
-      "scale-utility": 5316,
+      "scale-utility": 5320,
       "inline": 31,
       "arbitrary": 36
     }
@@ -121,19 +121,19 @@
     },
     {
       "property": "gap",
-      "total": 1421,
+      "total": 1423,
       "violations": 199,
-      "compactAllowed": 433
+      "compactAllowed": 435
     },
     {
       "property": "padding-block",
-      "total": 490,
-      "violations": 184,
+      "total": 491,
+      "violations": 185,
       "compactAllowed": 72
     },
     {
       "property": "padding-inline",
-      "total": 527,
+      "total": 528,
       "violations": 115,
       "compactAllowed": 132
     },
@@ -357,7 +357,7 @@
     },
     {
       "value": "2px",
-      "count": 322
+      "count": 323
     },
     {
       "value": "10px",
@@ -393,8 +393,8 @@
     }
   ],
   "recommendations": [
-    "1003 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
-    "1503 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
+    "1004 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1505 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ]
 }

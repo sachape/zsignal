@@ -1,6 +1,6 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-31T12:13:20.569Z",
+  "generatedAt": "2026-07-31T12:30:51.811Z",
   "overall": {
     "score": 0.9597100000000001,
     "previous": 0.9597100000000001,
@@ -119,14 +119,14 @@
             "label": "Colors",
             "status": "measured",
             "measure": "95%",
-            "note": "4347/4597 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
+            "note": "4356/4606 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           },
           {
             "key": "typography",
             "label": "Typography",
             "status": "measured",
             "measure": "99%",
-            "note": "2069/2092 sur l'échelle de tailles ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
+            "note": "2070/2093 sur l'échelle de tailles ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
           },
           {
             "key": "spacing",
@@ -140,7 +140,7 @@
             "label": "Radius",
             "status": "measured",
             "measure": "85%",
-            "note": "843/994 sur l'échelle radius.* · reste : rounded-xl ×143, rounded-[2px] ×4, rounded-[12px] ×1"
+            "note": "845/996 sur l'échelle radius.* · reste : rounded-xl ×143, rounded-[2px] ×4, rounded-[12px] ×1"
           },
           {
             "key": "motion",
@@ -161,7 +161,7 @@
             "label": "Borders",
             "status": "measured",
             "measure": "99%",
-            "note": "643/645 sur l'échelle border.width.* · reste : border-[1.5px] ×2"
+            "note": "644/646 sur l'échelle border.width.* · reste : border-[1.5px] ×2"
           },
           {
             "key": "elevation",
@@ -175,7 +175,7 @@
             "label": "Icons",
             "status": "measured",
             "measure": "96%",
-            "note": "733/760 icônes issues de lucide-react (vs <svg> à la main) · reste : <svg> écrit à la main ×27"
+            "note": "734/761 icônes issues de lucide-react (vs <svg> à la main) · reste : <svg> écrit à la main ×27"
           },
           {
             "key": "grid",
@@ -380,7 +380,7 @@
             "label": "Typographie",
             "status": "measured",
             "measure": "99%",
-            "note": "2069/2092 usages sur l'échelle ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
+            "note": "2070/2093 usages sur l'échelle ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
           },
           {
             "key": "ado-radius",
@@ -388,7 +388,7 @@
             "label": "Radius",
             "status": "measured",
             "measure": "85%",
-            "note": "843/994 usages sur l'échelle radius.* · reste : rounded-xl ×143, rounded-[2px] ×4, rounded-[12px] ×1"
+            "note": "845/996 usages sur l'échelle radius.* · reste : rounded-xl ×143, rounded-[2px] ×4, rounded-[12px] ×1"
           },
           {
             "key": "ado-shadow",
@@ -412,7 +412,7 @@
             "label": "Couleurs",
             "status": "measured",
             "measure": "95%",
-            "note": "4347/4597 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
+            "note": "4356/4606 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           }
         ]
       },
@@ -588,15 +588,15 @@
     },
     "hardColors": 17,
     "scaleAdoption": 0.9872,
-    "compactShare": 0.27910863509749306,
+    "compactShare": 0.2792725923176842,
     "cssVarAdoption": 0,
     "foundations": {
       "typography": {
-        "total": 2092,
+        "total": 2093,
         "token": 0,
-        "scale": 2069,
+        "scale": 2070,
         "off": 23,
-        "adoption": 0.9890057361376673,
+        "adoption": 0.989010989010989,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -622,12 +622,12 @@
         ]
       },
       "radius": {
-        "total": 994,
+        "total": 996,
         "token": 431,
-        "scale": 412,
+        "scale": 414,
         "off": 151,
-        "adoption": 0.8480885311871227,
-        "tokenShare": 0.4336016096579477,
+        "adoption": 0.8483935742971888,
+        "tokenShare": 0.4327309236947791,
         "topOffenders": [
           {
             "value": "rounded-xl",
@@ -712,12 +712,12 @@
         ]
       },
       "colors": {
-        "total": 4597,
-        "token": 4347,
+        "total": 4606,
+        "token": 4356,
         "scale": 0,
         "off": 250,
-        "adoption": 0.9456167065477485,
-        "tokenShare": 0.9456167065477485,
+        "adoption": 0.9457229700390795,
+        "tokenShare": 0.9457229700390795,
         "topOffenders": [
           {
             "value": "border-white/[0.06]",
@@ -742,11 +742,11 @@
         ]
       },
       "borders": {
-        "total": 645,
+        "total": 646,
         "token": 0,
-        "scale": 643,
+        "scale": 644,
         "off": 2,
-        "adoption": 0.9968992248062015,
+        "adoption": 0.9969040247678018,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -846,12 +846,12 @@
         ]
       },
       "icons": {
-        "total": 760,
-        "token": 733,
+        "total": 761,
+        "token": 734,
         "scale": 0,
         "off": 27,
-        "adoption": 0.9644736842105263,
-        "tokenShare": 0.9644736842105263,
+        "adoption": 0.9645203679369251,
+        "tokenShare": 0.9645203679369251,
         "topOffenders": [
           {
             "value": "<svg> écrit à la main",
@@ -876,7 +876,7 @@
     }
   },
   "debt": {
-    "violations": 1003,
+    "violations": 1004,
     "violationsCore": 0,
     "exceptions": 30,
     "baseline": 1027
@@ -884,7 +884,7 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-31T12:13:17.320Z",
+      "generatedAt": "2026-07-31T12:30:48.834Z",
       "scores": {
         "valueCompliance": 0.8137,
         "scaleAdoption": 0.9872,
@@ -900,33 +900,33 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5385,
-        "preferred": 2849,
-        "compactAllowed": 1503,
-        "violations": 1003,
+        "detected": 5389,
+        "preferred": 2850,
+        "compactAllowed": 1505,
+        "violations": 1004,
         "exceptions": 30,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5385,
-        "compliant": 4382,
+        "classifiable": 5389,
+        "compliant": 4385,
         "byTrack": {
           "error": 594,
-          "warn": 4791
+          "warn": 4795
         },
         "violationsByTrack": {
           "error": 0,
-          "warn": 1003
+          "warn": 1004
         },
         "compactByTrack": {
           "error": 137,
-          "warn": 1366
+          "warn": 1368
         }
       },
       "status": null
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-31T12:13:17.344Z",
+      "generatedAt": "2026-07-31T12:30:48.848Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

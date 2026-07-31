@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T12:13:17.320Z",
+  "generatedAt": "2026-07-31T12:30:48.834Z",
   "scores": {
     "valueCompliance": 0.8137,
     "scaleAdoption": 0.9872,
@@ -7,26 +7,26 @@
     "health": 0.8657
   },
   "totals": {
-    "detected": 5385,
-    "preferred": 2849,
-    "compactAllowed": 1503,
-    "violations": 1003,
+    "detected": 5389,
+    "preferred": 2850,
+    "compactAllowed": 1505,
+    "violations": 1004,
     "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5385,
-    "compliant": 4382,
+    "classifiable": 5389,
+    "compliant": 4385,
     "byTrack": {
       "error": 594,
-      "warn": 4791
+      "warn": 4795
     },
     "violationsByTrack": {
       "error": 0,
-      "warn": 1003
+      "warn": 1004
     },
     "compactByTrack": {
       "error": 137,
-      "warn": 1366
+      "warn": 1368
     }
   },
   "confidence": {
