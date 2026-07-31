@@ -12,10 +12,8 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   Activity,
-  Rocket,
   Inbox,
   Users,
-  Network,
   Type,
   Clapperboard,
   CalendarDays,

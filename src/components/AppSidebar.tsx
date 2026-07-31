@@ -3,10 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Activity,
-  Rocket,
   Inbox,
   Users,
-  Network,
   LogOut,
   ChevronUp,
   CreditCard,
