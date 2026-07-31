@@ -27,14 +27,12 @@ import {
 const ITEMS = [
   { label: "Tableau de bord", to: "/dashboard", icon: LayoutDashboard, hint: "Vue d'ensemble" },
   { label: "Analyse de chaîne", to: "/analyse", icon: Activity, hint: "StreamScore et signaux" },
-  { label: "Live Studio · Setup", to: "/live-setup", icon: Rocket, hint: "Préparer un live" },
-  { label: "Live Studio · Titres", to: "/outils/titres", icon: Type, hint: "Générer des titres" },
-  { label: "Live Studio · Planning", to: "/schedule", icon: CalendarDays, hint: "Planifier" },
+  { label: "Titres", to: "/outils/titres", icon: Type, hint: "Générer des titres" },
   { label: "Clips · Moments proposés", to: "/clips", icon: Clapperboard, hint: "Générer un clip" },
   { label: "Benchmark · Concurrents", to: "/competitors", icon: Users, hint: "Voir les concurrents" },
   { label: "Benchmark · Classements", to: "/classements", icon: Trophy },
   { label: "Benchmark · Watchlist", to: "/watchlist", icon: Bookmark },
-  { label: "Réseaux", to: "/reseaux", icon: Network, hint: "Connecter YouTube, TikTok…" },
+
 ];
 
 const CommandPalette = () => {

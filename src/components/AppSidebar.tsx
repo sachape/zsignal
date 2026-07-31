@@ -81,12 +81,8 @@ const navGroups: NavGroup[] = [
       { title: "Progression", url: "/progression", icon: TrendingUp, extraMatch: ["/quetes"], proOnly: true },
     ],
   },
-  {
-    label: "Live",
-    items: [
-      { title: "Live Studio", url: "/live-setup", icon: Rocket, matchSection: "live-studio" },
-    ],
-  },
+  // Live Studio hidden from navigation (routes still reachable directly).
+
   {
     items: [
       { title: "Ressources", url: "/playbooks", icon: BookOpen, matchSection: "resources", proOnly: true },
