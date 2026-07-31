@@ -81,8 +81,9 @@ const navGroups: NavGroup[] = [
     ],
   },
   // Live Studio hidden from navigation (routes still reachable directly).
-
+  // Sa place reviendra sous « Créer » quand la section sera prête.
   {
+    label: "Apprendre",
     items: [
       { title: "Ressources", url: "/playbooks", icon: BookOpen, matchSection: "resources", proOnly: true },
     ],
