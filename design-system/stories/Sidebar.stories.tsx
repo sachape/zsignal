@@ -5,7 +5,9 @@ import {
   SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem,
   SidebarMenuButton, SidebarInset, SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Film, Image, BarChart3, Radio } from "lucide-react";
+import {
+  LayoutDashboard, Clapperboard, Palette, Activity, Users, TrendingUp, BookOpen,
+} from "lucide-react";
 import { common, prop, CAT } from "./_argTypes";
 
 /**
@@ -27,11 +29,30 @@ const meta: Meta<typeof Sidebar> = {
 export default meta;
 type S = StoryObj<typeof Sidebar>;
 
-const items = [
-  { label: "Clips", icon: Film },
-  { label: "Visuels", icon: Image },
-  { label: "StreamScore", icon: BarChart3 },
-  { label: "Réseaux", icon: Radio },
+// Reflète la navigation réelle de l'app (`navGroups` dans AppSidebar). Storybook
+// sert de référence pour l'architecture de l'information : à mettre à jour quand
+// l'IA produit bouge. Un groupe sans libellé porte les entrées de premier niveau.
+const navGroups = [
+  { items: [{ label: "Tableau de bord", icon: LayoutDashboard }] },
+  {
+    label: "Créer",
+    items: [
+      { label: "Clipping", icon: Clapperboard },
+      { label: "Studio visuel", icon: Palette },
+    ],
+  },
+  {
+    label: "Analyser",
+    items: [
+      { label: "StreamScore", icon: Activity },
+      { label: "Benchmark", icon: Users },
+      { label: "Progression", icon: TrendingUp },
+    ],
+  },
+  {
+    label: "Apprendre",
+    items: [{ label: "Ressources", icon: BookOpen }],
+  },
 ];
 
 export const Navigation: S = {
@@ -40,21 +61,23 @@ export const Navigation: S = {
       <Sidebar>
         <SidebarHeader className="px-3 py-2 text-sm font-semibold">Streamnco</SidebarHeader>
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Studio</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {items.map(({ label, icon: Icon }) => (
-                  <SidebarMenuItem key={label}>
-                    <SidebarMenuButton>
-                      <Icon />
-                      <span>{label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {navGroups.map((group, gi) => (
+            <SidebarGroup key={group.label ?? `g-${gi}`}>
+              {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map(({ label, icon: Icon }) => (
+                    <SidebarMenuItem key={label}>
+                      <SidebarMenuButton>
+                        <Icon />
+                        <span>{label}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
         </SidebarContent>
       </Sidebar>
       <SidebarInset className="p-6">
@@ -63,9 +86,20 @@ export const Navigation: S = {
       </SidebarInset>
     </SidebarProvider>
   ),
-  // Smoke : la navigation et ses items sont présents.
+  // Smoke : la navigation, ses groupes et ses items sont présents.
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Streamnco")).toBeInTheDocument();
     await expect(canvas.getByText("StreamScore")).toBeInTheDocument();
+
+    // Aucun groupe orphelin : chaque item d'un groupe nommé est sous son libellé.
+    for (const label of ["Créer", "Analyser", "Apprendre"]) {
+      await expect(canvas.getByText(label)).toBeInTheDocument();
+    }
+    await expect(canvas.getByText("Ressources")).toBeInTheDocument();
+
+    // Entrées retirées du produit : elles ne doivent pas réapparaître ici.
+    for (const removed of ["Réseaux", "Live Studio"]) {
+      await expect(canvas.queryByText(removed)).toBeNull();
+    }
   },
 };

@@ -12,25 +12,34 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   Activity,
-  Inbox,
   Users,
-  Type,
   Clapperboard,
-  CalendarDays,
+  Palette,
+  TrendingUp,
+  BookOpen,
   Trophy,
   Bookmark,
   Search,
 } from "lucide-react";
 
-const ITEMS = [
+// Reprend les destinations de la sidebar (`navGroups` dans AppSidebar), avec les
+// mêmes libellés : deux noms pour une même page, c'est deux endroits à apprendre.
+const NAVIGATION = [
   { label: "Tableau de bord", to: "/dashboard", icon: LayoutDashboard, hint: "Vue d'ensemble" },
-  { label: "Analyse de chaîne", to: "/analyse", icon: Activity, hint: "StreamScore et signaux" },
-  { label: "Titres", to: "/outils/titres", icon: Type, hint: "Générer des titres" },
-  { label: "Clips · Moments proposés", to: "/clips", icon: Clapperboard, hint: "Générer un clip" },
-  { label: "Benchmark · Concurrents", to: "/competitors", icon: Users, hint: "Voir les concurrents" },
-  { label: "Benchmark · Classements", to: "/classements", icon: Trophy },
-  { label: "Benchmark · Watchlist", to: "/watchlist", icon: Bookmark },
+  { label: "Clipping", to: "/clipping", icon: Clapperboard, hint: "Un live → une vidéo 9:16" },
+  { label: "Studio visuel", to: "/studio-visuel", icon: Palette, hint: "Bannière, story, annonce" },
+  { label: "StreamScore", to: "/analyse", icon: Activity, hint: "Score, dimensions, signaux" },
+  { label: "Benchmark", to: "/competitors", icon: Users, hint: "Comparer ta chaîne" },
+  { label: "Progression", to: "/progression", icon: TrendingUp, hint: "Quêtes et niveaux" },
+  { label: "Ressources", to: "/playbooks", icon: BookOpen, hint: "Playbooks et guides" },
+];
 
+// Destinations plus profondes, absentes de la sidebar : la palette sert aussi à
+// sauter là où la navigation demanderait deux clics.
+const RACCOURCIS = [
+  { label: "Moments proposés", to: "/clips", icon: Clapperboard, hint: "Clips détectés" },
+  { label: "Classements", to: "/classements", icon: Trophy },
+  { label: "Watchlist", to: "/watchlist", icon: Bookmark },
 ];
 
 const CommandPalette = () => {
@@ -73,21 +82,26 @@ const CommandPalette = () => {
         <CommandInput placeholder="Aller à une section, une action…" />
         <CommandList>
           <CommandEmpty>Aucun résultat</CommandEmpty>
-          <CommandGroup heading="Navigation">
-            {ITEMS.map((item) => (
-              <CommandItem
-                key={item.to}
-                value={`${item.label} ${item.hint ?? ""}`}
-                onSelect={() => go(item.to)}
-              >
-                <item.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{item.label}</span>
-                {item.hint && (
-                  <span className="ml-auto text-xs text-muted-foreground/60">{item.hint}</span>
-                )}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {[
+            { heading: "Navigation", items: NAVIGATION },
+            { heading: "Raccourcis", items: RACCOURCIS },
+          ].map(({ heading, items }) => (
+            <CommandGroup key={heading} heading={heading}>
+              {items.map((item) => (
+                <CommandItem
+                  key={item.to}
+                  value={`${item.label} ${item.hint ?? ""}`}
+                  onSelect={() => go(item.to)}
+                >
+                  <item.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>{item.label}</span>
+                  {item.hint && (
+                    <span className="ml-auto text-xs text-muted-foreground/60">{item.hint}</span>
+                  )}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
         </CommandList>
       </CommandDialog>
     </>
