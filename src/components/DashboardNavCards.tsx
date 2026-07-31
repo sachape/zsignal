@@ -17,7 +17,7 @@ const DashboardNavCards = () => (
     <p className="mb-3 text-[12px] font-bold uppercase tracking-[0.22em] text-muted-foreground/55">
       Que veux-tu faire ?
     </p>
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {NAV.map(({ to, icon: Icon, title, desc, featured }) => (
         <Link
           key={to}
