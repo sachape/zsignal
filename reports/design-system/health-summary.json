@@ -1,6 +1,6 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-31T13:16:31.462Z",
+  "generatedAt": "2026-07-31T13:48:40.203Z",
   "overall": {
     "score": 0.9597100000000001,
     "previous": 0.9597100000000001,
@@ -450,7 +450,7 @@
             "key": "vq-snapshots",
             "label": "Snapshot coverage",
             "status": "measured",
-            "measure": "270 stories",
+            "measure": "271 stories",
             "note": "part des stories capturées par build",
             "action": null
           },
@@ -458,7 +458,7 @@
             "key": "vq-approved",
             "label": "Approved changes",
             "status": "measured",
-            "measure": "9",
+            "measure": "11",
             "note": "changements visuels revus et acceptés (dernier build)",
             "action": null
           },
@@ -884,7 +884,7 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-31T13:16:28.239Z",
+      "generatedAt": "2026-07-31T13:48:36.763Z",
       "scores": {
         "valueCompliance": 0.8137,
         "scaleAdoption": 0.9872,
@@ -926,7 +926,7 @@
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-31T13:16:28.250Z",
+      "generatedAt": "2026-07-31T13:48:36.780Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-07-31T13:16:28.239Z",
+  "generatedAt": "2026-07-31T13:48:36.763Z",
   "scope": {
     "roots": [
       "src",
@@ -1160,7 +1160,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 121,
+      "line": 122,
       "property": "padding-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -1174,7 +1174,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 171,
+      "line": 172,
       "property": "padding-inline",
       "value": "4px",
       "status": "compact-allowed",
@@ -1188,7 +1188,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 196,
+      "line": 197,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -1202,7 +1202,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 197,
+      "line": 198,
       "property": "padding",
       "value": "4px",
       "status": "compact-allowed",
@@ -1216,7 +1216,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 196,
+      "line": 197,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -1230,7 +1230,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 197,
+      "line": 198,
       "property": "padding",
       "value": "4px",
       "status": "compact-allowed",
@@ -1244,7 +1244,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 207,
+      "line": 208,
       "property": "margin-top",
       "value": "4px",
       "status": "compact-allowed",
@@ -1258,7 +1258,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 225,
+      "line": 226,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -1272,7 +1272,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 225,
+      "line": 226,
       "property": "padding-block",
       "value": "10px",
       "status": "violation",
@@ -1289,7 +1289,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 225,
+      "line": 226,
       "property": "margin-bottom",
       "value": "4px",
       "status": "compact-allowed",
@@ -1303,26 +1303,9 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 225,
+      "line": 226,
       "property": "padding-block",
       "value": "10px",
-      "status": "violation",
-      "tier": "violation",
-      "system": "scale-utility",
-      "track": "warn",
-      "category": "padding",
-      "confidence": "high",
-      "recommended": [
-        "8px",
-        "16px"
-      ],
-      "reason": "hors échelle (préférer preferred)"
-    },
-    {
-      "file": "src/components/AppSidebar.tsx",
-      "line": 256,
-      "property": "padding",
-      "value": "6px",
       "status": "violation",
       "tier": "violation",
       "system": "scale-utility",
@@ -1338,6 +1321,23 @@
     {
       "file": "src/components/AppSidebar.tsx",
       "line": 257,
+      "property": "padding",
+      "value": "6px",
+      "status": "violation",
+      "tier": "violation",
+      "system": "scale-utility",
+      "track": "warn",
+      "category": "padding",
+      "confidence": "high",
+      "recommended": [
+        "8px",
+        "16px"
+      ],
+      "reason": "hors échelle (préférer preferred)"
+    },
+    {
+      "file": "src/components/AppSidebar.tsx",
+      "line": 258,
       "property": "gap",
       "value": "12px",
       "status": "compact-allowed",
@@ -1351,7 +1351,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 265,
+      "line": 266,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -1368,7 +1368,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 265,
+      "line": 266,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -1382,7 +1382,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 265,
+      "line": 266,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -1399,7 +1399,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 265,
+      "line": 266,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -1416,7 +1416,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 265,
+      "line": 266,
       "property": "margin-top",
       "value": "2px",
       "status": "violation",
@@ -1433,7 +1433,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 265,
+      "line": 266,
       "property": "gap",
       "value": "4px",
       "status": "compact-allowed",
@@ -1447,7 +1447,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 265,
+      "line": 266,
       "property": "padding-inline",
       "value": "6px",
       "status": "violation",
@@ -1464,7 +1464,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 265,
+      "line": 266,
       "property": "padding-block",
       "value": "2px",
       "status": "violation",
@@ -1481,7 +1481,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 277,
+      "line": 278,
       "property": "margin-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -1495,7 +1495,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 279,
+      "line": 280,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1512,7 +1512,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 279,
+      "line": 280,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -1529,7 +1529,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 283,
+      "line": 284,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1546,7 +1546,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 283,
+      "line": 284,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -1563,7 +1563,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 287,
+      "line": 288,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1580,7 +1580,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 287,
+      "line": 288,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -1597,7 +1597,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 304,
+      "line": 305,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1614,7 +1614,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 304,
+      "line": 305,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -1631,7 +1631,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 310,
+      "line": 311,
       "property": "margin-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -1645,7 +1645,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 314,
+      "line": 315,
       "property": "margin-block",
       "value": "4px",
       "status": "compact-allowed",
@@ -1659,7 +1659,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 318,
+      "line": 319,
       "property": "gap",
       "value": "10px",
       "status": "violation",
@@ -1676,7 +1676,7 @@
     },
     {
       "file": "src/components/AppSidebar.tsx",
-      "line": 318,
+      "line": 319,
       "property": "padding-block",
       "value": "6px",
       "status": "violation",
@@ -2049,7 +2049,7 @@
     },
     {
       "file": "src/components/CommandPalette.tsx",
-      "line": 63,
+      "line": 72,
       "property": "padding-inline",
       "value": "10px",
       "status": "violation",
@@ -2066,7 +2066,7 @@
     },
     {
       "file": "src/components/CommandPalette.tsx",
-      "line": 67,
+      "line": 76,
       "property": "padding-inline",
       "value": "4px",
       "status": "compact-allowed",
@@ -38712,7 +38712,7 @@
     },
     {
       "file": "design-system/stories/Sidebar.stories.tsx",
-      "line": 41,
+      "line": 62,
       "property": "padding-inline",
       "value": "12px",
       "status": "compact-allowed",
