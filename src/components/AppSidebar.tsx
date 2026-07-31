@@ -35,6 +35,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
+import { PLAN_LABELS } from "@/lib/planAccess";
 import { analytics } from "@/services/analytics";
 import { cn } from "@/lib/utils";
 import { getCachedXpData, getXpLevel, XP_CACHE_EVENT } from "@/services/xpEngine";
@@ -268,7 +269,7 @@ const AppSidebar = () => {
                     )}
                   >
                     {isPro && <Sparkles className="h-2.5 w-2.5" />}
-                    {plan === "pro" ? "Plan Pro" : plan === "growth" ? "Plan Growth" : "Plan Gratuit"}
+                    {PLAN_LABELS[plan]}
                   </span>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Shield, Tv2, Trash2, Loader2 } from "lucide-react";
+import { Mail, Shield, Tv2, Trash2, Loader2, Sparkles } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
@@ -20,9 +20,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import AccountMenu from "@/components/AccountMenu";
+import { usePlan } from "@/hooks/usePlan";
+import { PLAN_LABELS } from "@/lib/planAccess";
+import { cn } from "@/lib/utils";
 
 const SettingsPage = () => {
   const { user, deleteAccount } = useAuth();
+  const { plan, isPro, loading: planLoading } = usePlan();
   const { account, isConnected } = useTwitchConnection();
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
@@ -91,13 +95,25 @@ const SettingsPage = () => {
                     Plan actuel
                   </p>
                   <p className="mt-0.5 flex items-center gap-2 text-sm">
-                    <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/60 px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                      Plan Gratuit
-                    </span>
+                    {planLoading ? (
+                      <span className="inline-block h-[22px] w-24 animate-pulse rounded-full bg-muted/60" />
+                    ) : (
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium",
+                          isPro
+                            ? "border-primary/30 bg-primary/10 text-primary-strong"
+                            : "border-border/60 bg-muted/60 text-muted-foreground",
+                        )}
+                      >
+                        {isPro && <Sparkles className="h-2.5 w-2.5" />}
+                        {PLAN_LABELS[plan]}
+                      </span>
+                    )}
                   </p>
                 </div>
-                <Button asChild size="sm" className="text-xs">
-                  <Link to="/billing">Passer au Pro</Link>
+                <Button asChild size="sm" variant={isPro ? "outline" : "default"} className="text-xs">
+                  <Link to="/billing">{isPro ? "Gérer mon abonnement" : "Passer au Pro"}</Link>
                 </Button>
               </div>
             </CardContent>
