@@ -24,6 +24,14 @@ export const PLAN_RANK: Record<PlanTier, number> = {
   agency: 3,
 };
 
+/** Libellé utilisateur d'un plan. Unique source de vérité pour l'affichage. */
+export const PLAN_LABELS: Record<PlanTier, string> = {
+  free: "Plan Gratuit",
+  pro: "Plan Pro",
+  growth: "Plan Growth",
+  agency: "Plan Agency",
+};
+
 export function normalizePlan(value: string | null | undefined): PlanTier {
   if (!value) return "free";
   const v = value.toLowerCase().trim();
