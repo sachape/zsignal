@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-07-31T12:13:17.320Z",
+  "scores": {
+    "valueCompliance": 0.8137,
+    "scaleAdoption": 0.9872,
+    "cssVarAdoption": 0,
+    "health": 0.8657
+  },
+  "totals": {
+    "detected": 5385,
+    "preferred": 2849,
+    "compactAllowed": 1503,
+    "violations": 1003,
+    "exceptions": 30,
+    "needsDecision": 0,
+    "unclassified": 0,
+    "classifiable": 5385,
+    "compliant": 4382,
+    "byTrack": {
+      "error": 594,
+      "warn": 4791
+    },
+    "violationsByTrack": {
+      "error": 0,
+      "warn": 1003
+    },
+    "compactByTrack": {
+      "error": 137,
+      "warn": 1366
+    }
+  },
+  "confidence": {
+    "value": 0.9632,
+    "classifiableRatio": 1,
+    "unclassified": 0,
+    "exceptions": 30,
+    "lowConfidence": 105,
+    "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
+  }
+}

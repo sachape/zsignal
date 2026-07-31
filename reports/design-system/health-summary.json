@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-22T12:46:35.318Z",
+  "generatedAt": "2026-07-31T12:13:20.569Z",
   "overall": {
     "score": 0.9597100000000001,
     "previous": 0.9597100000000001,
-    "delta": 0.00048000000000003595,
+    "delta": 0,
     "label": "Excellent",
     "dimensions": [
       {
@@ -181,8 +181,8 @@
             "key": "grid",
             "label": "Grid",
             "status": "measured",
-            "measure": "90%",
-            "note": "186/206 découpages sur la grille de référence 12 colonnes · reste : grid-cols-5 ×4, grid-cols-[1fr_auto] ×3, grid-cols-[200px_1fr] ×2"
+            "measure": "91%",
+            "note": "187/206 découpages sur la grille de référence 12 colonnes · reste : grid-cols-5 ×3, grid-cols-[1fr_auto] ×3, grid-cols-[200px_1fr] ×2"
           },
           {
             "key": "opacity",
@@ -818,14 +818,14 @@
       "grid": {
         "total": 206,
         "token": 0,
-        "scale": 186,
-        "off": 20,
-        "adoption": 0.9029126213592233,
+        "scale": 187,
+        "off": 19,
+        "adoption": 0.9077669902912622,
         "tokenShare": 0,
         "topOffenders": [
           {
             "value": "grid-cols-5",
-            "count": 4
+            "count": 3
           },
           {
             "value": "grid-cols-[1fr_auto]",
@@ -884,7 +884,7 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-22T12:46:34.020Z",
+      "generatedAt": "2026-07-31T12:13:17.320Z",
       "scores": {
         "valueCompliance": 0.8137,
         "scaleAdoption": 0.9872,
@@ -926,7 +926,7 @@
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-22T12:46:34.026Z",
+      "generatedAt": "2026-07-31T12:13:17.344Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,
