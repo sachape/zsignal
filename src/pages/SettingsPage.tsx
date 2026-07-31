@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -94,9 +95,9 @@ const SettingsPage = () => {
                   <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Plan actuel
                   </p>
-                  <p className="mt-0.5 flex items-center gap-2 text-sm">
+                  <div className="mt-0.5 flex items-center gap-2 text-sm">
                     {planLoading ? (
-                      <span className="inline-block h-[22px] w-24 animate-pulse rounded-full bg-muted/60" />
+                      <Skeleton className="h-6 w-24 rounded-full" aria-label="Chargement du plan" />
                     ) : (
                       <span
                         className={cn(
@@ -110,11 +111,15 @@ const SettingsPage = () => {
                         {PLAN_LABELS[plan]}
                       </span>
                     )}
-                  </p>
+                  </div>
                 </div>
-                <Button asChild size="sm" variant={isPro ? "outline" : "default"} className="text-xs">
-                  <Link to="/billing">{isPro ? "Gérer mon abonnement" : "Passer au Pro"}</Link>
-                </Button>
+                {planLoading ? (
+                  <Skeleton className="h-[var(--button-height-sm)] w-36" />
+                ) : (
+                  <Button asChild size="sm" variant={isPro ? "outline" : "default"} className="text-xs">
+                    <Link to="/billing">{isPro ? "Gérer mon abonnement" : "Passer au Pro"}</Link>
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
