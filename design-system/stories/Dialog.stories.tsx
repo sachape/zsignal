@@ -74,6 +74,17 @@ export const AucunAnneauALOuverture: S = {
       await expect(button.matches(":focus-visible")).toBe(false);
     }
 
+    // …et le conteneur lui-même ne doit pas être cerclé du contour par défaut du
+    // navigateur, sinon on a juste déplacé le problème sur toute la modale.
+    // `outline-none` de Tailwind pose un contour transparent plutôt que de le
+    // supprimer : on teste l'invisibilité, pas l'absence.
+    const { outlineStyle, outlineWidth, outlineColor } = getComputedStyle(dialog);
+    const invisible =
+      outlineStyle === "none" ||
+      parseFloat(outlineWidth) === 0 ||
+      /rgba\(\s*\d+,\s*\d+,\s*\d+,\s*0\s*\)|transparent/.test(outlineColor);
+    await expect(invisible).toBe(true);
+
     // Le clavier reste opérant : Tab atteint le premier contrôle, avec son anneau.
     await userEvent.tab();
     await expect(dialog).toContainElement(document.activeElement as HTMLElement);
