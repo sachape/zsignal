@@ -139,7 +139,7 @@ const AppSidebar = () => {
         {navGroups.map((group, gi) => (
           <SidebarGroup key={group.label ?? `g-${gi}`}>
             {group.label && !collapsed && (
-              <SidebarGroupLabel className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              <SidebarGroupLabel className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {group.label}
               </SidebarGroupLabel>
             )}

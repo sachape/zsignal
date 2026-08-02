@@ -63,7 +63,12 @@ export const Navigation: S = {
         <SidebarContent>
           {navGroups.map((group, gi) => (
             <SidebarGroup key={group.label ?? `g-${gi}`}>
-              {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+              {group.label && (
+                // Même traitement typographique que le produit (AppSidebar).
+                <SidebarGroupLabel className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {group.label}
+                </SidebarGroupLabel>
+              )}
               <SidebarGroupContent>
                 <SidebarMenu>
                   {group.items.map(({ label, icon: Icon }) => (
