@@ -1,6 +1,6 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-07-31T13:48:40.203Z",
+  "generatedAt": "2026-08-02T11:56:21.181Z",
   "overall": {
     "score": 0.9597100000000001,
     "previous": 0.9597100000000001,
@@ -119,14 +119,14 @@
             "label": "Colors",
             "status": "measured",
             "measure": "95%",
-            "note": "4356/4606 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
+            "note": "4357/4607 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           },
           {
             "key": "typography",
             "label": "Typography",
             "status": "measured",
             "measure": "99%",
-            "note": "2070/2093 sur l'échelle de tailles ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
+            "note": "2071/2094 sur l'échelle de tailles ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
           },
           {
             "key": "spacing",
@@ -380,7 +380,7 @@
             "label": "Typographie",
             "status": "measured",
             "measure": "99%",
-            "note": "2070/2093 usages sur l'échelle ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
+            "note": "2071/2094 usages sur l'échelle ADR 0004 · reste : text-3xl ×8, text-lg ×4, text-[10.5px] ×3"
           },
           {
             "key": "ado-radius",
@@ -412,7 +412,7 @@
             "label": "Couleurs",
             "status": "measured",
             "measure": "95%",
-            "note": "4356/4606 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
+            "note": "4357/4607 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           }
         ]
       },
@@ -458,7 +458,7 @@
             "key": "vq-approved",
             "label": "Approved changes",
             "status": "measured",
-            "measure": "11",
+            "measure": "10",
             "note": "changements visuels revus et acceptés (dernier build)",
             "action": null
           },
@@ -592,11 +592,11 @@
     "cssVarAdoption": 0,
     "foundations": {
       "typography": {
-        "total": 2093,
+        "total": 2094,
         "token": 0,
-        "scale": 2070,
+        "scale": 2071,
         "off": 23,
-        "adoption": 0.989010989010989,
+        "adoption": 0.9890162368672397,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -712,12 +712,12 @@
         ]
       },
       "colors": {
-        "total": 4606,
-        "token": 4356,
+        "total": 4607,
+        "token": 4357,
         "scale": 0,
         "off": 250,
-        "adoption": 0.9457229700390795,
-        "tokenShare": 0.9457229700390795,
+        "adoption": 0.9457347514651617,
+        "tokenShare": 0.9457347514651617,
         "topOffenders": [
           {
             "value": "border-white/[0.06]",
@@ -884,7 +884,7 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-07-31T13:48:36.763Z",
+      "generatedAt": "2026-08-02T11:56:18.120Z",
       "scores": {
         "valueCompliance": 0.8137,
         "scaleAdoption": 0.9872,
@@ -926,7 +926,7 @@
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-07-31T13:48:36.780Z",
+      "generatedAt": "2026-08-02T11:56:18.131Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,
