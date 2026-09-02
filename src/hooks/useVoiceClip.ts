@@ -142,3 +142,45 @@ export function useVoiceClip() {
 
   return { settings, events, loading, reload: load, ensureSettings, updateSettings };
 }
+
+/**
+ * Voice Clip needs the `clips:edit` scope. Accounts connected before that scope
+ * existed are still "connected" but cannot create clips — we must detect it
+ * from the granted scopes, never from the mere presence of a connection.
+ */
+export function useTwitchClipScope() {
+  const { user } = useAuth();
+  const [state, setState] = useState<{ loading: boolean; connected: boolean; hasClipScope: boolean }>({
+    loading: true,
+    connected: false,
+    hasClipScope: false,
+  });
+
+  useEffect(() => {
+    if (!user) {
+      setState({ loading: false, connected: false, hasClipScope: false });
+      return;
+    }
+    let active = true;
+    void (async () => {
+      const { data } = await supabase
+        .from("connected_accounts")
+        .select("scope")
+        .eq("user_id", user.id)
+        .eq("platform", "twitch");
+      if (!active) return;
+      const rows = (data as { scope: string | null }[] | null) ?? [];
+      setState({
+        loading: false,
+        connected: rows.length > 0,
+        hasClipScope: rows.some((row) => (row.scope ?? "").split(/\s+/).includes("clips:edit")),
+      });
+    })();
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
+  return state;
+}
+
