@@ -5,7 +5,7 @@ import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
   Film, Wand2, Clock, Flame, TrendingUp, BarChart3, Plus, Info, FileUp, Scissors,
-  MoreHorizontal, ChevronDown, Send,
+  MoreHorizontal, ChevronDown, Send, Mic,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
@@ -521,6 +521,11 @@ function ContentRow({
             )}
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
               <Badge variant="outline" className="text-[12px]">{platform.label}</Badge>
+              {item.creation_method === "voice" && (
+                <Badge variant="outline" className="gap-1 text-[12px]">
+                  <Mic className="h-3 w-3" /> Voice Clip
+                </Badge>
+              )}
               <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0.5 text-[12px] font-medium", status.cls)}>
                 {status.label}
               </span>

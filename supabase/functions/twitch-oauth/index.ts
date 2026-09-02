@@ -27,6 +27,8 @@ const TWITCH_SCOPES = [
   "analytics:read:games",
   "moderator:read:followers",
   "channel:manage:broadcast",
+  // Voice Clip: create clips on the streamer's behalf during a live.
+  "clips:edit",
 ].join(" ");
 
 /**

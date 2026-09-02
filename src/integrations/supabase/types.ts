@@ -667,6 +667,7 @@ export type Database = {
       creator_content_items: {
         Row: {
           created_at: string
+          creation_method: string
           description: string | null
           description_variants: Json
           duration: string | null
@@ -720,6 +721,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          creation_method?: string
           description?: string | null
           description_variants?: Json
           duration?: string | null
@@ -773,6 +775,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          creation_method?: string
           description?: string | null
           description_variants?: Json
           duration?: string | null
@@ -3121,6 +3124,150 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_clip_commands: {
+        Row: {
+          action_type: string
+          created_at: string
+          enabled: boolean
+          id: string
+          keyword: string
+          metadata: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_type?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keyword: string
+          metadata?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keyword?: string
+          metadata?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      voice_clip_events: {
+        Row: {
+          action_type: string
+          clip_url: string | null
+          confidence: number | null
+          content_item_id: string | null
+          created_at: string
+          detected_at: string
+          error_code: string | null
+          id: string
+          keyword: string
+          live_session_id: string | null
+          status: string
+          stream_id: string | null
+          twitch_clip_id: string | null
+          updated_at: string
+          user_id: string
+          voice_event_id: string
+        }
+        Insert: {
+          action_type?: string
+          clip_url?: string | null
+          confidence?: number | null
+          content_item_id?: string | null
+          created_at?: string
+          detected_at?: string
+          error_code?: string | null
+          id?: string
+          keyword: string
+          live_session_id?: string | null
+          status?: string
+          stream_id?: string | null
+          twitch_clip_id?: string | null
+          updated_at?: string
+          user_id: string
+          voice_event_id: string
+        }
+        Update: {
+          action_type?: string
+          clip_url?: string | null
+          confidence?: number | null
+          content_item_id?: string | null
+          created_at?: string
+          detected_at?: string
+          error_code?: string | null
+          id?: string
+          keyword?: string
+          live_session_id?: string | null
+          status?: string
+          stream_id?: string | null
+          twitch_clip_id?: string | null
+          updated_at?: string
+          user_id?: string
+          voice_event_id?: string
+        }
+        Relationships: []
+      }
+      voice_clip_settings: {
+        Row: {
+          companion_last_seen_at: string | null
+          companion_token: string
+          companion_version: string | null
+          confidence_threshold: number
+          cooldown_seconds: number
+          created_at: string
+          enabled: boolean
+          id: string
+          keyword: string
+          microphone_label: string | null
+          notifications_enabled: boolean
+          sound_feedback_enabled: boolean
+          target_duration_seconds: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          companion_last_seen_at?: string | null
+          companion_token?: string
+          companion_version?: string | null
+          confidence_threshold?: number
+          cooldown_seconds?: number
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keyword?: string
+          microphone_label?: string | null
+          notifications_enabled?: boolean
+          sound_feedback_enabled?: boolean
+          target_duration_seconds?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          companion_last_seen_at?: string | null
+          companion_token?: string
+          companion_version?: string | null
+          confidence_threshold?: number
+          cooldown_seconds?: number
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keyword?: string
+          microphone_label?: string | null
+          notifications_enabled?: boolean
+          sound_feedback_enabled?: boolean
+          target_duration_seconds?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       watchlist_entries: {
         Row: {
           broadcaster_type: string | null
@@ -3550,12 +3697,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3579,11 +3726,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3604,11 +3751,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3629,11 +3776,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3646,11 +3793,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

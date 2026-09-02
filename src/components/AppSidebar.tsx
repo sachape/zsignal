@@ -15,6 +15,7 @@ import {
   Clapperboard,
   Palette,
   TrendingUp,
+  Mic,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import logoMark from "@/assets/logo-mark.svg";
@@ -70,6 +71,7 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Clipping", url: "/clipping", icon: Clapperboard, matchSection: "clips" },
       { title: "Studio visuel", url: "/studio-visuel", icon: Palette },
+      { title: "Voice Clip", url: "/voice-clip", icon: Mic },
     ],
   },
   {
