@@ -3238,6 +3238,8 @@ export type Database = {
       voice_clip_settings: {
         Row: {
           companion_last_seen_at: string | null
+          companion_microphone_available: boolean
+          companion_platform: string | null
           companion_token: string
           companion_version: string | null
           confidence_threshold: number
@@ -3246,15 +3248,20 @@ export type Database = {
           enabled: boolean
           id: string
           keyword: string
+          last_test_detected_at: string | null
+          last_test_keyword: string | null
           microphone_label: string | null
           notifications_enabled: boolean
           sound_feedback_enabled: boolean
           target_duration_seconds: number
+          test_mode_until: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           companion_last_seen_at?: string | null
+          companion_microphone_available?: boolean
+          companion_platform?: string | null
           companion_token?: string
           companion_version?: string | null
           confidence_threshold?: number
@@ -3263,15 +3270,20 @@ export type Database = {
           enabled?: boolean
           id?: string
           keyword?: string
+          last_test_detected_at?: string | null
+          last_test_keyword?: string | null
           microphone_label?: string | null
           notifications_enabled?: boolean
           sound_feedback_enabled?: boolean
           target_duration_seconds?: number
+          test_mode_until?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           companion_last_seen_at?: string | null
+          companion_microphone_available?: boolean
+          companion_platform?: string | null
           companion_token?: string
           companion_version?: string | null
           confidence_threshold?: number
@@ -3280,10 +3292,13 @@ export type Database = {
           enabled?: boolean
           id?: string
           keyword?: string
+          last_test_detected_at?: string | null
+          last_test_keyword?: string | null
           microphone_label?: string | null
           notifications_enabled?: boolean
           sound_feedback_enabled?: boolean
           target_duration_seconds?: number
+          test_mode_until?: string | null
           updated_at?: string
           user_id?: string
         }
