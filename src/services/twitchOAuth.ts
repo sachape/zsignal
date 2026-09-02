@@ -6,6 +6,7 @@ const REDIRECT_URI = `${window.location.origin}/twitch/callback`;
 const STATE_KEY = "streampulse_twitch_oauth_state";
 const STATE_TEASER_KEY = "streampulse_twitch_oauth_teaser_id";
 const STATE_MODE_KEY = "streampulse_twitch_oauth_mode";
+const STATE_RETURN_KEY = "streamnco_twitch_oauth_return";
 
 type TwitchOAuthErrorCode =
   | "cancelled"
@@ -119,9 +120,21 @@ function mapCallbackError(code?: string, rawError?: string): TwitchOAuthFailure 
  * can reconcile the gratuit diagnostic with the enriched data after callback,
  * without re-running an analysis from scratch.
  */
-export async function initiateTwitchOAuth(options?: { teaserId?: string | null; mode?: "add" | "replace" }): Promise<void> {
+export async function initiateTwitchOAuth(options?: {
+  teaserId?: string | null;
+  mode?: "add" | "replace";
+  returnTo?: string;
+}): Promise<void> {
   const nonce = generateNonce();
   sessionStorage.setItem(STATE_KEY, nonce);
+
+  // Internal return path (e.g. re-authorizing Voice Clip scopes). Same-origin
+  // relative paths only — never an absolute URL.
+  if (options?.returnTo && options.returnTo.startsWith("/")) {
+    sessionStorage.setItem(STATE_RETURN_KEY, options.returnTo);
+  } else {
+    sessionStorage.removeItem(STATE_RETURN_KEY);
+  }
 
   if (options?.teaserId) {
     sessionStorage.setItem(STATE_TEASER_KEY, options.teaserId);
@@ -166,6 +179,13 @@ export function consumePendingTeaserId(): string | null {
   sessionStorage.removeItem(STATE_TEASER_KEY);
   onboardingFlags.clearPendingTeaserId();
   return teaserId;
+}
+
+/** Reads and clears the internal return path stored before the OAuth redirect. */
+export function consumeOAuthReturnTo(): string | null {
+  const value = sessionStorage.getItem(STATE_RETURN_KEY);
+  sessionStorage.removeItem(STATE_RETURN_KEY);
+  return value && value.startsWith("/") ? value : null;
 }
 
 export function peekOAuthMode(): "add" | "replace" | null {
