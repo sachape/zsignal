@@ -1,0 +1,29 @@
+{
+  "name": "streamnco-live-companion",
+  "productName": "Streamnco Companion",
+  "version": "1.0.0",
+  "description": "Local voice command companion for Streamnco Voice Clip. Audio never leaves the machine.",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/",
+    "build:mac": "electron-builder --mac dmg",
+    "build:win": "electron-builder --win nsis",
+    "postinstall": "node scripts/fetch-model.js"
+  },
+  "devDependencies": {
+    "electron": "^32.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "vosk": "^0.3.39"
+  },
+  "build": {
+    "appId": "dev.streamnco.companion",
+    "files": ["src/**/*", "models/**/*", "package.json"],
+    "mac": { "category": "public.app-category.utilities", "target": ["dmg"] },
+    "win": { "target": ["nsis"] },
+    "extraResources": [{ "from": "models", "to": "models" }]
+  }
+}
