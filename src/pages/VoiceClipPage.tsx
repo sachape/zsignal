@@ -223,7 +223,7 @@ const VoiceClipPage = () => {
         <PageHeader
           title="Voice Clip"
           description="Crée tes clips sans interrompre ton live : prononce ton mot-clé, Streamnco s'occupe du reste."
-          actions={
+          action={
             enabled ? (
               <Badge className="gap-1.5 bg-primary/15 text-primary hover:bg-primary/15">
                 <Radio className="h-3.5 w-3.5" /> Actif
