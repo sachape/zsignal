@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.zernio-webhook]
 verify_jwt = false
+
+[functions.voice-clip-trigger]
+verify_jwt = false
+
+[functions.voice-clip-heartbeat]
+verify_jwt = false
