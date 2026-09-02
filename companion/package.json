@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "test": "node --test test/",
+    "test": "node --test ./test/*.test.js",
     "build:mac": "electron-builder --mac dmg",
     "build:win": "electron-builder --win nsis",
     "postinstall": "node scripts/fetch-model.js"
