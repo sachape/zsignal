@@ -48,6 +48,8 @@ export interface ContentItem {
   youtube_privacy_status: YouTubePrivacyStatus | null;
   // V3C — Clip Draft Generator
   source_platform: SourcePlatform | null;
+  /** How the item entered the queue: manual, voice… */
+  creation_method: string | null;
   source_video_url: string | null;
   source_channel_login: string | null;
   source_start_time: number | null;
