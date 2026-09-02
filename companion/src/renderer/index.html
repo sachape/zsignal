@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'" />
+    <title>Streamnco Companion</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0; padding: 20px; background: #0b0d0e; color: #f2f4f3;
+        font: 13px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
+      }
+      h1 { font-size: 15px; margin: 0 0 16px; letter-spacing: .01em; }
+      .row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #1e2223; }
+      .label { color: #9aa3a1; }
+      .value { font-weight: 600; }
+      .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: #4c5453; }
+      .dot.on { background: #89fd3a; }
+      select, input, button {
+        background: #14181a; color: #f2f4f3; border: 1px solid #262c2d;
+        border-radius: 7px; padding: 7px 9px; font: inherit; width: 100%;
+      }
+      button { cursor: pointer; margin-top: 8px; }
+      button.primary { background: #89fd3a; color: #0b0d0e; border-color: #89fd3a; font-weight: 600; }
+      section { margin-top: 18px; }
+      #log { height: 130px; overflow: auto; background: #0f1213; border: 1px solid #1e2223; border-radius: 7px; padding: 8px; font-family: ui-monospace, monospace; font-size: 11px; color: #9aa3a1; }
+      .hint { color: #6f7876; font-size: 11px; margin-top: 6px; }
+      label { display: block; color: #9aa3a1; margin-bottom: 4px; }
+      .inline { display: flex; gap: 8px; align-items: center; }
+      .inline input[type="checkbox"] { width: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>Streamnco Companion</h1>
+
+    <div class="row"><span class="label">Status</span><span class="value"><span id="dot-backend" class="dot"></span><span id="status">Offline</span></span></div>
+    <div class="row"><span class="label">Microphone</span><span class="value" id="mic">—</span></div>
+    <div class="row"><span class="label">Voice Clip</span><span class="value"><span id="dot-listen" class="dot"></span><span id="listening">Paused</span></span></div>
+    <div class="row"><span class="label">Command</span><span class="value" id="keyword">« clip »</span></div>
+
+    <section id="pairing">
+      <label for="token">Code d'appairage Streamnco</label>
+      <input id="token" placeholder="collé depuis /voice-clip" autocomplete="off" />
+      <button id="pair" class="primary">Appairer</button>
+    </section>
+
+    <section>
+      <label for="device">Microphone</label>
+      <select id="device"></select>
+      <button id="toggle">Démarrer l'écoute</button>
+      <div class="inline" style="margin-top:10px">
+        <input type="checkbox" id="autostart" />
+        <label for="autostart" style="margin:0">Lancer au démarrage</label>
+      </div>
+      <p class="hint">Ton audio n'est jamais envoyé à Streamnco : la détection est 100 % locale et seul l'événement détecté est transmis.</p>
+    </section>
+
+    <section>
+      <label>Journal local</label>
+      <div id="log"></div>
+    </section>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
