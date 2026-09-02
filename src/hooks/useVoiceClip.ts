@@ -37,22 +37,46 @@ export interface VoiceClipEvent {
   error_code: string | null;
 }
 
-/** Companion is considered connected when it pinged within the last 2 minutes. */
+/**
+ * Companion liveness. It pings every ~20 s; we consider it offline after 90 s
+ * so a crash, a sleep or a network drop surfaces quickly.
+ */
+export const COMPANION_OFFLINE_AFTER_MS = 90_000;
+
 export function isCompanionOnline(lastSeenAt: string | null): boolean {
   if (!lastSeenAt) return false;
-  return Date.now() - new Date(lastSeenAt).getTime() < 120_000;
+  return Date.now() - new Date(lastSeenAt).getTime() < COMPANION_OFFLINE_AFTER_MS;
 }
 
+/** User-facing French labels. Raw error codes are never displayed. */
 export const VOICE_CLIP_ERROR_LABELS: Record<string, string> = {
+  STREAM_OFFLINE: "Ton live n'était pas détecté au moment de la commande.",
+  TWITCH_SCOPE_MISSING:
+    "Streamnco n'a pas encore l'autorisation de créer des clips. Autorise Voice Clip sur Twitch.",
+  TWITCH_TOKEN_EXPIRED: "Ta connexion Twitch a expiré. Reconnecte ton compte.",
+  TWITCH_REAUTH_REQUIRED: "Reconnecte ton compte Twitch pour continuer.",
+  TWITCH_NOT_CONNECTED: "Aucun compte Twitch connecté.",
+  TWITCH_CREATE_CLIP_FAILED: "Twitch a refusé la création du clip.",
+  TWITCH_CLIP_NOT_READY: "Twitch n'a pas fini de préparer ce clip. Réessaie sur un prochain moment.",
+  TWITCH_UNAVAILABLE: "Twitch est momentanément indisponible.",
+  CONTENT_QUEUE_INSERT_FAILED: "Le clip a été créé mais n'a pas pu rejoindre ta file de contenu.",
+  COMPANION_UNAUTHORIZED: "Le Companion n'est plus appairé à ton compte.",
+  VOICE_EVENT_COOLDOWN: "Commande ignorée : trop proche de la précédente.",
+  MICROPHONE_UNAVAILABLE: "Microphone indisponible.",
+  SERVER_MISCONFIGURED: "Configuration serveur incomplète.",
+  UNKNOWN_ERROR: "Le clip n'a pas pu être créé.",
+  // Legacy lowercase codes (events created before the QA pass).
   not_live: "Ton live n'était pas détecté au moment de la commande.",
   twitch_auth_expired: "Ta connexion Twitch a expiré. Reconnecte ton compte.",
   twitch_not_connected: "Aucun compte Twitch connecté.",
-  missing_scope: "Streamnco n'a pas encore l'autorisation de créer des clips. Reconnecte ton compte Twitch.",
+  missing_scope:
+    "Streamnco n'a pas encore l'autorisation de créer des clips. Autorise Voice Clip sur Twitch.",
   twitch_refused: "Twitch a refusé la création du clip.",
   twitch_unavailable: "Twitch est momentanément indisponible.",
   token_unavailable: "Impossible de récupérer ton jeton Twitch.",
   server_misconfigured: "Configuration serveur incomplète.",
 };
+
 
 export function useVoiceClip() {
   const { user } = useAuth();
