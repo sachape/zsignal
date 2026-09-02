@@ -3160,54 +3160,75 @@ export type Database = {
       voice_clip_events: {
         Row: {
           action_type: string
+          clip_fetch_attempts: number
+          clip_ready_at: string | null
           clip_url: string | null
+          companion_sent_at: string | null
           confidence: number | null
           content_item_id: string | null
+          content_queued_at: string | null
           created_at: string
           detected_at: string
           error_code: string | null
           id: string
           keyword: string
           live_session_id: string | null
+          received_at: string | null
           status: string
           stream_id: string | null
           twitch_clip_id: string | null
+          twitch_request_at: string | null
+          twitch_response_at: string | null
           updated_at: string
           user_id: string
           voice_event_id: string
         }
         Insert: {
           action_type?: string
+          clip_fetch_attempts?: number
+          clip_ready_at?: string | null
           clip_url?: string | null
+          companion_sent_at?: string | null
           confidence?: number | null
           content_item_id?: string | null
+          content_queued_at?: string | null
           created_at?: string
           detected_at?: string
           error_code?: string | null
           id?: string
           keyword: string
           live_session_id?: string | null
+          received_at?: string | null
           status?: string
           stream_id?: string | null
           twitch_clip_id?: string | null
+          twitch_request_at?: string | null
+          twitch_response_at?: string | null
           updated_at?: string
           user_id: string
           voice_event_id: string
         }
         Update: {
           action_type?: string
+          clip_fetch_attempts?: number
+          clip_ready_at?: string | null
           clip_url?: string | null
+          companion_sent_at?: string | null
           confidence?: number | null
           content_item_id?: string | null
+          content_queued_at?: string | null
           created_at?: string
           detected_at?: string
           error_code?: string | null
           id?: string
           keyword?: string
           live_session_id?: string | null
+          received_at?: string | null
           status?: string
           stream_id?: string | null
           twitch_clip_id?: string | null
+          twitch_request_at?: string | null
+          twitch_response_at?: string | null
           updated_at?: string
           user_id?: string
           voice_event_id?: string
@@ -3575,6 +3596,10 @@ export type Database = {
       fail_analysis_job: {
         Args: { p_error: string; p_job_id: string }
         Returns: string
+      }
+      fail_stale_voice_clip_events: {
+        Args: { p_timeout_minutes?: number }
+        Returns: number
       }
       get_competitor_matches_for_job: {
         Args: { p_analysis_job_id: string }
