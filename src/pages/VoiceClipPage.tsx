@@ -23,9 +23,11 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { analytics } from "@/services/analytics";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import {
-  useVoiceClip, isCompanionOnline, VOICE_CLIP_ERROR_LABELS,
+  useVoiceClip, useTwitchClipScope, isCompanionOnline, VOICE_CLIP_ERROR_LABELS,
   type VoiceClipEvent,
 } from "@/hooks/useVoiceClip";
+import { matchesKeyword } from "@/lib/voiceKeyword";
+import { initiateTwitchOAuth } from "@/services/twitchOAuth";
 
 const KEYWORD_SUGGESTIONS = ["clip", "sauvegarde", "moment", "highlight"];
 
@@ -103,6 +105,7 @@ const VoiceClipPage = () => {
   });
 
   const { accounts, loading: twitchLoading } = useTwitchConnection();
+  const { loading: scopeLoading, hasClipScope } = useTwitchClipScope();
   const { settings, events, loading, reload, ensureSettings, updateSettings } = useVoiceClip();
 
   const [pairingOpen, setPairingOpen] = useState(false);
@@ -112,6 +115,7 @@ const VoiceClipPage = () => {
   const [testMatched, setTestMatched] = useState(false);
   const [testError, setTestError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const [reauthPending, setReauthPending] = useState(false);
 
   const twitchConnected = accounts.length > 0;
   const keyword = settings?.keyword ?? "clip";
@@ -184,7 +188,7 @@ const VoiceClipPage = () => {
     recognition.interimResults = false;
     recognition.onresult = (event) => {
       const transcript = String(event.results[0]?.[0]?.transcript ?? "").toLowerCase();
-      const matched = transcript.includes(keywordDraft.toLowerCase());
+      const matched = matchesKeyword(transcript, keywordDraft);
       setTestHeard(transcript);
       setTestMatched(matched);
       analytics.track("voice_clip_test_result", { matched });
@@ -202,17 +206,32 @@ const VoiceClipPage = () => {
     recognition.start();
   }, [keywordDraft]);
 
+  const startTwitchReauth = useCallback(async () => {
+    setReauthPending(true);
+    analytics.track("voice_clip_scope_reauth_started");
+    try {
+      await initiateTwitchOAuth({ returnTo: "/voice-clip" });
+    } catch {
+      setReauthPending(false);
+      toast.error("Impossible de relancer l'autorisation Twitch. Réessaie dans un instant.");
+    }
+  }, []);
+
   const toggleEnabled = useCallback(
     async (next: boolean) => {
       if (next && !twitchConnected) {
         toast.error("Connecte d'abord ton compte Twitch.");
         return;
       }
+      if (next && !scopeLoading && !hasClipScope) {
+        toast.error("Autorise d'abord Voice Clip à créer des clips sur Twitch.");
+        return;
+      }
       await updateSettings({ enabled: next });
       analytics.track(next ? "voice_clip_enabled" : "voice_clip_disabled");
       toast.success(next ? "Voice Clip activé." : "Voice Clip désactivé.");
     },
-    [twitchConnected, updateSettings],
+    [hasClipScope, scopeLoading, twitchConnected, updateSettings],
   );
 
   const pairingToken = settings?.companion_token ?? "";
@@ -282,9 +301,25 @@ const VoiceClipPage = () => {
                 index={1}
                 title="Vérifier la connexion Twitch"
                 description="Streamnco crée le clip via l'API Twitch, avec ton autorisation."
-                done={twitchConnected}
+                done={twitchConnected && hasClipScope}
               >
-                {twitchConnected ? (
+                {twitchConnected && !scopeLoading && !hasClipScope ? (
+                  <div className="space-y-2">
+                    <p className="flex items-start gap-2 text-sm text-foreground">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                      Autorisation Twitch requise : ton compte @{accounts[0]?.platform_login ?? "twitch"}
+                      a été connecté avant Voice Clip, Streamnco ne peut pas encore créer de clips
+                      pour toi.
+                    </p>
+                    <Button size="sm" onClick={() => void startTwitchReauth()} disabled={reauthPending}>
+                      {reauthPending ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Redirection…</>
+                      ) : (
+                        "Autoriser Voice Clip"
+                      )}
+                    </Button>
+                  </div>
+                ) : twitchConnected ? (
                   <p className="flex items-center gap-2 text-sm text-muted-foreground">
                     <ShieldCheck className="h-4 w-4 text-primary" />
                     Compte connecté : @{accounts[0]?.platform_login ?? "twitch"}
@@ -385,7 +420,7 @@ const VoiceClipPage = () => {
                       id="voice-enabled"
                       checked={enabled}
                       onCheckedChange={(v) => void toggleEnabled(v)}
-                      disabled={!twitchConnected}
+                      disabled={!twitchConnected || (!scopeLoading && !hasClipScope)}
                     />
                     <Label htmlFor="voice-enabled">{enabled ? "Voice Clip actif" : "Voice Clip inactif"}</Label>
                   </div>

@@ -11,6 +11,7 @@ import {
   consumePendingTeaserId,
   peekPendingTeaserId,
   consumeOAuthMode,
+  consumeOAuthReturnTo,
 } from "@/services/twitchOAuth";
 import { invalidateTwitchCache } from "@/hooks/useTwitchConnection";
 import { onboardingFlags } from "@/services/onboardingFlags";
@@ -153,6 +154,17 @@ const TwitchCallbackPage = () => {
       // We pass the exact platform_user_id so multi-account (Growth) users
       // get coverage targeted at the newly linked account.
       void bootstrapTwitchEventSub(connected.platform_user_id);
+
+      // Re-authorization initiated from an internal page (e.g. Voice Clip
+      // asking for clips:edit): go straight back there, no re-analysis.
+      const returnTo = consumeOAuthReturnTo();
+      if (returnTo) {
+        analytics.twitchConnected(connected.platform_login);
+        invalidateTwitchCache(userId);
+        consumePendingTeaserId();
+        navigate(returnTo, { replace: true });
+        return;
+      }
 
       let enrichedReportId: string | null = null;
       try {
