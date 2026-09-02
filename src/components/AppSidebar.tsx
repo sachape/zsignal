@@ -70,6 +70,7 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Clipping", url: "/clipping", icon: Clapperboard, matchSection: "clips" },
       { title: "Studio visuel", url: "/studio-visuel", icon: Palette },
+      { title: "Voice Clip", url: "/voice-clip", icon: Mic },
     ],
   },
   {

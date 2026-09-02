@@ -62,6 +62,7 @@ const YouTubeCallbackPage = lazy(() => import("./pages/YouTubeCallbackPage.tsx")
 const TikTokCallbackPage = lazy(() => import("./pages/TikTokCallbackPage.tsx"));
 const InstagramCallbackPage = lazy(() => import("./pages/InstagramCallbackPage.tsx"));
 const LiveSetupPage = lazy(() => import("./pages/LiveSetupPage.tsx"));
+const VoiceClipPage = lazy(() => import("./pages/VoiceClipPage.tsx"));
 const ContentQueuePage = lazy(() => import("./pages/ContentQueuePage.tsx"));
 const ComposerPage = lazy(() => import("./pages/ComposerPage.tsx"));
 const PublicationsPage = lazy(() => import("./pages/PublicationsPage.tsx"));
@@ -300,6 +301,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <LiveSetupPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/voice-clip"
+                  element={
+                    <ProtectedRoute>
+                      <VoiceClipPage />
                     </ProtectedRoute>
                   }
                 />
