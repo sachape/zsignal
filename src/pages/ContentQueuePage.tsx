@@ -5,7 +5,7 @@ import {
   Inbox, Filter, Copy, Trash2, CheckCircle2, Circle, Eye, EyeOff,
   Loader2, Sparkles, Pencil, Save, X, ExternalLink, Tv, Video, Music2, Camera, Clapperboard, Upload,
   Film, Wand2, Clock, Flame, TrendingUp, BarChart3, Plus, Info, FileUp, Scissors,
-  MoreHorizontal, ChevronDown, Send,
+  MoreHorizontal, ChevronDown, Send, Mic,
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PageContainer from "@/components/PageContainer";
