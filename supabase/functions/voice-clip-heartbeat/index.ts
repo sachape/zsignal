@@ -33,6 +33,7 @@ interface HeartbeatBody {
   platform?: string;
   microphone_label?: string;
   microphone_available?: boolean;
+  listening?: boolean;
   test_detected?: boolean;
   test_keyword?: string;
 }
@@ -88,6 +89,11 @@ Deno.serve(async (req) => {
   if (body.microphone_label) patch.microphone_label = String(body.microphone_label).slice(0, 120);
   if (typeof body.microphone_available === "boolean") {
     patch.companion_microphone_available = body.microphone_available;
+  }
+  // Liveness is not enough: a running Companion with capture stopped must never
+  // look "ready" in the web UI.
+  if (typeof body.listening === "boolean") {
+    patch.companion_listening = body.listening;
   }
 
   // Microphone test: the Companion detected the keyword locally. We only record

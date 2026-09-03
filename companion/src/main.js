@@ -161,6 +161,7 @@ async function sendHeartbeat(extra = {}) {
     const { ok, payload } = await api.heartbeat({
       microphone_label: state.microphoneLabel ?? undefined,
       microphone_available: state.microphoneAvailable,
+      listening: state.listening,
       ...extra,
     });
     if (!ok) {
