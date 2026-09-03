@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,7 +23,13 @@ export interface AuthFormProps {
   initialMode?: "login" | "signup";
 }
 
+/** Supabase renvoie ce message quand le compte existe mais n'a jamais été confirmé. */
+const isUnconfirmed = (msg: string) =>
+  msg.includes("Email not confirmed") || msg.includes("email_not_confirmed");
+
 const translateError = (msg: string): string => {
+  if (isUnconfirmed(msg))
+    return "Ton compte existe mais son adresse n'a pas encore été confirmée. Renvoie-toi le mail ci-dessous.";
   if (msg.includes("Invalid login credentials"))
     return "Email ou mot de passe incorrect.";
   if (msg.includes("already registered"))
@@ -49,7 +55,11 @@ const AuthForm = ({
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const { signUp, signIn } = useAuth();
+  /** Le compte existe mais n'est pas confirmé : on propose le renvoi sous l'erreur. */
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [cooldown, setCooldown] = useState(0);
+  const { signUp, signIn, resendConfirmation } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,6 +77,7 @@ const AuthForm = ({
       } else {
         const { error } = await signIn(email, password);
         if (error) {
+          setNeedsConfirmation(isUnconfirmed(error.message));
           setError(translateError(error.message));
         } else {
           onSuccess?.();
@@ -77,6 +88,53 @@ const AuthForm = ({
       setLoading(false);
     }
   };
+
+  // Décompte du délai avant un nouveau renvoi possible.
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = window.setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => window.clearTimeout(id);
+  }, [cooldown]);
+
+  const handleResend = async () => {
+    if (!email || cooldown > 0) return;
+    setResendState("sending");
+    const { error } = await resendConfirmation(email);
+    if (error) {
+      setResendState("error");
+      return;
+    }
+    setResendState("sent");
+    setCooldown(60);
+  };
+
+  /** Bloc de renvoi, partagé par l'écran de succès et l'erreur « non confirmé ». */
+  const resendBlock = (
+    <div className="space-y-1.5">
+      <button
+        type="button"
+        onClick={handleResend}
+        disabled={resendState === "sending" || cooldown > 0}
+        className="text-xs font-medium text-primary-strong underline underline-offset-4 disabled:opacity-60 disabled:no-underline"
+      >
+        {resendState === "sending"
+          ? "Envoi en cours…"
+          : cooldown > 0
+            ? `Renvoyer le mail (${cooldown} s)`
+            : "Renvoyer le mail de confirmation"}
+      </button>
+      {resendState === "sent" && (
+        <p className="text-xs text-muted-foreground">
+          Mail renvoyé. Pense à regarder dans tes spams.
+        </p>
+      )}
+      {resendState === "error" && (
+        <p className="text-xs text-destructive">
+          Le renvoi a échoué. Réessaie dans un moment ou écris-nous.
+        </p>
+      )}
+    </div>
+  );
 
   const handleGoogle = async () => {
     setError(null);
@@ -114,6 +172,7 @@ const AuthForm = ({
             <span className="font-medium text-foreground">{email}</span>.
           </p>
         </div>
+        {resendBlock}
       </div>
     );
   }
@@ -214,9 +273,12 @@ const AuthForm = ({
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
-            <p className="text-xs text-destructive">{error}</p>
+          <div className="space-y-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
+              <p className="text-xs text-destructive">{error}</p>
+            </div>
+            {needsConfirmation && resendBlock}
           </div>
         )}
 
