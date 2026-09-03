@@ -116,7 +116,11 @@ export default {
           ink: "#0c0a09",
           "ink-soft": "#292524",
           body: "#4e4e4e",
-          muted: "#777169",
+          // 4.56:1 sur `canvas` (#f5f5f5) et 4.97:1 sur `card` — WCAG AA pour du
+          // texte courant. L'ancien #777169 tombait à 4.43:1, sous le seuil.
+          // Réservé aux surfaces claires : sur `dark`/`dark-elevated`, utiliser
+          // `on-dark-soft`, qu'aucun gris unique ne peut remplacer sur les deux.
+          muted: "#756f67",
           "muted-soft": "#a8a29e",
           card: "#ffffff",
           strong: "#f0efed",
