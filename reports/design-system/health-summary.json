@@ -1,10 +1,10 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-09-03T16:01:04.386Z",
+  "generatedAt": "2026-09-03T16:35:35.144Z",
   "overall": {
-    "score": 0.9596800000000001,
-    "previous": 0.9597100000000001,
-    "delta": -0.00002999999999997449,
+    "score": 0.9596499999999999,
+    "previous": 0.9596499999999999,
+    "delta": -0.000030000000000196536,
     "label": "Excellent",
     "dimensions": [
       {
@@ -20,7 +20,7 @@
         "label": "Spacing",
         "weight": 0.3,
         "tier": "important",
-        "value": 0.8656,
+        "value": 0.8655,
         "why": "Cohérence visuelle et rythme — la fondation gouvernée avec un audit réel. Impacte la qualité perçue sur tout le produit."
       },
       {
@@ -119,14 +119,14 @@
             "label": "Colors",
             "status": "measured",
             "measure": "95%",
-            "note": "4421/4671 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
+            "note": "4426/4676 passent par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           },
           {
             "key": "typography",
             "label": "Typography",
             "status": "measured",
             "measure": "99%",
-            "note": "2100/2127 sur l'échelle de tailles ADR 0004 · reste : text-lg ×8, text-3xl ×8, text-[10.5px] ×3"
+            "note": "2104/2131 sur l'échelle de tailles ADR 0004 · reste : text-lg ×8, text-3xl ×8, text-[10.5px] ×3"
           },
           {
             "key": "spacing",
@@ -189,7 +189,7 @@
             "label": "Opacity",
             "status": "measured",
             "measure": "89%",
-            "note": "118/132 sur l'échelle opacity.* · reste : opacity-70 ×6, opacity-75 ×2, opacity-40 ×2"
+            "note": "119/133 sur l'échelle opacity.* · reste : opacity-70 ×6, opacity-75 ×2, opacity-40 ×2"
           },
           {
             "key": "darkmode",
@@ -355,8 +355,8 @@
             "group": "components",
             "label": "Éléments bruts restants",
             "status": "measured",
-            "measure": "33",
-            "note": "<button/input/select/textarea> bruts hors DS (33 button)"
+            "measure": "35",
+            "note": "<button/input/select/textarea> bruts hors DS (35 button)"
           },
           {
             "key": "ado-deprecated",
@@ -380,7 +380,7 @@
             "label": "Typographie",
             "status": "measured",
             "measure": "99%",
-            "note": "2100/2127 usages sur l'échelle ADR 0004 · reste : text-lg ×8, text-3xl ×8, text-[10.5px] ×3"
+            "note": "2104/2131 usages sur l'échelle ADR 0004 · reste : text-lg ×8, text-3xl ×8, text-[10.5px] ×3"
           },
           {
             "key": "ado-radius",
@@ -412,7 +412,7 @@
             "label": "Couleurs",
             "status": "measured",
             "measure": "95%",
-            "note": "4421/4671 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
+            "note": "4426/4676 usages passant par un token (hors palette Tailwind / valeur arbitraire) · reste : border-white/[0.06] ×17, text-amber-400 ×13, text-emerald-400 ×13"
           }
         ]
       },
@@ -458,7 +458,7 @@
             "key": "vq-approved",
             "label": "Approved changes",
             "status": "measured",
-            "measure": "11",
+            "measure": "12",
             "note": "changements visuels revus et acceptés (dernier build)",
             "action": null
           },
@@ -579,24 +579,24 @@
     "jsxFiles": 132,
     "dsFiles": 109,
     "excludedFromDenom": 37,
-    "rawElements": 33,
+    "rawElements": 35,
     "rawByTag": {
-      "button": 33,
+      "button": 35,
       "input": 0,
       "select": 0,
       "textarea": 0
     },
     "hardColors": 17,
     "scaleAdoption": 0.9873,
-    "compactShare": 0.27892030848329047,
+    "compactShare": 0.27881791483113066,
     "cssVarAdoption": 0,
     "foundations": {
       "typography": {
-        "total": 2127,
+        "total": 2131,
         "token": 0,
-        "scale": 2100,
+        "scale": 2104,
         "off": 27,
-        "adoption": 0.9873060648801129,
+        "adoption": 0.987329892069451,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -712,12 +712,12 @@
         ]
       },
       "colors": {
-        "total": 4671,
-        "token": 4421,
+        "total": 4676,
+        "token": 4426,
         "scale": 0,
         "off": 250,
-        "adoption": 0.9464782701776921,
-        "tokenShare": 0.9464782701776921,
+        "adoption": 0.946535500427716,
+        "tokenShare": 0.946535500427716,
         "topOffenders": [
           {
             "value": "border-white/[0.06]",
@@ -786,11 +786,11 @@
         ]
       },
       "opacity": {
-        "total": 132,
+        "total": 133,
         "token": 0,
-        "scale": 118,
+        "scale": 119,
         "off": 14,
-        "adoption": 0.8939393939393939,
+        "adoption": 0.8947368421052632,
         "tokenShare": 0,
         "topOffenders": [
           {
@@ -876,7 +876,7 @@
     }
   },
   "debt": {
-    "violations": 1016,
+    "violations": 1017,
     "violationsCore": 0,
     "exceptions": 30,
     "baseline": 1027
@@ -884,12 +884,12 @@
   "providers": [
     {
       "provider": "spacing",
-      "generatedAt": "2026-09-03T16:01:01.179Z",
+      "generatedAt": "2026-09-03T16:35:32.108Z",
       "scores": {
-        "valueCompliance": 0.8134,
+        "valueCompliance": 0.8133,
         "scaleAdoption": 0.9873,
         "cssVarAdoption": 0,
-        "health": 0.8656
+        "health": 0.8655
       },
       "confidence": {
         "value": 0.9636,
@@ -900,22 +900,22 @@
         "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
       },
       "totals": {
-        "detected": 5446,
-        "preferred": 2881,
+        "detected": 5448,
+        "preferred": 2882,
         "compactAllowed": 1519,
-        "violations": 1016,
+        "violations": 1017,
         "exceptions": 30,
         "needsDecision": 0,
         "unclassified": 0,
-        "classifiable": 5446,
-        "compliant": 4430,
+        "classifiable": 5448,
+        "compliant": 4431,
         "byTrack": {
           "error": 594,
-          "warn": 4852
+          "warn": 4854
         },
         "violationsByTrack": {
           "error": 0,
-          "warn": 1016
+          "warn": 1017
         },
         "compactByTrack": {
           "error": 137,
@@ -926,7 +926,7 @@
     },
     {
       "provider": "accessibility",
-      "generatedAt": "2026-09-03T16:01:01.444Z",
+      "generatedAt": "2026-09-03T16:35:32.131Z",
       "scores": {
         "valueCompliance": null,
         "scaleAdoption": null,

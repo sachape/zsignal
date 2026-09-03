@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-09-03T16:01:01.179Z",
+  "generatedAt": "2026-09-03T16:35:32.108Z",
   "scope": {
     "roots": [
       "src",
@@ -38,22 +38,22 @@
     "parseErrors": 0
   },
   "totals": {
-    "detected": 5446,
-    "preferred": 2881,
+    "detected": 5448,
+    "preferred": 2882,
     "compactAllowed": 1519,
-    "violations": 1016,
+    "violations": 1017,
     "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5446,
-    "compliant": 4430,
+    "classifiable": 5448,
+    "compliant": 4431,
     "byTrack": {
       "error": 594,
-      "warn": 4852
+      "warn": 4854
     },
     "violationsByTrack": {
       "error": 0,
-      "warn": 1016
+      "warn": 1017
     },
     "compactByTrack": {
       "error": 137,
@@ -61,10 +61,10 @@
     }
   },
   "scores": {
-    "valueCompliance": 0.8134,
+    "valueCompliance": 0.8133,
     "scaleAdoption": 0.9873,
     "cssVarAdoption": 0,
-    "health": 0.8656
+    "health": 0.8655
   },
   "confidence": {
     "value": 0.9636,
@@ -85,15 +85,15 @@
   },
   "distribution": {
     "byTier": {
-      "preferred": 2881,
-      "violation": 1016,
+      "preferred": 2882,
+      "violation": 1017,
       "compact-allowed": 1519,
       "exception": 30
     },
     "byValue": {
       "10px": 143,
       "2px": 326,
-      "6px": 464,
+      "6px": 465,
       "-6px": 3,
       "-2px": 10,
       "14px": 22,
@@ -107,7 +107,7 @@
     },
     "bySystem": {
       "raw-css": 2,
-      "scale-utility": 5377,
+      "scale-utility": 5379,
       "inline": 31,
       "arbitrary": 36
     }
@@ -139,8 +139,8 @@
     },
     {
       "property": "row-gap",
-      "total": 344,
-      "violations": 100,
+      "total": 346,
+      "violations": 101,
       "compactAllowed": 102
     },
     {
@@ -353,7 +353,7 @@
   "topValues": [
     {
       "value": "6px",
-      "count": 464
+      "count": 465
     },
     {
       "value": "2px",
@@ -393,7 +393,7 @@
     }
   ],
   "recommendations": [
-    "1016 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1017 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
     "1519 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ]
