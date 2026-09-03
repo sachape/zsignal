@@ -179,6 +179,21 @@ const AuthForm = ({
           </p>
         </div>
         {resendBlock}
+        {/* Une inscription valide ouvre normalement une session directement.
+            Sans session, l'adresse est vraisemblablement déjà prise — Supabase
+            reste volontairement ambigu pour empêcher d'énumérer les comptes.
+            On propose donc l'issue sans rien affirmer. */}
+        <button
+          type="button"
+          onClick={() => {
+            setSuccess(false);
+            setMode("login");
+            setError(null);
+          }}
+          className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+        >
+          J'ai déjà un compte — me connecter
+        </button>
       </div>
     );
   }
