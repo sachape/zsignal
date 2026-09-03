@@ -98,42 +98,42 @@ const FeaturesPage = () => {
   return (
     <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
       <SiteNav />
-
-      {/* Hero */}
-      <section className="relative overflow-hidden pt-36 pb-12 md:pt-44 md:pb-16">
-        <Orb color="bg-el-lavender" className="left-[-6rem] top-12 h-[26rem] w-[26rem] opacity-50" />
-        <Orb color="bg-el-sky" className="right-[-6rem] top-24 h-[26rem] w-[26rem] opacity-50" animate="fast" />
-        <Container className="relative">
-          <Reveal className="max-w-3xl">
-            <Eyebrow>Fonctionnalités</Eyebrow>
-            <h1 className="mt-5 font-el-display text-[clamp(2rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
-              Tout ce qu'il faut pour faire grandir ta chaîne.
-            </h1>
-            <p className="mt-5 max-w-2xl font-el-sans text-[17px] leading-[1.6] text-el-body">
-              Des clips prêts à poster, des visuels en un clic et une vision claire de ta progression — plus tout ce qui t'aide à publier vite et régulièrement.
-            </p>
-          </Reveal>
-          <Reveal delay={120} className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap gap-2">
-              {NAV_ANCHORS.map((a) => (
-                <a key={a.href} href={a.href} className="rounded-full border border-el-hairline bg-el-card px-4 py-2 font-el-sans text-[14px] text-el-body transition-colors hover:border-el-hairline-strong hover:text-el-ink">
-                  {a.label}
-                </a>
-              ))}
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => openAuthModal("signup")} className="inline-flex h-11 items-center gap-2 rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft">
-                Essayer gratuitement <ArrowRight className="h-4 w-4" />
-              </button>
-              <Link to="/pricing" className="inline-flex h-11 items-center rounded-full border border-el-hairline-strong px-6 font-el-sans text-[15px] font-medium text-el-ink transition-colors hover:bg-el-strong">
-                Voir les tarifs
-              </Link>
-            </div>
-          </Reveal>
-        </Container>
-      </section>
-
       <main className="pb-24">
+
+        {/* Hero */}
+        <section className="relative overflow-hidden pt-36 pb-12 md:pt-44 md:pb-16">
+          <Orb color="bg-el-lavender" className="left-[-6rem] top-12 h-[26rem] w-[26rem] opacity-50" />
+          <Orb color="bg-el-sky" className="right-[-6rem] top-24 h-[26rem] w-[26rem] opacity-50" animate="fast" />
+          <Container className="relative">
+            <Reveal className="max-w-3xl">
+              <Eyebrow>Fonctionnalités</Eyebrow>
+              <h1 className="mt-5 font-el-display text-[clamp(2rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
+                Tout ce qu'il faut pour faire grandir ta chaîne.
+              </h1>
+              <p className="mt-5 max-w-2xl font-el-sans text-[17px] leading-[1.6] text-el-body">
+                Des clips prêts à poster, des visuels en un clic et une vision claire de ta progression — plus tout ce qui t'aide à publier vite et régulièrement.
+              </p>
+            </Reveal>
+            <Reveal delay={120} className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {NAV_ANCHORS.map((a) => (
+                  <a key={a.href} href={a.href} className="rounded-full border border-el-hairline bg-el-card px-4 py-2 font-el-sans text-[14px] text-el-body transition-colors hover:border-el-hairline-strong hover:text-el-ink">
+                    {a.label}
+                  </a>
+                ))}
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => openAuthModal("signup")} className="inline-flex h-11 items-center gap-2 rounded-full bg-el-ink px-6 font-el-sans text-[15px] font-medium text-el-on-dark transition-colors hover:bg-el-ink-soft">
+                  Essayer gratuitement <ArrowRight className="h-4 w-4" />
+                </button>
+                <Link to="/pricing" className="inline-flex h-11 items-center rounded-full border border-el-hairline-strong px-6 font-el-sans text-[15px] font-medium text-el-ink transition-colors hover:bg-el-strong">
+                  Voir les tarifs
+                </Link>
+              </div>
+            </Reveal>
+          </Container>
+        </section>
+
         <Container className="space-y-20">
           {/* Créer */}
           <section id="creer" className="scroll-mt-28">
