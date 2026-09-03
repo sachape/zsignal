@@ -116,13 +116,13 @@ const TEASER_INK_VARS = {
 const TeaserResultShell = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
     <SiteNav theme="light" />
-    <section className="relative overflow-hidden px-4 pt-28 pb-24 md:pt-32 md:px-6">
+    <main className="relative overflow-hidden px-4 pt-28 pb-24 md:pt-32 md:px-6">
       <Orb color="bg-el-mint" className="left-[-4rem] top-10 h-[26rem] w-[26rem] opacity-40" />
       <Orb color="bg-el-peach" className="right-[-6rem] top-32 h-[24rem] w-[24rem] opacity-40" animate="fast" />
       <Container className="relative">
         <div className="light" style={TEASER_INK_VARS}>{children}</div>
       </Container>
-    </section>
+    </main>
   </div>
 );
 

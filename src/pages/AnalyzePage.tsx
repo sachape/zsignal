@@ -56,11 +56,11 @@ const stageLabels: Record<Stage, string> = {
 const TeaserShell = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
     <SiteNav theme="light" />
-    <section className="relative overflow-hidden px-6 pt-36 pb-24 md:pt-44">
+    <main className="relative overflow-hidden px-6 pt-36 pb-24 md:pt-44">
       <Orb color="bg-el-mint" className="left-1/4 top-10 h-[24rem] w-[24rem] opacity-50" />
       <Orb color="bg-el-peach" className="right-[-4rem] top-24 h-[22rem] w-[22rem] opacity-50" animate="fast" />
       <Container className="relative flex max-w-xl flex-col items-center">{children}</Container>
-    </section>
+    </main>
   </div>
 );
 

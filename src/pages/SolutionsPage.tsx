@@ -61,31 +61,31 @@ const SolutionsPage = () => {
   return (
     <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
       <SiteNav />
-
-      <section className="relative overflow-hidden pt-36 pb-12 md:pt-44 md:pb-16">
-        <Orb color="bg-el-peach" className="left-[-6rem] top-12 h-[26rem] w-[26rem] opacity-50" />
-        <Orb color="bg-el-mint" className="right-[-6rem] top-24 h-[24rem] w-[24rem] opacity-50" animate="fast" />
-        <Container className="relative">
-          <Reveal className="max-w-3xl">
-            <Eyebrow>Solutions</Eyebrow>
-            <h1 className="mt-5 font-el-display text-[clamp(2rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
-              Quel que soit ton niveau, Streamnco grandit avec toi.
-            </h1>
-            <p className="mt-5 max-w-2xl font-el-sans text-[17px] leading-[1.6] text-el-body">
-              Ton besoin change selon ton niveau : poser les bases, tenir une cadence, ou professionnaliser ta chaîne. Streamnco met l'accent sur ce qui compte, au bon moment.
-            </p>
-          </Reveal>
-          <Reveal delay={120} className="mt-8 flex flex-wrap gap-2">
-            {SOLUTIONS.map((s) => (
-              <a key={s.id} href={`#${s.id}`} className="rounded-full border border-el-hairline bg-el-card px-4 py-2 font-el-sans text-[14px] text-el-body transition-colors hover:border-el-hairline-strong hover:text-el-ink">
-                {s.label}
-              </a>
-            ))}
-          </Reveal>
-        </Container>
-      </section>
-
       <main className="pb-24">
+
+        <section className="relative overflow-hidden pt-36 pb-12 md:pt-44 md:pb-16">
+          <Orb color="bg-el-peach" className="left-[-6rem] top-12 h-[26rem] w-[26rem] opacity-50" />
+          <Orb color="bg-el-mint" className="right-[-6rem] top-24 h-[24rem] w-[24rem] opacity-50" animate="fast" />
+          <Container className="relative">
+            <Reveal className="max-w-3xl">
+              <Eyebrow>Solutions</Eyebrow>
+              <h1 className="mt-5 font-el-display text-[clamp(2rem,5.5vw,4rem)] font-light leading-[1.05] tracking-[-0.03em] text-el-ink">
+                Quel que soit ton niveau, Streamnco grandit avec toi.
+              </h1>
+              <p className="mt-5 max-w-2xl font-el-sans text-[17px] leading-[1.6] text-el-body">
+                Ton besoin change selon ton niveau : poser les bases, tenir une cadence, ou professionnaliser ta chaîne. Streamnco met l'accent sur ce qui compte, au bon moment.
+              </p>
+            </Reveal>
+            <Reveal delay={120} className="mt-8 flex flex-wrap gap-2">
+              {SOLUTIONS.map((s) => (
+                <a key={s.id} href={`#${s.id}`} className="rounded-full border border-el-hairline bg-el-card px-4 py-2 font-el-sans text-[14px] text-el-body transition-colors hover:border-el-hairline-strong hover:text-el-ink">
+                  {s.label}
+                </a>
+              ))}
+            </Reveal>
+          </Container>
+        </section>
+
         <Container>
           <div className="grid gap-5 lg:grid-cols-3">
             {SOLUTIONS.map((s, i) => (

@@ -8,8 +8,12 @@ const AuthPage = () => {
   const redirectTo = searchParams.get("redirect") || "/dashboard";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
+        {/* La page n'affiche pas de titre : AuthForm ouvre directement sur un h2.
+            Ce h1 rétablit la hiérarchie et donne son titre à la page pour les
+            lecteurs d'écran, sans modifier le rendu. */}
+        <h1 className="sr-only">Connexion à Streamnco</h1>
         <Link
           to="/"
           className="mx-auto mb-6 flex items-center justify-center"
@@ -24,7 +28,7 @@ const AuthPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </main>
   );
 };
 

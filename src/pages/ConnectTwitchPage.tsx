@@ -84,13 +84,13 @@ const ConnectTwitchPage = () => {
     return (
       <div className="min-h-screen bg-el-canvas font-el-sans text-el-ink antialiased">
         <SiteNav theme="light" />
-        <section className="relative overflow-hidden px-4 pt-28 pb-24 md:pt-32 md:px-6">
+        <main className="relative overflow-hidden px-4 pt-28 pb-24 md:pt-32 md:px-6">
           <Orb color="bg-el-mint" className="left-[-4rem] top-10 h-[24rem] w-[24rem] opacity-40" />
           <Orb color="bg-el-peach" className="right-[-6rem] top-28 h-[22rem] w-[22rem] opacity-40" animate="fast" />
           <Container className={narrow ? "relative max-w-xl" : "relative"}>
             <div className="light" style={TWITCH_INK_VARS}>{children}</div>
           </Container>
-        </section>
+        </main>
       </div>
     );
   };
