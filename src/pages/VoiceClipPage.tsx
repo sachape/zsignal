@@ -23,7 +23,8 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { analytics } from "@/services/analytics";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import {
-  useVoiceClip, useTwitchClipScope, isCompanionOnline, VOICE_CLIP_ERROR_LABELS,
+  useVoiceClip, useTwitchClipScope, isCompanionOnline, isCompanionListening,
+  VOICE_CLIP_ERROR_LABELS,
   type VoiceClipEvent,
 } from "@/hooks/useVoiceClip";
 import { matchesKeyword } from "@/lib/voiceKeyword";
@@ -120,6 +121,10 @@ const VoiceClipPage = () => {
   const twitchConnected = accounts.length > 0;
   const keyword = settings?.keyword ?? "clip";
   const companionOnline = isCompanionOnline(settings?.companion_last_seen_at ?? null);
+  const companionListening = isCompanionListening(
+    settings?.companion_last_seen_at ?? null,
+    settings?.companion_listening,
+  );
   const enabled = settings?.enabled ?? false;
 
   useEffect(() => {
@@ -243,9 +248,13 @@ const VoiceClipPage = () => {
           title="Voice Clip"
           description="Crée tes clips sans interrompre ton live : prononce ton mot-clé, Streamnco s'occupe du reste."
           action={
-            enabled ? (
+            enabled && companionListening ? (
               <Badge className="gap-1.5 bg-primary/15 text-primary hover:bg-primary/15">
-                <Radio className="h-3.5 w-3.5" /> Actif
+                <Radio className="h-3.5 w-3.5" /> À l'écoute
+              </Badge>
+            ) : enabled ? (
+              <Badge variant="outline" className="gap-1.5">
+                <MicOff className="h-3.5 w-3.5" /> Écoute en pause
               </Badge>
             ) : (
               <Badge variant="outline" className="gap-1.5">
@@ -271,8 +280,10 @@ const VoiceClipPage = () => {
                   <div>
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">Companion</p>
                     <p className="mt-1 flex items-center gap-2 text-lg font-semibold text-foreground">
-                      {companionOnline ? (
-                        <><Wifi className="h-4 w-4 text-primary" /> Connecté</>
+                      {companionListening ? (
+                        <><Wifi className="h-4 w-4 text-primary" /> À l'écoute</>
+                      ) : companionOnline ? (
+                        <><MicOff className="h-4 w-4 text-muted-foreground" /> Écoute en pause</>
                       ) : (
                         <><WifiOff className="h-4 w-4 text-muted-foreground" /> Déconnecté</>
                       )}
@@ -284,6 +295,16 @@ const VoiceClipPage = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {enabled && companionOnline && !companionListening && (
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-4 text-sm">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  Le Companion tourne mais n'écoute pas ton micro. Ouvre-le et lance l'écoute
+                  (« Démarrer l'écoute ») : sans capture audio, aucun mot-clé ne sera détecté.
+                </p>
+              </div>
             )}
 
             {enabled && !companionOnline && (
@@ -335,17 +356,21 @@ const VoiceClipPage = () => {
                 index={2}
                 title="Installer le Streamnco Live Companion"
                 description="Petite app locale qui écoute ton micro sur ton PC. Aucun flux audio n'est envoyé à Streamnco — seule la détection du mot-clé l'est."
-                done={companionOnline}
+                done={companionListening}
               >
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={openPairing}>
-                    <Download className="mr-2 h-4 w-4" /> Installer et appairer
+                    <Download className="mr-2 h-4 w-4" /> Obtenir et appairer le Companion
                   </Button>
-                  {companionOnline && (
+                  {companionListening ? (
                     <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Wifi className="h-4 w-4 text-primary" /> Companion connecté
+                      <Wifi className="h-4 w-4 text-primary" /> Companion à l'écoute
                     </span>
-                  )}
+                  ) : companionOnline ? (
+                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <MicOff className="h-4 w-4" /> Companion connecté, écoute en pause
+                    </span>
+                  ) : null}
                 </div>
               </StepCard>
 
