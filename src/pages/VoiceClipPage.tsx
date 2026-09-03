@@ -117,6 +117,8 @@ const VoiceClipPage = () => {
   const [testError, setTestError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const [reauthPending, setReauthPending] = useState(false);
+  const [companionTestArmedAt, setCompanionTestArmedAt] = useState<number | null>(null);
+  const [companionTestDetected, setCompanionTestDetected] = useState(false);
 
   const twitchConnected = accounts.length > 0;
   const keyword = settings?.keyword ?? "clip";
@@ -210,6 +212,47 @@ const VoiceClipPage = () => {
     recognitionRef.current = recognition;
     recognition.start();
   }, [keywordDraft]);
+
+  /**
+   * Real-setup test: arms a short window server-side, the Companion detects the
+   * keyword on the streaming microphone and reports it. No clip is created.
+   */
+  const startCompanionTest = useCallback(async () => {
+    if (!companionOnline) {
+      toast.error("Lance d'abord le Companion sur ton PC de stream.");
+      return;
+    }
+    setCompanionTestDetected(false);
+    setTestError(null);
+    setCompanionTestArmedAt(Date.now());
+    await updateSettings({
+      test_mode_until: new Date(Date.now() + 120_000).toISOString(),
+      last_test_detected_at: null,
+    });
+    analytics.track("voice_clip_companion_test_started", { keyword: keywordDraft });
+    toast.success("Test armé : prononce ton mot-clé dans ton micro de stream.");
+  }, [companionOnline, keywordDraft, updateSettings]);
+
+  // Poll while the Companion test window is open.
+  useEffect(() => {
+    if (companionTestArmedAt === null) return;
+    if (Date.now() - companionTestArmedAt > 130_000) {
+      setCompanionTestArmedAt(null);
+      setTestError("Aucune commande reçue du Companion. Vérifie qu'il écoute bien ton micro.");
+      return;
+    }
+    const detectedAt = settings?.last_test_detected_at
+      ? new Date(settings.last_test_detected_at).getTime()
+      : 0;
+    if (detectedAt >= companionTestArmedAt - 5_000) {
+      setCompanionTestArmedAt(null);
+      setCompanionTestDetected(true);
+      analytics.track("voice_clip_companion_test_result", { matched: true });
+      return;
+    }
+    const id = window.setTimeout(() => void reload(), 3_000);
+    return () => window.clearTimeout(id);
+  }, [companionTestArmedAt, reload, settings?.last_test_detected_at]);
 
   const startTwitchReauth = useCallback(async () => {
     setReauthPending(true);
@@ -411,9 +454,32 @@ const VoiceClipPage = () => {
               <StepCard
                 index={4}
                 title="Tester ton micro"
-                description="Ce test ne crée aucun clip : il vérifie seulement que ton mot-clé est bien entendu."
-                done={testMatched}
+                description="Ce test ne crée aucun clip : le Companion écoute ton micro de stream et confirme qu'il entend ton mot-clé."
+                done={companionTestDetected}
               >
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    size="sm"
+                    onClick={() => void startCompanionTest()}
+                    disabled={companionTestArmedAt !== null}
+                  >
+                    {companionTestArmedAt !== null ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> En attente du Companion…</>
+                    ) : (
+                      <><Mic className="mr-2 h-4 w-4" /> Tester avec le Companion</>
+                    )}
+                  </Button>
+                  {companionTestDetected && (
+                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      Mot-clé entendu par ton micro de stream.
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Ce test passe par le Companion et ton vrai micro de stream. Le test navigateur
+                  ci-dessous ne vérifie que la prononciation, pas ton installation.
+                </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <Button size="sm" variant="outline" onClick={startTest} disabled={testing}>
                     {testing ? (
@@ -560,10 +626,18 @@ const VoiceClipPage = () => {
                   </Button>
                 </div>
               </div>
+              <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                Le Companion (Windows et macOS) est en accès anticipé : demande ton lien
+                d'installation à l'équipe Streamnco depuis{" "}
+                <Link to="/help" className="underline underline-offset-4">
+                  la page d'aide
+                </Link>
+                . Garde ce code sous la main pour l'appairage.
+              </div>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>1. Installe le Companion (Windows ou macOS) sur ton PC de stream.</li>
+                <li>1. Installe le Companion reçu sur ton PC de stream.</li>
                 <li>2. Lance-le et colle le code d'appairage.</li>
-                <li>3. Choisis ton micro : la détection reste 100 % locale.</li>
+                <li>3. Choisis ton micro : l'écoute démarre automatiquement, la détection reste 100 % locale.</li>
               </ul>
               <p className="text-xs text-muted-foreground">
                 Le Companion n'envoie jamais ton audio : seule une commande détectée est transmise.
