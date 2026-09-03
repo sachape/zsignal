@@ -15,4 +15,4 @@ Allow: /
 
 Sitemap: https://streamnco.fr/sitemap.xml
 
-<!-- republish trigger: force rebuild with restored Supabase env -->
+# republish trigger: force rebuild with restored Supabase env
