@@ -19,6 +19,10 @@ import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 // fourni ; ce repli ne s'applique qu'à son absence.
 const SUPABASE_FALLBACK = {
   VITE_SUPABASE_URL: "https://poblhczgdbnfunroshul.supabase.co",
+  // Utilisée pour construire les URLs des edge functions (OAuth Twitch, upload
+  // de clip, upload YouTube, lib MCP). Sans elle, le code fabrique
+  // `https://undefined.supabase.co/...` et chaque appel échoue.
+  VITE_SUPABASE_PROJECT_ID: "poblhczgdbnfunroshul",
   // À renseigner : clé publishable (anon) du projet, disponible dans
   // Desktop/zsignal/.env sous VITE_SUPABASE_PUBLISHABLE_KEY.
   VITE_SUPABASE_PUBLISHABLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvYmxoY3pnZGJuZnVucm9zaHVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyODE1MTksImV4cCI6MjA5MTg1NzUxOX0.AZytxuMjgJQGYWV7UpKLD3Sbd6x6PbUEGL1wlr4l8M0",

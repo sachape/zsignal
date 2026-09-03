@@ -1,4 +1,5 @@
 import { useEffect, type CSSProperties, type ReactNode } from "react";
+import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ShieldCheck,
@@ -203,7 +204,16 @@ const ConnectTwitchPage = () => {
                 initiateTwitchOAuth({
                   teaserId,
                   mode: isAddMode ? "add" : undefined,
-                }).catch((err) => console.error(err));
+                }).catch((err) => {
+                  // Sans retour visible, un échec ici donne un bouton qui
+                  // paraît inerte : l'utilisateur clique et rien ne bouge.
+                  console.error(err);
+                  toast.error(
+                    err instanceof Error && err.message
+                      ? err.message
+                      : "Impossible de lancer la connexion Twitch. Réessaie dans un instant.",
+                  );
+                });
               }}
               variant="twitch"
               className="mt-2"
