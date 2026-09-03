@@ -1,3 +1,6 @@
+// Importé en premier : il doit s'exécuter avant la chaîne App -> AuthContext
+// -> supabase/client, qui jette au chargement si le build est incomplet.
+import "./bootstrapEnvGuard";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "next-themes";
 import App from "./App.tsx";
