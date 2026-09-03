@@ -71,8 +71,11 @@ function buildEngine() {
     if (status.state === "model_missing") {
       log("error", "Modèle vocal local absent (npm run postinstall)");
     }
+    const wasListening = state.listening;
     state.listening = status.state === "listening";
     pushState();
+    // Surface capture start/stop immediately instead of waiting for the next tick.
+    if (wasListening !== state.listening) void sendHeartbeat();
   });
   created.onCommand((event) => void handleCommand(event));
   return created;

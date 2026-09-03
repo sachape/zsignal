@@ -161,5 +161,9 @@ navigator.mediaDevices.addEventListener("devicechange", () => void listDevices()
     window.companion.microphoneUnavailable(error.name || "unknown");
   }
   await listDevices();
-  render(await window.companion.getState());
+  const initialState = await window.companion.getState();
+  render(initialState);
+  // A paired Companion must listen on its own: launching it (including at
+  // login, hidden in the tray) is what the streamer considers "ready".
+  if (initialState.paired && !listening) await startListening();
 })();
