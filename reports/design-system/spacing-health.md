@@ -1,6 +1,6 @@
 # Spacing Health — rapport humain
 
-> Généré le 2026-09-03T17:53:05.716Z · contrat v1 · **read-only** (aucune migration).
+> Généré le 2026-09-03T18:25:16.564Z · contrat v1 · **read-only** (aucune migration).
 
 ## Score
 
@@ -58,5 +58,5 @@ _Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, 
 
 ## Périmètre
 
-- Fichiers scannés : 446 (cœur ERROR : 113 · app WARN : 333)
+- Fichiers scannés : 447 (cœur ERROR : 113 · app WARN : 334)
 - Erreurs de parsing : 0

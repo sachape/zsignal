@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-09-03T17:53:05.716Z",
+  "generatedAt": "2026-09-03T18:25:16.564Z",
   "scope": {
     "roots": [
       "src",
@@ -32,9 +32,9 @@
       "/design-system\\/stories\\/[^/]+\\.stories\\.tsx$/",
       "/src\\/index\\.css$/"
     ],
-    "filesScanned": 446,
+    "filesScanned": 447,
     "errorTrackFiles": 113,
-    "warnTrackFiles": 333,
+    "warnTrackFiles": 334,
     "parseErrors": 0
   },
   "totals": {
