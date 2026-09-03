@@ -137,6 +137,7 @@ window.companion.onToggleListening(() => (listening ? void stopListening() : voi
 el("pair").addEventListener("click", async () => {
   const result = await window.companion.pair(el("token").value);
   appendLog(result.ok ? "Companion appairé." : result.error);
+  if (result.ok && !listening) await startListening();
 });
 
 el("toggle").addEventListener("click", () => (listening ? void stopListening() : void startListening()));
