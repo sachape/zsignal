@@ -68,9 +68,15 @@ const AuthForm = ({
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await signUp(email, password);
+        const { error, session } = await signUp(email, password);
         if (error) {
           setError(translateError(error.message));
+        } else if (session) {
+          // Auto-confirmation active : le compte est déjà utilisable. Afficher
+          // « Vérifie ta boîte mail » enverrait l'utilisateur attendre un mail
+          // qui n'existe pas.
+          onSuccess?.();
+          navigate(redirectTo);
         } else {
           setSuccess(true);
         }
