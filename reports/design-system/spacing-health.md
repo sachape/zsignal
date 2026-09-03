@@ -1,33 +1,33 @@
 # Spacing Health — rapport humain
 
-> Généré le 2026-08-02T11:56:18.120Z · contrat v1 · **read-only** (aucune migration).
+> Généré le 2026-09-03T16:01:01.179Z · contrat v1 · **read-only** (aucune migration).
 
 ## Score
 
 | Indicateur | Valeur |
 |---|---|
 | **Spacing Health** | **86.6%** |
-| Spacing value compliance | 81.4% |
+| Spacing value compliance | 81.3% |
 | Scale adoption (échelle, pas var(--space-*)) | 98.7% |
 | CSS token adoption (var(--space-*)) | 0.0% |
-| **Confidence** | **96.3%** |
+| **Confidence** | **96.4%** |
 
 _Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives._
 
 ## Totaux
 
-- Usages détectés : **5389** (classifiables : 5389)
-- **Preferred** (échelle principale) : 2850 · **Compact-allowed** (4/12/20, secondaire) : **1505** · Exceptions : 30
-- **Violations** : **1004** · Needs-decision : 0 · Non classifiés : 0
-- Compact-allowed détaillé — 4px × 512 · 12px × 755 · 20px × 222 · -4px × 16
-- Violations par piste — cœur DS (ERROR) : **0** · app (WARN) : 1004
+- Usages détectés : **5446** (classifiables : 5446)
+- **Preferred** (échelle principale) : 2881 · **Compact-allowed** (4/12/20, secondaire) : **1519** · Exceptions : 30
+- **Violations** : **1016** · Needs-decision : 0 · Non classifiés : 0
+- Compact-allowed détaillé — 4px × 516 · 12px × 765 · 20px × 222 · -4px × 16
+- Violations par piste — cœur DS (ERROR) : **0** · app (WARN) : 1016
 
-> ⚠ Transparence : preferred et compact-allowed comptent tous deux conformes, mais **1505** usages reposent sur la sous-grille compacte — préférer l'échelle principale.
+> ⚠ Transparence : preferred et compact-allowed comptent tous deux conformes, mais **1519** usages reposent sur la sous-grille compacte — préférer l'échelle principale.
 
 ## Top valeurs hors-échelle (violations)
 
-- `6px` × 455
-- `2px` × 323
+- `6px` × 464
+- `2px` × 326
 - `10px` × 143
 - `28px` × 31
 - `14px` × 22
@@ -40,7 +40,7 @@ _Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, 
 ## Composants/fichiers les plus touchés
 
 - **60 viol.** 61 compact — `src/pages/LiveSetupPage.tsx` _(warn)_
-- **41 viol.** 38 compact — `src/pages/ContentQueuePage.tsx` _(warn)_
+- **41 viol.** 39 compact — `src/pages/ContentQueuePage.tsx` _(warn)_
 - **31 viol.** 28 compact — `src/pages/ReseauxPage.tsx` _(warn)_
 - **26 viol.** 4 compact — `src/components/AccountMenu.tsx` _(warn)_
 - **26 viol.** 33 compact — `src/components/TeaserResultLayout.tsx` _(warn)_
@@ -52,11 +52,11 @@ _Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, 
 
 ## Recommandations
 
-- 1004 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.
-- 1505 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).
+- 1016 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.
+- 1519 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).
 - Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens.
 
 ## Périmètre
 
-- Fichiers scannés : 442 (cœur ERROR : 113 · app WARN : 329)
+- Fichiers scannés : 446 (cœur ERROR : 113 · app WARN : 333)
 - Erreurs de parsing : 0

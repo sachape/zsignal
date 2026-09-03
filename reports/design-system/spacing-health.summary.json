@@ -1,7 +1,7 @@
 {
   "reportVersion": 1,
   "provider": "spacing",
-  "generatedAt": "2026-08-02T11:56:18.120Z",
+  "generatedAt": "2026-09-03T16:01:01.179Z",
   "scope": {
     "roots": [
       "src",
@@ -32,42 +32,42 @@
       "/design-system\\/stories\\/[^/]+\\.stories\\.tsx$/",
       "/src\\/index\\.css$/"
     ],
-    "filesScanned": 442,
+    "filesScanned": 446,
     "errorTrackFiles": 113,
-    "warnTrackFiles": 329,
+    "warnTrackFiles": 333,
     "parseErrors": 0
   },
   "totals": {
-    "detected": 5389,
-    "preferred": 2850,
-    "compactAllowed": 1505,
-    "violations": 1004,
+    "detected": 5446,
+    "preferred": 2881,
+    "compactAllowed": 1519,
+    "violations": 1016,
     "exceptions": 30,
     "needsDecision": 0,
     "unclassified": 0,
-    "classifiable": 5389,
-    "compliant": 4385,
+    "classifiable": 5446,
+    "compliant": 4430,
     "byTrack": {
       "error": 594,
-      "warn": 4795
+      "warn": 4852
     },
     "violationsByTrack": {
       "error": 0,
-      "warn": 1004
+      "warn": 1016
     },
     "compactByTrack": {
       "error": 137,
-      "warn": 1368
+      "warn": 1382
     }
   },
   "scores": {
-    "valueCompliance": 0.8137,
-    "scaleAdoption": 0.9872,
+    "valueCompliance": 0.8134,
+    "scaleAdoption": 0.9873,
     "cssVarAdoption": 0,
-    "health": 0.8657
+    "health": 0.8656
   },
   "confidence": {
-    "value": 0.9632,
+    "value": 0.9636,
     "classifiableRatio": 1,
     "unclassified": 0,
     "exceptions": 30,
@@ -75,25 +75,25 @@
     "note": "Confidence = moyenne pondérée de la fiabilité par item (high=1, medium=0.6, low=0.3). Baisse avec les usages non classifiables (dynamiques, %, calc), les positionnements ambigus (top/inset) et les marges négatives."
   },
   "compactBreakdown": {
-    "total": 1505,
+    "total": 1519,
     "byValue": {
-      "4px": 512,
-      "12px": 755,
+      "4px": 516,
+      "12px": 765,
       "20px": 222,
       "-4px": 16
     }
   },
   "distribution": {
     "byTier": {
-      "preferred": 2850,
-      "violation": 1004,
-      "compact-allowed": 1505,
+      "preferred": 2881,
+      "violation": 1016,
+      "compact-allowed": 1519,
       "exception": 30
     },
     "byValue": {
       "10px": 143,
-      "2px": 323,
-      "6px": 455,
+      "2px": 326,
+      "6px": 464,
       "-6px": 3,
       "-2px": 10,
       "14px": 22,
@@ -107,7 +107,7 @@
     },
     "bySystem": {
       "raw-css": 2,
-      "scale-utility": 5320,
+      "scale-utility": 5377,
       "inline": 31,
       "arbitrary": 36
     }
@@ -115,19 +115,19 @@
   "byProperty": [
     {
       "property": "margin-top",
-      "total": 786,
-      "violations": 235,
-      "compactAllowed": 249
+      "total": 792,
+      "violations": 238,
+      "compactAllowed": 252
     },
     {
       "property": "gap",
-      "total": 1423,
-      "violations": 199,
-      "compactAllowed": 435
+      "total": 1447,
+      "violations": 205,
+      "compactAllowed": 443
     },
     {
       "property": "padding-block",
-      "total": 491,
+      "total": 492,
       "violations": 185,
       "compactAllowed": 72
     },
@@ -139,21 +139,21 @@
     },
     {
       "property": "row-gap",
-      "total": 333,
-      "violations": 98,
-      "compactAllowed": 100
+      "total": 344,
+      "violations": 100,
+      "compactAllowed": 102
     },
     {
       "property": "margin-right",
-      "total": 94,
+      "total": 100,
       "violations": 44,
       "compactAllowed": 26
     },
     {
       "property": "padding",
-      "total": 634,
+      "total": 642,
       "violations": 41,
-      "compactAllowed": 243
+      "compactAllowed": 244
     },
     {
       "property": "margin-bottom",
@@ -162,16 +162,16 @@
       "compactAllowed": 135
     },
     {
+      "property": "margin-left",
+      "total": 40,
+      "violations": 10,
+      "compactAllowed": 10
+    },
+    {
       "property": "right",
       "total": 77,
       "violations": 10,
       "compactAllowed": 13
-    },
-    {
-      "property": "margin-left",
-      "total": 39,
-      "violations": 9,
-      "compactAllowed": 10
     },
     {
       "property": "top",
@@ -268,7 +268,7 @@
     {
       "file": "src/pages/ContentQueuePage.tsx",
       "violations": 41,
-      "compactAllowed": 38,
+      "compactAllowed": 39,
       "track": "warn"
     },
     {
@@ -353,11 +353,11 @@
   "topValues": [
     {
       "value": "6px",
-      "count": 455
+      "count": 464
     },
     {
       "value": "2px",
-      "count": 323
+      "count": 326
     },
     {
       "value": "10px",
@@ -393,8 +393,8 @@
     }
   ],
   "recommendations": [
-    "1004 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
-    "1505 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
+    "1016 violations hors échelle à migrer — cible PREFERRED (pas compact-allowed) : 6px/2px/10px surtout.",
+    "1519 usages compact-allowed (4/12/20) : conformes mais SECONDAIRES. Surveiller toute hausse (ne pas remplacer violation → compact par défaut).",
     "Scale adoption élevée mais cssVarAdoption ≈0 : le spacing passe par l'échelle Tailwind, pas par var(--space-*). Model A (fin P6) : aligner Tailwind sur les tokens."
   ]
 }
