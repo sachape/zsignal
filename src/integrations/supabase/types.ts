@@ -3238,6 +3238,7 @@ export type Database = {
       voice_clip_settings: {
         Row: {
           companion_last_seen_at: string | null
+          companion_listening: boolean
           companion_microphone_available: boolean
           companion_platform: string | null
           companion_token: string
@@ -3260,6 +3261,7 @@ export type Database = {
         }
         Insert: {
           companion_last_seen_at?: string | null
+          companion_listening?: boolean
           companion_microphone_available?: boolean
           companion_platform?: string | null
           companion_token?: string
@@ -3282,6 +3284,7 @@ export type Database = {
         }
         Update: {
           companion_last_seen_at?: string | null
+          companion_listening?: boolean
           companion_microphone_available?: boolean
           companion_platform?: string | null
           companion_token?: string

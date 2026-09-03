@@ -16,6 +16,10 @@ export interface VoiceClipSettings {
   companion_token: string;
   companion_last_seen_at: string | null;
   companion_version: string | null;
+  companion_listening: boolean;
+  test_mode_until: string | null;
+  last_test_detected_at: string | null;
+  last_test_keyword: string | null;
 }
 
 export type VoiceClipEventStatus =
@@ -46,6 +50,17 @@ export const COMPANION_OFFLINE_AFTER_MS = 90_000;
 export function isCompanionOnline(lastSeenAt: string | null): boolean {
   if (!lastSeenAt) return false;
   return Date.now() - new Date(lastSeenAt).getTime() < COMPANION_OFFLINE_AFTER_MS;
+}
+
+/**
+ * A running Companion is not a listening Companion: capture can be paused or
+ * the microphone can be gone. Both must be true before we call it ready.
+ */
+export function isCompanionListening(
+  lastSeenAt: string | null,
+  listening: boolean | null | undefined,
+): boolean {
+  return isCompanionOnline(lastSeenAt) && Boolean(listening);
 }
 
 /** User-facing French labels. Raw error codes are never displayed. */

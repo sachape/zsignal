@@ -137,6 +137,7 @@ window.companion.onToggleListening(() => (listening ? void stopListening() : voi
 el("pair").addEventListener("click", async () => {
   const result = await window.companion.pair(el("token").value);
   appendLog(result.ok ? "Companion appairé." : result.error);
+  if (result.ok && !listening) await startListening();
 });
 
 el("toggle").addEventListener("click", () => (listening ? void stopListening() : void startListening()));
@@ -161,5 +162,9 @@ navigator.mediaDevices.addEventListener("devicechange", () => void listDevices()
     window.companion.microphoneUnavailable(error.name || "unknown");
   }
   await listDevices();
-  render(await window.companion.getState());
+  const initialState = await window.companion.getState();
+  render(initialState);
+  // A paired Companion must listen on its own: launching it (including at
+  // login, hidden in the tray) is what the streamer considers "ready".
+  if (initialState.paired && !listening) await startListening();
 })();

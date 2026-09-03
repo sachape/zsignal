@@ -23,7 +23,8 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { analytics } from "@/services/analytics";
 import { useTwitchConnection } from "@/hooks/useTwitchConnection";
 import {
-  useVoiceClip, useTwitchClipScope, isCompanionOnline, VOICE_CLIP_ERROR_LABELS,
+  useVoiceClip, useTwitchClipScope, isCompanionOnline, isCompanionListening,
+  VOICE_CLIP_ERROR_LABELS,
   type VoiceClipEvent,
 } from "@/hooks/useVoiceClip";
 import { matchesKeyword } from "@/lib/voiceKeyword";
@@ -116,10 +117,16 @@ const VoiceClipPage = () => {
   const [testError, setTestError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const [reauthPending, setReauthPending] = useState(false);
+  const [companionTestArmedAt, setCompanionTestArmedAt] = useState<number | null>(null);
+  const [companionTestDetected, setCompanionTestDetected] = useState(false);
 
   const twitchConnected = accounts.length > 0;
   const keyword = settings?.keyword ?? "clip";
   const companionOnline = isCompanionOnline(settings?.companion_last_seen_at ?? null);
+  const companionListening = isCompanionListening(
+    settings?.companion_last_seen_at ?? null,
+    settings?.companion_listening,
+  );
   const enabled = settings?.enabled ?? false;
 
   useEffect(() => {
@@ -206,6 +213,47 @@ const VoiceClipPage = () => {
     recognition.start();
   }, [keywordDraft]);
 
+  /**
+   * Real-setup test: arms a short window server-side, the Companion detects the
+   * keyword on the streaming microphone and reports it. No clip is created.
+   */
+  const startCompanionTest = useCallback(async () => {
+    if (!companionOnline) {
+      toast.error("Lance d'abord le Companion sur ton PC de stream.");
+      return;
+    }
+    setCompanionTestDetected(false);
+    setTestError(null);
+    setCompanionTestArmedAt(Date.now());
+    await updateSettings({
+      test_mode_until: new Date(Date.now() + 120_000).toISOString(),
+      last_test_detected_at: null,
+    });
+    analytics.track("voice_clip_companion_test_started", { keyword: keywordDraft });
+    toast.success("Test armé : prononce ton mot-clé dans ton micro de stream.");
+  }, [companionOnline, keywordDraft, updateSettings]);
+
+  // Poll while the Companion test window is open.
+  useEffect(() => {
+    if (companionTestArmedAt === null) return;
+    if (Date.now() - companionTestArmedAt > 130_000) {
+      setCompanionTestArmedAt(null);
+      setTestError("Aucune commande reçue du Companion. Vérifie qu'il écoute bien ton micro.");
+      return;
+    }
+    const detectedAt = settings?.last_test_detected_at
+      ? new Date(settings.last_test_detected_at).getTime()
+      : 0;
+    if (detectedAt >= companionTestArmedAt - 5_000) {
+      setCompanionTestArmedAt(null);
+      setCompanionTestDetected(true);
+      analytics.track("voice_clip_companion_test_result", { matched: true });
+      return;
+    }
+    const id = window.setTimeout(() => void reload(), 3_000);
+    return () => window.clearTimeout(id);
+  }, [companionTestArmedAt, reload, settings?.last_test_detected_at]);
+
   const startTwitchReauth = useCallback(async () => {
     setReauthPending(true);
     analytics.track("voice_clip_scope_reauth_started");
@@ -243,9 +291,13 @@ const VoiceClipPage = () => {
           title="Voice Clip"
           description="Crée tes clips sans interrompre ton live : prononce ton mot-clé, Streamnco s'occupe du reste."
           action={
-            enabled ? (
+            enabled && companionListening ? (
               <Badge className="gap-1.5 bg-primary/15 text-primary hover:bg-primary/15">
-                <Radio className="h-3.5 w-3.5" /> Actif
+                <Radio className="h-3.5 w-3.5" /> À l'écoute
+              </Badge>
+            ) : enabled ? (
+              <Badge variant="outline" className="gap-1.5">
+                <MicOff className="h-3.5 w-3.5" /> Écoute en pause
               </Badge>
             ) : (
               <Badge variant="outline" className="gap-1.5">
@@ -271,8 +323,10 @@ const VoiceClipPage = () => {
                   <div>
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">Companion</p>
                     <p className="mt-1 flex items-center gap-2 text-lg font-semibold text-foreground">
-                      {companionOnline ? (
-                        <><Wifi className="h-4 w-4 text-primary" /> Connecté</>
+                      {companionListening ? (
+                        <><Wifi className="h-4 w-4 text-primary" /> À l'écoute</>
+                      ) : companionOnline ? (
+                        <><MicOff className="h-4 w-4 text-muted-foreground" /> Écoute en pause</>
                       ) : (
                         <><WifiOff className="h-4 w-4 text-muted-foreground" /> Déconnecté</>
                       )}
@@ -284,6 +338,16 @@ const VoiceClipPage = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {enabled && companionOnline && !companionListening && (
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-4 text-sm">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  Le Companion tourne mais n'écoute pas ton micro. Ouvre-le et lance l'écoute
+                  (« Démarrer l'écoute ») : sans capture audio, aucun mot-clé ne sera détecté.
+                </p>
+              </div>
             )}
 
             {enabled && !companionOnline && (
@@ -335,17 +399,21 @@ const VoiceClipPage = () => {
                 index={2}
                 title="Installer le Streamnco Live Companion"
                 description="Petite app locale qui écoute ton micro sur ton PC. Aucun flux audio n'est envoyé à Streamnco — seule la détection du mot-clé l'est."
-                done={companionOnline}
+                done={companionListening}
               >
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={openPairing}>
-                    <Download className="mr-2 h-4 w-4" /> Installer et appairer
+                    <Download className="mr-2 h-4 w-4" /> Obtenir et appairer le Companion
                   </Button>
-                  {companionOnline && (
+                  {companionListening ? (
                     <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Wifi className="h-4 w-4 text-primary" /> Companion connecté
+                      <Wifi className="h-4 w-4 text-primary" /> Companion à l'écoute
                     </span>
-                  )}
+                  ) : companionOnline ? (
+                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <MicOff className="h-4 w-4" /> Companion connecté, écoute en pause
+                    </span>
+                  ) : null}
                 </div>
               </StepCard>
 
@@ -386,9 +454,32 @@ const VoiceClipPage = () => {
               <StepCard
                 index={4}
                 title="Tester ton micro"
-                description="Ce test ne crée aucun clip : il vérifie seulement que ton mot-clé est bien entendu."
-                done={testMatched}
+                description="Ce test ne crée aucun clip : le Companion écoute ton micro de stream et confirme qu'il entend ton mot-clé."
+                done={companionTestDetected}
               >
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    size="sm"
+                    onClick={() => void startCompanionTest()}
+                    disabled={companionTestArmedAt !== null}
+                  >
+                    {companionTestArmedAt !== null ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> En attente du Companion…</>
+                    ) : (
+                      <><Mic className="mr-2 h-4 w-4" /> Tester avec le Companion</>
+                    )}
+                  </Button>
+                  {companionTestDetected && (
+                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      Mot-clé entendu par ton micro de stream.
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Ce test passe par le Companion et ton vrai micro de stream. Le test navigateur
+                  ci-dessous ne vérifie que la prononciation, pas ton installation.
+                </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <Button size="sm" variant="outline" onClick={startTest} disabled={testing}>
                     {testing ? (
@@ -535,10 +626,18 @@ const VoiceClipPage = () => {
                   </Button>
                 </div>
               </div>
+              <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                Le Companion (Windows et macOS) est en accès anticipé : demande ton lien
+                d'installation à l'équipe Streamnco depuis{" "}
+                <Link to="/help" className="underline underline-offset-4">
+                  la page d'aide
+                </Link>
+                . Garde ce code sous la main pour l'appairage.
+              </div>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>1. Installe le Companion (Windows ou macOS) sur ton PC de stream.</li>
+                <li>1. Installe le Companion reçu sur ton PC de stream.</li>
                 <li>2. Lance-le et colle le code d'appairage.</li>
-                <li>3. Choisis ton micro : la détection reste 100 % locale.</li>
+                <li>3. Choisis ton micro : l'écoute démarre automatiquement, la détection reste 100 % locale.</li>
               </ul>
               <p className="text-xs text-muted-foreground">
                 Le Companion n'envoie jamais ton audio : seule une commande détectée est transmise.
